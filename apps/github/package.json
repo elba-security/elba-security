@@ -6,12 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "vitest",
     "lint": "next lint"
   },
   "dependencies": {
+    "@t3-oss/env-nextjs": "^0.7.1",
     "next": "^13.4.19",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^13.4.19",
@@ -19,7 +22,9 @@
     "@types/react": "^18.0.22",
     "@types/react-dom": "^18.0.7",
     "eslint-config-custom": "*",
+    "msw": "^2.0.1",
     "tsconfig": "*",
-    "typescript": "^4.5.3"
+    "typescript": "^4.5.3",
+    "vitest": "^0.34.6"
   }
 }
