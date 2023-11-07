@@ -1,0 +1,260 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "id": "891c40ca-0e18-4b5f-9f1e-e86b20465711",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "installation": {
+      "name": "installation",
+      "schema": "github",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "elba_organisation_id": {
+          "name": "elba_organisation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "account_login": {
+          "name": "account_login",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "update_at": {
+          "name": "update_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "organisation_id_idx": {
+          "name": "organisation_id_idx",
+          "columns": [
+            "account_id"
+          ],
+          "isUnique": false
+        },
+        "elba_organization_id_idx": {
+          "name": "elba_organization_id_idx",
+          "columns": [
+            "elba_organisation_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "installation_elba_organisation_id_unique": {
+          "name": "installation_elba_organisation_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "elba_organisation_id"
+          ]
+        },
+        "installation_account_id_unique": {
+          "name": "installation_account_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "account_id"
+          ]
+        }
+      }
+    },
+    "app_installation_admin": {
+      "name": "app_installation_admin",
+      "schema": "github",
+      "columns": {
+        "installation_id": {
+          "name": "installation_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "admin_id": {
+          "name": "admin_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_sync_at": {
+          "name": "last_sync_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "update_at": {
+          "name": "update_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "app_installation_admin_installation_id_installation_id_fk": {
+          "name": "app_installation_admin_installation_id_installation_id_fk",
+          "tableFrom": "app_installation_admin",
+          "tableTo": "installation",
+          "columnsFrom": [
+            "installation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "app_installation_admin_installation_id_admin_id_unique": {
+          "name": "app_installation_admin_installation_id_admin_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "installation_id",
+            "admin_id"
+          ]
+        }
+      }
+    },
+    "sync_jobs": {
+      "name": "sync_jobs",
+      "schema": "github",
+      "columns": {
+        "installation_id": {
+          "name": "installation_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "sync_job_status",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'scheduled'"
+        },
+        "type": {
+          "name": "type",
+          "type": "sync_job_type",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "retry_count": {
+          "name": "retry_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "cursor": {
+          "name": "cursor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sync_started_at": {
+          "name": "sync_started_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sync_jobs_installation_id_installation_id_fk": {
+          "name": "sync_jobs_installation_id_installation_id_fk",
+          "tableFrom": "sync_jobs",
+          "tableTo": "installation",
+          "columnsFrom": [
+            "installation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "sync_jobs_installation_id_type_unique": {
+          "name": "sync_jobs_installation_id_type_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "installation_id",
+            "type"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {
+    "sync_job_status": {
+      "name": "sync_job_status",
+      "values": {
+        "scheduled": "scheduled",
+        "started": "started"
+      }
+    },
+    "sync_job_type": {
+      "name": "sync_job_type",
+      "values": {
+        "users": "users",
+        "apps": "apps"
+      }
+    }
+  },
+  "schemas": {
+    "github": "github"
+  },
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  }
+}
