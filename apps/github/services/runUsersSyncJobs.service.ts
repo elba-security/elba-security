@@ -1,8 +1,12 @@
+import { sql } from 'drizzle-orm';
 import { type SelectSyncJob } from '../database';
 import { env } from '../env';
 import { ElbaRepository } from '../repositories/elba/elba.repository';
 import { getPaginatedOrganizationMembers } from '../repositories/github/organization.repository';
-import { getInstallation } from '../repositories/integration/installation.repository';
+import {
+  getInstallation,
+  updateInstallation,
+} from '../repositories/integration/installation.repository';
 import {
   deleteInstallationAdminsSyncedBefore,
   insertInstallationAdmins,
@@ -60,6 +64,7 @@ const runUsersSyncJob = async (job: SelectSyncJob) => {
     elbaRepository.users.deleteUsers(syncStartedAt),
     deleteInstallationAdminsSyncedBefore(job.installationId, syncStartedAt),
     deleteSyncJob(job.installationId, 'users'),
+    updateInstallation(job.installationId, { usersLastSyncedAt: sql`now()` }),
   ]);
 };
 

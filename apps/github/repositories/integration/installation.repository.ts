@@ -1,5 +1,6 @@
 import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
-import { Installation, db } from '../../database';
+import { eq, sql } from 'drizzle-orm';
+import { Installation, SelectInstallation, db } from '../../database';
 
 export const insertInstallation = async (
   values: PgInsertValue<typeof Installation> & PgUpdateSetSource<typeof Installation>
@@ -22,6 +23,19 @@ export const insertInstallation = async (
   }
 
   return installation;
+};
+
+export const updateInstallation = async (
+  installationId: number,
+  values: Omit<PgUpdateSetSource<typeof Installation>, 'updatedAt'>
+) => {
+  return await db
+    .update(Installation)
+    .set({
+      ...values,
+      updatedAt: sql`now()`,
+    })
+    .where(eq(Installation.id, installationId));
 };
 
 export const getInstallation = async (installationId: number): Promise<SelectInstallation> => {

@@ -1,6 +1,6 @@
 import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
 import { SyncJob, type SyncJobType, db } from '../../database';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 export const updateSyncJob = async (
   installationId: number,
@@ -32,4 +32,3 @@ export const getStartedSyncJobs = async (type: SyncJobType) => {
     .from(SyncJob)
     .where(and(eq(SyncJob.status, 'started'), eq(SyncJob.type, type)));
 };
-
