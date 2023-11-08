@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "891c40ca-0e18-4b5f-9f1e-e86b20465711",
+  "id": "54cdeb16-8125-4e02-9a22-82f64648cd3e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "installation": {
@@ -45,6 +45,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "users_last_synced_at": {
+          "name": "users_last_synced_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "thrid_party_apps_last_synced_at": {
+          "name": "thrid_party_apps_last_synced_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -82,8 +94,8 @@
         }
       }
     },
-    "app_installation_admin": {
-      "name": "app_installation_admin",
+    "installation_admin": {
+      "name": "installation_admin",
       "schema": "github",
       "columns": {
         "installation_id": {
@@ -121,9 +133,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "app_installation_admin_installation_id_installation_id_fk": {
-          "name": "app_installation_admin_installation_id_installation_id_fk",
-          "tableFrom": "app_installation_admin",
+        "installation_admin_installation_id_installation_id_fk": {
+          "name": "installation_admin_installation_id_installation_id_fk",
+          "tableFrom": "installation_admin",
           "tableTo": "installation",
           "columnsFrom": [
             "installation_id"
@@ -137,8 +149,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "app_installation_admin_installation_id_admin_id_unique": {
-          "name": "app_installation_admin_installation_id_admin_id_unique",
+        "installation_admin_installation_id_admin_id_unique": {
+          "name": "installation_admin_installation_id_admin_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "installation_id",
@@ -245,7 +257,7 @@
       "name": "sync_job_type",
       "values": {
         "users": "users",
-        "apps": "apps"
+        "third_party_apps": "third_party_apps"
       }
     }
   },

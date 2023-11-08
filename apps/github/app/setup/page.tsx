@@ -21,8 +21,7 @@ export default async function SetupPage({ searchParams }: SetupPageProps) {
 
   try {
     await registerInstallation(installationId, organisationId);
-    // TODO: redirect to sync users page
-    return <span>it's synced</span>;
+    return <span>Elba github app installed !</span>;
   } catch (error) {
     return <span>Could not install github app</span>;
   }

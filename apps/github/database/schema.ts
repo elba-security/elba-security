@@ -22,6 +22,8 @@ export const Installation = GithubSchema.table(
     accountLogin: text('account_login').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('update_at').defaultNow().notNull(),
+    usersLastSyncedAt: timestamp('users_last_synced_at'),
+    thirdPartyAppsLastSyncedAt: timestamp('thrid_party_apps_last_synced_at'),
   },
   (appInstallations) => ({
     organizationIdIdx: index('organisation_id_idx').on(appInstallations.accountId),
@@ -34,7 +36,7 @@ export const Installation = GithubSchema.table(
 export type SelectInstallation = InferSelectModel<typeof Installation>;
 
 export const InstallationAdmin = GithubSchema.table(
-  'app_installation_admin',
+  'installation_admin',
   {
     installationId: integer('installation_id')
       .references(() => Installation.id)
@@ -51,7 +53,7 @@ export const InstallationAdmin = GithubSchema.table(
 
 export const SyncJobStatusEnum = pgEnum('sync_job_status', ['scheduled', 'started']);
 
-export const SyncJobTypeEnumValues = ['users', 'apps'] as const;
+export const SyncJobTypeEnumValues = ['users', 'third_party_apps'] as const;
 export const SyncJobTypeEnum = pgEnum('sync_job_type', SyncJobTypeEnumValues);
 
 export type SyncJobType = (typeof SyncJobTypeEnumValues)[number];
