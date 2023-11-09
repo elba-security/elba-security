@@ -6,7 +6,7 @@ The following is a set of guidelines for contributing to **elba-security** and i
 
 ### Project Architecture
 
-This project is a monorepo that use [turborepo](https://turbo.build/repo).
+This project is a monorepo that uses [Turborepo](https://turbo.build/repo).
 Each SaaS integration has its own nextjs app located in `/apps/{SaaS}`. The folder `/packages` contains shared tools and configuration.
 
 ### Important Resources
