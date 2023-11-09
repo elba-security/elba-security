@@ -3,7 +3,7 @@ import {
   RequestHandlerDefaultInfo,
   RequestHandlerOptions,
 } from 'msw/lib/core/handlers/RequestHandler';
-import { env } from '../env';
+import { env } from '../../g2/src/common/env';
 import { z } from 'zod';
 
 const updateUsersSchema = z.object({
