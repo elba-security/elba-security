@@ -12,5 +12,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: '/api/cron/:path*',
+  matcher: '/api/:path/cron/:path*',
 };

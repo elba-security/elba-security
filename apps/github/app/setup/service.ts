@@ -1,8 +1,8 @@
-import { getInstallation } from '../repositories/github/installation.repository';
-import { insertInstallation } from '../repositories/integration/installation.repository';
-import { insertSyncJob } from '../repositories/integration/syncJob.repository';
+import { getInstallation } from 'repositories/github/installation.repository';
+import { insertInstallation } from 'repositories/integration/installation.repository';
+import { insertSyncJob } from 'repositories/integration/syncJob.repository';
 
-export const registerInstallation = async (installationId: number, elbaOrganizationId: string) => {
+export const setupInstallation = async (installationId: number, elbaOrganizationId: string) => {
   const installation = await getInstallation(installationId);
 
   if (installation.account.type !== 'Organization') {

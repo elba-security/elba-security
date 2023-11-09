@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { runUsersSyncJobs } from '../../../../services/runUsersSyncJobs.service';
+import { runUsersSyncJobs } from './service';
 
 export async function GET() {
   const result = await runUsersSyncJobs();

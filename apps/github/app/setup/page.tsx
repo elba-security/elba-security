@@ -1,6 +1,5 @@
-'use server';
 import { cookies } from 'next/headers';
-import { registerInstallation } from '../../services/registerInstallation.service';
+import { setupInstallation } from './service';
 
 type SetupPageProps = {
   searchParams?: { [key: string]: string | string[] | undefined };
@@ -20,7 +19,7 @@ export default async function SetupPage({ searchParams }: SetupPageProps) {
   }
 
   try {
-    await registerInstallation(installationId, organisationId);
+    await setupInstallation(installationId, organisationId);
     return <span>Elba github app installed !</span>;
   } catch (error) {
     return <span>Could not install github app</span>;

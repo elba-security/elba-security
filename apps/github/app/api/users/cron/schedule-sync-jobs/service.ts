@@ -1,6 +1,6 @@
-import { SyncJobType } from '../database';
-import { getSchedulableInstallationIds } from '../repositories/integration/installation.repository';
-import { insertSyncJobs } from '../repositories/integration/syncJob.repository';
+import { SyncJobType } from 'database';
+import { getSchedulableInstallationIds } from 'repositories/integration/installation.repository';
+import { insertSyncJobs } from 'repositories/integration/syncJob.repository';
 
 export const scheduleSyncJobs = async (type: SyncJobType) => {
   const installationIds = await getSchedulableInstallationIds(type);

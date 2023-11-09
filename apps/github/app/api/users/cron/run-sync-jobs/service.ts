@@ -1,23 +1,23 @@
 import { sql } from 'drizzle-orm';
-import { type SelectSyncJob } from '../database';
-import { env } from '../env';
-import { ElbaRepository } from '../repositories/elba/elba.repository';
-import { getPaginatedOrganizationMembers } from '../repositories/github/organization.repository';
+import { type SelectSyncJob } from 'database';
+import { env } from 'env';
+import { ElbaRepository } from 'repositories/elba/elba.repository';
+import { getPaginatedOrganizationMembers } from 'repositories/github/organization.repository';
 import {
   getInstallation,
   updateInstallation,
-} from '../repositories/integration/installation.repository';
+} from 'repositories/integration/installation.repository';
 import {
   deleteInstallationAdminsSyncedBefore,
   insertInstallationAdmins,
-} from '../repositories/integration/installationAdmin.repository';
+} from 'repositories/integration/installationAdmin.repository';
 import {
   deleteSyncJob,
   getStartedSyncJobs,
   updateSyncJob,
-} from '../repositories/integration/syncJob.repository';
-import { formatElbaUser } from './common/formatElbaUser';
-import { runSyncJobs } from './common/runSyncJobs';
+} from 'repositories/integration/syncJob.repository';
+import { formatElbaUser } from 'common/formatElbaUser';
+import { runSyncJobs } from 'common/runSyncJobs';
 
 const runUsersSyncJob = async (job: SelectSyncJob) => {
   const syncStartedAt = job.syncStartedAt ?? new Date();

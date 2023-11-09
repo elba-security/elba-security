@@ -1,5 +1,5 @@
-import { User } from '../../repositories/elba/resources/users/types';
-import type { OrganizationMember } from '../../repositories/github/organization.repository';
+import { User } from 'repositories/elba/resources/users/types';
+import type { OrganizationMember } from 'repositories/github/organization.repository';
 
 export const formatElbaUser = (member: OrganizationMember): User => ({
   id: String(member.id),

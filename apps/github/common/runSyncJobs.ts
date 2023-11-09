@@ -1,5 +1,5 @@
-import { SelectSyncJob } from '../../database';
-import { deleteSyncJob, updateSyncJob } from '../../repositories/integration/syncJob.repository';
+import { SelectSyncJob } from 'database';
+import { deleteSyncJob, updateSyncJob } from 'repositories/integration/syncJob.repository';
 
 export type SyncJobRunner<T> = (job: SelectSyncJob) => Promise<T>;
 
