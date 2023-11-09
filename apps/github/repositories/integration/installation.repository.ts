@@ -1,6 +1,7 @@
 import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
-import { eq, sql } from 'drizzle-orm';
-import { Installation, SelectInstallation, db } from '../../database';
+import { eq, sql, lte, Column, asc } from 'drizzle-orm';
+import { type SelectInstallation, Installation, db, SyncJobType } from '../../database';
+import { env } from '../../env';
 
 export const insertInstallation = async (
   values: PgInsertValue<typeof Installation> & PgUpdateSetSource<typeof Installation>
@@ -49,4 +50,28 @@ export const getInstallation = async (installationId: number): Promise<SelectIns
   }
 
   return installation;
+};
+
+const lastSyncedAtColumnType: Record<SyncJobType, Column> = {
+  users: Installation.usersLastSyncedAt,
+  third_party_apps: Installation.thirdPartyAppsLastSyncedAt,
+};
+
+const syncJobFrequencyType: Record<SyncJobType, number> = {
+  users: env.USERS_SYNC_FREQUENCY,
+  third_party_apps: env.THIRD_PARTY_APPS_SYNC_FREQUENCY,
+};
+
+export const getSchedulableInstallationIds = async (type: SyncJobType) => {
+  const lastSyncedAtColumn = lastSyncedAtColumnType[type];
+  const syncJobFrequency = syncJobFrequencyType[type];
+
+  const installations = await db
+    .select({
+      id: Installation.id,
+    })
+    .from(Installation)
+    .where(lte(lastSyncedAtColumn, sql`now() - INTERVAL '1 second' * ${syncJobFrequency}`));
+
+  return installations.map(({ id }) => id);
 };

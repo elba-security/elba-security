@@ -18,8 +18,12 @@ export default defineConfig({
       POSTGRES_USERNAME: 'postgres-username',
       POSTGRES_PASSWORD: 'postgres-password',
       POSTGRES_DATABASE: 'postgres-database',
+      MAX_CONCURRENT_USERS_SYNC_JOBS: '5',
+      MAX_CONCURRENT_THIRD_PARTY_APPS_SYNC_JOBS: '5',
+      USERS_SYNC_FREQUENCY: '3600',
       USERS_SYNC_BATCH_SIZE: '5',
       USERS_SYNC_MAX_RETRY: '3',
+      THIRD_PARTY_APPS_SYNC_FREQUENCY: '3600',
     },
   },
 });
