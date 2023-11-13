@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 export function middleware(req: NextRequest) {
+  // eslint-disable-next-line turbo/no-undeclared-env-vars -- TODO: retrieve env variable securely
   if (req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
     return new NextResponse('Invalid secret', {
       status: 401,
