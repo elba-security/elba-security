@@ -40,6 +40,6 @@ module.exports = {
     'import/no-default-export': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
-    'unicorn/filename-case': ['error', { case: 'kebabCase', ignore: ['.*\\.tsx$'] }],
+    'unicorn/filename-case': ['error', { case: 'kebabCase', ignore: ['\\.tsx$'] }],
   },
 };
