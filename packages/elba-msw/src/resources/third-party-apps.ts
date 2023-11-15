@@ -28,7 +28,7 @@ const updateThirdPartyAppsSchema = z.object({
 const deleteThirdPartyAppsSchema = z.object({
   organisationId: z.string().uuid(),
   sourceId: z.string().uuid(),
-  ids: z.array(z.string()).optional(),
+  ids: z.array(z.object({ userId: z.string(), appId: z.string() })).optional(),
   syncedBefore: z.string().datetime().optional(),
 });
 
