@@ -1,4 +1,4 @@
-import type { RequestSender } from '../RequestSender';
+import type { RequestSender } from '../request-sender';
 
 export abstract class ElbaResource {
   protected readonly requestSender: RequestSender;

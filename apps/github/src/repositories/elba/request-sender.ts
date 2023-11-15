@@ -1,4 +1,4 @@
-import { ElbaError } from './Error';
+import { ElbaError } from './error';
 
 export type RequestSenderOptions = {
   baseUrl: string;
@@ -50,7 +50,7 @@ export class RequestSender {
       }
 
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       throw new ElbaError('An unexpected error occured', { path, method, cause: error });
     }
   }

@@ -31,6 +31,7 @@ export const env = createEnv({
   runtimeEnv: {
     ...process.env,
     // client env need to be specified explicitly
+    // eslint-disable-next-line turbo/no-undeclared-env-vars -- ??
     NEXT_PUBLIC_ELBA_GITHUB_INSTALL_URL: process.env.NEXT_PUBLIC_ELBA_GITHUB_INSTALL_URL,
   },
 });

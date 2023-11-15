@@ -1,4 +1,4 @@
-import { ElbaResource } from '../ElbaResource';
+import { ElbaResource } from '../elba-resource';
 import type { ThirdPartyAppsObject } from './types';
 
 export class ThirdPartyApps extends ElbaResource {

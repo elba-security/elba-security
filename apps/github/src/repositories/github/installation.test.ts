@@ -1,7 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
-import { getInstallation } from './installation.repository';
-import * as client from './client';
 import { ZodError } from 'zod';
+import { getInstallation } from './installation';
+import * as client from './client';
 
 const installationId = 123456;
 

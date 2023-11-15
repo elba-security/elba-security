@@ -1,6 +1,6 @@
 import { expect, test, describe, vi } from 'vitest';
 import * as client from './client';
-import { getPaginatedOrganizationMembers } from './organization.repository';
+import { getPaginatedOrganizationMembers } from './organization';
 
 const installationId = 123456;
 const login = 'some-login';

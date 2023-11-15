@@ -1,13 +1,4 @@
-import {
-  uuid,
-  integer,
-  pgEnum,
-  text,
-  index,
-  timestamp,
-  pgSchema,
-  unique,
-} from 'drizzle-orm/pg-core';
+import { uuid, integer, text, index, timestamp, pgSchema, unique } from 'drizzle-orm/pg-core';
 import { type InferSelectModel } from 'drizzle-orm';
 
 export const GithubSchema = pgSchema('github');
@@ -22,8 +13,6 @@ export const Installation = GithubSchema.table(
     accountLogin: text('account_login').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('update_at').defaultNow().notNull(),
-    usersLastSyncedAt: timestamp('users_last_synced_at'),
-    thirdPartyAppsLastSyncedAt: timestamp('thrid_party_apps_last_synced_at'),
   },
   (appInstallations) => ({
     organizationIdIdx: index('organisation_id_idx').on(appInstallations.accountId),
@@ -51,30 +40,18 @@ export const InstallationAdmin = GithubSchema.table(
   })
 );
 
-export const SyncJobStatusEnum = pgEnum('sync_job_status', ['scheduled', 'started']);
+export const UsersSyncJob = GithubSchema.table('users_sync_jobs', {
+  installationId: integer('installation_id')
+    .references(() => Installation.id)
+    .unique()
+    .notNull(),
+  priority: integer('priority').notNull(),
+  cursor: text('cursor'),
+  syncStartedAt: timestamp('sync_started_at').defaultNow().notNull(),
+  retryCount: integer('retry_count').default(0).notNull(),
+  retryAfter: timestamp('retry_after'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
 
-export const SyncJobTypeEnumValues = ['users', 'third_party_apps'] as const;
-export const SyncJobTypeEnum = pgEnum('sync_job_type', SyncJobTypeEnumValues);
-
-export type SyncJobType = (typeof SyncJobTypeEnumValues)[number];
-
-export const SyncJob = GithubSchema.table(
-  'sync_jobs',
-  {
-    installationId: integer('installation_id')
-      .references(() => Installation.id)
-      .notNull(),
-    status: SyncJobStatusEnum('status').default('scheduled').notNull(),
-    type: SyncJobTypeEnum('type').notNull(),
-    retryCount: integer('retry_count').default(0).notNull(),
-    cursor: text('cursor'),
-    syncStartedAt: timestamp('sync_started_at'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (t) => ({
-    unq: unique().on(t.installationId, t.type),
-  })
-);
-
-export type SelectSyncJob = InferSelectModel<typeof SyncJob>;
+export type SelectUsersSyncJob = InferSelectModel<typeof UsersSyncJob>;

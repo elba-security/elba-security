@@ -1,17 +1,16 @@
-import { getSchedulableInstallationIds } from '@/repositories/integration/installation.repository';
-import { insertSyncJobs } from '@/repositories/integration/syncJob.repository';
+import { getSchedulableInstallationIds, insertUsersSyncJobs } from './data';
 
 export const scheduleUsersSyncJobs = async () => {
-  const installationIds = await getSchedulableInstallationIds('users');
+  const installationIds = await getSchedulableInstallationIds();
 
   if (installationIds.length === 0) {
     return { installationIds: [] };
   }
 
-  await insertSyncJobs(
+  await insertUsersSyncJobs(
     installationIds.map((installationId) => ({
       installationId,
-      type: 'users',
+      priority: 2,
     }))
   );
 

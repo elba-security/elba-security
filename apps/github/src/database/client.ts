@@ -1,6 +1,6 @@
-import { env } from '@/common/env';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
+import { env } from '@/common/env';
 
 const client = postgres({
   host: env.POSTGRES_HOST,

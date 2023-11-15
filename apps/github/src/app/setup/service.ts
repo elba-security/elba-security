@@ -1,6 +1,5 @@
-import { getInstallation } from '@/repositories/github/installation.repository';
-import { insertInstallation } from '@/repositories/integration/installation.repository';
-import { insertSyncJob } from '@/repositories/integration/syncJob.repository';
+import { getInstallation } from '@/repositories/github/installation';
+import { insertInstallation, insertUsersSyncJob } from './data';
 
 export const setupInstallation = async (installationId: number, elbaOrganizationId: string) => {
   const installation = await getInstallation(installationId);
@@ -20,10 +19,9 @@ export const setupInstallation = async (installationId: number, elbaOrganization
     elbaOrganizationId,
   });
 
-  await insertSyncJob({
+  await insertUsersSyncJob({
     installationId: installation.id,
-    status: 'started',
-    type: 'users',
+    priority: 1,
   });
 
   return appInstallation;

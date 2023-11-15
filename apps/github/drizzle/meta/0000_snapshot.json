@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "54cdeb16-8125-4e02-9a22-82f64648cd3e",
+  "id": "0d1dbf68-bb6c-4923-812e-11e263a59810",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "installation": {
@@ -45,18 +45,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "users_last_synced_at": {
-          "name": "users_last_synced_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "thrid_party_apps_last_synced_at": {
-          "name": "thrid_party_apps_last_synced_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -159,8 +147,8 @@
         }
       }
     },
-    "sync_jobs": {
-      "name": "sync_jobs",
+    "users_sync_jobs": {
+      "name": "users_sync_jobs",
       "schema": "github",
       "columns": {
         "installation_id": {
@@ -169,25 +157,11 @@
           "primaryKey": false,
           "notNull": true
         },
-        "status": {
-          "name": "status",
-          "type": "sync_job_status",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'scheduled'"
-        },
-        "type": {
-          "name": "type",
-          "type": "sync_job_type",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "retry_count": {
-          "name": "retry_count",
+        "priority": {
+          "name": "priority",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "default": 0
+          "notNull": true
         },
         "cursor": {
           "name": "cursor",
@@ -197,6 +171,20 @@
         },
         "sync_started_at": {
           "name": "sync_started_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "retry_count": {
+          "name": "retry_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "retry_after": {
+          "name": "retry_after",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
@@ -218,9 +206,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "sync_jobs_installation_id_installation_id_fk": {
-          "name": "sync_jobs_installation_id_installation_id_fk",
-          "tableFrom": "sync_jobs",
+        "users_sync_jobs_installation_id_installation_id_fk": {
+          "name": "users_sync_jobs_installation_id_installation_id_fk",
+          "tableFrom": "users_sync_jobs",
           "tableTo": "installation",
           "columnsFrom": [
             "installation_id"
@@ -234,33 +222,17 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "sync_jobs_installation_id_type_unique": {
-          "name": "sync_jobs_installation_id_type_unique",
+        "users_sync_jobs_installation_id_unique": {
+          "name": "users_sync_jobs_installation_id_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "installation_id",
-            "type"
+            "installation_id"
           ]
         }
       }
     }
   },
-  "enums": {
-    "sync_job_status": {
-      "name": "sync_job_status",
-      "values": {
-        "scheduled": "scheduled",
-        "started": "started"
-      }
-    },
-    "sync_job_type": {
-      "name": "sync_job_type",
-      "values": {
-        "users": "users",
-        "third_party_apps": "third_party_apps"
-      }
-    }
-  },
+  "enums": {},
   "schemas": {
     "github": "github"
   },

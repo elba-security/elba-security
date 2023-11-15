@@ -2,11 +2,11 @@ import { cookies } from 'next/headers';
 import { setupInstallation } from './service';
 
 type SetupPageProps = {
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams?: Record<string, string | string[] | undefined>;
 };
 
 export default async function SetupPage({ searchParams }: SetupPageProps) {
-  const rawInstallationId = searchParams?.['installation_id'];
+  const rawInstallationId = searchParams?.installation_id;
   const installationId = Number(rawInstallationId);
 
   if (Number.isNaN(installationId) || !rawInstallationId) {

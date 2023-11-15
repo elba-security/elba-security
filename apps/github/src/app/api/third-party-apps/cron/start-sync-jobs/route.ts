@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+export const runtime = 'edge';
+
+export function GET() {
   return new NextResponse(null, { status: 501, statusText: 'Not Implemented' });
 }

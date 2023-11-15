@@ -1,4 +1,4 @@
-import { ReactNode, Suspense } from 'react';
+import { type ReactNode, Suspense } from 'react';
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (

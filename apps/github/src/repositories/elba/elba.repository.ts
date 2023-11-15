@@ -1,7 +1,7 @@
 import { env } from '@/common/env';
-import { RequestSender } from './RequestSender';
-import { ThirdPartyApps } from './resources/third-party-apps/ThirdPartyApps';
-import { Users } from './resources/users/Users';
+import { RequestSender } from './request-sender';
+import { ThirdPartyApps } from './resources/third-party-apps/third-party-apps';
+import { Users } from './resources/users/users';
 
 export class ElbaRepository {
   readonly users: Users;

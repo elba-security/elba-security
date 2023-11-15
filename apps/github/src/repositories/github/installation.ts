@@ -1,5 +1,5 @@
+import { z } from 'zod';
 import { createOctokitApp } from './client';
-import z from 'zod';
 
 const InstallationSchema = z.object({
   id: z.number(),

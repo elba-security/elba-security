@@ -1,5 +1,5 @@
-import { env } from '@/common/env';
 import { z } from 'zod';
+import { env } from '@/common/env';
 import { createOctokitApp } from './client';
 
 const isNotNull = <T>(input: T | null): input is T => input !== null;
@@ -21,15 +21,17 @@ type GetOrganizationMembersQuery = {
     membersWithRole: {
       totalCount: number;
       pageInfo: { hasNextPage: boolean; endCursor: string | null };
-      edges: Array<{
-        role: string | null;
-        node: {
-          id: string;
-          login: string;
-          email: string;
-          name: string | null;
-        } | null;
-      } | null> | null;
+      edges:
+        | ({
+            role: string | null;
+            node: {
+              id: string;
+              login: string;
+              email: string;
+              name: string | null;
+            } | null;
+          } | null)[]
+        | null;
     };
   } | null;
 };
