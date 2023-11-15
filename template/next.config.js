@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  transpilePackages: ['elba-sdk'],
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
