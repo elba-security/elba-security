@@ -73,7 +73,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
           id: job.id,
         },
       });
-
       const options = {
         method: 'POST',
         url: 'http://localhost:3000/api/users/delete_source_users',
