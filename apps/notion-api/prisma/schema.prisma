@@ -1,0 +1,28 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Integration {
+  id                  Int      @id @default(autoincrement())
+  organization_id     String
+  notionToken         String
+  workspace_id        String
+  workspace_name      String
+  createdAt           DateTime @default(now())
+}
+
+model Users_Sync_Jobs {
+  id                  Int      @id @default(autoincrement())
+  priority            Int
+  integration_id      Int
+  pagination_token    String
+  sync_started_at     DateTime @default(now())
+}
