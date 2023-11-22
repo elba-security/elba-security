@@ -54,11 +54,10 @@ export async function POST (req: NextRequest, res: NextResponse) {
 
             await prisma.users_Sync_Jobs.create({
                 data: {
-                priority: 1,
-                organization_id: organization_id,
-                pagination_token: '',
-                sync_started_at: new Date(),
-                integration_id: integration.id
+                    priority: 1,
+                    pagination_token: '',
+                    sync_started_at: new Date(),
+                    integration_id: integration.id
                 },
             });
 
