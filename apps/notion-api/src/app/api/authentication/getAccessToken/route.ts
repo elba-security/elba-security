@@ -41,35 +41,35 @@ export async function POST (req: NextRequest, res: NextResponse) {
 
     if (response.status == 200) {
         try {
-        const {workspace_id, workspace_name, access_token} = data
-        
-        const integration = await prisma.integration.create({
-            data: {
-            organization_id,
-            workspace_id: workspace_id,
-            workspace_name: workspace_name,
-            notionToken: access_token,
-            },
-        });
+            const {workspace_id, workspace_name, access_token} = data
+            
+            const integration = await prisma.integration.create({
+                data: {
+                organization_id,
+                workspace_id: workspace_id,
+                workspace_name: workspace_name,
+                notionToken: access_token,
+                },
+            });
 
-        await prisma.users_Sync_Jobs.create({
-            data: {
-            priority: 1,
-            organization_id: organization_id,
-            pagination_token: '',
-            sync_started_at: new Date(),
-            integration_id: integration.id
-            },
-        });
+            await prisma.users_Sync_Jobs.create({
+                data: {
+                priority: 1,
+                organization_id: organization_id,
+                pagination_token: '',
+                sync_started_at: new Date(),
+                integration_id: integration.id
+                },
+            });
 
-        return NextResponse.json({
-            organization_id,
-            workspace_id: workspace_id,
-            workspace_name: workspace_name,
-            notionToken: access_token,
-        }, {
-            status: 200
-        });
+            return NextResponse.json({
+                organization_id,
+                workspace_id: workspace_id,
+                workspace_name: workspace_name,
+                notionToken: access_token,
+            }, {
+                status: 200
+            });
         } catch (error) {
             return new NextResponse(null, { status: 500, statusText: 'Internal Server Error' });
         } finally {
