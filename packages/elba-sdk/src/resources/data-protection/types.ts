@@ -3,20 +3,20 @@ export type DataProtectionObjectPermission = {
   metadata?: unknown;
   type: 'user' | 'domain' | 'anyone';
   email?: string;
-  user_id?: string;
+  userId?: string;
   domain?: string;
-  display_name?: string;
+  displayName?: string;
 };
 
 export type DataProtectionObject = {
   id: string;
   name: string;
-  last_accessed_at?: Date;
+  lastAccessedAt?: Date;
   url: string;
-  owner_id: string;
+  ownerId: string;
   metadata?: unknown;
-  content_hash?: string;
-  is_sensitive?: boolean;
+  contentHash?: string;
+  isSensitive?: boolean;
   permissions: DataProtectionObjectPermission[];
 };
 
