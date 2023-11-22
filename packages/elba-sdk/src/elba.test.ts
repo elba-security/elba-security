@@ -66,7 +66,7 @@ describe('third party apps', () => {
         })),
       }));
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
-      await expect(elba.thridPartyApps.updateObjects(objects)).resolves.toStrictEqual({
+      await expect(elba.thirdPartyApps.updateObjects(objects)).resolves.toStrictEqual({
         data: {
           processedApps: objects.length,
           processedUsers: 3,
@@ -79,7 +79,7 @@ describe('third party apps', () => {
     test('should call the right endpoint and return the response data when using syncedBefore', async () => {
       const syncedBefore = new Date();
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
-      await expect(elba.thridPartyApps.deleteObjects({ syncedBefore })).resolves.toStrictEqual({
+      await expect(elba.thirdPartyApps.deleteObjects({ syncedBefore })).resolves.toStrictEqual({
         success: true,
       });
     });
@@ -87,7 +87,7 @@ describe('third party apps', () => {
     test('should call the right endpoint and return the response data when using ids', async () => {
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
       await expect(
-        elba.thridPartyApps.deleteObjects({
+        elba.thirdPartyApps.deleteObjects({
           ids: Array.from({ length: 5 }, (_, i) => ({ appId: `app-${i}`, userId: `user-${i}` })),
         })
       ).resolves.toStrictEqual({
@@ -102,7 +102,8 @@ describe('authentication', () => {
     test('should call the right endpoint and return the response data', async () => {
       const objects: AuthenticationObject[] = Array.from({ length: 5 }, (_, i) => ({
         userId: `id-${i}`,
-        authMethod: (['mfa', 'password', 'sso'] as const)[i % 3],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- acceptable for test
+        authMethod: (['mfa', 'password', 'sso'] as const)[i % 3]!,
       }));
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
       await expect(elba.authentication.updateObjects(objects)).resolves.toStrictEqual({
@@ -119,17 +120,18 @@ describe('data protection', () => {
         id: `id-${i}`,
         name: `name-${i}`,
         url: `https://foo.bar/${i}`,
-        owner_id: `owner-id-${i}`,
+        ownerId: `owner-id-${i}`,
         metadata: { foo: 'bar' },
-        content_hash: `${i}1234`,
+        contentHash: `${i}1234`,
         permissions: Array.from({ length: 5 }, (item, j) => ({
           id: `permission-${i}-${j}`,
           metadata: { fiz: 'baz' },
-          type: (['user', 'domain', 'anyone'] as const)[j % 3],
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- acceptable for test
+          type: (['user', 'domain', 'anyone'] as const)[j % 3]!,
           email: `permission-${i}-${j}@email.com`,
-          user_id: `user-${i}-${j}`,
+          userId: `user-${i}-${j}`,
           domain: `domain-${i}-${j}`,
-          display_name: `permission ${i}-${j}`,
+          displayName: `permission ${i}-${j}`,
         })),
       }));
 

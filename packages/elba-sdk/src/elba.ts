@@ -11,7 +11,7 @@ export class Elba {
   readonly authentication: AuthenticationClient;
   readonly connectionStatus: ConnectionStatusClient;
   readonly dataProtection: DataProtectionClient;
-  readonly thridPartyApps: ThirdPartyAppsClient;
+  readonly thirdPartyApps: ThirdPartyAppsClient;
   readonly users: UsersClient;
 
   constructor(options: ElbaOptions) {
@@ -29,6 +29,6 @@ export class Elba {
     this.connectionStatus = new ConnectionStatusClient(requestSender);
     this.dataProtection = new DataProtectionClient(requestSender);
     this.users = new UsersClient(requestSender);
-    this.thridPartyApps = new ThirdPartyAppsClient(requestSender);
+    this.thirdPartyApps = new ThirdPartyAppsClient(requestSender);
   }
 }
