@@ -5,21 +5,21 @@ import { getNotionInfo } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
-interface SuccessData {
-    organization_id: string;
-    workspace_id: string;
-    workspace_name: string;
-    notionToken: string;
-};
-
-interface ErrorData {
-    error: string;
+type RequestBody = {
+    accessCode : string;
+    organizationId : string;
 }
 
-export async function POST (req: NextRequest, res: NextResponse) {
+type AccessTokenResponse = {
+    workspace_id : string;
+    workspace_name : string; 
+    access_token : string;
+}
 
-    const body = await req.json();
-    const { access_code, organization_id } = body;
+export async function POST (req: NextRequest) {
+        
+    const body : RequestBody = await req.json();
+    const { accessCode, organizationId } = body;
 
     const encoded = Buffer.from(`${getNotionInfo().notionClientID}:${getNotionInfo().notionClientSecret}`).toString("base64");
 
@@ -32,23 +32,23 @@ export async function POST (req: NextRequest, res: NextResponse) {
     },
         body: JSON.stringify({
         grant_type: "authorization_code",
-        code: access_code,
+        code: accessCode,
         redirect_uri: getNotionInfo().notionRedirectUrl
         }),
     });
 
-    let data = await response.json();
+    const data : AccessTokenResponse = await response.json();
 
-    if (response.status == 200) {
+    if (response.status === 200) {
         try {
-            const {workspace_id, workspace_name, access_token} = data
+            const {workspace_id: workspaceID, workspace_name: workspaceName, access_token: accessToken} = data
             
             const integration = await prisma.integration.create({
                 data: {
-                organization_id,
-                workspace_id: workspace_id,
-                workspace_name: workspace_name,
-                notionToken: access_token,
+                organization_id : organizationId,
+                workspace_id: workspaceID,
+                workspace_name: workspaceName,
+                notionToken: accessToken,
                 },
             });
 
@@ -62,10 +62,10 @@ export async function POST (req: NextRequest, res: NextResponse) {
             });
 
             return NextResponse.json({
-                organization_id,
-                workspace_id: workspace_id,
-                workspace_name: workspace_name,
-                notionToken: access_token,
+                organization_id: organizationId,
+                workspace_id: workspaceID,
+                workspace_name: workspaceName,
+                notionToken: accessToken,
             }, {
                 status: 200
             });

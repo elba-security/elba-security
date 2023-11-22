@@ -1,54 +1,85 @@
-// eslint-disable-next-line @typescript-eslint/no-empty-function -- this is a placeholder
 import { PrismaClient } from '@prisma/client';
 import axios from 'axios';
 
 const prisma = new PrismaClient();
 
-export const  runUsersSyncJob = async () => {
-    try {
+type PersonType = {
+    email : string
+}
 
+type UserResponseType = {
+    id: string;
+    name : string;
+    person: PersonType;
+}
+
+type UsersResponseType = {
+    results: UserResponseType[];
+    next_cursor: string;
+    has_more: boolean;
+}
+
+type UserData = {
+    id: string;
+    displayName: string;
+    email: string;
+}
+
+export const runUsersSyncJob = async () => {
+    try {
         const job = await prisma.users_Sync_Jobs.findFirst({
-          orderBy: [
-            { priority: 'asc' }, // Order by priority in ascending order
-            { sync_started_at: 'asc' }, // Order by timestamp in ascending order
-          ],
+            orderBy: [
+                { priority: 'asc' }, // Order by priority in ascending order
+                { sync_started_at: 'asc' }, // Order by timestamp in ascending order
+            ],
         });
-    
+
         if (!job) {
-          return;
+            return;
         }
 
-        const integration = await prisma.integration.findFirst({
-          where: {
-            id: job.integration_id,
-          },
+        const integration  = await prisma.integration.findFirst({
+            where: {
+                id: job.integration_id,
+            },
         });
 
         if (!integration) {
             return;
         }
 
-        const page_size = process.env.USERS_SYNC_JOB_BATCH;
-        const notionUsersUrl = `https://api.notion.com/v1/users?page_size=${page_size}${
-          job.pagination_token ? `&start_cursor=${job.pagination_token}` : ''
+        const pageSize = process.env.USERS_SYNC_JOB_BATCH;
+        const notionUsersUrl = `https://api.notion.com/v1/users?page_size=${pageSize}${
+            job.pagination_token ? `&start_cursor=${job.pagination_token}` : ''
         }`;
 
         const response = await fetch(notionUsersUrl, {
-            method: "GET",
+            method: 'GET',
             headers: {
                 'Notion-Version': '2022-06-28',
-                Accept: "application/json",
-                "Content-Type": "application/json",
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
                 Authorization: `Bearer ${integration.notionToken}`,
-            }
+            },
         });
 
-        let data = await response.json();
+        const data : UsersResponseType = await response.json();
         if ('status' in data) {
             return;
         }
-        
+
+        const users: UserData[] = [];
+        for (const user of data.results) {
+            const userData: UserData = {
+                id: user.id,
+                displayName: user.name,
+                email: user.person.email,
+            }
+            users.push(userData);
+        }
+
         const ELBA_API_BASE_URL = process.env.ELBA_API_BASE_URL;
+        const sourceId = process.env.ELBA_SOURCE_ID;
         const optionsForUserUpdate = {
             method: 'POST',
             url: `${ELBA_API_BASE_URL}/api/rest/users`,
@@ -56,22 +87,22 @@ export const  runUsersSyncJob = async () => {
                 accept: 'application/json',
                 'content-type': 'application/json',
             },
-            data: { users: data.results, organization_id:  integration.organization_id},
+            data: { users, organisationId: integration.organization_id , sourceId},
         };
         await axios.request(optionsForUserUpdate);
         
-        if (data.next_cursor) {
+        const nextCursor = data.next_cursor;
 
+        if (nextCursor) {
             await prisma.users_Sync_Jobs.update({
                 where: {
                     id: job.id,
                 },
                 data: {
                     sync_started_at: new Date(),
-                    pagination_token: data.next_cursor ? data.next_cursor : '',
+                    pagination_token: nextCursor ? nextCursor : '',
                 },
             });
-
         } else {            
             await prisma.users_Sync_Jobs.delete({
                 where: {
@@ -86,7 +117,7 @@ export const  runUsersSyncJob = async () => {
                 accept: 'application/json',
                 'content-type': 'application/json',
                 },
-                data: { last_synced_before: job.sync_started_at },
+                data: { users, organisationId: integration.organization_id , sourceId},
             };
             await axios.request(options);
         }
@@ -95,6 +126,4 @@ export const  runUsersSyncJob = async () => {
     } finally {
         await prisma.$disconnect();
     }
-    return ;
 };
-

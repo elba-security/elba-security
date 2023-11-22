@@ -1,5 +1,3 @@
-import exp from "constants";
-
 export function getClientAuthorizationUrl() {
     return process.env.NEXT_PUBLIC_NOTION_CLIENT_AUTHORIZATION_URL;
 }
