@@ -8,21 +8,21 @@ const updateDataProtectionObjectsSchema = z.object({
     z.object({
       id: z.string(),
       name: z.string(),
-      last_accessed_at: z.string().datetime().optional(),
+      lastAccessedAt: z.string().datetime().optional(),
       url: z.string().url(),
-      owner_id: z.string(),
+      ownerId: z.string(),
       metadata: z.any().optional(),
-      content_hash: z.string().optional(),
-      is_sensitive: z.boolean().optional(),
+      contentHash: z.string().optional(),
+      isSensitive: z.boolean().optional(),
       permissions: z.array(
         z.object({
           id: z.string(),
           metadata: z.any().optional(),
           type: z.enum(['user', 'domain', 'anyone']),
           email: z.string().optional(),
-          user_id: z.string().optional(),
+          userId: z.string().optional(),
           domain: z.string().optional(),
-          display_name: z.string().optional(),
+          displayName: z.string().optional(),
         })
       ),
     })
