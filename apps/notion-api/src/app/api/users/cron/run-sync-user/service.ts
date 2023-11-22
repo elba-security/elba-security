@@ -103,7 +103,7 @@ export const runUsersSyncJob = async () => {
                     pagination_token: nextCursor ? nextCursor : '',
                 },
             });
-        } else {            
+        } else {
             await prisma.users_Sync_Jobs.delete({
                 where: {
                     id: job.id,
