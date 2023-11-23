@@ -7,25 +7,37 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest"
+    "test": "vitest",
+    "test:database": "docker-compose -p integration-test --env-file=.env.test.local up -d",
+    "test:database:migrate": "node ./scripts/migrate.js .env.test.local",
+    "database": "docker-compose -p integration --env-file=.env.local up -d",
+    "database:migrate": "node ./scripts/migrate.js .env.local",
+    "database:generate": "npx drizzle-kit generate:pg --schema=./src/database/schema.ts"
   },
   "dependencies": {
     "@elba-security/sdk": "workspace:*",
+    "@neondatabase/serverless": "^0.6.0",
+    "@vercel/postgres": "^0.5.1",
+    "drizzle-orm": "^0.28.6",
+    "msw": "^2.0.1",
     "next": "14.0.1",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@elba-security/elba-msw": "workspace:*",
     "@edge-runtime/vm": "^3.1.7",
     "@next/eslint-plugin-next": "^14.0.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "dotenv": "^16.3.1",
-    "eslint": "^8",
-    "typescript": "^5",
-    "vitest": "^0.34.6",
     "eslint-config-custom": "workspace:*",
-    "tsconfig": "workspace:*"
+    "eslint": "^8",
+    "msw": "^2.0.1",
+    "postgres": "^3.4.3",
+    "tsconfig": "workspace:*",
+    "typescript": "^5",
+    "vitest": "^1.0.0-beta.5"
   }
 }
