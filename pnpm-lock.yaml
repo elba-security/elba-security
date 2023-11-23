@@ -23,9 +23,31 @@ importers:
 
   packages/elba-msw:
     dependencies:
+      elba-schema:
+        specifier: workspace:*
+        version: link:../elba-schema
       msw:
         specifier: ^2.0.1
         version: 2.0.6(typescript@5.2.2)
+      typescript:
+        specifier: ^5
+        version: 5.2.2
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
+    devDependencies:
+      eslint:
+        specifier: ^8
+        version: 8.53.0
+      eslint-config-custom:
+        specifier: workspace:*
+        version: link:../eslint-config-custom
+      tsconfig:
+        specifier: workspace:*
+        version: link:../tsconfig
+
+  packages/elba-schema:
+    dependencies:
       typescript:
         specifier: ^5
         version: 5.2.2

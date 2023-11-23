@@ -1,19 +1,13 @@
 import { http, type RequestHandler } from 'msw';
-import { z } from 'zod';
-
-const updateConnectionStatusSchema = z.object({
-  organisationId: z.string().uuid(),
-  sourceId: z.string().uuid(),
-  hasError: z.boolean(),
-});
+import { updateConnectionStatusSchema, baseRequestSchema } from 'elba-schema';
 
 export const createConnectionStatusRequestHandlers = (baseUrl: string): RequestHandler[] => [
   http.post(`${baseUrl}/connection-status`, async ({ request }) => {
     const data = await request.json();
-    const result = updateConnectionStatusSchema.safeParse(data);
+    const result = baseRequestSchema.and(updateConnectionStatusSchema).safeParse(data);
 
     if (!result.success) {
-      return new Response(null, {
+      return new Response(result.error.toString(), {
         status: 400,
       });
     }

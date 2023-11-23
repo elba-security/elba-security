@@ -1,44 +1,17 @@
 import { http, type RequestHandler } from 'msw';
-import { z } from 'zod';
-
-const updateThirdPartyAppsSchema = z.object({
-  organisationId: z.string().uuid(),
-  sourceId: z.string().uuid(),
-  apps: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      description: z.string().optional(),
-      logoUrl: z.string().optional(),
-      url: z.string().optional(),
-      publisherName: z.string().optional(),
-      users: z.array(
-        z.object({
-          id: z.string(),
-          createdAt: z.string().optional(),
-          lastAccessedAt: z.string().optional(),
-          scopes: z.array(z.string()),
-          metadata: z.any().optional(),
-        })
-      ),
-    })
-  ),
-});
-
-const deleteThirdPartyAppsSchema = z.object({
-  organisationId: z.string().uuid(),
-  sourceId: z.string().uuid(),
-  ids: z.array(z.object({ userId: z.string(), appId: z.string() })).optional(),
-  syncedBefore: z.string().datetime().optional(),
-});
+import {
+  updateThirdPartyAppsSchema,
+  deleteThirdPartyAppsSchema,
+  baseRequestSchema,
+} from 'elba-schema';
 
 export const createThirdPartyAppsRequestHandlers = (baseUrl: string): RequestHandler[] => [
   http.post(`${baseUrl}/third-party-apps/objects`, async ({ request }) => {
     const data = await request.json();
-    const result = updateThirdPartyAppsSchema.safeParse(data);
+    const result = baseRequestSchema.and(updateThirdPartyAppsSchema).safeParse(data);
 
     if (!result.success) {
-      return new Response(null, {
+      return new Response(result.error.toString(), {
         status: 400,
       });
     }
@@ -59,10 +32,10 @@ export const createThirdPartyAppsRequestHandlers = (baseUrl: string): RequestHan
   }),
   http.delete(`${baseUrl}/third-party-apps/objects`, async ({ request }) => {
     const data = await request.json();
-    const result = deleteThirdPartyAppsSchema.safeParse(data);
+    const result = baseRequestSchema.and(deleteThirdPartyAppsSchema).safeParse(data);
 
-    if (!result.success || Boolean(result.data.syncedBefore) === Boolean(result.data.ids?.length)) {
-      return new Response(null, {
+    if (!result.success) {
+      return new Response(result.error.toString(), {
         status: 400,
       });
     }

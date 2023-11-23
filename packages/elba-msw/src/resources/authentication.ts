@@ -1,24 +1,13 @@
 import { http, type RequestHandler } from 'msw';
-import { z } from 'zod';
-
-const updateAuthenticationObjectsSchema = z.object({
-  organisationId: z.string().uuid(),
-  sourceId: z.string().uuid(),
-  objects: z.array(
-    z.object({
-      userId: z.string(),
-      authMethod: z.enum(['mfa', 'password', 'sso']),
-    })
-  ),
-});
+import { updateAuthenticationObjectsSchema, baseRequestSchema } from 'elba-schema';
 
 export const createAuthenticationRequestHandlers = (baseUrl: string): RequestHandler[] => [
   http.post(`${baseUrl}/authentication/objects`, async ({ request }) => {
     const data = await request.json();
-    const result = updateAuthenticationObjectsSchema.safeParse(data);
+    const result = baseRequestSchema.and(updateAuthenticationObjectsSchema).safeParse(data);
 
     if (!result.success) {
-      return new Response(null, {
+      return new Response(result.error.toString(), {
         status: 400,
       });
     }
