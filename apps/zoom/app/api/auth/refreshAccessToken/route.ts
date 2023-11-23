@@ -46,7 +46,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
         )
     `;
   } catch (error) {
-    console.log(error);
     return NextResponse.json("Error creating table for credentials", {
       status: 500,
     });
@@ -58,12 +57,12 @@ export async function POST(req: NextRequest, res: NextResponse) {
         SELECT * FROM zoom_credentials WHERE organization_id=${organization_id} AND refresh_token=${refresh_token};
     `;
     if (getExistingUser && getExistingUser.rows.length > 0) {
-      const base64EncodedBody = Buffer.from(
+      const base64EncodedBearer = Buffer.from(
         `${getZoomCredentials().clientId}:${getZoomCredentials().clientSecret}`
       ).toString("base64");
 
       const data = encodeURI(
-        `grant_type=authorization_code&refresh_token=${refresh_token}&redirect_uri=${
+        `grant_type=refresh_token&refresh_token=${refresh_token}&redirect_uri=${
           getZoomCredentials().clientRedirectUrl +
           "?organization_id=" +
           organization_id
@@ -73,7 +72,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       // requesting new refresh token based on the previous refresh token
       const response = await axios.post("https://zoom.us/oauth/token", data, {
         headers: {
-          Authorization: `Basic ${base64EncodedBody}`,
+          Authorization: `Basic ${base64EncodedBearer}`,
           "Content-Type": "application/x-www-form-urlencoded",
           "Content-Length": Buffer.byteLength(data),
         },
@@ -94,6 +93,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
       return NextResponse.json("Updated refresh token", { status: 200 });
     }
   } catch (error) {
-    return NextResponse.json(error, { status: 400 });
+    return NextResponse.json("Something went wrong during calling Postgres", { status: 400 });
   }
 }

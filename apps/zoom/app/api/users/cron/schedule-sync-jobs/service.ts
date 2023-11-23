@@ -1,72 +1,58 @@
 import { sql } from "@vercel/postgres";
+import { userSyncJobsTable } from "../user-sync-table";
 
 export const scheduleUsersSyncJobs = async () => {
     // schedule jobs to be fetched by run-sync-job taks
-    console.log("RUNNING SCHEDULE USERS SYNC JOB");
+    // creating table (for dev) if it doesn't exist
     try {
-        await sql`
-            CREATE TABLE IF NOT EXISTS
-            users_sync_jobs
-             ( 
-                id SERIAL PRIMARY KEY,
-                organization_id INT NOT NULL,
-                batchSize INT NOT NULL,
-                retries INT NOT NULL,
-                syncStartedAt VARCHAR(255) NOT NULL,
-                isFirstSync BOOLEAN NOT NULL,
-                status VARCHAR(255) NOT NULL,
-                createdAt VARCHAR(255) NOT NULL,
-                updatedAt VARCHAR(255) NOT NULL
-            )
-        `;
-    } catch (error) {
-        console.log("Error creating or updating users_sync_jobs table")
+        await userSyncJobsTable();
+    } catch (error: any) {
+        return {
+            success: false,
+            error: error.message
+        };
     }
-
     try {
-        // selecting unique organization ids
-        const zoomUsersAuthData = await sql`SELECT DISTINCT organization_id FROM zoom_credentials`
-        if(zoomUsersAuthData && zoomUsersAuthData.rows.length > 0) {
-            const zoomPromises = zoomUsersAuthData.rows.map(async (row) => {
-                // fetching only organization ids
-                const {organization_id} = row;
-
-                // adding to scheduled jobs
-                const valuesToInsert = {
-                    organization_id: organization_id,
-                    batchSize: process.env.SCHEDULE_SYNC_JOB_BATCH_SIZE || 3,
-                    retries: 0,
-                    syncStartedAt: new Date().toISOString(),
-                    isFirstSync: true,
-                    status: "scheduled",
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                }
-                await sql`INSERT INTO users_sync_jobs (
-                    organization_id,
-                    batchSize,
-                    retries,
-                    syncStartedAt,
-                    isFirstSync,
-                    status,
-                    createdAt,
-                    updatedAt
-                ) VALUES (
-                    ${valuesToInsert.organization_id},
-                    ${valuesToInsert.batchSize},
-                    ${valuesToInsert.retries},
-                    ${valuesToInsert.syncStartedAt},
-                    ${valuesToInsert.isFirstSync},
-                    ${valuesToInsert.status},
-                    ${valuesToInsert.createdAt},
-                    ${valuesToInsert.updatedAt}
-                )
-                `
-            });
-            await Promise.all(zoomPromises)
+        // adding to scheduled jobs
+        const valuesToInsert = {
+            organization_id: "b91f113b-bcf9-4a28-98c7-5b13fb671c19",
+            batchSize: process.env.SCHEDULE_SYNC_JOB_BATCH_SIZE || 3,
+            retries: 0,
+            syncStartedAt: new Date().toISOString(),
+            isFirstSync: true,
+            status: "scheduled",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         }
-    } catch (error) {
-        console.log("Error pushing users to elba")
+        await sql`INSERT INTO users_sync_jobs (
+            organization_id,
+            batchSize,
+            retries,
+            syncStartedAt,
+            isFirstSync,
+            status,
+            createdAt,
+            updatedAt
+        ) VALUES (
+            ${valuesToInsert.organization_id},
+            ${valuesToInsert.batchSize},
+            ${valuesToInsert.retries},
+            ${valuesToInsert.syncStartedAt},
+            ${valuesToInsert.isFirstSync},
+            ${valuesToInsert.status},
+            ${valuesToInsert.createdAt},
+            ${valuesToInsert.updatedAt}
+        )
+        ON CONFLICT (organization_id) DO NOTHING
+        `
+        return {
+            success: true
+        }
+    } catch (error: any) {
+        console.log(error)
+        return {
+            success: false,
+            error: "Failed to add new scheduled job"
+        }
     }
-
 };

@@ -16,14 +16,11 @@ export default function Home() {
     if (id) {
       setIsInitialParam(true)
       setValue(id)
+      redirect(`/api/auth/zoom?organization_id=${id}`)
     } else {
       setIsInitialParam(false);
     }
   }, [searchQuery])
-
-  if(value.length > 0 ) {
-    redirect(`/api/auth/zoom?organization_id=${value}`)
-  }
 
   return (
     <div className="flex items-center justify-center py-12">

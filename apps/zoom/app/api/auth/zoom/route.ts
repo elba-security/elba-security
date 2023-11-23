@@ -1,6 +1,6 @@
-import { getZoomCredentials } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthUrl } from "./service";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   // getting organization_id from the params
@@ -12,20 +12,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     });
   }
 
-  // creating auth url for the user to redirect to
-  const getAuthUrl = () => {
-    const makeUrl = new URL("https://zoom.us/oauth/authorize");
-    makeUrl.searchParams.set("response_type", "code");
-    makeUrl.searchParams.set(
-      "redirect_uri",
-      getZoomCredentials().clientRedirectUrl +
-        "?organization_id=" +
-        organization_id
-    );
-    makeUrl.searchParams.set("client_id", getZoomCredentials().clientId);
-    return makeUrl.href;
-  };
-
   // redirecting user to zoom auth url
-  redirect(getAuthUrl());
+  const redirectUrl = getAuthUrl(organization_id)
+  redirect(redirectUrl);
 }

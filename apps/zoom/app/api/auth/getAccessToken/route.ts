@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
   const organization_id = req.nextUrl.searchParams.get("organization_id");
 
   if (!authorization_code || authorization_code.length === 0) {
-    return NextResponse.json("code NOT FOUND", { status: 400 });
+    return NextResponse.json("authorization 'code' not found in the query", { status: 400 });
   }
 
   if (!organization_id || organization_id.length === 0) {
@@ -29,22 +29,21 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
   try {
     // converting credentials for zoom
-    const base64EncodedBody = Buffer.from(
+    const base64EncodedBearer = Buffer.from(
       `${getZoomCredentials().clientId}:${getZoomCredentials().clientSecret}`
     ).toString("base64");
 
     const data = encodeURI(
-      `grant_type=authorization_code&code=${authorization_code}&redirect_uri=${
-        getZoomCredentials().clientRedirectUrl +
-        "?organization_id=" +
-        organization_id
+      `grant_type=authorization_code&code=${authorization_code}&redirect_uri=${getZoomCredentials().clientRedirectUrl +
+      "?organization_id=" +
+      organization_id
       }`
     );
 
     // getting access_token while providing authorization "Code"
     const response = await axios.post("https://zoom.us/oauth/token", data, {
       headers: {
-        Authorization: `Basic ${base64EncodedBody}`,
+        Authorization: `Basic ${base64EncodedBearer}`,
         "Content-Type": "application/x-www-form-urlencoded",
         "Content-Length": Buffer.byteLength(data),
       },
@@ -112,9 +111,9 @@ export async function GET(req: NextRequest, res: NextResponse) {
         return NextResponse.json("Created user information", { status: 200 });
       }
     } catch (error) {
-      return NextResponse.json(error, { status: 400 });
+      return NextResponse.json("Something went wrong calling Postgres", { status: 400 });
     }
   } catch (error: any) {
-    return Response.json(error, { status: 400 });
+    return Response.json("Error fetching auth token from zoom, either the token is expired or not present", { status: 400 });
   }
 }
