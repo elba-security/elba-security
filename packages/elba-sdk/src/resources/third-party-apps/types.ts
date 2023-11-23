@@ -1,20 +1,8 @@
-export type ThirdPartyAppsObjectUser = {
-  id: string;
-  createdAt?: Date;
-  lastAccessedAt?: Date;
-  scopes: string[];
-  metadata?: Record<string, unknown>;
-};
+import type { UpdateThirdPartyApps } from 'elba-schema';
 
-export type ThirdPartyAppsObject = {
-  id: string;
-  name: string;
-  description?: string;
-  logoUrl?: string;
-  publisherName?: string;
-  url?: string;
-  users: ThirdPartyAppsObjectUser[];
-};
+export type ThirdPartyAppsObject = UpdateThirdPartyApps['apps'][number];
+
+export type ThirdPartyAppsObjectUser = ThirdPartyAppsObject['users'][number];
 
 export type ThirdPartyAppsUpdateObjectsResult = {
   message: string;

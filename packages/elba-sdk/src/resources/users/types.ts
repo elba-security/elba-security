@@ -1,9 +1,6 @@
-export type User = {
-  id: string;
-  displayName: string;
-  additionalEmails?: string[];
-  email?: string;
-};
+import type { UpdateUsers } from 'elba-schema';
+
+export type User = UpdateUsers['users'][number];
 
 export type UserUpdateResult = {
   success: boolean;

@@ -101,6 +101,9 @@ importers:
       elba-msw:
         specifier: workspace:*
         version: link:../elba-msw
+      elba-schema:
+        specifier: workspace:*
+        version: link:../elba-schema
       eslint:
         specifier: ^8
         version: 8.53.0

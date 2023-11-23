@@ -1,23 +1,20 @@
+import type { UpdateDataProtectionObjects, DeleteDataProtectionObjects } from 'elba-schema';
 import { ElbaResourceClient } from '../elba-resource-client';
-import type {
-  DataProtectionDeleteObjectsResult,
-  DataProtectionObject,
-  DataProtectionUpdateObjectsResult,
-} from './types';
+import type { DataProtectionDeleteObjectsResult, DataProtectionUpdateObjectsResult } from './types';
 
 export class DataProtectionClient extends ElbaResourceClient {
-  async updateObjects(objects: DataProtectionObject[]) {
+  async updateObjects(data: UpdateDataProtectionObjects) {
     const response = await this.requestSender.request('data-protection/objects', {
       method: 'POST',
-      data: { objects },
+      data,
     });
     return response.json<DataProtectionUpdateObjectsResult>();
   }
 
-  async deleteObjects({ syncedBefore, ids }: { syncedBefore?: Date; ids?: string[] }) {
+  async deleteObjects(data: DeleteDataProtectionObjects) {
     const response = await this.requestSender.request('data-protection/objects', {
       method: 'DELETE',
-      data: { syncedBefore, ids },
+      data,
     });
     return response.json<DataProtectionDeleteObjectsResult>();
   }

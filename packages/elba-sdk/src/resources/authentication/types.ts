@@ -1,7 +1,6 @@
-export type AuthenticationObject = {
-  userId: string;
-  authMethod: 'mfa' | 'password' | 'sso';
-};
+import type { UpdateAuthenticationObjects } from 'elba-schema';
+
+export type AuthenticationObject = UpdateAuthenticationObjects['objects'][number];
 
 export type AuthenticationUpdateObjectsResult = {
   success: boolean;

@@ -1,24 +1,8 @@
-export type DataProtectionObjectPermission = {
-  id: string;
-  metadata?: unknown;
-  type: 'user' | 'domain' | 'anyone';
-  email?: string;
-  userId?: string;
-  domain?: string;
-  displayName?: string;
-};
+import type { UpdateDataProtectionObjects } from 'elba-schema';
 
-export type DataProtectionObject = {
-  id: string;
-  name: string;
-  lastAccessedAt?: Date;
-  url: string;
-  ownerId: string;
-  metadata?: unknown;
-  contentHash?: string;
-  isSensitive?: boolean;
-  permissions: DataProtectionObjectPermission[];
-};
+export type DataProtectionObject = UpdateDataProtectionObjects['objects'][number];
+
+export type DataProtectionObjectPermission = DataProtectionObject['permissions'][number];
 
 export type DataProtectionUpdateObjectsResult = {
   success: boolean;
