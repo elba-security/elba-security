@@ -2,8 +2,6 @@ import type { infer as zInfer } from 'zod';
 import { z } from 'zod';
 
 export const updateUsersSchema = z.object({
-  organisationId: z.string().uuid(),
-  sourceId: z.string().uuid(),
   users: z.array(
     z.object({
       id: z.string().min(1),
