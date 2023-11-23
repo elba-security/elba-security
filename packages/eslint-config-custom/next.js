@@ -32,5 +32,6 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     'unicorn/filename-case': ['error', { case: 'kebabCase', ignore: ['\\.tsx$'] }],
+    'turbo/no-undeclared-env-vars': 'off',
   },
 };
