@@ -1,15 +1,23 @@
 import { baseRequestSchema } from 'elba-schema';
 import type { ZodSchema, infer as zInfer } from 'zod';
 
+type Method = 'post' | 'delete';
+
+type Route = {
+  path: string;
+  method: Method;
+  handler: ({ request }: { request: Request }) => Promise<Response>;
+};
+
 export type RequestHandler<T extends ZodSchema> = ({
   request,
   data,
 }: {
   request: Request;
   data: zInfer<T>;
-}) => Promise<Response>;
+}) => Response | Promise<Response>;
 
-const defaultRequestHandler = async () => {
+const defaultRequestHandler = (): Response => {
   return Response.json({ success: true });
 };
 
@@ -21,8 +29,8 @@ const requestHandler = async <T extends ZodSchema>({
   request: Request;
   handler?: RequestHandler<T>;
   schema: T;
-}) => {
-  const data = await request.json();
+}): Promise<Response> => {
+  const data: unknown = await request.json();
   const result = baseRequestSchema.and(schema).safeParse(data);
 
   if (!result.success) {
@@ -45,10 +53,10 @@ export const createRoute = <T extends ZodSchema>({
   schema,
 }: {
   path: string;
-  method: 'post' | 'delete';
-  handler?: ({ request }: { request: Request; data: zInfer<T> }) => Promise<Response>;
+  method: Method;
+  handler?: ({ request }: { request: Request; data: zInfer<T> }) => Response | Promise<Response>;
   schema: T;
-}) => {
+}): Route => {
   return {
     path,
     method,

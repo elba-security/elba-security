@@ -16,4 +16,5 @@ for (const route of elbaApiRoutes) {
 }
 
 serve({ port, fetch: app.fetch });
+// eslint-disable-next-line no-console -- To display server running status
 console.log(`elba API running on http://localhost:${port}`);

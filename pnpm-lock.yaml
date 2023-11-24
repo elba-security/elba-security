@@ -33,6 +33,12 @@ importers:
       '@hono/node-server':
         specifier: ^1.2.3
         version: 1.2.3
+      eslint:
+        specifier: ^8
+        version: 8.53.0
+      eslint-config-custom:
+        specifier: workspace:*
+        version: link:../eslint-config-custom
       hono:
         specifier: ^3.10.2
         version: 3.10.2

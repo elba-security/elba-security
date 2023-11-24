@@ -7,7 +7,7 @@ export const updateThirdPartyAppsRoute = createRoute({
   path,
   method: 'post',
   schema: updateThirdPartyAppsSchema,
-  handler: async ({ data }) => {
+  handler: ({ data }) => {
     const usersIds = data.apps.reduce((ids, app) => {
       for (const user of app.users) {
         ids.add(user.id);
