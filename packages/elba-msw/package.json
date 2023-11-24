@@ -7,6 +7,7 @@
     "lint": "eslint src/**.ts"
   },
   "dependencies": {
+    "elba-api": "workspace:*",
     "elba-schema": "workspace:*",
     "typescript": "^5",
     "msw": "^2.0.1",

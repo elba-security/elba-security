@@ -1,33 +1,5 @@
 import { http, type RequestHandler } from 'msw';
-import { updateUsersSchema, deleteUsersSchema, baseRequestSchema } from 'elba-schema';
+import { usersRoutes } from 'elba-api';
 
-export const createUsersRequestHandlers = (baseUrl: string): RequestHandler[] => [
-  http.post(`${baseUrl}/users`, async ({ request }) => {
-    const data = await request.json();
-    const result = baseRequestSchema.and(updateUsersSchema).safeParse(data);
-
-    if (!result.success) {
-      return new Response(result.error.toString(), {
-        status: 400,
-      });
-    }
-
-    return Response.json({
-      insertedOrUpdatedCount: result.data.users.length,
-    });
-  }),
-  http.delete(`${baseUrl}/users`, async ({ request }) => {
-    const data = await request.json();
-    const result = baseRequestSchema.and(deleteUsersSchema).safeParse(data);
-
-    if (!result.success) {
-      return new Response(result.error.toString(), {
-        status: 400,
-      });
-    }
-
-    return Response.json({
-      success: true,
-    });
-  }),
-];
+export const createUsersRequestHandlers = (baseUrl: string): RequestHandler[] =>
+  usersRoutes.map((route) => http[route.method](`${baseUrl}${route.path}`, route.handler));

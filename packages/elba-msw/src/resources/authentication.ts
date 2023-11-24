@@ -1,19 +1,5 @@
 import { http, type RequestHandler } from 'msw';
-import { updateAuthenticationObjectsSchema, baseRequestSchema } from 'elba-schema';
+import { authenticationRoutes } from 'elba-api';
 
-export const createAuthenticationRequestHandlers = (baseUrl: string): RequestHandler[] => [
-  http.post(`${baseUrl}/authentication/objects`, async ({ request }) => {
-    const data = await request.json();
-    const result = baseRequestSchema.and(updateAuthenticationObjectsSchema).safeParse(data);
-
-    if (!result.success) {
-      return new Response(result.error.toString(), {
-        status: 400,
-      });
-    }
-
-    return Response.json({
-      success: true,
-    });
-  }),
-];
+export const createAuthenticationRequestHandlers = (baseUrl: string): RequestHandler[] =>
+  authenticationRoutes.map((route) => http[route.method](`${baseUrl}${route.path}`, route.handler));
