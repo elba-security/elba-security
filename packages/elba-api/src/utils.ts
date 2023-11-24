@@ -1,5 +1,5 @@
 import { baseRequestSchema } from 'elba-schema';
-import { ZodSchema, infer as zInfer } from 'zod';
+import type { ZodSchema, infer as zInfer } from 'zod';
 
 export type RequestHandler<T extends ZodSchema> = ({
   request,
