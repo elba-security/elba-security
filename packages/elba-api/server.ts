@@ -10,6 +10,7 @@ const pathPrefix = '/api/rest';
 
 app.use('*', logger());
 for (const route of elbaApiRoutes) {
+  // TODO: handle authentication
   app[route.method](`${pathPrefix}${route.path}`, async ({ req: { raw: request } }) =>
     route.handler({ request })
   );
