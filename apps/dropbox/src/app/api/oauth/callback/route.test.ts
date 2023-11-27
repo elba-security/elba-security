@@ -4,7 +4,7 @@ import { tokens, db } from '@/database';
 import { RequestMethod, createMocks } from 'node-mocks-http';
 import { addSeconds } from 'date-fns';
 import timekeeper from 'timekeeper';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 const TOKEN_GENERATED_AT = '2023-03-13T16:19:20.818Z';
 const TOKEN_WILL_EXPIRE_IN = 14400; // seconds

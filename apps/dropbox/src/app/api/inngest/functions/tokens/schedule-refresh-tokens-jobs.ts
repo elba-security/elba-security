@@ -6,9 +6,6 @@ export const scheduleRefreshTokensJobs = inngest.createFunction(
   { cron: '* * * * *' },
   async ({ step }) => {
     const organisations = await getExpiringDropboxTokens();
-    console.log('--------------SCHEDULE REFRESH TOKENS-----------');
-    console.log(organisations);
-    console.log('------------------------------------------------');
     if (organisations.length > 0) {
       await step.sendEvent(
         'run-refresh-tokens',
