@@ -22,7 +22,7 @@ describe('users', () => {
       }));
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
       await expect(elba.users.update({ users })).resolves.toStrictEqual({
-        insertedOrUpdatedCount: users.length,
+        success: true
       });
     });
   });
