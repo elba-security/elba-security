@@ -43,6 +43,11 @@ export class RequestSender {
       });
 
       if (!response.ok) {
+        response.text().then((text) => {
+          console.log('--------------Elbe Msw Error--------------------');
+          console.log(text);
+          console.log('------------------------------------------------');
+        });
         throw new ElbaError('Invalid response received from Elba API', {
           path,
           method,

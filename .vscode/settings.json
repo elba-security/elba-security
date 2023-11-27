@@ -1,0 +1,15 @@
+{
+  "cSpell.words": ["Desynchronize", "Inngest", "Organisations"],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[json]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll": false
+    }
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true
+}
