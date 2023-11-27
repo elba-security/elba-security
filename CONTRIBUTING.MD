@@ -9,7 +9,7 @@ The following is a set of guidelines for contributing to **elba-security** and i
 This project is a monorepo that uses [Turborepo](https://turbo.build/repo).
 Each SaaS integration has its own nextjs app located in `/apps/{SaaS}`. The folder `/packages` contains shared tools and configuration.
 
-### Tools enforced
+### Required tools
 
 #### `postgres`
 
@@ -17,11 +17,11 @@ As Vercel offers storage hosting, we chose to select one of the supported databa
 
 #### `drizzle-orm`
 
-We are enforcing the use of [`drizzle-orm`](https://orm.drizzle.team/docs/overview), which provides type safety and migration generation. Unlike the `@vercel/postgres` utility `sql` used alone, it allows for local database usage.
+We are requiring the use of [`drizzle-orm`](https://orm.drizzle.team/docs/overview), which provides type safety and migration generation. Unlike the `@vercel/postgres` utility `sql` used alone, it allows for local database usage.
 
 #### `vitest`
 
-We are requiring [`vitest`](https://vitest.dev/) as the test runner for several reasons. It is well-maintained, and its configuration is less tricky than that for `jest`. Additionally, it is faster.
+We also require [`vitest`](https://vitest.dev/) as the test runner for several reasons. It is well-maintained, and its configuration is less tricky than that for `jest`. Additionally, it is faster.
 
 If you are familiar with `jest`, you will quickly adapt to `vitest`, as both APIs are very similar.
 
