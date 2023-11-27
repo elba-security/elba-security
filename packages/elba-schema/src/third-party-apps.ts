@@ -27,6 +27,13 @@ export const updateThirdPartyAppsSchema = z.object({
 
 export type UpdateThirdPartyApps = zInfer<typeof updateThirdPartyAppsSchema>;
 
-export const deleteThirdPartyAppsSchema = baseDeleteRequestSchema;
+export const deleteThirdPartyAppsSchema = z.union([
+  z.object({
+    ids: z.array(z.object({ userId: z.string().min(1), appId: z.string().min(1) })),
+  }),
+  z.object({
+    syncedBefore: z.string().datetime(),
+  }),
+]);;
 
 export type DeleteThirdPartyApps = zInfer<typeof deleteThirdPartyAppsSchema>;

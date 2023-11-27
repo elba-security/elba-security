@@ -21,17 +21,17 @@ describe('users', () => {
         additionalEmails: [`email-2-${i}@foo.bar`, `email-3-${i}@bar.foo`],
       }));
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
-      await expect(elba.users.update(users)).resolves.toStrictEqual({
+      await expect(elba.users.update({ users })).resolves.toStrictEqual({
         insertedOrUpdatedCount: users.length,
       });
     });
   });
 
   describe('deleteUsers', () => {
-    test('should call the right endpoint and return the response data when using syncedBefore', async () => {
-      const syncedBefore = new Date();
+    test('should call the right endpoint and return the response data when using lastSyncedBefore', async () => {
+      const lastSyncedBefore = new Date().toISOString();
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
-      await expect(elba.users.delete({ syncedBefore })).resolves.toStrictEqual({
+      await expect(elba.users.delete({ lastSyncedBefore })).resolves.toStrictEqual({
         success: true,
       });
     });
@@ -48,7 +48,7 @@ describe('users', () => {
 describe('third party apps', () => {
   describe('updateObjects', () => {
     test('should call the right endpoint and return the response data', async () => {
-      const objects: ThirdPartyAppsObject[] = Array.from({ length: 5 }, (_, i) => ({
+      const apps: ThirdPartyAppsObject[] = Array.from({ length: 5 }, (_, i) => ({
         id: `id-${i}`,
         name: `name-${i}`,
         description: `description-${i}`,
@@ -57,8 +57,8 @@ describe('third party apps', () => {
         url: `http://foo.bar/${i}`,
         users: Array.from({ length: 3 }, (item, j) => ({
           id: `user-id-${j}`,
-          createdAt: new Date(),
-          lastAccessedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          lastAccessedAt: new Date().toISOString(),
           scopes: ['scope-1', 'scope-2'],
           metadata: {
             foo: 'bar',
@@ -66,9 +66,9 @@ describe('third party apps', () => {
         })),
       }));
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
-      await expect(elba.thirdPartyApps.updateObjects(objects)).resolves.toStrictEqual({
+      await expect(elba.thirdPartyApps.updateObjects({ apps })).resolves.toStrictEqual({
         data: {
-          processedApps: objects.length,
+          processedApps: apps.length,
           processedUsers: 3,
         },
       });
@@ -77,7 +77,7 @@ describe('third party apps', () => {
 
   describe('deleteObjects', () => {
     test('should call the right endpoint and return the response data when using syncedBefore', async () => {
-      const syncedBefore = new Date();
+      const syncedBefore = new Date().toISOString();
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
       await expect(elba.thirdPartyApps.deleteObjects({ syncedBefore })).resolves.toStrictEqual({
         success: true,
@@ -106,7 +106,7 @@ describe('authentication', () => {
         authMethod: (['mfa', 'password', 'sso'] as const)[i % 3]!,
       }));
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
-      await expect(elba.authentication.updateObjects(objects)).resolves.toStrictEqual({
+      await expect(elba.authentication.updateObjects({objects})).resolves.toStrictEqual({
         success: true,
       });
     });
@@ -136,7 +136,7 @@ describe('data protection', () => {
       }));
 
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
-      await expect(elba.dataProtection.updateObjects(objects)).resolves.toStrictEqual({
+      await expect(elba.dataProtection.updateObjects({objects})).resolves.toStrictEqual({
         success: true,
       });
     });
@@ -144,7 +144,7 @@ describe('data protection', () => {
 
   describe('deleteObjects', () => {
     test('should call the right endpoint and return the response data when using syncedBefore', async () => {
-      const syncedBefore = new Date();
+      const syncedBefore = new Date().toISOString();
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
       await expect(elba.dataProtection.deleteObjects({ syncedBefore })).resolves.toStrictEqual({
         success: true,
@@ -166,7 +166,7 @@ describe('connection status', () => {
   describe('update', () => {
     test('should call the right endpoint and return the response data', async () => {
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
-      await expect(elba.connectionStatus.update(true)).resolves.toStrictEqual({
+      await expect(elba.connectionStatus.update({ hasError: true })).resolves.toStrictEqual({
         success: true,
       });
     });
