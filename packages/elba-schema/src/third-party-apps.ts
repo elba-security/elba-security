@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { infer as zInfer } from 'zod';
-import { baseDeleteRequestSchema, jsonSchema } from './common';
+import { jsonSchema } from './common';
 
 export const updateThirdPartyAppsSchema = z.object({
   apps: z.array(
