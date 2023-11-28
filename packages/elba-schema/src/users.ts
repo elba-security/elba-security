@@ -1,5 +1,6 @@
 import type { infer as zInfer } from 'zod';
 import { z } from 'zod';
+import { baseDeleteRequestSchema } from './common';
 
 export const updateUsersSchema = z.object({
   users: z.array(
@@ -14,13 +15,6 @@ export const updateUsersSchema = z.object({
 
 export type UpdateUsers = zInfer<typeof updateUsersSchema>;
 
-export const deleteUsersSchema = z.union([
-  z.object({
-    ids: z.array(z.string().min(1)).optional(),
-  }),
-  z.object({
-    lastSyncedBefore: z.string().datetime().optional(),
-  }),
-]);
+export const deleteUsersSchema = baseDeleteRequestSchema;
 
 export type DeleteUsers = zInfer<typeof deleteUsersSchema>;

@@ -22,16 +22,16 @@ describe('users', () => {
       }));
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
       await expect(elba.users.update({ users })).resolves.toStrictEqual({
-        success: true
+        success: true,
       });
     });
   });
 
   describe('deleteUsers', () => {
-    test('should call the right endpoint and return the response data when using lastSyncedBefore', async () => {
-      const lastSyncedBefore = new Date().toISOString();
+    test('should call the right endpoint and return the response data when using syncedBefore', async () => {
+      const syncedBefore = new Date().toISOString();
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
-      await expect(elba.users.delete({ lastSyncedBefore })).resolves.toStrictEqual({
+      await expect(elba.users.delete({ syncedBefore })).resolves.toStrictEqual({
         success: true,
       });
     });
@@ -106,7 +106,7 @@ describe('authentication', () => {
         authMethod: (['mfa', 'password', 'sso'] as const)[i % 3]!,
       }));
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
-      await expect(elba.authentication.updateObjects({objects})).resolves.toStrictEqual({
+      await expect(elba.authentication.updateObjects({ objects })).resolves.toStrictEqual({
         success: true,
       });
     });
@@ -136,7 +136,7 @@ describe('data protection', () => {
       }));
 
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
-      await expect(elba.dataProtection.updateObjects({objects})).resolves.toStrictEqual({
+      await expect(elba.dataProtection.updateObjects({ objects })).resolves.toStrictEqual({
         success: true,
       });
     });
