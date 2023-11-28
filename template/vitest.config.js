@@ -1,13 +1,12 @@
 import { resolve } from 'node:path';
 /// <reference types="vitest" />
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import { config } from 'dotenv';
 
-const envFilePath = process.env.VERCEL_ENV ? '.env.test' : '.env.test.local';
-const { error } = config({ path: envFilePath });
+const { error } = config({ path: '.env.test' });
 
 if (error) {
-  throw new Error(`Could not find environment variables file: ${envFilePath}`);
+  throw new Error(`Could not find environment variables file: .env.test`);
 }
 
 export default defineConfig({
