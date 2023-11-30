@@ -1,0 +1,22 @@
+{
+  "name": "@elba-security/sdk",
+  "main": "src/index.ts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "lint": "eslint src/**.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@elba-security/schemas": "workspace:*"
+  },
+  "devDependencies": {
+    "@elba-security/msw-utils": "workspace:*",
+    "eslint": "^8",
+    "typescript": "^5",
+    "vitest": "^0.34.6",
+    "eslint-config-custom": "workspace:*",
+    "tsconfig": "workspace:*",
+    "msw": "^2.0.1"
+  }
+}
