@@ -9,8 +9,10 @@
   "dependencies": {
     "@elba-security/api-client": "workspace:*",
     "typescript": "^5",
-    "msw": "^2.0.1",
     "zod": "^3.22.4"
+  },
+  "peerDependencies": {
+    "msw": ">=2.0.0"
   },
   "devDependencies": {
     "eslint": "^8",
