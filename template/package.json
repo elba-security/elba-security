@@ -28,7 +28,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
-    "@elba-security/elba-msw": "workspace:*",
+    "@elba-security/msw-utils": "workspace:*",
     "@edge-runtime/vm": "^3.1.7",
     "@next/eslint-plugin-next": "^14.0.2",
     "@types/node": "^20",
