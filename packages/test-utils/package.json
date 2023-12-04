@@ -1,5 +1,5 @@
 {
-  "name": "@elba-security/msw-utils",
+  "name": "@elba-security/test-utils",
   "version": "0.1.0",
   "private": true,
   "main": "src/index.ts",
@@ -12,7 +12,9 @@
     "zod": "^3.22.4"
   },
   "peerDependencies": {
-    "msw": ">=2.0.0"
+    "msw": ">=2.0.0",
+    "inngest": ">=3.6.0",
+    "vitest": ">=1.0.0"
   },
   "devDependencies": {
     "eslint": "^8",
