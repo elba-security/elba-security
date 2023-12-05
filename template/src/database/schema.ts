@@ -1,11 +1,12 @@
-import { uuid, text, timestamp, pgTable } from 'drizzle-orm/pg-core';
+import { uuid, text, timestamp, pgTable, boolean } from 'drizzle-orm/pg-core';
 import { type InferSelectModel } from 'drizzle-orm';
 
 export const Organisation = pgTable('organisation', {
   id: uuid('id').primaryKey(),
-  // saasId is an example, it can removed and other properties that fit your use-case can be added
-  saasId: text('saas_id').notNull().unique(),
+  isActivated: boolean('is_activated').default(false),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  // the following properties are examples, it can removed / replaced to fit your use-case
+  token: text('token').notNull(),
 });
 
 export type SelectOrganisation = InferSelectModel<typeof Organisation>;

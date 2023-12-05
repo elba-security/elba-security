@@ -35,3 +35,8 @@ bun dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+### Example implementation
+
+The template contains an example implementation that will guide you to reach our requirements. Make sure
+to adapt this example to your need and remove the disclamer comments before creating your first PR.
