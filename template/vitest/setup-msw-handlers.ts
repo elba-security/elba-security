@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment -- conveniency until we enforce an env. var. validation */
-import { createElbaRequestHandlers } from 'elba-msw';
+import { createElbaRequestHandlers } from '@elba-security/test-utils';
 import { setupServer } from 'msw/node';
 import { beforeAll, afterAll, afterEach } from 'vitest';
 import { http, passthrough } from 'msw';
