@@ -19,6 +19,10 @@ As Vercel offers storage hosting, we chose to select one of the supported databa
 
 We are requiring the use of [`drizzle-orm`](https://orm.drizzle.team/docs/overview), which provides type safety and migration generation. Unlike the `@vercel/postgres` utility `sql` used alone, it allows for local database usage.
 
+### `inngest`
+
+We use [`inngest`](https://inngest.com/) for its efficient handling of event-driven architectures and serverless functions, enabling us to easily create and manage responsive workflows.
+
 #### `vitest`
 
 We also require [`vitest`](https://vitest.dev/) as the test runner for several reasons. It is well-maintained, and its configuration is less tricky than that for `jest`. Additionally, it is faster.
@@ -70,7 +74,9 @@ pnpm create next-app awesome-service -e https://github.com/elba-security/elba-se
 
 > Don't forget to read the `README.md` file generated at the root of your integration folder.
 
-## How to implement unit tests ?
+## How to implement tests ?
+
+_The template provides an example implementation of authentication and user syncing processes. It is fully tested and offers a clear perspective on how we intend the tests to be implemented._
 
 ### Elba API Mocks
 
