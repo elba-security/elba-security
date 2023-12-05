@@ -40,7 +40,7 @@ type MockSetup<
   : // signature for cron function
     () => MockSetupReturns<F, EventName>;
 
-export const createFunctionMock =
+export const createInngestFunctionMock =
   <F extends AnyInngestFunction, EventName extends keyof ExtractEvents<F> | undefined = undefined>(
     func: F,
     _?: EventName
@@ -52,6 +52,7 @@ export const createFunctionMock =
         .fn()
         .mockImplementation((name: string, stepHandler: () => Promise<unknown>) => stepHandler()),
       sendEvent: vi.fn().mockResolvedValue(undefined),
+      waitForEvent: vi.fn().mockResolvedValue(undefined),
     };
     const ts = new Date().getTime();
     const context = {
