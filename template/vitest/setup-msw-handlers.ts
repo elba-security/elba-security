@@ -1,15 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment -- conveniency until we enforce an env. var. validation */
 import { createElbaRequestHandlers } from '@elba-security/test-utils';
 import { setupServer } from 'msw/node';
 import { beforeAll, afterAll, afterEach } from 'vitest';
 import { http, passthrough } from 'msw';
+import { env } from '@/env';
 
-const elbaRequestHandlers = createElbaRequestHandlers(
-  process.env.ELBA_API_BASE_URL!,
-  process.env.ELBA_API_KEY!
-);
+const elbaRequestHandlers = createElbaRequestHandlers(env.ELBA_API_BASE_URL, env.ELBA_API_KEY);
 
-const server = setupServer(
+export const server = setupServer(
   // Remove the next line if your integration does not works with edge runtime
   http.all(`http://localhost:${env.POSTGRES_PROXY}/*`, () => passthrough()),
   ...elbaRequestHandlers
