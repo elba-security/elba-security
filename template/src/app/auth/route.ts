@@ -3,10 +3,11 @@ import type { NextRequest } from 'next/server';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
 
-// Remove theses 3 lines if your integration does not works with edge runtime
+// Remove the next line if your integration does not works with edge runtime
 export const preferredRegion = env.VERCEL_PREFERRED_REGION;
-export const dynamic = 'force-dynamic';
+// Remove the next line if your integration does not works with edge runtime
 export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
 /**
  * This route path can be changed to fit your implementation specificities.
