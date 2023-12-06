@@ -19,7 +19,7 @@ const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   token: 'test-token',
 };
-const syncStartedAt = new Date().getTime();
+const syncStartedAt = Date.now();
 
 const users: usersConnector.MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
@@ -35,7 +35,7 @@ describe('sync-users', () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
-      syncStartedAt: new Date().getTime(),
+      syncStartedAt: Date.now(),
       page: 0,
     });
 

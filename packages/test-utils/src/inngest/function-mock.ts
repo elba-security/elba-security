@@ -54,7 +54,7 @@ export const createInngestFunctionMock =
       sendEvent: vi.fn().mockResolvedValue(undefined),
       waitForEvent: vi.fn().mockResolvedValue(undefined),
     };
-    const ts = new Date().getTime();
+    const ts = Date.now();
     const context = {
       event: {
         ts,

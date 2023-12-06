@@ -12,6 +12,7 @@ export const env = z
     POSTGRES_USER: z.string().min(1),
     POSTGRES_PASSWORD: z.string().min(1),
     POSTGRES_DATABASE: z.string().min(1),
-    POSTGRES_PROXY: z.coerce.number().int().positive(),
+    POSTGRES_PROXY_PORT: z.coerce.number().int().positive(),
+    VERCEL_PREFERRED_REGION: z.string().min(1),
   })
   .parse(process.env);
