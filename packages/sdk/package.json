@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@elba-security/test-utils": "workspace:*",
+    "@types/node": "^20.10.3",
     "eslint": "^8",
     "typescript": "^5",
     "vitest": "^1.0.0",

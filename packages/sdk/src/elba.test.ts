@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion -- test conveniency */
 import { expect, test, describe } from 'vitest';
 import { Elba } from './elba';
 import type { User } from './resources/users/types';
@@ -7,8 +8,7 @@ import type { DataProtectionObject } from './resources/data-protection/types';
 
 const organisationId = '22bc932d-a132-4a63-bde8-5cb5609f0e73';
 const sourceId = '12c7a45b-1dea-44f3-a1ed-92816caff31d';
-const baseUrl = process.env.ELBA_API_BASE_URL;
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- setup-test-server will throw if not present
+const baseUrl = process.env.ELBA_API_BASE_URL!;
 const apiKey = process.env.ELBA_API_KEY!;
 
 describe('users', () => {
@@ -102,7 +102,7 @@ describe('authentication', () => {
     test('should call the right endpoint and return the response data', async () => {
       const objects: AuthenticationObject[] = Array.from({ length: 5 }, (_, i) => ({
         userId: `id-${i}`,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- acceptable for test
+
         authMethod: (['mfa', 'password', 'sso'] as const)[i % 3]!,
       }));
       const elba = new Elba({ organisationId, sourceId, baseUrl, apiKey });
@@ -126,7 +126,7 @@ describe('data protection', () => {
         permissions: Array.from({ length: 5 }, (item, j) => ({
           id: `permission-${i}-${j}`,
           metadata: { fiz: 'baz' },
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- acceptable for test
+
           type: (['user', 'domain', 'anyone'] as const)[j % 3]!,
           email: `permission-${i}-${j}@email.com`,
           userId: `user-${i}-${j}`,

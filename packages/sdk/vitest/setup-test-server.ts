@@ -1,4 +1,4 @@
-import { createElbaRequestHandlers } from '@elba-security/msw-utils';
+import { createElbaRequestHandlers } from '@elba-security/test-utils';
 import { setupServer } from 'msw/node';
 import { beforeAll, afterAll, afterEach } from 'vitest';
 
