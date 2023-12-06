@@ -1,5 +1,5 @@
 {
-  "name": "next-elba-template",
+  "name": "@elba-security/asana",
   "version": "0.1.0",
   "private": true,
   "scripts": {
