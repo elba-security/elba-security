@@ -17,17 +17,15 @@ export const getExpiringDropboxTokens = async () => {
       .select({
         organisationId: tokens.organisationId,
         refreshToken: tokens.refreshToken,
+        expiresAt: tokens.expiresAt,
       })
       .from(tokens)
       .orderBy(asc(tokens.expiresAt))
       .where(
         and(
-          lte(tokens.expiresAt, addMinutes(new Date(), EXPIRES_BEFORE).toISOString()),
+          lte(tokens.expiresAt, addMinutes(new Date(), EXPIRES_BEFORE)),
           isNull(tokens.unauthorizedAt),
-          or(
-            isNull(tokens.refreshAfter),
-            lte(tokens.refreshAfter, new Date(Date.now()).toISOString())
-          )
+          or(isNull(tokens.refreshAfter), lte(tokens.refreshAfter, new Date()))
         )
       );
   } catch (error) {
@@ -41,7 +39,7 @@ export const updateDropboxTokens = async ({ organisationId, ...rest }: RefreshTo
       .update(tokens)
       .set({
         ...rest,
-        updatedAt: sql`now()`,
+        updatedAt: new Date(),
       })
       .where(eq(tokens.organisationId, organisationId))
       .returning({ organisationId: tokens.organisationId, updatedAt: tokens.updatedAt });

@@ -6,7 +6,6 @@ import {
   organisationWithExpiredToken,
   selectedOrganisationToRefreshToken,
 } from './__mocks__/organisations';
-import { db, tokens } from '@/database';
 
 describe('schedule-users-sync-jobs', () => {
   test('should not schedule any jobs when there are no organisations to refresh', async () => {
@@ -26,9 +25,9 @@ describe('schedule-users-sync-jobs', () => {
             adminTeamMemberId: `test-team-member-id-${index}`,
             rootNamespaceId: `root-name-space-id-${index}`,
             teamName: 'test-team-name',
-            expiresAt,
-            unauthorizedAt: isUnauthorized ? new Date(Date.now()).toISOString() : null,
-            refreshAfter,
+            expiresAt: new Date(expiresAt),
+            unauthorizedAt: isUnauthorized ? new Date(Date.now()) : null,
+            refreshAfter: refreshAfter ? new Date(refreshAfter) : null,
           });
         }
       )

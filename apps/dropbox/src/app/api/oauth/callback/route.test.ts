@@ -143,7 +143,7 @@ describe('Callback dropbox', () => {
       teamName: 'test-team-name',
       adminTeamMemberId: 'test-team-member-id',
       rootNamespaceId: ROOT_NAMESPACE_ID,
-      expiresAt: addSeconds(new Date(TOKEN_GENERATED_AT), TOKEN_WILL_EXPIRE_IN).toISOString(),
+      expiresAt: addSeconds(new Date(TOKEN_GENERATED_AT), TOKEN_WILL_EXPIRE_IN),
     };
 
     await db.delete(tokens);

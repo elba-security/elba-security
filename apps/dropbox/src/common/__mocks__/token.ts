@@ -2,7 +2,7 @@ import { tokens, db } from '@/database';
 import { addMinutes, addSeconds } from 'date-fns';
 
 const ORGANISATION_ID = '65a9f078-5ab6-4f87-a9e9-cbe91d797562';
-const expiresAt = addSeconds(new Date(), 100).toISOString();
+const expiresAt = addSeconds(new Date(), 100);
 
 export type Token = typeof tokens.$inferInsert;
 
@@ -46,7 +46,7 @@ export const insertOrganisations = async ({
         organisationId,
         refreshToken: `refresh-token-${idx}`,
         adminTeamMemberId: `admin-team-member-id-${idx}`,
-        expiresAt: addMinutes(expiresAt[idx]!, 240).toISOString(),
+        expiresAt: addMinutes(expiresAt[idx]!, 240),
         rootNamespaceId: `root-namespace-id-${idx}`,
         teamName: `team-name-${idx}`,
       });

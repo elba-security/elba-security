@@ -7,12 +7,12 @@ import { addMinutes } from 'date-fns';
 export type RefreshTokenResult =
   | {
       organisationId: string;
-      refreshAfter: string | null;
-      unauthorizedAt: string | null;
+      refreshAfter: Date | null;
+      unauthorizedAt: Date | null;
     }
   | {
       organisationId: string;
-      expiresAt: string;
+      expiresAt: Date;
       accessToken: string;
     };
 
@@ -32,7 +32,7 @@ const fetchRefreshTokens = async ({
 
     return {
       organisationId,
-      expiresAt: response.expires_at.toISOString(),
+      expiresAt: response.expires_at,
       accessToken: response.access_token,
     };
   } catch (error) {
@@ -41,7 +41,7 @@ const fetchRefreshTokens = async ({
         return {
           organisationId,
           refreshAfter: null,
-          unauthorizedAt: new Date(Date.now()).toISOString(),
+          unauthorizedAt: new Date(),
         };
       }
 
@@ -50,7 +50,7 @@ const fetchRefreshTokens = async ({
 
         return {
           organisationId: organisationId,
-          refreshAfter: addMinutes(new Date(Date.now()), retryAfter * 1000).toISOString(),
+          refreshAfter: addMinutes(new Date(Date.now()), retryAfter * 1000),
           unauthorizedAt: null,
         };
       }

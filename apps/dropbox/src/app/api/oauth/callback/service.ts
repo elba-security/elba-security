@@ -51,11 +51,11 @@ export const generateAccessToken = async ({
     result: { name, account_type, root_info, team },
   } = await dbxAccess.usersGetCurrentAccount();
 
-  if (account_type['.tag'] !== 'business') {
-    throw new Error(
-      `We don't support ${account_type['.tag']} account, please use business account`
-    );
-  }
+  // if (account_type['.tag'] !== 'business') {
+  //   throw new Error(
+  //     `We don't support ${account_type['.tag']} account, please use business account`
+  //   );
+  // }
 
   // if (root_info['.tag'] !== 'team') {
   //   throw new Error(`We don't support ${root_info['.tag']} account type`);
@@ -66,7 +66,7 @@ export const generateAccessToken = async ({
   }
 
   try {
-    const accessTokenExpiresAt = addSeconds(new Date(), expires_in).toISOString();
+    const accessTokenExpiresAt = addSeconds(new Date(), expires_in);
     await insertAccessToken({
       organisationId,
       accessToken: access_token,

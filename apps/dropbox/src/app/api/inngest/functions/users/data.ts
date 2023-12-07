@@ -8,5 +8,5 @@ export const getOrganisationsToSyncUsers = async () => {
       accessToken: tokens.accessToken,
     })
     .from(tokens)
-    .where(and(gte(tokens.expiresAt, new Date().toISOString()), isNull(tokens.unauthorizedAt)));
+    .where(and(gte(tokens.expiresAt, new Date()), isNull(tokens.unauthorizedAt)));
 };
