@@ -1,4 +1,0 @@
-{
-  "extends": ["custom/next"],
-  "@typescript-eslint/consistent-type-definitions": ["error", "type"]
-}
