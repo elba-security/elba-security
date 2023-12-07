@@ -12,9 +12,10 @@ export const rateLimitMiddleware = new InngestMiddleware({
               result: { error, ...result },
               ...context
             } = ctx;
-            // TODO: extract retryAfter from the error
-            // error instanceof AsanaError && error.response.headers['retry-after'] ....
-            const retryAfter = false;
+            const retryAfter =
+              error instanceof AsanaError &&
+              error.response?.status === 429 &&
+              error.response.headers.get('Retry-After');
 
             if (!retryAfter) {
               return;
@@ -25,8 +26,8 @@ export const rateLimitMiddleware = new InngestMiddleware({
               result: {
                 ...result,
                 error: new RetryAfterError(
-                  `MySaaS rate limit reached by '${fn.name}'`,
-                  retryAfter,
+                  `Asana rate limit reached by '${fn.name}'`,
+                  Number(retryAfter) * 1000,
                   {
                     cause: error,
                   }
