@@ -1,5 +1,5 @@
 {
-  "extends": ["custom/library"],
+  "extends": ["@elba-security/custom/library"],
   "rules": {
     "@typescript-eslint/no-unsafe-call": "off",
     "@typescript-eslint/no-unsafe-return": "off"

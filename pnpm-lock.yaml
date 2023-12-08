@@ -8,15 +8,15 @@ importers:
 
   .:
     devDependencies:
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:packages/tsconfig
       eslint:
         specifier: ^8.48.0
         version: 8.53.0
       prettier:
         specifier: ^3.0.3
         version: 3.0.3
-      tsconfig:
-        specifier: workspace:*
-        version: link:packages/tsconfig
       turbo:
         specifier: latest
         version: 1.10.16
@@ -30,21 +30,21 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../eslint-config-custom
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@hono/node-server':
         specifier: ^1.2.3
         version: 1.2.3
       eslint:
         specifier: ^8
         version: 8.53.0
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:../eslint-config-custom
       hono:
         specifier: ^3.10.2
         version: 3.10.2
-      tsconfig:
-        specifier: workspace:*
-        version: link:../tsconfig
       tsx:
         specifier: ^3.12.2
         version: 3.14.0
@@ -70,15 +70,15 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../eslint-config-custom
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
       eslint:
         specifier: ^8
         version: 8.53.0
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:../eslint-config-custom
-      tsconfig:
-        specifier: workspace:*
-        version: link:../tsconfig
 
   packages/sdk:
     dependencies:
@@ -86,24 +86,24 @@ importers:
         specifier: workspace:*
         version: link:../schemas
     devDependencies:
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../eslint-config-custom
       '@elba-security/test-utils':
         specifier: workspace:*
         version: link:../test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@types/node':
         specifier: ^20.10.3
         version: 20.10.3
       eslint:
         specifier: ^8
         version: 8.53.0
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:../eslint-config-custom
       msw:
         specifier: ^2.0.1
         version: 2.0.6(typescript@5.2.2)
-      tsconfig:
-        specifier: workspace:*
-        version: link:../tsconfig
       typescript:
         specifier: ^5
         version: 5.2.2
@@ -132,15 +132,15 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../eslint-config-custom
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
       eslint:
         specifier: ^8
         version: 8.53.0
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:../eslint-config-custom
-      tsconfig:
-        specifier: workspace:*
-        version: link:../tsconfig
 
   packages/tsconfig: {}
 

@@ -1,21 +1,21 @@
-# `elba-msw`
+# `@elba-security/test-utils`
 
 Expose a collection of msw request handlers that mock elba open API endpoints.
 
 ## Usage
 
-Add `elba-msw` in your `package.json` as a dev dependency.
+Add `@elba-security/test-utils` in your `package.json` as a dev dependency.
 
 ```json
 "devDependencies": {
-  "elba-msw": "workspace:*"
+  "@elba-security/test-utils": "workspace:*"
 }
 ```
 
 Next, configure the request handlers in a vitest setup file:
 
 ```ts
-import { createElbaRequestHandlers } from 'elba-msw';
+import { createElbaRequestHandlers } from '@elba-security/test-utils';
 import { setupServer } from 'msw/node';
 import { beforeAll, afterAll, afterEach } from 'vitest';
 
@@ -35,7 +35,7 @@ Note that if you don't have any vitest setup files configured, make sure to set 
 
 ```js
 /// <reference types="vitest" />
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {

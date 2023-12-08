@@ -1,18 +1,22 @@
 # elba-sdk
 
-`elba-sdk` is a client wrapping elba Open API endpoint, designed to simplify interactions with [specific functionalities]. It provides methods for [brief description of key features].
+`elba-sdk` is a client wrapping elba Open API endpoints, and common utils. It's designed to simplify interactions with [specific functionalities]. It provides methods for [brief description of key features].
+
+In
 
 ## Installation
 
-Before installing, make sure you have [prerequisites]. To install `elba-sdk`, run:
+Before installing, make sure you have [prerequisites].
+
+To install `elba-sdk`, run:
 
 ```sh
-pnpm i elba-sdk
+pnpm install elba-sdk
 ```
 
 ## Usage
 
-To start using elba-sdk, you'll need to set up your environment variables and instantiate the client:
+To start using the `elba-sdk`, you'll need to set up your environment variables and instantiate the client:
 
 ```ts
 import { Elba } from 'elba-sdk';
@@ -21,7 +25,7 @@ const elba = new Elba({
   organisationId: 'foo-bar',
   sourceId: process.env.ELBA_SOURCE_ID,
   apiKey: process.env.ELBA_API_KEY,
-  // baseUrl: process.env.ELBA_LOCAL_BASE_URL - optionnal, can be usefull in a local environnement
+  // baseUrl: process.env.ELBA_LOCAL_BASE_URL - optional, can be useful in a local environnement
 });
 ```
 

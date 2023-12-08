@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion -- test conveniency */
+/* eslint-disable @typescript-eslint/no-non-null-assertion -- test convenience */
 import { expect, test, describe } from 'vitest';
 import { Elba } from './elba';
 import type { User } from './resources/users/types';
