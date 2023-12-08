@@ -1,15 +1,20 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { RetryAfterError } from 'inngest';
 import { DropboxResponseError } from 'dropbox';
-import { mockInngestFunction } from '@/common/__mocks__/inngest';
 import { runUserSyncJobPagination } from './run-user-sync-jobs-pagination';
 import { membersListSecondPageResult } from './__mocks__/dropbox';
+import { createInngestFunctionMock } from '@elba-security/test-utils';
 
 const mocks = vi.hoisted(() => {
   return {
     teamMembersListContinueV2: vi.fn(),
   };
 });
+
+const setup = createInngestFunctionMock(
+  runUserSyncJobPagination,
+  'users/run-user-sync-job-pagination'
+);
 
 // Mock Dropbox sdk
 vi.mock('@/repositories/dropbox/clients/DBXAccess', () => {
@@ -50,7 +55,7 @@ describe('run-user-sync-jobs', async () => {
       )
     );
 
-    const { result } = mockInngestFunction(runUserSyncJobPagination, {
+    const [result] = setup({
       organisationId: 'b0771747-caf0-487d-a885-5bc3f1e9f770',
       accessToken: 'access-token-1',
       isFirstScan: true,
@@ -67,7 +72,7 @@ describe('run-user-sync-jobs', async () => {
       return membersListSecondPageResult;
     });
 
-    const { result } = mockInngestFunction(runUserSyncJobPagination, {
+    const [result] = setup({
       organisationId: 'b0771747-caf0-487d-a885-5bc3f1e9f770',
       accessToken: 'access-token-1',
       isFirstScan: true,

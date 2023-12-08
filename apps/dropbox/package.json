@@ -27,7 +27,7 @@
     "drizzle-kit": "^0.20.4",
     "drizzle-orm": "^0.29.0",
     "dropbox": "^10.34.0",
-    "inngest": "^3.6.1",
+    "inngest": "^3.7.0",
     "js-cookie": "^3.0.5",
     "next": "14.0.1",
     "postgres": "^3.4.3",

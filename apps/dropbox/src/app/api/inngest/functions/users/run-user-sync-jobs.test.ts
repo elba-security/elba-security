@@ -2,13 +2,16 @@ import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { RetryAfterError } from 'inngest';
 import { insertTestAccessToken } from '@/common/__mocks__/token';
 import { DropboxResponseError } from 'dropbox';
-import { mockInngestFunction } from '@/common/__mocks__/inngest';
 import { runUserSyncJobs } from './run-user-sync-jobs';
+import { createInngestFunctionMock } from '@elba-security/test-utils';
+
 import {
   membersListFirstPageResult,
   membersListSecondPageResult,
   membersListWithoutPagination,
 } from './__mocks__/dropbox';
+
+const setup = createInngestFunctionMock(runUserSyncJobs, 'users/run-user-sync-jobs');
 
 const mocks = vi.hoisted(() => {
   return {
@@ -32,18 +35,6 @@ vi.mock('@/repositories/dropbox/clients/DBXAccess', () => {
   };
 });
 
-type SetupArgs = {
-  organisationId?: string;
-  accessToken?: string;
-  isFirstScan?: boolean;
-};
-
-const defaultData = {
-  organisationId: 'organisation-id-1',
-  accessToken: 'access-token-1',
-  isFirstScan: false,
-};
-
 describe('run-user-sync-jobs', async () => {
   beforeEach(async () => {
     mocks.teamMembersListV2.mockReset();
@@ -56,7 +47,7 @@ describe('run-user-sync-jobs', async () => {
 
   test('should delay the job when Dropbox rate limit is reached', async () => {
     await insertTestAccessToken();
-
+    const [result] = setup({});
     mocks.teamMembersListV2.mockRejectedValue(
       new DropboxResponseError(
         429,
@@ -71,8 +62,6 @@ describe('run-user-sync-jobs', async () => {
         }
       )
     );
-
-    const { result } = mockInngestFunction(runUserSyncJobs);
 
     await expect(result).rejects.toStrictEqual(
       new RetryAfterError('Dropbox rate limit reached', Number(5 * 1000))
@@ -89,7 +78,7 @@ describe('run-user-sync-jobs', async () => {
       };
     });
 
-    const { result } = mockInngestFunction(runUserSyncJobs);
+    const [result] = setup({});
 
     expect(await result).toStrictEqual({
       success: true,
@@ -101,7 +90,7 @@ describe('run-user-sync-jobs', async () => {
       return membersListWithoutPagination;
     });
 
-    const { result } = mockInngestFunction(runUserSyncJobs, {
+    const [result] = setup({
       organisationId: 'b0771747-caf0-487d-a885-5bc3f1e9f770',
       accessToken: 'access-token-1',
       isFirstScan: true,
@@ -117,15 +106,7 @@ describe('run-user-sync-jobs', async () => {
       return membersListFirstPageResult;
     });
 
-    // mocks.teamMembersListContinueV2
-    //   .mockImplementationOnce(() => {
-    //     return membersListSecondPageResult;
-    //   })
-    //   .mockImplementationOnce(() => {
-    //     return membersListWithoutPagination;
-    //   });
-
-    const { result } = mockInngestFunction(runUserSyncJobs, {
+    const [result] = setup({
       organisationId: 'b0771747-caf0-487d-a885-5bc3f1e9f770',
       accessToken: 'access-token-1',
       isFirstScan: true,

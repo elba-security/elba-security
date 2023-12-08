@@ -1,15 +1,17 @@
 import { expect, test, describe } from 'vitest';
 import { scheduleRefreshTokensJobs } from './schedule-refresh-tokens-jobs';
-import { mockInngestFunction } from '@/common/__mocks__/inngest';
 import { insertOrganisations, insertTestAccessToken } from '@/common/__mocks__/token';
 import {
   organisationWithExpiredToken,
   selectedOrganisationToRefreshToken,
 } from './__mocks__/organisations';
+import { createInngestFunctionMock } from '@elba-security/test-utils';
+
+const setup = createInngestFunctionMock(scheduleRefreshTokensJobs);
 
 describe('schedule-users-sync-jobs', () => {
   test('should not schedule any jobs when there are no organisations to refresh', async () => {
-    const { result, step } = mockInngestFunction(scheduleRefreshTokensJobs);
+    const [result, { step }] = setup();
     await expect(result).resolves.toStrictEqual({ organisations: [] });
     expect(step.sendEvent).toBeCalledTimes(0);
   });
@@ -33,7 +35,7 @@ describe('schedule-users-sync-jobs', () => {
       )
     );
 
-    const { result, step } = mockInngestFunction(scheduleRefreshTokensJobs);
+    const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
       organisations: expect.arrayContaining(selectedOrganisationToRefreshToken),

@@ -57,8 +57,8 @@ importers:
         specifier: ^10.34.0
         version: 10.34.0(@types/node-fetch@2.6.9)
       inngest:
-        specifier: ^3.6.1
-        version: 3.6.2(typescript@5.2.2)
+        specifier: ^3.7.0
+        version: 3.7.0(typescript@5.2.2)
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -223,8 +223,8 @@ importers:
         specifier: workspace:*
         version: link:../api-client
       inngest:
-        specifier: '>=3.6.0'
-        version: 3.6.2(typescript@5.2.2)
+        specifier: '3.7'
+        version: 3.7.0(typescript@5.2.2)
       msw:
         specifier: '>=2.0.0'
         version: 2.0.6(typescript@5.2.2)
@@ -3989,8 +3989,8 @@ packages:
   /inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
 
-  /inngest@3.6.2(typescript@5.2.2):
-    resolution: {integrity: sha512-PRg9s6W91XsW5kJGLvzwg6kA7lfhHJaB+2yjki3PkAQ2rv/ljyWHyebnbPpxdxeKh7H5JjOM9yllIrGYzuvrLg==}
+  /inngest@3.7.0(typescript@5.2.2):
+    resolution: {integrity: sha512-LhtFC3S+Ak1ex94APD4IS6z7EuPrffw0CaIpHnEMNbzbpuVc4bF5aN/N4hS4VjNIx1TGxm6Um4ymHmFCSmtcSg==}
     engines: {node: '>=14'}
     peerDependencies:
       typescript: '>=4.7.2'
