@@ -28,8 +28,8 @@ export async function isValidWebhookElbaSignature(
   payload: Record<string, unknown>,
   elbaSignatureFromHeader: string
 ): Promise<boolean> {
-  const computedElbaSignature = await _createWebhookElbaSignature(secret, payload);
-  return _timingSafeEqual(computedElbaSignature, elbaSignatureFromHeader);
+  const computedElbaSignature = await createWebhookElbaSignature(secret, payload);
+  return timingSafeEqual(computedElbaSignature, elbaSignatureFromHeader);
 }
 
 /**
@@ -50,10 +50,7 @@ export async function isValidWebhookElbaSignature(
  * console.log(signature);
  * ```
  */
-export async function _createWebhookElbaSignature(
-  secret: string,
-  payload: Record<string, unknown>
-) {
+async function createWebhookElbaSignature(secret: string, payload: Record<string, unknown>) {
   // encode the secret and payload to Uint8Array
   const encoder = new TextEncoder();
   const encodedSecret = encoder.encode(secret);
@@ -70,7 +67,7 @@ export async function _createWebhookElbaSignature(
 
   const signature = await crypto.subtle.sign('HMAC', key, encodedPayload);
 
-  return _bufferToHex(signature);
+  return bufferToHex(signature);
 }
 
 /**
@@ -87,7 +84,7 @@ export async function _createWebhookElbaSignature(
  * console.log(hexSignature);
  * ```
  */
-export function _bufferToHex(buffer: ArrayBuffer): string {
+function bufferToHex(buffer: ArrayBuffer): string {
   return Array.from(new Uint8Array(buffer))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
@@ -115,7 +112,7 @@ export function _bufferToHex(buffer: ArrayBuffer): string {
  * console.log(isEqual);
  * ```
  */
-export function _timingSafeEqual(a: string, b: string): boolean {
+function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) {
     return false;
   }
