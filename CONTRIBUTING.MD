@@ -111,16 +111,16 @@ Opening a Pull Request (PR) on a public repository on GitHub involves a series o
 - Go to your forked repository on GitHub.
 - You'll likely see a `“Compare & pull request”` button for your recently pushed branch. Click it.
 - Alternatively, you can switch to your new branch and click the `"New pull request"` button.
-- Fill in the PR form by following the provided PR template. It's important to be clear and descriptive so the maintainers understand what you've done and why.
+- Fill in the PR form by following the provided PR template. It's important to be clear and descriptive we are able to understand what you've done and why.
 
 8. **Submit the Pull Request:**
 
 - Once you've filled out the PR form, click the `"Create pull request"` button to submit it.
-- Your PR will now be visible to the repository maintainers. They might review your changes, request modifications, or merge them into the main project.
+- Your PR will now be visible and we will review your changes, request modifications, or merge them.
 
 9. **Follow Up:**
 
-- Keep an eye on your PR for any comments or requests for changes from the maintainers. Responding promptly and making any requested changes is key to getting your PR merged.
+- Keep an eye on your PR for any comments or requests for changes that we've made. Responding promptly and making any requested changes is key to getting your PR merged.
 
 ## How to implement tests ?
 
