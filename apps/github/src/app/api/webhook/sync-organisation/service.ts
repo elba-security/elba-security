@@ -17,7 +17,7 @@ export const syncOrganisation = async (organisationId: string) => {
   }
 
   await inngest.send({
-    name: 'third-party-apps/sync',
+    name: 'third-party-apps/page_sync.requested',
     data: {
       organisationId,
       installationId: organisation.installationId,

@@ -7,7 +7,7 @@ import { db } from '@/database/client';
 import { Admin, Organisation } from '@/database/schema';
 import { spyOnElbaSdk } from '@/__mocks__/elba-sdk';
 import { env } from '@/env';
-import { syncApps } from './sync-apps';
+import { syncAppsPage } from './sync-apps-page';
 import { elbaApps } from './__mocks__/snapshots';
 import { githubApps, githubInstallations } from './__mocks__/github';
 import { admins, organisation } from './__mocks__/integration';
@@ -21,9 +21,9 @@ const data = {
   cursor: null,
 };
 
-const setup = createInngestFunctionMock(syncApps, 'third-party-apps/sync');
+const setup = createInngestFunctionMock(syncAppsPage, 'third-party-apps/page_sync.requested');
 
-describe('sync-apps', () => {
+describe('sync-apps-page', () => {
   beforeEach(async () => {
     await db.insert(Organisation).values(organisation);
     await db.insert(Admin).values(admins);
@@ -81,8 +81,8 @@ describe('sync-apps', () => {
     expect(elba.thirdPartyApps.deleteObjects).toBeCalledTimes(0);
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('sync-apps', {
-      name: 'third-party-apps/sync',
+    expect(step.sendEvent).toBeCalledWith('sync-apps-page', {
+      name: 'third-party-apps/page_sync.requested',
       data: {
         ...data,
         cursor: nextCursor,

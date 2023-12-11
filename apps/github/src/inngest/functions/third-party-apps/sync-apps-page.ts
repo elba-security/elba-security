@@ -33,7 +33,7 @@ const formatElbaApp = (
   };
 };
 
-export const syncApps = inngest.createFunction(
+export const syncAppsPage = inngest.createFunction(
   {
     id: 'sync-apps',
     priority: {
@@ -53,7 +53,7 @@ export const syncApps = inngest.createFunction(
     ],
   },
   {
-    event: 'third-party-apps/sync',
+    event: 'third-party-apps/page_sync.requested',
   },
   async ({ event, step }) => {
     const { installationId, organisationId, cursor, accountLogin } = event.data;
@@ -96,8 +96,8 @@ export const syncApps = inngest.createFunction(
     });
 
     if (nextCursor) {
-      await step.sendEvent('sync-apps', {
-        name: 'third-party-apps/sync',
+      await step.sendEvent('sync-apps-page', {
+        name: 'third-party-apps/page_sync.requested',
         data: {
           ...event.data,
           cursor: nextCursor,

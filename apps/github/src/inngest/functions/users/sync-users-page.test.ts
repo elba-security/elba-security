@@ -5,7 +5,7 @@ import { Admin, Organisation } from '@/database/schema';
 import { db } from '@/database/client';
 import { spyOnElbaSdk } from '@/__mocks__/elba-sdk';
 import { env } from '@/env';
-import { syncUsers } from './sync-users';
+import { syncUsersPage } from './sync-users-page';
 import { elbaUsers } from './__mocks__/snapshots';
 import { githubAdmins, githubUsers } from './__mocks__/github';
 
@@ -24,9 +24,9 @@ const data = {
   cursor: null,
 };
 
-const setup = createInngestFunctionMock(syncUsers, 'users/sync');
+const setup = createInngestFunctionMock(syncUsersPage, 'users/page_sync.requested');
 
-describe('sync-users', () => {
+describe('sync-users-page', () => {
   beforeEach(async () => {
     await db.insert(Organisation).values(organisation);
   });
@@ -77,8 +77,8 @@ describe('sync-users', () => {
     expect(elba.users.delete).toBeCalledTimes(0);
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('sync-users', {
-      name: 'users/sync',
+    expect(step.sendEvent).toBeCalledWith('sync-users-page', {
+      name: 'users/page_sync.requested',
       data: {
         ...data,
         cursor: nextCursor,

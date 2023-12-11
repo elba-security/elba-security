@@ -28,7 +28,7 @@ export const setupOrganisation = async (installationId: number, organisationId: 
   }
 
   await inngest.send({
-    name: 'users/sync',
+    name: 'users/page_sync.requested',
     data: {
       organisationId,
       installationId: installation.id,

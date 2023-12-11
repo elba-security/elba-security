@@ -37,9 +37,9 @@ describe('schedule-apps-syncs', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'sync-apps',
+      'sync-organisations-apps',
       organisations.map(({ id, installationId, accountLogin }) => ({
-        name: 'third-party-apps/sync',
+        name: 'third-party-apps/page_sync.requested',
         data: {
           installationId,
           organisationId: id,

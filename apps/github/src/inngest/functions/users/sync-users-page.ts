@@ -14,9 +14,9 @@ const formatElbaUser = (member: OrganizationMember): User => ({
   additionalEmails: [],
 });
 
-export const syncUsers = inngest.createFunction(
+export const syncUsersPage = inngest.createFunction(
   {
-    id: 'sync-users',
+    id: 'sync-users-page',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -34,7 +34,7 @@ export const syncUsers = inngest.createFunction(
     ],
   },
   {
-    event: 'users/sync',
+    event: 'users/page_sync.requested',
   },
   async ({ event, step }) => {
     const { installationId, organisationId, accountLogin, cursor } = event.data;
@@ -78,8 +78,8 @@ export const syncUsers = inngest.createFunction(
     });
 
     if (nextCursor) {
-      await step.sendEvent('sync-users', {
-        name: 'users/sync',
+      await step.sendEvent('sync-users-page', {
+        name: 'users/page_sync.requested',
         data: {
           ...event.data,
           cursor: nextCursor,

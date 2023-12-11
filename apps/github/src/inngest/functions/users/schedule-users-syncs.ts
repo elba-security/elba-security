@@ -17,9 +17,9 @@ export const scheduleUsersSyncs = inngest.createFunction(
 
     if (organisations.length > 0) {
       await step.sendEvent(
-        'sync-users',
+        'sync-organisations-users',
         organisations.map(({ id, installationId, accountLogin }) => ({
-          name: 'users/sync',
+          name: 'users/page_sync.requested',
           data: {
             installationId,
             organisationId: id,

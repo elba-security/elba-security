@@ -8,7 +8,7 @@ export type FunctionHandler = Parameters<typeof inngest.createFunction>[2];
 export const inngest = new Inngest({
   id: 'github',
   schemas: new EventSchemas().fromZod({
-    'users/sync': {
+    'users/page_sync.requested': {
       data: z.object({
         installationId: z.number().int().min(0),
         organisationId: z.string().uuid(),
@@ -18,7 +18,7 @@ export const inngest = new Inngest({
         cursor: z.string().nullable(),
       }),
     },
-    'third-party-apps/sync': {
+    'third-party-apps/page_sync.requested': {
       data: z.object({
         installationId: z.number().int().min(0),
         organisationId: z.string().uuid(),

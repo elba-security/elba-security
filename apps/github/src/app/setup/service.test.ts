@@ -76,8 +76,7 @@ describe('setupOrganisation', () => {
     await expect(db.select().from(Organisation)).resolves.toMatchObject([organisation]);
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'users/sync',
-
+      name: 'users/page_sync.requested',
       data: {
         organisationId,
         installationId: organisation.installationId,

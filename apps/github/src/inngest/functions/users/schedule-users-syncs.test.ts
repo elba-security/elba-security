@@ -33,9 +33,9 @@ describe('schedule-users-syncs', () => {
     });
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'sync-users',
+      'sync-organisations-users',
       organisations.map(({ id, installationId, accountLogin }) => ({
-        name: 'users/sync',
+        name: 'users/page_sync.requested',
         data: {
           installationId,
           organisationId: id,
