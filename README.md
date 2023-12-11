@@ -4,11 +4,11 @@
 
 ### Repository Overview
 
-This repository is the hub for Elba integrations. Each integration within this repository plays a crucial role as middleware. They serve as the connecting bridge between a variety of SaaS APIs and elba's open API.
+This repository is the hub for elba's integrations. Each integration within this repository plays an essential role as middleware. They serve as the connecting bridge between a variety of SaaS APIs and elba's open API.
 
 ### Functionality and Data Handling
 
-These integrations are designed to collect and manage data, including details about SaaS users, third-party applications, and different types of data like files and messages.
+These integrations are designed to collect and manage data, including details about SaaS users, third-party applications, and different types of data such as files and messages.
 
 ### Integration Actions and Webhooks
 

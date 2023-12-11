@@ -39,7 +39,7 @@ Next, run the nextjs development server with the command:
 pnpm dev
 ```
 
-To be able to run Inngest functions, it's crucial to have a local Inngest client operational. Start it using:
+To be able to run Inngest functions, it's essential to have a local Inngest client operational. Start it using:
 
 ```bash
 pnpm dev:inngest
@@ -49,7 +49,7 @@ _Once the Inngest client is running, it will send requests to the `localhost:400
 
 ### Database migrations
 
-To create a new migration file within the /drizzle directory, execute the following command:
+To create a new migration file within the `/drizzle` directory, execute the following command:
 
 ```bash
 pnpm database:generate
