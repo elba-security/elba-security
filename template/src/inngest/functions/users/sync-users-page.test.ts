@@ -1,6 +1,6 @@
 /**
  * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `syncUsers` function example.
+ * The tests provided in this file are specifically designed for the `syncUsersPage` function example.
  * These tests serve as a conceptual framework and are not intended to be used as definitive tests in a production environment.
  * They are meant to illustrate potential test scenarios and methodologies that might be relevant for a SaaS integration.
  * Developers should create their own tests tailored to the specific implementation details and requirements of their SaaS integration.
@@ -13,11 +13,12 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { syncUsers } from './sync-users';
+import { syncUsersPage } from './sync-users-page';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   token: 'test-token',
+  region: 'us',
 };
 const syncStartedAt = Date.now();
 
@@ -27,7 +28,7 @@ const users: usersConnector.MySaasUser[] = Array.from({ length: 5 }, (_, i) => (
   email: `username-${i}@foo.bar`,
 }));
 
-const setup = createInngestFunctionMock(syncUsers, 'users/sync');
+const setup = createInngestFunctionMock(syncUsersPage, 'users/sync_page.triggered');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
@@ -67,12 +68,13 @@ describe('sync-users', () => {
 
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('sync-users', {
-      name: 'users/sync',
+    expect(step.sendEvent).toBeCalledWith('sync-users-page', {
+      name: 'users/sync_page.triggered',
       data: {
         organisationId: organisation.id,
         isFirstSync: false,
         syncStartedAt,
+        region: organisation.region,
         page: 1,
       },
     });
