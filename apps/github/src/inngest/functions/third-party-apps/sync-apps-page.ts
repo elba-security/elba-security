@@ -40,8 +40,6 @@ export const syncAppsPage = inngest.createFunction(
       run: 'event.data.isFirstSync ? 600 : 0',
     },
     retries: env.THIRD_PARTY_APPS_MAX_RETRY,
-    idempotency:
-      env.VERCEL_ENV && env.VERCEL_ENV !== 'development' ? 'event.data.installationId' : undefined,
     concurrency: [
       {
         limit: env.MAX_CONCURRENT_THIRD_PARTY_APPS_SYNC,

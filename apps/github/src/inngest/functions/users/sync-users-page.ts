@@ -21,8 +21,6 @@ export const syncUsersPage = inngest.createFunction(
       run: 'event.data.isFirstSync ? 600 : 0',
     },
     retries: env.USERS_SYNC_MAX_RETRY,
-    idempotency:
-      env.VERCEL_ENV && env.VERCEL_ENV !== 'development' ? 'event.data.installationId' : undefined,
     concurrency: [
       {
         limit: env.MAX_CONCURRENT_USERS_SYNC,
