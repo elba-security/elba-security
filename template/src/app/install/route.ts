@@ -11,13 +11,15 @@ export const dynamic = 'force-dynamic';
 
 export function GET(request: NextRequest) {
   const organisationId = request.nextUrl.searchParams.get('organisation_id');
+  const region = request.nextUrl.searchParams.get('region');
 
-  if (!organisationId) {
+  if (!organisationId || !region) {
     redirect(`${env.ELBA_REDIRECT_URL}?error=true`);
   }
 
   // we store the organisationId in the cookies to be able to retrieve after the SaaS redirection
   cookies().set('organisation_id', organisationId);
+  cookies().set('region', region);
 
   // we redirect the user to the installation page of the SaaS application
   redirect(

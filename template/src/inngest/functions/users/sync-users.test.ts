@@ -37,6 +37,7 @@ describe('sync-users', () => {
       isFirstSync: false,
       syncStartedAt: Date.now(),
       page: 0,
+      region: 'us',
     });
 
     // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
@@ -59,6 +60,7 @@ describe('sync-users', () => {
       isFirstSync: false,
       syncStartedAt,
       page: 0,
+      region: 'us',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -88,6 +90,7 @@ describe('sync-users', () => {
       isFirstSync: false,
       syncStartedAt,
       page: 0,
+      region: 'us',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });

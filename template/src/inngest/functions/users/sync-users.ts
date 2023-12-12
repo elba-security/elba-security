@@ -37,13 +37,14 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'users/sync' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, syncStartedAt, page, region } = event.data;
 
     const elba = new Elba({
       organisationId,
       sourceId: env.ELBA_SOURCE_ID,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
+      region,
     });
 
     // retrieve the SaaS organisation token
@@ -69,7 +70,7 @@ export const syncUsers = inngest.createFunction(
       return result.nextPage;
     });
 
-    // if there is a next enqueue a new sync user event
+    // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('sync-users', {
         name: 'users/sync',
