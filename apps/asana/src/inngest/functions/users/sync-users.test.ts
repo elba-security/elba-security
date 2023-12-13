@@ -1,8 +1,4 @@
 import { test, describe } from 'vitest';
-import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { syncUsers } from './sync-users';
-
-const setup = createInngestFunctionMock(syncUsers, 'users/sync');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {

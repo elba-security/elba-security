@@ -9,7 +9,6 @@ export const registerWebhook = async (organisationId: string, accessToken: strin
     Asana.ApiClient.instance.authentications.token = accessToken;
     // @ts-expect-error -- no type here
     const webhooksApi = new Asana.WebhooksApi();
-    console.log("webhooksApi:", webhooksApi)
     const response = await webhooksApi.createWebhook(
       {
         data: {
@@ -29,7 +28,6 @@ export const registerWebhook = async (organisationId: string, accessToken: strin
           'active,created_at,filters,filters.action,filters.fields,filters.resource_subtype,last_failure_at,last_failure_content,last_success_at,resource,resource.name,target',
       }
     );
-    console.log("webhook response:", response)
     /* eslint-enable -- no type here */
   } catch (error: unknown) {
     throw new AsanaError(`Could not register webhook for organisation with id=${organisationId}`, {

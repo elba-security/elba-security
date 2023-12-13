@@ -20,5 +20,7 @@ export const env = z
     POSTGRES_PROXY_PORT: z.coerce.number().int().positive(),
     VERCEL_PREFERRED_REGION: z.string().min(1),
     USERS_SYNC_JOB_BATCH_SIZE: z.coerce.number().min(1).int().default(100),
+    USERS_SYNC_CRON: z.string().min(1),
+    TOKEN_REFRESH_CRON: z.string().min(1)
   })
   .parse(process.env);

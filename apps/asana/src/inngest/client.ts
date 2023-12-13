@@ -13,6 +13,14 @@ export const inngest = new Inngest({
         offset?: string;
       };
     };
+    'token/refresh': {
+      data: {
+        organisationId: string;
+        refreshTokenInfo: string;
+        syncStartedAt: number;
+        isFirstSync: boolean;
+      };
+    };
   }>(),
   middleware: [rateLimitMiddleware, unauthorizedMiddleware],
 });

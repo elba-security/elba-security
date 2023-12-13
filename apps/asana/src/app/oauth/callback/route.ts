@@ -36,7 +36,6 @@ export async function GET(request: NextRequest) {
 
     await setupOrganisation(organisationId, code);
   } catch(error) {
-    console.log("error:", error)
     // TODO: log the error when logger is implemented
     // note that redirect throw an error
     redirect(`${env.ELBA_REDIRECT_URL}?error=true`, RedirectType.replace);
