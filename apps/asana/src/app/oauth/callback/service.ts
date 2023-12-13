@@ -15,10 +15,11 @@ export const setupOrganisation = async (organisationId: string, code: string) =>
   } = await getToken(code);
 
   // await registerWebhook(organisationId, access_token);
+  const expiresAt = new Date(Date.now() + expires_in * 1000);
 
   const upsertValue = {
     accessToken: access_token,
-    expiresIn: expires_in,
+    expiresAt: expiresAt,
     refreshToken: refresh_token,
     asanaId,
     gid,

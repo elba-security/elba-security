@@ -43,9 +43,11 @@ export const syncUsers = inngest.createFunction(
         .select({ accessToken: Organisation.accessToken })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
+
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
+      
       return organisation.accessToken;
     });
 
