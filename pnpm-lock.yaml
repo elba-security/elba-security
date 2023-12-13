@@ -60,6 +60,9 @@ importers:
       next:
         specifier: 14.0.1
         version: 14.0.1(@babel/core@7.23.5)(react-dom@18.2.0)(react@18.2.0)
+      querystring:
+        specifier: ^0.2.1
+        version: 0.2.1
       react:
         specifier: ^18
         version: 18.2.0
@@ -5581,6 +5584,12 @@ packages:
     engines: {node: '>=0.6'}
     dependencies:
       side-channel: 1.0.4
+    dev: false
+
+  /querystring@0.2.1:
+    resolution: {integrity: sha512-wkvS7mL/JMugcup3/rMitHmd9ecIGd2lhFhK9N3UUQ450h66d1r3Y9nvXzQAW1Lq+wyx61k/1pfKS5KuKiyEbg==}
+    engines: {node: '>=0.4.x'}
+    deprecated: The querystring API is considered Legacy. new code should use the URLSearchParams API instead.
     dev: false
 
   /queue-microtask@1.2.3:

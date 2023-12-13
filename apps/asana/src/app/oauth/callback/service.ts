@@ -3,7 +3,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getToken } from '@/connectors/auth';
-import { registerWebhook } from '@/connectors/webhook';
+// import { registerWebhook } from '@/connectors/webhook';
 
 export const setupOrganisation = async (organisationId: string, code: string) => {
   // retrieve token from SaaS API using the given code
@@ -14,7 +14,7 @@ export const setupOrganisation = async (organisationId: string, code: string) =>
     data: { id: asanaId, gid, name, email },
   } = await getToken(code);
 
-  await registerWebhook(organisationId, access_token);
+  // await registerWebhook(organisationId, access_token);
 
   const upsertValue = {
     accessToken: access_token,

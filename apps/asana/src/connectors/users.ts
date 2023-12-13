@@ -18,7 +18,7 @@ export type AsanaUser = {
 };
 
 type GetUsersResponseData = {
-  users?: AsanaUser[];
+  data?: AsanaUser[];
   next_page?: {
     offset: string;
     path: string;
@@ -31,19 +31,20 @@ export const getUsers = async (accessToken: string, workspace: string, offset?: 
   try {
     // @ts-expect-error -- no type here
     Asana.ApiClient.instance.authentications.token = accessToken;
-    // @ts-expect-error -- no type here
-    const usersApi = new Asana.UsersApi();
-    const data: GetUsersResponseData = await usersApi.getUsers({
-      workspace,
-      limit: env.USERS_SYNC_JOB_BATCH_SIZE,
-      offset: offset,
-      opt_fields:
-        'email, name,resource_type, offset, path,uri,workspaces,workspaces.name,workspaces.resource_type, role',
-    });
-    /* eslint-enable -- no type here */
+    const opt_fields = 'email, name';
+    
+    const response = await fetch(`https://app.asana.com/api/1.0/users?opt_fields=${opt_fields}&workspace=${workspace}&limit=${env.USERS_SYNC_JOB_BATCH_SIZE}&${offset ? offset : ""}&`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
 
+    const data: GetUsersResponseData = await response.json();
+    /* eslint-enable -- no type here */
     return {
-      users: data.users ?? [],
+      users: data.data ?? [],
       offset: data.next_page?.offset ?? null,
     };
   } catch (error: unknown) {

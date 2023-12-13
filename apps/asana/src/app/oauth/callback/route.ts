@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const code = request.nextUrl.searchParams.get('code');
     const organisationId = request.nextUrl.searchParams.get('state');
     const errorMessage = request.nextUrl.searchParams.get('error');
-
+    
     if (errorMessage) {
       throw new Error(`Could not authenticate organisation with id=${organisationId}`, {
         cause: errorMessage,
@@ -35,7 +35,8 @@ export async function GET(request: NextRequest) {
     }
 
     await setupOrganisation(organisationId, code);
-  } catch {
+  } catch(error) {
+    console.log("error:", error)
     // TODO: log the error when logger is implemented
     // note that redirect throw an error
     redirect(`${env.ELBA_REDIRECT_URL}?error=true`, RedirectType.replace);

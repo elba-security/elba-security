@@ -12,13 +12,13 @@ export type GetTokenResponseData = {
 export const getToken = async (code: string): Promise<GetTokenResponseData> => {
   const response = await fetch(`${env.ASANA_API_BASE_URL}/oauth_token`, {
     method: 'POST',
-    body: JSON.stringify({
+    body: new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: env.ASANA_CLIENT_ID,
       client_secret: env.ASANA_CLIENT_SECRET,
       redirect_uri: env.ASANA_REDIRECT_URI,
       code,
-    }),
+    }).toString(),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
