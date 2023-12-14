@@ -17,8 +17,6 @@ export const inngest = new Inngest({
       data: {
         organisationId: string;
         refreshTokenInfo: string;
-        syncStartedAt: number;
-        isFirstSync: boolean;
       };
     };
   }>(),

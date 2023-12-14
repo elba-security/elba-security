@@ -5,15 +5,7 @@ export type AsanaUser = {
   gid: string;
   email: string;
   name: string;
-  resource_type: string;
-  role: string;
-  workspaces: [
-    {
-      gid: string;
-      name: string;
-      resource_type: string;
-    },
-  ];
+  
 };
 
 export type GetUsersResponseData = {

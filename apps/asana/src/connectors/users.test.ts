@@ -21,15 +21,6 @@ describe('user connector', () => {
           gid: 'some_data_gid',
           email: 'some_data_email',
           name: 'some_data_name',
-          resource_type: 'some_data_id',
-          role: "some_data_role",
-          workspaces: [
-            {
-              gid: "some_data_gid",
-              name: "some_data_name",
-              resource_type: "some_data_resource_type"
-            },
-          ]
         }
       ],
       next_page: {
@@ -46,15 +37,6 @@ describe('user connector', () => {
           gid: 'some_data_gid',
           email: 'some_data_email',
           name: 'some_data_name',
-          resource_type: 'some_data_id',
-          role: "some_data_role",
-          workspaces: [
-            {
-              gid: "some_data_gid",
-              name: "some_data_name",
-              resource_type: "some_data_resource_type"
-            },
-          ]
         }
       ]
     };

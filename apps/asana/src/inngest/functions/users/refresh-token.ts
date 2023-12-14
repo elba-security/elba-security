@@ -11,7 +11,7 @@ export const tokenRefresh = inngest.createFunction(
   async ({ event, step }) => {
     const { organisationId, refreshTokenInfo } = event.data;
 
-    const getRefreshToken = await step.run('get-refresh-token',async () => {
+    await step.run('get-refresh-token',async () => {
         const {
             access_token, 
             expires_in, 
@@ -29,8 +29,11 @@ export const tokenRefresh = inngest.createFunction(
         .update(Organisation)
         .set(updateValue)
         .where(eq(Organisation.id, organisationId));
+
     });
     
-    return { getRefreshToken };
+    return {
+      status: 'completed',
+    };
   }
 );
