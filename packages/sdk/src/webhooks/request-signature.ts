@@ -1,3 +1,50 @@
+import { z } from 'zod';
+import { ElbaError } from '../error';
+
+export type ValidateWebhookRequestSignatureResult =
+  | {
+      success: false;
+      error: ElbaError;
+    }
+  | { success: true };
+
+export const validateWebhookRequestSignature = async (request: Request, secret: string) => {
+  // cloning is mandatory to make sure that request.json() still works after this function invokation
+  const requestClone = request.clone();
+  const signature = requestClone.headers.get('X-Elba-Signature');
+
+  if (!signature) {
+    throw new ElbaError("Could not retrieve header 'X-Elba-Signature' from webhook request", {
+      request,
+    });
+  }
+
+  const payload = await parseRequestPayload(requestClone);
+
+  const isSignatureValid = await validateSignature(secret, payload, signature);
+
+  if (!isSignatureValid) {
+    throw new ElbaError('Could not validate elba signature from webhook request', {
+      request,
+    });
+  }
+};
+
+const parseRequestPayload = async (request: Request) => {
+  if (!['POST', 'PATCH', 'PUT'].includes(request.method)) {
+    return undefined;
+  }
+
+  const payload = (await request.json()) as unknown;
+  const result = z.record(z.unknown()).safeParse(payload);
+
+  if (!result.success) {
+    throw new ElbaError('Could not validate payload from webhook request', { request });
+  }
+
+  return result.data;
+};
+
 /**
  * Validates the signature sent in the 'X-elba-Signature' header of a webhook request
  * received from elba.
@@ -23,13 +70,13 @@
  * console.log("Is the signature valid?, isValid ? "Yes" : "No");
  * ```
  */
-export async function isValidWebhookElbaSignature(
+async function validateSignature(
   secret: string,
-  payload: Record<string, unknown>,
-  elbaSignatureFromHeader: string
+  payload: Record<string, unknown> | undefined,
+  signature: string
 ): Promise<boolean> {
-  const computedElbaSignature = await createWebhookElbaSignature(secret, payload);
-  return timingSafeEqual(computedElbaSignature, elbaSignatureFromHeader);
+  const expectedSignature = await createWebhookElbaSignature(secret, payload);
+  return timingSafeEqual(expectedSignature, signature);
 }
 
 /**
@@ -50,7 +97,10 @@ export async function isValidWebhookElbaSignature(
  * console.log(signature);
  * ```
  */
-async function createWebhookElbaSignature(secret: string, payload: Record<string, unknown>) {
+async function createWebhookElbaSignature(
+  secret: string,
+  payload: Record<string, unknown> | undefined
+) {
   // encode the secret and payload to Uint8Array
   const encoder = new TextEncoder();
   const encodedSecret = encoder.encode(secret);

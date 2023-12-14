@@ -1,6 +1,6 @@
 export * from './elba';
 export * from './error';
-export * from './utils';
+export * from './webhooks';
 
 export type * from './resources/authentication/types';
 export type * from './resources/connection-status/types';
