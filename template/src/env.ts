@@ -6,6 +6,7 @@ export const env = z
     ELBA_API_BASE_URL: z.string().url(),
     ELBA_REDIRECT_URL: z.string().url(),
     ELBA_SOURCE_ID: z.string().uuid(),
+    ELBA_WEBHOOK_SECRET: z.string().min(1),
     POSTGRES_URL: z.string().min(1),
     POSTGRES_HOST: z.string().min(1),
     POSTGRES_PORT: z.coerce.number().int().positive(),
