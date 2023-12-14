@@ -1,4 +1,4 @@
-import { gte } from 'drizzle-orm';
+import { lte } from 'drizzle-orm';
 import { env } from '@/env';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
@@ -9,7 +9,7 @@ export const scheduleTokenRefresh = inngest.createFunction(
   { cron: env.TOKEN_REFRESH_CRON },
   async ({ step }) => {
 
-    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60000);
+    const thirtyMinutesAFromNow = new Date(Date.now() + 30 * 60000);
 
     const organisations = await db
         .select({
@@ -17,7 +17,7 @@ export const scheduleTokenRefresh = inngest.createFunction(
             refreshToken: Organisation.refreshToken,
         })
         .from(Organisation)
-        .where(gte(Organisation.expiresAt, thirtyMinutesAgo));
+        .where(lte(Organisation.expiresAt, thirtyMinutesAFromNow));
 
     if (organisations.length > 0) {
       await step.sendEvent('refresh-token',
