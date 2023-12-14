@@ -1,4 +1,3 @@
-import * as Asana from 'asana';
 import { env } from '@/env';
 import { AsanaError } from './commons/error';
 
@@ -17,7 +16,7 @@ export type AsanaUser = {
   ];
 };
 
-type GetUsersResponseData = {
+export type GetUsersResponseData = {
   data?: AsanaUser[];
   next_page?: {
     offset: string;
@@ -29,11 +28,11 @@ type GetUsersResponseData = {
 export const getUsers = async (accessToken: string, workspace: string, offset?: string) => {
   /* eslint-disable -- no type here */
   try {
-    // @ts-expect-error -- no type here
-    Asana.ApiClient.instance.authentications.token = accessToken;
+    console.log("offset", offset)
     const opt_fields = 'email, name';
     
-    const response = await fetch(`https://app.asana.com/api/1.0/users?opt_fields=${opt_fields}&workspace=${workspace}&limit=${env.USERS_SYNC_JOB_BATCH_SIZE}&${offset ? offset : ""}`, {
+    const response = await fetch(`https://app.asana.com/api/1.0/users?opt_fields=${opt_fields}&workspace=${workspace}&limit=${env.USERS_SYNC_JOB_BATCH_SIZE}${offset ? `&offset=${offset}` : ""}`
+    , {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',

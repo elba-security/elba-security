@@ -22,7 +22,7 @@ const token: GetTokenResponseData = {
   access_token: 'some_access_token',
   refresh_token: 'some_refresh_token',
   token_type: 'some_token_type',
-  expires_in: 12000,
+  expires_in: 3600,
   data: {
     id: 'some_data_id',
     gid: 'some_data_gid',
@@ -34,7 +34,6 @@ const token: GetTokenResponseData = {
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   accessToken: token.access_token,
-  expiresIn: token.expires_in,
   refreshToken: token.refresh_token,
   asanaId: token.data.id,
   gid: token.data.gid,

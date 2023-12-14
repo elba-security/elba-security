@@ -6,7 +6,6 @@ export const env = z
     ASANA_CLIENT_ID: z.string().min(1),
     ASANA_CLIENT_SECRET: z.string().min(1),
     ASANA_REDIRECT_URI: z.string().min(1),
-    ASANA_WEBHOOK_URI: z.string().url(),
     ELBA_API_KEY: z.string().min(1),
     ELBA_API_BASE_URL: z.string().url(),
     ELBA_REDIRECT_URL: z.string().url(),
