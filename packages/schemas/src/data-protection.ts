@@ -52,3 +52,5 @@ export type UpdateDataProtectionObjects = zInfer<typeof updateDataProtectionObje
 export const deleteDataProtectionObjectsSchema = baseDeleteRequestSchema;
 
 export type DeleteDataProtectionObjects = zInfer<typeof deleteDataProtectionObjectsSchema>;
+
+export const dataProtectionContentRequestedDataSchema = z.void();
