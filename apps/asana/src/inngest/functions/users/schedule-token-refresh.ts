@@ -9,7 +9,7 @@ export const scheduleTokenRefresh = inngest.createFunction(
   { cron: env.TOKEN_REFRESH_CRON },
   async ({ step }) => {
 
-    const thirtyMinutesAFromNow = new Date(Date.now() + 30 * 60000);
+    const thirtyMinutesFromNow = new Date(Date.now() + 30 * 60000);
 
     const organisations = await db
         .select({
