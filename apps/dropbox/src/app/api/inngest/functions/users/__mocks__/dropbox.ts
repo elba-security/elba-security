@@ -198,7 +198,7 @@ export const mockUserPoolWithoutPagination = mockUserPoolFirstPageResult;
 export const membersListFirstPageResult: Partial<DropboxResponse<team.MembersListV2Result>> = {
   result: {
     members: membersListFirstPage,
-    cursor: 'AAAZIQAQj4t_iNsWZgIkK04nHtZ_nP7',
+    cursor: 'cursor-1',
     has_more: true,
   },
 };
@@ -206,7 +206,7 @@ export const membersListFirstPageResult: Partial<DropboxResponse<team.MembersLis
 export const membersListSecondPageResult: Partial<DropboxResponse<team.MembersListV2Result>> = {
   result: {
     members: membersListSecondPage,
-    cursor: 'IkK04nHtZ_nP7ztnbGp3UxUYpBwQAajh1W0JyWupHvrLDAW4ju',
+    cursor: 'cursor-2',
     has_more: true,
   },
 };
@@ -214,7 +214,7 @@ export const membersListSecondPageResult: Partial<DropboxResponse<team.MembersLi
 export const membersListWithoutPagination: Partial<DropboxResponse<team.MembersListV2Result>> = {
   result: {
     members: membersListFirstPage,
-    cursor: 'IkK04nHtZ_nP7ztnbGp3UxUYpBwQAajh1W0JyWup4ju',
+    cursor: 'cursor-3',
     has_more: false,
   },
 };

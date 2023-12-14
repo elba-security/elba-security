@@ -18,6 +18,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
   const dbxAccess = new DBXAccess({
     accessToken,
   });
+
   const elba = elbaAccess(organisationId);
 
   let response: DropboxResponse<team.MembersListV2Result>;
@@ -59,7 +60,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     .catch(handleError);
 
   if (users?.hasMore) {
-    await step.sendEvent('sendEvent.run-user-sync-job-pagination', {
+    await step.sendEvent('sendEvent/run-user-sync-job-pagination', {
       name: 'users/run-user-sync-job-pagination',
       data: { ...event.data, isFirstScan: false, pagination: users.pagination },
     });

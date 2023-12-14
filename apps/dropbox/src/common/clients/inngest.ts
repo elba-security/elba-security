@@ -17,11 +17,48 @@ const eventMap = {
       organisationId: z.string(),
       accessToken: z.string(),
       isFirstScan: z.boolean().default(false),
+      pagination: z.string().optional(),
     }),
   },
-  'users/run-user-sync-job-pagination.completed': {
+  'data-protection/create-shared-link-sync-jobs': {
     data: z.object({
       organisationId: z.string(),
+      accessToken: z.string(),
+      isFirstScan: z.boolean().default(false),
+      syncStartedAt: z.string(),
+      cursor: z.string().optional(),
+      pathRoot: z.number(),
+    }),
+  },
+  'data-protection/synchronize-shared-links': {
+    data: z.object({
+      organisationId: z.string(),
+      accessToken: z.string(),
+      isPersonal: z.boolean(),
+      pagination: z.string().optional(),
+      teamMemberId: z.string(),
+      pathRoot: z.number(),
+    }),
+  },
+  'data-protection/create-path-sync-jobs': {
+    data: z.object({
+      organisationId: z.string(),
+      accessToken: z.string(),
+      isFirstScan: z.boolean().default(false),
+      syncStartedAt: z.string(),
+      cursor: z.string().optional(),
+      pathRoot: z.number(),
+      adminTeamMemberId: z.string().optional(),
+    }),
+  },
+  'data-protection/synchronize-folders-and-files': {
+    data: z.object({
+      organisationId: z.string(),
+      accessToken: z.string(),
+      isPersonal: z.boolean(),
+      pagination: z.string().optional(),
+      teamMemberId: z.string(),
+      pathRoot: z.number(),
     }),
   },
 };
@@ -29,5 +66,5 @@ const eventMap = {
 // Create a client to send and receive events
 export const inngest = new Inngest({
   id: 'dropbox',
-  // schemas: new EventSchemas().fromZod(eventMap),
+  schemas: new EventSchemas().fromZod(eventMap),
 });

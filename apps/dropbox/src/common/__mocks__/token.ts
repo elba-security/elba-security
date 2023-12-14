@@ -34,7 +34,7 @@ export const insertTestAccessToken = async (tokenDetails: Token = defaultAccessT
 
 export const insertOrganisations = async ({
   size = 1,
-  expiresAt = [new Date()],
+  expiresAt = Array.from({ length: size }, () => new Date()),
 }: {
   size?: number;
   expiresAt?: Date[];
@@ -47,7 +47,7 @@ export const insertOrganisations = async ({
         refreshToken: `refresh-token-${idx}`,
         adminTeamMemberId: `admin-team-member-id-${idx}`,
         expiresAt: addMinutes(expiresAt[idx]!, 240),
-        rootNamespaceId: `root-namespace-id-${idx}`,
+        rootNamespaceId: `root-namespace-id`,
         teamName: `team-name-${idx}`,
       });
     })
