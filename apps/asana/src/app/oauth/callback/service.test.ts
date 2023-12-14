@@ -103,7 +103,6 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
-   
     // check if the organisation in the database is updated
     await expect(
       db.select().from(Organisation).where(eq(Organisation.id, organisation.id))

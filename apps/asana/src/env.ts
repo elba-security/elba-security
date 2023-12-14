@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const env = z
   .object({
     ASANA_API_BASE_URL: z.string().url(),
+    ASANA_API_USER_BASE_URL: z.string().url(),
     ASANA_CLIENT_ID: z.string().min(1),
     ASANA_CLIENT_SECRET: z.string().min(1),
     ASANA_REDIRECT_URI: z.string().min(1),
@@ -20,6 +21,6 @@ export const env = z
     VERCEL_PREFERRED_REGION: z.string().min(1),
     USERS_SYNC_JOB_BATCH_SIZE: z.coerce.number().min(1).int().default(100),
     USERS_SYNC_CRON: z.string().min(1),
-    TOKEN_REFRESH_CRON: z.string().min(1)
+    TOKEN_REFRESH_CRON: z.string().min(1),
   })
   .parse(process.env);

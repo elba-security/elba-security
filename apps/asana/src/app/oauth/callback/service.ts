@@ -17,7 +17,7 @@ export const setupOrganisation = async (organisationId: string, code: string) =>
 
   const upsertValue = {
     accessToken: access_token,
-    expiresAt: expiresAt,
+    expiresAt,
     refreshToken: refresh_token,
     asanaId,
     gid,

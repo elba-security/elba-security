@@ -35,7 +35,7 @@ export const getToken = async (code: string): Promise<GetTokenResponseData> => {
   return response.json();
 };
 
-export const refreshToken = async (refreshTokenInfo: string) : Promise<RefreshTokenResponseData> => {
+export const refreshToken = async (refreshTokenInfo: string): Promise<RefreshTokenResponseData> => {
   const response = await fetch(`${env.ASANA_API_BASE_URL}/oauth_token`, {
     method: 'POST',
     body: new URLSearchParams({
@@ -55,4 +55,4 @@ export const refreshToken = async (refreshTokenInfo: string) : Promise<RefreshTo
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- assuming response data type
   return response.json();
-}
+};

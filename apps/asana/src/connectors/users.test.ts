@@ -1,7 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
+ 
+ 
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
+import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
 import { getUsers } from './users';
 import type { GetUsersResponseData } from './users';
@@ -13,7 +14,6 @@ const offset = 'some_data_offset';
 
 describe('user connector', () => {
   describe('getUsers', () => {
-
     // Mock response data when there is another page
     const usersDataWithNextPage: GetUsersResponseData = {
       data: [
@@ -21,12 +21,12 @@ describe('user connector', () => {
           gid: 'some_data_gid',
           email: 'some_data_email',
           name: 'some_data_name',
-        }
+        },
       ],
       next_page: {
-        offset: "some_data_offset",
-        path: "some_data_path",
-        uri: "some_data_uri"
+        offset: 'some_data_offset',
+        path: 'some_data_path',
+        uri: 'some_data_uri',
       },
     };
 
@@ -37,32 +37,33 @@ describe('user connector', () => {
           gid: 'some_data_gid',
           email: 'some_data_email',
           name: 'some_data_name',
-        }
-      ]
+        },
+      ],
     };
-    
+
     beforeEach(() => {
+      /* eslint-disable -- no type here */
       server.use(
-        http.get(`https://app.asana.com/api/1.0/users`, ({ request }) => {
+        http.get(`${env.ASANA_API_USER_BASE_URL}`, ({ request }) => {
           const accessToken = request.headers.get('Authorization')?.split(' ')[1];
           // Extracting the 'workspace' query parameter
-          const url = new URL(request.url)
+          const url = new URL(request.url);
           const workspace = url.searchParams.get('workspace');
           const offsetParam = url.searchParams.get('offset');
 
-          if ( accessToken !== validAccessToken || workspace !== workspaceId) {
+          if (accessToken !== validAccessToken || workspace !== workspaceId) {
             return new Response(undefined, { status: 401 });
           }
-          if(!offsetParam){
+          if (!offsetParam) {
             return Response.json(usersDataLastPage);
           }
           return Response.json(usersDataWithNextPage);
         })
       );
     });
+    /* eslint-enable -- no type here */
 
     test('should return users and nextPage when the token is valid and there is another page', async () => {
-
       await expect(getUsers(validAccessToken, workspaceId, offset)).resolves.toStrictEqual({
         users: usersDataWithNextPage.data,
         offset: usersDataWithNextPage.next_page?.offset,
@@ -77,7 +78,9 @@ describe('user connector', () => {
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(getUsers('invalid_access_token', workspaceId)).rejects.toBeInstanceOf(AsanaError);
+      await expect(getUsers('invalid_access_token', workspaceId)).rejects.toBeInstanceOf(
+        AsanaError
+      );
     });
   });
 });

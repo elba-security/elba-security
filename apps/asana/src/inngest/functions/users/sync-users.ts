@@ -47,7 +47,7 @@ export const syncUsers = inngest.createFunction(
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      
+
       return organisation.accessToken;
     });
 
@@ -73,7 +73,7 @@ export const syncUsers = inngest.createFunction(
         name: 'users/sync',
         data: {
           ...event.data,
-          page: nextOffset,
+          offset: nextOffset,
         },
       });
       return {

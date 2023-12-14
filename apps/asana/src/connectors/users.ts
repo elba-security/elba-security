@@ -5,7 +5,6 @@ export type AsanaUser = {
   gid: string;
   email: string;
   name: string;
-  
 };
 
 export type GetUsersResponseData = {
@@ -20,17 +19,20 @@ export type GetUsersResponseData = {
 export const getUsers = async (accessToken: string, workspace: string, offset?: string) => {
   /* eslint-disable -- no type here */
   try {
-    console.log("offset", offset)
     const opt_fields = 'email, name';
-    
-    const response = await fetch(`https://app.asana.com/api/1.0/users?opt_fields=${opt_fields}&workspace=${workspace}&limit=${env.USERS_SYNC_JOB_BATCH_SIZE}${offset ? `&offset=${offset}` : ""}`
-    , {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            }
-        });
+
+    const response = await fetch(
+      `${env.ASANA_API_USER_BASE_URL}?opt_fields=${opt_fields}&workspace=${workspace}&limit=${
+        env.USERS_SYNC_JOB_BATCH_SIZE
+      }${offset ? `&offset=${offset}` : ''}`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     const data: GetUsersResponseData = await response.json();
     /* eslint-enable -- no type here */

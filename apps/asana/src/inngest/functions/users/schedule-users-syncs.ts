@@ -9,7 +9,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
   async ({ step }) => {
     const organisations = await db
       .select({
-        id: Organisation.id,
+        id: Organisation.id
       })
       .from(Organisation);
 

@@ -14,28 +14,21 @@ export const tokenRefresh = inngest.createFunction(
     },
     retries: 3,
   },
-  { event: "token/refresh" },
+  { event: 'token/refresh' },
   async ({ event }) => {
     const { organisationId, refreshTokenInfo } = event.data;
 
-    const {
-        access_token, 
-        expires_in, 
-    } : RefreshTokenResponseData = await refreshToken(
-        refreshTokenInfo
-    );
+    const { access_token, expires_in }: RefreshTokenResponseData =
+      await refreshToken(refreshTokenInfo);
     const expiresAt = new Date(Date.now() + expires_in * 1000);
 
     const updateValue = {
-        accessToken: access_token,
-        expiresAt: expiresAt,
+      accessToken: access_token,
+      expiresAt,
     };
 
-    await db
-    .update(Organisation)
-    .set(updateValue)
-    .where(eq(Organisation.id, organisationId));
-    
+    await db.update(Organisation).set(updateValue).where(eq(Organisation.id, organisationId));
+
     return {
       status: 'completed',
     };

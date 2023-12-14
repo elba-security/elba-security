@@ -16,15 +16,15 @@ import { Organisation } from '@/database/schema';
 import { syncUsers } from './sync-users';
 
 const organisation = {
-  id: "45a76301-f1dd-4a77-b12f-9d7d3fca3c90",
-  name: "some_data_name",
-  email: "some_data_email",
-  accessToken: "some_data_access_token",
-  refreshToken: "some_data_refresh_token",
+  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  name: 'some_data_name',
+  email: 'some_data_email',
+  accessToken: 'some_data_access_token',
+  refreshToken: 'some_data_refresh_token',
   expiresAt: new Date(Date.now()),
-  asanaId: "some_data_asana_id",
-  gid: "some_data_gid",
-  webhookSecret: "some_data_webhook_secret",
+  asanaId: 'some_data_asana_id',
+  gid: 'some_data_gid',
+  webhookSecret: 'some_data_webhook_secret',
 };
 const syncStartedAt = Date.now();
 
@@ -58,14 +58,14 @@ describe('sync-users', () => {
     await db.insert(Organisation).values(organisation);
     // mock the getUser function that returns SaaS users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      offset: "1",
+      offset: '1',
       users,
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      offset: "1",
+      offset: '1',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -78,8 +78,7 @@ describe('sync-users', () => {
         organisationId: organisation.id,
         isFirstSync: false,
         syncStartedAt,
-        offset: "1",
-        page: "1",
+        offset: '1',
       },
     });
   });
@@ -95,7 +94,7 @@ describe('sync-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      offset: "1",
+      offset: '1',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
