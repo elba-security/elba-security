@@ -1,5 +1,15 @@
 import { files, sharing } from 'dropbox/types/dropbox_types';
 
+export type DBXFetcherOptions = {
+  accessToken: string;
+  adminTeamMemberId: string;
+  teamMemberId: string;
+};
+
+export type FolderFilePermissions = {
+  id: string;
+} & sharing.SharedFolderMembers;
+
 export type CommonDataFetchHeaders = {
   accessToken: string;
   isPersonal: boolean;
@@ -21,14 +31,9 @@ export type SyncJob = {
 export type SharedLinks = {
   url: string;
   linkAccessLevel: string;
-  organisationId: string;
   teamMemberId: string;
   pathLower: string;
 };
-
-export type FolderFilePermissions = {
-  id: string;
-} & sharing.SharedFolderMembers;
 
 export type DBXPermissionType = 'user' | 'group' | 'anyone' | 'domain';
 

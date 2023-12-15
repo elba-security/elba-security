@@ -1,15 +1,12 @@
 import { DataProtectionObject } from '@elba-security/sdk';
 import { FolderAndFilePermissions } from '../types';
 
-const formatPermissionToAdd = (permission: FolderAndFilePermissions) => {
+const formatPermissionToAdd = ({ id, type, domain, email }: FolderAndFilePermissions) => {
   return {
-    id: permission.id,
-    type: permission.type === 'group' ? 'user' : permission.type,
-    displayName: null,
-    userId: null,
-    domain: permission.domain,
-    email: permission.email,
-    metadata: null,
+    id,
+    type: type === 'group' ? 'user' : type,
+    domain,
+    email,
   };
 };
 
@@ -76,7 +73,7 @@ const formatPermissionsToAdd = ({ permissions }: { permissions: FolderAndFilePer
   return allPermissions;
 };
 
-export const formatFilesToAdd = ({ files, isPersonal, teamMemberId }): DataProtectionObject => {
+export const formatFilesToAdd = ({ files, teamMemberId }): DataProtectionObject[] => {
   return files.flatMap((file) => {
     const permissions = formatPermissionsToAdd({
       permissions: file.permissions,
@@ -84,6 +81,14 @@ export const formatFilesToAdd = ({ files, isPersonal, teamMemberId }): DataProte
 
     const sourceOwner = file.permissions.find((permission) => permission.role === 'owner');
 
+    const isPersonal = sourceOwner?.team_member_id === teamMemberId;
+
+    // console.log('---------------FILE FOLDER DETAILS--------------');
+    // console.log('sourceOwner', sourceOwner);
+    // console.log('isPersonal', isPersonal);
+    // console.log('teamMemberId', teamMemberId);
+    // console.log('file', file.name);
+    // console.log('------------------------------------------------');
     // if the file has anyone permissions, the shared links will stored in the metadata
     const anyonePermissions = file.permissions.filter((permission) => permission.type === 'anyone');
 
@@ -93,13 +98,13 @@ export const formatFilesToAdd = ({ files, isPersonal, teamMemberId }): DataProte
 
     // If the file is in a team member personal folder, and the owner of the file is not a team member
     // then we don't want to add the file to the database
-    if (isPersonal && !sourceOwner?.team_member_id) {
-      return [];
-    }
+    // if (isPersonal && !sourceOwner?.team_member_id) {
+    //   return [];
+    // }
 
     // If personal folder is shared with other team members, this shared folder will appear  for both team members
     // therefore we need to filter out the files that are not belong to the current team member
-    if (isPersonal && sourceOwner?.team_member_id !== teamMemberId) {
+    if (sourceOwner && !isPersonal) {
       return [];
     }
 
@@ -115,7 +120,6 @@ export const formatFilesToAdd = ({ files, isPersonal, teamMemberId }): DataProte
       ownerId: teamMemberId,
       url: file.metadata.preview_url,
       contentHash: isFile ? file.content_hash : null,
-      lastAccessedAt: null,
       metadata: {
         is_personal: isPersonal,
         type: file['.tag'],

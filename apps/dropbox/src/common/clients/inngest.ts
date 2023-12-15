@@ -66,5 +66,5 @@ const eventMap = {
 // Create a client to send and receive events
 export const inngest = new Inngest({
   id: 'dropbox',
-  schemas: new EventSchemas().fromZod(eventMap),
+  // schemas: new EventSchemas().fromZod(eventMap),
 });

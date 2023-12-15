@@ -8,6 +8,7 @@ import { fetchFilesPermissions } from './dropbox-calls/fetch-files-permissions';
 import { fetchMultipleFilesMetadata } from './dropbox-calls/fetch-files-metadata';
 import { formatSharedLinksPermission } from './utils/format-permissions';
 import { formatFilesToAdd } from './utils/format-files-and-folders';
+import { elbaAccess } from '@/common/clients/elba';
 
 const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, step }) => {
   if (!event.ts) {
@@ -15,6 +16,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
   }
 
   const { organisationId, accessToken, isPersonal, teamMemberId, adminTeamMemberId } = event.data;
+  const elba = elbaAccess(organisationId);
 
   const response = await step
     .run('fetch-folders-and-files', async () => {
@@ -110,26 +112,15 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     })
     .catch(handleError);
 
-  // await step.run('inngest-console-log-synchronize-folders-and-files', async () => {
-  //   console.log('----------synchronize-folders-and-files---------');
-  //   // console.log('receivedFoldersAndFilesPaths', pathLowers);
-  //   // console.log('fileSharedLinks', fileSharedLinks);
-  //   console.log('formattedFoldersAndFiles', JSON.stringify(formattedFoldersAndFiles, null, 2));
-  //   console.log('------------------------------------------------');
-  // });
-
   await step.run('format-files-and-folders-to-add', async () => {
-    // console.log('---------------BEFORE FORMATE-------------------');
-    // console.log(JSON.stringify(formattedFoldersAndFiles, null, 2));
-    // console.log('------------------------------------------------');
     const foldersAndFilesToAdd = formatFilesToAdd({
       ...commonProps,
       files: formattedFoldersAndFiles,
     });
 
-    console.log('--------FINAL FOLDER & FILES TO ADD------------');
-    console.log(JSON.stringify(foldersAndFilesToAdd, null, 2));
-    console.log('------------------------------------------------');
+    return await elba.dataProtection.updateObjects({
+      objects: foldersAndFilesToAdd,
+    });
   });
 
   return {

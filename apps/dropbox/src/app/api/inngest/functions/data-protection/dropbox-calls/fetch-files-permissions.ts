@@ -21,7 +21,8 @@ export const fetchFilesPermissions = async ({
   });
 
   dbxAccess.setHeaders({
-    ...(isPersonal ? { selectUser: teamMemberId } : { selectAdmin: adminTeamMemberId }),
+    // ...(isPersonal ? { selectUser: teamMemberId } : { selectAdmin: adminTeamMemberId }),
+    selectUser: teamMemberId,
   });
 
   const result = await Promise.all(

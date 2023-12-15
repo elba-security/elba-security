@@ -45,27 +45,24 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
       level: 0,
     };
 
-    const teamMembersIds =
-      [
-        ...team.members.flatMap(({ profile: { team_member_id: teamMemberId } }) => {
-          return [
-            {
-              ...job,
-              teamMemberId,
-              adminTeamMemberId,
-              isPersonal: true,
-            },
-          ];
-        }),
+    // Previous version of the code
+    // We user path based sync is used, will not be used anymore
+
+    // In this new integrations strategy, all the sync jobs will be personal
+    // but the only difference is that  root pat will be included for admin to fet all the files and folders recursively
+    // whe we provide  the root path, all the team folders & and the personal folder will be included  when we fetch the folder and files
+    // since admin is the owner of the team folder & file this strategy will work(team folder & files will be  consider as personal)
+    // however, isPersonal will be determine from the permissions, the permissions does contains the information of the owner,
+    // if the  access_type: owner, then the file is personal, if the access_type: editor | viewer, then the file is team folder
+    return team.members.flatMap(({ profile: { team_member_id: teamMemberId } }) => {
+      return [
         {
           ...job,
-          teamMemberId: adminTeamMemberId,
+          teamMemberId,
           adminTeamMemberId,
-          isPersonal: false,
         },
-      ] ?? [];
-
-    return teamMembersIds;
+      ];
+    });
   });
 
   if (team.members.length > 0) {

@@ -25,7 +25,8 @@ export const fetchMultipleFilesMetadata = async ({
   >();
 
   dbxAccess.setHeaders({
-    ...(isPersonal ? { selectUser: teamMemberId } : { selectAdmin: adminTeamMemberId }),
+    // ...(isPersonal ? { selectUser: teamMemberId } : { selectAdmin: adminTeamMemberId }),
+    selectUser: teamMemberId,
   });
 
   const metadataResult = await Promise.all(
