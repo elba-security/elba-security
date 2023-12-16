@@ -32,6 +32,7 @@ export type SyncJob = {
 export type SharedLinks = {
   url: string;
   linkAccessLevel: string;
+  organisationId: string;
   teamMemberId: string;
   pathLower: string;
 };

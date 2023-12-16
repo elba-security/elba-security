@@ -29,9 +29,6 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     })
     .catch(handleError);
 
-  console.log('----------------team--------------------------------');
-  console.log(team);
-  console.log('------------------------------------------------');
   // await step.run('inngest-console-log-create-path-sync-jobs', async () => {
   //   console.log('--------------create-path-sync-jobs------------');
   //   console.log('team.members.length', team.members.length);

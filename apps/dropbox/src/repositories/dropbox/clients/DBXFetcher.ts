@@ -3,6 +3,7 @@ import { DBXAccess } from './DBXAccess';
 import { DBXFetcherOptions, FolderFilePermissions, SharedLinks } from '../types/types';
 import { formatPermissions, formatSharedLinksPermission } from '../utils/format-permissions';
 import { formatFilesToAdd } from '../utils/format-file-and-folders-to-elba';
+import { filterSharedLinks } from '../utils/format-shared-links';
 
 const DROPBOX_BD_USERS_BATCH_SIZE = 1000;
 const DROPBOX_LIST_FILE_MEMBERS_LIMIT = 300; // UInt32(min=1, max=300)
@@ -52,6 +53,41 @@ export class DbxFetcher {
       nextCursor,
       hasMore,
       members: activeTeamMembers,
+    };
+  };
+
+  fetchSharedLinks = async ({
+    organisationId,
+    teamMemberId,
+    isPersonal,
+    cursor,
+  }: {
+    organisationId: string;
+    teamMemberId: string;
+    isPersonal: boolean;
+    cursor?: string;
+  }) => {
+    this.dbx.setHeaders({
+      selectUser: this.teamMemberId,
+      ...(isPersonal ? {} : { pathRoot: JSON.stringify({ '.tag': 'root', root: this.pathRoot }) }),
+    });
+
+    const {
+      result: { links, has_more: hasMore, cursor: nexCursor },
+    } = await this.dbx.sharingListSharedLinks({
+      cursor,
+    });
+
+    const sharedLinks = filterSharedLinks({
+      sharedLinks: links,
+      organisationId,
+      teamMemberId,
+    });
+
+    return {
+      hasMore,
+      links: sharedLinks,
+      cursor: nexCursor,
     };
   };
 
@@ -245,13 +281,28 @@ export class DbxFetcher {
     foldersAndFiles: Array<DbxFiles.FolderMetadataReference | DbxFiles.FileMetadataReference>;
     sharedLinks: SharedLinks[];
   }) => {
-    const folders = foldersAndFiles.filter(
-      (entry) => entry['.tag'] === 'folder' && entry.shared_folder_id
-    ) as DbxFiles.FolderMetadataReference[];
+    const { folders, files } = foldersAndFiles.reduce<{
+      folders: DbxFiles.FolderMetadataReference[];
+      files: DbxFiles.FileMetadataReference[];
+    }>(
+      (acc, entry) => {
+        if (entry['.tag'] === 'folder' && entry.shared_folder_id) {
+          acc.folders.push(entry);
+          return acc;
+        }
 
-    const files = foldersAndFiles.filter(
-      (entry) => entry['.tag'] === 'file'
-    ) as DbxFiles.FileMetadataReference[];
+        if (entry['.tag'] === 'file') {
+          acc.files.push(entry);
+          return acc;
+        }
+
+        return acc;
+      },
+      {
+        folders: [],
+        files: [],
+      }
+    );
 
     const [foldersPermissions, foldersMetadata, filesPermissions, filesMetadata] =
       await Promise.all([
