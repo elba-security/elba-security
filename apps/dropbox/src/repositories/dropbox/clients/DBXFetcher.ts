@@ -1,21 +1,24 @@
-import { files as DbxFiles } from 'dropbox/types/dropbox_types';
+import { files as DbxFiles, team } from 'dropbox/types/dropbox_types';
 import { DBXAccess } from './DBXAccess';
 import { DBXFetcherOptions, FolderFilePermissions, SharedLinks } from '../types/types';
 import { formatPermissions, formatSharedLinksPermission } from '../utils/format-permissions';
+import { formatFilesToAdd } from '../utils/format-file-and-folders-to-elba';
 
+const DROPBOX_BD_USERS_BATCH_SIZE = 1000;
 const DROPBOX_LIST_FILE_MEMBERS_LIMIT = 300; // UInt32(min=1, max=300)
 const DROPBOX_LIST_FOLDER_MEMBERS_LIMIT = 1000;
 const DROPBOX_LIST_FOLDER_BATCH_SIZE = 500;
 
 export class DbxFetcher {
-  private adminTeamMemberId: string;
-  private teamMemberId: string;
-  private pathRoot: number;
+  private adminTeamMemberId?: string;
+  private teamMemberId?: string;
+  private pathRoot?: string;
   private dbx: DBXAccess;
 
-  constructor({ accessToken, adminTeamMemberId, teamMemberId pathRoot }: DBXFetcherOptions) {
+  constructor({ accessToken, adminTeamMemberId, teamMemberId, pathRoot }: DBXFetcherOptions) {
     this.adminTeamMemberId = adminTeamMemberId;
     this.teamMemberId = teamMemberId;
+    this.pathRoot = pathRoot;
     this.dbx = new DBXAccess({
       accessToken,
     });
@@ -24,8 +27,36 @@ export class DbxFetcher {
     });
   }
 
-  fetchFoldersAndFiles = async (cursor: string) => {
-    const isAdmin = this.adminTeamMemberId === this. teamMemberId;
+  fetchUsers = async (cursor?: string) => {
+    const {
+      result: { members, cursor: nextCursor, has_more: hasMore },
+    } = cursor
+      ? await this.dbx.teamMembersListContinueV2({
+          cursor,
+        })
+      : await this.dbx.teamMembersListV2({
+          include_removed: false,
+          limit: DROPBOX_BD_USERS_BATCH_SIZE,
+        });
+
+    if (!members.length) {
+      throw new Error('No members found');
+    }
+
+    const activeTeamMembers = members.filter(({ profile: { status } }) => {
+      // We only consider active, suspended members
+      return ['active', 'suspended'].includes(status['.tag']);
+    });
+
+    return {
+      nextCursor,
+      hasMore,
+      members: activeTeamMembers,
+    };
+  };
+
+  fetchFoldersAndFiles = async (cursor?: string) => {
+    const isAdmin = this.adminTeamMemberId === this.teamMemberId;
 
     this.dbx.setHeaders({
       selectUser: this.teamMemberId,
@@ -48,7 +79,7 @@ export class DbxFetcher {
       recursive: true,
       limit: DROPBOX_LIST_FOLDER_BATCH_SIZE,
     });
-  }
+  };
 
   // fetch files meta data
   fetchFilesMetadata = async (files: DbxFiles.FileMetadataReference[]) => {
@@ -207,47 +238,55 @@ export class DbxFetcher {
     return formatPermissions(result);
   };
 
-  // Fetch all files and folders metadata, permissions & map details
   fetchMetadataMembersAndMapDetails = async ({
-    folders,
-    files,
-    sharedLinks
+    foldersAndFiles,
+    sharedLinks,
   }: {
-    folders: DbxFiles.FolderMetadataReference[];
-    files: DbxFiles.FileMetadataReference[];
+    foldersAndFiles: Array<DbxFiles.FolderMetadataReference | DbxFiles.FileMetadataReference>;
     sharedLinks: SharedLinks[];
   }) => {
+    const folders = foldersAndFiles.filter(
+      (entry) => entry['.tag'] === 'folder' && entry.shared_folder_id
+    ) as DbxFiles.FolderMetadataReference[];
+
+    const files = foldersAndFiles.filter(
+      (entry) => entry['.tag'] === 'file'
+    ) as DbxFiles.FileMetadataReference[];
+
     const [foldersPermissions, foldersMetadata, filesPermissions, filesMetadata] =
-        await Promise.all([
-            this.fetchFoldersPermissions(folders),
-            this.fetchFoldersMetadata(folders),
-            this.fetchFilesPermissions(files),
-            this.fetchFilesMetadata(files),
-        ]);
+      await Promise.all([
+        this.fetchFoldersPermissions(folders),
+        this.fetchFoldersMetadata(folders),
+        this.fetchFilesPermissions(files),
+        this.fetchFilesMetadata(files),
+      ]);
 
-      const filteredPermissions = new Map([...foldersPermissions, ...filesPermissions]);
-      const filteredMetadata = new Map([...foldersMetadata, ...filesMetadata]);
+    const filteredPermissions = new Map([...foldersPermissions, ...filesPermissions]);
+    const filteredMetadata = new Map([...foldersMetadata, ...filesMetadata]);
 
-      const mappedResult = [...folders, ...files].map((entry) => {
-        const permissions = filteredPermissions.get(entry.id);
-        const metadata = filteredMetadata.get(entry.id);
+    const mappedResult = [...folders, ...files].map((entry) => {
+      const permissions = filteredPermissions.get(entry.id);
+      const metadata = filteredMetadata.get(entry.id);
 
-        const fileSharedLinks = formatSharedLinksPermission(
-            sharedLinks.filter(({ pathLower }) => pathLower === entry.path_lower)
-        );
+      const fileSharedLinks = formatSharedLinksPermission(
+        sharedLinks.filter(({ pathLower }) => pathLower === entry.path_lower)
+      );
 
-        if (metadata && permissions) {
-          return {
-            ...entry,
-            metadata,
-            permissions: [...permissions, ...fileSharedLinks],
-          };
-        }
+      if (metadata && permissions) {
+        return {
+          ...entry,
+          metadata,
+          permissions: [...permissions, ...fileSharedLinks],
+        };
+      }
 
-        // Permissions and metadata should have been assigned, if not throw error
-        throw new Error('Permissions or metadata not found');
-      });
+      // Permissions and metadata should have been assigned, if not throw error
+      throw new Error('Permissions or metadata not found');
+    });
 
-      return mappedResult;
-  }
+    return formatFilesToAdd({
+      teamMemberId: this.teamMemberId,
+      files: mappedResult,
+    });
+  };
 }

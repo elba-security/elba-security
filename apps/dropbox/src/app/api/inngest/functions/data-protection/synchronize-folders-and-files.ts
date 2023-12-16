@@ -9,18 +9,33 @@ import { fetchMultipleFilesMetadata } from './dropbox-calls/fetch-files-metadata
 import { formatSharedLinksPermission } from './utils/format-permissions';
 import { formatFilesToAdd } from './utils/format-files-and-folders';
 import { elbaAccess } from '@/common/clients/elba';
+import { DbxFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
 
 const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, step }) => {
   if (!event.ts) {
     throw new Error('Missing event.ts');
   }
 
-  const { organisationId, accessToken, isPersonal, teamMemberId, adminTeamMemberId } = event.data;
+  const {
+    organisationId,
+    accessToken,
+    isPersonal,
+    teamMemberId,
+    adminTeamMemberId,
+    pathRoot,
+    cursor,
+  } = event.data;
+  const dbxFetcher = new DbxFetcher({
+    accessToken,
+    adminTeamMemberId,
+    teamMemberId,
+    pathRoot,
+  });
   const elba = elbaAccess(organisationId);
 
   const response = await step
     .run('fetch-folders-and-files', async () => {
-      return fetchFoldersAndFiles(event.data);
+      return dbxFetcher.fetchFoldersAndFiles(cursor);
     })
     .catch(handleError);
 
@@ -43,81 +58,23 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     return acc;
   }, []);
 
-  const allSharedLinks = await step.run('get-file-shared-links', async () => {
+  const sharedLinks = await step.run('get-file-shared-links', async () => {
     return getSharedLinks({
       organisationId,
       pathLowers,
     });
   });
 
-  const commonProps = {
-    accessToken,
-    isPersonal,
-    teamMemberId,
-    adminTeamMemberId,
-  };
-
-  const sharedFolders = foldersAndFiles.filter(
-    (entry) => entry['.tag'] === 'folder' && entry.shared_folder_id
-  );
-
-  const files = foldersAndFiles.filter((entry) => entry['.tag'] === 'file');
-
-  const formattedFoldersAndFiles = await step
+  const foldersAndFilesToAdd = await step
     .run('fetch-metadata-members-and-map-details', async () => {
-      const [foldersPermissions, foldersMetadata, filesPermissions, filesMetadata] =
-        await Promise.all([
-          fetchMultipleFoldersPermissions({
-            ...commonProps,
-            sharedFolders,
-          }),
-          fetchMultipleFoldersMetadata({
-            ...commonProps,
-            sharedFolders,
-          }),
-          fetchFilesPermissions({
-            ...commonProps,
-            files,
-          }),
-          fetchMultipleFilesMetadata({
-            ...commonProps,
-            files,
-          }),
-        ]);
-
-      const filteredPermissions = new Map([...foldersPermissions, ...filesPermissions]);
-      const filteredMetadata = new Map([...foldersMetadata, ...filesMetadata]);
-
-      const mappedResult = [...sharedFolders, ...files].map((entry) => {
-        const permissions = filteredPermissions.get(entry.id);
-        const metadata = filteredMetadata.get(entry.id);
-
-        const fileSharedLinks = formatSharedLinksPermission(
-          allSharedLinks.filter(({ pathLower }) => pathLower === entry.path_lower)
-        );
-
-        if (metadata && permissions) {
-          return {
-            ...entry,
-            metadata,
-            permissions: [...permissions, ...fileSharedLinks],
-          };
-        }
-
-        // Permissions and metadata should have been assigned, if not throw error
-        throw new Error('Permissions or metadata not found');
+      return dbxFetcher.fetchMetadataMembersAndMapDetails({
+        foldersAndFiles,
+        sharedLinks,
       });
-
-      return mappedResult;
     })
     .catch(handleError);
 
   await step.run('format-files-and-folders-to-add', async () => {
-    const foldersAndFilesToAdd = formatFilesToAdd({
-      ...commonProps,
-      files: formattedFoldersAndFiles,
-    });
-
     return await elba.dataProtection.updateObjects({
       objects: foldersAndFilesToAdd,
     });

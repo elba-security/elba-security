@@ -2,8 +2,9 @@ import { files, sharing } from 'dropbox/types/dropbox_types';
 
 export type DBXFetcherOptions = {
   accessToken: string;
-  adminTeamMemberId: string;
-  teamMemberId: string;
+  adminTeamMemberId?: string;
+  teamMemberId?: string;
+  pathRoot?: string;
 };
 
 export type FolderFilePermissions = {

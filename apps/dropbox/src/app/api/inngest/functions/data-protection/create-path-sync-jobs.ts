@@ -2,6 +2,7 @@ import { inngest } from '@/common/clients/inngest';
 import { SyncJob } from './types';
 import { handleError } from '../../handle-error';
 import { fetchUsers } from './dropbox-calls/fetch-users';
+import { DbxFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
 
 const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, step }) => {
   const {
@@ -18,15 +19,19 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     throw new Error('Missing event.ts');
   }
 
+  const dbxFetcher = new DbxFetcher({
+    accessToken,
+  });
+
   const team = await step
     .run('fetch-users', async () => {
-      return fetchUsers({
-        accessToken,
-        cursor,
-      });
+      return dbxFetcher.fetchUsers(cursor);
     })
     .catch(handleError);
 
+  console.log('----------------team--------------------------------');
+  console.log(team);
+  console.log('------------------------------------------------');
   // await step.run('inngest-console-log-create-path-sync-jobs', async () => {
   //   console.log('--------------create-path-sync-jobs------------');
   //   console.log('team.members.length', team.members.length);
