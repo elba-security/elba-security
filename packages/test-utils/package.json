@@ -17,8 +17,8 @@
     "vitest": ">=1.0.0"
   },
   "devDependencies": {
-    "eslint": "^8",
-    "eslint-config-custom": "workspace:*",
-    "tsconfig": "workspace:*"
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
+    "eslint": "^8"
   }
 }

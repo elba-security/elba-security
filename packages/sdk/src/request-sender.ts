@@ -1,7 +1,7 @@
 import { ElbaError } from './error';
 import type { ElbaOptions } from './types';
 
-export type RequestSenderOptions = Required<ElbaOptions>;
+export type RequestSenderOptions = Required<Omit<ElbaOptions, 'region'>>;
 
 export type ElbaResponse = Omit<Response, 'json'> & {
   json: <T = unknown>() => Promise<T>;

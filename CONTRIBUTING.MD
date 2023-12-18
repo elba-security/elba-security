@@ -7,7 +7,7 @@ The following is a set of guidelines for contributing to **elba-security** and i
 ### Project Architecture
 
 This project is a monorepo that uses [Turborepo](https://turbo.build/repo).
-Each SaaS integration has its own nextjs app located in `/apps/{SaaS}`. The folder `/packages` contains shared tools and configuration.
+Each SaaS integration has its own `Next.js` app located in `/apps/{SaaS}`. The folder `/packages` contains shared tools and configuration.
 
 ### Required tools
 
@@ -73,6 +73,54 @@ pnpm create next-app awesome-service -e https://github.com/elba-security/elba-se
 ```
 
 > Don't forget to read the `README.md` file generated at the root of your integration folder.
+
+## How to open a pull request
+
+Opening a Pull Request (PR) on a public repository on GitHub involves a series of steps. Here's a general guide on how to do it:
+
+1. **Fork the Repository:**
+
+- Go to the elba GitHub repository page.
+- Click the `"Fork"` button at the top right corner. This creates a copy of the repository in your GitHub account.
+
+2. **Clone the Forked Repository:**
+
+- Clone the forked repository to your local machine. You can find the URL for cloning on the repository page.
+- Use the command `git clone [URL of the forked repo]`.
+
+3. **Create a New Branch:**
+
+- Navigate to the cloned repository directory on your local machine.
+- Create a new branch using `git checkout -b [new-branch-name]`.
+
+4. **Make Your Changes:**
+
+- Work on the changes you wish to make in this new branch. This could be adding new files, editing existing ones, etc.
+
+5. **Commit the Changes:**
+
+- After making changes, add them to the staging area using `git add .` (to add all changes) or `git add [file-name]`(for specific files).
+- Then commit the changes with a meaningful commit message using `git commit -m "Your commit message"`.
+
+6. **Push the Changes to Your Fork:**
+
+- Push your new branch and changes to your fork on GitHub using `git push origin [new-branch-name]`.
+
+7. **Create the Pull Request:**
+
+- Go to your forked repository on GitHub.
+- You'll likely see a `“Compare & pull request”` button for your recently pushed branch. Click it.
+- Alternatively, you can switch to your new branch and click the `"New pull request"` button.
+- Fill in the PR form by following the provided PR template. It's important to be clear and descriptive we are able to understand what you've done and why.
+
+8. **Submit the Pull Request:**
+
+- Once you've filled out the PR form, click the `"Create pull request"` button to submit it.
+- Your PR will now be visible and we will review your changes, request modifications, or merge them.
+
+9. **Follow Up:**
+
+- Keep an eye on your PR for any comments or requests for changes that we've made. Responding promptly and making any requested changes is key to getting your PR merged.
 
 ## How to implement tests ?
 

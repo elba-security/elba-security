@@ -23,7 +23,7 @@ export class Elba {
     }
     const requestSender = new RequestSender({
       ...options,
-      baseUrl,
+      baseUrl: baseUrl.replace('{REGION}', options.region),
     });
     this.authentication = new AuthenticationClient(requestSender);
     this.connectionStatus = new ConnectionStatusClient(requestSender);

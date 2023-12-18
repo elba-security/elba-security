@@ -17,15 +17,15 @@ const formatElbaUser = (user: MySaasUser): User => ({
 
 /**
  * DISCLAIMER:
- * This function, `syncUsers`, is provided as an illustrative example and is not a working implementation.
+ * This function, `syncUsersPage`, is provided as an illustrative example and is not a working implementation.
  * It is intended to demonstrate a conceptual approach for syncing users in a SaaS integration context.
  * Developers should note that each SaaS integration may require a unique implementation, tailored to its specific requirements and API interactions.
  * This example should not be used as-is in production environments and should not be taken for granted as a one-size-fits-all solution.
  * It's essential to adapt and modify this logic to fit the specific needs and constraints of the SaaS platform you are integrating with.
  */
-export const syncUsers = inngest.createFunction(
+export const syncUsersPage = inngest.createFunction(
   {
-    id: 'sync-users',
+    id: 'sync-users-page',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -35,15 +35,16 @@ export const syncUsers = inngest.createFunction(
     },
     retries: 3,
   },
-  { event: 'users/sync' },
+  { event: 'users/sync_page.triggered' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, syncStartedAt, page, region } = event.data;
 
     const elba = new Elba({
       organisationId,
       sourceId: env.ELBA_SOURCE_ID,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
+      region,
     });
 
     // retrieve the SaaS organisation token
@@ -69,10 +70,10 @@ export const syncUsers = inngest.createFunction(
       return result.nextPage;
     });
 
-    // if there is a next enqueue a new sync user event
+    // if there is a next page enqueue a new sync user event
     if (nextPage) {
-      await step.sendEvent('sync-users', {
-        name: 'users/sync',
+      await step.sendEvent('sync-users-page', {
+        name: 'users/sync_page.triggered',
         data: {
           ...event.data,
           page: nextPage,

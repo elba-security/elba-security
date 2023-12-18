@@ -35,6 +35,8 @@
   "devDependencies": {
     "@edge-runtime/vm": "^3.1.7",
     "@elba-security/test-utils": "workspace:*",
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
     "@next/eslint-plugin-next": "^14.0.2",
     "@types/asana": "^0.18.16",
     "@types/node": "^20",
@@ -43,11 +45,9 @@
     "dotenv": "^16.3.1",
     "drizzle-kit": "^0.20.6",
     "eslint": "^8",
-    "eslint-config-custom": "workspace:*",
     "inngest-cli": "^0.22.0",
     "msw": "^2.0.1",
     "postgres": "^3.4.3",
-    "tsconfig": "workspace:*",
     "typescript": "5",
     "vitest": "^1.0.0"
   }

@@ -3,11 +3,21 @@ import { Organisation } from '@/database/schema';
 import { getToken } from '@/connectors/auth';
 import { inngest } from '@/inngest/client';
 
-export const setupOrganisation = async (organisationId: string, code: string) => {
+type SetupOrganisationParams = {
+  organisationId: string;
+  code: string;
+  region: string;
+};
+
+export const setupOrganisation = async ({
+  organisationId,
+  code,
+  region,
+}: SetupOrganisationParams) => {
   // retrieve token from SaaS API using the given code
   const token = await getToken(code);
 
-  await db.insert(Organisation).values({ id: organisationId, token }).onConflictDoUpdate({
+  await db.insert(Organisation).values({ id: organisationId, token, region }).onConflictDoUpdate({
     target: Organisation.id,
     set: {
       token,
@@ -15,10 +25,11 @@ export const setupOrganisation = async (organisationId: string, code: string) =>
   });
 
   await inngest.send({
-    name: 'users/sync',
+    name: 'users/sync_page.triggered',
     data: {
       isFirstSync: true,
       organisationId,
+      region,
       syncStartedAt: Date.now(),
       page: null,
     },

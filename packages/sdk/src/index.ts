@@ -1,7 +1,9 @@
 export * from './elba';
 export * from './error';
-export * from './resources/authentication/types';
-export * from './resources/connection-status/types';
-export * from './resources/data-protection/types';
-export * from './resources/third-party-apps/types';
-export * from './resources/users/types';
+export * from './utils';
+
+export type * from './resources/authentication/types';
+export type * from './resources/connection-status/types';
+export type * from './resources/data-protection/types';
+export type * from './resources/third-party-apps/types';
+export type * from './resources/users/types';

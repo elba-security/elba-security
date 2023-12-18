@@ -16,11 +16,13 @@ import { setupOrganisation } from './service';
 
 const code = 'some-code';
 const token = 'some-token';
+const region = 'us';
 const now = new Date();
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   token: 'test-token',
+  region,
 };
 
 describe('setupOrganisation', () => {
@@ -40,7 +42,13 @@ describe('setupOrganisation', () => {
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(token);
 
     // assert the function resolves without returning a value
-    await expect(setupOrganisation(organisation.id, code)).resolves.toBeUndefined();
+    await expect(
+      setupOrganisation({
+        organisationId: organisation.id,
+        code,
+        region,
+      })
+    ).resolves.toBeUndefined();
 
     // check if getToken was called correctly
     expect(getToken).toBeCalledTimes(1);
@@ -48,24 +56,23 @@ describe('setupOrganisation', () => {
 
     // verify the organisation token is set in the database
     await expect(
-      db
-        .select({ token: Organisation.token })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisation.id))
+      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
     ).resolves.toMatchObject([
       {
         token,
+        region,
       },
     ]);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'users/sync',
+      name: 'users/sync_page.triggered',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
         syncStartedAt: now.getTime(),
+        region,
         page: null,
       },
     });
@@ -82,7 +89,13 @@ describe('setupOrganisation', () => {
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(token);
 
     // assert the function resolves without returning a value
-    await expect(setupOrganisation(organisation.id, code)).resolves.toBeUndefined();
+    await expect(
+      setupOrganisation({
+        organisationId: organisation.id,
+        code,
+        region,
+      })
+    ).resolves.toBeUndefined();
 
     // verify getToken usage
     expect(getToken).toBeCalledTimes(1);
@@ -103,11 +116,12 @@ describe('setupOrganisation', () => {
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'users/sync',
+      name: 'users/sync_page.triggered',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
         syncStartedAt: now.getTime(),
+        region,
         page: null,
       },
     });
@@ -122,7 +136,13 @@ describe('setupOrganisation', () => {
     const getToken = vi.spyOn(authConnector, 'getToken').mockRejectedValue(error);
 
     // assert that the function throws the mocked error
-    await expect(setupOrganisation(organisation.id, code)).rejects.toThrowError(error);
+    await expect(
+      setupOrganisation({
+        organisationId: organisation.id,
+        code,
+        region,
+      })
+    ).rejects.toThrowError(error);
 
     // verify getToken usage
     expect(getToken).toBeCalledTimes(1);
