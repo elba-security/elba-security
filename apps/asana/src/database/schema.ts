@@ -7,9 +7,6 @@ export const Organisation = pgTable('organisation', {
   accessToken: text('access_token').notNull(),
   refreshToken: text('refresh_token').notNull(),
   expiresAt: timestamp('expires_at').notNull(),
-  asanaId: text('asana_id').notNull(),
-  gid: text('gid').notNull(),
-  webhookSecret: text('webhook_secret'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
