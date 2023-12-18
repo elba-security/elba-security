@@ -15,7 +15,7 @@ export function GET(request: NextRequest) {
     redirect(`${env.ELBA_REDIRECT_URL}?error=true`);
   }
 
-  const redirectUrl = new URL(env.ASANA_API_BASE_URL);
+  const redirectUrl = new URL(`${env.ASANA_API_BASE_URL}/oauth_authorize`);
   redirectUrl.searchParams.append('response_type', 'code');
   redirectUrl.searchParams.append('client_id', env.ASANA_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.ASANA_REDIRECT_URI);

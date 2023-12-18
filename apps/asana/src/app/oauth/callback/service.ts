@@ -3,7 +3,6 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getToken } from '@/connectors/auth';
-import { registerWebhook } from '@/connectors/webhook';
 
 export const setupOrganisation = async (organisationId: string, code: string) => {
   // retrieve token from SaaS API using the given code
@@ -14,11 +13,11 @@ export const setupOrganisation = async (organisationId: string, code: string) =>
     data: { id: asanaId, gid, name, email },
   } = await getToken(code);
 
-  await registerWebhook(organisationId, access_token);
+  const expiresAt = new Date(Date.now() + expires_in * 1000);
 
   const upsertValue = {
     accessToken: access_token,
-    expiresIn: expires_in,
+    expiresAt,
     refreshToken: refresh_token,
     asanaId,
     gid,

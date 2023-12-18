@@ -23,6 +23,7 @@
     "@neondatabase/serverless": "^0.6.0",
     "@vercel/postgres": "^0.5.1",
     "asana": "^3.0.0",
+    "babel-core": "^6.26.3",
     "drizzle-orm": "^0.29.1",
     "inngest": "^3.6.2",
     "msw": "^2.0.1",

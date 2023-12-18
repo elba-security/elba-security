@@ -9,7 +9,7 @@ export const registerWebhook = async (organisationId: string, accessToken: strin
     Asana.ApiClient.instance.authentications.token = accessToken;
     // @ts-expect-error -- no type here
     const webhooksApi = new Asana.WebhooksApi();
-    await webhooksApi.createWebhook(
+    const response = await webhooksApi.createWebhook(
       {
         data: {
           resource: organisationId,
