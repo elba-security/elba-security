@@ -34,6 +34,10 @@ export const deleteThirdPartyAppsSchema = z.union([
   z.object({
     syncedBefore: z.string().datetime(),
   }),
-]);;
+]);
 
 export type DeleteThirdPartyApps = zInfer<typeof deleteThirdPartyAppsSchema>;
+
+export const thirdPartyAppsScanTriggeredWebhookDataSchema = z.object({
+  organisationId: z.string().uuid(),
+});
