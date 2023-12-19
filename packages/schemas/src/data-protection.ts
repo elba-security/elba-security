@@ -58,3 +58,7 @@ export const dataProtectionContentRequestedDataSchema = z.object({
   id: z.string().min(1),
   metadata: jsonSchema.optional(),
 });
+
+export const dataProtectionScanTriggeredWebhookDataSchema = z.object({
+  organisationId: z.string().uuid(),
+});

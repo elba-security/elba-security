@@ -1,12 +1,14 @@
 import { type infer as zInfer, type ZodSchema } from 'zod';
 import {
   dataProtectionContentRequestedDataSchema,
-  scanTriggeredWebhookDataSchema,
+  dataProtectionScanTriggeredWebhookDataSchema,
+  thirdPartyAppsScanTriggeredWebhookDataSchema,
 } from '@elba-security/schemas';
 import { ElbaError } from '../error';
 
 const eventDataSchema = {
-  scan_triggered: scanTriggeredWebhookDataSchema,
+  'third_party_apps.scan_triggered': thirdPartyAppsScanTriggeredWebhookDataSchema,
+  'data_protection.scan_triggered': dataProtectionScanTriggeredWebhookDataSchema,
   'data_protection.content_requested': dataProtectionContentRequestedDataSchema,
 } as const satisfies Record<string, ZodSchema>;
 
