@@ -4,7 +4,7 @@
   "private": true,
   "main": "src/index.ts",
   "scripts": {
-    "lint": "eslint src/**.ts"
+    "lint": "eslint src"
   },
   "dependencies": {
     "@elba-security/api-client": "workspace:*",
