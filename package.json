@@ -5,11 +5,13 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@elba-security/tsconfig": "workspace:*",
     "eslint": "^8.48.0",
+    "husky": "^8.0.3",
     "prettier": "^3.0.3",
     "turbo": "latest"
   },
