@@ -59,7 +59,7 @@ describe('run-refresh-tokens', () => {
     });
   });
 
-  test.only('should refresh tokens for the available organisation', async () => {
+  test('should refresh tokens for the available organisation', async () => {
     mocks.refreshAccessToken.mockResolvedValueOnce({
       access_token: 'test-access-token-0',
       expires_at: TOKEN_EXPIRES_AT,

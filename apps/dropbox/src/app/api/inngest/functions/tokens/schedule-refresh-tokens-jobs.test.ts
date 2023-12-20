@@ -16,21 +16,23 @@ describe('schedule-users-sync-jobs', () => {
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test.only('should schedule refresh tokens jobs when there are organisations', async () => {
+  test('should schedule refresh tokens jobs when there are organisations', async () => {
     await Promise.all(
       organisationWithExpiredToken.map(
         ({ organisationId, expiresAt, isUnauthorized, refreshAfter }, index) => {
-          return insertTestAccessToken({
-            organisationId,
-            accessToken: `test-access-token-${index}`,
-            refreshToken: `test-refresh-token-${index}`,
-            adminTeamMemberId: `test-team-member-id-${index}`,
-            rootNamespaceId: `root-name-space-id-${index}`,
-            teamName: 'test-team-name',
-            expiresAt: new Date(expiresAt),
-            unauthorizedAt: isUnauthorized ? new Date(Date.now()) : null,
-            refreshAfter: refreshAfter ? new Date(refreshAfter) : null,
-          });
+          return insertTestAccessToken([
+            {
+              organisationId,
+              accessToken: `test-access-token-${index}`,
+              refreshToken: `test-refresh-token-${index}`,
+              adminTeamMemberId: `test-team-member-id-${index}`,
+              rootNamespaceId: `root-name-space-id-${index}`,
+              teamName: 'test-team-name',
+              expiresAt: new Date(expiresAt),
+              unauthorizedAt: isUnauthorized ? new Date(Date.now()) : null,
+              refreshAfter: refreshAfter ? new Date(refreshAfter) : null,
+            },
+          ]);
         }
       )
     );

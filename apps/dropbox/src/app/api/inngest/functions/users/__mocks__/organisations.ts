@@ -1,14 +1,14 @@
 export const scheduledOrganisations = [
   {
-    accessToken: 'access-token-0',
-    organisationId: 'ce47f296-6d45-4405-ad2b-e279bec52620',
+    accessToken: 'access-token-1',
+    organisationId: '00000000-0000-0000-0000-000000000001',
   },
   {
     accessToken: 'access-token-2',
-    organisationId: 'ce47f296-6d45-4405-ad2b-e279bec52622',
+    organisationId: '00000000-0000-0000-0000-000000000002',
   },
   {
-    accessToken: 'access-token-1',
-    organisationId: 'ce47f296-6d45-4405-ad2b-e279bec52621',
+    accessToken: 'access-token-3',
+    organisationId: '00000000-0000-0000-0000-000000000003',
   },
 ];

@@ -7,18 +7,14 @@ export type DBXFetcherOptions = {
   pathRoot?: string;
 };
 
-export type FolderFilePermissions = {
-  id: string;
-} & sharing.SharedFolderMembers;
-
-export type CommonDataFetchHeaders = {
-  accessToken: string;
-  isPersonal: boolean;
-  teamMemberId: string;
-  adminTeamMemberId: string;
+export type GeneralFolderFilePermissions = {
+  users: Array<sharing.UserMembershipInfo>;
+  groups: Array<sharing.GroupMembershipInfo>;
+  invitees: Array<sharing.InviteeMembershipInfo>;
+  anyone?: Array<SharedLinks>;
 };
 
-export type SyncJobType = 'shared_link' | 'path';
+export type FolderFilePermissions = Map<string, GeneralFolderFilePermissions>;
 
 export type SyncJob = {
   accessToken: string;
@@ -32,29 +28,36 @@ export type SyncJob = {
 export type SharedLinks = {
   url: string;
   linkAccessLevel: string;
-  organisationId: string;
-  teamMemberId: string;
   pathLower: string;
 };
 
-export type DBXPermissionType = 'user' | 'group' | 'anyone' | 'domain';
+export type DBXPermissionType = 'user' | 'group' | 'anyone';
 
 export type FolderAndFilePermissions = {
-  id: string | null;
-  email: string | null;
-  team_member_id: string | null;
-  display_name: string | null;
+  id: string;
+  email?: string;
+  team_member_id?: string;
+  display_name?: string;
   type: DBXPermissionType;
-  role: string | null;
-  domain?: string | null;
-  group_id?: string | null;
-  shared_link?: string | null;
-  is_inherited?: boolean;
+  role: sharing.AccessLevel['.tag'];
+  metadata?: any;
 };
 
-export type FormatPermissionsToAdd = {
-  permissions: FolderAndFilePermissions[];
-  organisationId: string;
+export type FolderAndFilePermissionsToSend = {
+  id: string;
+  email?: string;
+  displayName?: string;
+  userId?: string;
+  type: DBXPermissionType;
+  metadata?: any;
 };
 
 export type FileAndFolderType = files.FolderMetadataReference | files.FileMetadataReference;
+
+export type FileToAdd = FileAndFolderType & {
+  permissions: FolderAndFilePermissions[];
+  metadata: {
+    name: string;
+    preview_url: string;
+  };
+};

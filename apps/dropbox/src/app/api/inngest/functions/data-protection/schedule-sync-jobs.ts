@@ -17,7 +17,7 @@ export const scheduleDataProtectionSyncJobs = inngest.createFunction(
         },
       }));
 
-      await step.sendEvent('send-event-create-shared-link-sync-jobs ', events);
+      await step.sendEvent('send-event-create-shared-link-sync-jobs', events);
     }
 
     return { organisations };

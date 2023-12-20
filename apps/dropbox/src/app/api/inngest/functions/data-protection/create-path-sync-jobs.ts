@@ -1,8 +1,7 @@
 import { inngest } from '@/common/clients/inngest';
-import { SyncJob } from './types';
 import { handleError } from '../../handle-error';
-import { fetchUsers } from './dropbox-calls/fetch-users';
-import { DbxFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
+import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
+import { SyncJob } from '@/repositories/dropbox/types/types';
 
 const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, step }) => {
   const {
@@ -19,7 +18,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     throw new Error('Missing event.ts');
   }
 
-  const dbxFetcher = new DbxFetcher({
+  const dbxFetcher = new DBXFetcher({
     accessToken,
   });
 
@@ -29,41 +28,21 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     })
     .catch(handleError);
 
-  // await step.run('inngest-console-log-create-path-sync-jobs', async () => {
-  //   console.log('--------------create-path-sync-jobs------------');
-  //   console.log('team.members.length', team.members.length);
-  //   console.log('team?.hasMore', team?.hasMore);
-  //   console.log('------------------------------------------------');
-  // });
-
   const pathSyncJobs = await step.run('format-path-sync-job', async () => {
-    const job: SyncJob & { path: string } = {
+    const job: SyncJob = {
       accessToken,
       organisationId,
-      path: '',
       syncStartedAt,
       isFirstScan,
       pathRoot,
-      level: 0,
     };
 
-    // Previous version of the code
-    // We user path based sync is used, will not be used anymore
-
-    // In this new integrations strategy, all the sync jobs will be personal
-    // but the only difference is that  root pat will be included for admin to fet all the files and folders recursively
-    // whe we provide  the root path, all the team folders & and the personal folder will be included  when we fetch the folder and files
-    // since admin is the owner of the team folder & file this strategy will work(team folder & files will be  consider as personal)
-    // however, isPersonal will be determine from the permissions, the permissions does contains the information of the owner,
-    // if the  access_type: owner, then the file is personal, if the access_type: editor | viewer, then the file is team folder
-    return team.members.flatMap(({ profile: { team_member_id: teamMemberId } }) => {
-      return [
-        {
-          ...job,
-          teamMemberId,
-          adminTeamMemberId,
-        },
-      ];
+    return team.members.map(({ profile: { team_member_id: teamMemberId } }) => {
+      return {
+        ...job,
+        teamMemberId,
+        adminTeamMemberId,
+      };
     });
   });
 

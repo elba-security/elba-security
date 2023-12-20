@@ -1,19 +1,25 @@
 import { DropboxResponse, team } from 'dropbox';
 
-export const membersListFirstPage: team.TeamMemberInfoV2[] = [
-  {
+type FetchUsersResponse = {
+  members: team.TeamMemberInfoV2[];
+  nextCursor: string;
+  hasMore: boolean;
+};
+
+export const membersListFirstPage = (users: number[]) =>
+  users.map((id) => ({
     profile: {
-      team_member_id: 'dbmid:AACC6WVq1Tsexu2TGMAZx5PgoghPb1wZgFo',
-      account_id: 'dbid:AAD_9YnwBV13B9rm8_9HN4sf5wu4Sh9DCXs',
-      email: 'member-1@gmail.com',
+      team_member_id: `dbmid:team-member-id-${id}`,
+      account_id: `dbid:team-member-account-id-${id}`,
+      email: `team-member-email-${id}@foo.bar`,
       email_verified: true,
       secondary_emails: [
         {
-          email: 'sample-email-1@xys.com',
+          email: `team-member-second-email-${id}@foo.com`,
           is_verified: true,
         },
         {
-          email: 'sample-email-2@jux.com',
+          email: `team-member-second-email@bar.com`,
           is_verified: false,
         },
       ],
@@ -21,80 +27,20 @@ export const membersListFirstPage: team.TeamMemberInfoV2[] = [
         '.tag': 'active',
       },
       name: {
-        given_name: 'member-1',
-        surname: 'member-1-surname',
-        familiar_name: 'member-1-familiar-name',
-        display_name: 'member-1-display-name',
-        abbreviated_name: 'member-1-abbreviated-name',
+        given_name: `team-member-given-name-${id}`,
+        surname: `team-member-surname-${id}`,
+        familiar_name: `team-member-familiar-name-${id}`,
+        display_name: `team-member-display-name-${id}`,
+        abbreviated_name: `team-member-abbreviated-name-${id}`,
       },
       membership_type: {
         '.tag': 'full',
       },
       joined_on: '2023-01-19T13:09:04Z',
-      groups: ['g:21e7390f3226aa560000000000000003'],
-      member_folder_id: '3377242017',
+      groups: [`g:000000000000${id}`],
+      member_folder_id: '01234567${i}',
     },
-  },
-  {
-    profile: {
-      team_member_id: 'dbmid:AAAZAgKIZ9LjPeus0zIQQlJGBTMjKvxgaeo',
-      account_id: 'dbid:AABkGc6l9V43_NjUTjRAZcCffUGzw0UAnMQ',
-      email: 'member-2@gmail.com',
-      email_verified: true,
-      secondary_emails: [
-        {
-          email: 'sample-email-10@xys.com',
-          is_verified: true,
-        },
-        {
-          email: 'sample-email-12@jux.com',
-          is_verified: false,
-        },
-      ],
-      status: {
-        '.tag': 'active',
-      },
-      name: {
-        given_name: 'member-2',
-        surname: 'member-2-surname',
-        familiar_name: 'member-2-familiar-name',
-        display_name: 'member-2-display-name',
-        abbreviated_name: 'member-2-abbreviated-name',
-      },
-      membership_type: {
-        '.tag': 'full',
-      },
-      joined_on: '2023-01-26T12:24:56Z',
-      groups: ['g:21e7390f3226aa560000000000000003'],
-      member_folder_id: '3433420049',
-    },
-  },
-  {
-    profile: {
-      team_member_id: 'dbmid:AACsa3ltyVlwAHUXtt4atxIOCU7P-87i5to',
-      account_id: 'dbid:AACSev-O_EZQJRSmoToPQoFJfwaqzrzBnd8',
-      email: 'member-3@yahoo.com',
-      email_verified: false,
-      secondary_emails: [],
-      status: {
-        '.tag': 'active',
-      },
-      name: {
-        given_name: '',
-        surname: '',
-        familiar_name: '',
-        display_name: '',
-        abbreviated_name: '',
-      },
-      membership_type: {
-        '.tag': 'full',
-      },
-      invited_on: '2023-01-26T12:30:34Z',
-      groups: ['g:21e7390f3226aa560000000000000003'],
-      member_folder_id: '3432693249',
-    },
-  },
-];
+  }));
 
 export const membersListSecondPage: team.TeamMemberInfoV2[] = [
   {
@@ -195,12 +141,10 @@ export const mockUserPoolSecondPage: MockUserPool[] = [
 
 export const mockUserPoolWithoutPagination = mockUserPoolFirstPageResult;
 
-export const membersListFirstPageResult: Partial<DropboxResponse<team.MembersListV2Result>> = {
-  result: {
-    members: membersListFirstPage,
-    cursor: 'cursor-1',
-    has_more: true,
-  },
+export const membersListFirstPageResult: FetchUsersResponse = {
+  members: membersListFirstPage([1, 2, 3]) as team.TeamMemberInfoV2[],
+  nextCursor: 'cursor-1',
+  hasMore: true,
 };
 
 export const membersListSecondPageResult: Partial<DropboxResponse<team.MembersListV2Result>> = {
@@ -211,10 +155,8 @@ export const membersListSecondPageResult: Partial<DropboxResponse<team.MembersLi
   },
 };
 
-export const membersListWithoutPagination: Partial<DropboxResponse<team.MembersListV2Result>> = {
-  result: {
-    members: membersListFirstPage,
-    cursor: 'cursor-3',
-    has_more: false,
-  },
+export const membersListWithoutPagination: FetchUsersResponse = {
+  members: membersListFirstPage([1, 2, 3]) as team.TeamMemberInfoV2[],
+  nextCursor: 'cursor-3',
+  hasMore: false,
 };

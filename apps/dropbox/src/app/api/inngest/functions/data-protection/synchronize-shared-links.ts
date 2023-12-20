@@ -1,8 +1,7 @@
 import { FunctionHandler, inngest } from '@/common/clients/inngest';
-import { filterSharedLinks } from './utils/filter-shared-links';
 import { insertSharedLinks } from './data';
 import { handleError } from '../../handle-error';
-import { DbxFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
+import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
 
 const handler: FunctionHandler = async ({ event, step }) => {
   const { organisationId, accessToken, isPersonal, cursor, teamMemberId, pathRoot } = event.data;
@@ -13,7 +12,7 @@ const handler: FunctionHandler = async ({ event, step }) => {
 
   const sharedLinks = await step
     .run('fetch-shared-links', async () => {
-      const dbxFetcher = new DbxFetcher({
+      const dbxFetcher = new DBXFetcher({
         accessToken,
         teamMemberId,
         pathRoot,

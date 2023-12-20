@@ -30,7 +30,10 @@ export const filterSharedLinks = ({
       return acc;
     }
 
-    const linkObject: SharedLinks = {
+    const linkObject: SharedLinks & {
+      teamMemberId: string;
+      organisationId: string;
+    } = {
       teamMemberId,
       organisationId,
       url,

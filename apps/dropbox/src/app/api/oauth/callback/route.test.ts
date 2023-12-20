@@ -5,11 +5,17 @@ import { RequestMethod, createMocks } from 'node-mocks-http';
 import { addSeconds } from 'date-fns';
 import timekeeper from 'timekeeper';
 import { NextRequest, NextResponse } from 'next/server';
+import { createInngestFunctionMock } from '@elba-security/test-utils';
+import { runUserSyncJobs } from '../../inngest/functions/users/run-user-sync-jobs';
+import { inngest } from '@/common/clients/inngest';
 
-const TOKEN_GENERATED_AT = '2023-03-13T16:19:20.818Z';
-const TOKEN_WILL_EXPIRE_IN = 14400; // seconds
-const ROOT_NAMESPACE_ID = '356986';
-const ORGANISATION_ID = '65a9f078-5ab6-4f87-a9e9-cbe91d797562';
+const tokenGeneratedAt = '2023-03-13T16:19:20.818Z';
+const tokenWillExpiresIn = 14400; // seconds
+const rootNamespaceId = '356986';
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const accessToken = 'access-token-1';
+
+const setup = createInngestFunctionMock(runUserSyncJobs, 'users/run-user-sync-jobs');
 
 // Mock Dropbox sdk
 vi.mock('dropbox', () => {
@@ -27,7 +33,7 @@ vi.mock('dropbox', () => {
             result: {
               access_token: 'test-access-token',
               refresh_token: 'test-refresh-token',
-              expires_in: TOKEN_WILL_EXPIRE_IN,
+              expires_in: tokenWillExpiresIn,
             },
           };
         }),
@@ -64,7 +70,7 @@ vi.mock('dropbox', () => {
               },
               root_info: {
                 '.tag': 'team',
-                root_namespace_id: ROOT_NAMESPACE_ID,
+                root_namespace_id: rootNamespaceId,
               },
               team: {
                 name: 'test-team-name',
@@ -85,7 +91,7 @@ const mockRequestResponse = (method: RequestMethod = 'GET') => {
   req.cookies = {
     get: vi.fn(() => {
       return {
-        value: ORGANISATION_ID,
+        value: organisationId,
       };
     }),
   };
@@ -96,7 +102,7 @@ describe('Callback dropbox', () => {
   const redirectSpy = vi.spyOn(NextResponse, 'redirect');
   beforeAll(async () => {
     vi.clearAllMocks();
-    timekeeper.freeze(TOKEN_GENERATED_AT);
+    timekeeper.freeze(tokenGeneratedAt);
   });
 
   afterAll(() => {
@@ -129,26 +135,13 @@ describe('Callback dropbox', () => {
     expect(redirectSpy).toHaveBeenCalledWith('https://admin.elba.ninja');
   });
 
-  test('should return the expected response', async () => {
-    // Make a fetch request to the mock server
+  test('should generate the token, insert to db and initiate the user sync process', async () => {
+    vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     const { req } = mockRequestResponse();
-    req.url = `http://localhost:3000/api/oauth/callback?code=123&state=${ORGANISATION_ID}`;
+    req.url = `http://localhost:3000/api/oauth/callback?code=123&state=${organisationId}`;
     const response = await handler(req);
 
-    const tokenValues = {
-      organisationId: ORGANISATION_ID,
-      accessToken: 'test-access-token',
-      refreshToken: 'test-refresh-token',
-      teamName: 'test-team-name',
-      adminTeamMemberId: 'test-team-member-id',
-      rootNamespaceId: ROOT_NAMESPACE_ID,
-      expiresAt: addSeconds(new Date(TOKEN_GENERATED_AT), TOKEN_WILL_EXPIRE_IN),
-    };
-
-    await db.delete(tokens);
-    await db.insert(tokens).values(tokenValues);
-    // Assert that the response status is 200
     const data = await response.json();
     expect(response.status).toBe(200);
     expect(data).toEqual({ success: true });

@@ -1,7 +1,9 @@
-import { EventSchemas, Inngest } from 'inngest';
+import { EventSchemas, Inngest, type GetFunctionInput } from 'inngest';
 import { z } from 'zod';
 
 export type FunctionHandler = Parameters<typeof inngest.createFunction>[2];
+
+export type InngestFunctionInputArg = GetFunctionInput<typeof inngest>;
 
 const eventMap = {
   'tokens/run-refresh-tokens': {},
