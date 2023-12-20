@@ -43,7 +43,7 @@ importers:
         version: 0.5.1
       drizzle-orm:
         specifier: ^0.29.1
-        version: 0.29.1(@vercel/postgres@0.5.1)(postgres@3.4.3)
+        version: 0.29.1(@neondatabase/serverless@0.6.0)(@vercel/postgres@0.5.1)(postgres@3.4.3)
       inngest:
         specifier: ^3.8.0
         version: 3.8.0(typescript@5.2.2)
@@ -113,6 +113,85 @@ importers:
         version: 5.2.2
       vitest:
         specifier: 1.1.1
+        version: 1.1.1(@edge-runtime/vm@3.1.7)(@types/node@20.10.3)
+
+  apps/test:
+    dependencies:
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@neondatabase/serverless':
+        specifier: ^0.6.0
+        version: 0.6.0
+      '@vercel/postgres':
+        specifier: ^0.5.1
+        version: 0.5.1
+      drizzle-orm:
+        specifier: ^0.29.1
+        version: 0.29.1(@neondatabase/serverless@0.6.0)(@vercel/postgres@0.5.1)(postgres@3.4.3)
+      inngest:
+        specifier: ^3.6.2
+        version: 3.8.0(typescript@5.2.2)
+      msw:
+        specifier: ^2.0.1
+        version: 2.0.6(typescript@5.2.2)
+      next:
+        specifier: 14.0.1
+        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: ^18
+        version: 18.2.0
+      react-dom:
+        specifier: ^18
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^3.1.7
+        version: 3.1.7
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: ^14.0.2
+        version: 14.0.3
+      '@types/node':
+        specifier: ^20
+        version: 20.10.3
+      '@types/react':
+        specifier: ^18
+        version: 18.2.42
+      '@types/react-dom':
+        specifier: ^18
+        version: 18.2.17
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
+      drizzle-kit:
+        specifier: ^0.20.6
+        version: 0.20.6
+      eslint:
+        specifier: ^8
+        version: 8.53.0
+      inngest-cli:
+        specifier: ^0.22.0
+        version: 0.22.0
+      postgres:
+        specifier: ^3.4.3
+        version: 3.4.3
+      typescript:
+        specifier: ^5
+        version: 5.2.2
+      vitest:
+        specifier: ^1.0.0
         version: 1.1.1(@edge-runtime/vm@3.1.7)(@types/node@20.10.3)
 
   packages/api-client:
@@ -3135,7 +3214,7 @@ packages:
       - utf-8-validate
     dev: true
 
-  /drizzle-orm@0.29.1(@vercel/postgres@0.5.1)(postgres@3.4.3):
+  /drizzle-orm@0.29.1(@neondatabase/serverless@0.6.0)(@vercel/postgres@0.5.1)(postgres@3.4.3):
     resolution: {integrity: sha512-yItc4unfHnk8XkDD3/bdC63vdboTY7e7I03lCF1OJYABXSIfQYU9BFTQJXMMovVeb3T1/OJWwfW/70T1XPnuUA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -3197,6 +3276,7 @@ packages:
       sqlite3:
         optional: true
     dependencies:
+      '@neondatabase/serverless': 0.6.0
       '@vercel/postgres': 0.5.1
       postgres: 3.4.3
     dev: false
@@ -4391,6 +4471,20 @@ packages:
 
   /inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
+
+  /inngest-cli@0.22.0:
+    resolution: {integrity: sha512-6T63H/pN5aETlqrKuSRMbjsW6F+dUo19bZOiRFeBkFZk34qiaIOYyNTAANH3u26TWudJ+jpcOuynxiVqNvl5MQ==}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      adm-zip: 0.5.10
+      debug: 4.3.4
+      node-fetch: 2.6.7
+      tar: 6.1.11
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: true
 
   /inngest-cli@0.23.1:
     resolution: {integrity: sha512-kwVi4/oL9yUq/K6/JfzJnTCi9EXvo+ERrAnxcOmMaxrMNsSolo/0fqm1Y2maL4k96xypFfX0yumcvYAKjesOzg==}
@@ -5640,7 +5734,6 @@ packages:
   /postgres@3.4.3:
     resolution: {integrity: sha512-iHJn4+M9vbTdHSdDzNkC0crHq+1CUdFhx+YqCE+SqWxPjm+Zu63jq7yZborOBF64c8pc58O5uMudyL1FQcHacA==}
     engines: {node: '>=12'}
-    dev: false
 
   /prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
