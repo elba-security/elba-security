@@ -1,7 +1,7 @@
 import { inngest } from '@/common/clients/inngest';
-import { SyncJob } from './types';
 import { handleError } from '../../handle-error';
-import { fetchUsers } from './dropbox-calls/fetch-users';
+import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
+import { SyncJob } from '@/repositories/dropbox/types/types';
 
 const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, step }) => {
   const {
@@ -18,54 +18,32 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     throw new Error('Missing event.ts');
   }
 
+  const dbxFetcher = new DBXFetcher({
+    accessToken,
+  });
+
   const team = await step
     .run('fetch-users', async () => {
-      return fetchUsers({
-        accessToken,
-        cursor,
-      });
+      return dbxFetcher.fetchUsers(cursor);
     })
     .catch(handleError);
 
-  // await step.run('inngest-console-log-create-path-sync-jobs', async () => {
-  //   console.log('--------------create-path-sync-jobs------------');
-  //   console.log('team.members.length', team.members.length);
-  //   console.log('team?.hasMore', team?.hasMore);
-  //   console.log('------------------------------------------------');
-  // });
-
   const pathSyncJobs = await step.run('format-path-sync-job', async () => {
-    const job: SyncJob & { path: string } = {
+    const job: SyncJob = {
       accessToken,
       organisationId,
-      path: '',
       syncStartedAt,
       isFirstScan,
       pathRoot,
-      level: 0,
     };
 
-    const teamMembersIds =
-      [
-        ...team.members.flatMap(({ profile: { team_member_id: teamMemberId } }) => {
-          return [
-            {
-              ...job,
-              teamMemberId,
-              adminTeamMemberId,
-              isPersonal: true,
-            },
-          ];
-        }),
-        {
-          ...job,
-          teamMemberId: adminTeamMemberId,
-          adminTeamMemberId,
-          isPersonal: false,
-        },
-      ] ?? [];
-
-    return teamMembersIds;
+    return team.members.map(({ profile: { team_member_id: teamMemberId } }) => {
+      return {
+        ...job,
+        teamMemberId,
+        adminTeamMemberId,
+      };
+    });
   });
 
   if (team.members.length > 0) {

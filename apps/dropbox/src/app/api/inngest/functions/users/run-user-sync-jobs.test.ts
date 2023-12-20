@@ -46,12 +46,6 @@ describe('run-user-sync-jobs', async () => {
   });
 
   test('should delay the job when Dropbox rate limit is reached', async () => {
-    await insertTestAccessToken();
-    const [result] = setup({
-      organisationId: 'b0771747-caf0-487d-a885-5bc3f1e9f770',
-      accessToken: 'access-token-1',
-      isFirstScan: true,
-    });
     mocks.teamMembersListV2.mockRejectedValue(
       new DropboxResponseError(
         429,
@@ -66,6 +60,13 @@ describe('run-user-sync-jobs', async () => {
         }
       )
     );
+
+    await insertTestAccessToken();
+    const [result] = setup({
+      organisationId: 'b0771747-caf0-487d-a885-5bc3f1e9f770',
+      accessToken: 'access-token-1',
+      isFirstScan: true,
+    });
 
     await expect(result).rejects.toStrictEqual(
       new RetryAfterError('Dropbox rate limit reached', Number(5 * 1000))

@@ -1,10 +1,14 @@
 import { inngest } from '@/common/clients/inngest';
-import { SyncJob } from './types';
 import { handleError } from '../../handle-error';
-import { fetchUsers } from './dropbox-calls/fetch-users';
+import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
+import { SyncJob } from '@/repositories/dropbox/types/types';
 
 const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, step }) => {
   const { organisationId, accessToken, isFirstScan, syncStartedAt, cursor, pathRoot } = event.data;
+
+  const dbxFetcher = new DBXFetcher({
+    accessToken,
+  });
 
   if (!event.ts) {
     throw new Error('Missing event.ts');
@@ -12,10 +16,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
 
   const team = await step
     .run('run-fetch-users', async () => {
-      return fetchUsers({
-        accessToken,
-        cursor,
-      });
+      return dbxFetcher.fetchUsers(cursor);
     })
     .catch(handleError);
 
@@ -28,7 +29,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
       pathRoot,
     };
 
-    const teamMembersIds =
+    return (
       team.members.flatMap((member) => {
         const teamMemberId = member.profile.team_member_id;
         return [
@@ -43,9 +44,8 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
             isPersonal: true,
           },
         ];
-      }) ?? [];
-
-    return teamMembersIds;
+      }) ?? []
+    );
   });
 
   // await step.run('inngest-console-log-create-shared-link-sync-jobs', async () => {

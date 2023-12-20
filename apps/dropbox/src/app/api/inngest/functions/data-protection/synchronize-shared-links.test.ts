@@ -98,20 +98,21 @@ describe('fetch-shared-links', async () => {
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('send-event-fetch-shared-links', {
+    expect(step.sendEvent).toBeCalledWith('send-event-synchronize-shared-links', {
       data: {
         accessToken: 'access-token-1',
-        isFirstScan: false,
+        cursor: 'has-more-cursor',
+        isPersonal: false,
         organisationId: '00000000-0000-0000-0000-000000000001',
         pagination: 'has-more-cursor',
-        pathRoot: '000000',
+        pathRoot: 10,
         teamMemberId: 'team-member-id-1',
       },
       name: 'data-protection/synchronize-shared-links',
     });
   });
 
-  test.only('should fetch shared links of a member and insert into db & should call the waitFore event', async () => {
+  test('should fetch shared links of a member and insert into db & should call the waitFore event', async () => {
     mocks.sharingListSharedLinks.mockImplementation(() => {
       return teamMemberOnceSecondPageWithoutPagination;
     });
@@ -132,9 +133,9 @@ describe('fetch-shared-links', async () => {
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('wait-for-shared-links-to-be-fetched', {
       data: {
-        isPersonal: undefined,
-        organisationId: '00000000-0000-0000-0000-000000000001',
-        teamMemberId: 'team-member-id-1',
+        isPersonal: false,
+        organisationId,
+        teamMemberId,
       },
       name: 'shared-links/synchronize.shared-links.completed',
     });

@@ -1,140 +1,81 @@
-import { inngest } from '@/common/clients/inngest';
+import { InngestFunctionInputArg, inngest } from '@/common/clients/inngest';
 import { getSharedLinks } from './data';
 import { handleError } from '../../handle-error';
-import { fetchFoldersAndFiles } from './dropbox-calls/fetch-folders-and-files';
-import { fetchMultipleFoldersPermissions } from './dropbox-calls/fetch-folder-permissions';
-import { fetchMultipleFoldersMetadata } from './dropbox-calls/fetch-folders-metadata';
-import { fetchFilesPermissions } from './dropbox-calls/fetch-files-permissions';
-import { fetchMultipleFilesMetadata } from './dropbox-calls/fetch-files-metadata';
-import { formatSharedLinksPermission } from './utils/format-permissions';
-import { formatFilesToAdd } from './utils/format-files-and-folders';
+import { elbaAccess } from '@/common/clients/elba';
+import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
 
-const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, step }) => {
+const handler: Parameters<typeof inngest.createFunction>[2] = async ({
+  event,
+  step,
+}: InngestFunctionInputArg) => {
   if (!event.ts) {
     throw new Error('Missing event.ts');
   }
 
-  const { organisationId, accessToken, isPersonal, teamMemberId, adminTeamMemberId } = event.data;
-
-  const response = await step
-    .run('fetch-folders-and-files', async () => {
-      return fetchFoldersAndFiles(event.data);
-    })
-    .catch(handleError);
-
-  const {
-    result: { entries: foldersAndFiles, has_more: hasMore, cursor: nextCursor },
-  } = response;
-
-  if (hasMore) {
-    await step.sendEvent('send-event-synchronize-folders-and-files', {
-      name: 'data-protection/synchronize-folders-and-files',
-      data: { ...event.data, cursor: nextCursor },
+  const { organisationId, accessToken, teamMemberId, adminTeamMemberId, pathRoot, cursor } =
+    event.data;
+  try {
+    const dbxFetcher = new DBXFetcher({
+      accessToken,
+      adminTeamMemberId,
+      teamMemberId,
+      pathRoot,
     });
-  }
+    const elba = elbaAccess(organisationId);
 
-  const pathLowers = foldersAndFiles.reduce((acc: string[], file) => {
-    if (!file?.path_lower) {
-      return acc;
-    }
-    acc.push(file.path_lower);
-    return acc;
-  }, []);
-
-  const allSharedLinks = await step.run('get-file-shared-links', async () => {
-    return getSharedLinks({
-      organisationId,
-      pathLowers,
+    const result = await step.run('fetch-folders-and-files', async () => {
+      return dbxFetcher.fetchFoldersAndFiles(cursor);
     });
-  });
 
-  const commonProps = {
-    accessToken,
-    isPersonal,
-    teamMemberId,
-    adminTeamMemberId,
-  };
-
-  const sharedFolders = foldersAndFiles.filter(
-    (entry) => entry['.tag'] === 'folder' && entry.shared_folder_id
-  );
-
-  const files = foldersAndFiles.filter((entry) => entry['.tag'] === 'file');
-
-  const formattedFoldersAndFiles = await step
-    .run('fetch-metadata-members-and-map-details', async () => {
-      const [foldersPermissions, foldersMetadata, filesPermissions, filesMetadata] =
-        await Promise.all([
-          fetchMultipleFoldersPermissions({
-            ...commonProps,
-            sharedFolders,
-          }),
-          fetchMultipleFoldersMetadata({
-            ...commonProps,
-            sharedFolders,
-          }),
-          fetchFilesPermissions({
-            ...commonProps,
-            files,
-          }),
-          fetchMultipleFilesMetadata({
-            ...commonProps,
-            files,
-          }),
-        ]);
-
-      const filteredPermissions = new Map([...foldersPermissions, ...filesPermissions]);
-      const filteredMetadata = new Map([...foldersMetadata, ...filesMetadata]);
-
-      const mappedResult = [...sharedFolders, ...files].map((entry) => {
-        const permissions = filteredPermissions.get(entry.id);
-        const metadata = filteredMetadata.get(entry.id);
-
-        const fileSharedLinks = formatSharedLinksPermission(
-          allSharedLinks.filter(({ pathLower }) => pathLower === entry.path_lower)
-        );
-
-        if (metadata && permissions) {
-          return {
-            ...entry,
-            metadata,
-            permissions: [...permissions, ...fileSharedLinks],
-          };
-        }
-
-        // Permissions and metadata should have been assigned, if not throw error
-        throw new Error('Permissions or metadata not found');
+    if (result.hasMore) {
+      await step.sendEvent('send-event-synchronize-folders-and-files', {
+        name: 'data-protection/synchronize-folders-and-files',
+        data: { ...event.data, cursor: result?.nextCursor },
       });
+    }
 
-      return mappedResult;
-    })
-    .catch(handleError);
+    const pathLowers = result.foldersAndFiles.reduce((acc: string[], file) => {
+      if (!file?.path_lower) {
+        return acc;
+      }
 
-  // await step.run('inngest-console-log-synchronize-folders-and-files', async () => {
-  //   console.log('----------synchronize-folders-and-files---------');
-  //   // console.log('receivedFoldersAndFilesPaths', pathLowers);
-  //   // console.log('fileSharedLinks', fileSharedLinks);
-  //   console.log('formattedFoldersAndFiles', JSON.stringify(formattedFoldersAndFiles, null, 2));
-  //   console.log('------------------------------------------------');
-  // });
+      acc.push(file.path_lower);
+      return acc;
+    }, []);
 
-  await step.run('format-files-and-folders-to-add', async () => {
-    // console.log('---------------BEFORE FORMATE-------------------');
-    // console.log(JSON.stringify(formattedFoldersAndFiles, null, 2));
-    // console.log('------------------------------------------------');
-    const foldersAndFilesToAdd = formatFilesToAdd({
-      ...commonProps,
-      files: formattedFoldersAndFiles,
+    const sharedLinks = await step.run('get-file-shared-links', async () => {
+      return getSharedLinks({
+        organisationId,
+        pathLowers,
+      });
     });
 
-    console.log('--------FINAL FOLDER & FILES TO ADD------------');
-    console.log(JSON.stringify(foldersAndFilesToAdd, null, 2));
-    console.log('------------------------------------------------');
-  });
+    const foldersAndFilesToAdd = await step.run(
+      'fetch-metadata-members-and-map-details',
+      async () => {
+        return dbxFetcher.fetchMetadataMembersAndMapDetails({
+          foldersAndFiles: result.foldersAndFiles,
+          sharedLinks,
+        });
+      }
+    );
 
-  return {
-    success: true,
-  };
+    if (foldersAndFilesToAdd.length > 0) {
+      await step.run('send-data-protection-to-elba', async () => {
+        // TODO: fix the type issue
+        return await elba.dataProtection.updateObjects({
+          // @ts-ignore
+          objects: foldersAndFilesToAdd,
+        });
+      });
+    }
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    handleError(error);
+  }
 };
 
 export const synchronizeFoldersAndFiles = inngest.createFunction(
@@ -150,7 +91,7 @@ export const synchronizeFoldersAndFiles = inngest.createFunction(
     // },
     retries: 10,
     concurrency: {
-      limit: 10,
+      limit: 5,
       key: 'event.data.organisationId',
     },
   },

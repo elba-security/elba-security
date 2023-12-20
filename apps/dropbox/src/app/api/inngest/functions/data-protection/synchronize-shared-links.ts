@@ -1,12 +1,10 @@
 import { FunctionHandler, inngest } from '@/common/clients/inngest';
-import { DBXAccess } from '@/repositories/dropbox/clients';
-import { filterSharedLinks } from './utils/filter-shared-links';
 import { insertSharedLinks } from './data';
 import { handleError } from '../../handle-error';
+import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
 
 const handler: FunctionHandler = async ({ event, step }) => {
-  const { organisationId, accessToken, isPersonal, pagination, teamMemberId, pathRoot } =
-    event.data;
+  const { organisationId, accessToken, isPersonal, cursor, teamMemberId, pathRoot } = event.data;
 
   if (!event.ts) {
     throw new Error('Missing event.ts');
@@ -14,27 +12,27 @@ const handler: FunctionHandler = async ({ event, step }) => {
 
   const sharedLinks = await step
     .run('fetch-shared-links', async () => {
-      const dbxAccess = new DBXAccess({
+      const dbxFetcher = new DBXFetcher({
         accessToken,
-      });
-
-      dbxAccess.setHeaders({
-        selectUser: teamMemberId,
-        ...(isPersonal ? {} : { pathRoot: JSON.stringify({ '.tag': 'root', root: pathRoot }) }),
-      });
-
-      const response = await dbxAccess.sharingListSharedLinks({
-        cursor: pagination,
+        teamMemberId,
+        pathRoot,
       });
 
       const {
-        result: { links, has_more: hasMore, cursor },
-      } = response;
+        cursor: nextCursor,
+        hasMore,
+        links,
+      } = await dbxFetcher.fetchSharedLinks({
+        organisationId,
+        teamMemberId,
+        isPersonal,
+        cursor,
+      });
 
       return {
         hasMore,
         links,
-        cursor,
+        nextCursor,
       };
     })
     .catch(handleError);
@@ -49,12 +47,7 @@ const handler: FunctionHandler = async ({ event, step }) => {
 
   if (sharedLinks.links.length > 0) {
     await step.run('insert-shared-links', async () => {
-      const formattedShredLinks = filterSharedLinks({
-        sharedLinks: sharedLinks.links,
-        organisationId,
-        teamMemberId,
-      });
-      await insertSharedLinks(formattedShredLinks);
+      await insertSharedLinks(sharedLinks.links);
     });
   }
 
@@ -63,7 +56,7 @@ const handler: FunctionHandler = async ({ event, step }) => {
       name: 'data-protection/synchronize-shared-links',
       data: {
         ...event.data,
-        pagination: sharedLinks.cursor,
+        cursor: sharedLinks.nextCursor,
       },
     });
 

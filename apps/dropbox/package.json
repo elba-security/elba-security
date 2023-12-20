@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3300",
     "build": "next build",
-    "start": "next start",
+    "dev": "next dev -p 3300",
     "lint": "next lint",
+    "start": "next start",
     "test": "vitest --no-threads",
     "big-bang": "pnpm database:down && pnpm database:up && pnpm migrate",
     "database:down": "docker-compose -p dropbox down --volumes",

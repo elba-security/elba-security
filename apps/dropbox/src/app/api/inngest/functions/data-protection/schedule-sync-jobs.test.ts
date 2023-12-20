@@ -30,18 +30,20 @@ describe('scheduleDataProtectionSyncJobs', () => {
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      organisations: expect.arrayContaining([
-        {
-          accessToken: 'access-token-1',
-          organisationId: 'ce47f296-6d45-4405-ad2b-e279bec52621',
-          pathRoot: 'root-namespace-id',
-        },
+      organisations: [
         {
           accessToken: 'access-token-2',
-          organisationId: 'ce47f296-6d45-4405-ad2b-e279bec52622',
+          adminTeamMemberId: 'admin-team-member-id-1',
+          organisationId: '00000000-0000-0000-0000-000000000002',
           pathRoot: 'root-namespace-id',
         },
-      ]),
+        {
+          accessToken: 'access-token-3',
+          adminTeamMemberId: 'admin-team-member-id-1',
+          organisationId: '00000000-0000-0000-0000-000000000003',
+          pathRoot: 'root-namespace-id',
+        },
+      ],
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);
@@ -51,8 +53,9 @@ describe('scheduleDataProtectionSyncJobs', () => {
         {
           name: 'data-protection/create-shared-link-sync-jobs',
           data: {
-            accessToken: 'access-token-1',
-            organisationId: 'ce47f296-6d45-4405-ad2b-e279bec52621',
+            accessToken: 'access-token-2',
+            organisationId: '00000000-0000-0000-0000-000000000002',
+            adminTeamMemberId: 'admin-team-member-id-1',
             pathRoot: 'root-namespace-id',
             syncStartedAt: '2023-01-14T20:00:00.000Z',
             isFirstScan: false,
@@ -61,8 +64,9 @@ describe('scheduleDataProtectionSyncJobs', () => {
         {
           name: 'data-protection/create-shared-link-sync-jobs',
           data: {
-            accessToken: 'access-token-2',
-            organisationId: 'ce47f296-6d45-4405-ad2b-e279bec52622',
+            accessToken: 'access-token-3',
+            organisationId: '00000000-0000-0000-0000-000000000003',
+            adminTeamMemberId: 'admin-team-member-id-1',
             pathRoot: 'root-namespace-id',
             syncStartedAt: '2023-01-14T20:00:00.000Z',
             isFirstScan: false,

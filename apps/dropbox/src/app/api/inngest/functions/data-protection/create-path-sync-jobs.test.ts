@@ -1,23 +1,22 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { RetryAfterError } from 'inngest';
-import { insertOrganisations, insertTestAccessToken } from '@/common/__mocks__/token';
+import { insertOrganisations } from '@/common/__mocks__/token';
 import { DropboxResponseError } from 'dropbox';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { createSharedLinkSyncJobs } from './create-shared-link-sync-jobs';
+import { createPathSyncJobs } from './create-path-sync-jobs';
 import {
   membersListFirstPageResult,
   membersListWithoutPagination,
 } from '../users/__mocks__/dropbox';
-import { sharedLinksEvents } from './__mocks__/shared-links-events';
+import { pathJobEvents } from './__mocks__/path-jobs-events';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 
 const setup = createInngestFunctionMock(
-  createSharedLinkSyncJobs,
-  'data-protection/create-shared-link-sync-jobs'
+  createPathSyncJobs,
+  'data-protection/create-path-sync-jobs'
 );
 
-// // Mock Dropbox sdk
 const mocks = vi.hoisted(() => {
   return {
     fetchUsersMockResponse: vi.fn(),
@@ -90,7 +89,7 @@ describe('run-user-sync-jobs', async () => {
     );
   });
 
-  test('should fetch team members of the organisation & trigger events to fetch shared links', async () => {
+  test('should fetch team members of the organisation & trigger events to synchronize folders and files', async () => {
     mocks.fetchUsersMockResponse.mockImplementation(() => {
       return membersListWithoutPagination;
     });
@@ -98,51 +97,24 @@ describe('run-user-sync-jobs', async () => {
     const [result, { step }] = setup({
       organisationId,
       accessToken: 'access-token-1',
-      isFirstScan: true,
+      isFirstScan: false,
       pathRoot: 1000,
       syncStartedAt: '2021-01-01T00:00:00.000Z',
-      cursor: 'cursor-1',
+      adminTeamMemberId: 'admin-team-member-id-1',
     });
 
     expect(await result).toStrictEqual({
       success: true,
     });
 
-    expect(step.waitForEvent).toBeCalledTimes(6);
-
-    sharedLinksEvents.forEach((link) => {
-      expect(step.waitForEvent).toBeCalledWith(`wait-for-shared-links-to-be-fetched`, {
-        event: 'shared-links/synchronize.shared-links.completed',
-        timeout: '1 day',
-        if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${link.teamMemberId}' && async.data.isPersonal == ${link.isPersonal}`,
-      });
-    });
-
-    expect(step.sendEvent).toBeCalledTimes(2);
+    expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'send-event-synchronize-shared-links',
-      expect.arrayContaining(
-        sharedLinksEvents.map((sharedLinkJob) => ({
-          name: 'data-protection/synchronize-shared-links',
-          data: sharedLinkJob,
-        }))
-      )
+      'send-event-synchronize-folders-and-files',
+      pathJobEvents
     );
-
-    expect(step.sendEvent).toBeCalledWith('send-event-create-path-sync-jobs', {
-      data: {
-        accessToken: 'access-token-1',
-        cursor: 'cursor-1',
-        isFirstScan: true,
-        organisationId,
-        pathRoot: 1000,
-        syncStartedAt: '2021-01-01T00:00:00.000Z',
-      },
-      name: 'data-protection/create-path-sync-jobs',
-    });
   });
 
-  test('should retrieve member data, paginate to the next page, and trigger events to fetch shared links', async () => {
+  test('should fetch team members of the organisation & trigger events to synchronize folders and files', async () => {
     mocks.fetchUsersMockResponse.mockImplementation(() => {
       return membersListFirstPageResult;
     });
@@ -150,47 +122,33 @@ describe('run-user-sync-jobs', async () => {
     const [result, { step }] = setup({
       organisationId,
       accessToken: 'access-token-1',
-      isFirstScan: true,
+      isFirstScan: false,
       pathRoot: 1000,
       syncStartedAt: '2021-01-01T00:00:00.000Z',
-      cursor: 'cursor-1',
+      adminTeamMemberId: 'admin-team-member-id-1',
     });
 
     expect(await result).toStrictEqual({
       success: true,
     });
 
-    expect(step.waitForEvent).toBeCalledTimes(6);
-
-    sharedLinksEvents.forEach((link) => {
-      expect(step.waitForEvent).toBeCalledWith(`wait-for-shared-links-to-be-fetched`, {
-        event: 'shared-links/synchronize.shared-links.completed',
-        timeout: '1 day',
-        if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${link.teamMemberId}' && async.data.isPersonal == ${link.isPersonal}`,
-      });
-    });
-
     expect(step.sendEvent).toBeCalledTimes(2);
     expect(step.sendEvent).toBeCalledWith(
-      'send-event-synchronize-shared-links',
-      expect.arrayContaining(
-        sharedLinksEvents.map((sharedLinkJob) => ({
-          name: 'data-protection/synchronize-shared-links',
-          data: sharedLinkJob,
-        }))
-      )
+      'send-event-synchronize-folders-and-files',
+      pathJobEvents
     );
 
-    expect(step.sendEvent).toBeCalledWith('send-shared-link-sync-jobs', {
+    expect(step.sendEvent).toBeCalledWith('send-event-create-path-sync-jobs', {
       data: {
         accessToken: 'access-token-1',
         cursor: 'cursor-1',
-        isFirstScan: true,
-        organisationId: '00000000-0000-0000-0000-000000000001',
+        isFirstScan: false,
+        organisationId,
         pathRoot: 1000,
         syncStartedAt: '2021-01-01T00:00:00.000Z',
+        adminTeamMemberId: 'admin-team-member-id-1',
       },
-      name: 'data-protection/create-shared-link-sync-jobs',
+      name: 'data-protection/create-path-sync-jobs',
     });
   });
 });
