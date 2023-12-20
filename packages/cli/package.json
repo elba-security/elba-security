@@ -1,0 +1,30 @@
+{
+  "name": "@elba-security/cli",
+  "license": "MIT",
+  "version": "0.0.0",
+  "private": true,
+  "bin": {
+    "elba": "./bin/index.js"
+  },
+  "scripts": {
+    "build": "tsup --out-dir=bin",
+    "dev": "tsup --out-dir=bin --watch"
+  },
+  "type": "module",
+  "devDependencies": {
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
+    "drizzle-orm": "^0.29.1",
+    "eslint-config-turbo": "^1.10.12",
+    "ora": "^7.0.1",
+    "postgres": "^3.4.3",
+    "tsup": "^8.0.1",
+    "typescript": "^4.5.3"
+  },
+  "dependencies": {
+    "exit": "^0.1.2",
+    "node-exit": "^1.2.2",
+    "zod": "^3.22.4",
+    "zx": "^7.2.3"
+  }
+}

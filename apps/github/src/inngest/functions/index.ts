@@ -1,6 +1,11 @@
 import { scheduleAppsSyncs } from './third-party-apps/schedule-apps-syncs';
-import { syncApps } from './third-party-apps/sync-apps-page';
+import { syncAppsPage } from './third-party-apps/sync-apps-page';
 import { scheduleUsersSyncs } from './users/schedule-users-syncs';
-import { syncUsers } from './users/sync-users-page';
+import { syncUsersPage } from './users/sync-users-page';
 
-export const inngestFunctions = [syncUsers, scheduleUsersSyncs, syncApps, scheduleAppsSyncs];
+export const inngestFunctions = [
+  syncUsersPage,
+  scheduleUsersSyncs,
+  syncAppsPage,
+  scheduleAppsSyncs,
+];
