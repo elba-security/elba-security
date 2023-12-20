@@ -67,7 +67,6 @@ export const serializeLogObject = (logObject: any, stringifyNestedObjects = fals
     cache.set(object, result);
 
     Object.getOwnPropertyNames(object).forEach((nestedKey) => {
-      // @ts-expect-error let's start easy
       result[nestedKey] = serialize(object[nestedKey], nestedKey);
     });
     cache.delete(object);
