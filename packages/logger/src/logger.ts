@@ -12,7 +12,6 @@ export class Logger {
   env: string;
 
   constructor({ env }: LoggerOptions) {
-    // this.sentry = sentry;
     this.env = env || 'unknown';
   }
 

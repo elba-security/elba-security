@@ -1,10 +1,9 @@
 import { type NextRequest } from 'next/server';
 import { logger } from '@/logger';
-import { env } from '@/env';
 
-export const fetchCache = 'default-no-store';
+export const dynamic = 'force-dynamic';
 
-export const GET = async (request: NextRequest) => {
+export const GET = (request: NextRequest) => {
   const err = { error: new Error('test', { cause: new Error('OHO') }) };
 
   const resp = new Response('test');
