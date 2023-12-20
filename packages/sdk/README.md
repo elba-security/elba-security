@@ -63,7 +63,7 @@ import { parseWebhookEventData } from 'elba-sdk';
 
 export async function POST(request: NextRequest) {
   const data: unknown = await request.json();
-  const { organisationId } = parseWebhookEventData('scan_triggered', data);
+  const { organisationId } = parseWebhookEventData('data_protection.scan_triggered', data);
 }
 ```
 
