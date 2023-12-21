@@ -1,5 +1,5 @@
 import { type NextRequest } from 'next/server';
-import { logger } from '@/logger';
+import { logger } from '@elba-security/logger';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,0 +1,20 @@
+{
+  "name": "@elba-security/inngest",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "lint": "eslint src/**.ts"
+  },
+  "devDependencies": {
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
+    "@sentry/nextjs": "^7.88.0",
+    "eslint": "^8",
+    "inngest": "^3.6.2"
+  },
+  "peerDependencies": {
+    "@sentry/nextjs": "^7.88.0",
+    "inngest": "^3.6.2"
+  }
+}

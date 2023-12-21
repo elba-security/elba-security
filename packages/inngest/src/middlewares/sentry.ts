@@ -4,6 +4,10 @@ import { InngestMiddleware } from 'inngest';
 export const sentryMiddleware = new InngestMiddleware({
   name: 'sentry-middleware',
   init: ({ client }) => {
+    if (process.env.NEXT_PUBLIC_ENABLE_SENTRY !== 'true') {
+      return {};
+    }
+
     // Set up some tags that will be applied to all events
     Sentry.setTag('inngest.client.id', client.id);
 

@@ -63,7 +63,7 @@ export const serializeLogObject = (logObject: any, stringifyNestedObjects = fals
       return '[Circular ref]';
     }
 
-    const result = Array.isArray(object) ? [] : {};
+    const result: Record<string, any> = Array.isArray(object) ? [] : {};
     cache.set(object, result);
 
     Object.getOwnPropertyNames(object).forEach((nestedKey) => {

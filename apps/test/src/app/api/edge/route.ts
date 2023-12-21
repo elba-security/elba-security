@@ -1,5 +1,5 @@
 import { type NextRequest } from 'next/server';
-import { logger } from '@/logger';
+import { logger } from '@elba-security/logger';
 import { env } from '@/env';
 
 export const runtime = 'edge';
