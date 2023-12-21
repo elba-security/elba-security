@@ -79,7 +79,7 @@ export const serializeLogObject = (logObject: any, stringifyNestedObjects = fals
     if (stringifyNestedObjects && typeof serializedObj === 'object') {
       const result: Record<string, any> = {};
       for (const [key, value] of Object.entries(serializedObj)) {
-        result[key] = typeof value === 'object' ? JSON.stringify(value, null, 2) : value;
+        result[key] = typeof value === 'object' ? JSON.stringify(value) : value;
       }
       return result;
     }
