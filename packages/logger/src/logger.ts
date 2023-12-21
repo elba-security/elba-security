@@ -4,15 +4,17 @@ import { enrichError, serializeLogObject } from './serialize';
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 export type LoggerOptions = {
-  logLevel?: string;
   env?: string;
+  enableSentry: boolean;
 };
 
 export class Logger {
   env: string;
+  enableSentry: boolean;
 
-  constructor({ env }: LoggerOptions) {
+  constructor({ env, enableSentry }: LoggerOptions) {
     this.env = env || 'unknown';
+    this.enableSentry = enableSentry;
   }
 
   private prepareLogMessage(message: string, info?: object): object {
@@ -67,7 +69,7 @@ export class Logger {
       });
     }
 
-    if (!isSkipSentryError(info)) {
+    if (this.enableSentry && !isSkipSentryError(info)) {
       const customProperties = {
         message,
         error: info instanceof Error ? enrichError(info) : undefined,
