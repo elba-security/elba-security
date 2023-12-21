@@ -16,26 +16,32 @@ const DROPBOX_LIST_FILE_MEMBERS_LIMIT = 300; // UInt32(min=1, max=300)
 const DROPBOX_LIST_FOLDER_MEMBERS_LIMIT = 1000;
 const DROPBOX_LIST_FOLDER_BATCH_SIZE = 500;
 
-export class DBXFetcher extends DBXAccess {
+export class DBXFetcher {
   private adminTeamMemberId?: string;
   private teamMemberId?: string;
   private pathRoot?: string;
+  private dbx: DBXAccess;
 
   constructor({ accessToken, adminTeamMemberId, teamMemberId, pathRoot }: DBXFetcherOptions) {
-    super({ accessToken, pathRoot, selectUser: teamMemberId });
     this.adminTeamMemberId = adminTeamMemberId;
     this.teamMemberId = teamMemberId;
     this.pathRoot = pathRoot;
+    this.dbx = new DBXAccess({
+      accessToken,
+    });
+    this.dbx.setHeaders({
+      selectUser: this.teamMemberId,
+    });
   }
 
   fetchUsers = async (cursor?: string) => {
     const {
       result: { members, cursor: nextCursor, has_more: hasMore },
     } = cursor
-      ? await this.teamMembersListContinueV2({
+      ? await this.dbx.teamMembersListContinueV2({
           cursor,
         })
-      : await this.teamMembersListV2({
+      : await this.dbx.teamMembersListV2({
           include_removed: false,
           limit: DROPBOX_BD_USERS_BATCH_SIZE,
         });
@@ -67,14 +73,14 @@ export class DBXFetcher extends DBXAccess {
     isPersonal: boolean;
     cursor?: string;
   }) => {
-    this.setHeaders({
+    this.dbx.setHeaders({
       selectUser: this.teamMemberId,
       ...(isPersonal ? {} : { pathRoot: JSON.stringify({ '.tag': 'root', root: this.pathRoot }) }),
     });
 
     const {
       result: { links, has_more: hasMore, cursor: nexCursor },
-    } = await this.sharingListSharedLinks({
+    } = await this.dbx.sharingListSharedLinks({
       cursor,
     });
 
@@ -94,7 +100,7 @@ export class DBXFetcher extends DBXAccess {
   fetchFoldersAndFiles = async (cursor?: string) => {
     const isAdmin = this.adminTeamMemberId === this.teamMemberId;
 
-    this.setHeaders({
+    this.dbx.setHeaders({
       selectUser: this.teamMemberId,
       ...(isAdmin ? { pathRoot: JSON.stringify({ '.tag': 'root', root: this.pathRoot }) } : {}),
     });
@@ -102,10 +108,10 @@ export class DBXFetcher extends DBXAccess {
     const {
       result: { entries: foldersAndFiles, cursor: nextCursor, has_more: hasMore },
     } = cursor
-      ? await this.filesListFolderContinue({
+      ? await this.dbx.filesListFolderContinue({
           cursor,
         })
-      : await this.filesListFolder({
+      : await this.dbx.filesListFolder({
           path: '',
           include_deleted: false,
           include_has_explicit_shared_members: true,
@@ -137,7 +143,7 @@ export class DBXFetcher extends DBXAccess {
       files.map(async ({ id: fileId }: DbxFiles.FileMetadataReference) => {
         const {
           result: { name, preview_url },
-        } = await this.sharingGetFileMetadata({
+        } = await this.dbx.sharingGetFileMetadata({
           actions: [],
           file: fileId,
         });
@@ -177,8 +183,8 @@ export class DBXFetcher extends DBXAccess {
           const {
             result: { users, groups, invitees, cursor },
           } = nextCursor
-            ? await this.sharingListFileMembersContinue({ cursor: nextCursor })
-            : await this.sharingListFileMembers({
+            ? await this.dbx.sharingListFileMembersContinue({ cursor: nextCursor })
+            : await this.dbx.sharingListFileMembers({
                 file: fileId,
                 include_inherited: true,
                 limit: DROPBOX_LIST_FILE_MEMBERS_LIMIT,
@@ -214,7 +220,7 @@ export class DBXFetcher extends DBXAccess {
         }: DbxFiles.FolderMetadataReference) => {
           const {
             result: { name, preview_url },
-          } = await this.sharingGetFolderMetadata({
+          } = await this.dbx.sharingGetFolderMetadata({
             actions: [],
             shared_folder_id: shareFolderId!,
           });
@@ -257,8 +263,8 @@ export class DBXFetcher extends DBXAccess {
           let nextCursor: string | undefined;
           do {
             const response = nextCursor
-              ? await this.sharingListFolderMembersContinue({ cursor: nextCursor })
-              : await this.sharingListFolderMembers({
+              ? await this.dbx.sharingListFolderMembersContinue({ cursor: nextCursor })
+              : await this.dbx.sharingListFolderMembers({
                   shared_folder_id: shareFolderId!,
                   limit: DROPBOX_LIST_FOLDER_MEMBERS_LIMIT,
                 });
