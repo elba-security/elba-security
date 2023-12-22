@@ -1,4 +1,4 @@
-import { files as DbxFiles } from 'dropbox/types/dropbox_types';
+import { files as DbxFiles, sharing } from 'dropbox/types/dropbox_types';
 import { DBXAccess } from './DBXAccess';
 import {
   DBXFetcherOptions,
@@ -16,6 +16,7 @@ const DROPBOX_LIST_FILE_MEMBERS_LIMIT = 300; // UInt32(min=1, max=300)
 const DROPBOX_LIST_FOLDER_MEMBERS_LIMIT = 1000;
 const DROPBOX_LIST_FOLDER_BATCH_SIZE = 500;
 
+type FolderAndFilesMetadata = DbxFiles.FolderMetadataReference | DbxFiles.FileMetadataReference;
 export class DBXFetcher {
   private adminTeamMemberId?: string;
   private teamMemberId?: string;
@@ -60,6 +61,45 @@ export class DBXFetcher {
       hasMore,
       members: activeTeamMembers,
     };
+  };
+
+  fetchSharedLinksByPath = async ({
+    organisationId,
+    teamMemberId,
+    isPersonal,
+    path,
+  }: {
+    organisationId: string;
+    teamMemberId: string;
+    path: string;
+    isPersonal: boolean;
+  }) => {
+    this.dbx.setHeaders({
+      selectUser: this.teamMemberId,
+      ...(isPersonal ? {} : { pathRoot: JSON.stringify({ '.tag': 'root', root: this.pathRoot }) }),
+    });
+
+    let sharedLinks: sharing.ListSharedLinksResult['links'] = [];
+    let hasMore: boolean;
+    let nextCursor: string | undefined;
+    do {
+      const {
+        result: { links, has_more, cursor },
+      } = await this.dbx.sharingListSharedLinks({
+        path,
+        cursor: nextCursor,
+      });
+
+      sharedLinks.push(...links);
+      nextCursor = cursor;
+      hasMore = has_more;
+    } while (hasMore);
+
+    return filterSharedLinks({
+      sharedLinks,
+      organisationId,
+      teamMemberId,
+    });
   };
 
   fetchSharedLinks = async ({
@@ -165,6 +205,28 @@ export class DBXFetcher {
     }
 
     return sharedFolderMetadata;
+  };
+
+  fetchFolderOrFileMetadataByPath = async ({
+    isPersonal,
+    path,
+  }: {
+    isPersonal: boolean;
+    path: string;
+  }) => {
+    this.dbx.setHeaders({
+      selectUser: this.teamMemberId,
+      ...(!isPersonal ? { pathRoot: JSON.stringify({ '.tag': 'root', root: this.pathRoot }) } : {}),
+    });
+
+    const { result } = await this.dbx.filesGetMetadata({
+      path,
+      include_deleted: false,
+      include_has_explicit_shared_members: true,
+      include_media_info: true,
+    });
+
+    return result as FolderAndFilesMetadata;
   };
 
   // Fetch files permissions
@@ -287,7 +349,7 @@ export class DBXFetcher {
     foldersAndFiles,
     sharedLinks,
   }: {
-    foldersAndFiles: Array<DbxFiles.FolderMetadataReference | DbxFiles.FileMetadataReference>;
+    foldersAndFiles: FolderAndFilesMetadata[];
     sharedLinks: SharedLinks[];
   }) => {
     const { folders, files } = foldersAndFiles.reduce<{

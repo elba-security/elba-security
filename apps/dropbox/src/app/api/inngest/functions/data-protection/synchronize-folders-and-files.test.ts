@@ -14,7 +14,7 @@ import {
   folderPermissions,
   foldersMetadata,
   foldersAndFilesToAdd,
-} from './__mocks__/folder-files-and-ashred-links';
+} from './__mocks__/folder-files-and-shared-links';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 

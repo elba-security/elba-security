@@ -7,6 +7,9 @@ import type { DataProtectionDeleteObjectsResult, DataProtectionUpdateObjectsResu
 
 export class DataProtectionClient extends ElbaResourceClient {
   async updateObjects(data: UpdateDataProtectionObjects) {
+    console.log('----------IN THE SDK--------updateObjects------------------------------');
+    console.log(data);
+    console.log('------------------------------------------------');
     const response = await this.requestSender.request('data-protection/objects', {
       method: 'POST',
       data,
@@ -15,6 +18,9 @@ export class DataProtectionClient extends ElbaResourceClient {
   }
 
   async deleteObjects(data: DeleteDataProtectionObjects) {
+    console.log('----------IN THE SDK---------deleteObjects-----------------------------');
+    console.log(data);
+    console.log('------------------------------------------------');
     const response = await this.requestSender.request('data-protection/objects', {
       method: 'DELETE',
       data,

@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server';
+import { refreshDataProtectionObject } from './service';
 
-export const runtime = 'edge';
+export async function POST(request: Request) {
+  const { id, organisationId, metadata } = await request.json();
 
-export function POST() {
-  return new NextResponse(null, { status: 501, statusText: 'Not Implemented' });
+  const response = await refreshDataProtectionObject({
+    id,
+    organisationId,
+    metadata,
+  });
+
+  return NextResponse.json(response, { status: 200 });
 }

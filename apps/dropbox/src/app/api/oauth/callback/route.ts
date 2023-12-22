@@ -26,9 +26,6 @@ export async function GET(request: NextRequest) {
 
     await generateAccessToken({ authenticationCode: code, organisationId: state });
 
-    // fetch users
-    // Insert a job for user sync
-
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     console.log(error);
