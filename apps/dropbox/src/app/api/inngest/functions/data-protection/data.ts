@@ -1,10 +1,21 @@
-import { db, sharedLinks } from '@/database';
+import { db, sharedLinks, tokens } from '@/database';
 import { SharedLinks } from '@/repositories/dropbox/types/types';
 import { and, eq, inArray } from 'drizzle-orm';
 
-type InsertSharedLinks = SharedLinks & {
+export type InsertSharedLinks = SharedLinks & {
   teamMemberId: string;
   organisationId: string;
+};
+
+export const getOrganisationsAccessToken = async (organisationId: string) => {
+  return await db
+    .select({
+      accessToken: tokens.accessToken,
+      pathRoot: tokens.rootNamespaceId,
+      adminTeamMemberId: tokens.adminTeamMemberId,
+    })
+    .from(tokens)
+    .where(eq(tokens.organisationId, organisationId));
 };
 
 export const insertSharedLinks = async (sharedLinkDetails: InsertSharedLinks[]) => {

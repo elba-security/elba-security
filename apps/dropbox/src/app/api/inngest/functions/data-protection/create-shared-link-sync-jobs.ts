@@ -1,9 +1,12 @@
-import { inngest } from '@/common/clients/inngest';
+import { InngestFunctionInputArg, inngest } from '@/common/clients/inngest';
 import { handleError } from '../../handle-error';
 import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
 import { SyncJob } from '@/repositories/dropbox/types/types';
 
-const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, step }) => {
+const handler: Parameters<typeof inngest.createFunction>[2] = async ({
+  event,
+  step,
+}: InngestFunctionInputArg) => {
   const { organisationId, accessToken, isFirstScan, syncStartedAt, cursor, pathRoot } = event.data;
 
   const dbxFetcher = new DBXFetcher({
@@ -30,7 +33,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     };
 
     return (
-      team.members.flatMap((member) => {
+      team?.members.flatMap((member) => {
         const teamMemberId = member.profile.team_member_id;
         return [
           {
@@ -48,12 +51,9 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     );
   });
 
-  // await step.run('inngest-console-log-create-shared-link-sync-jobs', async () => {
-  //   console.log('----------create-shared-link-sync-jobs----------');
-  //   console.log('team.members.length', team.members.length);
-  //   console.log('team?.hasMore', team?.hasMore);
-  //   console.log('------------------------------------------------');
-  // });
+  if (!team?.members || !sharedLinkJobs) {
+    throw new Error('Missing team.members or sharedLinkJobs');
+  }
 
   if (team.members.length > 0) {
     const eventsToWait = sharedLinkJobs.map(
@@ -90,11 +90,6 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     };
   }
 
-  // await step.run('inngest-console-log-create-path-sync-initiated', async () => {
-  //   console.log('---------CREATE PATH SYNC JOB INITIATED---------');
-  //   console.log('organisationId', organisationId);
-  //   console.log('------------------------------------------------');
-  // });
   // Once all the shared links are fetched, we can create path sync jobs for  all the users of organisation
   await step.sendEvent('send-event-create-path-sync-jobs', {
     name: 'data-protection/create-path-sync-jobs',

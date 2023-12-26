@@ -1,9 +1,9 @@
-import { FunctionHandler, inngest } from '@/common/clients/inngest';
-import { insertSharedLinks } from './data';
+import { FunctionHandler, InngestFunctionInputArg, inngest } from '@/common/clients/inngest';
+import { InsertSharedLinks, insertSharedLinks } from './data';
 import { handleError } from '../../handle-error';
 import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
 
-const handler: FunctionHandler = async ({ event, step }) => {
+const handler: FunctionHandler = async ({ event, step }: InngestFunctionInputArg) => {
   const { organisationId, accessToken, isPersonal, cursor, teamMemberId, pathRoot } = event.data;
 
   if (!event.ts) {
@@ -37,17 +37,13 @@ const handler: FunctionHandler = async ({ event, step }) => {
     })
     .catch(handleError);
 
-  // await step.run('inngest-console-log-synchronize-shared-links', async () => {
-  //   console.log('----------synchronize-shared-links-------------');
-  //   console.log(teamMemberId);
-  //   console.log('sharedLinks', sharedLinks.links.length);
-  //   console.log('hasMore', sharedLinks?.hasMore);
-  //   console.log('------------------------------------------------');
-  // });
+  if (!sharedLinks?.links) {
+    throw new Error('Missing sharedLinks.links');
+  }
 
   if (sharedLinks.links.length > 0) {
     await step.run('insert-shared-links', async () => {
-      await insertSharedLinks(sharedLinks.links);
+      await insertSharedLinks(sharedLinks.links as InsertSharedLinks[]);
     });
   }
 
