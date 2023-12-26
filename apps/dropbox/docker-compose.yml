@@ -13,20 +13,13 @@ services:
   # extra_hosts: # for docker on mac, it allows to use localhost
   #   - 'host.docker.internal:host-gateway'
 
-  postgres_multi_database:
+  postgres:
     image: postgres:latest
     restart: always
-    volumes:
-      - ./init-multi-postgres-databases.sh:/docker-entrypoint-initdb.d/init-multi-postgres-databases.sh
+    container_name: 'postgres-${COMPOSE_PROJECT_NAME}'
     environment:
-      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_MULTIPLE_DATABASES}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - '5555:5432'
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 5050:8080
+      - '${POSTGRES_PORT}:5432'

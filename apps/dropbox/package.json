@@ -8,7 +8,9 @@
     "lint": "next lint",
     "start": "next start",
     "test": "vitest --no-threads",
-    "big-bang": "pnpm database:down && pnpm database:up && pnpm migrate",
+    "big-bang": "pnpm database:down && pnpm test:database:down && pnpm database:up && pnpm test:database:up && pnpm migrate",
+    "test:database:up": "docker-compose -p dropbox-test --env-file=.env.test.local up -d",
+    "test:database:down": "docker-compose -p dropbox-test down --volumes",
     "database:down": "docker-compose -p dropbox down --volumes",
     "database:up": "docker-compose -p dropbox --env-file=.env.local up -d",
     "migration:generate": "drizzle-kit generate:pg --schema=./src/database/schema.ts",
@@ -39,6 +41,7 @@
   "devDependencies": {
     "@edge-runtime/vm": "^3.1.7",
     "@elba-security/test-utils": "workspace:*",
+    "@next/eslint-plugin-next": "^14.0.2",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",

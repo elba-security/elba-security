@@ -18,7 +18,7 @@ export const env = z
     POSTGRES_PASSWORD: z.string(),
     POSTGRES_DATABASE: z.string(),
     POSTGRES_URL: z.string(),
-    POSTGRES_PROXY: zEnvInt(),
     VERCEL_ENV: z.string().optional(),
+    ELBA_REGION: z.string(),
   })
   .parse(process.env);
