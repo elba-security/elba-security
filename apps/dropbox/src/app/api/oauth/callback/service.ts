@@ -44,12 +44,14 @@ export const generateAccessToken = async ({
   }
 
   dbxAccess.setHeaders({
-    selectUser: team_member_id,
+    selectAdmin: team_member_id,
   });
+
+  const currentAccount = await dbxAccess.usersGetCurrentAccount();
 
   const {
     result: { name, account_type, root_info, team },
-  } = await dbxAccess.usersGetCurrentAccount();
+  } = currentAccount;
 
   // if (account_type['.tag'] !== 'business') {
   //   throw new Error(

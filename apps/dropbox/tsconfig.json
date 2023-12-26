@@ -1,6 +1,7 @@
 {
   "extends": "tsconfig/nextjs.json",
   "compilerOptions": {
+    "target": "es2015",
     "module": "esnext",
     "plugins": [
       {

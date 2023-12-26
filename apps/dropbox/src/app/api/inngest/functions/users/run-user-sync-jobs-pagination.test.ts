@@ -67,7 +67,7 @@ describe('run-user-sync-jobs', async () => {
     );
   });
 
-  test.only("should retrieve member data, paginate to the next page, and forward it to 'elba' as appropriate", async () => {
+  test("should retrieve member data, paginate to the next page, and forward it to 'elba' as appropriate", async () => {
     mocks.teamMembersListContinueV2.mockImplementationOnce(() => {
       return membersListSecondPageResult;
     });

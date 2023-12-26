@@ -1,4 +1,4 @@
-import { uuid, text, timestamp, pgTable } from 'drizzle-orm/pg-core';
+import { uuid, text, timestamp, pgTable, primaryKey, unique } from 'drizzle-orm/pg-core';
 
 export const tokens = pgTable('tokens', {
   organisationId: uuid('organisation_id').notNull().primaryKey(),
@@ -13,3 +13,19 @@ export const tokens = pgTable('tokens', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const sharedLinks = pgTable(
+  'shared_links',
+  {
+    url: text('url').notNull(),
+    organisationId: uuid('organisation_id').notNull(),
+    teamMemberId: text('team_member_id').notNull(),
+    linkAccessLevel: text('link_access_level').notNull(),
+    pathLower: text('path_lower').notNull(),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.url, table.pathLower] }),
+    };
+  }
+);

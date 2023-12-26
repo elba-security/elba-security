@@ -21,17 +21,29 @@ describe('schedule-users-sync-jobs', () => {
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      organisations: expect.arrayContaining(scheduledOrganisations),
+      organisations: [
+        {
+          accessToken: 'access-token-1',
+          organisationId: '00000000-0000-0000-0000-000000000001',
+        },
+        {
+          accessToken: 'access-token-2',
+          organisationId: '00000000-0000-0000-0000-000000000002',
+        },
+        {
+          accessToken: 'access-token-3',
+          organisationId: '00000000-0000-0000-0000-000000000003',
+        },
+      ],
     });
+
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'run-users-sync-scan',
-      expect.arrayContaining(
-        scheduledOrganisations.map((organisation) => ({
-          name: 'users/run-user-sync-jobs',
-          data: { ...organisation, isFirstScan: false },
-        }))
-      )
+      'run-user-sync-jobs',
+      scheduledOrganisations.map((organisation) => ({
+        name: 'users/run-user-sync-jobs',
+        data: { ...organisation, isFirstScan: false },
+      }))
     );
   });
 });

@@ -36,7 +36,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     .catch(handleError);
 
   if (nextPageProps?.hasMore) {
-    await step.sendEvent('sendEvent.run-user-sync-job-pagination', {
+    await step.sendEvent('sendEvent/run-user-sync-job-pagination', {
       name: 'users/run-user-sync-job-pagination',
       data: { ...event.data, isFirstScan: false, pagination: nextPageProps.nextCursor },
     });
