@@ -7,5 +7,6 @@ export const elbaAccess = (organisationId: string) => {
     sourceId: env.ELBA_SOURCE_ID,
     apiKey: env.ELBA_API_KEY,
     organisationId,
+    region: env.ELBA_REGION,
   });
 };

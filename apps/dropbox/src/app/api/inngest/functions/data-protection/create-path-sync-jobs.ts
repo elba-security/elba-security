@@ -1,9 +1,12 @@
-import { inngest } from '@/common/clients/inngest';
+import { InngestFunctionInputArg, inngest } from '@/common/clients/inngest';
 import { handleError } from '../../handle-error';
 import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
 import { SyncJob } from '@/repositories/dropbox/types/types';
 
-const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, step }) => {
+const handler: Parameters<typeof inngest.createFunction>[2] = async ({
+  event,
+  step,
+}: InngestFunctionInputArg) => {
   const {
     organisationId,
     accessToken,
@@ -37,7 +40,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
       pathRoot,
     };
 
-    return team.members.map(({ profile: { team_member_id: teamMemberId } }) => {
+    return team?.members.map(({ profile: { team_member_id: teamMemberId } }) => {
       return {
         ...job,
         teamMemberId,
@@ -46,7 +49,11 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     });
   });
 
-  if (team.members.length > 0) {
+  if (!team?.members || !pathSyncJobs) {
+    throw new Error('Missing team.members or pathSyncJobs');
+  }
+
+  if (team?.members.length > 0) {
     await step.sendEvent(
       'send-event-synchronize-folders-and-files',
       pathSyncJobs.map((sharedLinkJob) => ({
