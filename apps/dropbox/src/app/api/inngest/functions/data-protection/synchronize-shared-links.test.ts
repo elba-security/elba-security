@@ -1,12 +1,12 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { RetryAfterError } from 'inngest';
-import { DropboxResponseError } from 'dropbox';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { synchronizeSharedLinks } from './synchronize-shared-links';
+import { DropboxResponseError } from 'dropbox';
+import { RetryAfterError } from 'inngest';
+import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   teamMemberOnceSecondPageWithoutPagination,
   teamMemberOneFirstPage,
 } from './__mocks__/shared-links';
+import { synchronizeSharedLinks } from './synchronize-shared-links';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const teamMemberId = 'team-member-id-1';
@@ -23,25 +23,30 @@ const mocks = vi.hoisted(() => {
 });
 
 // Mock Dropbox sdk
-vi.mock('@/repositories/dropbox/clients/DBXAccess', () => {
-  const actual = vi.importActual('dropbox');
+vi.mock('@/repositories/dropbox/clients/DBXAccess', async () => {
+  const dropbox = await vi.importActual('dropbox');
+
+  if (!dropbox || typeof dropbox !== 'object') {
+    throw new Error('Expected dropbox to be an object.');
+  }
+
   return {
-    ...actual,
+    ...dropbox,
     DBXAccess: vi.fn(() => {
       return {
-        setHeaders: vi.fn(() => {}),
+        setHeaders: vi.fn(),
         sharingListSharedLinks: mocks.sharingListSharedLinks,
       };
     }),
   };
 });
 
-describe('fetch-shared-links', async () => {
-  beforeEach(async () => {
+describe('fetch-shared-links', () => {
+  beforeEach(() => {
     mocks.sharingListSharedLinks.mockReset();
   });
 
-  beforeAll(async () => {
+  beforeAll(() => {
     vi.clearAllMocks();
   });
 
@@ -65,13 +70,14 @@ describe('fetch-shared-links', async () => {
       )
     );
 
-    const [result, { step }] = setup({
+    const [result] = setup({
       organisationId,
       accessToken: 'access-token-1',
       teamMemberId,
-      pathRoot: 10,
+      pathRoot: '10',
       isPersonal: false,
-      pagination: 'has-more-cursor',
+      isFirstScan: false,
+      syncStartedAt: '2021-01-01T00:00:00.000Z',
     });
 
     await expect(result).rejects.toStrictEqual(
@@ -88,9 +94,10 @@ describe('fetch-shared-links', async () => {
       organisationId,
       accessToken: 'access-token-1',
       teamMemberId,
-      pathRoot: 10,
+      pathRoot: '10',
       isPersonal: false,
-      pagination: 'has-more-cursor',
+      isFirstScan: false,
+      syncStartedAt: '2021-01-01T00:00:00.000Z',
     });
 
     expect(await result).toStrictEqual({
@@ -102,10 +109,11 @@ describe('fetch-shared-links', async () => {
       data: {
         accessToken: 'access-token-1',
         cursor: 'has-more-cursor',
+        isFirstScan: false,
         isPersonal: false,
         organisationId: '00000000-0000-0000-0000-000000000001',
-        pagination: 'has-more-cursor',
-        pathRoot: 10,
+        pathRoot: '10',
+        syncStartedAt: '2021-01-01T00:00:00.000Z',
         teamMemberId: 'team-member-id-1',
       },
       name: 'data-protection/synchronize-shared-links',
@@ -121,9 +129,11 @@ describe('fetch-shared-links', async () => {
       organisationId,
       accessToken: 'access-token-1',
       teamMemberId,
-      pathRoot: 10,
+      pathRoot: '10',
       isPersonal: false,
-      pagination: 'has-more-cursor',
+      cursor: 'has-more-cursor',
+      isFirstScan: false,
+      syncStartedAt: '2021-01-01T00:00:00.000Z',
     });
 
     expect(await result).toStrictEqual({
@@ -133,9 +143,14 @@ describe('fetch-shared-links', async () => {
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('wait-for-shared-links-to-be-fetched', {
       data: {
+        accessToken: 'access-token-1',
+        cursor: undefined,
+        isFirstScan: false,
         isPersonal: false,
-        organisationId,
-        teamMemberId,
+        organisationId: '00000000-0000-0000-0000-000000000001',
+        pathRoot: '10',
+        syncStartedAt: '2021-01-01T00:00:00.000Z',
+        teamMemberId: 'team-member-id-1',
       },
       name: 'shared-links/synchronize.shared-links.completed',
     });

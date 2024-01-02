@@ -1,18 +1,6 @@
 version: '3.8'
 
 services:
-  # postgres:
-  #   image: postgres:latest
-  #   container_name: 'postgres-${COMPOSE_PROJECT_NAME}'
-  #   environment:
-  #     POSTGRES_DB: ${POSTGRES_DATABASE}
-  #     POSTGRES_USER: ${POSTGRES_USER}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #   ports:
-  #     - '${POSTGRES_PORT}:5432'
-  # extra_hosts: # for docker on mac, it allows to use localhost
-  #   - 'host.docker.internal:host-gateway'
-
   postgres:
     image: postgres:latest
     restart: always

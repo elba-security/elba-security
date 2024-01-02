@@ -1,4 +1,4 @@
-import { uuid, text, timestamp, pgTable, primaryKey, unique } from 'drizzle-orm/pg-core';
+import { uuid, text, timestamp, pgTable, primaryKey } from 'drizzle-orm/pg-core';
 
 export const tokens = pgTable('tokens', {
   organisationId: uuid('organisation_id').notNull().primaryKey(),

@@ -1,15 +1,13 @@
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { RetryAfterError } from 'inngest';
-import { insertTestAccessToken } from '@/common/__mocks__/token';
-import { DropboxResponseError } from 'dropbox';
-import { runUserSyncJobs } from './run-user-sync-jobs';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
+import { DropboxResponseError } from 'dropbox';
+import { RetryAfterError } from 'inngest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { insertTestAccessToken } from '@/common/__mocks__/token';
+import { membersListFirstPageResult, membersListWithoutPagination } from './__mocks__/dropbox';
+import { runUserSyncJobs } from './run-user-sync-jobs';
 
-import {
-  membersListFirstPageResult,
-  membersListSecondPageResult,
-  membersListWithoutPagination,
-} from './__mocks__/dropbox';
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const syncStartedAt = '2021-09-01T00:00:00.000Z';
 
 const setup = createInngestFunctionMock(runUserSyncJobs, 'users/run-user-sync-jobs');
 
@@ -27,7 +25,7 @@ vi.mock('@/repositories/dropbox/clients/DBXAccess', () => {
     ...actual,
     DBXAccess: vi.fn(() => {
       return {
-        setHeaders: vi.fn(() => {}),
+        setHeaders: vi.fn(),
         teamMembersListV2: mocks.teamMembersListV2,
         teamMembersListContinueV2: mocks.teamMembersListContinueV2,
       };
@@ -35,13 +33,13 @@ vi.mock('@/repositories/dropbox/clients/DBXAccess', () => {
   };
 });
 
-describe('run-user-sync-jobs', async () => {
-  beforeEach(async () => {
+describe('run-user-sync-jobs', () => {
+  beforeEach(() => {
     mocks.teamMembersListV2.mockReset();
     mocks.teamMembersListContinueV2.mockReset();
   });
 
-  beforeAll(async () => {
+  beforeAll(() => {
     vi.clearAllMocks();
   });
 
@@ -63,9 +61,10 @@ describe('run-user-sync-jobs', async () => {
 
     await insertTestAccessToken();
     const [result] = setup({
-      organisationId: 'b0771747-caf0-487d-a885-5bc3f1e9f770',
+      organisationId,
       accessToken: 'access-token-1',
       isFirstScan: true,
+      syncStartedAt,
     });
 
     await expect(result).rejects.toStrictEqual(
@@ -84,9 +83,10 @@ describe('run-user-sync-jobs', async () => {
     });
 
     const [result] = setup({
-      organisationId: 'b0771747-caf0-487d-a885-5bc3f1e9f770',
+      organisationId,
       accessToken: 'access-token-1',
       isFirstScan: true,
+      syncStartedAt,
     });
 
     expect(await result).toStrictEqual({
@@ -100,9 +100,10 @@ describe('run-user-sync-jobs', async () => {
     });
 
     const [result] = setup({
-      organisationId: 'b0771747-caf0-487d-a885-5bc3f1e9f770',
+      organisationId,
       accessToken: 'access-token-1',
       isFirstScan: true,
+      syncStartedAt,
     });
 
     expect(await result).toStrictEqual({
@@ -116,9 +117,10 @@ describe('run-user-sync-jobs', async () => {
     });
 
     const [result] = setup({
-      organisationId: 'b0771747-caf0-487d-a885-5bc3f1e9f770',
+      organisationId,
       accessToken: 'access-token-1',
       isFirstScan: true,
+      syncStartedAt,
     });
 
     expect(await result).toStrictEqual({

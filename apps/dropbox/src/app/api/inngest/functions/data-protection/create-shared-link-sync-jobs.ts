@@ -1,10 +1,15 @@
+import type { FunctionHandler } from '@/common/clients/inngest';
+import type { InputArgWithTrigger } from '@/common/clients/types';
 import { inngest } from '@/common/clients/inngest';
-import { handleError } from '../../handle-error';
 import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
-import { SyncJob } from '@/repositories/dropbox/types/types';
+import type { SyncJob } from '@/repositories/dropbox/types/types';
+import { handleError } from '../../handle-error';
 
-const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, step }) => {
-  const { organisationId, accessToken, isFirstScan, syncStartedAt, cursor, pathRoot } = event.data;
+const handler: FunctionHandler = async ({
+  event,
+  step,
+}: InputArgWithTrigger<'data-protection/create-shared-link-sync-jobs'>) => {
+  const { organisationId, accessToken, isFirstScan, syncStartedAt, pathRoot, cursor } = event.data;
 
   const dbxFetcher = new DBXFetcher({
     accessToken,
@@ -20,6 +25,10 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     })
     .catch(handleError);
 
+  if (!team) {
+    throw new Error(`Team is undefined for the organisation ${organisationId}`);
+  }
+
   const sharedLinkJobs = await step.run('formate-share-link-job', async () => {
     const job: SyncJob = {
       accessToken,
@@ -30,8 +39,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     };
 
     return (
-      team.members.flatMap((member) => {
-        const teamMemberId = member.profile.team_member_id;
+      team.members.flatMap(({ profile: { team_member_id: teamMemberId } }) => {
         return [
           {
             ...job,
@@ -47,13 +55,6 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
       }) ?? []
     );
   });
-
-  // await step.run('inngest-console-log-create-shared-link-sync-jobs', async () => {
-  //   console.log('----------create-shared-link-sync-jobs----------');
-  //   console.log('team.members.length', team.members.length);
-  //   console.log('team?.hasMore', team?.hasMore);
-  //   console.log('------------------------------------------------');
-  // });
 
   if (team.members.length > 0) {
     const eventsToWait = sharedLinkJobs.map(
@@ -76,7 +77,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     await Promise.all(eventsToWait);
   }
 
-  if (team?.hasMore) {
+  if (team.hasMore) {
     await step.sendEvent('send-shared-link-sync-jobs', {
       name: 'data-protection/create-shared-link-sync-jobs',
       data: {
@@ -90,16 +91,16 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     };
   }
 
-  // await step.run('inngest-console-log-create-path-sync-initiated', async () => {
-  //   console.log('---------CREATE PATH SYNC JOB INITIATED---------');
-  //   console.log('organisationId', organisationId);
-  //   console.log('------------------------------------------------');
-  // });
   // Once all the shared links are fetched, we can create path sync jobs for  all the users of organisation
   await step.sendEvent('send-event-create-path-sync-jobs', {
     name: 'data-protection/create-path-sync-jobs',
     data: {
-      ...event.data,
+      accessToken,
+      organisationId,
+      syncStartedAt,
+      isFirstScan,
+      pathRoot,
+      adminTeamMemberId: event.data.adminTeamMemberId,
     },
   });
 
@@ -111,17 +112,12 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
 export const createSharedLinkSyncJobs = inngest.createFunction(
   {
     id: 'create-shared-link-sync-jobs',
-    // priority: {
-    //   run: 'event.data.isFirstScan ? 600 : 0',
-    // },
-    // rateLimit: {
-    //   limit: 1,
-    //   key: 'event.data.organisationId',
-    //   period: '1s',
-    // },
-    // retries: 10,
+    priority: {
+      run: 'event.data.isFirstScan ? 600 : 0',
+    },
+    retries: 10,
     concurrency: {
-      limit: 1,
+      limit: 5,
       key: 'event.data.organisationId',
     },
   },

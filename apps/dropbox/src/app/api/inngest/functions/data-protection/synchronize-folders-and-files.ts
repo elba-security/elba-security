@@ -1,13 +1,16 @@
-import { InngestFunctionInputArg, inngest } from '@/common/clients/inngest';
-import { getSharedLinks } from './data';
-import { handleError } from '../../handle-error';
 import { elbaAccess } from '@/common/clients/elba';
-import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
+import type { FunctionHandler } from '@/common/clients/inngest';
+import type { InputArgWithTrigger } from '@/common/clients/types';
 
-const handler: Parameters<typeof inngest.createFunction>[2] = async ({
+import { inngest } from '@/common/clients/inngest';
+import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
+import { handleError } from '../../handle-error';
+import { getSharedLinks } from './data';
+
+const handler: FunctionHandler = async ({
   event,
   step,
-}: InngestFunctionInputArg) => {
+}: InputArgWithTrigger<'data-protection/synchronize-folders-and-files'>) => {
   if (!event.ts) {
     throw new Error('Missing event.ts');
   }
@@ -30,12 +33,12 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({
     if (result.hasMore) {
       await step.sendEvent('send-event-synchronize-folders-and-files', {
         name: 'data-protection/synchronize-folders-and-files',
-        data: { ...event.data, cursor: result?.nextCursor },
+        data: { ...event.data, cursor: result.nextCursor },
       });
     }
 
     const pathLowers = result.foldersAndFiles.reduce((acc: string[], file) => {
-      if (!file?.path_lower) {
+      if (!file.path_lower) {
         return acc;
       }
 
@@ -64,7 +67,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({
       await step.run('send-data-protection-to-elba', async () => {
         // TODO: fix the type issue
         return await elba.dataProtection.updateObjects({
-          // @ts-ignore
+          // @ts-expect-error: Should fix this type error
           objects: foldersAndFilesToAdd,
         });
       });
@@ -84,11 +87,6 @@ export const synchronizeFoldersAndFiles = inngest.createFunction(
     priority: {
       run: 'event.data.isFirstScan ? 600 : 0',
     },
-    // rateLimit: {
-    //   limit: 1,
-    //   key: 'event.data.organisationId',
-    //   period: '1s',
-    // },
     retries: 10,
     concurrency: {
       limit: 5,

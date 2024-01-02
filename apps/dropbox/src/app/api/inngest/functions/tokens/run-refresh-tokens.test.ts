@@ -49,7 +49,7 @@ describe('run-refresh-tokens', () => {
       )
     );
 
-    const [result, { step }] = setup({
+    const [result] = setup({
       organisationId: 'b0771747-caf0-487d-a885-5bc3f1e9f770',
       refreshToken: 'test-refresh-token-0',
     });
@@ -65,7 +65,7 @@ describe('run-refresh-tokens', () => {
       expires_at: TOKEN_EXPIRES_AT,
     });
 
-    const [result, { step }] = setup({
+    const [result] = setup({
       organisationId: 'b0771747-caf0-487d-a885-5bc3f1e9f770',
       refreshToken: 'test-refresh-token-0',
     });

@@ -1,5 +1,5 @@
 {
-  "extends": "tsconfig/nextjs.json",
+  "extends": "@elba-security/tsconfig/nextjs.json",
   "compilerOptions": {
     "target": "es2015",
     "module": "esnext",

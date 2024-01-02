@@ -1,4 +1,3 @@
-import { DropboxResponse } from 'dropbox';
 import { team } from 'dropbox/types/dropbox_types';
 type SimplifiedTeamMemberInfo = {
   profile: Pick<

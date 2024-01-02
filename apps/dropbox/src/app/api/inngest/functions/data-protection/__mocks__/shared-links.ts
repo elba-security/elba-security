@@ -1,6 +1,6 @@
-import { sharing } from 'dropbox';
+import type { sharing } from 'dropbox';
 
-interface CustomLinkPermissions {
+type CustomLinkPermissions = {
   resolved_visibility?: {
     '.tag': sharing.ResolvedVisibility['.tag'];
   };
@@ -13,7 +13,7 @@ interface CustomLinkPermissions {
   link_access_level?: {
     '.tag': sharing.LinkAccessLevel['.tag'];
   };
-}
+};
 
 type PickedSharedLinkMetadata = Pick<
   sharing.SharedLinkMetadataReference,

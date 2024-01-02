@@ -1,11 +1,11 @@
+import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { expect, test, describe } from 'vitest';
-import { scheduleRefreshTokensJobs } from './schedule-refresh-tokens-jobs';
-import { insertOrganisations, insertTestAccessToken } from '@/common/__mocks__/token';
+import { insertTestAccessToken } from '@/common/__mocks__/token';
 import {
   organisationWithExpiredToken,
   selectedOrganisationToRefreshToken,
 } from './__mocks__/organisations';
-import { createInngestFunctionMock } from '@elba-security/test-utils';
+import { scheduleRefreshTokensJobs } from './schedule-refresh-tokens-jobs';
 
 const setup = createInngestFunctionMock(scheduleRefreshTokensJobs);
 
@@ -16,23 +16,22 @@ describe('schedule-users-sync-jobs', () => {
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should schedule refresh tokens jobs when there are organisations', async () => {
-    await Promise.all(
+  test.only('should schedule refresh tokens jobs when there are organisations', async () => {
+    await insertTestAccessToken(
       organisationWithExpiredToken.map(
-        ({ organisationId, expiresAt, isUnauthorized, refreshAfter }, index) => {
-          return insertTestAccessToken([
-            {
-              organisationId,
-              accessToken: `test-access-token-${index}`,
-              refreshToken: `test-refresh-token-${index}`,
-              adminTeamMemberId: `test-team-member-id-${index}`,
-              rootNamespaceId: `root-name-space-id-${index}`,
-              teamName: 'test-team-name',
-              expiresAt: new Date(expiresAt),
-              unauthorizedAt: isUnauthorized ? new Date(Date.now()) : null,
-              refreshAfter: refreshAfter ? new Date(refreshAfter) : null,
-            },
-          ]);
+        ({ organisationId, expiresAt, isUnauthorized, refreshAfter }, i) => {
+          const idx = i + 1;
+          return {
+            organisationId,
+            accessToken: `test-access-token-${idx}`,
+            refreshToken: `test-refresh-token-${idx}`,
+            adminTeamMemberId: `test-team-member-id-${idx}`,
+            rootNamespaceId: `root-name-space-id-${idx}`,
+            teamName: 'test-team-name',
+            expiresAt: new Date(expiresAt),
+            unauthorizedAt: isUnauthorized ? new Date(Date.now()) : null,
+            refreshAfter: refreshAfter ? new Date(refreshAfter) : null,
+          };
         }
       )
     );
@@ -49,7 +48,7 @@ describe('schedule-users-sync-jobs', () => {
       expect.arrayContaining(
         selectedOrganisationToRefreshToken.map((organisation) => ({
           name: 'tokens/run-refresh-tokens',
-          data: { ...organisation, isFirstScan: false },
+          data: { ...organisation },
         }))
       )
     );

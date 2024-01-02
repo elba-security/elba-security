@@ -1,21 +1,15 @@
-import { expect, test, describe, vi, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
+import { expect, test, describe, vi, beforeAll, afterAll, beforeEach } from 'vitest';
 import { GET as handler } from './route';
-import { tokens, db } from '@/database';
 import { RequestMethod, createMocks } from 'node-mocks-http';
-import { addSeconds } from 'date-fns';
+
 import timekeeper from 'timekeeper';
-import { NextRequest, NextResponse } from 'next/server';
-import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { runUserSyncJobs } from '../../inngest/functions/users/run-user-sync-jobs';
+import { NextResponse } from 'next/server';
 import { inngest } from '@/common/clients/inngest';
 
 const tokenGeneratedAt = '2023-03-13T16:19:20.818Z';
 const tokenWillExpiresIn = 14400; // seconds
 const rootNamespaceId = '356986';
 const organisationId = '00000000-0000-0000-0000-000000000001';
-const accessToken = 'access-token-1';
-
-const setup = createInngestFunctionMock(runUserSyncJobs, 'users/run-user-sync-jobs');
 
 // Mock Dropbox sdk
 vi.mock('dropbox', () => {

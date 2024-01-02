@@ -3,7 +3,7 @@ import { generateAccessToken } from './service';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  let serverState = request.cookies.get('organisationId')?.value;
+  const serverState = request.cookies.get('organisationId')?.value;
 
   try {
     const [code, state, error] = [

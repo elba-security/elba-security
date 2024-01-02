@@ -1,7 +1,18 @@
-import { InferModel, InferSelectModel, and, asc, eq, isNull, lte, or, sql } from 'drizzle-orm';
+import { InferSelectModel, and, asc, eq, isNull, lte, or } from 'drizzle-orm';
 import { db, tokens } from '@/database';
 import { addMinutes } from 'date-fns';
-import { RefreshTokenResult } from './run-refresh-tokens';
+
+export type RefreshTokenResult =
+  | {
+      organisationId: string;
+      refreshAfter: Date | null;
+      unauthorizedAt: Date | null;
+    }
+  | {
+      organisationId: string;
+      expiresAt: Date;
+      accessToken: string;
+    };
 
 const EXPIRES_BEFORE = 30;
 

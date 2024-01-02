@@ -1,5 +1,5 @@
-import { SharedLinks } from '@/repositories/dropbox/types/types';
-import { files } from 'dropbox';
+import type { files } from 'dropbox';
+import type { SharedLinks } from '@/repositories/dropbox/types/types';
 
 // Folder and files
 type FolderType = Pick<
@@ -12,12 +12,12 @@ type FileType = Pick<
 >;
 
 type FoldersAndFiles = {
-  foldersAndFiles: Array<FolderType | FileType>;
+  foldersAndFiles: (FolderType | FileType)[];
   nextCursor: string;
   hasMore: boolean;
 };
 
-export const foldersAndFiles: Array<FolderType | FileType> = [
+export const foldersAndFiles: (FolderType | FileType)[] = [
   {
     '.tag': 'folder',
     id: 'id:folder-id-1',
@@ -70,12 +70,10 @@ export const folderAndFilesWithOutPagination: FoldersAndFiles = {
 
 // Shared links
 
-export const sharedLinks: Array<
-  SharedLinks & {
-    organisationId: string;
-    teamMemberId: string;
-  }
-> = [
+export const sharedLinks: (SharedLinks & {
+  organisationId: string;
+  teamMemberId: string;
+})[] = [
   {
     url: 'https://www.dropbox.com/s/1234567890',
     linkAccessLevel: 'viewer',
@@ -227,7 +225,7 @@ export const filesPermissions: FilesAndFolderPermissions = new Map(
 
 // Folders and files metadata
 
-type foldersAndFilesMetadata = Map<
+type FoldersAndFilesMetadata = Map<
   string,
   {
     name: string;
@@ -235,7 +233,7 @@ type foldersAndFilesMetadata = Map<
   }
 >;
 
-export const foldersMetadata: foldersAndFilesMetadata = new Map(
+export const foldersMetadata: FoldersAndFilesMetadata = new Map(
   Object.entries({
     'id:folder-id-1': {
       name: 'folder-1',
@@ -252,7 +250,7 @@ export const foldersMetadata: foldersAndFilesMetadata = new Map(
   })
 );
 
-export const filesMetadata: foldersAndFilesMetadata = new Map(
+export const filesMetadata: FoldersAndFilesMetadata = new Map(
   Object.entries({
     'id:file-id-1': {
       name: 'file-1.pdf',
@@ -264,8 +262,6 @@ export const filesMetadata: foldersAndFilesMetadata = new Map(
     },
   })
 );
-
-//
 
 export const foldersAndFilesToAdd = [
   {

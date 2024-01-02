@@ -1,78 +1,64 @@
-import { inngest } from '@/common/clients/inngest';
+import { FunctionHandler, inngest } from '@/common/clients/inngest';
 import { DBXAuth } from '@/repositories/dropbox/clients';
 import { updateDropboxTokens } from './data';
 import { DropboxResponseError } from 'dropbox';
 import { addMinutes } from 'date-fns';
+import { InputArgWithTrigger } from '@/common/clients/types';
 
-export type RefreshTokenResult =
-  | {
-      organisationId: string;
-      refreshAfter: Date | null;
-      unauthorizedAt: Date | null;
-    }
-  | {
-      organisationId: string;
-      expiresAt: Date;
-      accessToken: string;
-    };
-
-const fetchRefreshTokens = async ({
-  organisationId,
-  refreshToken,
-}: {
-  organisationId: string;
-  refreshToken: string;
-}): Promise<RefreshTokenResult> => {
-  const dbxAuth = new DBXAuth({
-    refreshToken,
-  });
-
-  try {
-    const response = await dbxAuth.refreshAccessToken();
-
-    return {
-      organisationId,
-      expiresAt: response.expires_at,
-      accessToken: response.access_token,
-    };
-  } catch (error) {
-    if (error instanceof DropboxResponseError) {
-      if (error.status === 401) {
-        return {
-          organisationId,
-          refreshAfter: null,
-          unauthorizedAt: new Date(),
-        };
-      }
-
-      if (error.status === 429) {
-        const retryAfter = error.headers['Retry-After'];
-
-        return {
-          organisationId: organisationId,
-          refreshAfter: addMinutes(new Date(Date.now()), retryAfter * 1000),
-          unauthorizedAt: null,
-        };
-      }
-    }
-
-    throw error;
-  }
-};
-
-const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, step }) => {
+const handler: FunctionHandler = async ({
+  event,
+  step,
+}: InputArgWithTrigger<'tokens/run-refresh-tokens'>) => {
   const { organisationId, refreshToken } = event.data;
 
-  const refreshedToken = await fetchRefreshTokens({
-    organisationId,
-    refreshToken,
+  await step.run('fetch-refresh-token', async () => {
+    const dbxAuth = new DBXAuth({
+      refreshToken,
+    });
+
+    try {
+      const response = await dbxAuth.refreshAccessToken();
+
+      await updateDropboxTokens({
+        organisationId,
+        expiresAt: response.expires_at,
+        accessToken: response.access_token,
+      });
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      if (error instanceof DropboxResponseError) {
+        const { status, error: innerError } = error;
+        if (status === 401) {
+          await updateDropboxTokens({
+            organisationId,
+            refreshAfter: null,
+            unauthorizedAt: new Date(),
+          });
+        }
+
+        if (status === 429) {
+          const {
+            error: { retry_after: retryAfter },
+          } = innerError;
+
+          await updateDropboxTokens({
+            organisationId: organisationId,
+            refreshAfter: addMinutes(new Date(Date.now()), retryAfter * 1000),
+            unauthorizedAt: null,
+          });
+        }
+
+        return {
+          success: true,
+        };
+      }
+
+      throw error;
+    }
   });
-
-  await updateDropboxTokens(refreshedToken);
-
-  return {
-    success: true,
-  };
 };
 
 export const runRefreshToken = inngest.createFunction(

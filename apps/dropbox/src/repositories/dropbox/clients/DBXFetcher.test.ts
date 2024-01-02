@@ -1,22 +1,20 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion -- test conveniency */
 import { expect, test, describe, vi, beforeEach } from 'vitest';
-import { DBXFetcher } from './DBXFetcher';
-import {
-  fetchUsersMockResponse,
-  membersDbxResponseWithoutPagination,
-} from '../__mocks__/fetch-users';
-import {
-  fetchSharedLinksMockResponse,
-  sharedLinksDbxResponseWithoutPagination,
-} from '../__mocks__/fetch-shared-links';
 import {
   fetchFilesAndFoldersMockResponse,
   fetchFilesAndFoldersMockResponseWithPagination,
   folderAndFilesDbxResponseWithOutPagination,
   folderAndFilesDbxResponseWithPagination,
 } from '../__mocks__/fetch-files-and-folder';
+import {
+  fetchSharedLinksMockResponse,
+  sharedLinksDbxResponseWithoutPagination,
+} from '../__mocks__/fetch-shared-links';
+import {
+  fetchUsersMockResponse,
+  membersDbxResponseWithoutPagination,
+} from '../__mocks__/fetch-users';
+import { DBXFetcher } from './DBXFetcher';
 
-const organisationId = '00000000-0000-0000-0000-000000000001';
 const accessToken = 'access-token-1';
 const adminTeamMemberId = 'admin-team-member-id-1';
 const teamMemberId = 'team-member-id-1';
@@ -32,13 +30,18 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('@/repositories/dropbox/clients/DBXAccess', () => {
-  const actual = vi.importActual('dropbox');
+vi.mock('@/repositories/dropbox/clients/DBXAccess', async () => {
+  const dropbox = await vi.importActual('dropbox');
+
+  if (!dropbox || typeof dropbox !== 'object') {
+    throw new Error('Expected dropbox to be an object.');
+  }
+
   return {
-    ...actual,
+    ...dropbox,
     DBXAccess: vi.fn(() => {
       return {
-        setHeaders: vi.fn(() => {}),
+        setHeaders: vi.fn(),
         teamMembersListV2: mocks.fetchUsersMockResponse, // DBX methods have been inherited from the Dropbox class
         teamMembersListContinueV2: mocks.fetchUsersContinueMockResponse,
         sharingListSharedLinks: mocks.fetchSharedLinksMockResponse,
@@ -51,7 +54,7 @@ vi.mock('@/repositories/dropbox/clients/DBXAccess', () => {
 
 describe('DBXFetcher', () => {
   let dbxFetcher;
-  beforeEach(async () => {
+  beforeEach(() => {
     mocks.fetchUsersMockResponse.mockReset();
     mocks.fetchUsersContinueMockResponse.mockReset();
     mocks.fetchSharedLinksMockResponse.mockReset();
@@ -97,16 +100,12 @@ describe('DBXFetcher', () => {
 
       await expect(
         dbxFetcher.fetchSharedLinks({
-          organisationId,
-          teamMemberId,
           isPersonal: true,
         })
       ).resolves.toStrictEqual(fetchSharedLinksMockResponse);
 
       await expect(
         dbxFetcher.fetchSharedLinks({
-          organisationId,
-          teamMemberId,
           isPersonal: true,
           cursor: 'cursor-1', // With cursor
         })

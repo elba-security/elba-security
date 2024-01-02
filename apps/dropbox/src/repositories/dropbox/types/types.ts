@@ -1,4 +1,5 @@
-import { files, sharing } from 'dropbox/types/dropbox_types';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { files, sharing } from 'dropbox/types/dropbox_types';
 
 export type DBXFetcherOptions = {
   accessToken: string;
@@ -8,10 +9,10 @@ export type DBXFetcherOptions = {
 };
 
 export type GeneralFolderFilePermissions = {
-  users: Array<sharing.UserMembershipInfo>;
-  groups: Array<sharing.GroupMembershipInfo>;
-  invitees: Array<sharing.InviteeMembershipInfo>;
-  anyone?: Array<SharedLinks>;
+  users: sharing.UserMembershipInfo[];
+  groups: sharing.GroupMembershipInfo[];
+  invitees: sharing.InviteeMembershipInfo[];
+  anyone?: SharedLinks[];
 };
 
 export type FolderFilePermissions = Map<string, GeneralFolderFilePermissions>;
@@ -21,8 +22,7 @@ export type SyncJob = {
   organisationId: string;
   syncStartedAt: string;
   isFirstScan: boolean;
-  pathRoot: number;
-  level?: number;
+  pathRoot: string;
 };
 
 export type SharedLinks = {

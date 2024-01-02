@@ -1,14 +1,15 @@
-import { FunctionHandler, inngest } from '@/common/clients/inngest';
-import { insertSharedLinks } from './data';
-import { handleError } from '../../handle-error';
+import type { FunctionHandler } from '@/common/clients/inngest';
+import { inngest } from '@/common/clients/inngest';
 import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
+import { handleError } from '../../handle-error';
+import { insertSharedLinks } from './data';
+import { InputArgWithTrigger } from '@/common/clients/types';
 
-const handler: FunctionHandler = async ({ event, step }) => {
-  const { organisationId, accessToken, isPersonal, cursor, teamMemberId, pathRoot } = event.data;
-
-  if (!event.ts) {
-    throw new Error('Missing event.ts');
-  }
+const handler: FunctionHandler = async ({
+  event,
+  step,
+}: InputArgWithTrigger<'data-protection/synchronize-shared-links'>) => {
+  const { organisationId, accessToken, cursor, pathRoot, teamMemberId, isPersonal } = event.data;
 
   const sharedLinks = await step
     .run('fetch-shared-links', async () => {
@@ -23,8 +24,6 @@ const handler: FunctionHandler = async ({ event, step }) => {
         hasMore,
         links,
       } = await dbxFetcher.fetchSharedLinks({
-        organisationId,
-        teamMemberId,
         isPersonal,
         cursor,
       });
@@ -45,9 +44,15 @@ const handler: FunctionHandler = async ({ event, step }) => {
   //   console.log('------------------------------------------------');
   // });
 
+  if (!sharedLinks) {
+    throw new Error(`SharedLinks is undefined for the organisation ${organisationId}`);
+  }
+
   if (sharedLinks.links.length > 0) {
     await step.run('insert-shared-links', async () => {
-      await insertSharedLinks(sharedLinks.links);
+      await insertSharedLinks(
+        sharedLinks.links.map((link) => ({ ...link, organisationId, teamMemberId }))
+      );
     });
   }
 
@@ -63,16 +68,14 @@ const handler: FunctionHandler = async ({ event, step }) => {
     return {
       success: true,
     };
-  } else {
-    await step.sendEvent(`wait-for-shared-links-to-be-fetched`, {
-      name: 'shared-links/synchronize.shared-links.completed',
-      data: {
-        organisationId,
-        teamMemberId,
-        isPersonal,
-      },
-    });
   }
+  await step.sendEvent(`wait-for-shared-links-to-be-fetched`, {
+    name: 'shared-links/synchronize.shared-links.completed',
+    data: {
+      ...event.data,
+      cursor: sharedLinks.nextCursor,
+    },
+  });
 
   return {
     success: true,
@@ -85,11 +88,6 @@ export const synchronizeSharedLinks = inngest.createFunction(
     priority: {
       run: 'event.data.isFirstScan ? 600 : 0',
     },
-    // rateLimit: {
-    //   limit: 1,
-    //   key: 'event.data.organisationId',
-    //   period: '1s',
-    // },
     retries: 10,
     concurrency: {
       limit: 10,

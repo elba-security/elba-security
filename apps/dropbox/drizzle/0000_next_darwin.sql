@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS "shared_links" (
 	"team_member_id" text NOT NULL,
 	"link_access_level" text NOT NULL,
 	"path_lower" text NOT NULL,
-	CONSTRAINT shared_links_url_path_lower_pk PRIMARY KEY("url","path_lower")
+	CONSTRAINT "shared_links_url_path_lower_pk" PRIMARY KEY("url","path_lower")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "tokens" (

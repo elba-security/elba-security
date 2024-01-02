@@ -1,17 +1,21 @@
 import { inngest } from '@/common/clients/inngest';
-import { handleError } from '../../handle-error';
+import type { InputArgWithTrigger } from '@/common/clients/types';
 import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
-import { SyncJob } from '@/repositories/dropbox/types/types';
+import type { SyncJob } from '@/repositories/dropbox/types/types';
+import { handleError } from '../../handle-error';
 
-const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, step }) => {
+const handler: Parameters<typeof inngest.createFunction>[2] = async ({
+  event,
+  step,
+}: InputArgWithTrigger<'data-protection/create-path-sync-jobs'>) => {
   const {
     organisationId,
     accessToken,
     isFirstScan,
     syncStartedAt,
-    cursor,
     pathRoot,
     adminTeamMemberId,
+    cursor,
   } = event.data;
 
   if (!event.ts) {
@@ -28,7 +32,11 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
     })
     .catch(handleError);
 
-  const pathSyncJobs = await step.run('format-path-sync-job', async () => {
+  if (!team) {
+    throw new Error(`Team is undefined for the organisation ${organisationId}`);
+  }
+
+  const pathSyncJobs = await step.run('format-path-sync-job', () => {
     const job: SyncJob = {
       accessToken,
       organisationId,
@@ -49,14 +57,14 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
   if (team.members.length > 0) {
     await step.sendEvent(
       'send-event-synchronize-folders-and-files',
-      pathSyncJobs.map((sharedLinkJob) => ({
+      pathSyncJobs.map((pathSyncJob) => ({
         name: 'data-protection/synchronize-folders-and-files',
-        data: sharedLinkJob,
+        data: pathSyncJob,
       }))
     );
   }
 
-  if (team?.hasMore) {
+  if (team.hasMore) {
     await step.sendEvent('send-event-create-path-sync-jobs', {
       name: 'data-protection/create-path-sync-jobs',
       data: {
@@ -74,15 +82,10 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({ event, st
 export const createPathSyncJobs = inngest.createFunction(
   {
     id: 'create-path-sync-jobs',
-    // priority: {
-    //   run: 'event.data.isFirstScan ? 600 : 0',
-    // },
-    // rateLimit: {
-    //   limit: 1,
-    //   key: 'event.data.organisationId',
-    //   period: '1s',
-    // },
-    // retries: 10,
+    priority: {
+      run: 'event.data.isFirstScan ? 600 : 0',
+    },
+    retries: 10,
     concurrency: {
       limit: 1,
       key: 'event.data.organisationId',

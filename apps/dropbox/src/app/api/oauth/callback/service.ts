@@ -20,11 +20,11 @@ export const generateAccessToken = async ({
     throw new Error(`Could not get Dropbox access token`);
   }
 
-  const { access_token, refresh_token, expires_in } = result;
+  const { access_token: accessToken, refresh_token, expires_in } = result;
 
   const dbxAccess = new DBXAccess({
     fetch: fetch,
-    accessToken: access_token,
+    accessToken,
   });
 
   const adminDetails = await dbxAccess.teamTokenGetAuthenticatedAdmin();
@@ -50,18 +50,12 @@ export const generateAccessToken = async ({
   const currentAccount = await dbxAccess.usersGetCurrentAccount();
 
   const {
-    result: { name, account_type, root_info, team },
+    result: { root_info, team, team_member_id: teamMemberId },
   } = currentAccount;
 
-  // if (account_type['.tag'] !== 'business') {
-  //   throw new Error(
-  //     `We don't support ${account_type['.tag']} account, please use business account`
-  //   );
-  // }
-
-  // if (root_info['.tag'] !== 'team') {
-  //   throw new Error(`We don't support ${root_info['.tag']} account type`);
-  // }
+  if (!team || !teamMemberId) {
+    throw new Error('The account is not a team account, please use a team account');
+  }
 
   if (!root_info.root_namespace_id) {
     throw new Error('Could not get root namespace id');
@@ -71,7 +65,7 @@ export const generateAccessToken = async ({
     const accessTokenExpiresAt = addSeconds(new Date(), expires_in);
     await insertAccessToken({
       organisationId,
-      accessToken: access_token,
+      accessToken,
       refreshToken: refresh_token,
       expiresAt: accessTokenExpiresAt,
       adminTeamMemberId: team_member_id,
@@ -84,15 +78,16 @@ export const generateAccessToken = async ({
       name: 'users/run-user-sync-jobs',
       data: {
         organisationId,
-        accessToken: access_token,
+        accessToken,
         isFirstScan: true,
+        syncStartedAt: new Date().toISOString(),
       },
     });
 
     return {
       status: 'success',
     };
-  } catch (error: any) {
+  } catch (error) {
     throw new Error('An error occurred while saving access token', {
       cause: error?.message,
     });

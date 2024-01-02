@@ -1,4 +1,4 @@
-import { expect, test, describe } from 'vitest';
+import { expect, test, describe, vi } from 'vitest';
 import { scheduleUserSyncJobs } from './schedule-user-sync-jobs';
 import { insertOrganisations } from '@/common/__mocks__/token';
 import { scheduledOrganisations } from './__mocks__/organisations';
@@ -14,6 +14,7 @@ describe('schedule-users-sync-jobs', () => {
   });
 
   test('should schedule jobs when there are organisations to schedule', async () => {
+    vi.setSystemTime('2021-01-01T00:00:00.000Z');
     await insertOrganisations({
       size: 3,
     });
@@ -42,7 +43,7 @@ describe('schedule-users-sync-jobs', () => {
       'run-user-sync-jobs',
       scheduledOrganisations.map((organisation) => ({
         name: 'users/run-user-sync-jobs',
-        data: { ...organisation, isFirstScan: false },
+        data: { ...organisation, isFirstScan: false, syncStartedAt: '2021-01-01T00:00:00.000Z' },
       }))
     );
   });

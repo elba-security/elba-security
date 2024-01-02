@@ -1,15 +1,7 @@
 import { sharing } from 'dropbox';
 import { SharedLinks } from '../types/types';
 
-export const filterSharedLinks = ({
-  sharedLinks,
-  organisationId,
-  teamMemberId,
-}: {
-  sharedLinks: sharing.ListSharedLinksResult['links'];
-  organisationId: string;
-  teamMemberId: string;
-}) => {
+export const filterSharedLinks = (sharedLinks: sharing.ListSharedLinksResult['links']) => {
   return sharedLinks.reduce((acc: SharedLinks[], link) => {
     const { id, url, link_permissions, path_lower } = link;
 
@@ -30,12 +22,7 @@ export const filterSharedLinks = ({
       return acc;
     }
 
-    const linkObject: SharedLinks & {
-      teamMemberId: string;
-      organisationId: string;
-    } = {
-      teamMemberId,
-      organisationId,
+    const linkObject = {
       url,
       linkAccessLevel: link.link_permissions.link_access_level?.['.tag'] ?? 'viewer',
       pathLower: path_lower!,

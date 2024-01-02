@@ -10,12 +10,6 @@ type FileType = Pick<
   '.tag' | 'id' | 'name' | 'path_lower' | 'path_display' | 'client_modified' | 'server_modified'
 >;
 
-type FoldersAndFiles = {
-  foldersAndFiles: Array<FolderType | FileType>;
-  nextCursor: string;
-  hasMore: boolean;
-};
-
 export const foldersAndFilesFirstPage: Array<FolderType | FileType> = [
   {
     '.tag': 'folder',

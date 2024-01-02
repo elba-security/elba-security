@@ -11,7 +11,7 @@ import { formatPermissions } from '../utils/format-permissions';
 import { formatFilesToAdd } from '../utils/format-file-and-folders-to-elba';
 import { filterSharedLinks } from '../utils/format-shared-links';
 
-const DROPBOX_BD_USERS_BATCH_SIZE = 1000;
+const DROPBOX_BD_USERS_BATCH_SIZE = 1;
 const DROPBOX_LIST_FILE_MEMBERS_LIMIT = 300; // UInt32(min=1, max=300)
 const DROPBOX_LIST_FOLDER_MEMBERS_LIMIT = 1000;
 const DROPBOX_LIST_FOLDER_BATCH_SIZE = 500;
@@ -62,17 +62,7 @@ export class DBXFetcher {
     };
   };
 
-  fetchSharedLinks = async ({
-    organisationId,
-    teamMemberId,
-    isPersonal,
-    cursor,
-  }: {
-    organisationId: string;
-    teamMemberId: string;
-    isPersonal: boolean;
-    cursor?: string;
-  }) => {
+  fetchSharedLinks = async ({ isPersonal, cursor }: { isPersonal: boolean; cursor?: string }) => {
     this.dbx.setHeaders({
       selectUser: this.teamMemberId,
       ...(isPersonal ? {} : { pathRoot: JSON.stringify({ '.tag': 'root', root: this.pathRoot }) }),
@@ -84,11 +74,7 @@ export class DBXFetcher {
       cursor,
     });
 
-    const sharedLinks = filterSharedLinks({
-      sharedLinks: links,
-      organisationId,
-      teamMemberId,
-    });
+    const sharedLinks = filterSharedLinks(links);
 
     return {
       hasMore,
@@ -172,7 +158,7 @@ export class DBXFetcher {
     const permissions: FolderFilePermissions = new Map();
     await Promise.all(
       files.map(async ({ id: fileId }: DbxFiles.FileMetadataReference) => {
-        let filePermissions: GeneralFolderFilePermissions = {
+        const filePermissions: GeneralFolderFilePermissions = {
           users: [],
           groups: [],
           invitees: [],
@@ -254,7 +240,7 @@ export class DBXFetcher {
           id: folderId,
           shared_folder_id: shareFolderId,
         }: DbxFiles.FolderMetadataReference) => {
-          let folderPermissions: GeneralFolderFilePermissions = {
+          const folderPermissions: GeneralFolderFilePermissions = {
             users: [],
             groups: [],
             invitees: [],

@@ -1,14 +1,14 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { RetryAfterError } from 'inngest';
-import { insertOrganisations, insertTestAccessToken } from '@/common/__mocks__/token';
-import { DropboxResponseError } from 'dropbox';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { createSharedLinkSyncJobs } from './create-shared-link-sync-jobs';
+import { DropboxResponseError } from 'dropbox';
+import { RetryAfterError } from 'inngest';
+import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { insertOrganisations } from '@/common/__mocks__/token';
 import {
   membersListFirstPageResult,
   membersListWithoutPagination,
 } from '../users/__mocks__/dropbox';
 import { sharedLinksEvents } from './__mocks__/shared-links-events';
+import { createSharedLinkSyncJobs } from './create-shared-link-sync-jobs';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 
@@ -17,7 +17,6 @@ const setup = createInngestFunctionMock(
   'data-protection/create-shared-link-sync-jobs'
 );
 
-// // Mock Dropbox sdk
 const mocks = vi.hoisted(() => {
   return {
     fetchUsersMockResponse: vi.fn(),
@@ -26,8 +25,13 @@ const mocks = vi.hoisted(() => {
 });
 
 // Mock DBXFetcher class
-vi.mock('@/repositories/dropbox/clients/DBXFetcher', () => {
-  const dropbox = vi.importActual('dropbox');
+vi.mock('@/repositories/dropbox/clients/DBXFetcher', async () => {
+  const dropbox = await vi.importActual('dropbox');
+
+  if (!dropbox || typeof dropbox !== 'object') {
+    throw new Error('Expected dropbox to be an object.');
+  }
+
   return {
     ...dropbox,
     DBXFetcher: vi.fn(() => {
@@ -38,12 +42,12 @@ vi.mock('@/repositories/dropbox/clients/DBXFetcher', () => {
   };
 });
 
-describe('run-user-sync-jobs', async () => {
-  beforeEach(async () => {
+describe('run-user-sync-jobs', () => {
+  beforeEach(() => {
     mocks.fetchUsersMockResponse.mockReset();
   });
 
-  beforeAll(async () => {
+  beforeAll(() => {
     vi.clearAllMocks();
   });
 
@@ -76,11 +80,11 @@ describe('run-user-sync-jobs', async () => {
       )
     );
 
-    const [result, { step }] = setup({
+    const [result] = setup({
       organisationId,
       accessToken: 'access-token-1',
       isFirstScan: true,
-      pathRoot: 1000,
+      pathRoot: '1000',
       syncStartedAt: '2021-01-01T00:00:00.000Z',
       cursor: 'cursor-1',
     });
@@ -99,7 +103,7 @@ describe('run-user-sync-jobs', async () => {
       organisationId,
       accessToken: 'access-token-1',
       isFirstScan: true,
-      pathRoot: 1000,
+      pathRoot: '1000',
       syncStartedAt: '2021-01-01T00:00:00.000Z',
       cursor: 'cursor-1',
     });
@@ -132,10 +136,10 @@ describe('run-user-sync-jobs', async () => {
     expect(step.sendEvent).toBeCalledWith('send-event-create-path-sync-jobs', {
       data: {
         accessToken: 'access-token-1',
-        cursor: 'cursor-1',
+        adminTeamMemberId: undefined,
         isFirstScan: true,
-        organisationId,
-        pathRoot: 1000,
+        organisationId: '00000000-0000-0000-0000-000000000001',
+        pathRoot: '1000',
         syncStartedAt: '2021-01-01T00:00:00.000Z',
       },
       name: 'data-protection/create-path-sync-jobs',
@@ -151,7 +155,7 @@ describe('run-user-sync-jobs', async () => {
       organisationId,
       accessToken: 'access-token-1',
       isFirstScan: true,
-      pathRoot: 1000,
+      pathRoot: '1000',
       syncStartedAt: '2021-01-01T00:00:00.000Z',
       cursor: 'cursor-1',
     });
@@ -187,7 +191,7 @@ describe('run-user-sync-jobs', async () => {
         cursor: 'cursor-1',
         isFirstScan: true,
         organisationId: '00000000-0000-0000-0000-000000000001',
-        pathRoot: 1000,
+        pathRoot: '1000',
         syncStartedAt: '2021-01-01T00:00:00.000Z',
       },
       name: 'data-protection/create-shared-link-sync-jobs',

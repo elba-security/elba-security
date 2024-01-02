@@ -46,7 +46,7 @@ export const formatPermissions = ({ users, invitees, anyone }: GeneralFolderFile
   if (anyone && anyone?.length > 0) {
     const links = anyone.map((link) => link.url);
 
-    let pickedLink = anyone.find((link) => link.linkAccessLevel === 'editor');
+    const pickedLink = anyone.find((link) => link.linkAccessLevel === 'editor');
     formattedPermissions.push({
       id: links.join('::'),
       type: 'anyone' as DBXPermissionType,

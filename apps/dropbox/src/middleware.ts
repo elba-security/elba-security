@@ -1,9 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-// DOC: https://nextjs.org/docs/app/building-your-application/routing/middleware
 export function middleware(request: NextRequest) {
   const {
-    url,
     nextUrl: { pathname },
   } = request;
   const { searchParams } = new URL(request.url);

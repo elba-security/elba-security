@@ -1,8 +1,8 @@
-import { db, tokens } from '@/database';
 import { and, gte, isNull } from 'drizzle-orm';
+import { db, tokens } from '@/database';
 
 export const getOrganisationsToSyncJobs = async () => {
-  return await db
+  return db
     .select({
       organisationId: tokens.organisationId,
       accessToken: tokens.accessToken,

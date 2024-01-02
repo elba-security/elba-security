@@ -1,12 +1,11 @@
-import { DropboxResponse } from 'dropbox';
-import { sharing } from 'dropbox/types/dropbox_types';
+import type { sharing } from 'dropbox/types/dropbox_types';
 
 type PickedSharedLinkMetadata = Pick<
   sharing.SharedLinkMetadataReference,
   '.tag' | 'id' | 'name' | 'path_lower' | 'url'
 >;
 
-interface CustomLinkPermissions {
+type CustomLinkPermissions = {
   resolved_visibility?: {
     '.tag': sharing.ResolvedVisibility['.tag'];
   };
@@ -19,7 +18,7 @@ interface CustomLinkPermissions {
   link_access_level?: {
     '.tag': sharing.LinkAccessLevel['.tag'];
   };
-}
+};
 
 type SimplifiedTeamMemberInfo = PickedSharedLinkMetadata & {
   link_permissions: CustomLinkPermissions;
@@ -79,16 +78,12 @@ export const fetchSharedLinksMockResponse = {
   links: [
     {
       linkAccessLevel: 'viewer',
-      organisationId: '00000000-0000-0000-0000-000000000001',
       pathLower: 'path-1/share-file-1.yaml',
-      teamMemberId: 'team-member-id-1',
       url: 'https://foo.com/path-1/share-file-1.yaml',
     },
     {
       linkAccessLevel: 'viewer',
-      organisationId: '00000000-0000-0000-0000-000000000001',
       pathLower: 'path-2/share-file-2.epub',
-      teamMemberId: 'team-member-id-1',
       url: 'https://foo.com/path-2/share-file-2.epub',
     },
   ],

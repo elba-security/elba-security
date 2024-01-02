@@ -11,7 +11,7 @@ export const scheduleRefreshTokensJobs = inngest.createFunction(
         'run-refresh-tokens',
         organisations.map((organisation) => ({
           name: 'tokens/run-refresh-tokens',
-          data: { ...organisation, isFirstScan: false },
+          data: { ...organisation },
         }))
       );
     }

@@ -8,16 +8,20 @@ export const scheduleDataProtectionSyncJobs = inngest.createFunction(
     const now = new Date().toISOString();
     const organisations = await getOrganisationsToSyncJobs();
     if (organisations.length > 0) {
-      const events = organisations.map((organisation) => ({
-        name: 'data-protection/create-shared-link-sync-jobs',
-        data: {
-          ...organisation,
-          isFirstScan: false,
-          syncStartedAt: now,
-        },
-      }));
-
-      await step.sendEvent('send-event-create-shared-link-sync-jobs', events);
+      await step.sendEvent(
+        'send-event-create-shared-link-sync-jobs',
+        organisations.map(({ accessToken, adminTeamMemberId, organisationId, pathRoot }) => ({
+          name: 'data-protection/create-shared-link-sync-jobs',
+          data: {
+            accessToken,
+            adminTeamMemberId,
+            organisationId,
+            pathRoot,
+            isFirstScan: false,
+            syncStartedAt: now,
+          },
+        }))
+      );
     }
 
     return { organisations };

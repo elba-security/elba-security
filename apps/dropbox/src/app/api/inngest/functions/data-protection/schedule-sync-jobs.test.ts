@@ -1,8 +1,7 @@
-import { expect, test, describe, beforeAll, vi } from 'vitest';
-import { scheduleDataProtectionSyncJobs } from './schedule-sync-jobs';
-import { insertOrganisations } from '@/common/__mocks__/token';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { scheduledOrganisations } from './__mocks__/organisations';
+import { expect, test, describe, beforeAll, vi } from 'vitest';
+import { insertOrganisations } from '@/common/__mocks__/token';
+import { scheduleDataProtectionSyncJobs } from './schedule-sync-jobs';
 
 const setup = createInngestFunctionMock(scheduleDataProtectionSyncJobs);
 

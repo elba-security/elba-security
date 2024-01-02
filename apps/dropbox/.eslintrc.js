@@ -3,7 +3,7 @@ const { resolve } = require('node:path');
 const project = resolve(__dirname, './tsconfig.json');
 
 module.exports = {
-  extends: ['custom/next'],
+  extends: ['plugin:@typescript-eslint/recommended'],
   parserOptions: {
     project,
   },

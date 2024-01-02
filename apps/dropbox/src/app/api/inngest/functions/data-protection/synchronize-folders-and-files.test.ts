@@ -4,19 +4,17 @@ import { insertTestSharedLinks } from '@/common/__mocks__/token';
 import { DropboxResponseError } from 'dropbox';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { synchronizeFoldersAndFiles } from './synchronize-folders-and-files';
-import { DBXFetcher } from '@/repositories/dropbox/clients/DBXFetcher';
 
 import {
-  filesPermissions,
-  filesMetadata,
   folderAndFilesWithOutPagination,
   sharedLinks,
-  folderPermissions,
-  foldersMetadata,
   foldersAndFilesToAdd,
-} from './__mocks__/folder-files-and-ashred-links';
+} from './__mocks__/folder-files-and-shared-links';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
+const teamMemberId = 'team-member-id-1';
+const adminTeamMemberId = 'admin-team-member-id-1';
+const syncStartedAt = '2021-01-01T00:00:00.000Z';
 
 const setup = createInngestFunctionMock(
   synchronizeFoldersAndFiles,
@@ -74,13 +72,15 @@ describe('run-user-sync-jobs', async () => {
       )
     );
 
-    const [result, { step }] = setup({
+    const [result] = setup({
       organisationId,
       accessToken: 'access-token-1',
       isFirstScan: true,
-      pathRoot: 1000,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      pathRoot: '1000',
+      syncStartedAt,
       cursor: 'cursor-1',
+      adminTeamMemberId,
+      teamMemberId,
     });
 
     await expect(result).rejects.toStrictEqual(
@@ -99,13 +99,14 @@ describe('run-user-sync-jobs', async () => {
       return foldersAndFilesToAdd;
     });
 
-    const [result, { step }] = setup({
+    const [result] = setup({
       organisationId,
       accessToken: 'access-token-1',
       isFirstScan: false,
-      pathRoot: 1000,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
-      adminTeamMemberId: 'admin-team-member-id-1',
+      pathRoot: '1000',
+      syncStartedAt,
+      adminTeamMemberId,
+      teamMemberId,
     });
 
     expect(await result).toStrictEqual({
