@@ -5,7 +5,7 @@ const nextConfig = {
   webpack: (config, { webpack }) => {
     config.plugins.push(
       new webpack.IgnorePlugin({
-        resourceRegExp: /^postgres$|^cloudflare:sockets$/,
+        resourceRegExp: /^cloudflare:sockets$/,
       })
     );
 
