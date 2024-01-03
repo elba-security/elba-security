@@ -61,6 +61,25 @@ export const generateAccessToken = async ({
     throw new Error('Could not get root namespace id');
   }
 
+  console.log('--------------TOKEN DETAILS---------------------');
+  console.log(
+    JSON.stringify(
+      {
+        organisationId,
+        accessToken,
+        refreshToken: refresh_token,
+        expiresAt: addSeconds(new Date(), expires_in),
+        adminTeamMemberId: team_member_id,
+        rootNamespaceId: root_info.root_namespace_id,
+        teamName: team?.name as string,
+        unauthorizedAt: null,
+      },
+      null,
+      2
+    )
+  );
+  console.log('------------------------------------------------');
+
   try {
     const accessTokenExpiresAt = addSeconds(new Date(), expires_in);
     await insertAccessToken({
