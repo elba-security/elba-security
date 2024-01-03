@@ -1,5 +1,10 @@
 {
   "extends": "@elba-security/tsconfig/nextjs.json",
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  },
   "compilerOptions": {
     "target": "es2015",
     "module": "esnext",
@@ -13,6 +18,13 @@
     },
     "strictNullChecks": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "vitest.config.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "vitest.config.ts",
+    "migrate.vercel.ts"
+  ],
   "exclude": ["node_modules"]
 }
