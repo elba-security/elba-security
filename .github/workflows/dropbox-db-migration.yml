@@ -1,0 +1,35 @@
+name: Database Migration
+
+on:
+  push:
+    branches:
+      - athithan/dropbox-integration
+
+jobs:
+  database-migration:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.x
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Install Dependencies
+        run: |
+          pnpm install
+          pnpm install -g ts-node
+      - name: Set Environment Variables
+        run: |
+          # Populate execution env for next steps
+          cat >> "$GITHUB_ENV" << EOF
+          DEPLOY_ENVIRONMENT=production
+          POSTGRES_URL=${{secrets.DROPBOX_POSTGRES_URL}}
+          EOF
+      - name: Run Migration Script
+        run: |
+          cd apps/dropbox
+          npx ts-node ./scripts/migrate.vercel.ts
