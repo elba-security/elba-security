@@ -16,7 +16,7 @@
     "migration:generate": "drizzle-kit generate:pg --schema=./src/database/schema.ts",
     "migration:push": "npx tsx ./src/database/migrate.ts .env.local && npx tsx ./src/database/migrate.ts .env.test.local",
     "migrate": "pnpm migration:generate && pnpm migration:push",
-    "inngest": "npx inngest-cli@latest dev -u http://localhost:3300/api/inngest"
+    "inngest": "npx inngest-cli@latest dev -u http://localhost:3300/api/inngest && open -a 'Google Chrome' http://localhost:8288"
   },
   "dependencies": {
     "@elba-security/schemas": "workspace:*",

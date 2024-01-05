@@ -341,4 +341,28 @@ export class DBXFetcher {
       files: mappedResult,
     });
   };
+
+  fetchThirdPartyApps = async (cursor?: string) => {
+    const {
+      result: { apps, cursor: nextCursor, has_more: hasMore },
+    } = cursor
+      ? await this.dbx.teamLinkedAppsListMembersLinkedApps({
+          cursor,
+        })
+      : await this.dbx.teamLinkedAppsListMembersLinkedApps({
+          cursor,
+        });
+
+    if (!apps.length) {
+      return {
+        nextCursor,
+        hasMore,
+      };
+    }
+
+    return {
+      nextCursor: cursor,
+      hasMore,
+    };
+  };
 }

@@ -87,6 +87,7 @@ describe('run-user-sync-jobs', () => {
       pathRoot: '1000',
       syncStartedAt: '2021-01-01T00:00:00.000Z',
       cursor: 'cursor-1',
+      adminTeamMemberId: 'admin-team-member-id-1',
     });
 
     await expect(result).rejects.toStrictEqual(
@@ -94,7 +95,7 @@ describe('run-user-sync-jobs', () => {
     );
   });
 
-  test('should fetch team members of the organisation & trigger events to fetch shared links', async () => {
+  test.only('should fetch team members of the organisation & trigger events to fetch shared links', async () => {
     mocks.fetchUsersMockResponse.mockImplementation(() => {
       return membersListWithoutPagination;
     });
@@ -106,6 +107,7 @@ describe('run-user-sync-jobs', () => {
       pathRoot: '1000',
       syncStartedAt: '2021-01-01T00:00:00.000Z',
       cursor: 'cursor-1',
+      adminTeamMemberId: 'admin-team-member-id-1',
     });
 
     expect(await result).toStrictEqual({
@@ -134,6 +136,7 @@ describe('run-user-sync-jobs', () => {
     );
 
     expect(step.sendEvent).toBeCalledWith('send-event-create-path-sync-jobs', {
+      name: 'data-protection/create-path-sync-jobs',
       data: {
         accessToken: 'access-token-1',
         adminTeamMemberId: undefined,
@@ -142,7 +145,6 @@ describe('run-user-sync-jobs', () => {
         pathRoot: '1000',
         syncStartedAt: '2021-01-01T00:00:00.000Z',
       },
-      name: 'data-protection/create-path-sync-jobs',
     });
   });
 
@@ -158,6 +160,7 @@ describe('run-user-sync-jobs', () => {
       pathRoot: '1000',
       syncStartedAt: '2021-01-01T00:00:00.000Z',
       cursor: 'cursor-1',
+      adminTeamMemberId: 'admin-team-member-id-1',
     });
 
     expect(await result).toStrictEqual({

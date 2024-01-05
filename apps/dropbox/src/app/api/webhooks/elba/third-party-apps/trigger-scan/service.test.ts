@@ -10,7 +10,7 @@ const accessToken = 'access-token-1';
 const adminTeamMemberId = 'team-member-id';
 const rootNamespaceId = 'root-name-space-id';
 
-describe('triggerDataProtectionScan', () => {
+describe('triggerThirdPartyAppsScan', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -31,7 +31,7 @@ describe('triggerDataProtectionScan', () => {
     }
   });
 
-  test('should trigger the data-protection/create-shared-link-sync-jobs event', async () => {
+  test('should schedule trigger the third-party-apps/run-sync-jobs event', async () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
     vi.setSystemTime('2021-01-01T00:00:00.000Z');
 
@@ -64,13 +64,12 @@ describe('triggerDataProtectionScan', () => {
     });
 
     expect(send).toBeCalledTimes(1);
+
     expect(send).toBeCalledWith({
-      name: 'data-protection/create-shared-link-sync-jobs',
+      name: 'third-party-apps/run-sync-jobs',
       data: {
         accessToken,
-        adminTeamMemberId,
         organisationId,
-        pathRoot: rootNamespaceId,
         isFirstScan: true,
         syncStartedAt: '2021-01-01T00:00:00.000Z',
       },
@@ -78,19 +77,13 @@ describe('triggerDataProtectionScan', () => {
     await expect(
       db
         .select({
-          organisationId: tokens.organisationId,
           accessToken: tokens.accessToken,
-          pathRoot: tokens.rootNamespaceId,
-          adminTeamMemberId: tokens.adminTeamMemberId,
         })
         .from(tokens)
         .where(eq(tokens.organisationId, organisationId))
     ).resolves.toMatchObject([
       {
-        accessToken,
-        adminTeamMemberId,
-        organisationId,
-        pathRoot: rootNamespaceId,
+        accessToken: 'access-token-1',
       },
     ]);
   });

@@ -8,6 +8,11 @@ export type DBXFetcherOptions = {
   pathRoot?: string;
 };
 
+export type DBXAppsFetcherOptions = {
+  accessToken: string;
+  teamMemberId?: string;
+};
+
 export type GeneralFolderFilePermissions = {
   users: sharing.UserMembershipInfo[];
   groups: sharing.GroupMembershipInfo[];

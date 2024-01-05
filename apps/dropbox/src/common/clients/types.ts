@@ -20,27 +20,52 @@ const commonEventArgs = z.object({
   accessToken: z.string(),
   syncStartedAt: z.string().datetime(),
   isFirstScan: z.boolean().default(false),
-  pathRoot: z.string(),
-  adminTeamMemberId: z.string().optional(),
 });
 
 const createSharedLinkSyncJobs = commonEventArgs.extend({
-  cursor: z.string().optional(), // cursor of the team members
+  adminTeamMemberId: z.string(),
+  pathRoot: z.string(),
+  cursor: z.string().optional(),
+});
+
+const createSharedLinkCompleteSyncJobs = commonEventArgs.extend({
+  pathRoot: z.string(),
+  cursor: z.string().optional(),
 });
 
 const createPathSyncJobsSchema = commonEventArgs.extend({
-  cursor: z.string().optional(), // cursor of the team members
+  adminTeamMemberId: z.string(),
+  pathRoot: z.string(),
+  cursor: z.string().optional(),
 });
 
 const syncFilesAndFoldersSchema = commonEventArgs.extend({
-  cursor: z.string().optional(),
+  pathRoot: z.string(),
   teamMemberId: z.string(),
+  adminTeamMemberId: z.string(),
+  cursor: z.string().optional(),
+});
+
+const runThirdPartyAppsSyncJobsSchema = commonEventArgs.extend({
+  cursor: z.string().optional(),
 });
 
 export const synchronizeSharedLinks = commonEventArgs.extend({
+  pathRoot: z.string(),
   cursor: z.string().optional(),
   teamMemberId: z.string(),
   isPersonal: z.boolean(),
+});
+
+const refreshThirdPartyAppsObjectsSchema = commonEventArgs.extend({
+  teamMemberId: z.string(),
+  syncStartedAt: z.string().optional(),
+});
+
+const deleteThirdPartyAppsObject = z.object({
+  accessToken: z.string(),
+  teamMemberId: z.string(),
+  appId: z.string(),
 });
 
 export const zodEventSchemas = {
@@ -49,9 +74,12 @@ export const zodEventSchemas = {
   'users/run-user-sync-jobs.completed': { data: runUserSyncJobsSchema },
   'data-protection/create-shared-link-sync-jobs': { data: createSharedLinkSyncJobs },
   'data-protection/synchronize-shared-links': { data: synchronizeSharedLinks },
-  'shared-links/synchronize.shared-links.completed': { data: createSharedLinkSyncJobs },
+  'shared-links/synchronize.shared-links.completed': { data: createSharedLinkCompleteSyncJobs },
   'data-protection/create-path-sync-jobs': { data: createPathSyncJobsSchema },
   'data-protection/synchronize-folders-and-files': { data: syncFilesAndFoldersSchema },
+  'third-party-apps/run-sync-jobs': { data: runThirdPartyAppsSyncJobsSchema },
+  'third-party-apps/refresh-objects': { data: refreshThirdPartyAppsObjectsSchema },
+  'third-party-apps/delete-object': { data: deleteThirdPartyAppsObject },
 };
 
 export type InputArgWithTrigger<T extends keyof typeof zodEventSchemas> = GetFunctionInput<
