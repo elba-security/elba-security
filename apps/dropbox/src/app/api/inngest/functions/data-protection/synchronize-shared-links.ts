@@ -36,14 +36,6 @@ const handler: FunctionHandler = async ({
     })
     .catch(handleError);
 
-  // await step.run('inngest-console-log-synchronize-shared-links', async () => {
-  //   console.log('----------synchronize-shared-links-------------');
-  //   console.log(teamMemberId);
-  //   console.log('sharedLinks', sharedLinks.links.length);
-  //   console.log('hasMore', sharedLinks?.hasMore);
-  //   console.log('------------------------------------------------');
-  // });
-
   if (!sharedLinks) {
     throw new Error(`SharedLinks is undefined for the organisation ${organisationId}`);
   }

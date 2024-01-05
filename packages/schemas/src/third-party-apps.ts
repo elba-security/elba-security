@@ -34,6 +34,6 @@ export const deleteThirdPartyAppsSchema = z.union([
   z.object({
     syncedBefore: z.string().datetime(),
   }),
-]);;
+]);
 
 export type DeleteThirdPartyApps = zInfer<typeof deleteThirdPartyAppsSchema>;

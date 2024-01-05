@@ -9,8 +9,10 @@ const organisationId = '00000000-0000-0000-0000-000000000001';
 const accessToken = 'access-token-1';
 const adminTeamMemberId = 'team-member-id';
 const rootNamespaceId = 'root-name-space-id';
+const userId = 'team-member-id-1';
+const appId = 'app-id';
 
-describe('triggerDataProtectionScan', () => {
+describe('deleteThirdPartyAppsObject', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -18,20 +20,18 @@ describe('triggerDataProtectionScan', () => {
   test('should throws when organisation is not found', async () => {
     const { req } = mockRequestResponse({
       body: {
-        organisationId: '00000000-0000-0000-0000-000000000002',
+        organisationId,
       },
     });
 
     try {
       await handler(req);
     } catch (error) {
-      expect(error.message).toBe(
-        'Organisation not found with id=00000000-0000-0000-0000-000000000002'
-      );
+      expect(error.message).toBe(`Organisation not found with id=${organisationId}`);
     }
   });
 
-  test('should trigger the data-protection/create-shared-link-sync-jobs event', async () => {
+  test('should schedule trigger the third-party-apps/delete-object event', async () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
     vi.setSystemTime('2021-01-01T00:00:00.000Z');
 
@@ -52,7 +52,9 @@ describe('triggerDataProtectionScan', () => {
 
     const { req } = await mockRequestResponse({
       body: {
-        organisationId: '00000000-0000-0000-0000-000000000001',
+        organisationId,
+        userId,
+        appId,
       },
     });
 
@@ -65,32 +67,25 @@ describe('triggerDataProtectionScan', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'data-protection/create-shared-link-sync-jobs',
+      name: 'third-party-apps/delete-object',
       data: {
         accessToken,
-        adminTeamMemberId,
         organisationId,
-        pathRoot: rootNamespaceId,
-        isFirstScan: true,
-        syncStartedAt: '2021-01-01T00:00:00.000Z',
+        teamMemberId: userId,
+        appId,
       },
     });
+
     await expect(
       db
         .select({
-          organisationId: tokens.organisationId,
           accessToken: tokens.accessToken,
-          pathRoot: tokens.rootNamespaceId,
-          adminTeamMemberId: tokens.adminTeamMemberId,
         })
         .from(tokens)
         .where(eq(tokens.organisationId, organisationId))
     ).resolves.toMatchObject([
       {
-        accessToken,
-        adminTeamMemberId,
-        organisationId,
-        pathRoot: rootNamespaceId,
+        accessToken: 'access-token-1',
       },
     ]);
   });
