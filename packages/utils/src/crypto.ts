@@ -1,4 +1,4 @@
-const arrayBufferFromHexString = (hexString: string) => {
+export const arrayBufferFromHexString = (hexString: string) => {
   const matches = hexString.match(/[0-9a-f]{2}/gi);
   if (!matches || hexString.length !== matches.length * 2) {
     throw new Error('Invalid hex string');
@@ -8,13 +8,13 @@ const arrayBufferFromHexString = (hexString: string) => {
   return bytes.buffer;
 };
 
-const hexStringFromArrayBuffer = (buffer: ArrayBuffer) => {
+export const hexStringFromArrayBuffer = (buffer: ArrayBuffer) => {
   return [...new Uint8Array(buffer)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
-export const encryptAES256GCM = async ({ data, keyHex }: { data: string; keyHex: string }) => {
+export const encryptText = async (data: string, key: string) => {
   const ivArrayBuffer = crypto.getRandomValues(new Uint8Array(16));
-  const keyArrayBuffer = arrayBufferFromHexString(keyHex);
+  const keyArrayBuffer = arrayBufferFromHexString(key);
 
   const secretKey = await crypto.subtle.importKey(
     'raw',
@@ -50,22 +50,16 @@ export const encryptAES256GCM = async ({ data, keyHex }: { data: string; keyHex:
   return `${ivHex}${tagHex}${encryptedHex}`;
 };
 
-export const decryptAES256GCM = async ({
-  dataHex,
-  keyHex,
-}: {
-  dataHex: string;
-  keyHex: string;
-}) => {
+export const decryptText = async (data: string, key: string) => {
   const [ivHex, tagHex, encryptedHex] = [
-    dataHex.substring(0, 32),
-    dataHex.substring(32, 64),
-    dataHex.substring(64),
+    data.substring(0, 32),
+    data.substring(32, 64),
+    data.substring(64),
   ];
 
   const dataArrayBuffer = arrayBufferFromHexString(`${encryptedHex}${tagHex}`);
   const ivArrayBuffer = arrayBufferFromHexString(ivHex);
-  const keyArrayBuffer = arrayBufferFromHexString(keyHex);
+  const keyArrayBuffer = arrayBufferFromHexString(key);
 
   const secretKey = await crypto.subtle.importKey(
     'raw',

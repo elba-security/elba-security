@@ -4,7 +4,8 @@
   "private": true,
   "main": "src/index.ts",
   "scripts": {
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run"
   },
   "dependencies": {
     "typescript": "^5"
@@ -12,6 +13,7 @@
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
-    "eslint": "^8"
+    "eslint": "^8",
+    "vitest": "^1.0.0"
   }
 }
