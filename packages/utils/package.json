@@ -1,0 +1,17 @@
+{
+  "name": "@elba-security/utils",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "typescript": "^5"
+  },
+  "devDependencies": {
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
+    "eslint": "^8"
+  }
+}
