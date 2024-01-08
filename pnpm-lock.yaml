@@ -122,6 +122,9 @@ importers:
       '@elba-security/api-client':
         specifier: workspace:*
         version: link:../api-client
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../sdk
       inngest:
         specifier: '>=3.6.0'
         version: 3.6.2(typescript@5.2.2)

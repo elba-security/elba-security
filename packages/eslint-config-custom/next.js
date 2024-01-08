@@ -34,4 +34,12 @@ module.exports = {
     'unicorn/filename-case': ['error', { case: 'kebabCase', ignore: ['\\.tsx$'] }],
     'turbo/no-undeclared-env-vars': 'off',
   },
+  overrides: [
+    {
+      files: ['*.test.{ts,tsx}'],
+      rules: {
+        '@typescript-eslint/unbound-method': 'off',
+      },
+    },
+  ],
 };

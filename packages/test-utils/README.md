@@ -2,7 +2,7 @@
 
 Expose a collection of msw request handlers that mock elba open API endpoints.
 
-## Usage
+## Installation
 
 Add `@elba-security/test-utils` in your `package.json` as a dev dependency.
 
@@ -12,7 +12,9 @@ Add `@elba-security/test-utils` in your `package.json` as a dev dependency.
 }
 ```
 
-Next, configure the request handlers in a vitest setup file:
+## MSW handlers
+
+Configure the request handlers in a vitest setup file:
 
 ```ts
 import { createElbaRequestHandlers } from '@elba-security/test-utils';
@@ -41,5 +43,29 @@ export default defineConfig({
   test: {
     setupFiles: ['./path/to/setupFile.ts'],
   },
+});
+```
+
+## elba SDK spy
+
+This util allows to easily spy on elba SDK in order to assert its methods calls.
+
+_Note that it does not allows to mock the elba SDK methods. To do so, we encourage to rely on the MSW handlers. If you want to test a failing scenarios make sure the elba SDK methods are called with bad parameters._
+
+```ts
+import { spyOnElba } from '@elba-security/test-utils';
+// ...
+
+test('should do foo when baz', () => {
+  const elba = spyOnElba();
+
+  // call the function that you want to test
+
+  // assert Elba class constructors calls
+  expect(elba).toBeCalledTimes(1);
+  expect(elba).toBeCalledWith({});
+  // assert Elba class instance methods calls
+  expect(a.mock.results.at(0)?.value.authentication.updateObjects).toBeCalledTimes(1);
+  // ...
 });
 ```
