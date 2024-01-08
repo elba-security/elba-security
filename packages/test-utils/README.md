@@ -65,7 +65,7 @@ test('should do foo when baz', () => {
   expect(elba).toBeCalledTimes(1);
   expect(elba).toBeCalledWith({});
   // assert Elba class instance methods calls
-  expect(a.mock.results.at(0)?.value.authentication.updateObjects).toBeCalledTimes(1);
+  expect(elba.mock.results.at(0)?.value.authentication.updateObjects).toBeCalledTimes(1);
   // ...
 });
 ```
