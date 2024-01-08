@@ -17,9 +17,9 @@ openssl rand -hex 32
 #### Code sample
 
 ```ts
-import { encryptAES256GCM, decryptAES256GCM } from '@elba-security/utils';
+import { encryptText, decryptText } from '@elba-security/utils';
 
-const encryptedHex = await encryptAES256GCM({ data: 'test', keyHex: '{KEY}' });
+const encrypted = await encryptText('test', '{KEY}');
 
-const decrypted = await decryptAES256GCM({ dataHex: encryptedHex, keyHex: '{KEY}' });
+const decrypted = await decryptText(encrypted, '{KEY}');
 ```
