@@ -1,0 +1,51 @@
+{
+  "name": "next-elba-teams",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "dev:inngest": "inngest-cli dev -u http://localhost:3000/api/inngest",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "sh ./scripts/run-test.sh",
+    "test:watch": "sh ./scripts/run-test.sh -w",
+    "test:database:up": "docker-compose -p integration-test --env-file=.env.test up -d",
+    "test:database:down": "docker-compose -p integration-test down",
+    "test:database:migrate": "node ./scripts/migrate.js .env.test",
+    "database:up": "docker-compose -p integration --env-file=.env.local up -d",
+    "database:down": "docker-compose -p integration down",
+    "database:migrate": "node ./scripts/migrate.js .env",
+    "database:generate": "drizzle-kit generate:pg --schema=./src/database/schema.ts"
+  },
+  "dependencies": {
+    "@elba-security/sdk": "workspace:*",
+    "@neondatabase/serverless": "^0.6.0",
+    "@vercel/postgres": "^0.5.1",
+    "drizzle-orm": "^0.29.1",
+    "inngest": "^3.6.2",
+    "msw": "^2.0.1",
+    "next": "14.0.1",
+    "react": "^18",
+    "react-dom": "^18",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "^3.1.7",
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/test-utils": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
+    "@next/eslint-plugin-next": "^14.0.2",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "dotenv": "^16.3.1",
+    "drizzle-kit": "^0.20.6",
+    "eslint": "^8",
+    "inngest-cli": "^0.22.0",
+    "msw": "^2.0.1",
+    "postgres": "^3.4.3",
+    "typescript": "^5",
+    "vitest": "^1.0.0"
+  }
+}
