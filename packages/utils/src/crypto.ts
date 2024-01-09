@@ -4,12 +4,11 @@ export const arrayBufferFromHexString = (hexString: string) => {
     throw new Error('Invalid hex string');
   }
 
-  const bytes = Uint8Array.from(matches.map((hex) => parseInt(hex, 16)));
-  return bytes.buffer;
+  return Uint8Array.from(matches.map((hex) => parseInt(hex, 16)));
 };
 
-export const hexStringFromArrayBuffer = (buffer: ArrayBuffer) => {
-  return [...new Uint8Array(buffer)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+export const hexStringFromArrayBuffer = (buffer: Uint8Array) => {
+  return [...buffer].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
 export const encryptText = async (data: string, key: string) => {
@@ -39,8 +38,8 @@ export const encryptText = async (data: string, key: string) => {
   );
 
   const [encryptedArrayBuffer, tagArrayBuffer] = [
-    encryptedData.slice(0, encryptedData.byteLength - 16),
-    encryptedData.slice(encryptedData.byteLength - 16),
+    new Uint8Array(encryptedData.slice(0, encryptedData.byteLength - 16)),
+    new Uint8Array(encryptedData.slice(encryptedData.byteLength - 16)),
   ];
 
   const encryptedHex = hexStringFromArrayBuffer(encryptedArrayBuffer);
