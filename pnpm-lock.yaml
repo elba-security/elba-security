@@ -88,6 +88,9 @@ importers:
       '@elba-security/schemas':
         specifier: workspace:*
         version: link:../schemas
+      zod:
+        specifier: 3.22.4
+        version: 3.22.4
     devDependencies:
       '@edge-runtime/vm':
         specifier: ^3.1.7

@@ -14,9 +14,9 @@ To install `elba-sdk`, run:
 pnpm install elba-sdk
 ```
 
-## Usage
+## Client usage
 
-To start using the `elba-sdk`, you'll need to set up your environment variables and instantiate the client:
+To start using the `elba-sdk` client, you'll need to set up your environment variables and instantiate the client:
 
 ```ts
 import { Elba } from 'elba-sdk';
@@ -31,6 +31,51 @@ const elba = new Elba({
 ```
 
 ## API Reference
+
+### Webhook
+
+#### validateWebhookEventSignature
+
+Validate a webhook event request by checking its signature against a webhook secret.
+
+**Example:**
+
+```ts
+import { validateWebhookRequestSignature } from 'elba-sdk';
+
+export async function middleware(request: NextRequest) {
+  try {
+    await validateWebhookRequestSignature(request, env.ELBA_WEBHOOK_SECRET);
+  } catch (error) {
+    return new NextResponse(null, { status: 401, statusText: 'unauthorized' });
+  }
+}
+```
+
+#### parseWebhookEventData
+
+Parse webhook event data and validate it against schema.
+
+**JSON payload example:**
+
+```ts
+import { parseWebhookEventData } from 'elba-sdk';
+
+export async function POST(request: NextRequest) {
+  const data: unknown = await request.json();
+  const { organisationId } = parseWebhookEventData('data_protection.scan_triggered', data);
+}
+```
+
+**seach params example:**
+
+```ts
+import { parseWebhookEventData } from 'elba-sdk';
+
+export async function GET(request: NextRequest) {
+  const data = parseWebhookEventData('some_event', request.nextUrl.searchParams);
+}
+```
 
 ### Users
 
