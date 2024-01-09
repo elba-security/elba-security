@@ -21,7 +21,7 @@
   "dependencies": {
     "@elba-security/sdk": "workspace:*",
     "@neondatabase/serverless": "0.6.0",
-    "@vercel/postgres": "^0.5.1",
+    "@vercel/postgres": "0.5.1",
     "drizzle-orm": "^0.29.1",
     "inngest": "^3.6.2",
     "msw": "^2.0.1",
