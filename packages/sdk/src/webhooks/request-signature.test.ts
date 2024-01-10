@@ -5,9 +5,9 @@ import { validateWebhookRequestSignature } from './request-signature';
 describe('validateWebhookRequestSignature', () => {
   it('should succeed when the signature is valid', async () => {
     const secret = 'test-secret';
-    const payload = { data: 'example' };
+    const payload = '{ "data": "example" }';
     // crypto signature computed using the above secret and payload
-    const signature = '8d39b9c99e442dd3cb018aa9b6e7d83a267881c5fa558f6fba4ec0ef1e06df4c';
+    const signature = 'b1d12035603a98adf998e23052a1c99ff356cc2903322f7dd1ccc6d2e2748863';
     const request = new Request(new URL('http://foo.bar'), {
       method: 'post',
       body: JSON.stringify(payload),
@@ -19,7 +19,7 @@ describe('validateWebhookRequestSignature', () => {
 
   it('should fail when the signature is invalid', async () => {
     const secret = 'test-secret';
-    const payload = { data: 'example' };
+    const payload = '{ "data": "example" }';
 
     const signature = 'invalid-signature';
     const request = new Request(new URL('http://foo.bar'), {
@@ -37,9 +37,9 @@ describe('validateWebhookRequestSignature', () => {
     });
   });
 
-  it('should fail when the signature is valid and payload invalid', async () => {
+  it('should fail when the payload is invalid', async () => {
     const secret = 'test-secret';
-    const payload = ['foo'];
+    const payload = undefined;
 
     const signature = 'invalid-signature';
     const request = new Request(new URL('http://foo.bar'), {
@@ -52,7 +52,7 @@ describe('validateWebhookRequestSignature', () => {
       ElbaError
     );
     await expect(validateWebhookRequestSignature(request, secret)).rejects.toMatchObject({
-      message: 'Could not validate payload from webhook request',
+      message: 'Could not retrieve payload from request',
       request,
     });
   });
