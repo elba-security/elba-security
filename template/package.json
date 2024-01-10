@@ -46,6 +46,6 @@
     "msw": "^2.0.1",
     "postgres": "^3.4.3",
     "typescript": "^5",
-    "vitest": "^1.0.0"
+    "vitest": "^1.1.3"
   }
 }
