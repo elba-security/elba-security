@@ -18,11 +18,14 @@ export const validateWebhookRequestSignature = async (request: Request, secret: 
     });
   }
 
-  const payload = await getRequestPayload(requestClone);
-
-  if (!payload) {
-    throw new ElbaError('Could not retrieve payload from request', { request });
+  if (requestClone.method !== 'POST') {
+    throw new ElbaError('Could not retrieve payload from webhook request', {
+      request,
+      cause: `Method "${requestClone.method}" is not supported`,
+    });
   }
+
+  const payload = await requestClone.text();
 
   const isSignatureValid = await validateSignature(secret, payload, signature);
 
@@ -30,12 +33,6 @@ export const validateWebhookRequestSignature = async (request: Request, secret: 
     throw new ElbaError('Could not validate elba signature from webhook request', {
       request,
     });
-  }
-};
-
-const getRequestPayload = async (request: Request) => {
-  if (['POST', 'PATCH', 'PUT'].includes(request.method)) {
-    return request.text();
   }
 };
 

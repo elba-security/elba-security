@@ -3,7 +3,7 @@ import { ElbaError } from '../error';
 import { validateWebhookRequestSignature } from './request-signature';
 
 describe('validateWebhookRequestSignature', () => {
-  it('should succeed when the signature is valid', async () => {
+  it('should succeed when the request signature is valid', async () => {
     const secret = 'test-secret';
     const payload = '{ "data": "example" }';
     // crypto signature computed using the above secret and payload
@@ -17,7 +17,7 @@ describe('validateWebhookRequestSignature', () => {
     await expect(validateWebhookRequestSignature(request, secret)).resolves.toBe(undefined);
   });
 
-  it('should fail when the signature is invalid', async () => {
+  it('should fail when the request signature is invalid', async () => {
     const secret = 'test-secret';
     const payload = '{ "data": "example" }';
 
@@ -37,13 +37,13 @@ describe('validateWebhookRequestSignature', () => {
     });
   });
 
-  it('should fail when the payload is invalid', async () => {
+  it('should fail when the request method is not supported', async () => {
     const secret = 'test-secret';
     const payload = undefined;
 
     const signature = 'invalid-signature';
     const request = new Request(new URL('http://foo.bar'), {
-      method: 'post',
+      method: 'get',
       body: JSON.stringify(payload),
       headers: { 'X-Elba-Signature': signature },
     });
@@ -52,7 +52,8 @@ describe('validateWebhookRequestSignature', () => {
       ElbaError
     );
     await expect(validateWebhookRequestSignature(request, secret)).rejects.toMatchObject({
-      message: 'Could not retrieve payload from request',
+      message: 'Could not retrieve payload from webhook request',
+      cause: `Method "GET" is not supported`,
       request,
     });
   });
