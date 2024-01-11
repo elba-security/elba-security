@@ -20,7 +20,6 @@
   },
   "dependencies": {
     "@elba-security/sdk": "workspace:*",
-    "@neondatabase/serverless": "^0.6.0",
     "@octokit/app": "^14.0.2",
     "@octokit/request-error": "^5.0.1",
     "@octokit/webhooks-types": "^7.3.1",
@@ -51,6 +50,6 @@
     "postgres": "^3.4.3",
     "msw": "^2.0.1",
     "typescript": "^5",
-    "vitest": "^1.0.0"
+    "vitest": "1.1.1"
   }
 }
