@@ -11,10 +11,10 @@
     "@elba-security/tsconfig": "workspace:*",
     "@sentry/nextjs": "^7.88.0",
     "eslint": "^8",
-    "inngest": "^3.6.2"
+    "inngest": "^3.8.0"
   },
   "peerDependencies": {
     "@sentry/nextjs": "^7.88.0",
-    "inngest": "^3.6.2"
+    "inngest": "3.x"
   }
 }
