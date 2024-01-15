@@ -19,10 +19,14 @@
     "database:generate": "drizzle-kit generate:pg --schema=./src/database/schema.ts"
   },
   "dependencies": {
+    "@elba-security/config": "workspace:*",
+    "@elba-security/logger": "workspace:*",
+    "@elba-security/inngest": "workspace:*",
     "@elba-security/sdk": "workspace:*",
     "@octokit/app": "^14.0.2",
     "@octokit/request-error": "^5.0.1",
     "@octokit/webhooks-types": "^7.3.1",
+    "@sentry/nextjs": "^7.88.0",
     "@vercel/postgres": "^0.5.1",
     "drizzle-orm": "^0.29.1",
     "inngest": "^3.8.0",

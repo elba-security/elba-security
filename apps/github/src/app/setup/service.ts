@@ -32,6 +32,14 @@ export const setupOrganisation = async ({
       accountLogin: installation.account.login,
       region,
     })
+    .onConflictDoUpdate({
+      target: Organisation.id,
+      set: {
+        installationId: installation.id,
+        accountLogin: installation.account.login,
+        region,
+      },
+    })
     .returning();
 
   if (!organisation) {

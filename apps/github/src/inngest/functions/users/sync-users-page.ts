@@ -34,7 +34,7 @@ export const syncUsersPage = inngest.createFunction(
   {
     event: 'users/page_sync.requested',
   },
-  async ({ event, step }) => {
+  async ({ event, step, logger }) => {
     const { installationId, organisationId, accountLogin, cursor, region } = event.data;
     const syncStartedAt = new Date(event.data.syncStartedAt);
 
@@ -70,7 +70,9 @@ export const syncUsersPage = inngest.createFunction(
       }
 
       if (result.validMembers.length > 0) {
-        await elba.users.update({ users: result.validMembers.map(formatElbaUser) });
+        const users = result.validMembers.map(formatElbaUser);
+        logger.info('Sending users batch to elba', { organisationId, users });
+        await elba.users.update({ users });
       }
 
       return result.nextCursor;
@@ -91,7 +93,9 @@ export const syncUsersPage = inngest.createFunction(
     }
 
     await step.run('finalize', async () => {
-      await elba.users.delete({ syncedBefore: syncStartedAt.toISOString() });
+      const syncedBefore = syncStartedAt.toISOString();
+      logger.info('Deleting old users on elba', { organisationId, syncedBefore });
+      await elba.users.delete({ syncedBefore });
       await db
         .delete(Admin)
         .where(and(eq(Admin.organisationId, organisationId), lt(Admin.lastSyncAt, syncStartedAt)));

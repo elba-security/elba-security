@@ -1,4 +1,5 @@
 import { EventSchemas, Inngest } from 'inngest';
+import { sentryMiddleware } from '@elba-security/inngest';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 import { unauthorizedMiddleware } from './middlewares/unauthorized-middleware';
 
@@ -19,5 +20,5 @@ export const inngest = new Inngest({
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware, unauthorizedMiddleware],
+  middleware: [sentryMiddleware, rateLimitMiddleware, unauthorizedMiddleware],
 });
