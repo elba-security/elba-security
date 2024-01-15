@@ -2,9 +2,9 @@ import { uuid, integer, text, timestamp, pgTable, unique } from 'drizzle-orm/pg-
 import { type InferSelectModel } from 'drizzle-orm';
 
 export const Organisation = pgTable('organisation', {
-  id: uuid('organisation_id').primaryKey(),
+  id: uuid('id').primaryKey(),
   region: text('region').notNull(),
-  installationId: integer('id').unique().notNull(),
+  installationId: integer('installation_id').unique().notNull(),
   accountLogin: text('account_login').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

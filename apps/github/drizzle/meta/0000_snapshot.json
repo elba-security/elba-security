@@ -1,5 +1,5 @@
 {
-  "id": "3dbca358-54f2-4ed9-97ed-82aaff7ffcd7",
+  "id": "6d5fca58-9f7a-4318-a1ec-83fdf09726e2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -36,15 +36,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "admin_organisation_id_organisation_organisation_id_fk": {
-          "name": "admin_organisation_id_organisation_organisation_id_fk",
+        "admin_organisation_id_organisation_id_fk": {
+          "name": "admin_organisation_id_organisation_id_fk",
           "tableFrom": "admin",
           "tableTo": "organisation",
           "columnsFrom": [
             "organisation_id"
           ],
           "columnsTo": [
-            "organisation_id"
+            "id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -66,8 +66,8 @@
       "name": "organisation",
       "schema": "",
       "columns": {
-        "organisation_id": {
-          "name": "organisation_id",
+        "id": {
+          "name": "id",
           "type": "uuid",
           "primaryKey": true,
           "notNull": true
@@ -78,8 +78,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "id": {
-          "name": "id",
+        "installation_id": {
+          "name": "installation_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -102,11 +102,11 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "organisation_id_unique": {
-          "name": "organisation_id_unique",
+        "organisation_installation_id_unique": {
+          "name": "organisation_installation_id_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "id"
+            "installation_id"
           ]
         }
       }
