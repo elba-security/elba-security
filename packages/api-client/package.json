@@ -17,7 +17,7 @@
     "@elba-security/tsconfig": "workspace:*",
     "@hono/node-server": "^1.2.3",
     "eslint": "^8",
-    "hono": "^3.10.2",
+    "hono": "^3.11.7",
     "tsx": "^3.12.2"
   }
 }
