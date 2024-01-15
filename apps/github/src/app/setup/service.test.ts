@@ -30,7 +30,7 @@ describe('setupOrganisation', () => {
       suspended_at: null,
     });
 
-    await expect(setupOrganisation(installationId, organisationId, region)).rejects.toThrow(
+    await expect(setupOrganisation({ installationId, organisationId, region })).rejects.toThrow(
       new Error('Cannot install elba github app on an account that is not an organization')
     );
     await expect(db.select().from(Organisation)).resolves.toHaveLength(0);
@@ -48,7 +48,7 @@ describe('setupOrganisation', () => {
       suspended_at: new Date().toISOString(),
     });
 
-    await expect(setupOrganisation(installationId, organisationId, region)).rejects.toThrow(
+    await expect(setupOrganisation({ installationId, organisationId, region })).rejects.toThrow(
       new Error('Installation is suspended')
     );
     await expect(db.select().from(Organisation)).resolves.toHaveLength(0);
@@ -71,9 +71,9 @@ describe('setupOrganisation', () => {
       suspended_at: null,
     });
 
-    await expect(setupOrganisation(installationId, organisationId, region)).resolves.toMatchObject(
-      organisation
-    );
+    await expect(
+      setupOrganisation({ installationId, organisationId, region })
+    ).resolves.toMatchObject(organisation);
     await expect(db.select().from(Organisation)).resolves.toMatchObject([organisation]);
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({

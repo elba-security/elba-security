@@ -3,11 +3,17 @@ import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 
-export const setupOrganisation = async (
-  installationId: number,
-  organisationId: string,
-  region: string
-) => {
+type SetupOrganisationParams = {
+  installationId: number;
+  organisationId: string;
+  region: string;
+};
+
+export const setupOrganisation = async ({
+  installationId,
+  organisationId,
+  region,
+}: SetupOrganisationParams) => {
   const installation = await getInstallation(installationId);
 
   if (installation.account.type !== 'Organization') {
