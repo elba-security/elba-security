@@ -32,9 +32,7 @@ export class RequestSender {
     try {
       const response = await fetch(`${this.baseUrl}/${path}`, {
         method,
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-        },
+        // TODO: add Authorization header
         body: JSON.stringify({
           ...data,
           organisationId: this.organisationId,
