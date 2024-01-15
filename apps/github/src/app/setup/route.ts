@@ -28,10 +28,19 @@ export async function GET(request: NextRequest) {
       error,
     });
     if (error instanceof RequestError && error.response?.status === 401) {
-      redirect(`${env.ELBA_REDIRECT_URL}?error=unauthorized`, RedirectType.replace);
+      redirect(
+        `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=unauthorized`,
+        RedirectType.replace
+      );
     }
-    redirect(`${env.ELBA_REDIRECT_URL}?error=internal_error`, RedirectType.replace);
+    redirect(
+      `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`,
+      RedirectType.replace
+    );
   }
 
-  redirect(`${env.ELBA_REDIRECT_URL}?success=true`, RedirectType.replace);
+  redirect(
+    `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&success=true`,
+    RedirectType.replace
+  );
 }
