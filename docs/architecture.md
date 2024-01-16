@@ -40,7 +40,6 @@ Code specific to Inngest should be organized in this folder.
 ### `/functions`
 
 Inngest function handling are stored here. The coding principles applied in `service.ts` files should also be followed in these functions. If a function becomes overly complex, it can be decomposed into smaller steps within its directory.
-The same coding rules from `service.ts` applies to the function.
 
 ### `/middlewares`
 
