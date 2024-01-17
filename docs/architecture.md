@@ -26,7 +26,7 @@ The `connectors` contain various files, each exporting functions that interact w
 
 ## `/database`
 
-The database schema and client are located in this folder. The client should generally remain unchanged to prevent disruptions in pipeline testing. If the schema becomes too extensive, consider splitting it into multiple files in a `/schema` directory.
+The database schema and client are located in this folder. The client should generally remain unchanged to prevent disruptions in the pipeline testing. If the schema becomes too extensive, consider splitting it into multiple files in a `/schema` directory.
 
 ## `/inngest`
 
