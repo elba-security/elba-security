@@ -22,7 +22,7 @@ The service file (`service.ts`) focuses exclusively on business logic. It should
 
 ## `/connectors`
 
-The `connectors` contains various files, each exporting functions that interact with the integrated SaaS. Each connector should address a single aspect, such as authentication or user management.
+The `connectors` contain various files, each exporting functions that interact with the integrated SaaS. Each connector should address a single concern, such as authentication or user management.
 
 ## `/database`
 
