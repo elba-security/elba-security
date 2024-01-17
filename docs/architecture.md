@@ -14,7 +14,7 @@ This directory houses the API endpoints. Each folder contains a file named `rout
 
 ### `route.ts`
 
-A route file (`route.ts`) is responsible for handling request data extraction and crafting responses. The business logic for the endpoint should reside in a corresponding `service.ts` file within the same directory.
+The route file (`route.ts`) is responsible for handling the requests data extraction and crafting responses. The business logic for the endpoint should reside in the corresponding `service.ts` file within the same directory.
 
 ### `service.ts`
 
