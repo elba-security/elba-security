@@ -19,3 +19,6 @@ Elba uses webhooks to manage certain actions within these integrations. These ac
 - **Installation**: Clone the repository and install dependencies using `pnpm install` command.
 
 - **Creating your integration**: Instructions on how to start a new integration are located in [CONTRIBUTING.md](https://github.com/elba-security/elba-security/blob/staging/CONTRIBUTING.MD).
+
+- **Documentation**:
+  - [architecture.md](https://github.com/elba-security/elba-security/blob/staging/docs/architecture.MD) outlines the architectural design principles and structures we follow.
