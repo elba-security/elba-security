@@ -30,7 +30,7 @@ The database schema and client are located in this folder. The client should gen
 
 ## `/inngest`
 
-Code specific to Inngest should be organized in this folder.
+Code specific to [Inngest](https://www.inngest.com/) should be organized in this folder.
 
 ### `client.ts`
 
