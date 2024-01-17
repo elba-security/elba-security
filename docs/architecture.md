@@ -18,7 +18,7 @@ The route file (`route.ts`) is responsible for handling the requests data extrac
 
 ### `service.ts`
 
-The service file (`service.ts`) focuses exclusively on business logic. It should neither create `Response` objects nor read properties from the `Request`. If external API data access is required, the service should import a function from a connector. Using the database client to query or mutate data within a service is acceptable.
+The service file (`service.ts`) focuses exclusively on business logic. It should neither create a `Response` object nor read properties from the `Request`. If external API data access is required, the service should import a function from a connector. Using the database client to query or mutate data within a service is acceptable.
 
 ## `/connectors`
 
