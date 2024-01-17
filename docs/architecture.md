@@ -38,9 +38,11 @@ Code specific to [Inngest](https://www.inngest.com/) should be organized in this
 
 ### `/functions`
 
-Inngest function handling are stored here. The coding principles applied in `service.ts` files should also be followed in these functions. If a function becomes overly complex, it can be decomposed into smaller steps within its directory.
+Inngest functions are stored here. The coding principles applied in `service.ts` files should also be followed in these functions.
+
+An Inngest function can be broken down into smaller steps. Usually the steps should be used when we would need to retry that part of the business logic independently when it fails (for example when consuming external services), or when needing to defer code execution.
 
 ### `/middlewares`
 
-Inngest middlewares allows errors throwed in inngest function to be handled in one place. Each middleware should address a specific type of error, such as unauthorized exceptions leading to organization removal or rate limit issues.
+Inngest middlewares allow errors thrown in Inngest functions to be handled in a single place. Each middleware should address a specific type of error, such as unauthorized exceptions leading to organization removal, or rate limit issues.
 _Currently, we are expecting usage of middlewares to be limited only to error handling._
