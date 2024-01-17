@@ -6,7 +6,7 @@ This document outlines the architecture for integrations. It emphasizes the sepa
 
 ## `/app`
 
-The `/app` folder contains Next.js app structure, which includes API endpoints and other routing-related files. This folder is essential when using Next.js app router.
+The `/app` folder contains the Next.js application structure, including the API endpoints and other routing-related files. This folder is essential when using the Next.js App Router.
 
 ### `/api`
 
