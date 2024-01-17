@@ -10,7 +10,6 @@ The `/app` folder contains the Next.js application structure, including the API 
 
 ### `/api`
 
-This folder contains API endpoints. In each leaf folder a route are declared with its service.
 This directory houses the API endpoints. Each folder containing a file named `route.ts` represents an accessible route. Usually a `service.ts` is associated with the route file.
 
 ### `route.ts`
