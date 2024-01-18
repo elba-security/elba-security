@@ -61,25 +61,14 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" \
 import { Elba } from '@elba-security/sdk'
 import { type MySaasUser, getUsers } from '@/connectors/users';
 
-const formatElbaUser = (user: MySaasUser): User => ({
-  id: user.id,
-  displayName: user.username,
-  email: user.email,
-  additionalEmails: [],
-});
-
 export const syncUsersPage = inngest.createFunction(
   { event: 'users/sync_page.triggered' },
   async ({ event, step }) => {;
 
   const { organisationId, syncStartedAt, page, region } = event.data;
+
   step.run('start-user-sync', async () => {
-      // retrieve this users page
-      const result = await getUsers(token, page);
-      // format each SaaS users to elba users
-      const users = result.users.map(formatElbaUser);
-      // send the batch of users to elba
-      await elba.users.update({ users });
+      // Logics
   });
 
   // delete the elba users that has been sent before this sync

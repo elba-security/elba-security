@@ -66,6 +66,15 @@ export const syncUsersPage = inngest.createFunction(
   async ({ event, step }) => {;
 
   const { organisationId, syncStartedAt, page, region } = event.data;
+
+  const elba = new Elba({
+    organisationId,
+    sourceId: 'source-id',
+    apiKey: 'elba-api-key',
+    baseUrl: 'elba-base-url',
+    region,
+  });
+
   step.run('start-user-sync', async () => {
       // retrieve this users page
       const result = await getUsers(token, page);
