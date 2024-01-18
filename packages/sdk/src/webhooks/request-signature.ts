@@ -10,10 +10,10 @@ export type ValidateWebhookRequestSignatureResult =
 export const validateWebhookRequestSignature = async (request: Request, secret: string) => {
   // cloning is mandatory to make sure that request.json() still works after this function invokation
   const requestClone = request.clone();
-  const signature = requestClone.headers.get('X-Elba-Signature');
+  const signature = requestClone.headers.get('X-elba-Signature');
 
   if (!signature) {
-    throw new ElbaError("Could not retrieve header 'X-Elba-Signature' from webhook request", {
+    throw new ElbaError("Could not retrieve header 'X-elba-Signature' from webhook request", {
       request,
     });
   }
@@ -92,7 +92,7 @@ async function createWebhookElbaSignature(secret: string, payload: string) {
   // encode the secret and payload to Uint8Array
   const encoder = new TextEncoder();
   const encodedSecret = encoder.encode(secret);
-  const encodedPayload = encoder.encode(JSON.stringify(payload));
+  const encodedPayload = encoder.encode(payload);
 
   // generate a CryptoKey from the secret
   const key = await crypto.subtle.importKey(
