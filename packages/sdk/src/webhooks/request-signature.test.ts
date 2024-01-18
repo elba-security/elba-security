@@ -19,12 +19,12 @@ describe('validateWebhookRequestSignature', () => {
 
   it('should fail when the request signature is invalid', async () => {
     const secret = 'test-secret';
-    const payload = '{ "data": "example" }';
+    const payload = '{"data":"example"}';
 
     const signature = 'invalid-signature';
     const request = new Request(new URL('http://foo.bar'), {
       method: 'post',
-      body: JSON.stringify(payload),
+      body: payload,
       headers: { 'X-elba-Signature': signature },
     });
 
@@ -44,7 +44,7 @@ describe('validateWebhookRequestSignature', () => {
     const signature = 'invalid-signature';
     const request = new Request(new URL('http://foo.bar'), {
       method: 'get',
-      body: JSON.stringify(payload),
+      body: payload,
       headers: { 'X-elba-Signature': signature },
     });
 
