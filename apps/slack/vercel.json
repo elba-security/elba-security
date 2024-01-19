@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/users/cron/pick-sync-jobs",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/users/cron/schedule-sync-jobs",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

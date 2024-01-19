@@ -1,7 +1,9 @@
 import { type infer as zInfer, type ZodSchema } from 'zod';
 import {
-  dataProtectionContentRequestedDataSchema,
+  dataProtectionContentRequestedWebhookDataSchema,
   dataProtectionScanTriggeredWebhookDataSchema,
+  dataProtectionObjectDeletedWebhookDataSchema,
+  dataProtectionRefreshObjectRequestedWebhookDataSchema,
   thirdPartyAppsScanTriggeredWebhookDataSchema,
   thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
   thirdPartyAppsDeleteObjectRequestedWebhookDataSchema
@@ -13,7 +15,9 @@ const eventDataSchema = {
   'third_party_apps.refresh_requested': thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
   'third_party_apps.delete_requested': thirdPartyAppsDeleteObjectRequestedWebhookDataSchema,
   'data_protection.scan_triggered': dataProtectionScanTriggeredWebhookDataSchema,
-  'data_protection.content_requested': dataProtectionContentRequestedDataSchema,
+  'data_protection.content_requested': dataProtectionContentRequestedWebhookDataSchema,
+  'data_protection.object_deleted': dataProtectionObjectDeletedWebhookDataSchema,
+  'data_protection.refresh_object_requested': dataProtectionRefreshObjectRequestedWebhookDataSchema,
 } as const satisfies Record<string, ZodSchema>;
 
 export type WebhookEvent = keyof typeof eventDataSchema;

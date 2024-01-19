@@ -27,6 +27,7 @@ type MockSetupReturns<
     step: {
       run: VitestUtils['fn'];
       sendEvent: VitestUtils['fn'];
+      waitForEvent: VitestUtils['fn'];
     };
   },
 ];
