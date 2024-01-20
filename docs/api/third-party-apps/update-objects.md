@@ -15,8 +15,8 @@ Supported attributes:
 
 | Attribute                | Type     | Required | Description                                             |
 |--------------------------|----------|----------|---------------------------------------------------------|
-| `sourceId`               | string   | Yes      | Unique source identifier for tracking.                  |
-| `organisationId`         | string   | Yes      | Unique identifier for the organisation.                 |
+| `sourceId` **(uuid)**            | string   | Yes      | Unique source identifier for tracking.                  |
+| `organisationId` **(uuid)**         | string   | Yes      | Unique identifier for the organisation.                 |
 | `apps`                   | array    | Yes      | Array of third-party app objects to be updated.         |
 | `apps[].id`              | string   | Yes      | Unique identifier for the app.                          |
 | `apps[].name`            | string   | Yes      | Name of the app.                                        |

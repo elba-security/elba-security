@@ -16,8 +16,8 @@ Supported attributes:
 
 | Attribute                | Type     | Required | Description                                               |
 |--------------------------|----------|----------|-----------------------------------------------------------|
-| `organisationId`         | string   | Yes      | Unique identifier for the organisation.                   |
-| `sourceId`               | string   | Yes      | Unique source identifier for tracking.                    |
+| `organisationId` **(uuid)**      | string   | Yes      | Unique identifier for the organisation.                   |
+| `sourceId` **(uuid)**               | string   | Yes      | Unique source identifier for tracking.                    |
 | `ids`                    | array    | Yes      | Array of objects representing app-user associations.      |
 | `ids[].appId`            | string   | Yes      | Unique identifier for the app.                            |
 | `ids[].userId`           | string   | Yes      | Unique identifier for the user associated with the app.   |

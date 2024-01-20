@@ -16,7 +16,7 @@ Supported attributes:
 
 | Attribute                | Type         | Required | Description                                        |
 |--------------------------|--------------|----------|----------------------------------------------------|
-| `organisationId`         | string       | Yes      | Unique identifier for the organisation.            |
+| `organisationId`  **(uuid)**       | string       | Yes      | Unique identifier for the organisation.            |
 | `ids`                    | array(string)| No       | Array of user identifiers to be deleted.           |
 | `syncedBefore`           | datetime     | No       | Timestamp to delete users synced before this time. |
 

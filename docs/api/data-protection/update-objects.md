@@ -15,8 +15,8 @@ Supported attributes:
 
 | Attribute                   | Type      | Required | Description                                                 |
 |-----------------------------|-----------|----------|-------------------------------------------------------------|
-| `organisationId`            | string    | Yes      | Unique identifier for the organisation.                     |
-| `sourceId`                  | string    | Yes      | Unique source identifier for tracking.                      |
+| `organisationId` **(uuid)**           | string    | Yes      | Unique identifier for the organisation.                     |
+| `sourceId` **(uuid)**                  | string    | Yes      | Unique source identifier for tracking.                      |
 | `objects`                   | array     | Yes      | Array of data protection objects to be updated.             |
 | `objects[].id`              | string    | Yes      | Unique identifier for the data protection object.           |
 | `objects[].name`            | string    | Yes      | Name of the object.                                         |
