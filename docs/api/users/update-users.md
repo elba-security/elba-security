@@ -52,6 +52,7 @@ curl --request POST \
 ### Elba Sdk
 ```javascript
 import { Elba } from '@elba-security/sdk'
+import { inngest } from '@/inngest/client';
 import { type MySaasUser, getUsers } from '@/connectors/users';
 
 const formatElbaUser = (user: MySaasUser): User => ({

@@ -103,6 +103,8 @@ To update data protection objects using the Elba SDK, the following JavaScript c
 ### Elba Sdk
 ```javascript
 import { Elba } from '@elba-security/sdk'
+import { inngest } from '@/inngest/client';
+
 import { type MySaasDataProtection, getThirdPartyApps, type SourcePermission } from '@/connectors/data-protection';
 
 const formatPermissions = (permissions: SourcePermission[]) => {
@@ -134,7 +136,7 @@ const formatElbaObjects = (object: MySaasDataProtection) => ({
     permissions: formatPermissions(object.permissions)
 });
 
-export const runThirdPartyAppsSyncJobs = inngest.createFunction(
+export const runDataProtectionSyncJobs = inngest.createFunction(
   { event: 'data-protection/run-sync-jobs' },
   async ({ event, step }) => {
   const { organisationId, syncStartedAt, cursor, region } = event.data;

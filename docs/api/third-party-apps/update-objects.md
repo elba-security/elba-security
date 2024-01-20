@@ -73,6 +73,7 @@ To update third-party apps using the Elba SDK, the following JavaScript code can
 ### Elba Sdk
 ```javascript
 import { Elba } from '@elba-security/sdk'
+import { inngest } from '@/inngest/client';
 import { type MySaasThirdPartyApp, getThirdPartyApps } from '@/connectors/third-party-apps';
 
 const formatElbaThirdPartyApps = (app: MySaasThirdPartyApp) => ({

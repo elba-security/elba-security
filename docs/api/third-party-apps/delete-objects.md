@@ -44,6 +44,8 @@ curl --header "X-elba-Api-Key: ELBA_API_KEY" \
 ### Elba Sdk Example
 ```javascript
 import { Elba } from '@elba-security/sdk'
+import { inngest } from '@/inngest/client';
+
 import { type MySaasThirdPartyApp, getThirdPartyApps } from '@/connectors/third-party-apps';
 
 

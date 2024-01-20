@@ -59,6 +59,7 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" \
 
 ```javascript
 import { Elba } from '@elba-security/sdk'
+import { inngest } from '@/inngest/client';
 import { type MySaasUser, getUsers } from '@/connectors/users';
 
 export const syncUsersPage = inngest.createFunction(

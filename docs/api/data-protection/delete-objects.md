@@ -65,7 +65,10 @@ curl --header "X-elba-Api-Key: ELBA_API_KEY" \
 To delete data protection objects using the Elba SDK.
 
 ```javascript
-export const runDateProtectionAppsSyncJobs = inngest.createFunction(
+import { Elba } from '@elba-security/sdk'
+import { inngest } from '@/inngest/client';
+
+export const deleteDataProtectionObject = inngest.createFunction(
   { event: 'third-party-apps/run-sync-jobs' },
   async ({ event, step }) => {
   const { organisationId, syncStartedAt, cursor, region } = event.data;
