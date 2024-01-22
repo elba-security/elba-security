@@ -13,6 +13,7 @@ export const env = createEnv({
     POSTGRES_PROXY_PORT: z.coerce.number().int().positive(),
     POSTGRES_URL: z.string().min(1),
     REMOVE_ME_WEBHOOK_LOG_FILE: z.string().min(1).optional(),
+    SLACK_APP_LEVEL_TOKEN: z.string().min(1),
     SLACK_CLIENT_ID: z.string().min(1),
     SLACK_CLIENT_SECRET: z.string().min(1),
     SLACK_CONVERSATIONS_HISTORY_BATCH_SIZE: z.coerce.number().int().positive().default(200),

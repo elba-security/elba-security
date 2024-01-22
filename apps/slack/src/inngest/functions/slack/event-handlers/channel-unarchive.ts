@@ -31,7 +31,7 @@ export const channelUnarchiveHandler: SlackEventHandler<'channel_unarchive'> = a
 
   const result = slackChannelSchema.safeParse(response.channel);
   if (!result.success) {
-    return;
+    return; // TODO
   }
 
   await db

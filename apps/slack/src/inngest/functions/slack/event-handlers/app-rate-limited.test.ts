@@ -4,7 +4,6 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { teams } from '@/database/schema';
 import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
-// import { createInngestFunctionMock } from '@elba-security/test-utils';
 
 const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
 

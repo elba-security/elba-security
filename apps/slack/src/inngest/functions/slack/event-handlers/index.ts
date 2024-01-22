@@ -10,28 +10,23 @@ import { channelUnarchiveHandler } from './channel-unarchive';
 import { messageHandler } from './message';
 import { teamDomainChangedHandler } from './team-domain-changed';
 import { userChangeHandler } from './user-change';
+import { channelUnsharedHandler } from './channel-unshared';
+import { channelSharedHandler } from './channel-shared';
 
 const slackEventHandlers: SlackEventHandlers = {
   app_rate_limited: appRateLimitedHandler,
   app_uninstalled: appUninstalledHandler,
   channel_archive: channelArchiveHandler,
-  channel_created: channelCreatedHandler, // TODO: test
-  channel_deleted: channelDeletedHandler, // TODO: test
-  channel_id_changed: channelIdChangedHandler, // TODO: test,
-  channel_rename: channelRenameHandler, // TODO: test
-  channel_unarchive: channelUnarchiveHandler, // TODO: test
+  channel_created: channelCreatedHandler,
+  channel_deleted: channelDeletedHandler,
+  channel_id_changed: channelIdChangedHandler,
+  channel_rename: channelRenameHandler,
+  channel_shared: channelSharedHandler,
+  channel_unarchive: channelUnarchiveHandler,
+  channel_unshared: channelUnsharedHandler,
   message: messageHandler,
   team_domain_changed: teamDomainChangedHandler,
   user_change: userChangeHandler,
-
-  // channel_history_changed => state of the world for the channel
-  // channel_shared: async () => {},
-  // channel_unshared: async () => {},
-  // // channel_joined: async () => {}, // NOT AVAILABLE
-  // channel_left: async () => {},
-  // // team_rename: async () => {},
-  // user_profile_changed: async () => {}, // Same as user_change
-  // team_join: async () => {}, // We could use user_change instead
 };
 
 export const slackEventHandler = async (context: SlackWebhookHandlerContext) => {
