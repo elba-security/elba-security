@@ -1,12 +1,8 @@
 # elba-sdk
 
-`elba-sdk` is a client wrapping elba Open API endpoints, and common utils. It's designed to simplify interactions with [specific functionalities]. It provides methods for [brief description of key features].
-
-In
+`elba-sdk` is a client wrapping elba Open API endpoints, and common utils. It's designed to simplify interactions with elba Open API.
 
 ## Installation
-
-Before installing, make sure you have [prerequisites].
 
 To install `elba-sdk`, run:
 
