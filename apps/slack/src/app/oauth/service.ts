@@ -45,7 +45,7 @@ export const handleSlackInstallation = async ({
 
     const missingScopes = getSlackMissingScopes(response.authed_user.scope);
     if (missingScopes.length) {
-      // TODO: log
+      logger.error('Missing OAuth scopes', { missingScopes });
       throw new Error('Missing OAuth scopes');
     }
 
@@ -53,7 +53,18 @@ export const handleSlackInstallation = async ({
       throw new Error('Slack enterprise is not supported');
     }
 
-    // TODO: is admin
+    if (!response.authed_user.id) {
+      throw new Error('Missing user id');
+    }
+
+    const { user } = await slackClient.users.info({
+      token: accessToken,
+      user: response.authed_user.id,
+    });
+
+    if (!user?.is_admin) {
+      throw new Error('User is not admin');
+    }
 
     const { team } = await slackClient.team.info({
       token: accessToken,
