@@ -1,0 +1,60 @@
+{
+  "name": "dropbox-security",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev -p 3300",
+    "lint": "next lint",
+    "start": "next start",
+    "test": "vitest",
+    "big-bang": "pnpm database:down && pnpm test:database:down && pnpm database:up && pnpm test:database:up && pnpm migrate",
+    "test:database:up": "docker-compose -p dropbox-test --env-file=.env.test.local up -d",
+    "test:database:down": "docker-compose -p dropbox-test down --volumes",
+    "database:down": "docker-compose -p dropbox down --volumes",
+    "database:up": "docker-compose -p dropbox --env-file=.env.local up -d",
+    "migration:generate": "drizzle-kit generate:pg --schema=./src/database/schema.ts",
+    "migration:push": "npx tsx ./src/database/migrate.ts .env.local && npx tsx ./src/database/migrate.ts .env.test.local",
+    "migrate": "pnpm migration:generate && pnpm migration:push",
+    "inngest": "npx inngest-cli@latest dev -u http://localhost:3300/api/inngest"
+  },
+  "dependencies": {
+    "@elba-security/schemas": "workspace:*",
+    "@elba-security/sdk": "workspace:*",
+    "@t3-oss/env-nextjs": "^0.7.1",
+    "@vercel/postgres": "^0.5.1",
+    "date-fns": "^2.30.0",
+    "drizzle-orm": "^0.29.1",
+    "dropbox": "^10.34.0",
+    "inngest": "^3.7.0",
+    "next": "14.0.1",
+    "postgres": "^3.4.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "^3.1.7",
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/logger": "workspace:*",
+    "@elba-security/test-utils": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
+    "@next/eslint-plugin-next": "^14.0.2",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "dotenv": "^16.3.1",
+    "drizzle-kit": "^0.20.6",
+    "eslint": "^8.53.0",
+    "msw": "^2.0.1",
+    "ts-node": "^10.9.1",
+    "tsx": "^3.12.2",
+    "typescript": "^5.2.2",
+    "vitest": "^1.2.1"
+  },
+  "engines": {
+    "node": "18",
+    "pnpm": "8"
+  },
+  "packageManager": "pnpm@8.10.2"
+}
