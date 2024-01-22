@@ -7,7 +7,7 @@
 To install `sdk`, run:
 
 ```sh
-pnpm install @elba-security/sdk
+pnpm add @elba-security/sdk
 ```
 
 ## Client usage
