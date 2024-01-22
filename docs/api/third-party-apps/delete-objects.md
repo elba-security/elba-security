@@ -24,6 +24,7 @@ Supported attributes:
 
 Example request:
 
+### CURL:
 ```shell
 curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   --request DELETE \
@@ -41,42 +42,30 @@ curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   }'
 ```
 
-### Elba Sdk Example
+### Elba SDK:
+##### Delete the elba third party apps that has been sent before this sync
 ```javascript
-import { Elba } from '@elba-security/sdk'
-import { inngest } from '@/inngest/client';
+elba.thirdPartyApps.deleteObjects({
+   syncedBefore: "2023-01-01T00:00:00.000Z",
+});
+```
 
-import { type MySaasThirdPartyApp, getThirdPartyApps } from '@/connectors/third-party-apps';
+#### Delete third party apps by `appId` & `userId`
+```javascript
+elba.thirdPartyApps.deleteObjects({
+  ids: [
+    {
+        appId: 'app-id-1',
+        userId: 'user-id-1'
+    }
+  ]
+});
+```
 
+Example success response:
 
-export const runThirdPartyAppsSyncJobs = inngest.createFunction(
-  { event: 'third-party-apps/run-sync-jobs' },
-  async ({ event, step }) => {
-  const { organisationId, syncStartedAt, cursor, region } = event.data;
-
-  step.run('start-third-party-apps-sync', async () => {
-      // logics ..
-  });
-
-  // delete the elba third party apps that has been sent before this sync
-   await step.run('finalize-third-party-apps-sync', async () => {
-    return elba.thirdPartyApps.deleteObjects({
-      syncedBefore: new Date(syncStartedAt).toISOString(),
-    });
-  });
-
-  // OR
-  // Based on your logic you can specifically provide the user ids & app ids to delete
-  // Note: you are not allowed to use both methods together
-   await step.run('finalize-third-party-apps-sync', async () => {
-    return elba.thirdPartyApps.deleteObjects({
-      ids: [
-        {
-            appId: 'app-id-1',
-            userId: 'user-id-1'
-        }
-      ]
-    });
-  });
-
-  ```
+```json
+{
+  "success": true
+}
+```

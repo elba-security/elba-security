@@ -15,13 +15,13 @@ Supported attributes:
 
 | Attribute        | Type    | Required | Description                                |
 |------------------|---------|----------|--------------------------------------------|
-| `organisationId` **(uuid)** | UUID    | Yes      | UUID of the organisation.                  |
-| `sourceId` **(uuid)**      | UUID    | Yes      | UUID of the source.                        |
+| `organisationId` **(uuid)**           | string    | Yes      | Unique identifier for the organisation.                     |
+| `sourceId` **(uuid)**                  | string    | Yes      | Unique source identifier for 
 | `hasError`       | boolean | Yes      | Indicates if there is an error with access.|
 
 
 Example request:
-
+### CURL:
 ```shell
 curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   --request POST \
@@ -34,31 +34,8 @@ curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   }'
 ```
 
-### Elba SDK Example:
-
-To update the connection status using the Elba SDK, the following JavaScript code can be used:
+### Elba SDK:
 
 ```javascript
-import { Elba } from '@elba-security/sdk'
-import { inngest } from '@/inngest/client';
-
-export const syncUsersPage = inngest.createFunction(
-  { event: 'connection/update-connection-status' },
-  async ({ event, step }) => {;
-
-  const { organisationId, region } = event.data;
-
-  const elba = new Elba({
-    organisationId,
-    sourceId: 'source-id',
-    apiKey: 'elba-api-key',
-    baseUrl: 'elba-base-url',
-    region,
-  });
-
-  
-  // delete the elba users that has been sent before this sync
-  await step.run('update-source-connection-status', () =>
-    elba.connectionStatus.update({ hasError: true })
-  );
-}
+ elba.connectionStatus.update({ hasError: true });
+```

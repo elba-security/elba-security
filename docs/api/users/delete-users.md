@@ -16,9 +16,10 @@ Supported attributes:
 
 | Attribute                | Type         | Required | Description                                        |
 |--------------------------|--------------|----------|----------------------------------------------------|
-| `organisationId`  **(uuid)**       | string       | Yes      | Unique identifier for the organisation.            |
-| `ids`                    | array(string)| No       | Array of user identifiers to be deleted.           |
-| `syncedBefore`           | datetime     | No       | Timestamp to delete users synced before this time. |
+| `organisationId`  **(uuid)**       | string       | Yes      | Unique identifier for the organisation.  
+| `sourceId` **(uuid)**               | string   | Yes      | Unique source identifier for           |
+| `ids`                    | array| conditional       | Array of user identifiers to be deleted.           |
+| `syncedBefore`           | datetime     | conditional       | Timestamp to delete users synced before this time. |
 
 Note: `ids` and `syncedBefore` are mutually exclusive and should not be provided together.
 
@@ -28,8 +29,8 @@ If successful, returns [`200`](rest/index.md#status-codes) and the following res
 |--------------------------|----------|--------------------------------------|
 | `success`                | boolean  | Indicates if the operation succeeded.|
 
-Example request for deletion by user IDs:
-
+Example request for deletion by user `ids`:
+### CURL:
 ```shell
 curl --request DELETE \
   --url "https://api.elba.ninja/api/rest/users" \
@@ -55,38 +56,19 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" \
   }'
 ```
 
-### Elba Sdk
+### Elba SDK:
 
+#####  Delete the elba users that has been sent before this sync
 ```javascript
-import { Elba } from '@elba-security/sdk'
-import { inngest } from '@/inngest/client';
-import { type MySaasUser, getUsers } from '@/connectors/users';
-
-export const syncUsersPage = inngest.createFunction(
-  { event: 'users/sync_page.triggered' },
-  async ({ event, step }) => {;
-
-  const { organisationId, syncStartedAt, page, region } = event.data;
-
-  step.run('start-user-sync', async () => {
-      // Logics
-  });
-
-  // delete the elba users that has been sent before this sync
-  await step.run('finalize-user-sync', () =>
-    elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
-  );
-
-  // OR
-  // Based on your logic you can specifically provide the user ids to delete
-  // Note: you are not allowed to use both methods together
-  await step.run('finalize-user-sync', () =>
-    elba.users.delete({ ids: ['source-user-id-1', 'source-user-id-2'] })
-  );
-}
-
+  elba.users.delete({ 
+    syncedBefore: "2023-01-01T00:00:00.000Z",
+  })
 ```
 
+##### Delete users by id
+```javascript
+elba.users.delete({ ids: userIds })
+```
 
 Example success response:
 
