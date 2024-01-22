@@ -12,6 +12,7 @@ beforeAll(() => {
 afterAll(() => {
   server.close();
 });
+
 afterEach(() => {
   server.resetHandlers();
 });
