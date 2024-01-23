@@ -1,13 +1,14 @@
-import { FunctionHandler, inngest } from '@/common/clients/inngest';
-import { elbaAccess } from '@/common/clients/elba';
-import { DBXUsers } from '@/repositories/dropbox/clients/dbx-users';
-import { InputArgWithTrigger } from '@/common/clients/types';
+import { getElba } from '@/connectors/elba/client';
+import { InputArgWithTrigger } from '@/inngest/types';
 import { getOrganisationAccessDetails } from '../common/data';
+import { FunctionHandler, inngest } from '@/inngest/client';
+import { DBXUsers } from '@/connectors';
+import { decrypt } from '@/common/crypto';
 
 const handler: FunctionHandler = async ({
   event,
   step,
-}: InputArgWithTrigger<'users/run-user-sync-jobs'>) => {
+}: InputArgWithTrigger<'dropbox/users.sync_page.triggered'>) => {
   const { organisationId, syncStartedAt, cursor } = event.data;
 
   const [organisation] = await getOrganisationAccessDetails(organisationId);
@@ -17,15 +18,16 @@ const handler: FunctionHandler = async ({
   }
 
   const { accessToken, region } = organisation;
+  const token = await decrypt(accessToken);
 
-  const elba = elbaAccess({
+  const elba = getElba({
     organisationId,
     region,
   });
 
   const users = await step.run('user-sync-initialize', async () => {
     const dbx = new DBXUsers({
-      accessToken,
+      accessToken: token,
     });
 
     const { members, ...rest } = await dbx.fetchUsers(cursor);
@@ -41,7 +43,7 @@ const handler: FunctionHandler = async ({
 
   if (users?.hasMore) {
     await step.sendEvent('run-user-sync-job', {
-      name: 'users/run-user-sync-jobs',
+      name: 'dropbox/users.sync_page.triggered',
       data: { ...event.data, cursor: users.nextCursor },
     });
 
@@ -73,6 +75,6 @@ export const runUserSyncJobs = inngest.createFunction(
       run: 'event.data.isFirstSync ? 600 : 0',
     },
   },
-  { event: 'users/run-user-sync-jobs' },
+  { event: 'dropbox/users.sync_page.triggered' },
   handler
 );

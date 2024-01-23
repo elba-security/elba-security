@@ -1,16 +1,18 @@
-import { expect, test, describe, vi, beforeAll, beforeEach } from 'vitest';
+import { expect, test, describe, vi, beforeEach, afterAll } from 'vitest';
 import { runRefreshToken } from './run-refresh-tokens';
 import { DropboxResponseError } from 'dropbox';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import addSeconds from 'date-fns/addSeconds';
-import { insertOrganisations } from '@/common/__mocks__/token';
+import { insertOrganisations } from '@/test-utils/token';
+import * as crypto from '@/common/crypto';
+import { subMinutes } from 'date-fns';
 
 const TOKEN_GENERATED_AT = '2023-03-13T16:19:20.818Z';
-const TOKEN_WILL_EXPIRE_IN = 14400; // seconds
+const TOKEN_WILL_EXPIRE_IN = 14400;
 const TOKEN_EXPIRES_AT = addSeconds(new Date(TOKEN_GENERATED_AT), TOKEN_WILL_EXPIRE_IN);
 const organisationId = '00000000-0000-0000-0000-000000000001';
 
-const setup = createInngestFunctionMock(runRefreshToken, 'tokens/run-refresh-token');
+const setup = createInngestFunctionMock(runRefreshToken, 'dropbox/token.refresh.triggered');
 
 const mocks = vi.hoisted(() => {
   return {
@@ -18,7 +20,7 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('@/repositories/dropbox/clients/dbx-auth', () => {
+vi.mock('@/connectors/dropbox/dbx-auth', () => {
   return {
     DBXAuth: vi.fn().mockImplementation(() => {
       return {
@@ -30,12 +32,13 @@ vi.mock('@/repositories/dropbox/clients/dbx-auth', () => {
 
 describe('run-refresh-token', () => {
   beforeEach(async () => {
-    mocks.refreshAccessToken.mockReset();
+    vi.setSystemTime(TOKEN_GENERATED_AT);
+    vi.clearAllMocks();
     await insertOrganisations({});
   });
 
-  beforeAll(() => {
-    vi.clearAllMocks();
+  afterAll(() => {
+    vi.useRealTimers();
   });
 
   test('should delete the organisations and call elba to notify', async () => {
@@ -60,17 +63,29 @@ describe('run-refresh-token', () => {
   });
 
   test('should refresh tokens for the available organisation', async () => {
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
+
     mocks.refreshAccessToken.mockResolvedValueOnce({
       access_token: 'test-access-token-0',
       expires_at: TOKEN_EXPIRES_AT,
     });
 
-    const [result] = setup({
+    const [result, { step }] = setup({
       organisationId,
     });
 
     await expect(result).resolves.toStrictEqual({
       success: true,
+    });
+    expect(crypto.encrypt).toBeCalledTimes(1);
+    expect(crypto.encrypt).toBeCalledWith('test-access-token-0');
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith('run-refresh-token', {
+      name: 'dropbox/token.refresh.triggered',
+      data: {
+        organisationId,
+      },
+      ts: subMinutes(new Date(TOKEN_EXPIRES_AT), 30).getTime(),
     });
   });
 });

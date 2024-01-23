@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => {
   };
 });
 vi.resetModules();
+
 vi.mock('@elba-security/sdk', () => {
   const actual = vi.importActual('@elba-security/sdk');
   return {

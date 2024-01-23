@@ -1,6 +1,6 @@
 import { expect, test, describe, vi } from 'vitest';
 import { scheduleUserSyncJobs } from './schedule-user-sync-jobs';
-import { insertOrganisations } from '@/common/__mocks__/token';
+import { insertOrganisations } from '@/test-utils/token';
 import { scheduledOrganisations } from './__mocks__/organisations';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 
@@ -39,7 +39,7 @@ describe('schedule-users-sync-jobs', () => {
     expect(step.sendEvent).toBeCalledWith(
       'run-user-sync-jobs',
       scheduledOrganisations.map((organisation) => ({
-        name: 'users/run-user-sync-jobs',
+        name: 'dropbox/users.sync_page.triggered',
         data: { ...organisation, isFirstSync: false, syncStartedAt: '2021-01-01T00:00:00.000Z' },
       }))
     );

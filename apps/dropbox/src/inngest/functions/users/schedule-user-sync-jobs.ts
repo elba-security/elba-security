@@ -1,4 +1,4 @@
-import { inngest } from '@/common/clients/inngest';
+import { inngest } from '@/inngest/client';
 import { getOrganisationsToSync } from '../common/data';
 
 export const scheduleUserSyncJobs = inngest.createFunction(
@@ -11,7 +11,7 @@ export const scheduleUserSyncJobs = inngest.createFunction(
       await step.sendEvent(
         'run-user-sync-jobs',
         organisations.map(({ organisationId }) => ({
-          name: 'users/run-user-sync-jobs',
+          name: 'dropbox/users.sync_page.triggered',
           data: { organisationId, isFirstSync: false, syncStartedAt },
         }))
       );
