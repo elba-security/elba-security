@@ -1,6 +1,5 @@
 import { ElbaError } from './error';
 import { RequestSender } from './request-sender';
-import { AuthenticationClient } from './resources/authentication/client';
 import { ConnectionStatusClient } from './resources/connection-status/client';
 import { DataProtectionClient } from './resources/data-protection/client';
 import { ThirdPartyAppsClient } from './resources/third-party-apps/client';
@@ -8,7 +7,6 @@ import { UsersClient } from './resources/users/client';
 import type { ElbaOptions } from './types';
 
 export class Elba {
-  readonly authentication: AuthenticationClient;
   readonly connectionStatus: ConnectionStatusClient;
   readonly dataProtection: DataProtectionClient;
   readonly thirdPartyApps: ThirdPartyAppsClient;
@@ -25,7 +23,6 @@ export class Elba {
       ...options,
       baseUrl: baseUrl.replace('{REGION}', options.region),
     });
-    this.authentication = new AuthenticationClient(requestSender);
     this.connectionStatus = new ConnectionStatusClient(requestSender);
     this.dataProtection = new DataProtectionClient(requestSender);
     this.users = new UsersClient(requestSender);

@@ -3,7 +3,6 @@ import { expect, test, describe } from 'vitest';
 import { Elba } from './elba';
 import type { User } from './resources/users/types';
 import type { ThirdPartyAppsObject } from './resources/third-party-apps/types';
-import type { AuthenticationObject } from './resources/authentication/types';
 import type { DataProtectionObject } from './resources/data-protection/types';
 
 const options = {
@@ -22,6 +21,8 @@ describe('users', () => {
         displayName: `user-${i}`,
         email: `email-${i}@foo.bar`,
         additionalEmails: [`email-2-${i}@foo.bar`, `email-3-${i}@bar.foo`],
+        authMethod: i % 2 === 0 ? 'mfa' : 'password',
+        role: `ROLE_${i}`,
       }));
       const elba = new Elba(options);
       await expect(elba.users.update({ users })).resolves.toStrictEqual({
@@ -94,22 +95,6 @@ describe('third party apps', () => {
           ids: Array.from({ length: 5 }, (_, i) => ({ appId: `app-${i}`, userId: `user-${i}` })),
         })
       ).resolves.toStrictEqual({
-        success: true,
-      });
-    });
-  });
-});
-
-describe('authentication', () => {
-  describe('updateObjects', () => {
-    test('should call the right endpoint and return the response data', async () => {
-      const objects: AuthenticationObject[] = Array.from({ length: 5 }, (_, i) => ({
-        userId: `id-${i}`,
-
-        authMethod: (['mfa', 'password', 'sso'] as const)[i % 3]!,
-      }));
-      const elba = new Elba(options);
-      await expect(elba.authentication.updateObjects({ objects })).resolves.toStrictEqual({
         success: true,
       });
     });

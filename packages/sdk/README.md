@@ -169,18 +169,6 @@ elba.thirdPartyApps.deleteObjects({ ids: objectIds });
 
 _Used when the integration retrieve data from SaaS using webhook._
 
-### Authentication
-
-Manage authentication methods for users in elba.
-
-#### Update Authentication Methods
-
-Send a batch of users with their authentication methods to elba:
-
-```ts
-elba.authentication.updateObjects(objects);
-```
-
 ### Connection status
 
 #### Update Connection Status
