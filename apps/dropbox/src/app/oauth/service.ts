@@ -1,8 +1,9 @@
-import { DBXAccess, DBXAuth } from '@/repositories/dropbox/clients';
+import { DBXAccess, DBXAuth } from '@/connectors';
 import { insertAccessToken } from './data';
 import addSeconds from 'date-fns/addSeconds';
 import subMinutes from 'date-fns/subMinutes';
-import { inngest } from '@/common/clients/inngest';
+import { inngest } from '@/inngest/client';
+import { encrypt } from '@/common/crypto';
 
 type GenerateAccessToken = {
   code: string;
@@ -67,32 +68,36 @@ export const generateAccessToken = async ({
     const tokenExpiresAt = addSeconds(new Date(), expires_in);
     await insertAccessToken({
       organisationId,
-      accessToken,
+      accessToken: await encrypt(accessToken),
       refreshToken: refresh_token,
-      expiresAt: tokenExpiresAt,
       adminTeamMemberId: team_member_id,
       rootNamespaceId: root_info.root_namespace_id,
-      teamName: team?.name as string,
-      unauthorizedAt: null,
       region,
     });
 
-    await inngest.send({
-      name: 'tokens/run-refresh-token',
-      data: {
-        organisationId,
+    await inngest.send([
+      {
+        name: 'dropbox/token.refresh.triggered',
+        data: {
+          organisationId,
+        },
+        ts: subMinutes(tokenExpiresAt, 30).getTime(),
       },
-      ts: subMinutes(tokenExpiresAt, 30).getTime(),
-    });
-
-    await inngest.send({
-      name: 'users/run-user-sync-jobs',
-      data: {
-        organisationId,
-        isFirstSync: true,
-        syncStartedAt: new Date().toISOString(),
+      {
+        name: 'dropbox/token.refresh.canceled',
+        data: {
+          organisationId,
+        },
       },
-    });
+      {
+        name: 'dropbox/users.sync_page.triggered',
+        data: {
+          organisationId,
+          isFirstSync: true,
+          syncStartedAt: new Date().toISOString(),
+        },
+      },
+    ]);
 
     return {
       success: true,

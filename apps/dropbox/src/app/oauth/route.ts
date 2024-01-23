@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAccessToken } from './service';
-import { env } from '@/common/env';
+import { env } from '@/env';
 import { logger } from '@elba-security/logger';
 
 const redirectOnError = ({

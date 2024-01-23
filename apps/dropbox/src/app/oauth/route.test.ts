@@ -1,13 +1,18 @@
 import { expect, test, describe, vi, beforeAll, beforeEach } from 'vitest';
 import { GET as handler } from './route';
 import { NextResponse } from 'next/server';
-import { inngest } from '@/common/clients/inngest';
-import { mockRequestResponse } from '@/test-utils/mock-app-route';
-import { env } from '@/common/env';
+import { inngest } from '@/inngest/client';
+import { mockNextRequest } from '@/test-utils/mock-app-route';
+import { env } from '@/env';
+import * as crypto from '@/common/crypto';
+import { addSeconds, subMinutes } from 'date-fns';
 
 const tokenWillExpiresIn = 14400; // seconds
 const rootNamespaceId = '356986';
 const organisationId = '00000000-0000-0000-0000-000000000001';
+const SYNC_STARTED_AT = '2023-01-23T17:59:16.864Z';
+const TOKEN_WILL_EXPIRE_IN = 14400;
+const TOKEN_EXPIRES_AT = addSeconds(new Date(SYNC_STARTED_AT), TOKEN_WILL_EXPIRE_IN);
 
 vi.mock('dropbox', () => {
   const actual = vi.importActual('dropbox');
@@ -78,6 +83,7 @@ vi.mock('dropbox', () => {
 describe('Callback dropbox', () => {
   const redirectSpy = vi.spyOn(NextResponse, 'redirect');
   beforeAll(async () => {
+    vi.setSystemTime(new Date(SYNC_STARTED_AT));
     vi.clearAllMocks();
   });
 
@@ -86,24 +92,27 @@ describe('Callback dropbox', () => {
   });
 
   test('should redirect to the right page when the callback url has error', async () => {
-    const response = await mockRequestResponse({
+    vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
+
+    const response = await mockNextRequest({
       method: 'GET',
       handler,
       url: `http://localhost:3000/oauth?error=access_denied`,
     });
 
     expect(response.status).toBe(307);
-    expect(redirectSpy).toHaveBeenCalledTimes(1);
+    expect(redirectSpy).toBeCalledTimes(1);
     expect(redirectSpy).toHaveBeenCalledWith(
       `http://localhost:3300/dashboard/security/checks/sources/activation/source-id/user-inconsistencies?source_id=${env.ELBA_SOURCE_ID}&error=unauthorized`
     );
+    expect(inngest.send).toBeCalledTimes(0);
   });
 
   test("should redirect to the right page when the callback url doesn't have state", async () => {
-    const response = await mockRequestResponse({
+    const response = await mockNextRequest({
       method: 'GET',
       handler,
-      url: `http://localhost:3000/api/oauth/callback?state=`,
+      url: `http://localhost:3000/oauth?state=`,
       cookies: {
         organisation_id: organisationId,
         region: 'eu',
@@ -111,19 +120,20 @@ describe('Callback dropbox', () => {
     });
 
     expect(response.status).toBe(307);
-    expect(redirectSpy).toHaveBeenCalledTimes(1);
+    expect(redirectSpy).toBeCalledTimes(1);
     expect(redirectSpy).toHaveBeenCalledWith(
       `http://localhost:3300/dashboard/security/checks/sources/activation/source-id/user-inconsistencies?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`
     );
   });
 
   test('should generate the token, insert to db and initiate the user sync process', async () => {
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
     vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
-    const response = await mockRequestResponse({
+    const response = await mockNextRequest({
       method: 'GET',
       handler,
-      url: `http://localhost:3000/api/oauth/callback?code=123&state=${organisationId}`,
+      url: `http://localhost:3000/oauth?code=123&state=${organisationId}`,
       cookies: {
         state: organisationId,
         organisation_id: organisationId,
@@ -132,6 +142,33 @@ describe('Callback dropbox', () => {
     });
 
     expect(response.status).toBe(307);
-    expect(redirectSpy).toHaveBeenCalledTimes(1);
+
+    expect(crypto.encrypt).toBeCalledTimes(1);
+    expect(crypto.encrypt).toHaveBeenCalledWith('test-access-token');
+    expect(redirectSpy).toBeCalledTimes(1);
+    expect(inngest.send).toBeCalledTimes(1);
+    expect(inngest.send).toHaveBeenCalledWith([
+      {
+        data: {
+          organisationId: '00000000-0000-0000-0000-000000000001',
+        },
+        name: 'dropbox/token.refresh.triggered',
+        ts: subMinutes(new Date(TOKEN_EXPIRES_AT), 30).getTime(),
+      },
+      {
+        data: {
+          organisationId: '00000000-0000-0000-0000-000000000001',
+        },
+        name: 'dropbox/token.refresh.canceled',
+      },
+      {
+        data: {
+          isFirstSync: true,
+          organisationId: '00000000-0000-0000-0000-000000000001',
+          syncStartedAt: SYNC_STARTED_AT,
+        },
+        name: 'dropbox/users.sync_page.triggered',
+      },
+    ]);
   });
 });

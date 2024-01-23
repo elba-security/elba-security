@@ -1,6 +1,6 @@
 import { beforeEach } from 'vitest';
-import { tokens, db } from '@/database';
+import { organisations, db } from '@/database';
 
 beforeEach(async () => {
-  await db.delete(tokens);
+  await db.delete(organisations);
 });

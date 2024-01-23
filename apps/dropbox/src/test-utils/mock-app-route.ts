@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export const mockRequestResponse = async ({
+export const mockNextRequest = async ({
   method = 'POST',
   url,
   handler,

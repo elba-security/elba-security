@@ -1,7 +1,7 @@
 import { serve } from 'inngest/next';
-import { inngest } from '@/common/clients/inngest';
-import * as tokens from './functions/tokens';
-import * as users from './functions/users';
+import { inngest } from '@/inngest/client';
+import * as tokens from '@/inngest/functions/tokens';
+import * as users from '@/inngest/functions/tokens';
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
