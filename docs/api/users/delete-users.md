@@ -67,7 +67,7 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" \
 
 ##### Delete users by id
 ```javascript
-elba.users.delete({ ids: userIds })
+elba.users.delete({ ids: ['user-id-1', 'user-id-2'] })  
 ```
 
 Example success response:

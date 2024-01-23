@@ -23,8 +23,8 @@ Supported attributes:
 | `users[].email`          | string   | Yes      | Email address of the user.                   |
 | `users[].displayName`    | string   | Yes      | Display name of the user.                    |
 | `users[].additionalEmails`| array  | No       | List of additional email addresses.         |
-| `role`              | string   | No      | User role (`admin`, `user`, etc..)      |
-| `authMethod`               | string   | No      | User auth method (`mfa`,`password`,`sos`)|
+| `users[].role`              | string   | No      | User role      |  
+| `users[].authMethod`               |  string   | No      | User auth method - `"mfa"`, `"password"`, `"sso"` | 
 
 If successful and the organisation is found, returns [`200`](rest/index.md#status-codes) and the following response attributes:
 

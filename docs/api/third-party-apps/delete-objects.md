@@ -55,8 +55,8 @@ elba.thirdPartyApps.deleteObjects({
 elba.thirdPartyApps.deleteObjects({
   ids: [
     {
-        appId: 'app-id-1',
-        userId: 'user-id-1'
+      appId: 'app-id-1',
+      userId: 'user-id-1'
     }
   ]
 });

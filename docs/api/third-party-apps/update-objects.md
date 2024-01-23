@@ -70,7 +70,7 @@ curl --header "X-elba-Api-Key: ELBA_API_KEY" \
 
 ### Elba SDK:
 ```javascript
-elba.thirdPartyApps.updateObjects({ apps: thirdPartyApps})
+elba.thirdPartyApps.updateObjects({ apps: thirdPartyApps })
 ```
 
 Successful response:
