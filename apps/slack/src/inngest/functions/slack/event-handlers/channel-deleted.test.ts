@@ -1,4 +1,4 @@
-import { expect, test, describe } from 'vitest';
+import { expect, test, describe, beforeAll, vi, afterAll } from 'vitest';
 import type { SlackEvent } from '@slack/bolt';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
@@ -7,9 +7,19 @@ import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
 
 const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
 
+const mockedDate = '2023-01-01T00:00:00.000Z';
+
 const eventType: SlackEvent['type'] = 'channel_deleted';
 
 describe(`handle-slack-webhook-event ${eventType}`, () => {
+  beforeAll(() => {
+    vi.setSystemTime(mockedDate);
+  });
+
+  afterAll(() => {
+    vi.useRealTimers();
+  });
+
   test('should delete channel successfully', async () => {
     await db.insert(teams).values([
       {
@@ -87,6 +97,14 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       },
     ]);
 
-    expect(step.sendEvent).toBeCalledTimes(0);
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith('synchronize-conversations', {
+      data: {
+        isFirstSync: false,
+        syncStartedAt: '2023-01-01T00:00:00.000Z',
+        teamId: 'team-id',
+      },
+      name: 'conversations/synchronize',
+    });
   });
 });

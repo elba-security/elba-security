@@ -37,7 +37,9 @@ describe('handleSlackInstallation', () => {
     const accessMock = vi.fn().mockResolvedValue({
       ok: true,
       headers: new Headers(),
+      is_enterprise_install: false,
       authed_user: {
+        id: 'user-id',
         access_token: 'access-token',
         token_type: 'user',
         scope: slackUserScopes.join(','),
@@ -54,6 +56,14 @@ describe('handleSlackInstallation', () => {
       },
     } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.team.info>>);
 
+    const usersInfoMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers(),
+      user: {
+        is_admin: true,
+      },
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.users.info>>);
+
     vi.spyOn(slack, 'SlackAPIClient').mockReturnValue({
       // @ts-expect-error -- this is a mock
       apps: {
@@ -68,6 +78,10 @@ describe('handleSlackInstallation', () => {
       // @ts-expect-error -- this is a mock
       team: {
         info: teamInfoMock,
+      },
+      // @ts-expect-error -- this is a mock
+      users: {
+        info: usersInfoMock,
       },
     });
 
@@ -85,6 +99,12 @@ describe('handleSlackInstallation', () => {
       client_id: 'slack-client-id',
       client_secret: 'slack-client-secret',
       code: 'code',
+    });
+
+    expect(usersInfoMock).toBeCalledTimes(1);
+    expect(usersInfoMock).toBeCalledWith({
+      token: 'access-token',
+      user: 'user-id',
     });
 
     expect(teamInfoMock).toBeCalledTimes(1);
@@ -130,6 +150,7 @@ describe('handleSlackInstallation', () => {
     const accessMock = vi.fn().mockResolvedValue({
       ok: true,
       headers: new Headers(),
+      is_enterprise_install: false,
       authed_user: {
         access_token: 'access-token',
         token_type: 'bot',
@@ -212,7 +233,9 @@ describe('handleSlackInstallation', () => {
     const accessMock = vi.fn().mockResolvedValue({
       ok: true,
       headers: new Headers(),
+      is_enterprise_install: false,
       authed_user: {
+        id: 'user-id',
         access_token: 'access-token',
         token_type: 'user',
         scope: 'team:read',
@@ -229,6 +252,14 @@ describe('handleSlackInstallation', () => {
       },
     } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.team.info>>);
 
+    const usersInfoMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers(),
+      user: {
+        is_admin: true,
+      },
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.users.info>>);
+
     vi.spyOn(slack, 'SlackAPIClient').mockReturnValue({
       // @ts-expect-error -- this is a mock
       apps: {
@@ -243,6 +274,10 @@ describe('handleSlackInstallation', () => {
       // @ts-expect-error -- this is a mock
       team: {
         info: teamInfoMock,
+      },
+      // @ts-expect-error -- this is a mock
+      users: {
+        info: usersInfoMock,
       },
     });
 
@@ -262,6 +297,206 @@ describe('handleSlackInstallation', () => {
       client_id: 'slack-client-id',
       client_secret: 'slack-client-secret',
       code: 'code',
+    });
+
+    expect(usersInfoMock).toBeCalledTimes(0);
+    expect(teamInfoMock).toBeCalledTimes(0);
+
+    expect(uninstallMock).toBeCalledTimes(1);
+    expect(uninstallMock).toBeCalledWith({
+      client_id: 'slack-client-id',
+      client_secret: 'slack-client-secret',
+      token: 'access-token',
+    });
+
+    expect(crypto.encrypt).toBeCalledTimes(0);
+
+    const teamsInserted = await db.query.teams.findMany();
+    expect(teamsInserted).toEqual([]);
+
+    expect(send).toBeCalledTimes(0);
+  });
+
+  it('Should fail for enterprise install', async () => {
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
+
+    const uninstallMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers(),
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.apps.uninstall>>);
+
+    const accessMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers(),
+      is_enterprise_install: true,
+      authed_user: {
+        id: 'user-id',
+        access_token: 'access-token',
+        token_type: 'user',
+        scope: slackUserScopes.join(','),
+      },
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.oauth.v2.access>>);
+
+    const teamInfoMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers(),
+      team: {
+        id: 'team-id',
+        name: 'team',
+        url: 'https://url',
+      },
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.team.info>>);
+
+    const usersInfoMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers(),
+      user: {
+        is_admin: true,
+      },
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.users.info>>);
+
+    vi.spyOn(slack, 'SlackAPIClient').mockReturnValue({
+      // @ts-expect-error -- this is a mock
+      apps: {
+        uninstall: uninstallMock,
+      },
+      oauth: {
+        // @ts-expect-error -- this is a mock
+        v2: {
+          access: accessMock,
+        },
+      },
+      // @ts-expect-error -- this is a mock
+      team: {
+        info: teamInfoMock,
+      },
+      // @ts-expect-error -- this is a mock
+      users: {
+        info: usersInfoMock,
+      },
+    });
+
+    await expect(() =>
+      handleSlackInstallation({
+        organisationId: 'organisation-id',
+        region: 'eu',
+        code: 'code',
+      })
+    ).rejects.toThrowError('Slack enterprise is not supported');
+
+    expect(slack.SlackAPIClient).toBeCalledTimes(1);
+    expect(slack.SlackAPIClient).toBeCalledWith();
+
+    expect(accessMock).toBeCalledTimes(1);
+    expect(accessMock).toBeCalledWith({
+      client_id: 'slack-client-id',
+      client_secret: 'slack-client-secret',
+      code: 'code',
+    });
+
+    expect(usersInfoMock).toBeCalledTimes(0);
+    expect(teamInfoMock).toBeCalledTimes(0);
+
+    expect(uninstallMock).toBeCalledTimes(1);
+    expect(uninstallMock).toBeCalledWith({
+      client_id: 'slack-client-id',
+      client_secret: 'slack-client-secret',
+      token: 'access-token',
+    });
+
+    expect(crypto.encrypt).toBeCalledTimes(0);
+
+    const teamsInserted = await db.query.teams.findMany();
+    expect(teamsInserted).toEqual([]);
+
+    expect(send).toBeCalledTimes(0);
+  });
+
+  it('Should fail when user is not admin', async () => {
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
+
+    const uninstallMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers(),
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.apps.uninstall>>);
+
+    const accessMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers(),
+      is_enterprise_install: false,
+      authed_user: {
+        id: 'user-id',
+        access_token: 'access-token',
+        token_type: 'user',
+        scope: slackUserScopes.join(','),
+      },
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.oauth.v2.access>>);
+
+    const teamInfoMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers(),
+      team: {
+        id: 'team-id',
+        name: 'team',
+        url: 'https://url',
+      },
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.team.info>>);
+
+    const usersInfoMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers(),
+      user: {
+        is_admin: false,
+      },
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.users.info>>);
+
+    vi.spyOn(slack, 'SlackAPIClient').mockReturnValue({
+      // @ts-expect-error -- this is a mock
+      apps: {
+        uninstall: uninstallMock,
+      },
+      oauth: {
+        // @ts-expect-error -- this is a mock
+        v2: {
+          access: accessMock,
+        },
+      },
+      // @ts-expect-error -- this is a mock
+      team: {
+        info: teamInfoMock,
+      },
+      // @ts-expect-error -- this is a mock
+      users: {
+        info: usersInfoMock,
+      },
+    });
+
+    await expect(() =>
+      handleSlackInstallation({
+        organisationId: 'organisation-id',
+        region: 'eu',
+        code: 'code',
+      })
+    ).rejects.toThrowError('User is not admin');
+
+    expect(slack.SlackAPIClient).toBeCalledTimes(1);
+    expect(slack.SlackAPIClient).toBeCalledWith();
+
+    expect(accessMock).toBeCalledTimes(1);
+    expect(accessMock).toBeCalledWith({
+      client_id: 'slack-client-id',
+      client_secret: 'slack-client-secret',
+      code: 'code',
+    });
+
+    expect(usersInfoMock).toBeCalledTimes(1);
+    expect(usersInfoMock).toBeCalledWith({
+      token: 'access-token',
+      user: 'user-id',
     });
 
     expect(teamInfoMock).toBeCalledTimes(0);

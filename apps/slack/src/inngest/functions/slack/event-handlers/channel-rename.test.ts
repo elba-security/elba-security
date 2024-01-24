@@ -98,6 +98,14 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       },
     ]);
 
-    expect(step.sendEvent).toBeCalledTimes(0);
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith('synchronize-conversation-messages', {
+      data: {
+        conversationId: 'channel-id-1',
+        isFirstSync: false,
+        teamId: 'team-id',
+      },
+      name: 'conversations/synchronize.messages',
+    });
   });
 });
