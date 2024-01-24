@@ -1,4 +1,4 @@
-import { expect, test, describe } from 'vitest';
+import { expect, test, describe, beforeAll, afterAll, vi } from 'vitest';
 import type { SlackEvent } from '@slack/bolt';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
@@ -7,9 +7,19 @@ import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
 
 const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
 
+const mockedDate = '2023-01-01T00:00:00.000Z';
+
 const eventType: SlackEvent['type'] = 'channel_rename';
 
 describe(`handle-slack-webhook-event ${eventType}`, () => {
+  beforeAll(() => {
+    vi.setSystemTime(mockedDate);
+  });
+
+  afterAll(() => {
+    vi.useRealTimers();
+  });
+
   test('should update channel successfully', async () => {
     await db.insert(teams).values([
       {
@@ -31,7 +41,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       {
         id: 'channel-id-1',
         isSharedExternally: false,
-        lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),
+        lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
         name: 'channel 1',
         teamId: 'team-id',
       },
@@ -39,7 +49,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
         // Should not be updated as it doesn't match the same id
         id: 'channel-id-2',
         isSharedExternally: false,
-        lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),
+        lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
         name: 'channel 2',
         teamId: 'team-id',
       },
@@ -47,7 +57,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
         // Should not be updated as it doesn't match the same team id
         id: 'channel-id-1',
         isSharedExternally: false,
-        lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),
+        lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
         name: 'channel',
         teamId: 'another-team-id',
       },
@@ -78,14 +88,14 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       {
         id: 'channel-id-2',
         isSharedExternally: false,
-        lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),
+        lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
         name: 'channel 2',
         teamId: 'team-id',
       },
       {
         id: 'channel-id-1',
         isSharedExternally: false,
-        lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),
+        lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
         name: 'channel',
         teamId: 'another-team-id',
       },

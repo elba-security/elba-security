@@ -154,7 +154,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       {
         id: 'channel-id',
         isSharedExternally: true,
-        lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
+        lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),
         name: 'channel',
         teamId: 'team-id-2',
       },

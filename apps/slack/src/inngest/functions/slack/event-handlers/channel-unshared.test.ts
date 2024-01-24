@@ -1,4 +1,4 @@
-import { expect, test, describe } from 'vitest';
+import { expect, test, describe, beforeAll, vi, afterAll } from 'vitest';
 import type { SlackEvent } from '@slack/bolt';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
@@ -7,9 +7,19 @@ import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
 
 const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
 
+const mockedDate = '2023-01-01T00:00:00.000Z';
+
 const eventType: SlackEvent['type'] = 'channel_unshared';
 
 describe(`handle-slack-webhook-event ${eventType}`, () => {
+  beforeAll(() => {
+    vi.setSystemTime(mockedDate);
+  });
+
+  afterAll(() => {
+    vi.useRealTimers();
+  });
+
   test('Should successfully update and synchronize conversation', async () => {
     await db.insert(teams).values([
       {
@@ -74,7 +84,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       {
         id: 'channel-id',
         isSharedExternally: false,
-        lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
+        lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),
         name: 'channel',
         teamId: 'team-id',
       },

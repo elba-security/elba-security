@@ -11,7 +11,7 @@ export const channelUnsharedHandler: SlackEventHandler<'channel_unshared'> = asy
     .update(conversations)
     .set({
       isSharedExternally,
-      // TODO: update last synced at?
+      lastSyncedAt: new Date(),
     })
     .where(and(eq(conversations.teamId, teamId), eq(conversations.id, channelId)));
 

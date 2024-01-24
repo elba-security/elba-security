@@ -16,7 +16,7 @@ export const channelRenameHandler: SlackEventHandler<'channel_rename'> = async (
     .update(conversations)
     .set({
       name: channelName,
-      // TODO: update last synced at?
+      lastSyncedAt: new Date(),
     })
     .where(and(eq(conversations.teamId, teamId), eq(conversations.id, channelId)));
 

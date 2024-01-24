@@ -80,6 +80,7 @@ export const channelSharedHandler: SlackEventHandler<'channel_shared'> = async (
             .update(conversations)
             .set({
               isSharedExternally: true,
+              lastSyncedAt: new Date(),
             })
             .where(and(eq(conversations.teamId, teamId), eq(conversations.id, channelId)));
 

@@ -1,7 +1,5 @@
-// import { SlackAPIClient } from 'slack-web-api-client';
 import { conversations } from '@/database/schema';
 import { db } from '@/database/client';
-// import { env } from '@/common/env';
 import type { SlackEventHandler } from './types';
 
 export const channelCreatedHandler: SlackEventHandler<'channel_created'> = async ({
