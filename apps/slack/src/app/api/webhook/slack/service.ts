@@ -1,22 +1,10 @@
-import fs from 'node:fs';
 import type { BasicSlackEvent, EnvelopedEvent, SlackEvent } from '@slack/bolt';
 import type { NextRequest } from 'next/server';
-import { logger } from '@elba-security/logger';
 import { isRequestSignedBySlack } from '@/connectors/slack/utils';
 import { inngest } from '@/inngest/client';
-import { env } from '@/common/env';
 
 export const handleSlackWebhookMessage = async (request: NextRequest) => {
-  // TODO: remove me
-  logger.info('------ NEW EVENT ------');
   const textBody = await request.clone().text();
-  if (env.REMOVE_ME_WEBHOOK_LOG_FILE) {
-    await fs.promises.appendFile(
-      env.REMOVE_ME_WEBHOOK_LOG_FILE,
-      `${new Date().toISOString()}\n${textBody}\n`
-    );
-  }
-
   const timestamp = Number(request.headers.get('x-slack-request-timestamp'));
   const signature = request.headers.get('x-slack-signature');
   if (!timestamp || !signature || Number.isNaN(timestamp)) {

@@ -14,7 +14,7 @@ export const conversations = pgTable(
     name: text('name').notNull(),
     // isPrivate: boolean('is_private').notNull(),
     isSharedExternally: boolean('is_shared_externally').notNull(),
-    lastSyncedAt: timestamp('last_synced_at', { withTimezone: true }).notNull(), // TODO: rename updated_at?
+    lastSyncedAt: timestamp('last_synced_at', { withTimezone: true }).notNull(),
   },
   (table) => {
     return {

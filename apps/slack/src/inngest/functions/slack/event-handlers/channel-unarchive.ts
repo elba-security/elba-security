@@ -26,12 +26,12 @@ export const channelUnarchiveHandler: SlackEventHandler<'channel_unarchive'> = a
   });
 
   if (!response.channel) {
-    throw new Error('Failed to get channel information');
+    throw new Error('Failed to get channel info');
   }
 
   const result = slackChannelSchema.safeParse(response.channel);
   if (!result.success) {
-    return; // TODO
+    throw new Error('Failed to parse channel info');
   }
 
   await db

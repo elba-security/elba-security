@@ -1,9 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { handleSlackWebhookMessage } from './service';
 
-// TODO
-// export const runtime = 'edge';
-// export const preferredRegion = 'fra1';
+export const runtime = 'edge';
+export const preferredRegion = 'fra1';
 export const dynamic = 'force-dynamic';
 
 export const POST = async (request: NextRequest) => {

@@ -26,9 +26,6 @@ export const handleSlackInstallation = async ({
       code,
     });
 
-    // TODO: remove me
-    logger.info('slack oauth response', response);
-
     if (!response.authed_user?.access_token) {
       throw new Error('No access token provided');
     }
@@ -72,7 +69,7 @@ export const handleSlackInstallation = async ({
 
     const result = slackTeamSchema.safeParse(team);
     if (!result.success) {
-      throw new Error('Failed to retrieve team info');
+      throw new Error('Failed to parse team info');
     }
 
     const encryptedToken = await encrypt(accessToken);

@@ -33,7 +33,6 @@ export const fetchDataProtectionObjectContent = async ({
 
   const slackClient = new SlackAPIClient(token);
   let messages: MessageElement[] | undefined;
-  // TODO: use inngest invoke?
   if (type === 'reply') {
     ({ messages } = await slackClient.conversations.replies({
       channel: conversationId,

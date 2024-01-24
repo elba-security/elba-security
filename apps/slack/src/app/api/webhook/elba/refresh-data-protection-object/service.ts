@@ -53,7 +53,6 @@ export const refreshDataProtectionObject = async ({
   const objectId = formatDataProtectionObjectId({ teamId, conversationId, messageId });
   const slackClient = new SlackAPIClient(token);
   let messages: MessageElement[] | undefined = [];
-  // TODO: use inngest invoke?
   if (type === 'reply') {
     try {
       ({ messages } = await slackClient.conversations.replies({

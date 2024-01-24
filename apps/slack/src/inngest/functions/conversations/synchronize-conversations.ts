@@ -1,6 +1,5 @@
 import { and, eq, lt, sql } from 'drizzle-orm';
 import { SlackAPIClient } from 'slack-web-api-client';
-import { logger } from '@elba-security/logger';
 import { db } from '@/database/client';
 import type { NewConversation } from '@/database/schema';
 import { conversations, teams } from '@/database/schema';
@@ -119,7 +118,6 @@ export const synchronizeConversations = inngest.createFunction(
       );
 
       await Promise.all(eventsToWait);
-      logger.info('--- OVER ---'); // TODO: remove me
     }
 
     if (nextCursor) {

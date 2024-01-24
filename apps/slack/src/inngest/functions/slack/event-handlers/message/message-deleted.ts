@@ -16,7 +16,6 @@ export const messageDeletedHandler: SlackMessageHandler<'message_deleted'> = asy
   });
 
   if (!team) {
-    // TODO: remove me? use non retryable error?
     throw new Error('Team not found');
   }
 

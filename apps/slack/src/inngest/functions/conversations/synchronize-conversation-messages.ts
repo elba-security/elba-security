@@ -105,13 +105,6 @@ export const synchronizeConversationMessages = inngest.createFunction(
 
       const result = slackMessageSchema.safeParse(message);
       if (message.type !== 'message' || message.team !== teamId || !result.success) {
-        logger.debug('message ignored', {
-          type: message.type,
-          teamId: message.team,
-          isSameTeam: message.team === teamId,
-          success: result.success,
-          messageData: message,
-        });
         continue;
       }
 

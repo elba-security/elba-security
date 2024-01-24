@@ -24,7 +24,7 @@ export const formatDataProtectionObject = ({
   conversationId,
   conversationName,
   isConversationSharedExternally,
-  threadId, // TODO: is it necessary?
+  threadId,
   message,
 }: {
   teamId: string;
