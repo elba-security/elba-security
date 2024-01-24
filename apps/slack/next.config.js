@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const { elbaNextConfig } = require("@elba-security/config/next");
 
-module.exports = nextConfig
+const nextConfig = {
+  ...elbaNextConfig,
+  transpilePackages: ['@elba-security/sdk'],
+};
+
+module.exports = nextConfig;

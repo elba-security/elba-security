@@ -15,7 +15,7 @@ describe('handleSlackInstallation', () => {
   });
 
   it('Should successfully verify signature and return challenge if event type is url_verification', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     const result = await handleSlackWebhookMessage(
       new NextRequest('https://localhost', {
@@ -35,7 +35,7 @@ describe('handleSlackInstallation', () => {
   });
 
   it('Should successfully verify signature and handle event', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     const result = await handleSlackWebhookMessage(
       new NextRequest('https://localhost', {
@@ -60,7 +60,7 @@ describe('handleSlackInstallation', () => {
   });
 
   it('Should fail if headers are missing', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     await expect(() =>
       handleSlackWebhookMessage(new NextRequest('https://localhost'))
@@ -70,7 +70,7 @@ describe('handleSlackInstallation', () => {
   });
 
   it('Should fail if request timestamp is too old', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     await expect(() =>
       handleSlackWebhookMessage(
@@ -87,7 +87,7 @@ describe('handleSlackInstallation', () => {
   });
 
   it('Should fail if the signature version is not supported', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     await expect(() =>
       handleSlackWebhookMessage(
@@ -104,7 +104,7 @@ describe('handleSlackInstallation', () => {
   });
 
   it('Should fail if no signature is provided', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     await expect(() =>
       handleSlackWebhookMessage(
@@ -121,7 +121,7 @@ describe('handleSlackInstallation', () => {
   });
 
   it('Should fail if the signature is invalid', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     await expect(() =>
       handleSlackWebhookMessage(

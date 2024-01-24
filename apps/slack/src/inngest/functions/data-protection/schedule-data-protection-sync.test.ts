@@ -2,7 +2,6 @@ import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { teams } from '@/database/schema';
-import { inngest } from '@/inngest/client';
 import { scheduleDataProtectionSync } from './schedule-data-protection-sync';
 
 const setup = createInngestFunctionMock(scheduleDataProtectionSync);
@@ -27,9 +26,6 @@ describe('schedule-data-protection-sync', () => {
   });
 
   test('should schedule sync when there are teams', async () => {
-    // @ts-expect-error -- this is a mock
-    vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-
     await db.insert(teams).values([
       {
         elbaOrganisationId: 'org-id-1',

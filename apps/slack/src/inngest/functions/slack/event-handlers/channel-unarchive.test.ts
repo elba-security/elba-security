@@ -1,8 +1,8 @@
 import { expect, test, describe, beforeAll, afterAll, vi, afterEach } from 'vitest';
 import * as slack from 'slack-web-api-client';
 import type { SlackEvent } from '@slack/bolt';
-import * as crypto from '@/common/crypto';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
+import * as crypto from '@/common/crypto';
 import { db } from '@/database/client';
 import { teams } from '@/database/schema';
 import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';

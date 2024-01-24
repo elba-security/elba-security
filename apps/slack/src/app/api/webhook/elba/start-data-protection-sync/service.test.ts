@@ -16,8 +16,7 @@ describe('start-data-protection-sync', () => {
   });
 
   it('Should successfully start data protection synchronization', async () => {
-    // @ts-expect-error -- this is a mock
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     await db.insert(teams).values({
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',

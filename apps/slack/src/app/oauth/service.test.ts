@@ -25,7 +25,7 @@ describe('handleSlackInstallation', () => {
   });
 
   it('Should successfully handle slack installation', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
 
@@ -138,7 +138,7 @@ describe('handleSlackInstallation', () => {
   });
 
   it('Should fail when the token type is not user', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
 
@@ -221,7 +221,7 @@ describe('handleSlackInstallation', () => {
   });
 
   it('Should fail when there are missing scopes', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
 
@@ -318,7 +318,7 @@ describe('handleSlackInstallation', () => {
   });
 
   it('Should fail for enterprise install', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
 
@@ -415,7 +415,7 @@ describe('handleSlackInstallation', () => {
   });
 
   it('Should fail when user is not admin', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
 
