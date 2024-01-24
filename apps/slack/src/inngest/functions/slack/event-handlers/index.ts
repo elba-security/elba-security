@@ -4,7 +4,7 @@ import { appUninstalledHandler } from './app-uninstalled';
 import { channelArchiveHandler } from './channel-archive';
 import { channelCreatedHandler } from './channel-created';
 import { channelDeletedHandler } from './channel-deleted';
-import { channelIdChangedHandler } from './channel-id-changed';
+// import { channelIdChangedHandler } from './channel-id-changed';
 import { channelRenameHandler } from './channel-rename';
 import { channelUnarchiveHandler } from './channel-unarchive';
 import { messageHandler } from './message';
@@ -19,7 +19,7 @@ const slackEventHandlers: SlackEventHandlers = {
   channel_archive: channelArchiveHandler,
   channel_created: channelCreatedHandler,
   channel_deleted: channelDeletedHandler,
-  channel_id_changed: channelIdChangedHandler,
+  // channel_id_changed: channelIdChangedHandler, // For private channel only
   channel_rename: channelRenameHandler,
   channel_shared: channelSharedHandler,
   channel_unarchive: channelUnarchiveHandler,
