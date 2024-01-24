@@ -2,10 +2,7 @@
 ## Update users
 This endpoint is used to add multiple users to a specified organisation in the Elba system.
 
-### POST User Data
-
-> Version 1.0
-
+### POST
 This method allows for the addition of multiple users to an organisation using their unique identifiers and other personal details.
 
 ```plaintext
@@ -24,12 +21,13 @@ Supported attributes:
 | `users[].displayName`    | string   | Yes      | Display name of the user.                    |
 | `users[].additionalEmails`| array  | No       | List of additional email addresses.         |
 | `users[].role`              | string   | No      | User role      |  
-| `users[].authMethod`               |  string   | No      | User auth method - `"mfa"`, `"password"`, `"sso"` | 
+| `users[].authMethod`               |  string   | No      | User auth method - `"mfa"`, `"password"`, `"sso"` |   
 
 If successful and the organisation is found, returns [`200`](rest/index.md#status-codes) and the following response attributes:
 
 Example requests:
-### CURL:
+
+#### CURL:
 ```shell
 curl --request POST \
   --url "https://api.elba.ninja/api/rest/users" \
@@ -49,7 +47,7 @@ curl --request POST \
   }'
 ```
 
-### Elba SDK:
+#### elba SDK:
 ```javascript
  elba.users.update({ users })
 ```

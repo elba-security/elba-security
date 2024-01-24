@@ -1,10 +1,7 @@
 ## Update Data Protection Objects
 This endpoint enables updating information about data protection objects associated with an organization in the Elba system, with specific attention to permissions and their validation.
 
-### POST Data Protection Object Update
-
-> Version 1.0
-
+### POST
 This method allows for updating details of data protection objects
 
 ```plaintext
@@ -37,8 +34,8 @@ Supported attributes:
 | `objects[].permissions[].metadata`| object| No    | Metadata about the specific permission.                     |
 
 
-Example request:
-### CURL:
+Example requests:
+#### CURL:
 ```shell
 curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   --request POST \
@@ -93,7 +90,7 @@ curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   }'
 ```
 
-### Elba SDK:
+#### Elba SDK:
 ```javascript
 elba.dataProtection.updateObjects({ objects })
 ```

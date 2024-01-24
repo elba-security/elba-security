@@ -2,10 +2,7 @@
 
 This endpoint enables the removal of users from a specified organisation in the Elba system using either their unique identifiers or a date criterion.
 
-### DELETE User Data
-
-> Version 1.0
-
+### DELETE
 This method supports the deletion of users from an organisation by specifying either a list of user IDs or a `syncedBefore` timestamp. Note that `ids` and `syncedBefore` should not be provided simultaneously.
 
 ```plaintext
@@ -30,7 +27,7 @@ If successful, returns [`200`](rest/index.md#status-codes) and the following res
 | `success`                | boolean  | Indicates if the operation succeeded.|
 
 Example request for deletion by user `ids`:
-### CURL:
+#### CURL:
 ```shell
 curl --request DELETE \
   --url "https://api.elba.ninja/api/rest/users" \
@@ -56,7 +53,7 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" \
   }'
 ```
 
-### Elba SDK:
+#### elba SDK:
 
 #####  Delete the elba users that has been sent before this sync
 ```javascript

@@ -2,10 +2,7 @@
 
 This endpoint is designed for removing specific user associations from third-party apps within an organisation in the Elba system.
 
-### DELETE Third-Party App User Associations
-
-> Version 1.0
-
+### DELETE
 This method enables the deletion of user associations with third-party applications based on specific app and user identifiers.
 
 ```plaintext
@@ -22,9 +19,9 @@ Supported attributes:
 | `ids[].appId`            | string   | Yes      | Unique identifier for the app.                            |
 | `ids[].userId`           | string   | Yes      | Unique identifier for the user associated with the app.   |
 
-Example request:
+Example requests:
 
-### CURL:
+#### CURL:
 ```shell
 curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   --request DELETE \
@@ -42,7 +39,7 @@ curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   }'
 ```
 
-### Elba SDK:
+#### elba SDK:
 ##### Delete the elba third party apps that has been sent before this sync
 ```javascript
 elba.thirdPartyApps.deleteObjects({

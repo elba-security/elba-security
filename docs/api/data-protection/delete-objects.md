@@ -1,10 +1,7 @@
 ## Delete Data Protection Objects
 This endpoint is designated for the deletion of data protection objects within an organisation in the Elba system. It can be invoked with either `ids` or `syncedBefore`, but not both simultaneously.
 
-### DELETE Data Protection Object
-
-> Version 1.0
-
+### DELETE
 This method allows for the deletion of specific data protection objects or objects synced before a certain timestamp. The choice between `ids` and `syncedBefore` depends on the operational context.
 
 
@@ -24,7 +21,7 @@ Supported attributes:
 The request should contain either `ids` or `syncedBefore`, but not both.
 
 Example request for deletion by `ids`:
-### CURL:
+#### CURL:
 ```shell
 curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   --request DELETE \
@@ -51,7 +48,7 @@ curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   }'
 ```
 
-### Elba SDK:
+#### elba SDK:
 Example request for deletion by `ids`:
 ```javascript
 elba.dataProtection.deleteObjects({

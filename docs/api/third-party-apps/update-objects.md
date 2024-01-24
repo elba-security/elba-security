@@ -1,10 +1,7 @@
 ## Update Third-Party Apps
 This endpoint facilitates the updating of third-party app information within an organisation in the Elba system.
 
-### POST Third-Party App Data
-
-> Version 1.0
-
+### POST 
 This method allows for updating details of third-party applications associated with an organisation, including app details and associated users.
 
 ```plaintext
@@ -32,8 +29,8 @@ Supported attributes:
 | `apps[].users[].metadata`| object | No | Last access date of the user for this app.             |
 
 
-Example request:
-### CURL:
+Example requests:
+#### CURL:
 ```shell
 curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   --request POST \
@@ -68,7 +65,7 @@ curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   }'
 ```
 
-### Elba SDK:
+#### elba SDK:
 ```javascript
 elba.thirdPartyApps.updateObjects({ apps: thirdPartyApps })
 ```

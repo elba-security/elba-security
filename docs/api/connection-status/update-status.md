@@ -1,10 +1,7 @@
 ## Update Connection Status
-This endpoint is designed for updating the status of a SaaS connection for an organisation in the Elba system. It's primarily used to inform Elba about access denied issue, indicating that the source is no longer accessible and may require re-authentication or attention from the organization's admin.
+This endpoint is designed for updating the status of a SaaS connection for an organisation in the elba system. It's primarily used to inform elba about access denied issue, indicating that the source is no longer accessible and may require re-authentication or attention from the organization's admin.
 
-### POST Connection Status Update
-
-> Version 1.0
-
+### POST
 This method allows for the update of a SaaS connection status, particularly to flag issues like access errors.
 
 ```plaintext
@@ -20,8 +17,8 @@ Supported attributes:
 | `hasError`       | boolean | Yes      | Indicates if there is an error with access.|
 
 
-Example request:
-### CURL:
+Example requests:
+#### CURL:
 ```shell
 curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   --request POST \
@@ -34,7 +31,7 @@ curl --header "X-elba-Api-Key: ELBA_API_KEY" \
   }'
 ```
 
-### Elba SDK:
+#### elba SDK:
 
 ```javascript
  elba.connectionStatus.update({ hasError: true });
