@@ -146,9 +146,9 @@ export const setupOrganisation = async ({
         page: 0,
       },
     },
-    // cancel scheduled token refresh if it exists
+    // this will cancel scheduled token refresh if it exists
     {
-      name: '{saasName}/token.refresh.canceled',
+      name: '{saasName}/{saasName}.elba_app.installed',
       data: {
         organisationId,
         region,
