@@ -3,7 +3,7 @@ import { inngest } from '@/inngest/client';
 
 export const scheduleUsersSync = inngest.createFunction(
   { id: 'schedule-users-sync', retries: 5 },
-  { cron: 'TZ=Europe/Paris 0 0 * * *' },
+  { cron: 'TZ=Europe/Paris 0 0 * * *' }, // Every day at midnight
   async ({ step }) => {
     const teams = await db.query.teams.findMany({
       columns: {

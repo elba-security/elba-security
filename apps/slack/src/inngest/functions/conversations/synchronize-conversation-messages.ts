@@ -1,7 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { SlackAPIClient } from 'slack-web-api-client';
 import type { DataProtectionObject } from '@elba-security/sdk';
-import { logger } from '@elba-security/logger';
 import { db } from '@/database/client';
 import { inngest } from '@/inngest/client';
 import { conversations } from '@/database/schema';
@@ -127,28 +126,14 @@ export const synchronizeConversationMessages = inngest.createFunction(
     await elbaClient.dataProtection.updateObjects({ objects });
 
     if (threadIds.length) {
-      logger.info('sync conv message threads', { threadIds });
       const eventsToWait = threadIds.map(async (threadId) => {
         return step.waitForEvent(`wait-for-thread-message-sync-complete-${threadId}`, {
           event: 'conversations/synchronize.thread.messages.complete',
           timeout: '1d',
           if: `async.data.teamId == '${teamId}' && async.data.conversationId == '${conversationId}' && async.data.threadId == '${threadId}'`,
         });
-        // console.log(`------ conv ${conversationId} thread ${threadId} ------`);
       });
 
-      // console.log({ conversationId, threadIds });
-      // const promises = threadIds.map((threadId) => {
-      //   return step.waitForEvent('wait-for-thread-message-sync-complete', {
-      //     event: 'conversations/synchronize.thread.messages.complete',
-      //     timeout: '1d',
-      //     if: `async.data.teamId == '${teamId}' && async.data.conversationId == '${conversationId}' && async.data.threadId == '${threadId}'`,
-      //   });
-      // });
-
-      // await new Promise((resolve) => setTimeout(resolve, 1));
-
-      // await step.sleep('sleep', 3000);
       await step.sendEvent(
         'start-conversation-thread-messages-synchronization',
         threadIds.map((threadId) => ({
@@ -166,9 +151,6 @@ export const synchronizeConversationMessages = inngest.createFunction(
         data: { teamId, conversationId, isFirstSync, cursor: nextCursor },
       });
     } else {
-      // await step.run('over', async () => {
-      //   console.log(`--- OVER ${conversationId} ---`);
-      // });
       await step.sendEvent('conversation-sync-complete', {
         name: 'conversations/synchronize.messages.complete',
         data: { teamId, conversationId },
