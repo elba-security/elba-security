@@ -118,7 +118,7 @@ describe('unauthorized middleware', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'github/organisation.uninstalled',
+      name: 'github/github.elba_app.uninstalled',
       data: {
         organisationId: organisation.id,
       },

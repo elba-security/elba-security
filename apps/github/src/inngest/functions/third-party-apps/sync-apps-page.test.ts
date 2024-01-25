@@ -21,7 +21,10 @@ const data = {
   cursor: null,
 };
 
-const setup = createInngestFunctionMock(syncAppsPage, 'third-party-apps/page_sync.requested');
+const setup = createInngestFunctionMock(
+  syncAppsPage,
+  'github/third_party_apps.page_sync.requested'
+);
 
 describe('sync-apps-page', () => {
   beforeEach(async () => {
@@ -85,7 +88,7 @@ describe('sync-apps-page', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-apps-page', {
-      name: 'third-party-apps/page_sync.requested',
+      name: 'github/third_party_apps.page_sync.requested',
       data: {
         ...data,
         cursor: nextCursor,

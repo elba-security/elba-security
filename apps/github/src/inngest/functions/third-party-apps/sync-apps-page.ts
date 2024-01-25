@@ -52,17 +52,17 @@ export const syncAppsPage = inngest.createFunction(
     ],
     cancelOn: [
       {
-        event: 'github/organisation.uninstalled',
+        event: 'github/github.elba_app.uninstalled',
         match: 'data.organisationId',
       },
       {
-        event: 'github/organisation.installed',
+        event: 'github/github.elba_app.installed',
         match: 'data.organisationId',
       },
     ],
   },
   {
-    event: 'third-party-apps/page_sync.requested',
+    event: 'github/third_party_apps.page_sync.requested',
   },
   async ({ event, step }) => {
     const { installationId, organisationId, cursor, accountLogin, region } = event.data;
@@ -108,7 +108,7 @@ export const syncAppsPage = inngest.createFunction(
 
     if (nextCursor) {
       await step.sendEvent('sync-apps-page', {
-        name: 'third-party-apps/page_sync.requested',
+        name: 'github/third_party_apps.page_sync.requested',
         data: {
           ...event.data,
           cursor: nextCursor,

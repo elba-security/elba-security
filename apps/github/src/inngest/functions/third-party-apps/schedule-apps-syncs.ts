@@ -20,7 +20,7 @@ export const scheduleAppsSyncs = inngest.createFunction(
       await step.sendEvent(
         'sync-organisations-apps',
         organisations.map(({ id, installationId, accountLogin, region }) => ({
-          name: 'third-party-apps/page_sync.requested',
+          name: 'github/third_party_apps.page_sync.requested',
           data: {
             installationId,
             organisationId: id,

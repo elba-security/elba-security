@@ -8,7 +8,7 @@ export type FunctionHandler = Parameters<typeof inngest.createFunction>[2];
 export const inngest = new Inngest({
   id: 'github',
   schemas: new EventSchemas().fromRecord<{
-    'users/page_sync.requested': {
+    'github/users.page_sync.requested': {
       data: {
         installationId: number;
         organisationId: string;
@@ -19,7 +19,7 @@ export const inngest = new Inngest({
         cursor: string | null;
       };
     };
-    'third-party-apps/page_sync.requested': {
+    'github/third_party_apps.page_sync.requested': {
       data: {
         installationId: number;
         organisationId: string;
@@ -30,12 +30,12 @@ export const inngest = new Inngest({
         cursor: string | null;
       };
     };
-    'github/organisation.uninstalled': {
+    'github/github.elba_app.uninstalled': {
       data: {
         organisationId: string;
       };
     };
-    'github/organisation.installed': {
+    'github/github.elba_app.installed': {
       data: {
         organisationId: string;
       };

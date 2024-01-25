@@ -53,7 +53,7 @@ export const unauthorizedMiddleware = new InngestMiddleware({
                   baseUrl: env.ELBA_API_BASE_URL,
                 });
                 await client.send({
-                  name: 'github/organisation.uninstalled',
+                  name: 'github/github.elba_app.uninstalled',
                   data: {
                     organisationId: data.organisationId,
                   },

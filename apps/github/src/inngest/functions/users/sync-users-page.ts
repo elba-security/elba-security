@@ -33,17 +33,17 @@ export const syncUsersPage = inngest.createFunction(
     ],
     cancelOn: [
       {
-        event: 'github/organisation.uninstalled',
+        event: 'github/github.elba_app.uninstalled',
         match: 'data.organisationId',
       },
       {
-        event: 'github/organisation.installed',
+        event: 'github/github.elba_app.installed',
         match: 'data.organisationId',
       },
     ],
   },
   {
-    event: 'users/page_sync.requested',
+    event: 'github/users.page_sync.requested',
   },
   async ({ event, step, logger }) => {
     const { installationId, organisationId, accountLogin, cursor, region } = event.data;
@@ -91,7 +91,7 @@ export const syncUsersPage = inngest.createFunction(
 
     if (nextCursor) {
       await step.sendEvent('sync-users-page', {
-        name: 'users/page_sync.requested',
+        name: 'github/users.page_sync.requested',
         data: {
           ...event.data,
           cursor: nextCursor,

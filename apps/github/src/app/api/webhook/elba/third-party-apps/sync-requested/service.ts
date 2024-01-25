@@ -18,7 +18,7 @@ export const handleThirdPartyAppsSyncRequested = async (organisationId: string) 
   }
 
   await inngest.send({
-    name: 'third-party-apps/page_sync.requested',
+    name: 'github/third_party_apps.page_sync.requested',
     data: {
       organisationId,
       installationId: organisation.installationId,

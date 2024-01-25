@@ -20,7 +20,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
       await step.sendEvent(
         'sync-organisations-users',
         organisations.map(({ id, installationId, accountLogin, region }) => ({
-          name: 'users/page_sync.requested',
+          name: 'github/users.page_sync.requested',
           data: {
             installationId,
             organisationId: id,

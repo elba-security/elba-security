@@ -38,7 +38,7 @@ describe('handleElbaOrganisationActivated', () => {
     });
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'third-party-apps/page_sync.requested',
+      name: 'github/third_party_apps.page_sync.requested',
       data: {
         organisationId: organisation.id,
         installationId: organisation.installationId,

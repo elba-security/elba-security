@@ -48,13 +48,13 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
-      name: 'github/organisation.installed',
+      name: 'github/github.elba_app.installed',
       data: {
         organisationId,
       },
     },
     {
-      name: 'users/page_sync.requested',
+      name: 'github/users.page_sync.requested',
       data: {
         organisationId,
         installationId: installation.id,
