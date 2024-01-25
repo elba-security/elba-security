@@ -95,7 +95,7 @@ export const refreshToken = inngest.createFunction(
 
 As mentioned previously, the Inngest function that refreshes the access token is designed to call itself, creating a loop. To initiate this loop, the integration needs to send a first event when acquiring the access token for the first time.
 
-Since an organization's admin could sign in multiple times, it is essential for the integration to ensure that there are no multiple loops running simultaneously for a given organization. To prevent this behavior, a cancel event can be sent while scheduling the first token refresh.
+Since an organization's admin could sign in multiple times, it is essential for the integration to ensure that there are no multiple loops running simultaneously for a given organization. To prevent this behavior, a SaaS elba app installation event can be sent while scheduling the first token refresh. The scheduled refresh token Inngest function for the organisation will cancel itself when this event is sent.
 
 ```ts
 // app/auth/route.ts
