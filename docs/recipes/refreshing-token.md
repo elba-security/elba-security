@@ -48,7 +48,7 @@ export const refreshToken = inngest.createFunction(
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
-  { event: '{SaasName}/token.refresh.triggered' },
+  { event: '{SaasName}/token.refresh.requested' },
   async ({ event, step }) => {
     const { organisationId, region } = event.data;
 
