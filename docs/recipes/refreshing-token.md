@@ -30,7 +30,7 @@ import { env } from '@/env';
 
 export const refreshToken = inngest.createFunction(
   {
-    id: '{SaasName}/refresh-token',
+    id: '{SaasName}-refresh-token',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
