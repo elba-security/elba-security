@@ -28,9 +28,9 @@ import { inngest } from '@/inngest/client';
 import { refreshToken } from '@/connectors/auth';
 import { env } from '@/env';
 
-export const refreshToken = inngest.createFunction(
+export const refreshSaaSToken = inngest.createFunction(
   {
-    id: '{SaasName}-refresh-token',
+    id: '{SaasName}-refresh-{SaaS}-token',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
@@ -48,7 +48,7 @@ export const refreshToken = inngest.createFunction(
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
-  { event: '{SaasName}/token.refresh.requested' },
+  { event: '{SaasName}/{SaaS}.token.refresh.requested' },
   async ({ event, step }) => {
     const { organisationId, region } = event.data;
 
@@ -79,7 +79,7 @@ export const refreshToken = inngest.createFunction(
 
     // send an event that will refresh the organisation access token before it expires
     await step.sendEvent('schedule-token-refresh', {
-      name: '{SaasName}/token.refresh.triggered',
+      name: '{SaasName}/{SaaS}.token.refresh.requested',
       data: {
         organisationId,
         region,
@@ -95,7 +95,7 @@ export const refreshToken = inngest.createFunction(
 
 As mentioned previously, the Inngest function that refreshes the access token is designed to call itself, creating a loop. To initiate this loop, the integration needs to send a first event when acquiring the access token for the first time.
 
-Since an organization's admin could sign in multiple times, it is essential for the integration to ensure that there are no multiple loops running simultaneously for a given organization. To prevent this behavior, a SaaS elba app installation event can be sent while scheduling the first token refresh. The scheduled refresh token Inngest function for the organisation will cancel itself when this event is sent.
+Since an organization's admin could sign in multiple times, it is essential for the integration to ensure that there are no multiple loops running simultaneously for a given organization. To prevent this behavior, a SaaS elba app installed event can be sent while scheduling the first token refresh. If there is a scheduled refresh token Inngest function for the organization, it will cancel itself.
 
 ```ts
 // app/auth/route.ts
@@ -137,7 +137,7 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
-      name: '{saasName}/users.sync_page.requested',
+      name: '{SaaS}/users.sync_page.requested',
       data: {
         organisationId,
         region,
@@ -148,7 +148,7 @@ export const setupOrganisation = async ({
     },
     // this will cancel scheduled token refresh if it exists
     {
-      name: '{saasName}/{saasName}.elba_app.installed',
+      name: '{SaaS}/{SaaS}.elba_app.installed',
       data: {
         organisationId,
         region,
@@ -156,7 +156,7 @@ export const setupOrganisation = async ({
     },
     // schedule a new token refresh loop
     {
-      name: '{saasName}/token.refresh.triggered',
+      name: '{SaaS}/{SaaS}.token.refresh.requested',
       data: {
         organisationId,
         region,
