@@ -1,8 +1,8 @@
 import { Elba, type User } from '@elba-security/sdk';
 import { and, eq, lt } from 'drizzle-orm';
 import { env } from '@/env';
-import type { OrganizationMember } from '@/connectors/organization';
-import { getPaginatedOrganizationMembers } from '@/connectors/organization';
+import type { OrganizationMember } from '@/connectors/github/organization';
+import { getPaginatedOrganizationMembers } from '@/connectors/github/organization';
 import { db } from '@/database/client';
 import { adminsTable } from '@/database/schema';
 import { inngest } from '../../client';

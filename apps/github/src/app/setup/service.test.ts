@@ -1,5 +1,5 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
-import * as installationRepository from '@/connectors/installation';
+import * as installationRepository from '@/connectors/github/installation';
 import * as client from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';

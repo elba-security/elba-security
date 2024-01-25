@@ -1,4 +1,4 @@
-import { getInstallation } from '@/connectors/installation';
+import { getInstallation } from '@/connectors/github/installation';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';

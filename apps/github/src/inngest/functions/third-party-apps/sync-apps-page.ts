@@ -4,10 +4,10 @@ import { Elba } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
 import { db } from '@/database/client';
 import { env } from '@/env';
-import type { OrganizationInstallation } from '@/connectors/organization';
-import { getPaginatedOrganizationInstallations } from '@/connectors/organization';
-import type { App } from '@/connectors/app';
-import { getApp } from '@/connectors/app';
+import type { OrganizationInstallation } from '@/connectors/github/organization';
+import { getPaginatedOrganizationInstallations } from '@/connectors/github/organization';
+import type { App } from '@/connectors/github/app';
+import { getApp } from '@/connectors/github/app';
 import { adminsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
@@ -98,6 +98,13 @@ export const syncAppsPage = inngest.createFunction(
             return formatElbaApp(app, appInstallation, adminIds);
           })
       );
+
+      if (result.invalidInstallations.length) {
+        logger.warn('Some retrieved apps data were invalids', {
+          organisationId,
+          invalidApps: result.invalidInstallations,
+        });
+      }
 
       if (result.validInstallations.length) {
         logger.info('Sending apps batch to elba', { organisationId, apps });

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion -- test conveniency */
 import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import * as githubOrganization from '@/connectors/organization';
-import * as githubApp from '@/connectors/app';
+import * as githubOrganization from '@/connectors/github/organization';
+import * as githubApp from '@/connectors/github/app';
 import { db } from '@/database/client';
 import { adminsTable, organisationsTable } from '@/database/schema';
 import { env } from '@/env';
