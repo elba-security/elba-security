@@ -30,7 +30,7 @@ import { env } from '@/env';
 
 export const refreshSaaSToken = inngest.createFunction(
   {
-    id: '{SaasName}-refresh-{SaaS}-token',
+    id: '{SaaS}-refresh-{SaaS}-token',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
@@ -38,17 +38,17 @@ export const refreshSaaSToken = inngest.createFunction(
     // this is used to prevent several loops to take place
     cancelOn: [
       {
-        event: `{SaasName}/{SaasName}.elba_app.uninstalled`,
+        event: `{SaaS}/{SaaS}.elba_app.uninstalled`,
         match: 'data.organisationId',
       },
       {
-        event: `{SaasName}/{SaasName}.elba_app.installed`,
+        event: `{SaaS}/{SaaS}.elba_app.installed`,
         match: 'data.organisationId',
       },
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
-  { event: '{SaasName}/{SaaS}.token.refresh.requested' },
+  { event: '{SaaS}/{SaaS}.token.refresh.requested' },
   async ({ event, step }) => {
     const { organisationId, region } = event.data;
 
@@ -79,7 +79,7 @@ export const refreshSaaSToken = inngest.createFunction(
 
     // send an event that will refresh the organisation access token before it expires
     await step.sendEvent('schedule-token-refresh', {
-      name: '{SaasName}/{SaaS}.token.refresh.requested',
+      name: '{SaaS}/{SaaS}.token.refresh.requested',
       data: {
         organisationId,
         region,
