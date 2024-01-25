@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
-const zEnvRetry = () =>
-  z.string().transform(Number).pipe(z.number().int().min(0).max(20)) as unknown as z.ZodUnion<
+const zEnvRetry = (defaultValue = '3') =>
+  z
+    .string()
+    .transform(Number)
+    .pipe(z.number().int().min(0).max(20))
+    .default(defaultValue) as unknown as z.ZodUnion<
     [
       z.ZodLiteral<0>,
       z.ZodLiteral<1>,
@@ -45,6 +49,7 @@ export const env = z
     USERS_SYNC_CRON: z.string(),
     USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive(),
     USERS_SYNC_MAX_RETRY: zEnvRetry(),
+    REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
     THIRD_PARTY_APPS_SYNC_CRON: z.string(),
     THIRD_PARTY_APPS_SYNC_BATCH_SIZE: z.coerce.number().int().positive(),
     THIRD_PARTY_APPS_MAX_RETRY: zEnvRetry(),

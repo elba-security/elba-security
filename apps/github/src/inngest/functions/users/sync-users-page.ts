@@ -17,7 +17,7 @@ const formatElbaUser = (member: OrganizationMember): User => ({
 
 export const syncUsersPage = inngest.createFunction(
   {
-    id: 'sync-users-page',
+    id: 'github-sync-users-page',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },

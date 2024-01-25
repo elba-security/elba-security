@@ -36,7 +36,7 @@ const formatElbaApp = (
 
 export const syncAppsPage = inngest.createFunction(
   {
-    id: 'sync-apps',
+    id: 'github-sync-apps',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },

@@ -1,11 +1,6 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { RequestError } from '@octokit/request-error';
 import { NonRetriableError } from 'inngest';
-import { eq } from 'drizzle-orm';
-import { spyOnElba } from '@elba-security/test-utils';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { env } from '@/env';
 import { unauthorizedMiddleware } from './unauthorized-middleware';
 
 const organisationId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
@@ -18,10 +13,6 @@ const organisation = {
 };
 
 describe('unauthorized middleware', () => {
-  beforeEach(async () => {
-    await db.insert(organisationsTable).values(organisation);
-  });
-
   test('should not transform the output when their is no error', async () => {
     const send = vi.fn().mockResolvedValue(undefined);
     await expect(
@@ -57,8 +48,7 @@ describe('unauthorized middleware', () => {
     expect(send).toBeCalledTimes(0);
   });
 
-  test('should transform the output error to NonRetriableError and remove the organisation when the error is about github authorization', async () => {
-    const elba = spyOnElba();
+  test('should transform the output error to NonRetriableError and send an uninstall event when the error is about github authorization', async () => {
     const unauthorizedError = new RequestError('foo bar', 401, {
       request: { method: 'GET', url: 'http://foo.bar', headers: {} },
       // @ts-expect-error this is a mock
@@ -101,21 +91,6 @@ describe('unauthorized middleware', () => {
       },
     });
 
-    expect(elba).toBeCalledTimes(1);
-    expect(elba).toBeCalledWith({
-      organisationId: organisation.id,
-      region: organisation.region,
-      sourceId: env.ELBA_SOURCE_ID,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-    });
-    const elbaInstance = elba.mock.results.at(0)?.value;
-
-    expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
-    expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
-      hasError: true,
-    });
-
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
       name: 'github/github.elba_app.uninstalled',
@@ -123,8 +98,5 @@ describe('unauthorized middleware', () => {
         organisationId: organisation.id,
       },
     });
-    await expect(
-      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisationId))
-    ).resolves.toHaveLength(0);
   });
 });

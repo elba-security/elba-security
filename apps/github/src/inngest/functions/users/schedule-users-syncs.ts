@@ -4,7 +4,7 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
 export const scheduleUsersSyncs = inngest.createFunction(
-  { id: 'schedule-users-syncs' },
+  { id: 'github-schedule-users-syncs' },
   { cron: env.USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db

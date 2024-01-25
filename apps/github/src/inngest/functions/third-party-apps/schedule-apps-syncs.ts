@@ -4,7 +4,7 @@ import { db } from '@/database/client';
 import { inngest } from '../../client';
 
 export const scheduleAppsSyncs = inngest.createFunction(
-  { id: 'schedule-third-party-apps-syncs' },
+  { id: 'github-schedule-third-party-apps-syncs' },
   { cron: env.THIRD_PARTY_APPS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
