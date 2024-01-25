@@ -67,7 +67,7 @@ describe('setupOrganisation', () => {
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'users/sync_page.triggered',
+      name: '{SaaS}/users.page_sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
@@ -116,7 +116,7 @@ describe('setupOrganisation', () => {
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'users/sync_page.triggered',
+      name: '{SaaS}/users.page_sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
