@@ -4,7 +4,7 @@ import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { spyOnElba } from '@elba-security/test-utils';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { unauthorizedMiddleware } from './unauthorized-middleware';
 
@@ -19,7 +19,7 @@ const organisation = {
 
 describe('unauthorized middleware', () => {
   beforeEach(async () => {
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
   });
 
   test('should not transform the output when their is no error', async () => {
@@ -124,7 +124,7 @@ describe('unauthorized middleware', () => {
       },
     });
     await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisationId))
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisationId))
     ).resolves.toHaveLength(0);
   });
 });

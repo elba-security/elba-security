@@ -1,7 +1,7 @@
 import { getInstallation } from '@/connectors/installation';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 
 type SetupOrganisationParams = {
   installationId: number;
@@ -25,7 +25,7 @@ export const setupOrganisation = async ({
   }
 
   const [organisation] = await db
-    .insert(Organisation)
+    .insert(organisationsTable)
     .values({
       id: organisationId,
       installationId: installation.id,
@@ -33,7 +33,7 @@ export const setupOrganisation = async ({
       region,
     })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
         installationId: installation.id,
         accountLogin: installation.account.login,

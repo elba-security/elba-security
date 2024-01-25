@@ -1,17 +1,17 @@
 import { eq } from 'drizzle-orm';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 
 export const handleThirdPartyAppsSyncRequested = async (organisationId: string) => {
   const [organisation] = await db
     .select({
-      installationId: Organisation.installationId,
-      accountLogin: Organisation.accountLogin,
-      region: Organisation.region,
+      installationId: organisationsTable.installationId,
+      accountLogin: organisationsTable.accountLogin,
+      region: organisationsTable.region,
     })
-    .from(Organisation)
-    .where(eq(Organisation.id, organisationId));
+    .from(organisationsTable)
+    .where(eq(organisationsTable.id, organisationId));
 
   if (!organisation) {
     throw new Error(`Could not retrieve an organisation with id=${organisationId}`);

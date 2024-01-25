@@ -4,7 +4,7 @@ import { env } from '@/env';
 import type { OrganizationMember } from '@/connectors/organization';
 import { getPaginatedOrganizationMembers } from '@/connectors/organization';
 import { db } from '@/database/client';
-import { Admin } from '@/database/schema';
+import { adminsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
 const formatElbaUser = (member: OrganizationMember): User => ({
@@ -70,10 +70,10 @@ export const syncUsersPage = inngest.createFunction(
 
       if (admins.length > 0) {
         await db
-          .insert(Admin)
+          .insert(adminsTable)
           .values(admins)
           .onConflictDoUpdate({
-            target: [Admin.id, Admin.organisationId],
+            target: [adminsTable.id, adminsTable.organisationId],
             set: {
               lastSyncAt: syncStartedAt,
             },
@@ -108,8 +108,13 @@ export const syncUsersPage = inngest.createFunction(
       logger.info('Deleting old users on elba', { organisationId, syncedBefore });
       await elba.users.delete({ syncedBefore });
       await db
-        .delete(Admin)
-        .where(and(eq(Admin.organisationId, organisationId), lt(Admin.lastSyncAt, syncStartedAt)));
+        .delete(adminsTable)
+        .where(
+          and(
+            eq(adminsTable.organisationId, organisationId),
+            lt(adminsTable.lastSyncAt, syncStartedAt)
+          )
+        );
     });
 
     return {

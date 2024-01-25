@@ -4,7 +4,7 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import * as githubOrganization from '@/connectors/organization';
 import * as githubApp from '@/connectors/app';
 import { db } from '@/database/client';
-import { Admin, Organisation } from '@/database/schema';
+import { adminsTable, organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { syncAppsPage } from './sync-apps-page';
 import { elbaApps } from './__mocks__/snapshots';
@@ -25,8 +25,8 @@ const setup = createInngestFunctionMock(syncAppsPage, 'third-party-apps/page_syn
 
 describe('sync-apps-page', () => {
   beforeEach(async () => {
-    await db.insert(Organisation).values(organisation);
-    await db.insert(Admin).values(admins);
+    await db.insert(organisationsTable).values(organisation);
+    await db.insert(adminsTable).values(admins);
   });
 
   test('should sync apps when there is another apps page', async () => {

@@ -1,7 +1,7 @@
 import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import * as githubOrganization from '@/connectors/organization';
-import { Admin, Organisation } from '@/database/schema';
+import { adminsTable, organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { env } from '@/env';
 import { syncUsersPage } from './sync-users-page';
@@ -29,7 +29,7 @@ const setup = createInngestFunctionMock(syncUsersPage, 'users/page_sync.requeste
 
 describe('sync-users-page', () => {
   beforeEach(async () => {
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
   });
 
   test('should sync users page when there is another apps page', async () => {
@@ -46,7 +46,7 @@ describe('sync-users-page', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
-    await expect(db.select({ id: Admin.id }).from(Admin)).resolves.toMatchObject(
+    await expect(db.select({ id: adminsTable.id }).from(adminsTable)).resolves.toMatchObject(
       githubAdmins.map(({ id }) => ({ id }))
     );
 
@@ -103,7 +103,7 @@ describe('sync-users-page', () => {
     const [result, { step }] = setup(data);
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
-    await expect(db.select({ id: Admin.id }).from(Admin)).resolves.toMatchObject(
+    await expect(db.select({ id: adminsTable.id }).from(adminsTable)).resolves.toMatchObject(
       githubAdmins.map(({ id }) => ({ id }))
     );
 

@@ -5,7 +5,7 @@ import { Elba } from '@elba-security/sdk';
 import { z } from 'zod';
 import { env } from '@/env';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 
 const apiRequiredDataSchema = z.object({
   organisationId: z.string().uuid(),
@@ -58,7 +58,9 @@ export const unauthorizedMiddleware = new InngestMiddleware({
                     organisationId: data.organisationId,
                   },
                 });
-                await db.delete(Organisation).where(eq(Organisation.id, data.organisationId));
+                await db
+                  .delete(organisationsTable)
+                  .where(eq(organisationsTable.id, data.organisationId));
                 await elba.connectionStatus.update({ hasError: true });
               }
               return {

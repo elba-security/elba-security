@@ -8,7 +8,7 @@ import type { OrganizationInstallation } from '@/connectors/organization';
 import { getPaginatedOrganizationInstallations } from '@/connectors/organization';
 import type { App } from '@/connectors/app';
 import { getApp } from '@/connectors/app';
-import { Admin } from '@/database/schema';
+import { adminsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
 const formatElbaAppScopes = (installationPermissions: OrganizationInstallation['permissions']) =>
@@ -77,9 +77,9 @@ export const syncAppsPage = inngest.createFunction(
 
     const adminIds = await step.run('initialize', async () => {
       const admins = await db
-        .select({ id: Admin.id })
-        .from(Admin)
-        .where(eq(Admin.organisationId, organisationId));
+        .select({ id: adminsTable.id })
+        .from(adminsTable)
+        .where(eq(adminsTable.organisationId, organisationId));
       return admins.map(({ id }) => id);
     });
 

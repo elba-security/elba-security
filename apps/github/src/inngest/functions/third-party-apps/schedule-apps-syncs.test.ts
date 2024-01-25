@@ -1,7 +1,7 @@
 import { expect, test, describe, beforeAll, afterAll, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { scheduleAppsSyncs } from './schedule-apps-syncs';
 import { organisations } from './__mocks__/integration';
 
@@ -27,7 +27,7 @@ describe('schedule-apps-syncs', () => {
   });
 
   test('should schedule scans when there are organisations', async () => {
-    await db.insert(Organisation).values(organisations);
+    await db.insert(organisationsTable).values(organisations);
 
     const [result, { step }] = setup();
 

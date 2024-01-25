@@ -2,7 +2,7 @@ import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import * as client from '@/inngest/client';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { handleThirdPartyAppsSyncRequested } from './service';
 
 const organisation = {
@@ -31,7 +31,7 @@ describe('handleElbaOrganisationActivated', () => {
 
   test('should schedule apps sync when the organisation is registered', async () => {
     const send = vi.spyOn(client.inngest, 'send').mockResolvedValue({ ids: [] });
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     await expect(handleThirdPartyAppsSyncRequested(organisation.id)).resolves.toStrictEqual({
       success: true,
@@ -50,7 +50,7 @@ describe('handleElbaOrganisationActivated', () => {
       },
     });
     await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toMatchObject([organisation]);
   });
 });
