@@ -38,7 +38,11 @@ export const refreshToken = inngest.createFunction(
     // this is used to prevent several loops to take place
     cancelOn: [
       {
-        event: `{SaasName}/token.refresh.canceled`,
+        event: `{SaasName}/{SaasName}.elba_app.uninstalled`,
+        match: 'data.organisationId',
+      },
+      {
+        event: `{SaasName}/{SaasName}.elba_app.installed`,
         match: 'data.organisationId',
       },
     ],
