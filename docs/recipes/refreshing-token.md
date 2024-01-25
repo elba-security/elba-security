@@ -137,7 +137,7 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
-      name: '{saasName}/users.sync_page.triggered',
+      name: '{saasName}/users.sync_page.requested',
       data: {
         organisationId,
         region,
