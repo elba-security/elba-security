@@ -301,6 +301,10 @@ importers:
         version: 4.9.5
 
   packages/inngest:
+    dependencies:
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../utils
     devDependencies:
       '@elba-security/eslint-config-custom':
         specifier: workspace:*

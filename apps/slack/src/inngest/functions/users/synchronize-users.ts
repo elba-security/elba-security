@@ -38,7 +38,7 @@ export const synchronizeUsers = inngest.createFunction(
     },
     step,
   }) => {
-    const { elbaOrganisationId, elbaRegion, token } = await step.run('get-token', async () => {
+    const { elbaOrganisationId, elbaRegion, token } = await step.run('get-team', async () => {
       const result = await db.query.teams.findFirst({
         where: eq(teams.id, teamId),
         columns: { token: true, elbaOrganisationId: true, elbaRegion: true },
@@ -48,17 +48,16 @@ export const synchronizeUsers = inngest.createFunction(
         throw new Error('Failed to find team');
       }
 
-      const decryptedToken = await decrypt(result.token);
-
       return {
-        token: decryptedToken,
+        token: result.token,
         elbaOrganisationId: result.elbaOrganisationId,
         elbaRegion: result.elbaRegion,
       };
     });
 
     const { members, nextCursor } = await step.run('listing-users', async () => {
-      const slackClient = new SlackAPIClient(token);
+      const decryptedToken = await decrypt(token);
+      const slackClient = new SlackAPIClient(decryptedToken);
       const { members: responseMember, response_metadata: responseMetadata } =
         await slackClient.users.list({
           limit: env.SLACK_USERS_LIST_BATCH_SIZE,

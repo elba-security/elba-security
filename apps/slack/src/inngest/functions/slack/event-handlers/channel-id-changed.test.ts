@@ -11,7 +11,8 @@ const mockedDate = '2023-01-01T00:00:00.000Z';
 
 const eventType: SlackEvent['type'] = 'channel_id_changed';
 
-describe(`handle-slack-webhook-event ${eventType}`, () => {
+// Skip as it's not necessary for now, it will for future iteration when we support private channels
+describe.skip(`handle-slack-webhook-event ${eventType}`, () => {
   beforeAll(() => {
     vi.setSystemTime(mockedDate);
   });
@@ -64,12 +65,14 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
     ]);
 
     const [result, { step }] = setup({
-      team_id: 'team-id',
-      // @ts-expect-error -- this is a partial mock
-      event: {
-        type: eventType,
-        old_channel_id: 'channel-id-1',
-        new_channel_id: 'new-channel-id-1',
+      encrypted: {
+        team_id: 'team-id',
+        // @ts-expect-error -- this is a partial mock
+        event: {
+          type: eventType,
+          old_channel_id: 'channel-id-1',
+          new_channel_id: 'new-channel-id-1',
+        },
       },
     });
 

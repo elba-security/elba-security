@@ -28,11 +28,13 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       },
     ]);
     const [result, { step }] = setup({
-      team_id: 'team-id',
-      // @ts-expect-error -- this is a mock
-      event: {
-        type: eventType,
-        minute_rate_limited: 1518467820,
+      encrypted: {
+        team_id: 'team-id',
+        // @ts-expect-error -- this is a mock
+        event: {
+          type: eventType,
+          minute_rate_limited: 1518467820,
+        },
       },
     });
 

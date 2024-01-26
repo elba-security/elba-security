@@ -6,6 +6,9 @@
   "scripts": {
     "lint": "eslint src/**.ts"
   },
+  "dependencies": {
+    "@elba-security/utils": "workspace:*"
+  },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",

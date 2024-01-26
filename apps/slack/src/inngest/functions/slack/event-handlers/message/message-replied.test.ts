@@ -19,17 +19,19 @@ describe(`handle-slack-webhook-event ${eventType} ${messageSubtype}`, () => {
     const messageMock = vi.spyOn(message, 'genericMessageHandler');
 
     const [result, { step }] = setup({
-      event: {
-        type: eventType,
-        subtype: messageSubtype,
-        channel_type: 'channel',
-        // @ts-expect-error -- This is a partial mock
-        message: {
-          team: 'team-id',
-          channel: 'channel-id',
-          ts: 'message-id',
-          text: 'text',
-          user: 'user-id',
+      encrypted: {
+        event: {
+          type: eventType,
+          subtype: messageSubtype,
+          channel_type: 'channel',
+          // @ts-expect-error -- This is a partial mock
+          message: {
+            team: 'team-id',
+            channel: 'channel-id',
+            ts: 'message-id',
+            text: 'text',
+            user: 'user-id',
+          },
         },
       },
     });

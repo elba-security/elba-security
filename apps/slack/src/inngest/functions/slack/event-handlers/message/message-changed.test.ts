@@ -18,17 +18,19 @@ describe(`handle-slack-webhook-event ${eventType} ${messageSubtype}`, () => {
     const messageMock = vi.spyOn(message, 'genericMessageHandler');
 
     const [result, { step }] = setup({
-      event: {
-        type: eventType,
-        subtype: messageSubtype,
-        channel_type: 'channel',
-        // @ts-expect-error -- This is a partial mock
-        message: {
-          subtype: 'bot_message',
-        },
-        // @ts-expect-error -- This is a partial mock
-        previous_message: {
-          subtype: 'bot_message',
+      encrypted: {
+        event: {
+          type: eventType,
+          subtype: messageSubtype,
+          channel_type: 'channel',
+          // @ts-expect-error -- This is a partial mock
+          message: {
+            subtype: 'bot_message',
+          },
+          // @ts-expect-error -- This is a partial mock
+          previous_message: {
+            subtype: 'bot_message',
+          },
         },
       },
     });
@@ -48,20 +50,22 @@ describe(`handle-slack-webhook-event ${eventType} ${messageSubtype}`, () => {
     const messageMock = vi.spyOn(message, 'genericMessageHandler');
 
     const [result, { step }] = setup({
-      event: {
-        type: eventType,
-        subtype: messageSubtype,
-        channel_type: 'channel',
-        // @ts-expect-error -- This is a partial mock
-        message: {
-          team: 'team-id',
-          channel: 'channel-id',
-          ts: 'message-id',
-          text: 'some text',
-        },
-        // @ts-expect-error -- This is a partial mock
-        previous_message: {
-          text: 'some text',
+      encrypted: {
+        event: {
+          type: eventType,
+          subtype: messageSubtype,
+          channel_type: 'channel',
+          // @ts-expect-error -- This is a partial mock
+          message: {
+            team: 'team-id',
+            channel: 'channel-id',
+            ts: 'message-id',
+            text: 'some text',
+          },
+          // @ts-expect-error -- This is a partial mock
+          previous_message: {
+            text: 'some text',
+          },
         },
       },
     });
@@ -82,21 +86,23 @@ describe(`handle-slack-webhook-event ${eventType} ${messageSubtype}`, () => {
     const messageMock = vi.spyOn(message, 'genericMessageHandler');
 
     const [result, { step }] = setup({
-      event: {
-        type: eventType,
-        subtype: messageSubtype,
-        channel_type: 'channel',
-        // @ts-expect-error -- This is a partial mock
-        message: {
-          team: 'team-id',
-          channel: 'channel-id',
-          ts: 'message-id',
-          text: 'text',
-          user: 'user-id',
-        },
-        // @ts-expect-error -- This is a partial mock
-        previous_message: {
-          text: 'some text',
+      encrypted: {
+        event: {
+          type: eventType,
+          subtype: messageSubtype,
+          channel_type: 'channel',
+          // @ts-expect-error -- This is a partial mock
+          message: {
+            team: 'team-id',
+            channel: 'channel-id',
+            ts: 'message-id',
+            text: 'text',
+            user: 'user-id',
+          },
+          // @ts-expect-error -- This is a partial mock
+          previous_message: {
+            text: 'some text',
+          },
         },
       },
     });

@@ -58,11 +58,13 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
     });
 
     const [result, { step }] = setup({
-      team_id: 'team-id',
-      // @ts-expect-error -- this is a partial mock
-      event: {
-        type: eventType,
-        channel: 'channel-id-1',
+      encrypted: {
+        team_id: 'team-id',
+        // @ts-expect-error -- this is a partial mock
+        event: {
+          type: eventType,
+          channel: 'channel-id-1',
+        },
       },
     });
 

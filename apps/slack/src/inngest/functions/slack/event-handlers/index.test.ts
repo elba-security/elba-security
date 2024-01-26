@@ -7,9 +7,11 @@ const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.
 describe('handle-slack-webhook-event', () => {
   test('should be ignored if event is not handled', async () => {
     const [result, { step }] = setup({
-      event: {
-        // @ts-expect-error -- This is a unhandled event that doesn't exist
-        type: 'unknown',
+      encrypted: {
+        event: {
+          // @ts-expect-error -- This is a unhandled event that doesn't exist
+          type: 'unknown',
+        },
       },
     });
 

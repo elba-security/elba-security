@@ -10,11 +10,13 @@ const eventType: SlackEvent['type'] = 'message';
 describe(`handle-slack-webhook-event ${eventType}`, () => {
   test('should be ignored if event is not handled', async () => {
     const [result, { step }] = setup({
-      event: {
-        type: eventType,
-        // @ts-expect-error -- This is a unhandled message event subtype that doesn't exist
-        subtype: 'unknown',
-        channel_type: 'channel',
+      encrypted: {
+        event: {
+          type: eventType,
+          // @ts-expect-error -- This is a unhandled message event subtype that doesn't exist
+          subtype: 'unknown',
+          channel_type: 'channel',
+        },
       },
     });
 
@@ -28,10 +30,12 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
 
   test('should be ignored if channel type is not channel', async () => {
     const [result, { step }] = setup({
-      // @ts-expect-error -- This is a unhandled message event subtype that doesn't exist
-      event: {
-        type: eventType,
-        channel_type: 'group',
+      encrypted: {
+        // @ts-expect-error -- This is a unhandled message event subtype that doesn't exist
+        event: {
+          type: eventType,
+          channel_type: 'group',
+        },
       },
     });
 

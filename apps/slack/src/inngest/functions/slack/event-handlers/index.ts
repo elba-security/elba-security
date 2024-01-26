@@ -30,7 +30,7 @@ const slackEventHandlers: SlackEventHandlers = {
 };
 
 export const slackEventHandler = async (context: SlackWebhookHandlerContext) => {
-  const payload = context.event.data;
+  const payload = context.event.data.encrypted;
   const type = payload.event.type;
   const eventHandler = slackEventHandlers[type];
   if (!eventHandler) {

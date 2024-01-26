@@ -26,18 +26,20 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
     });
 
     const [result, { step }] = setup({
-      team_id: 'team-id',
-      event: {
-        type: eventType,
-        user: {
-          team_id: 'team-id',
-          id: 'user-id',
-          is_bot: false,
-          deleted: false,
-          real_name: 'John Doe',
-          // @ts-expect-error -- this is a partial mock
-          profile: {
-            email: 'user@domain.com',
+      encrypted: {
+        team_id: 'team-id',
+        event: {
+          type: eventType,
+          user: {
+            team_id: 'team-id',
+            id: 'user-id',
+            is_bot: false,
+            deleted: false,
+            real_name: 'John Doe',
+            // @ts-expect-error -- this is a partial mock
+            profile: {
+              email: 'user@domain.com',
+            },
           },
         },
       },
@@ -95,18 +97,20 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
     });
 
     const [result, { step }] = setup({
-      team_id: 'team-id',
-      event: {
-        type: eventType,
-        user: {
-          team_id: 'team-id',
-          id: 'user-id',
-          is_bot: false,
-          deleted: true,
-          real_name: 'John Doe',
-          // @ts-expect-error -- this is a partial mock
-          profile: {
-            email: 'user@domain.com',
+      encrypted: {
+        team_id: 'team-id',
+        event: {
+          type: eventType,
+          user: {
+            team_id: 'team-id',
+            id: 'user-id',
+            is_bot: false,
+            deleted: true,
+            real_name: 'John Doe',
+            // @ts-expect-error -- this is a partial mock
+            profile: {
+              email: 'user@domain.com',
+            },
           },
         },
       },
@@ -155,18 +159,20 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
     });
 
     const [result, { step }] = setup({
-      team_id: 'team-id',
-      event: {
-        type: eventType,
-        user: {
-          team_id: 'team-id',
-          id: 'user-id',
-          is_bot: true,
-          deleted: true,
-          real_name: 'John Doe',
-          // @ts-expect-error -- this is a partial mock
-          profile: {
-            email: 'user@domain.com',
+      encrypted: {
+        team_id: 'team-id',
+        event: {
+          type: eventType,
+          user: {
+            team_id: 'team-id',
+            id: 'user-id',
+            is_bot: true,
+            deleted: true,
+            real_name: 'John Doe',
+            // @ts-expect-error -- this is a partial mock
+            profile: {
+              email: 'user@domain.com',
+            },
           },
         },
       },

@@ -11,7 +11,9 @@ export type HandleSlackWebhookEventEvents = {
 };
 
 export type SlackWebhookHandler = {
-  data: EnvelopedEvent<SlackEvent>;
+  data: {
+    encrypted: EnvelopedEvent<SlackEvent>;
+  };
 };
 
 export const handleSlackWebhookEvent = inngest.createFunction(

@@ -26,14 +26,16 @@ describe(`handle-slack-webhook-event ${eventType} generic`, () => {
     });
 
     const [result, { step }] = setup({
-      // @ts-expect-error -- This is a partial mock
-      event: {
-        team: 'team-id',
-        type: eventType,
-        subtype: undefined,
-        channel_type: 'channel',
-        channel: 'channel-id',
-        ts: 'message-id',
+      encrypted: {
+        // @ts-expect-error -- This is a partial mock
+        event: {
+          team: 'team-id',
+          type: eventType,
+          subtype: undefined,
+          channel_type: 'channel',
+          channel: 'channel-id',
+          ts: 'message-id',
+        },
       },
     });
 
@@ -61,16 +63,18 @@ describe(`handle-slack-webhook-event ${eventType} generic`, () => {
     });
 
     const [result, { step }] = setup({
-      // @ts-expect-error -- This is a partial mock
-      event: {
-        team: 'team-id',
-        type: eventType,
-        subtype: undefined,
-        channel_type: 'channel',
-        channel: 'channel-id',
-        ts: 'message-id',
-        text: 'text',
-        user: 'user-id',
+      encrypted: {
+        // @ts-expect-error -- This is a partial mock
+        event: {
+          team: 'team-id',
+          type: eventType,
+          subtype: undefined,
+          channel_type: 'channel',
+          channel: 'channel-id',
+          ts: 'message-id',
+          text: 'text',
+          user: 'user-id',
+        },
       },
     });
 
@@ -106,16 +110,18 @@ describe(`handle-slack-webhook-event ${eventType} generic`, () => {
     });
 
     const [result, { step }] = setup({
-      // @ts-expect-error -- This is a partial mock
-      event: {
-        team: 'team-id',
-        type: eventType,
-        subtype: undefined,
-        channel_type: 'channel',
-        channel: 'channel-id',
-        ts: '1700000001.000000',
-        text: 'text',
-        user: 'user-id',
+      encrypted: {
+        // @ts-expect-error -- This is a partial mock
+        event: {
+          team: 'team-id',
+          type: eventType,
+          subtype: undefined,
+          channel_type: 'channel',
+          channel: 'channel-id',
+          ts: '1700000001.000000',
+          text: 'text',
+          user: 'user-id',
+        },
       },
     });
 

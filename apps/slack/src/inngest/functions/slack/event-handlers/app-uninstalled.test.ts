@@ -33,11 +33,13 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
         url: 'https://url',
       },
     ]);
-    // @ts-expect-error -- this is a mock
     const [result, { step }] = setup({
-      team_id: 'team-id',
-      event: {
-        type: eventType,
+      // @ts-expect-error -- this is a mock
+      encrypted: {
+        team_id: 'team-id',
+        event: {
+          type: eventType,
+        },
       },
     });
 

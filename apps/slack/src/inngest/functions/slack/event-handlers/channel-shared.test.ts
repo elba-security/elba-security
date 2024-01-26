@@ -117,13 +117,15 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
     ]);
 
     const [result, { step }] = setup({
-      team_id: 'team-id',
-      // @ts-expect-error -- this is a mock
-      event: {
-        type: eventType,
-        channel: 'channel-id',
+      encrypted: {
+        team_id: 'team-id',
+        // @ts-expect-error -- this is a mock
+        event: {
+          type: eventType,
+          channel: 'channel-id',
+        },
+        event_context: 'event-context',
       },
-      event_context: 'event-context',
     });
 
     await expect(result).resolves.toStrictEqual({
