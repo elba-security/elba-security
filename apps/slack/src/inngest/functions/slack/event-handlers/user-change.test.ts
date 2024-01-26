@@ -7,7 +7,10 @@ import { teamsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
 
-const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
+const setup = createInngestFunctionMock(
+  handleSlackWebhookEvent,
+  'slack/slack.webhook.event.received'
+);
 
 const eventType: SlackEvent['type'] = 'user_change';
 

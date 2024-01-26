@@ -5,7 +5,10 @@ import { db } from '@/database/client';
 import { teamsTable } from '@/database/schema';
 import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
 
-const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
+const setup = createInngestFunctionMock(
+  handleSlackWebhookEvent,
+  'slack/slack.webhook.event.received'
+);
 
 const eventType: SlackEvent['type'] = 'app_uninstalled';
 

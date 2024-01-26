@@ -5,7 +5,10 @@ import { handleSlackWebhookEvent } from '../../handle-slack-webhook-event';
 import type { SlackMessageSubtype } from './types';
 import * as message from './message';
 
-const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
+const setup = createInngestFunctionMock(
+  handleSlackWebhookEvent,
+  'slack/slack.webhook.event.received'
+);
 
 const eventType: SlackEvent['type'] = 'message';
 const messageSubtype: SlackMessageSubtype = 'message_changed';

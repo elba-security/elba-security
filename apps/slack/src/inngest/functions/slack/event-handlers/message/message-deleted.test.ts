@@ -6,7 +6,10 @@ import { teamsTable } from '@/database/schema';
 import { handleSlackWebhookEvent } from '../../handle-slack-webhook-event';
 import type { SlackMessageSubtype } from './types';
 
-const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
+const setup = createInngestFunctionMock(
+  handleSlackWebhookEvent,
+  'slack/slack.webhook.event.received'
+);
 
 const eventType: SlackEvent['type'] = 'message';
 const messageSubtype: SlackMessageSubtype = 'message_deleted';

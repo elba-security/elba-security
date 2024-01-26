@@ -7,7 +7,10 @@ import { conversationsTable, teamsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
 
-const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
+const setup = createInngestFunctionMock(
+  handleSlackWebhookEvent,
+  'slack/slack.webhook.event.received'
+);
 
 const mockedDate = '2023-01-01T00:00:00.000Z';
 

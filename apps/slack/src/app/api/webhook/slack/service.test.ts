@@ -55,7 +55,7 @@ describe('handleSlackInstallation', () => {
     expect(send).toBeCalledWith({
       data: { encrypted: {} },
       id: 'slack-event-undefined',
-      name: 'slack/webhook.handle',
+      name: 'slack/slack.webhook.event.received',
     });
   });
 

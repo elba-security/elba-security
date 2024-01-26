@@ -43,7 +43,7 @@ export const handleSlackWebhookMessage = async (request: NextRequest) => {
 
   await inngest.send({
     id: `slack-event-${payload.event_id}`, // We set the id to ignore duplicate events
-    name: 'slack/webhook.handle',
+    name: 'slack/slack.webhook.event.received',
     data: {
       encrypted: payload,
     },
