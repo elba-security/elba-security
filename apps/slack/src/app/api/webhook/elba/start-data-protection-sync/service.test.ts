@@ -35,7 +35,7 @@ describe('start-data-protection-sync', () => {
         syncStartedAt: mockedDate,
         teamId: 'team-id',
       },
-      name: 'conversations/synchronize',
+      name: 'slack/conversations.sync.requested',
     });
   });
 });

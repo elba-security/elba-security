@@ -6,7 +6,7 @@ import { db } from '@/database/client';
 import { teamsTable } from '@/database/schema';
 import { synchronizeUsers } from './synchronize-users';
 
-const setup = createInngestFunctionMock(synchronizeUsers, 'users/synchronize');
+const setup = createInngestFunctionMock(synchronizeUsers, 'slack/users.sync.requested');
 
 describe('synchronize-users', () => {
   beforeAll(() => {
@@ -117,7 +117,7 @@ describe('synchronize-users', () => {
         syncStartedAt: '2023-01-01T00:00:00.000Z',
         teamId: 'team-id',
       },
-      name: 'users/synchronize',
+      name: 'slack/users.sync.requested',
     });
   });
 

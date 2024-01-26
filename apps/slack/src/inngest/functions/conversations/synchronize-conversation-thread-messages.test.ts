@@ -8,7 +8,7 @@ import { synchronizeConversationThreadMessages } from './synchronize-conversatio
 
 const setup = createInngestFunctionMock(
   synchronizeConversationThreadMessages,
-  'conversations/synchronize.thread.messages'
+  'slack/conversations.sync.thread.messages.requested'
 );
 
 describe('synchronize-conversation-thread-messages', () => {
@@ -165,7 +165,7 @@ describe('synchronize-conversation-thread-messages', () => {
         teamId: 'team-id',
         threadId: 'thread-id',
       },
-      name: 'conversations/synchronize.thread.messages',
+      name: 'slack/conversations.sync.thread.messages.requested',
     });
   });
 
@@ -286,7 +286,7 @@ describe('synchronize-conversation-thread-messages', () => {
         teamId: 'team-id',
         threadId: 'thread-id',
       },
-      name: 'conversations/synchronize.thread.messages.complete',
+      name: 'slack/conversations.sync.thread.messages.completed',
     });
   });
 });

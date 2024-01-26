@@ -59,7 +59,7 @@ describe('schedule-users-sync', () => {
           syncStartedAt: mockedDate,
           teamId: 'team-id-1',
         },
-        name: 'users/synchronize',
+        name: 'slack/users.sync.requested',
       },
       {
         data: {
@@ -67,7 +67,7 @@ describe('schedule-users-sync', () => {
           syncStartedAt: mockedDate,
           teamId: 'team-id-2',
         },
-        name: 'users/synchronize',
+        name: 'slack/users.sync.requested',
       },
     ]);
   });

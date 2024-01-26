@@ -59,7 +59,7 @@ describe('schedule-data-protection-sync', () => {
           syncStartedAt: mockedDate,
           teamId: 'team-id-1',
         },
-        name: 'conversations/synchronize',
+        name: 'slack/conversations.sync.requested',
       },
       {
         data: {
@@ -67,7 +67,7 @@ describe('schedule-data-protection-sync', () => {
           syncStartedAt: mockedDate,
           teamId: 'team-id-2',
         },
-        name: 'conversations/synchronize',
+        name: 'slack/conversations.sync.requested',
       },
     ]);
   });

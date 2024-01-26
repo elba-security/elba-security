@@ -101,7 +101,7 @@ export const channelSharedHandler: SlackEventHandler<'channel_shared'> = async (
     await step.sendEvent(
       'sync-channels',
       teamsToSync.map(({ teamId }) => ({
-        name: 'conversations/synchronize.messages',
+        name: 'slack/conversations.sync.messages.requested',
         data: {
           teamId,
           conversationId: channelId,

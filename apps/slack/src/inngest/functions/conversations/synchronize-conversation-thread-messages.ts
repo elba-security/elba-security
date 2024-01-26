@@ -11,11 +11,11 @@ import { slackMessageSchema } from '@/connectors/slack/messages';
 import { decrypt } from '@/common/crypto';
 
 export type SynchronizeConversationThreadMessagesEvents = {
-  'conversations/synchronize.thread.messages': SynchronizeConversationThreadMessages;
-  'conversations/synchronize.thread.messages.complete': SynchronizeConversationThreadMessagesComplete;
+  'slack/conversations.sync.thread.messages.requested': SynchronizeConversationThreadMessagesRequested;
+  'slack/conversations.sync.thread.messages.completed': SynchronizeConversationThreadMessagesCompleted;
 };
 
-type SynchronizeConversationThreadMessages = {
+type SynchronizeConversationThreadMessagesRequested = {
   data: {
     teamId: string;
     isFirstSync: boolean;
@@ -25,7 +25,7 @@ type SynchronizeConversationThreadMessages = {
   };
 };
 
-type SynchronizeConversationThreadMessagesComplete = {
+type SynchronizeConversationThreadMessagesCompleted = {
   data: {
     teamId: string;
     conversationId: string;
@@ -36,7 +36,7 @@ type SynchronizeConversationThreadMessagesComplete = {
 
 export const synchronizeConversationThreadMessages = inngest.createFunction(
   {
-    id: 'synchronize-conversation-thread-messages',
+    id: 'slack-synchronize-conversation-thread-messages',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -47,7 +47,7 @@ export const synchronizeConversationThreadMessages = inngest.createFunction(
     retries: 5,
   },
   {
-    event: 'conversations/synchronize.thread.messages',
+    event: 'slack/conversations.sync.thread.messages.requested',
   },
   async ({
     event: {
@@ -123,7 +123,7 @@ export const synchronizeConversationThreadMessages = inngest.createFunction(
     const nextCursor = responseMetadata?.next_cursor;
     if (nextCursor) {
       await step.sendEvent('next-pagination-cursor', {
-        name: 'conversations/synchronize.thread.messages',
+        name: 'slack/conversations.sync.thread.messages.requested',
         data: {
           teamId,
           conversationId,
@@ -134,7 +134,7 @@ export const synchronizeConversationThreadMessages = inngest.createFunction(
       });
     } else {
       await step.sendEvent('thread-sync-complete', {
-        name: 'conversations/synchronize.thread.messages.complete',
+        name: 'slack/conversations.sync.thread.messages.completed',
         data: { teamId, conversationId, threadId },
       });
     }

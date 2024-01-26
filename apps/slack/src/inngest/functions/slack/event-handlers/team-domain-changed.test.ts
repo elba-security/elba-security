@@ -87,7 +87,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
         syncStartedAt: mockedDate,
         teamId: 'team-id',
       },
-      name: 'conversations/synchronize',
+      name: 'slack/conversations.sync.requested',
     });
   });
 });

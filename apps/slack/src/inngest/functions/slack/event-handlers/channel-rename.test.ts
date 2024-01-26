@@ -119,7 +119,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
         isFirstSync: false,
         teamId: 'team-id',
       },
-      name: 'conversations/synchronize.messages',
+      name: 'slack/conversations.sync.messages.requested',
     });
   });
 });

@@ -21,7 +21,7 @@ export const channelRenameHandler: SlackEventHandler<'channel_rename'> = async (
     .where(and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, channelId)));
 
   await step.sendEvent('synchronize-conversation-messages', {
-    name: 'conversations/synchronize.messages',
+    name: 'slack/conversations.sync.messages.requested',
     data: {
       teamId,
       conversationId: channelId,

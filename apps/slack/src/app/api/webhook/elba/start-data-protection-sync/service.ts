@@ -16,7 +16,7 @@ export const startDataProtectionSync = async (organisationId: string) => {
   }
 
   await inngest.send({
-    name: 'conversations/synchronize',
+    name: 'slack/conversations.sync.requested',
     data: {
       isFirstSync: true,
       syncStartedAt: new Date().toISOString(),

@@ -2,7 +2,7 @@ import { db } from '@/database/client';
 import { inngest } from '@/inngest/client';
 
 export const scheduleDataProtectionSync = inngest.createFunction(
-  { id: 'schedule-data-protection-sync', retries: 5 },
+  { id: 'slack-schedule-data-protection-sync', retries: 5 },
   { cron: 'TZ=Europe/Paris 0 0 * * 0' }, // every sunday at midnight
   async ({ step }) => {
     const teams = await step.run('get-teams', async () => {
@@ -17,7 +17,7 @@ export const scheduleDataProtectionSync = inngest.createFunction(
       await step.sendEvent(
         'start-data-protection-sync',
         teams.map(({ id: teamId }) => ({
-          name: 'conversations/synchronize',
+          name: 'slack/conversations.sync.requested',
           data: {
             teamId,
             isFirstSync: false,

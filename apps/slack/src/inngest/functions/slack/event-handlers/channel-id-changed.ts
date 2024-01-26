@@ -18,7 +18,7 @@ export const channelIdChangedHandler: SlackEventHandler<'channel_id_changed'> = 
   // meaning data protection object won't be updated but created again
   // so we will need to delete old object ids
   await step.sendEvent('synchronize-conversations', {
-    name: 'conversations/synchronize',
+    name: 'slack/conversations.sync.requested',
     data: {
       teamId,
       isFirstSync: false,

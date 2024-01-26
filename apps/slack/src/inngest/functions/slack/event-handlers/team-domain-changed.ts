@@ -16,7 +16,7 @@ export const teamDomainChangedHandler: SlackEventHandler<'team_domain_changed'> 
 
   // We need to update every objects url
   await step.sendEvent('synchronize-conversations', {
-    name: 'conversations/synchronize',
+    name: 'slack/conversations.sync.requested',
     data: {
       teamId,
       isFirstSync: false,

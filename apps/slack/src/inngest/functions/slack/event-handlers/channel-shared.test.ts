@@ -194,7 +194,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
           isFirstSync: false,
           teamId: 'team-id-2',
         },
-        name: 'conversations/synchronize.messages',
+        name: 'slack/conversations.sync.messages.requested',
       },
       {
         data: {
@@ -202,7 +202,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
           isFirstSync: false,
           teamId: 'team-id-3',
         },
-        name: 'conversations/synchronize.messages',
+        name: 'slack/conversations.sync.messages.requested',
       },
     ]);
   });

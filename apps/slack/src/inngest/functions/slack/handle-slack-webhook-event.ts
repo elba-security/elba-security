@@ -2,7 +2,7 @@ import type { EnvelopedEvent, SlackEvent } from '@slack/bolt';
 import { inngest } from '@/inngest/client';
 import { slackEventHandler } from './event-handlers';
 
-const handleSlackWebhookEventEventName = 'slack/webhook.handle';
+const handleSlackWebhookEventEventName = 'slack/slack.webhook.event.received';
 
 export type HandleSlackWebhookEventEventName = typeof handleSlackWebhookEventEventName;
 
@@ -17,7 +17,7 @@ export type SlackWebhookHandler = {
 };
 
 export const handleSlackWebhookEvent = inngest.createFunction(
-  { id: 'handle-slack-webhook-event', retries: 5 },
+  { id: 'slack-handle-slack-webhook-event', retries: 5 },
   { event: handleSlackWebhookEventEventName },
   slackEventHandler
 );

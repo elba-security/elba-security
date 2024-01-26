@@ -2,7 +2,7 @@ import { db } from '@/database/client';
 import { inngest } from '@/inngest/client';
 
 export const scheduleUsersSync = inngest.createFunction(
-  { id: 'schedule-users-sync', retries: 5 },
+  { id: 'slack-schedule-users-sync', retries: 5 },
   { cron: 'TZ=Europe/Paris 0 0 * * *' }, // Every day at midnight
   async ({ step }) => {
     const teams = await db.query.teamsTable.findMany({
@@ -16,7 +16,7 @@ export const scheduleUsersSync = inngest.createFunction(
       await step.sendEvent(
         'start-users-sync',
         teams.map(({ id: teamId }) => ({
-          name: 'users/synchronize',
+          name: 'slack/users.sync.requested',
           data: {
             teamId,
             isFirstSync: false,

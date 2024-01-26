@@ -134,7 +134,7 @@ describe('handleSlackInstallation', () => {
         syncStartedAt: '2023-01-01T00:00:00.000Z',
         teamId: 'team-id',
       },
-      name: 'users/synchronize',
+      name: 'slack/users.sync.requested',
     });
   });
 

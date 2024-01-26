@@ -11,11 +11,11 @@ import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 
 export type SynchronizeConversationMessagesEvents = {
-  'conversations/synchronize.messages': SynchronizeConversationMessages;
-  'conversations/synchronize.messages.complete': SynchronizeConversationMessagesComplete;
+  'slack/conversations.sync.messages.requested': SynchronizeConversationMessagesRequested;
+  'slack/conversations.sync.messages.completed': SynchronizeConversationMessagesCompleted;
 };
 
-type SynchronizeConversationMessages = {
+type SynchronizeConversationMessagesRequested = {
   data: {
     teamId: string;
     isFirstSync: boolean;
@@ -24,7 +24,7 @@ type SynchronizeConversationMessages = {
   };
 };
 
-type SynchronizeConversationMessagesComplete = {
+type SynchronizeConversationMessagesCompleted = {
   data: {
     teamId: string;
     conversationId: string;
@@ -33,7 +33,7 @@ type SynchronizeConversationMessagesComplete = {
 
 export const synchronizeConversationMessages = inngest.createFunction(
   {
-    id: 'synchronize-conversation-messages',
+    id: 'slack-synchronize-conversation-messages',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -44,7 +44,7 @@ export const synchronizeConversationMessages = inngest.createFunction(
     retries: 5,
   },
   {
-    event: 'conversations/synchronize.messages',
+    event: 'slack/conversations.sync.messages.requested',
   },
   async ({
     event: {
@@ -131,7 +131,7 @@ export const synchronizeConversationMessages = inngest.createFunction(
     if (threadIds.length) {
       const eventsToWait = threadIds.map(async (threadId) => {
         return step.waitForEvent(`wait-for-thread-message-sync-complete-${threadId}`, {
-          event: 'conversations/synchronize.thread.messages.complete',
+          event: 'slack/conversations.sync.thread.messages.completed',
           timeout: '1d',
           if: `async.data.teamId == '${teamId}' && async.data.conversationId == '${conversationId}' && async.data.threadId == '${threadId}'`,
         });
@@ -140,7 +140,7 @@ export const synchronizeConversationMessages = inngest.createFunction(
       await step.sendEvent(
         'start-conversation-thread-messages-synchronization',
         threadIds.map((threadId) => ({
-          name: 'conversations/synchronize.thread.messages',
+          name: 'slack/conversations.sync.thread.messages.requested',
           data: { teamId, conversationId, threadId, isFirstSync },
         }))
       );
@@ -150,12 +150,12 @@ export const synchronizeConversationMessages = inngest.createFunction(
 
     if (nextCursor) {
       await step.sendEvent('next-pagination-cursor', {
-        name: 'conversations/synchronize.messages',
+        name: 'slack/conversations.sync.messages.requested',
         data: { teamId, conversationId, isFirstSync, cursor: nextCursor },
       });
     } else {
       await step.sendEvent('conversation-sync-complete', {
-        name: 'conversations/synchronize.messages.complete',
+        name: 'slack/conversations.sync.messages.completed',
         data: { teamId, conversationId },
       });
     }

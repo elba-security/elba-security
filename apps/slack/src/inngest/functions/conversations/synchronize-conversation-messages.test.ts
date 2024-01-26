@@ -8,7 +8,7 @@ import { synchronizeConversationMessages } from './synchronize-conversation-mess
 
 const setup = createInngestFunctionMock(
   synchronizeConversationMessages,
-  'conversations/synchronize.messages'
+  'slack/conversations.sync.messages.requested'
 );
 
 describe('synchronize-conversation-messages', () => {
@@ -160,7 +160,7 @@ describe('synchronize-conversation-messages', () => {
 
     expect(step.waitForEvent).toBeCalledTimes(1);
     expect(step.waitForEvent).toBeCalledWith('wait-for-thread-message-sync-complete-thread-id', {
-      event: 'conversations/synchronize.thread.messages.complete',
+      event: 'slack/conversations.sync.thread.messages.completed',
       if: "async.data.teamId == 'team-id' && async.data.conversationId == 'conversation-id' && async.data.threadId == 'thread-id'",
       timeout: '1d',
     });
@@ -174,7 +174,7 @@ describe('synchronize-conversation-messages', () => {
           teamId: 'team-id',
           threadId: 'thread-id',
         },
-        name: 'conversations/synchronize.thread.messages',
+        name: 'slack/conversations.sync.thread.messages.requested',
       },
     ]);
     expect(step.sendEvent).toBeCalledWith('next-pagination-cursor', {
@@ -184,7 +184,7 @@ describe('synchronize-conversation-messages', () => {
         isFirstSync: true,
         teamId: 'team-id',
       },
-      name: 'conversations/synchronize.messages',
+      name: 'slack/conversations.sync.messages.requested',
     });
   });
 
@@ -322,7 +322,7 @@ describe('synchronize-conversation-messages', () => {
 
     expect(step.waitForEvent).toBeCalledTimes(1);
     expect(step.waitForEvent).toBeCalledWith('wait-for-thread-message-sync-complete-thread-id', {
-      event: 'conversations/synchronize.thread.messages.complete',
+      event: 'slack/conversations.sync.thread.messages.completed',
       if: "async.data.teamId == 'team-id' && async.data.conversationId == 'conversation-id' && async.data.threadId == 'thread-id'",
       timeout: '1d',
     });
@@ -336,7 +336,7 @@ describe('synchronize-conversation-messages', () => {
           teamId: 'team-id',
           threadId: 'thread-id',
         },
-        name: 'conversations/synchronize.thread.messages',
+        name: 'slack/conversations.sync.thread.messages.requested',
       },
     ]);
     expect(step.sendEvent).toBeCalledWith('conversation-sync-complete', {
@@ -344,7 +344,7 @@ describe('synchronize-conversation-messages', () => {
         conversationId: 'conversation-id',
         teamId: 'team-id',
       },
-      name: 'conversations/synchronize.messages.complete',
+      name: 'slack/conversations.sync.messages.completed',
     });
   });
 });

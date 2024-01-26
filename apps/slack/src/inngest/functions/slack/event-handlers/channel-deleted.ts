@@ -12,7 +12,7 @@ export const channelDeletedHandler: SlackEventHandler<'channel_deleted'> = async
     .where(and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, channelId)));
 
   await step.sendEvent('synchronize-conversations', {
-    name: 'conversations/synchronize',
+    name: 'slack/conversations.sync.requested',
     data: {
       teamId,
       isFirstSync: false,

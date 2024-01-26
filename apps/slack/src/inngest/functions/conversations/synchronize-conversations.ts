@@ -9,10 +9,10 @@ import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 
 export type SynchronizeConversationsEvents = {
-  'conversations/synchronize': SynchronizeConversations;
+  'slack/conversations.sync.requested': SynchronizeConversationsRequested;
 };
 
-type SynchronizeConversations = {
+type SynchronizeConversationsRequested = {
   data: {
     teamId: string;
     syncStartedAt: string;
@@ -23,14 +23,14 @@ type SynchronizeConversations = {
 
 export const synchronizeConversations = inngest.createFunction(
   {
-    id: 'synchronize-conversations',
+    id: 'slack-synchronize-conversations',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
     retries: 5,
   },
   {
-    event: 'conversations/synchronize',
+    event: 'slack/conversations.sync.requested',
   },
   async ({
     event: {
@@ -103,7 +103,7 @@ export const synchronizeConversations = inngest.createFunction(
 
       const eventsToWait = conversationsToInsert.map(({ id: conversationId }) =>
         step.waitForEvent(`wait-for-message-complete-${conversationId}`, {
-          event: 'conversations/synchronize.messages.complete',
+          event: 'slack/conversations.sync.messages.completed',
           timeout: '1 day',
           if: `async.data.teamId == '${teamId}' && async.data.conversationId == '${conversationId}'`,
         })
@@ -112,7 +112,7 @@ export const synchronizeConversations = inngest.createFunction(
       await step.sendEvent(
         'start-conversations-messages-synchronization',
         conversationsToInsert.map(({ id: conversationId }) => ({
-          name: 'conversations/synchronize.messages',
+          name: 'slack/conversations.sync.messages.requested',
           data: { teamId, conversationId, isFirstSync },
         }))
       );
@@ -122,7 +122,7 @@ export const synchronizeConversations = inngest.createFunction(
 
     if (nextCursor) {
       await step.sendEvent('next-pagination-cursor', {
-        name: 'conversations/synchronize',
+        name: 'slack/conversations.sync.requested',
         data: { teamId, syncStartedAt, isFirstSync, cursor: nextCursor },
       });
     } else {

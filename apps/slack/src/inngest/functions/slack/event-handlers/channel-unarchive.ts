@@ -53,7 +53,7 @@ export const channelUnarchiveHandler: SlackEventHandler<'channel_unarchive'> = a
     });
 
   await step.sendEvent('synchronize-conversation-messages', {
-    name: 'conversations/synchronize.messages',
+    name: 'slack/conversations.sync.messages.requested',
     data: {
       teamId,
       conversationId: result.data.id,

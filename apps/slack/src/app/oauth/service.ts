@@ -94,7 +94,7 @@ export const handleSlackInstallation = async ({
       });
 
     await inngest.send({
-      name: 'users/synchronize',
+      name: 'slack/users.sync.requested',
       data: {
         teamId: result.data.id,
         isFirstSync: true,

@@ -6,7 +6,10 @@ import { db } from '@/database/client';
 import { conversationsTable, teamsTable } from '@/database/schema';
 import { synchronizeConversations } from './synchronize-conversations';
 
-const setup = createInngestFunctionMock(synchronizeConversations, 'conversations/synchronize');
+const setup = createInngestFunctionMock(
+  synchronizeConversations,
+  'slack/conversations.sync.requested'
+);
 
 const mockedDate = '2023-01-01T00:00:00.000Z';
 
@@ -135,12 +138,12 @@ describe('synchronize-conversations', () => {
 
     expect(step.waitForEvent).toBeCalledTimes(2);
     expect(step.waitForEvent).toBeCalledWith('wait-for-message-complete-channel-id-1', {
-      event: 'conversations/synchronize.messages.complete',
+      event: 'slack/conversations.sync.messages.completed',
       if: "async.data.teamId == 'team-id' && async.data.conversationId == 'channel-id-1'",
       timeout: '1 day',
     });
     expect(step.waitForEvent).toBeCalledWith('wait-for-message-complete-channel-id-2', {
-      event: 'conversations/synchronize.messages.complete',
+      event: 'slack/conversations.sync.messages.completed',
       if: "async.data.teamId == 'team-id' && async.data.conversationId == 'channel-id-2'",
       timeout: '1 day',
     });
@@ -153,7 +156,7 @@ describe('synchronize-conversations', () => {
           isFirstSync: true,
           teamId: 'team-id',
         },
-        name: 'conversations/synchronize.messages',
+        name: 'slack/conversations.sync.messages.requested',
       },
       {
         data: {
@@ -161,7 +164,7 @@ describe('synchronize-conversations', () => {
           isFirstSync: true,
           teamId: 'team-id',
         },
-        name: 'conversations/synchronize.messages',
+        name: 'slack/conversations.sync.messages.requested',
       },
     ]);
     expect(step.sendEvent).toBeCalledWith('next-pagination-cursor', {
@@ -171,7 +174,7 @@ describe('synchronize-conversations', () => {
         syncStartedAt: '2023-01-01T00:00:00.000Z',
         teamId: 'team-id',
       },
-      name: 'conversations/synchronize',
+      name: 'slack/conversations.sync.requested',
     });
   });
 
@@ -324,12 +327,12 @@ describe('synchronize-conversations', () => {
 
     expect(step.waitForEvent).toBeCalledTimes(2);
     expect(step.waitForEvent).toBeCalledWith('wait-for-message-complete-channel-id-1', {
-      event: 'conversations/synchronize.messages.complete',
+      event: 'slack/conversations.sync.messages.completed',
       if: "async.data.teamId == 'team-id' && async.data.conversationId == 'channel-id-1'",
       timeout: '1 day',
     });
     expect(step.waitForEvent).toBeCalledWith('wait-for-message-complete-channel-id-2', {
-      event: 'conversations/synchronize.messages.complete',
+      event: 'slack/conversations.sync.messages.completed',
       if: "async.data.teamId == 'team-id' && async.data.conversationId == 'channel-id-2'",
       timeout: '1 day',
     });
@@ -342,7 +345,7 @@ describe('synchronize-conversations', () => {
           isFirstSync: false,
           teamId: 'team-id',
         },
-        name: 'conversations/synchronize.messages',
+        name: 'slack/conversations.sync.messages.requested',
       },
       {
         data: {
@@ -350,7 +353,7 @@ describe('synchronize-conversations', () => {
           isFirstSync: false,
           teamId: 'team-id',
         },
-        name: 'conversations/synchronize.messages',
+        name: 'slack/conversations.sync.messages.requested',
       },
     ]);
   });

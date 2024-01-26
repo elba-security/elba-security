@@ -11,7 +11,7 @@ import { formatUser } from '@/connectors/elba/users/users';
 import { env } from '@/common/env';
 
 export type SynchronizeUsersEvents = {
-  'users/synchronize': SynchronizeUsers;
+  'slack/users.sync.requested': SynchronizeUsers;
 };
 
 type SynchronizeUsers = {
@@ -25,13 +25,13 @@ type SynchronizeUsers = {
 
 export const synchronizeUsers = inngest.createFunction(
   {
-    id: 'synchronize-users',
+    id: 'slack-synchronize-users',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
     retries: 5,
   },
-  { event: 'users/synchronize' },
+  { event: 'slack/users.sync.requested' },
   async ({
     event: {
       data: { teamId, syncStartedAt, isFirstSync, cursor },
@@ -84,7 +84,7 @@ export const synchronizeUsers = inngest.createFunction(
 
     if (nextCursor) {
       await step.sendEvent('next-pagination-cursor', {
-        name: 'users/synchronize',
+        name: 'slack/users.sync.requested',
         data: {
           teamId,
           syncStartedAt,
