@@ -2,7 +2,7 @@ import { expect, test, describe, vi, afterEach } from 'vitest';
 import type { SlackEvent } from '@slack/bolt';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { db } from '@/database/client';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { handleSlackWebhookEvent } from '../../handle-slack-webhook-event';
 import type { SlackMessageSubtype } from './types';
 
@@ -19,7 +19,8 @@ describe(`handle-slack-webhook-event ${eventType} ${messageSubtype}`, () => {
   test('should delete message successfully', async () => {
     const elba = spyOnElba();
 
-    await db.insert(teams).values({
+    await db.insert(teamsTable).values({
+      adminId: 'admin-id',
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
       elbaRegion: 'eu',
       id: 'team-id',

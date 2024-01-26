@@ -5,7 +5,7 @@ export const scheduleUsersSync = inngest.createFunction(
   { id: 'schedule-users-sync', retries: 5 },
   { cron: 'TZ=Europe/Paris 0 0 * * *' }, // Every day at midnight
   async ({ step }) => {
-    const teams = await db.query.teams.findMany({
+    const teams = await db.query.teamsTable.findMany({
       columns: {
         id: true,
       },

@@ -1,18 +1,15 @@
 import { relations } from 'drizzle-orm';
 import { pgTable, text, boolean, primaryKey, timestamp } from 'drizzle-orm/pg-core';
-import { teams } from './teams';
-// import { conversationsExternalUsers } from '@/database/schema/conversations-external-users';
+import { teamsTable } from './teams';
 
-export const conversations = pgTable(
+export const conversationsTable = pgTable(
   'conversations',
   {
     teamId: text('team_id')
       .notNull()
-      // .primaryKey()
-      .references(() => teams.id, { onDelete: 'cascade', onUpdate: 'restrict' }),
+      .references(() => teamsTable.id, { onDelete: 'cascade', onUpdate: 'restrict' }),
     id: text('id').notNull(),
     name: text('name').notNull(),
-    // isPrivate: boolean('is_private').notNull(),
     isSharedExternally: boolean('is_shared_externally').notNull(),
     lastSyncedAt: timestamp('last_synced_at', { withTimezone: true }).notNull(),
   },
@@ -23,11 +20,11 @@ export const conversations = pgTable(
   }
 );
 
-export type NewConversation = typeof conversations.$inferInsert;
+export type NewConversation = typeof conversationsTable.$inferInsert;
 
-export const conversationsRelations = relations(conversations, ({ one }) => ({
-  team: one(teams, {
-    fields: [conversations.teamId],
-    references: [teams.id],
+export const conversationsRelations = relations(conversationsTable, ({ one }) => ({
+  team: one(teamsTable, {
+    fields: [conversationsTable.teamId],
+    references: [teamsTable.id],
   }),
 }));

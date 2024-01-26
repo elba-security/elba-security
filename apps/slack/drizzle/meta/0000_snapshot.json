@@ -1,5 +1,5 @@
 {
-  "id": "9d4b9afc-eaed-4623-b6ef-bf6fd8d1b82f",
+  "id": "8c2e690b-703b-4868-be1c-d42e05e3a0c0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -97,6 +97,12 @@
         },
         "token": {
           "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "admin_id": {
+          "name": "admin_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true

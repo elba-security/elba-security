@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm';
-import { conversations } from '@/database/schema';
+import { conversationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import type { SlackEventHandler } from './types';
 
@@ -8,8 +8,8 @@ export const channelDeletedHandler: SlackEventHandler<'channel_deleted'> = async
   { step }
 ) => {
   await db
-    .delete(conversations)
-    .where(and(eq(conversations.teamId, teamId), eq(conversations.id, channelId)));
+    .delete(conversationsTable)
+    .where(and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, channelId)));
 
   await step.sendEvent('synchronize-conversations', {
     name: 'conversations/synchronize',

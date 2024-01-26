@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS "teams" (
 	"elba_region" text NOT NULL,
 	"url" text NOT NULL,
 	"token" text NOT NULL,
+	"admin_id" text NOT NULL,
 	CONSTRAINT "teams_elba_organisation_id_unique" UNIQUE("elba_organisation_id")
 );
 --> statement-breakpoint

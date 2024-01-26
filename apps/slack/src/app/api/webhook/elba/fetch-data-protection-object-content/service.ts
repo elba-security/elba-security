@@ -2,7 +2,7 @@ import { and, eq } from 'drizzle-orm';
 import { SlackAPIClient } from 'slack-web-api-client';
 import type { MessageElement } from 'slack-web-api-client/dist/client/generated-response/ConversationsHistoryResponse';
 import { decrypt } from '@/common/crypto';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { messageMetadataSchema } from '@/connectors/elba/data-protection/metadata';
 
@@ -19,8 +19,8 @@ export const fetchDataProtectionObjectContent = async ({
   }
 
   const { type, teamId, conversationId, messageId } = messageMetadataResult.data;
-  const team = await db.query.teams.findFirst({
-    where: and(eq(teams.id, teamId), eq(teams.elbaOrganisationId, organisationId)),
+  const team = await db.query.teamsTable.findFirst({
+    where: and(eq(teamsTable.id, teamId), eq(teamsTable.elbaOrganisationId, organisationId)),
     columns: {
       token: true,
     },

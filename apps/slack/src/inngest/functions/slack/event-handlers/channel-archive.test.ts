@@ -2,7 +2,7 @@ import { expect, test, describe, beforeAll, afterAll, vi } from 'vitest';
 import type { SlackEvent } from '@slack/bolt';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
-import { conversations, teams } from '@/database/schema';
+import { conversationsTable, teamsTable } from '@/database/schema';
 import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
 
 const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
@@ -21,8 +21,9 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
   });
 
   test('should delete channel successfully', async () => {
-    await db.insert(teams).values([
+    await db.insert(teamsTable).values([
       {
+        adminId: 'admin-id-1',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
         elbaRegion: 'eu',
         id: 'team-id',
@@ -30,6 +31,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
         url: 'https://url',
       },
       {
+        adminId: 'admin-id-2',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000002',
         elbaRegion: 'eu',
         id: 'another-team-id',
@@ -37,7 +39,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
         url: 'https://url',
       },
     ]);
-    await db.insert(conversations).values([
+    await db.insert(conversationsTable).values([
       {
         id: 'channel-id-1',
         isSharedExternally: false,
@@ -80,7 +82,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       teamId: 'team-id',
     });
 
-    const conversationsInserted = await db.query.conversations.findMany();
+    const conversationsInserted = await db.query.conversationsTable.findMany();
 
     expect(conversationsInserted).toEqual([
       {

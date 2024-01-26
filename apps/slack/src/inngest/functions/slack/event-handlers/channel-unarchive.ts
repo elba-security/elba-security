@@ -1,6 +1,6 @@
 import { SlackAPIClient } from 'slack-web-api-client';
 import { eq } from 'drizzle-orm';
-import { conversations, teams } from '@/database/schema';
+import { conversationsTable, teamsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { slackChannelSchema } from '@/connectors/slack/channels';
 import { decrypt } from '@/common/crypto';
@@ -10,8 +10,8 @@ export const channelUnarchiveHandler: SlackEventHandler<'channel_unarchive'> = a
   { team_id: teamId, event: { channel: channelId } },
   { step }
 ) => {
-  const team = await db.query.teams.findFirst({
-    where: eq(teams.id, teamId),
+  const team = await db.query.teamsTable.findFirst({
+    where: eq(teamsTable.id, teamId),
     columns: { token: true },
   });
 
@@ -35,7 +35,7 @@ export const channelUnarchiveHandler: SlackEventHandler<'channel_unarchive'> = a
   }
 
   await db
-    .insert(conversations)
+    .insert(conversationsTable)
     .values({
       teamId,
       id: result.data.id,
@@ -44,7 +44,7 @@ export const channelUnarchiveHandler: SlackEventHandler<'channel_unarchive'> = a
       isSharedExternally: Boolean(result.data.is_ext_shared),
     })
     .onConflictDoUpdate({
-      target: [conversations.teamId, conversations.id],
+      target: [conversationsTable.teamId, conversationsTable.id],
       set: {
         name: result.data.name,
         isSharedExternally: Boolean(result.data.is_ext_shared),

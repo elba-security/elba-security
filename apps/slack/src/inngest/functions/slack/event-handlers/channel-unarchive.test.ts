@@ -4,7 +4,7 @@ import type { SlackEvent } from '@slack/bolt';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as crypto from '@/common/crypto';
 import { db } from '@/database/client';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
 
 const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
@@ -49,12 +49,13 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       },
     });
 
-    await db.insert(teams).values({
+    await db.insert(teamsTable).values({
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
       elbaRegion: 'eu',
       id: 'team-id',
       token: 'token',
       url: 'https://url',
+      adminId: 'admin-id',
     });
 
     const [result, { step }] = setup({
@@ -85,7 +86,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       channel: 'channel-id-1',
     });
 
-    const conversationsInserted = await db.query.conversations.findMany();
+    const conversationsInserted = await db.query.conversationsTable.findMany();
 
     expect(conversationsInserted).toEqual([
       {

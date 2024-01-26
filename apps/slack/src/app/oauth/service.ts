@@ -4,7 +4,7 @@ import { encrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 import { getSlackMissingScopes } from '@/connectors/slack/oauth';
 import { db } from '@/database/client';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { slackTeamSchema } from '@/connectors/slack/teams';
 import { inngest } from '@/inngest/client';
 
@@ -75,19 +75,21 @@ export const handleSlackInstallation = async ({
     const encryptedToken = await encrypt(accessToken);
 
     await db
-      .insert(teams)
+      .insert(teamsTable)
       .values({
         id: result.data.id,
         elbaOrganisationId: organisationId,
         elbaRegion: region,
         url: result.data.url,
         token: encryptedToken,
+        adminId: response.authed_user.id,
       })
       .onConflictDoUpdate({
-        target: [teams.id],
+        target: [teamsTable.id],
         set: {
           url: result.data.url,
           token: encryptedToken,
+          adminId: response.authed_user.id,
         },
       });
 
@@ -101,11 +103,7 @@ export const handleSlackInstallation = async ({
     });
   } catch (error) {
     if (accessToken) {
-      await slackClient.apps.uninstall({
-        client_id: env.SLACK_CLIENT_ID,
-        client_secret: env.SLACK_CLIENT_SECRET,
-        token: accessToken,
-      });
+      await slackClient.auth.revoke({ token: accessToken });
     }
 
     throw error;

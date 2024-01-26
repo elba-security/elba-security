@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeAll, afterAll, afterEach } from 'vitest';
 import * as slack from 'slack-web-api-client';
 import { db } from '@/database/client';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { deleteDataProtectionObject } from './service';
 
@@ -34,7 +34,8 @@ describe('delete-data-protection-object', () => {
       },
     });
 
-    await db.insert(teams).values({
+    await db.insert(teamsTable).values({
+      adminId: 'admin-id',
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
       elbaRegion: 'eu',
       id: 'team-id',

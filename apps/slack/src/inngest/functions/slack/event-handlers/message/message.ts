@@ -1,7 +1,7 @@
 import type { GenericMessageEvent } from '@slack/bolt';
 import { and, eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { conversations } from '@/database/schema';
+import { conversationsTable } from '@/database/schema';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/objects';
 import { slackMessageSchema } from '@/connectors/slack/messages';
 import { createElbaClient } from '@/connectors/elba/client';
@@ -21,8 +21,8 @@ export const genericMessageHandler = async (event: GenericMessageEvent) => {
     };
   }
 
-  const conversation = await db.query.conversations.findFirst({
-    where: and(eq(conversations.teamId, teamId), eq(conversations.id, event.channel)),
+  const conversation = await db.query.conversationsTable.findFirst({
+    where: and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, event.channel)),
     columns: {
       name: true,
       isSharedExternally: true,

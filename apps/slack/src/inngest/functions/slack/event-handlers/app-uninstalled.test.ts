@@ -2,7 +2,7 @@ import { expect, test, describe, afterEach, vi } from 'vitest';
 import type { SlackEvent } from '@slack/bolt';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { db } from '@/database/client';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
 
 const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
@@ -17,8 +17,9 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
   test('should successfully delete team and update elba connection status', async () => {
     const elba = spyOnElba();
 
-    await db.insert(teams).values([
+    await db.insert(teamsTable).values([
       {
+        adminId: 'admin-id-1',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
         elbaRegion: 'eu',
         id: 'team-id',
@@ -26,6 +27,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
         url: 'https://url',
       },
       {
+        adminId: 'admin-id-2',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000002',
         elbaRegion: 'eu',
         id: 'another-team-id',
@@ -52,10 +54,11 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       },
     });
 
-    const teamsInserted = await db.query.teams.findMany();
+    const teamsInserted = await db.query.teamsTable.findMany();
 
     expect(teamsInserted).toEqual([
       {
+        adminId: 'admin-id-2',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000002',
         elbaRegion: 'eu',
         id: 'another-team-id',

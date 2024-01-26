@@ -2,7 +2,7 @@ import { expect, test, describe, vi, afterEach } from 'vitest';
 import type { SlackEvent } from '@slack/bolt';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { db } from '@/database/client';
-import { conversations, teams } from '@/database/schema';
+import { conversationsTable, teamsTable } from '@/database/schema';
 import { handleSlackWebhookEvent } from '../../handle-slack-webhook-event';
 
 const setup = createInngestFunctionMock(handleSlackWebhookEvent, 'slack/webhook.handle');
@@ -17,12 +17,13 @@ describe(`handle-slack-webhook-event ${eventType} generic`, () => {
   test('should be ignored if message input is not valid', async () => {
     const elba = spyOnElba();
 
-    await db.insert(teams).values({
+    await db.insert(teamsTable).values({
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
       elbaRegion: 'eu',
       id: 'team-id',
       token: 'token',
       url: 'https://url',
+      adminId: 'admin-id',
     });
 
     const [result, { step }] = setup({
@@ -54,7 +55,8 @@ describe(`handle-slack-webhook-event ${eventType} generic`, () => {
   test('should be ignored if conversation is not found', async () => {
     const elba = spyOnElba();
 
-    await db.insert(teams).values({
+    await db.insert(teamsTable).values({
+      adminId: 'admin-id',
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
       elbaRegion: 'eu',
       id: 'team-id',
@@ -93,7 +95,8 @@ describe(`handle-slack-webhook-event ${eventType} generic`, () => {
   test('should be handled successfully', async () => {
     const elba = spyOnElba();
 
-    await db.insert(teams).values({
+    await db.insert(teamsTable).values({
+      adminId: 'admin-id',
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
       elbaRegion: 'eu',
       id: 'team-id',
@@ -101,7 +104,7 @@ describe(`handle-slack-webhook-event ${eventType} generic`, () => {
       url: 'https://url',
     });
 
-    await db.insert(conversations).values({
+    await db.insert(conversationsTable).values({
       id: 'channel-id',
       isSharedExternally: false,
       lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),

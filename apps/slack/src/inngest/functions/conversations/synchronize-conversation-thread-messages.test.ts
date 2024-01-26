@@ -3,7 +3,7 @@ import * as slack from 'slack-web-api-client';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import * as crypto from '@/common/crypto';
 import { db } from '@/database/client';
-import { conversations, teams } from '@/database/schema';
+import { conversationsTable, teamsTable } from '@/database/schema';
 import { synchronizeConversationThreadMessages } from './synchronize-conversation-thread-messages';
 
 const setup = createInngestFunctionMock(
@@ -64,14 +64,15 @@ describe('synchronize-conversation-thread-messages', () => {
       },
     });
 
-    await db.insert(teams).values({
+    await db.insert(teamsTable).values({
+      adminId: 'admin-id',
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
       elbaRegion: 'eu',
       id: 'team-id',
       token: 'token',
       url: 'https://url',
     });
-    await db.insert(conversations).values({
+    await db.insert(conversationsTable).values({
       id: 'conversation-id',
       isSharedExternally: false,
       lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),
@@ -204,14 +205,15 @@ describe('synchronize-conversation-thread-messages', () => {
       },
     });
 
-    await db.insert(teams).values({
+    await db.insert(teamsTable).values({
+      adminId: 'admin-id',
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
       elbaRegion: 'eu',
       id: 'team-id',
       token: 'token',
       url: 'https://url',
     });
-    await db.insert(conversations).values({
+    await db.insert(conversationsTable).values({
       id: 'conversation-id',
       isSharedExternally: false,
       lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),

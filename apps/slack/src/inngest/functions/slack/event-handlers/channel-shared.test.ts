@@ -3,7 +3,7 @@ import type { SlackEvent } from '@slack/bolt';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as slack from 'slack-web-api-client';
 import { db } from '@/database/client';
-import { conversations, teams } from '@/database/schema';
+import { conversationsTable, teamsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
 
@@ -75,8 +75,9 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       },
     });
 
-    await db.insert(teams).values([
+    await db.insert(teamsTable).values([
       {
+        adminId: 'admin-id-1',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
         elbaRegion: 'eu',
         id: 'team-id-1',
@@ -84,6 +85,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
         url: 'https://url',
       },
       {
+        adminId: 'admin-id-2',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000002',
         elbaRegion: 'eu',
         id: 'team-id-2',
@@ -91,6 +93,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
         url: 'https://url',
       },
       {
+        adminId: 'admin-id-3',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000003',
         elbaRegion: 'eu',
         id: 'team-id-3',
@@ -99,7 +102,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       },
     ]);
 
-    await db.insert(conversations).values([
+    await db.insert(conversationsTable).values([
       {
         id: 'channel-id',
         isSharedExternally: true,
@@ -144,7 +147,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
       message: 'Channel shared',
     });
 
-    const conversationsInserted = await db.query.conversations.findMany();
+    const conversationsInserted = await db.query.conversationsTable.findMany();
     expect(conversationsInserted).toEqual([
       {
         id: 'channel-id',

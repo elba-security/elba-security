@@ -1,7 +1,7 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { scheduleDataProtectionSync } from './schedule-data-protection-sync';
 
 const setup = createInngestFunctionMock(scheduleDataProtectionSync);
@@ -26,8 +26,9 @@ describe('schedule-data-protection-sync', () => {
   });
 
   test('should schedule sync when there are teams', async () => {
-    await db.insert(teams).values([
+    await db.insert(teamsTable).values([
       {
+        adminId: 'admin-id-1',
         elbaOrganisationId: 'org-id-1',
         elbaRegion: 'eu',
         id: 'team-id-1',
@@ -35,6 +36,7 @@ describe('schedule-data-protection-sync', () => {
         url: 'url-1',
       },
       {
+        adminId: 'admin-id-2',
         elbaOrganisationId: 'org-id-2',
         elbaRegion: 'eu',
         id: 'team-id-2',

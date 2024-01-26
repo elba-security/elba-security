@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
 import { db } from '@/database/client';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { startDataProtectionSync } from './service';
 
@@ -18,12 +18,13 @@ describe('start-data-protection-sync', () => {
   it('Should successfully start data protection synchronization', async () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
-    await db.insert(teams).values({
+    await db.insert(teamsTable).values({
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
       elbaRegion: 'eu',
       id: 'team-id',
       token: 'token',
       url: 'https://url',
+      adminId: 'admin-id',
     });
 
     await startDataProtectionSync('00000000-0000-0000-0000-000000000001');

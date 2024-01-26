@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import type { SlackEventHandler } from './types';
 
@@ -8,11 +8,11 @@ export const teamDomainChangedHandler: SlackEventHandler<'team_domain_changed'> 
   { step }
 ) => {
   await db
-    .update(teams)
+    .update(teamsTable)
     .set({
       url,
     })
-    .where(eq(teams.id, teamId));
+    .where(eq(teamsTable.id, teamId));
 
   // We need to update every objects url
   await step.sendEvent('synchronize-conversations', {

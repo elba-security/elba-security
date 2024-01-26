@@ -1,14 +1,14 @@
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObjectId } from '@/connectors/elba/data-protection/objects';
 import type { SlackMessageHandler } from './types';
 
 export const messageDeletedHandler: SlackMessageHandler<'message_deleted'> = async (event) => {
   const teamId = event.team_id;
-  const team = await db.query.teams.findFirst({
-    where: eq(teams.id, teamId),
+  const team = await db.query.teamsTable.findFirst({
+    where: eq(teamsTable.id, teamId),
     columns: {
       elbaOrganisationId: true,
       elbaRegion: true,

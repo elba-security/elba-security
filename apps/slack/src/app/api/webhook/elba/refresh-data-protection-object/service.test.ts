@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeAll, afterAll, afterEach } from 'vitest
 import * as slack from 'slack-web-api-client';
 import { spyOnElba } from '@elba-security/test-utils';
 import { db } from '@/database/client';
-import { conversations, teams } from '@/database/schema';
+import { conversationsTable, teamsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { refreshDataProtectionObject } from './service';
 
@@ -58,14 +58,15 @@ describe('refresh-data-protection-object', () => {
         },
       });
 
-      await db.insert(teams).values({
+      await db.insert(teamsTable).values({
+        adminId: 'admin-id',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
         elbaRegion: 'eu',
         id: 'team-id',
         token: 'token',
         url: 'https://url',
       });
-      await db.insert(conversations).values({
+      await db.insert(conversationsTable).values({
         id: 'channel-id',
         isSharedExternally: false,
         lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
@@ -158,14 +159,15 @@ describe('refresh-data-protection-object', () => {
         },
       });
 
-      await db.insert(teams).values({
+      await db.insert(teamsTable).values({
+        adminId: 'admin-id',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
         elbaRegion: 'eu',
         id: 'team-id',
         token: 'token',
         url: 'https://url',
       });
-      await db.insert(conversations).values({
+      await db.insert(conversationsTable).values({
         id: 'channel-id',
         isSharedExternally: false,
         lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
@@ -249,14 +251,15 @@ describe('refresh-data-protection-object', () => {
         },
       });
 
-      await db.insert(teams).values({
+      await db.insert(teamsTable).values({
+        adminId: 'admin-id',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
         elbaRegion: 'eu',
         id: 'team-id',
         token: 'token',
         url: 'https://url',
       });
-      await db.insert(conversations).values({
+      await db.insert(conversationsTable).values({
         id: 'channel-id',
         isSharedExternally: false,
         lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
@@ -353,14 +356,15 @@ describe('refresh-data-protection-object', () => {
         },
       });
 
-      await db.insert(teams).values({
+      await db.insert(teamsTable).values({
+        adminId: 'admin-id',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
         elbaRegion: 'eu',
         id: 'team-id',
         token: 'token',
         url: 'https://url',
       });
-      await db.insert(conversations).values({
+      await db.insert(conversationsTable).values({
         id: 'channel-id',
         isSharedExternally: false,
         lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),

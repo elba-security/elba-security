@@ -4,7 +4,7 @@ import { neonConfig } from '@neondatabase/serverless';
 import { env } from '@/common/env';
 import * as schema from './schema';
 
-// To have an local like neon database environment as vercel postgres use neon
+// To have a local neon database like environment as vercel postgres use neon
 // see: https://gal.hagever.com/posts/running-vercel-postgres-locally
 if (!process.env.VERCEL_ENV || process.env.VERCEL_ENV === 'development') {
   // Set the WebSocket proxy to work with the local instance

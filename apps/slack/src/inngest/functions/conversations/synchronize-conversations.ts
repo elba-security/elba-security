@@ -2,7 +2,7 @@ import { and, eq, lt, sql } from 'drizzle-orm';
 import { SlackAPIClient } from 'slack-web-api-client';
 import { db } from '@/database/client';
 import type { NewConversation } from '@/database/schema';
-import { conversations, teams } from '@/database/schema';
+import { conversationsTable, teamsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { createElbaClient } from '@/connectors/elba/client';
 import { decrypt } from '@/common/crypto';
@@ -39,8 +39,8 @@ export const synchronizeConversations = inngest.createFunction(
     step,
   }) => {
     const { token, elbaOrganisationId, elbaRegion } = await step.run('get-team', async () => {
-      const result = await db.query.teams.findFirst({
-        where: eq(teams.id, teamId),
+      const result = await db.query.teamsTable.findFirst({
+        where: eq(teamsTable.id, teamId),
         columns: { token: true, elbaOrganisationId: true, elbaRegion: true },
       });
 
@@ -89,10 +89,10 @@ export const synchronizeConversations = inngest.createFunction(
     if (conversationsToInsert.length) {
       await step.run('insert-conversations', async () => {
         await db
-          .insert(conversations)
+          .insert(conversationsTable)
           .values(conversationsToInsert)
           .onConflictDoUpdate({
-            target: [conversations.teamId, conversations.id],
+            target: [conversationsTable.teamId, conversationsTable.id],
             set: {
               name: sql`excluded.name`,
               isSharedExternally: sql`excluded.is_shared_externally`,
@@ -128,11 +128,11 @@ export const synchronizeConversations = inngest.createFunction(
     } else {
       await step.run('delete-conversations', async () => {
         await db
-          .delete(conversations)
+          .delete(conversationsTable)
           .where(
             and(
-              eq(conversations.teamId, teamId),
-              lt(conversations.lastSyncedAt, new Date(syncStartedAt))
+              eq(conversationsTable.teamId, teamId),
+              lt(conversationsTable.lastSyncedAt, new Date(syncStartedAt))
             )
           );
       });

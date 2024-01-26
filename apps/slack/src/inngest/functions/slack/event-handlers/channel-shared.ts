@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { SlackAPIClient } from 'slack-web-api-client';
-import { conversations, teams } from '@/database/schema';
+import { conversationsTable, teamsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { env } from '@/common/env';
 import { decrypt } from '@/common/crypto';
@@ -29,8 +29,8 @@ export const channelSharedHandler: SlackEventHandler<'channel_shared'> = async (
 
     steps.push(
       step.run(`channel-shared-${teamId}`, async () => {
-        const conversation = await db.query.conversations.findFirst({
-          where: and(eq(conversations.teamId, teamId), eq(conversations.id, channelId)),
+        const conversation = await db.query.conversationsTable.findFirst({
+          where: and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, channelId)),
           columns: {
             isSharedExternally: true,
           },
@@ -39,8 +39,8 @@ export const channelSharedHandler: SlackEventHandler<'channel_shared'> = async (
         // When accepting a slack connect invitation, no 'channel_created' event is sent
         // We have to handle the channel creation here
         if (!conversation) {
-          const team = await db.query.teams.findFirst({
-            where: eq(teams.id, teamId),
+          const team = await db.query.teamsTable.findFirst({
+            where: eq(teamsTable.id, teamId),
             columns: {
               token: true,
             },
@@ -62,7 +62,7 @@ export const channelSharedHandler: SlackEventHandler<'channel_shared'> = async (
             throw new Error('Failed to retrieve conversation information');
           }
 
-          await db.insert(conversations).values({
+          await db.insert(conversationsTable).values({
             id: channelId,
             isSharedExternally: true,
             lastSyncedAt: new Date(),
@@ -77,12 +77,14 @@ export const channelSharedHandler: SlackEventHandler<'channel_shared'> = async (
         // to update the permissions
         if (!conversation.isSharedExternally) {
           await db
-            .update(conversations)
+            .update(conversationsTable)
             .set({
               isSharedExternally: true,
               lastSyncedAt: new Date(),
             })
-            .where(and(eq(conversations.teamId, teamId), eq(conversations.id, channelId)));
+            .where(
+              and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, channelId))
+            );
 
           return { teamId, isSyncRequired: true };
         }

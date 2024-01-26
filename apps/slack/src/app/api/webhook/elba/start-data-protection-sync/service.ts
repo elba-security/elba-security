@@ -1,11 +1,11 @@
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 
 export const startDataProtectionSync = async (organisationId: string) => {
-  const team = await db.query.teams.findFirst({
-    where: eq(teams.elbaOrganisationId, organisationId),
+  const team = await db.query.teamsTable.findFirst({
+    where: eq(teamsTable.elbaOrganisationId, organisationId),
     columns: {
       id: true,
     },

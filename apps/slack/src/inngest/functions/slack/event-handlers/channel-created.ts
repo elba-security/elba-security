@@ -1,4 +1,4 @@
-import { conversations } from '@/database/schema';
+import { conversationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import type { SlackEventHandler } from './types';
 
@@ -9,7 +9,7 @@ export const channelCreatedHandler: SlackEventHandler<'channel_created'> = async
   },
 }) => {
   await db
-    .insert(conversations)
+    .insert(conversationsTable)
     .values({
       teamId,
       id: channelId,

@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm';
-import { conversations } from '@/database/schema';
+import { conversationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import type { SlackEventHandler } from './types';
 
@@ -8,11 +8,11 @@ export const channelIdChangedHandler: SlackEventHandler<'channel_id_changed'> = 
   { step }
 ) => {
   await db
-    .update(conversations)
+    .update(conversationsTable)
     .set({
       id: newChannelId,
     })
-    .where(and(eq(conversations.teamId, teamId), eq(conversations.id, oldChannelId)));
+    .where(and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, oldChannelId)));
 
   // We need to trigger full scan as data protection ids will change
   // meaning data protection object won't be updated but created again

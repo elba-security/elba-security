@@ -3,7 +3,7 @@ import { and, eq } from 'drizzle-orm';
 import { SlackAPIClient } from 'slack-web-api-client';
 import { env } from '@/common/env';
 import { db } from '@/database/client';
-import { conversations } from '@/database/schema';
+import { conversationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/objects';
@@ -55,8 +55,8 @@ export const synchronizeConversationThreadMessages = inngest.createFunction(
     },
     step,
   }) => {
-    const conversation = await db.query.conversations.findFirst({
-      where: and(eq(conversations.teamId, teamId), eq(conversations.id, conversationId)),
+    const conversation = await db.query.conversationsTable.findFirst({
+      where: and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, conversationId)),
       columns: {
         name: true,
         isSharedExternally: true,

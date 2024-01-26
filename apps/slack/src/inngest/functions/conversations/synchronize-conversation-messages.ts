@@ -3,7 +3,7 @@ import { SlackAPIClient } from 'slack-web-api-client';
 import type { DataProtectionObject } from '@elba-security/sdk';
 import { db } from '@/database/client';
 import { inngest } from '@/inngest/client';
-import { conversations } from '@/database/schema';
+import { conversationsTable } from '@/database/schema';
 import { slackMessageSchema } from '@/connectors/slack/messages';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/objects';
 import { createElbaClient } from '@/connectors/elba/client';
@@ -53,8 +53,11 @@ export const synchronizeConversationMessages = inngest.createFunction(
     step,
   }) => {
     const conversation = await step.run('get-conversation', async () => {
-      const result = await db.query.conversations.findFirst({
-        where: and(eq(conversations.teamId, teamId), eq(conversations.id, conversationId)),
+      const result = await db.query.conversationsTable.findFirst({
+        where: and(
+          eq(conversationsTable.teamId, teamId),
+          eq(conversationsTable.id, conversationId)
+        ),
         columns: {
           name: true,
           isSharedExternally: true,

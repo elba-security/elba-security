@@ -6,7 +6,7 @@ export const scheduleDataProtectionSync = inngest.createFunction(
   { cron: 'TZ=Europe/Paris 0 0 * * 0' }, // every sunday at midnight
   async ({ step }) => {
     const teams = await step.run('get-teams', async () => {
-      return db.query.teams.findMany({
+      return db.query.teamsTable.findMany({
         columns: {
           id: true,
         },

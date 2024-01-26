@@ -3,7 +3,7 @@ import * as slack from 'slack-web-api-client';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import * as crypto from '@/common/crypto';
 import { db } from '@/database/client';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { synchronizeUsers } from './synchronize-users';
 
 const setup = createInngestFunctionMock(synchronizeUsers, 'users/synchronize');
@@ -51,7 +51,8 @@ describe('synchronize-users', () => {
       },
     });
 
-    await db.insert(teams).values({
+    await db.insert(teamsTable).values({
+      adminId: 'admin-id',
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
       elbaRegion: 'eu',
       id: 'team-id',
@@ -147,7 +148,8 @@ describe('synchronize-users', () => {
       },
     });
 
-    await db.insert(teams).values({
+    await db.insert(teamsTable).values({
+      adminId: 'admin-id',
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
       elbaRegion: 'eu',
       id: 'team-id',

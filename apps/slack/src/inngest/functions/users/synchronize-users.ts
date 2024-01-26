@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { SlackAPIClient } from 'slack-web-api-client';
 import type { User } from '@elba-security/sdk';
 import { db } from '@/database/client';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { slackMemberSchema } from '@/connectors/slack/members';
 import { createElbaClient } from '@/connectors/elba/client';
@@ -39,8 +39,8 @@ export const synchronizeUsers = inngest.createFunction(
     step,
   }) => {
     const { elbaOrganisationId, elbaRegion, token } = await step.run('get-team', async () => {
-      const result = await db.query.teams.findFirst({
-        where: eq(teams.id, teamId),
+      const result = await db.query.teamsTable.findFirst({
+        where: eq(teamsTable.id, teamId),
         columns: { token: true, elbaOrganisationId: true, elbaRegion: true },
       });
 

@@ -1,9 +1,11 @@
 import { eq } from 'drizzle-orm';
+import { SlackAPIClient } from 'slack-web-api-client';
 import { db } from '@/database/client';
-import { teams } from '@/database/schema';
+import { teamsTable } from '@/database/schema';
 import { slackMemberSchema } from '@/connectors/slack/members';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatUser } from '@/connectors/elba/users/users';
+import { decrypt } from '@/common/crypto';
 import type { SlackEventHandler } from './types';
 
 export const userChangeHandler: SlackEventHandler<'user_change'> = async ({
@@ -18,9 +20,9 @@ export const userChangeHandler: SlackEventHandler<'user_change'> = async ({
     return { message: 'Ignored: invalid user', user };
   }
 
-  const team = await db.query.teams.findFirst({
-    where: eq(teams.id, teamId),
-    columns: { elbaOrganisationId: true, elbaRegion: true },
+  const team = await db.query.teamsTable.findFirst({
+    where: eq(teamsTable.id, teamId),
+    columns: { elbaOrganisationId: true, elbaRegion: true, adminId: true, token: true },
   });
 
   if (!team) {
@@ -28,6 +30,15 @@ export const userChangeHandler: SlackEventHandler<'user_change'> = async ({
   }
 
   const elbaClient = createElbaClient(team.elbaOrganisationId, team.elbaRegion);
+
+  if (user.id === team.adminId && !user.is_admin) {
+    const token = await decrypt(team.token);
+    await new SlackAPIClient().auth.revoke({ token });
+    await db.delete(teamsTable).where(eq(teamsTable.id, teamId));
+    await elbaClient.connectionStatus.update({ hasError: true });
+
+    return { message: 'App uninstalled, user is not admin anymore', teamId, user };
+  }
 
   if (user.deleted) {
     await elbaClient.users.delete({ ids: [result.data.id] });

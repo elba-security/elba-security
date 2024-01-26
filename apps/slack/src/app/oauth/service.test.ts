@@ -29,10 +29,10 @@ describe('handleSlackInstallation', () => {
 
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
 
-    const uninstallMock = vi.fn().mockResolvedValue({
+    const authRevokeMock = vi.fn().mockResolvedValue({
       ok: true,
       headers: new Headers(),
-    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.apps.uninstall>>);
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.auth.revoke>>);
 
     const accessMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -66,8 +66,8 @@ describe('handleSlackInstallation', () => {
 
     vi.spyOn(slack, 'SlackAPIClient').mockReturnValue({
       // @ts-expect-error -- this is a mock
-      apps: {
-        uninstall: uninstallMock,
+      auth: {
+        revoke: authRevokeMock,
       },
       oauth: {
         // @ts-expect-error -- this is a mock
@@ -86,7 +86,7 @@ describe('handleSlackInstallation', () => {
     });
 
     await handleSlackInstallation({
-      organisationId: 'organisation-id',
+      organisationId: '00000000-0000-0000-0000-000000000001',
       region: 'eu',
       code: 'code',
     });
@@ -110,15 +110,16 @@ describe('handleSlackInstallation', () => {
     expect(teamInfoMock).toBeCalledTimes(1);
     expect(teamInfoMock).toBeCalledWith({ token: 'access-token' });
 
-    expect(uninstallMock).toBeCalledTimes(0);
+    expect(authRevokeMock).toBeCalledTimes(0);
 
     expect(crypto.encrypt).toBeCalledTimes(1);
     expect(crypto.encrypt).toBeCalledWith('access-token');
 
-    const teamsInserted = await db.query.teams.findMany();
+    const teamsInserted = await db.query.teamsTable.findMany();
     expect(teamsInserted).toEqual([
       {
-        elbaOrganisationId: 'organisation-id',
+        adminId: 'user-id',
+        elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
         elbaRegion: 'eu',
         id: 'team-id',
         token: 'encrypted-token',
@@ -142,10 +143,10 @@ describe('handleSlackInstallation', () => {
 
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
 
-    const uninstallMock = vi.fn().mockResolvedValue({
+    const authRevokeMock = vi.fn().mockResolvedValue({
       ok: true,
       headers: new Headers(),
-    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.apps.uninstall>>);
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.auth.revoke>>);
 
     const accessMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -170,8 +171,8 @@ describe('handleSlackInstallation', () => {
 
     vi.spyOn(slack, 'SlackAPIClient').mockReturnValue({
       // @ts-expect-error -- this is a mock
-      apps: {
-        uninstall: uninstallMock,
+      auth: {
+        revoke: authRevokeMock,
       },
       oauth: {
         // @ts-expect-error -- this is a mock
@@ -187,7 +188,7 @@ describe('handleSlackInstallation', () => {
 
     await expect(() =>
       handleSlackInstallation({
-        organisationId: 'organisation-id',
+        organisationId: '00000000-0000-0000-0000-000000000001',
         region: 'eu',
         code: 'code',
       })
@@ -205,16 +206,14 @@ describe('handleSlackInstallation', () => {
 
     expect(teamInfoMock).toBeCalledTimes(0);
 
-    expect(uninstallMock).toBeCalledTimes(1);
-    expect(uninstallMock).toBeCalledWith({
-      client_id: 'slack-client-id',
-      client_secret: 'slack-client-secret',
+    expect(authRevokeMock).toBeCalledTimes(1);
+    expect(authRevokeMock).toBeCalledWith({
       token: 'access-token',
     });
 
     expect(crypto.encrypt).toBeCalledTimes(0);
 
-    const teamsInserted = await db.query.teams.findMany();
+    const teamsInserted = await db.query.teamsTable.findMany();
     expect(teamsInserted).toEqual([]);
 
     expect(send).toBeCalledTimes(0);
@@ -225,10 +224,10 @@ describe('handleSlackInstallation', () => {
 
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
 
-    const uninstallMock = vi.fn().mockResolvedValue({
+    const authRevokeMock = vi.fn().mockResolvedValue({
       ok: true,
       headers: new Headers(),
-    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.apps.uninstall>>);
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.auth.revoke>>);
 
     const accessMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -262,8 +261,8 @@ describe('handleSlackInstallation', () => {
 
     vi.spyOn(slack, 'SlackAPIClient').mockReturnValue({
       // @ts-expect-error -- this is a mock
-      apps: {
-        uninstall: uninstallMock,
+      auth: {
+        revoke: authRevokeMock,
       },
       oauth: {
         // @ts-expect-error -- this is a mock
@@ -283,7 +282,7 @@ describe('handleSlackInstallation', () => {
 
     await expect(() =>
       handleSlackInstallation({
-        organisationId: 'organisation-id',
+        organisationId: '00000000-0000-0000-0000-000000000001',
         region: 'eu',
         code: 'code',
       })
@@ -302,16 +301,14 @@ describe('handleSlackInstallation', () => {
     expect(usersInfoMock).toBeCalledTimes(0);
     expect(teamInfoMock).toBeCalledTimes(0);
 
-    expect(uninstallMock).toBeCalledTimes(1);
-    expect(uninstallMock).toBeCalledWith({
-      client_id: 'slack-client-id',
-      client_secret: 'slack-client-secret',
+    expect(authRevokeMock).toBeCalledTimes(1);
+    expect(authRevokeMock).toBeCalledWith({
       token: 'access-token',
     });
 
     expect(crypto.encrypt).toBeCalledTimes(0);
 
-    const teamsInserted = await db.query.teams.findMany();
+    const teamsInserted = await db.query.teamsTable.findMany();
     expect(teamsInserted).toEqual([]);
 
     expect(send).toBeCalledTimes(0);
@@ -322,10 +319,10 @@ describe('handleSlackInstallation', () => {
 
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
 
-    const uninstallMock = vi.fn().mockResolvedValue({
+    const authRevokeMock = vi.fn().mockResolvedValue({
       ok: true,
       headers: new Headers(),
-    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.apps.uninstall>>);
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.auth.revoke>>);
 
     const accessMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -359,8 +356,8 @@ describe('handleSlackInstallation', () => {
 
     vi.spyOn(slack, 'SlackAPIClient').mockReturnValue({
       // @ts-expect-error -- this is a mock
-      apps: {
-        uninstall: uninstallMock,
+      auth: {
+        revoke: authRevokeMock,
       },
       oauth: {
         // @ts-expect-error -- this is a mock
@@ -380,7 +377,7 @@ describe('handleSlackInstallation', () => {
 
     await expect(() =>
       handleSlackInstallation({
-        organisationId: 'organisation-id',
+        organisationId: '00000000-0000-0000-0000-000000000001',
         region: 'eu',
         code: 'code',
       })
@@ -399,16 +396,14 @@ describe('handleSlackInstallation', () => {
     expect(usersInfoMock).toBeCalledTimes(0);
     expect(teamInfoMock).toBeCalledTimes(0);
 
-    expect(uninstallMock).toBeCalledTimes(1);
-    expect(uninstallMock).toBeCalledWith({
-      client_id: 'slack-client-id',
-      client_secret: 'slack-client-secret',
+    expect(authRevokeMock).toBeCalledTimes(1);
+    expect(authRevokeMock).toBeCalledWith({
       token: 'access-token',
     });
 
     expect(crypto.encrypt).toBeCalledTimes(0);
 
-    const teamsInserted = await db.query.teams.findMany();
+    const teamsInserted = await db.query.teamsTable.findMany();
     expect(teamsInserted).toEqual([]);
 
     expect(send).toBeCalledTimes(0);
@@ -419,10 +414,10 @@ describe('handleSlackInstallation', () => {
 
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
 
-    const uninstallMock = vi.fn().mockResolvedValue({
+    const authRevokeMock = vi.fn().mockResolvedValue({
       ok: true,
       headers: new Headers(),
-    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.apps.uninstall>>);
+    } satisfies Awaited<ReturnType<typeof slack.SlackAPIClient.prototype.auth.revoke>>);
 
     const accessMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -456,8 +451,8 @@ describe('handleSlackInstallation', () => {
 
     vi.spyOn(slack, 'SlackAPIClient').mockReturnValue({
       // @ts-expect-error -- this is a mock
-      apps: {
-        uninstall: uninstallMock,
+      auth: {
+        revoke: authRevokeMock,
       },
       oauth: {
         // @ts-expect-error -- this is a mock
@@ -477,7 +472,7 @@ describe('handleSlackInstallation', () => {
 
     await expect(() =>
       handleSlackInstallation({
-        organisationId: 'organisation-id',
+        organisationId: '00000000-0000-0000-0000-000000000001',
         region: 'eu',
         code: 'code',
       })
@@ -501,16 +496,14 @@ describe('handleSlackInstallation', () => {
 
     expect(teamInfoMock).toBeCalledTimes(0);
 
-    expect(uninstallMock).toBeCalledTimes(1);
-    expect(uninstallMock).toBeCalledWith({
-      client_id: 'slack-client-id',
-      client_secret: 'slack-client-secret',
+    expect(authRevokeMock).toBeCalledTimes(1);
+    expect(authRevokeMock).toBeCalledWith({
       token: 'access-token',
     });
 
     expect(crypto.encrypt).toBeCalledTimes(0);
 
-    const teamsInserted = await db.query.teams.findMany();
+    const teamsInserted = await db.query.teamsTable.findMany();
     expect(teamsInserted).toEqual([]);
 
     expect(send).toBeCalledTimes(0);

@@ -3,7 +3,7 @@ import * as slack from 'slack-web-api-client';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import * as crypto from '@/common/crypto';
 import { db } from '@/database/client';
-import { conversations, teams } from '@/database/schema';
+import { conversationsTable, teamsTable } from '@/database/schema';
 import { synchronizeConversations } from './synchronize-conversations';
 
 const setup = createInngestFunctionMock(synchronizeConversations, 'conversations/synchronize');
@@ -58,14 +58,15 @@ describe('synchronize-conversations', () => {
       },
     });
 
-    await db.insert(teams).values({
+    await db.insert(teamsTable).values({
+      adminId: 'admin-id',
       elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
       elbaRegion: 'eu',
       id: 'team-id',
       token: 'token',
       url: 'https://url',
     });
-    await db.insert(conversations).values({
+    await db.insert(conversationsTable).values({
       id: 'channel-id-1', // This conversation should be updated
       isSharedExternally: false,
       lastSyncedAt: new Date('2000-01-01T00:00:00.000Z'),
@@ -112,7 +113,7 @@ describe('synchronize-conversations', () => {
       types: 'public_channel',
     });
 
-    const conversationsInserted = await db.query.conversations.findMany();
+    const conversationsInserted = await db.query.conversationsTable.findMany();
     expect(conversationsInserted).toEqual([
       {
         id: 'channel-id-1',
@@ -203,8 +204,9 @@ describe('synchronize-conversations', () => {
       },
     });
 
-    await db.insert(teams).values([
+    await db.insert(teamsTable).values([
       {
+        adminId: 'admin-id-1',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000001',
         elbaRegion: 'eu',
         id: 'team-id',
@@ -212,6 +214,7 @@ describe('synchronize-conversations', () => {
         url: 'https://url',
       },
       {
+        adminId: 'admin-id-2',
         elbaOrganisationId: '00000000-0000-0000-0000-000000000002',
         elbaRegion: 'eu',
         id: 'unknown-team-id',
@@ -220,7 +223,7 @@ describe('synchronize-conversations', () => {
       },
     ]);
 
-    await db.insert(conversations).values([
+    await db.insert(conversationsTable).values([
       {
         // This conversation should be delete
         id: 'conversation-id',
@@ -280,7 +283,7 @@ describe('synchronize-conversations', () => {
       types: 'public_channel',
     });
 
-    const conversationsInserted = await db.query.conversations.findMany();
+    const conversationsInserted = await db.query.conversationsTable.findMany();
     expect(conversationsInserted).toEqual([
       {
         id: 'unknown-conversation-id',

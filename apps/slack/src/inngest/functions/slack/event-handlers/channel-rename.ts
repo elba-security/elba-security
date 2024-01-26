@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm';
-import { conversations } from '@/database/schema';
+import { conversationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import type { SlackEventHandler } from './types';
 
@@ -13,12 +13,12 @@ export const channelRenameHandler: SlackEventHandler<'channel_rename'> = async (
   { step }
 ) => {
   await db
-    .update(conversations)
+    .update(conversationsTable)
     .set({
       name: channelName,
       lastSyncedAt: new Date(),
     })
-    .where(and(eq(conversations.teamId, teamId), eq(conversations.id, channelId)));
+    .where(and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, channelId)));
 
   await step.sendEvent('synchronize-conversation-messages', {
     name: 'conversations/synchronize.messages',

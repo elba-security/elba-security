@@ -2,7 +2,7 @@ import { and, eq } from 'drizzle-orm';
 import { SlackAPIClient, SlackAPIError } from 'slack-web-api-client';
 import type { MessageElement } from 'slack-web-api-client/dist/client/generated-response/ConversationsHistoryResponse';
 import { decrypt } from '@/common/crypto';
-import { conversations } from '@/database/schema';
+import { conversationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import {
   formatDataProtectionObject,
@@ -26,8 +26,8 @@ export const refreshDataProtectionObject = async ({
 
   const { type, teamId, conversationId, messageId } = messageMetadataResult.data;
 
-  const conversation = await db.query.conversations.findFirst({
-    where: and(eq(conversations.teamId, teamId), eq(conversations.id, conversationId)),
+  const conversation = await db.query.conversationsTable.findFirst({
+    where: and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, conversationId)),
     columns: {
       name: true,
       isSharedExternally: true,
