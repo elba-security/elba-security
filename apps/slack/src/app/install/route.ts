@@ -17,8 +17,7 @@ export const GET = (request: NextRequest) => {
       organisationId,
       region,
     });
-    // TODO - replace url by elba install error
-    redirect(`${env.ELBA_REDIRECT_URL}?error=internal_error`);
+    redirect(`${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`);
   }
 
   const state = crypto.randomUUID();
@@ -27,5 +26,6 @@ export const GET = (request: NextRequest) => {
   cookies().set('state', state);
   cookies().set('organisationId', organisationId);
   cookies().set('region', region);
+
   redirect(slackInstallationUrl);
 };
