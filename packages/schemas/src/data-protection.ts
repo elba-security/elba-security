@@ -56,7 +56,7 @@ export type DeleteDataProtectionObjects = zInfer<typeof deleteDataProtectionObje
 export const dataProtectionContentRequestedWebhookDataSchema = z.object({
   organisationId: z.string().uuid(),
   id: z.string().min(1),
-  metadata: jsonSchema.optional(),
+  metadata: jsonSchema
 });
 
 export const dataProtectionScanTriggeredWebhookDataSchema = z.object({
@@ -66,11 +66,21 @@ export const dataProtectionScanTriggeredWebhookDataSchema = z.object({
 export const dataProtectionObjectDeletedWebhookDataSchema = z.object({
   organisationId: z.string().uuid(),
   id: z.string().min(1),
-  metadata: jsonSchema.optional(),
+  metadata: jsonSchema
 });
 
 export const dataProtectionRefreshObjectRequestedWebhookDataSchema = z.object({
   organisationId: z.string().uuid(),
   id: z.string().min(1),
-  metadata: jsonSchema.optional(),
+  metadata: jsonSchema
+});
+
+export  const dataProtectionDeleteObjectPermissionsRequestedDataSchema = z.object({
+  id: z.string().min(1),
+  organisationId: z.string().uuid(),
+  metadata: jsonSchema,
+  permissions: z.array(z.object({
+    id: z.string().min(1),
+    metadata: jsonSchema
+  })),
 });

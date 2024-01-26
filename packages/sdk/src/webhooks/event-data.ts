@@ -3,21 +3,23 @@ import {
   dataProtectionContentRequestedWebhookDataSchema,
   dataProtectionScanTriggeredWebhookDataSchema,
   dataProtectionObjectDeletedWebhookDataSchema,
+  dataProtectionDeleteObjectPermissionsRequestedDataSchema,
   dataProtectionRefreshObjectRequestedWebhookDataSchema,
   thirdPartyAppsScanTriggeredWebhookDataSchema,
   thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
-  thirdPartyAppsDeleteObjectRequestedWebhookDataSchema
+  thirdPartyAppsDeleteObjectRequestedWebhookDataSchema,
 } from '@elba-security/schemas';
 import { ElbaError } from '../error';
 
 const eventDataSchema = {
   'third_party_apps.scan_triggered': thirdPartyAppsScanTriggeredWebhookDataSchema,
-  'third_party_apps.refresh_requested': thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
-  'third_party_apps.delete_requested': thirdPartyAppsDeleteObjectRequestedWebhookDataSchema,
+  'third_party_apps.refresh_object_requested': thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
+  'third_party_apps.delete_object_requested': thirdPartyAppsDeleteObjectRequestedWebhookDataSchema,
   'data_protection.scan_triggered': dataProtectionScanTriggeredWebhookDataSchema,
   'data_protection.content_requested': dataProtectionContentRequestedWebhookDataSchema,
   'data_protection.object_deleted': dataProtectionObjectDeletedWebhookDataSchema,
   'data_protection.refresh_object_requested': dataProtectionRefreshObjectRequestedWebhookDataSchema,
+  'data_protection.delete_object_permissions_requested': dataProtectionDeleteObjectPermissionsRequestedDataSchema,
 } as const satisfies Record<string, ZodSchema>;
 
 export type WebhookEvent = keyof typeof eventDataSchema;
