@@ -46,13 +46,13 @@ export const thirdPartyAppsRefreshObjectRequestedWebhookDataSchema = z.object({
   organisationId: z.string().uuid(),
   userId: z.string(),
   appId: z.string(),
-  metadata: jsonSchema.optional(),
+  metadata: jsonSchema
 });
 
 export const thirdPartyAppsDeleteObjectRequestedWebhookDataSchema = z.object({
   organisationId: z.string().uuid(),
   userId: z.string(),
   appId: z.string(),
-  metadata: jsonSchema.optional(),
+  metadata: jsonSchema
 });
 
