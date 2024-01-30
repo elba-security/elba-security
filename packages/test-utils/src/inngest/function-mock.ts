@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- needed for efficient type extraction */
 import { vi, type VitestUtils } from 'vitest';
 import type { InngestFunction, EventsFromOpts } from 'inngest';
-import type { AnyInngestFunction } from 'inngest/components/InngestFunction';
+// import type { AnyInngestFunction } from 'inngest/components/InngestFunction';
+
+type AnyInngestFunction = InngestFunction.Any;
 
 type ExtractEvents<F extends AnyInngestFunction> = EventsFromOpts<ExtractFunctionTOpts<F>>;
 

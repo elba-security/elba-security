@@ -120,7 +120,7 @@ describe('refresh-data-protection-object', () => {
               teamId: 'team-id',
               type: 'message',
             },
-            name: '2023-11-14T22:13:21.000Z #channel',
+            name: '#channel - 2023-11-14',
             ownerId: 'user',
             permissions: [
               {
@@ -313,7 +313,7 @@ describe('refresh-data-protection-object', () => {
               teamId: 'team-id',
               type: 'reply',
             },
-            name: '2023-11-14T22:13:21.000Z #channel',
+            name: '#channel - 2023-11-14',
             ownerId: 'user',
             permissions: [
               {
