@@ -1,4 +1,5 @@
 #!/bin/bash
+export COMPOSE_PROJECT_NAME=slack
 
 # Define a cleanup function
 cleanup() {
