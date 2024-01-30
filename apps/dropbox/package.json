@@ -22,6 +22,7 @@
     "@elba-security/schemas": "workspace:*",
     "@elba-security/sdk": "workspace:*",
     "@elba-security/utils": "workspace:*",
+    "@elba-security/config": "workspace:*",
     "@vercel/postgres": "^0.5.1",
     "date-fns": "^2.30.0",
     "drizzle-orm": "^0.29.1",

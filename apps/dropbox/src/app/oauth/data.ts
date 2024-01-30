@@ -1,8 +1,7 @@
-import type { PgInsertValue } from 'drizzle-orm/pg-core';
 import { db, organisations } from '@/database';
 
 export const insertAccessToken = async (
-  accessTokenDetails: PgInsertValue<typeof organisations>
+  accessTokenDetails: typeof organisations.$inferInsert
 ) => {
   return await db
     .insert(organisations)
@@ -10,11 +9,11 @@ export const insertAccessToken = async (
     .onConflictDoUpdate({
       target: [organisations.organisationId],
       set: {
-        accessToken: accessTokenDetails.accessToken as string,
-        refreshToken: accessTokenDetails.refreshToken as string,
-        adminTeamMemberId: accessTokenDetails.adminTeamMemberId as string,
-        rootNamespaceId: accessTokenDetails.rootNamespaceId as string,
-        region: accessTokenDetails.region as string,
+        accessToken: accessTokenDetails.accessToken,
+        refreshToken: accessTokenDetails.refreshToken,
+        adminTeamMemberId: accessTokenDetails.adminTeamMemberId,
+        rootNamespaceId: accessTokenDetails.rootNamespaceId,
+        region: accessTokenDetails.region
       },
     });
 };

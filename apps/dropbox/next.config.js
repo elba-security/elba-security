@@ -1,15 +1,9 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  ignoreDuringBuilds: true,
-  webpack: (config, { webpack }) => {
-    config.plugins.push(
-      new webpack.IgnorePlugin({
-        resourceRegExp: /^cloudflare:sockets$/,
-      })
-    );
+const { elbaNextConfig } = require("@elba-security/config/next");
 
-    return config;
-  },
+const nextConfig = {
+  ...elbaNextConfig,
+  transpilePackages: ['@elba-security/sdk'],
 };
 
 module.exports = nextConfig;
