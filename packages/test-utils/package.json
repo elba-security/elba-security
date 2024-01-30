@@ -13,7 +13,7 @@
   },
   "peerDependencies": {
     "msw": ">=2.0.0",
-    "inngest": ">=3.6.0",
+    "inngest": ">=3.7.0",
     "@elba-security/sdk": "workspace:*",
     "vitest": ">=1.0.0"
   },

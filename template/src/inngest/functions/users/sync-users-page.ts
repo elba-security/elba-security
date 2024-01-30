@@ -25,7 +25,7 @@ const formatElbaUser = (user: MySaasUser): User => ({
  */
 export const syncUsersPage = inngest.createFunction(
   {
-    id: 'sync-users-page',
+    id: '{SaaS}-sync-users-page',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -35,7 +35,7 @@ export const syncUsersPage = inngest.createFunction(
     },
     retries: 3,
   },
-  { event: 'users/sync_page.triggered' },
+  { event: '{SaaS}/users.page_sync.requested' },
   async ({ event, step }) => {
     const { organisationId, syncStartedAt, page, region } = event.data;
 
@@ -73,7 +73,7 @@ export const syncUsersPage = inngest.createFunction(
     // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
-        name: 'users/sync_page.triggered',
+        name: '{SaaS}/users.page_sync.requested',
         data: {
           ...event.data,
           page: nextPage,

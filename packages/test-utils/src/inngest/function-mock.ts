@@ -27,6 +27,7 @@ type MockSetupReturns<
     step: {
       run: VitestUtils['fn'];
       sendEvent: VitestUtils['fn'];
+      waitForEvent: VitestUtils['fn'];
     };
   },
 ];
@@ -39,6 +40,8 @@ type MockSetup<
     (data: ExtractEvents<F>[EventName & string]['data']) => MockSetupReturns<F, EventName>
   : // signature for cron function
     () => MockSetupReturns<F, EventName>;
+
+const emptyLog = () => void 0;
 
 export const createInngestFunctionMock =
   <F extends AnyInngestFunction, EventName extends keyof ExtractEvents<F> | undefined = undefined>(
@@ -61,6 +64,12 @@ export const createInngestFunctionMock =
         data,
       },
       step,
+      logger: {
+        info: emptyLog,
+        warn: emptyLog,
+        error: emptyLog,
+        debug: emptyLog,
+      },
     };
     return [
       // @ts-expect-error -- this is a mock

@@ -28,7 +28,7 @@ const users: usersConnector.MySaasUser[] = Array.from({ length: 5 }, (_, i) => (
   email: `username-${i}@foo.bar`,
 }));
 
-const setup = createInngestFunctionMock(syncUsersPage, 'users/sync_page.triggered');
+const setup = createInngestFunctionMock(syncUsersPage, '{SaaS}/users.page_sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
@@ -69,7 +69,7 @@ describe('sync-users', () => {
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users-page', {
-      name: 'users/sync_page.triggered',
+      name: '{SaaS}/users.page_sync.requested',
       data: {
         organisationId: organisation.id,
         isFirstSync: false,

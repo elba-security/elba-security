@@ -1,25 +1,21 @@
 # elba-sdk
 
-`elba-sdk` is a client wrapping elba Open API endpoints, and common utils. It's designed to simplify interactions with [specific functionalities]. It provides methods for [brief description of key features].
-
-In
+`@elba-security/sdk` is a client wrapping elba Open API endpoints, and common utils. It's designed to simplify interactions with elba Open API.
 
 ## Installation
 
-Before installing, make sure you have [prerequisites].
-
-To install `elba-sdk`, run:
+To install `sdk`, run:
 
 ```sh
-pnpm install elba-sdk
+pnpm add @elba-security/sdk
 ```
 
 ## Client usage
 
-To start using the `elba-sdk` client, you'll need to set up your environment variables and instantiate the client:
+To start using the `sdk` client, you'll need to set up your environment variables and instantiate the client:
 
 ```ts
-import { Elba } from 'elba-sdk';
+import { Elba } from '@elba-security/sdk';
 
 const elba = new Elba({
   organisationId: 'foo-bar',
@@ -41,7 +37,7 @@ Validate a webhook event request by checking its signature against a webhook sec
 **Example:**
 
 ```ts
-import { validateWebhookRequestSignature } from 'elba-sdk';
+import { validateWebhookRequestSignature } from '@elba-security/sdk';
 
 export async function middleware(request: NextRequest) {
   try {
@@ -59,7 +55,7 @@ Parse webhook event data and validate it against schema.
 **JSON payload example:**
 
 ```ts
-import { parseWebhookEventData } from 'elba-sdk';
+import { parseWebhookEventData } from '@elba-security/sdk';
 
 export async function POST(request: NextRequest) {
   const data: unknown = await request.json();
@@ -70,7 +66,7 @@ export async function POST(request: NextRequest) {
 **seach params example:**
 
 ```ts
-import { parseWebhookEventData } from 'elba-sdk';
+import { parseWebhookEventData } from '@elba-security/sdk';
 
 export async function GET(request: NextRequest) {
   const data = parseWebhookEventData('some_event', request.nextUrl.searchParams);
@@ -172,18 +168,6 @@ elba.thirdPartyApps.deleteObjects({ ids: objectIds });
 ```
 
 _Used when the integration retrieve data from SaaS using webhook._
-
-### Authentication
-
-Manage authentication methods for users in elba.
-
-#### Update Authentication Methods
-
-Send a batch of users with their authentication methods to elba:
-
-```ts
-elba.authentication.updateObjects(objects);
-```
 
 ### Connection status
 
