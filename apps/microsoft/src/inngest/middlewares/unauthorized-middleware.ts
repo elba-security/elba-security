@@ -59,7 +59,7 @@ export const unauthorizedMiddleware = new InngestMiddleware({
                 result: {
                   ...result,
                   error: new NonRetriableError(
-                    `Github return an unauthorized status code for '${fn.name}'`,
+                    `Microsoft returned an unauthorized status code for '${fn.name}'`,
                     {
                       cause: error,
                     }
