@@ -48,8 +48,7 @@ export const unauthorizedMiddleware = new InngestMiddleware({
                   .where(
                     and(
                       eq(Organisation.id, data.organisationId),
-                      eq(Organisation.tenantId, data.tenantId),
-                      eq(Organisation.region, data.region)
+                      eq(Organisation.tenantId, data.tenantId)
                     )
                   );
                 await elba.connectionStatus.update({ hasError: true });

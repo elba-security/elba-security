@@ -44,13 +44,7 @@ export const syncUsersPage = inngest.createFunction(
     const [organisation] = await db
       .select({ token: Organisation.token })
       .from(Organisation)
-      .where(
-        and(
-          eq(Organisation.id, organisationId),
-          eq(Organisation.tenantId, tenantId),
-          eq(Organisation.region, region)
-        )
-      );
+      .where(and(eq(Organisation.id, organisationId), eq(Organisation.tenantId, tenantId)));
 
     if (!organisation) {
       throw new NonRetriableError(
