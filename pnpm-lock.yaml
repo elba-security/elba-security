@@ -141,6 +141,9 @@ importers:
       '@elba-security/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       '@neondatabase/serverless':
         specifier: 0.6.0
         version: 0.6.0

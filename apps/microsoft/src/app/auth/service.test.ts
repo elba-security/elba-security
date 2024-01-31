@@ -1,5 +1,6 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
+import * as crypto from '@/common/crypto';
 import * as authConnector from '@/connectors/auth';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
@@ -32,6 +33,7 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue({ token, expiresIn });
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue(token);
 
     await expect(
       setupOrganisation({
@@ -43,6 +45,7 @@ describe('setupOrganisation', () => {
 
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(tenantId);
+    expect(crypto.encrypt).toBeCalledTimes(1);
 
     await expect(
       db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
@@ -83,6 +86,7 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue({ token, expiresIn });
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue(token);
     await db.insert(Organisation).values(organisation);
 
     await expect(
@@ -95,6 +99,7 @@ describe('setupOrganisation', () => {
 
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(tenantId);
+    expect(crypto.encrypt).toBeCalledTimes(1);
 
     await expect(
       db.select().from(Organisation).where(eq(Organisation.id, organisation.id))

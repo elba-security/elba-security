@@ -2,6 +2,7 @@ import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
+import * as crypto from '@/common/crypto';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as authConnector from '@/connectors/auth';
@@ -50,12 +51,14 @@ describe('sync-users', () => {
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should update token and schedule the next refresh', async () => {
+  test('should update encrypted token and schedule the next refresh', async () => {
     await db.insert(Organisation).values(organisation);
     vi.spyOn(authConnector, 'getToken').mockResolvedValue({
       token: newToken,
       expiresIn,
     });
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue(newToken);
+
     const [result, { step }] = setup({
       organisationId: organisation.id,
       tenantId: organisation.tenantId,
@@ -77,6 +80,7 @@ describe('sync-users', () => {
 
     expect(authConnector.getToken).toBeCalledTimes(1);
     expect(authConnector.getToken).toBeCalledWith(organisation.tenantId);
+    expect(crypto.encrypt).toBeCalledTimes(1);
 
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);

@@ -6,6 +6,7 @@ import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getToken } from '@/connectors/auth';
 import { env } from '@/env';
+import { encrypt } from '@/common/crypto';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -48,7 +49,11 @@ export const refreshToken = inngest.createFunction(
 
     const { token, expiresIn } = await getToken(tenantId);
 
-    await db.update(Organisation).set({ token }).where(eq(Organisation.id, organisationId));
+    const encodedToken = await encrypt(token);
+    await db
+      .update(Organisation)
+      .set({ token: encodedToken })
+      .where(eq(Organisation.id, organisationId));
 
     await step.sendEvent('schedule-token-refresh', {
       name: 'microsoft/token.refresh.triggered',
