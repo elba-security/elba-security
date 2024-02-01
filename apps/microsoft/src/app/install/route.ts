@@ -26,7 +26,7 @@ export function GET(request: NextRequest) {
     cookies().set('organisation_id', organisationId);
     cookies().set('region', region);
   } catch (error) {
-    logger.warn('Could not redirect user to Github app install url', {
+    logger.warn('Could not redirect user to Microsoft app install url', {
       error,
     });
     redirect(`${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`);
