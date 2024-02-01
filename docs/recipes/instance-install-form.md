@@ -1,14 +1,14 @@
 # Instance install form
 
-This recipe is for integration which have an app installed in a SaaS instance which use a combinaition of domain, client id and client secret in order to interact with its APIs.
+This recipe is for integrations that have an app installed in a SaaS instance which uses a combination of the domain, client ID and client secret in order to interact with its APIs.
 
-> If your integration authentication is working through a classic OAuth flow, you don't need to implement a form. For now, you can rely on the example provided in the template.
+> If your integration's authentication is working through a classic OAuth flow, you don't need to implement a form. For now, you can rely on the example provided in the template.
 
-## Page form
+## Install page
 
-When an admin is redirected from elba to an integration he land on the install page. Search params `organisation_id` and `region` are always appended in the URL. The following example heavily rely on new Next.js & React APIs: the page is client component rendering a form that will call a server action on submit. Once the form validated, the client will either redirect the user or display errors bellow form fields.
+When an admin is redirected from elba to an integration he land on the install page. The search params `organisation_id` and `region` must always be appended in the URL. The following example heavily relies on the new Next.js & React APIs: the page is a client component rendering a form that will call a server action on submit. Once the form is validated, the client will either redirect the user or display the errors bellow the form's fields.
 
-> This recipe is CSS free. We don't expect integration to contains any stylesheet or components library. We will provide one in a near future.
+> This recipe is CSS free. We don't expect the integrations to contain any stylesheet or components library. We will provide those UI elements in the near future.
 
 ```tsx
 // /app/install/page.ts
@@ -69,13 +69,13 @@ export default function InstallPage() {
 }
 ```
 
-## Server action
+## Server install action
 
-The install server action is invoked whenever the install form is submitted. This function is directly handling input validation and response (noted `state` here) creation. The business part, like granting a token and saving the organisation in database, should be handled in a dedicated service function (named `registerOrganisation`).
+The install server action is invoked when the install form is submitted. This function handles the validation of the input and response (noted `state` here) creation. The business part, such as granting a token and saving the organisation in database, should be handled in a dedicated service function named `registerOrganisation`.
 
-This server action function returns a redirectUrl in case the installation has been attempted or the provided `organisationId` & `region` by elba are invalid or missing.
+This server action returns a redirectUrl in case the installation has been attempted or the provided `organisationId` & `region` by elba are invalid or missing.
 
-If the form fields has invalid values, the function will returns all the errors related to thoses fields so the client is able to display them.
+If the form fields have invalid values, the function will return all the errors related to those fields so the client is able to display them.
 
 ```ts
 // /app/install/actions.ts
@@ -114,7 +114,7 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
 
   if (!result.success) {
     const { fieldErrors } = result.error.flatten();
-    // elba should have given valid organisationId and region, so we let it handle this error case
+    //  elba should had given us a valid organisationId and region, so we let elba handle this error case
     if (fieldErrors.organisationId || fieldErrors.region) {
       return {
         redirectUrl: `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`,
@@ -154,13 +154,13 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
 
 ## Service
 
-The `registerOrganisation` service function is handling the business logic, such as interacting with the integrated SaaS or with database.
+The `registerOrganisation` service function is responsible for handling the business logic, such as interacting with the integrated SaaS or with the database.
 
-To make sure the given configuration (`domain`, `clientId` and `clientSecret`) is valid, the service is going to retrieve a first access token. Note that it's common to have the field `organisation.token` not nullable, so retrieving an access token is mandatory to insert a new organisation in the database.
+To make sure the given configuration (`domain`, `clientId` and `clientSecret`) is valid, the service is going to retrieve a first access token. Note that it's common to have the field `organisation.token` set as not nullable, so retrieving an access token is mandatory to insert a new organisation in the database.
 
-> If, for any reason, the integration is not storing access token, the configuration should still be validated. Often, SaaS API provide a way to make sure it is.
+> If, for any reason, the integration is not storing the access token, the configuration should still be validated. Often, the SaaS API provides a way to make sure the configuration is valid.
 
-## Documentations
+## Reference documentation
 
 - [Next.js server actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations)
 - [Next.js `useSearchParams`](https://nextjs.org/docs/app/api-reference/functions/use-search-params)
