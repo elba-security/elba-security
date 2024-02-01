@@ -30,7 +30,7 @@ describe('sync-users', () => {
     const elba = spyOnElba();
     await db.insert(Organisation).values({
       ...organisation,
-      region: 'eu',
+      tenantId: 'invalid-tenant-id',
     });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       nextSkipToken: null,
@@ -40,6 +40,7 @@ describe('sync-users', () => {
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
+      tenantId: organisation.tenantId,
       isFirstSync: false,
       syncStartedAt: Date.now(),
       page: 0,
