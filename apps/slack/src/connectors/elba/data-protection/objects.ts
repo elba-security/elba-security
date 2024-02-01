@@ -2,6 +2,7 @@ import type { DataProtectionObject } from '@elba-security/sdk';
 import {
   type SlackMessage,
   getMessageUrl,
+  convertTsToDate,
   convertTsToIsoString,
 } from '@/connectors/slack/messages';
 import type { MessageMetadata } from './metadata';
@@ -42,7 +43,7 @@ export const formatDataProtectionObject = ({
     messageId,
   });
   const url = getMessageUrl({ teamUrl, conversationId, messageId, threadId });
-  const sentAt = convertTsToIsoString(messageId);
+  const sentAt = convertTsToDate(messageId);
   let editedAt: string | undefined;
   if (message.edited?.ts) {
     editedAt = convertTsToIsoString(message.edited.ts);
@@ -50,7 +51,7 @@ export const formatDataProtectionObject = ({
 
   return {
     id: dataProtectionObjectId,
-    name: `${sentAt} #${conversationName}`,
+    name: `#${conversationName} - ${sentAt}`,
     metadata: {
       teamId,
       conversationId,

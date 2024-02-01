@@ -124,7 +124,7 @@ describe('synchronize-conversation-messages', () => {
             teamId: 'team-id',
             type: 'message',
           },
-          name: '2023-11-14T22:13:21.000Z #conversation',
+          name: '#conversation - 2023-11-14',
           ownerId: 'user',
           permissions: [
             {
@@ -143,7 +143,7 @@ describe('synchronize-conversation-messages', () => {
             teamId: 'team-id',
             type: 'message',
           },
-          name: '2023-11-14T22:13:22.000Z #conversation',
+          name: '#conversation - 2023-11-14',
           ownerId: 'user',
           permissions: [
             {
@@ -285,7 +285,7 @@ describe('synchronize-conversation-messages', () => {
             teamId: 'team-id',
             type: 'message',
           },
-          name: '2023-11-14T22:13:21.000Z #conversation',
+          name: '#conversation - 2023-11-14',
           ownerId: 'user',
           permissions: [
             {
@@ -304,7 +304,7 @@ describe('synchronize-conversation-messages', () => {
             teamId: 'team-id',
             type: 'message',
           },
-          name: '2023-11-14T22:13:22.000Z #conversation',
+          name: '#conversation - 2023-11-14',
           ownerId: 'user',
           permissions: [
             {
