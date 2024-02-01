@@ -19,7 +19,6 @@ import { Elba } from '@elba-security/sdk';
 
 const elba = new Elba({
   organisationId: 'foo-bar',
-  sourceId: process.env.ELBA_SOURCE_ID,
   apiKey: process.env.ELBA_API_KEY,
   region: 'us',
   // baseUrl: process.env.ELBA_LOCAL_BASE_URL - optional, can be useful in a local environnement

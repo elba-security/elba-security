@@ -7,7 +7,6 @@ import type { DataProtectionObject } from './resources/data-protection/types';
 
 const options = {
   organisationId: '22bc932d-a132-4a63-bde8-5cb5609f0e73',
-  sourceId: '12c7a45b-1dea-44f3-a1ed-92816caff31d',
   baseUrl: process.env.ELBA_API_BASE_URL!,
   apiKey: process.env.ELBA_API_KEY!,
   region: 'us',
