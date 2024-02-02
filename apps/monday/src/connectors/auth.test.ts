@@ -11,7 +11,8 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '../../vitest/setup-msw-handlers';
-import { GetTokenResponseData, getToken } from './auth';
+import type { GetTokenResponseData } from './auth';
+import { getToken } from './auth';
 import { MondayError } from './commons/error';
 
 const validCode = '1234';

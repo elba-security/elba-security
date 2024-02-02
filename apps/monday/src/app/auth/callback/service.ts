@@ -17,13 +17,15 @@ export const setupOrganisation = async ({
   // retrieve token from SaaS API using the given code
   const tokenResponse = await getToken(code);
 
-  console.log(tokenResponse)
-  await db.insert(Organisation).values({ id: organisationId, token:tokenResponse.access_token, region }).onConflictDoUpdate({
-    target: Organisation.id,
-    set: {
-      token:tokenResponse.access_token,
-    },
-  });
+  await db
+    .insert(Organisation)
+    .values({ id: organisationId, token: tokenResponse.access_token, region })
+    .onConflictDoUpdate({
+      target: Organisation.id,
+      set: {
+        token: tokenResponse.access_token,
+      },
+    });
 
   await inngest.send({
     name: 'monday/users.page_sync.requested',

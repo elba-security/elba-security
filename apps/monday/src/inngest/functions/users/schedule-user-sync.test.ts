@@ -1,5 +1,5 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
-import { createFunctionMock,createInngestFunctionMock } from '@elba-security/test-utils';
+import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client.node';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';

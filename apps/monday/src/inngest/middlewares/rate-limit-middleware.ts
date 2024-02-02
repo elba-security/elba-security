@@ -38,7 +38,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
               result: {
                 ...result,
                 error: new RetryAfterError(
-                  `MySaaS rate limit reached by '${fn.name}'`,
+                  `Monday rate limit reached by '${fn.name}'`,
                   retryAfter,
                   {
                     cause: error,

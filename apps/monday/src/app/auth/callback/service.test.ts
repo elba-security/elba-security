@@ -12,8 +12,8 @@ import * as authConnector from '@/connectors/auth';
 import { db } from '@/database/client.node';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
+import type { GetTokenResponseData } from '@/connectors/auth';
 import { setupOrganisation } from './service';
-import { GetTokenResponseData } from '@/connectors/auth';
 
 const code = 'some-code';
 const tokenResponse: GetTokenResponseData = {
@@ -44,7 +44,7 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mock the getToken function to return a predefined token
-    const getToken = vi.spyOn(authConnector,'getToken').mockResolvedValue(tokenResponse);
+    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(tokenResponse);
 
     // assert the function resolves without returning a value
     await expect(
@@ -64,7 +64,7 @@ describe('setupOrganisation', () => {
       db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
     ).resolves.toMatchObject([
       {
-        token:tokenResponse.access_token,
+        token: tokenResponse.access_token,
         region,
       },
     ]);
@@ -114,7 +114,7 @@ describe('setupOrganisation', () => {
         .where(eq(Organisation.id, organisation.id))
     ).resolves.toMatchObject([
       {
-        token:tokenResponse.access_token,
+        token: tokenResponse.access_token,
       },
     ]);
 

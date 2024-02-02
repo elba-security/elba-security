@@ -11,7 +11,7 @@ export function GET(request: NextRequest) {
     const region = request.nextUrl.searchParams.get('region');
 
     if (!organisationId || !region) {
-      redirect(`${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=true`);
+      throw new Error('Could not retrieve organisationId or region from request');
     }
 
     // we store the organisationId in the cookies to be able to retrieve after the SaaS redirection
@@ -21,8 +21,7 @@ export function GET(request: NextRequest) {
     const redirectUrl = new URL(env.MONDAY_AUTH_URL);
     redirectUrl.searchParams.append('client_id', env.MONDAY_CLIENT_ID);
     redirect(redirectUrl.toString());
-  }
-  catch (error) {
+  } catch (error) {
     redirect(`${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`);
   }
 }

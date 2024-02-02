@@ -14,24 +14,27 @@ import { server } from '../../vitest/setup-msw-handlers';
 import { type MondayUser, getUsers } from './users';
 import { MondayError } from './commons/error';
 
-const validToken = 'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjMxNTEyNTgwMywiYWFpIjoyMjY3NDYsInVpZCI6NTQ3MjAyMTIsImlhZCI6IjIwMjQtMDEtMjlUMTE6NDk6MzYuMjI0WiIsInBlciI6InVzZXJzOnJlYWQsbWU6cmVhZCxib2FyZHM6cmVhZCIsImFjdGlkIjoyMDg2MjcyMiwicmduIjoiYXBzZTIifQ.y7N8M91hTkZ0EREtDazDE0gldfkJlo7n3IyIYYf-MEk';
+const validToken =
+  'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjMxNTEyNTgwMywiYWFpIjoyMjY3NDYsInVpZCI6NTQ3MjAyMTIsImlhZCI6IjIwMjQtMDEtMjlUMTE6NDk6MzYuMjI0WiIsInBlciI6InVzZXJzOnJlYWQsbWU6cmVhZCxib2FyZHM6cmVhZCIsImFjdGlkIjoyMDg2MjcyMiwicmduIjoiYXBzZTIifQ.y7N8M91hTkZ0EREtDazDE0gldfkJlo7n3IyIYYf-MEk';
 const maxPage = 2;
 
-const users: MondayUser[] = [{
-  id: '54720212',
-  email: 'cibetik956@grassdev.com',
-  name: 'test'
-},
-{
-  id: '55136570',
-  email: 'palape5084@rentaen.com',
-  name: 'palape5084@rentaen.com'
-},
-{
-  id: '55136574',
-  email: 'yahime7685@konican.com',
-  name: 'yahime7685@konican.com'
-}]
+const users: MondayUser[] = [
+  {
+    id: '54720212',
+    email: 'cibetik956@grassdev.com',
+    name: 'test',
+  },
+  {
+    id: '55136570',
+    email: 'palape5084@rentaen.com',
+    name: 'palape5084@rentaen.com',
+  },
+  {
+    id: '55136574',
+    email: 'yahime7685@konican.com',
+    name: 'yahime7685@konican.com',
+  },
+];
 
 describe('auth connector', () => {
   describe('getUsers', () => {
@@ -49,7 +52,7 @@ describe('auth connector', () => {
           if (page === maxPage) {
             return Response.json({ data: { users } });
           }
-          return Response.json({  data: { users } });
+          return Response.json({ data: { users } });
         })
       );
     });
@@ -57,10 +60,10 @@ describe('auth connector', () => {
     test('should return users and nextPage when the token is valid and their is another page', async () => {
       await expect(getUsers(validToken, 1)).resolves.toStrictEqual({
         data: {
-          users
+          users,
         },
         nextPage: 2,
-      }).catch(error => console.error("Promise rejected:", error));;
+      });
     });
 
     // test('should return users and no nextPage when the token is valid and their is no other page', async () => {

@@ -22,21 +22,23 @@ const organisation = {
 };
 const syncStartedAt = Date.now();
 
-const users: usersConnector.MondayUser[] = [{
-  id:'54720212',
-  email:'cibetik956@grassdev.com',
-  name:'test'
-},
-{
-  id:'55136570',
-  email:'palape5084@rentaen.com',
-  name:'palape5084@rentaen.com'
-},
-{
-  id:'55136574',
-  email:'yahime7685@konican.com',
-  name:'yahime7685@konican.com'
-}]
+const users: usersConnector.MondayUser[] = [
+  {
+    id: '54720212',
+    email: 'cibetik956@grassdev.com',
+    name: 'test',
+  },
+  {
+    id: '55136570',
+    email: 'palape5084@rentaen.com',
+    name: 'palape5084@rentaen.com',
+  },
+  {
+    id: '55136574',
+    email: 'yahime7685@konican.com',
+    name: 'yahime7685@konican.com',
+  },
+];
 
 const setup = createInngestFunctionMock(syncUsers, 'monday/users.page_sync.requested');
 
@@ -65,8 +67,8 @@ describe('sync-users', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       nextPage: 1,
       data: {
-        users
-      }
+        users,
+      },
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,
@@ -98,7 +100,7 @@ describe('sync-users', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       nextPage: null,
       data: {
-        users
+        users,
       },
     });
     const [result, { step }] = setup({

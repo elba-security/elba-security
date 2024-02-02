@@ -2,6 +2,7 @@ import { RedirectType, redirect } from 'next/navigation';
 import type { NextRequest } from 'next/server';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
+import { MondayError } from '@/connectors/commons/error';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,17 +20,21 @@ export async function GET(request: NextRequest) {
     }
 
     await setupOrganisation({ organisationId, code, region });
+  } catch (error) {
+    if (error instanceof MondayError && error.response?.status === 401) {
+      redirect(
+          `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=unauthorized`,
+          RedirectType.replace
+      );
   }
-  catch (error) {
-    redirect(
-      `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`,
-      RedirectType.replace
-    );
+  redirect(
+    `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`,
+    RedirectType.replace
+  );
   }
 
   redirect(
     `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&success=true`,
     RedirectType.replace
   );
-
 }

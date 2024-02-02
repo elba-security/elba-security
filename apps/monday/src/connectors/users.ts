@@ -14,27 +14,24 @@ export type MondayUser = {
   email: string;
 };
 
-type GetUsersResponseData = { data: { users: MondayUser[] }, nextPage: number | null };
+type GetUsersResponseData = { data: { users: MondayUser[] }; nextPage: number | null };
 
 export const getUsers = async (token: string, page: number | null) => {
   const response = await fetch(`https://api.monday.com/v2`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      "query": `query {users (limit:50 page:${page}) {email id name }}`
-    })
+      query: `query {users (limit:50 page:${page}) {email id name }}`,
+    }),
   });
   if (!response.ok) {
     throw new MondayError('Could not retrieve users', { response });
   }
-  var data = await response.json()
-  if (data.data && data.data.users.length == 0)
-    page = null
-  else
-    page = typeof page === 'number' ? page + 1 : 1;
-  const responseData: GetUsersResponseData = {
-    data: data.data,
-    nextPage: page
-  };
-  return responseData;
+  let nextPage: number | null = null;
+  const data = (await response.json()) as GetUsersResponseData;
+  if (data.data.users.length === 0) nextPage = null;
+  else nextPage = typeof page === 'number' ? page + 1 : 1;
+
+  data.nextPage = nextPage;
+  return data;
 };
