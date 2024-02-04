@@ -35,6 +35,7 @@ describe('run-refresh-token', () => {
     vi.setSystemTime(TOKEN_GENERATED_AT);
     vi.clearAllMocks();
     await insertOrganisations({});
+    vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
   });
 
   afterAll(() => {
@@ -42,6 +43,7 @@ describe('run-refresh-token', () => {
   });
 
   test('should delete the organisations and call elba to notify', async () => {
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
     mocks.refreshAccessToken.mockRejectedValueOnce(
       new DropboxResponseError(
         401,

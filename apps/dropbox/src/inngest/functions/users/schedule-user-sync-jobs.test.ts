@@ -40,7 +40,7 @@ describe('schedule-users-sync-jobs', () => {
       'run-user-sync-jobs',
       scheduledOrganisations.map((organisation) => ({
         name: 'dropbox/users.sync_page.triggered',
-        data: { ...organisation, isFirstSync: false, syncStartedAt: '2021-01-01T00:00:00.000Z' },
+        data: { ...organisation, isFirstSync: false, syncStartedAt: 1609459200000 },
       }))
     );
   });

@@ -4,7 +4,7 @@ import subMinutes from 'date-fns/subMinutes';
 import { FunctionHandler, inngest } from '@/inngest/client';
 import { DBXAuth } from '@/connectors';
 import { NonRetriableError } from 'inngest';
-import { encrypt } from '@/common/crypto';
+import { decrypt, encrypt } from '@/common/crypto';
 import { env } from '@/env';
 
 const handler: FunctionHandler = async ({
@@ -14,18 +14,18 @@ const handler: FunctionHandler = async ({
   const { organisationId } = event.data;
 
   const response = await step.run('fetch-refresh-token', async () => {
-    const organisation = await getOrganisationRefreshToken(organisationId);
+    const [organisation] = await getOrganisationRefreshToken(organisationId);
 
-    if (!organisation.length) {
-      new NonRetriableError(
+    if (!organisation) {
+      return new NonRetriableError(
         `Not able to get the token details for the organisation with ID: ${organisationId}`
       );
     }
 
-    const token = organisation.at(0);
+    const token = await decrypt(organisation.refreshToken);
 
     const dbxAuth = new DBXAuth({
-      refreshToken: token!.refreshToken,
+      refreshToken: token,
     });
 
     const { access_token: accessToken, expires_at: expiresAt } = await dbxAuth.refreshAccessToken();
@@ -40,6 +40,10 @@ const handler: FunctionHandler = async ({
 
     return tokenDetails;
   });
+  
+  if(!('expiresAt' in response)) {
+   throw Error('Schedule refresh token failed')
+  }
 
   await step.sendEvent('run-refresh-token', {
     name: 'dropbox/token.refresh.triggered',
