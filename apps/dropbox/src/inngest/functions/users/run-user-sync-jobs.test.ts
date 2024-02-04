@@ -7,8 +7,7 @@ import { runUserSyncJobs } from './run-user-sync-jobs';
 import * as crypto from '@/common/crypto';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
-const sourceId = '00000000-0000-0000-0000-000000000008';
-const syncStartedAt = '2021-09-01T00:00:00.000Z';
+const syncStartedAt = 1707068979946;
 
 const setup = createInngestFunctionMock(runUserSyncJobs, 'dropbox/users.sync_page.triggered');
 
@@ -98,7 +97,6 @@ describe('run-user-sync-jobs', () => {
       baseUrl: 'https://api.elba.io',
       apiKey: 'elba-api-key',
       organisationId,
-      sourceId,
       region: 'eu',
     });
 
@@ -108,7 +106,7 @@ describe('run-user-sync-jobs', () => {
     expect(elbaInstance?.users.update).toBeCalledTimes(0);
     expect(elbaInstance?.users.delete).toBeCalledTimes(1);
     expect(elbaInstance?.users.delete).toBeCalledWith({
-      syncedBefore: syncStartedAt,
+      syncedBefore: new Date(syncStartedAt).toISOString()
     });
   });
 
@@ -139,7 +137,6 @@ describe('run-user-sync-jobs', () => {
       baseUrl: 'https://api.elba.io',
       apiKey: 'elba-api-key',
       organisationId,
-      sourceId,
       region: 'eu',
     });
     const elbaInstance = elba.mock.results[0]?.value;
@@ -148,7 +145,7 @@ describe('run-user-sync-jobs', () => {
     expect(elbaInstance?.users.update).toBeCalledWith(elbaUsers);
     expect(elbaInstance?.users.delete).toBeCalledTimes(1);
     expect(elbaInstance?.users.delete).toBeCalledWith({
-      syncedBefore: syncStartedAt,
+      syncedBefore: new Date(syncStartedAt).toISOString(),
     });
   });
 
@@ -179,9 +176,9 @@ describe('run-user-sync-jobs', () => {
       baseUrl: 'https://api.elba.io',
       apiKey: 'elba-api-key',
       organisationId,
-      sourceId,
       region: 'eu',
     });
+    
     const elbaInstance = elba.mock.results[0]?.value;
 
     expect(elbaInstance?.users.update).toBeCalledTimes(1);

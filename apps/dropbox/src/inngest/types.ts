@@ -9,7 +9,7 @@ type RunUserSyncJobsSchema = {
   organisationId: string;
   isFirstSync: boolean;
   cursor?: string;
-  syncStartedAt: string;
+  syncStartedAt: number;
 };
 
 export type InngestEvents = {

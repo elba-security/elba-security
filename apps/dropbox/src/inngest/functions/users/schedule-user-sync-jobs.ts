@@ -6,7 +6,7 @@ export const scheduleUserSyncJobs = inngest.createFunction(
   { cron: '0 0 * * *' },
   async ({ step }) => {
     const organisations = await getOrganisationsToSync();
-    const syncStartedAt = new Date().toISOString();
+    const syncStartedAt = Date.now();
     if (organisations.length > 0) {
       await step.sendEvent(
         'run-user-sync-jobs',

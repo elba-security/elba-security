@@ -10,7 +10,7 @@ import { addSeconds, subMinutes } from 'date-fns';
 const tokenWillExpiresIn = 14400; // seconds
 const rootNamespaceId = '356986';
 const organisationId = '00000000-0000-0000-0000-000000000001';
-const SYNC_STARTED_AT = '2023-01-23T17:59:16.864Z';
+const SYNC_STARTED_AT = 1674496756;
 const TOKEN_WILL_EXPIRE_IN = 14400;
 const TOKEN_EXPIRES_AT = addSeconds(new Date(SYNC_STARTED_AT), TOKEN_WILL_EXPIRE_IN);
 

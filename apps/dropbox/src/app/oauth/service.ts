@@ -94,7 +94,7 @@ export const generateAccessToken = async ({
         data: {
           organisationId,
           isFirstSync: true,
-          syncStartedAt: new Date().toISOString(),
+          syncStartedAt: Date.now(),
         },
       },
     ]);

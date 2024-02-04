@@ -7,6 +7,5 @@ export const getElba = ({ organisationId, region }: { organisationId: string; re
     baseUrl: env.ELBA_API_BASE_URL,
     organisationId,
     region,
-    sourceId: env.ELBA_SOURCE_ID,
   });
 };

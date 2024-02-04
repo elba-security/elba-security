@@ -4,6 +4,7 @@ import { getOrganisationAccessDetails } from '../common/data';
 import { FunctionHandler, inngest } from '@/inngest/client';
 import { DBXUsers } from '@/connectors';
 import { decrypt } from '@/common/crypto';
+import { logger } from '@elba-security/logger';
 
 const handler: FunctionHandler = async ({
   event,
@@ -53,11 +54,13 @@ const handler: FunctionHandler = async ({
   }
 
   await step.run('user-sync-finalize', async () => {
+    const syncedBefore = new Date(syncStartedAt);
+    logger.info('Deleting old users on elba', { organisationId, syncedBefore });
     await elba.users.delete({
-      syncedBefore: syncStartedAt,
+      syncedBefore: syncedBefore.toISOString(),
     });
   });
-
+  
   return {
     success: true,
   };

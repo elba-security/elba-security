@@ -30,7 +30,8 @@ const redirectOnSuccess = () => {
 };
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+
+  const { searchParams } = request.nextUrl;
   const state = searchParams.get('state');
   const code = searchParams.get('code');
   const error = searchParams.get('error');
