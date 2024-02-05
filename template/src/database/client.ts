@@ -1,9 +1,10 @@
-import { sql } from '@vercel/postgres';
-import { drizzle } from 'drizzle-orm/vercel-postgres';
-import { neonConfig } from '@neondatabase/serverless';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
 import { env } from '@/env';
 import * as schema from './schema';
 
+// To have a local neon database like environment as vercel postgres use neon
+// see: https://gal.hagever.com/posts/running-vercel-postgres-locally
 if (!env.VERCEL_ENV || env.VERCEL_ENV === 'development') {
   // Set the WebSocket proxy to work with the local instance
   neonConfig.wsProxy = (host) => `${host}:${env.POSTGRES_PROXY_PORT}/v1`;
@@ -13,4 +14,6 @@ if (!env.VERCEL_ENV || env.VERCEL_ENV === 'development') {
   neonConfig.pipelineConnect = false;
 }
 
-export const db = drizzle(sql, { schema });
+const pool = new Pool({ connectionString: env.POSTGRES_URL });
+
+export const db = drizzle(pool, { schema });

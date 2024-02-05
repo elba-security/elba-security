@@ -1,6 +1,5 @@
-import { sql } from '@vercel/postgres';
-import { drizzle } from 'drizzle-orm/vercel-postgres';
-import { neonConfig } from '@neondatabase/serverless';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
 import { env } from '@/common/env';
 import * as schema from './schema';
 
@@ -15,4 +14,6 @@ if (!process.env.VERCEL_ENV || process.env.VERCEL_ENV === 'development') {
   neonConfig.pipelineConnect = false;
 }
 
-export const db = drizzle(sql, { schema });
+const pool = new Pool({ connectionString: env.POSTGRES_URL });
+
+export const db = drizzle(pool, { schema });
