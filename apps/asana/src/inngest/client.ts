@@ -13,6 +13,12 @@ export const inngest = new Inngest({
         offset?: string;
       };
     };
+    'token/refresh': {
+      data: {
+        organisationId: string;
+        refreshTokenInfo: string;
+      };
+    };
   }>(),
   middleware: [rateLimitMiddleware, unauthorizedMiddleware],
 });
