@@ -2,20 +2,20 @@ import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
-import * as crypto from '@/common/crypto';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as authConnector from '@/connectors/auth';
+import { encrypt } from '@/common/crypto';
 import { refreshToken } from './refresh-token';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  token: 'test-token',
+  token: await encrypt('test-token'),
   tenantId: 'tenant-id',
   region: 'us',
 };
 const now = new Date();
-const newToken = 'new-access-token';
+const newToken = await encrypt('new-access-token');
 const expiresIn = 60;
 
 const setup = createInngestFunctionMock(refreshToken, 'microsoft/token.refresh.triggered');
@@ -57,7 +57,6 @@ describe('sync-users', () => {
       token: newToken,
       expiresIn,
     });
-    vi.spyOn(crypto, 'encrypt').mockResolvedValue(newToken);
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
@@ -74,13 +73,12 @@ describe('sync-users', () => {
         .where(eq(Organisation.id, organisation.id))
     ).resolves.toStrictEqual([
       {
-        token: newToken,
+        token: await encrypt(newToken),
       },
     ]);
 
     expect(authConnector.getToken).toBeCalledTimes(1);
     expect(authConnector.getToken).toBeCalledWith(organisation.tenantId);
-    expect(crypto.encrypt).toBeCalledTimes(1);
 
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
