@@ -23,6 +23,10 @@ export class Logger {
   }
 
   private log(level: LogLevel, message: object): void {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     try {
       // eslint-disable-next-line no-console -- this is a console logger
       console[level](

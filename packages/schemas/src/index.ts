@@ -1,4 +1,3 @@
-export * from './authentication';
 export * from './common';
 export * from './connection-status';
 export * from './data-protection';

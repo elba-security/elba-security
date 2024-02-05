@@ -4,9 +4,9 @@ import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 
 export const inngest = new Inngest({
-  id: 'slack',
+  id: '{SaaS}',
   schemas: new EventSchemas().fromRecord<{
-    'users/sync_page.triggered': {
+    '{SaaS}/users.page_sync.requested': {
       data: {
         organisationId: string;
         region: string;

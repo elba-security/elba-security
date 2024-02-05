@@ -1,7 +1,7 @@
 import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import * as githubOrganization from '@/connectors/organization';
-import { Admin, Organisation } from '@/database/schema';
+import * as githubOrganization from '@/connectors/github/organization';
+import { adminsTable, organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { env } from '@/env';
 import { syncUsersPage } from './sync-users-page';
@@ -25,11 +25,11 @@ const data = {
   cursor: null,
 };
 
-const setup = createInngestFunctionMock(syncUsersPage, 'users/page_sync.requested');
+const setup = createInngestFunctionMock(syncUsersPage, 'github/users.page_sync.requested');
 
 describe('sync-users-page', () => {
   beforeEach(async () => {
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
   });
 
   test('should sync users page when there is another apps page', async () => {
@@ -46,7 +46,7 @@ describe('sync-users-page', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
-    await expect(db.select({ id: Admin.id }).from(Admin)).resolves.toMatchObject(
+    await expect(db.select({ id: adminsTable.id }).from(adminsTable)).resolves.toMatchObject(
       githubAdmins.map(({ id }) => ({ id }))
     );
 
@@ -61,7 +61,6 @@ describe('sync-users-page', () => {
     expect(elba).toBeCalledWith({
       organisationId: organisation.id,
       region: organisation.region,
-      sourceId: env.ELBA_SOURCE_ID,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });
@@ -69,10 +68,11 @@ describe('sync-users-page', () => {
 
     expect(elbaInstance?.users.update).toBeCalledTimes(1);
     expect(elbaInstance?.users.update).toBeCalledWith({
-      users: githubUsers.map(({ id, email, name }) => ({
+      users: githubUsers.map(({ id, email, name, role }) => ({
         id: String(id),
         email,
         displayName: name,
+        role,
         additionalEmails: [],
       })),
     });
@@ -81,7 +81,7 @@ describe('sync-users-page', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users-page', {
-      name: 'users/page_sync.requested',
+      name: 'github/users.page_sync.requested',
       data: {
         ...data,
         cursor: nextCursor,
@@ -102,7 +102,7 @@ describe('sync-users-page', () => {
     const [result, { step }] = setup(data);
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
-    await expect(db.select({ id: Admin.id }).from(Admin)).resolves.toMatchObject(
+    await expect(db.select({ id: adminsTable.id }).from(adminsTable)).resolves.toMatchObject(
       githubAdmins.map(({ id }) => ({ id }))
     );
 
@@ -117,7 +117,6 @@ describe('sync-users-page', () => {
     expect(elba).toBeCalledWith({
       organisationId: organisation.id,
       region: organisation.region,
-      sourceId: env.ELBA_SOURCE_ID,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });

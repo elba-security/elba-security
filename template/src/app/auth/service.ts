@@ -25,7 +25,7 @@ export const setupOrganisation = async ({
   });
 
   await inngest.send({
-    name: 'users/sync_page.triggered',
+    name: '{SaaS}/users.page_sync.requested',
     data: {
       isFirstSync: true,
       organisationId,
