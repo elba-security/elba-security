@@ -34,15 +34,6 @@ export const syncUsersPage = inngest.createFunction(
       limit: 1,
     },
     retries: 1,
-    onFailure: async ({ error, event, step }) => {
-      console.log('🚀 ~ file: sync-users-page.ts:38 ~ onFailure: ~ error:', error.message);
-      console.log('🚀 ~ file: sync-users-page.ts:38 ~ onFailure: ~ error:', error.name);
-
-      console.log('🚀 ~ file: sync-users-page.ts:38 ~ onFailure: ~ error:', error.stack);
-
-      // This is the failure handler which can be used to
-      // send an alert, notification, or whatever you need to do
-    },
   },
 
   { event: 'zoom/users.page_sync.requested' },
@@ -66,17 +57,17 @@ export const syncUsersPage = inngest.createFunction(
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      console.log('🚀 ~ file: sync-users-page.ts:55 ~ token ~ organisation:', organisation);
+      // console.log('🚀 ~ file: sync-users-page.ts:55 ~ token ~ organisation:', organisation);
 
       return organisation.token;
     });
-    console.log('🚀 ~ file: sync-users-page.ts:63 ~ const{token}=awaitstep.run ~ token:', token);
+    // console.log('🚀 ~ file: sync-users-page.ts:63 ~ const{token}=awaitstep.run ~ token:', token);
 
     // retrieve the SaaS organisation token
 
     const nextPage = await step.run('list-users', async () => {
       // retrieve this users page
-      console.log('Get user Before hit');
+      // console.log('Get user Before hit');
       const result = await getUsers(token, page);
       // format each SaaS users to elba users
       // const users = result.users.map(formatElbaUser);

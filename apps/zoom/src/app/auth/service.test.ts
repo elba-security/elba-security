@@ -116,7 +116,7 @@ describe('setupOrganisation', () => {
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: '{SaaS}/users.page_sync.requested',
+      name: 'zoom/users.page_sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,

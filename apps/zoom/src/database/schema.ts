@@ -1,4 +1,4 @@
-import { uuid, text, timestamp, pgTable, boolean, bigint } from 'drizzle-orm/pg-core';
+import { uuid, text, timestamp, pgTable, bigint } from 'drizzle-orm/pg-core';
 import { type InferSelectModel } from 'drizzle-orm';
 
 export const Organisation = pgTable('organisation', {

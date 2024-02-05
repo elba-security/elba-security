@@ -8,6 +8,7 @@
 
 import { env } from '@/env';
 import { MySaasError } from './commons/error';
+
 export type MySaasUser = {
   id: string;
   first_name: string;
@@ -25,18 +26,18 @@ type GetUsersResponseData = {
 };
 
 export const getUsers = async (token: string, page: number | null) => {
-  console.log('Get User fn Hit');
+  // console.log('Get User fn Hit');
   const response = await fetch(`${env.ZOOM_API_URL}/users?page_number=${page}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!response.ok) {
     throw new MySaasError('Could not retrieve users', { response });
   }
-  console.log('🚀 ~ file: users.ts:40 ~ getUsers ~ response.json():', response.json());
-  console.log(
-    '🚀 ~ file: users.ts:40 ~ getUsers ~ response.json():',
-    response.json() as Promise<GetUsersResponseData>
-  );
+  // console.log('🚀 ~ file: users.ts:40 ~ getUsers ~ response.json():', response.json());
+  // console.log(
+  //   '🚀 ~ file: users.ts:40 ~ getUsers ~ response.json():',
+  //   response.json() as Promise<GetUsersResponseData>
+  // );
 
-  // return response.json() as Promise<GetUsersResponseData>;
+  return response.json() as Promise<GetUsersResponseData>;
 };
