@@ -27,6 +27,25 @@ const elba = new Elba({
 
 ## API Reference
 
+### Utils
+
+#### getRedirectUrl
+
+Generates a URL with appended parameters for elba redirection based on the source ID, base URL, and an optional error code.
+When no error is given, the user will be redirected on a success page.
+
+**Example:**
+
+```ts
+import { getRedirectUrl } from '@elba-security/sdk';
+
+const redirectUrl = getRedirectUrl({
+  sourceId: env.ELBA_SOURCE_ID,
+  baseUrl: env.ELBA_REDIRECT_URL,
+  error: 'unauthorized',
+});
+```
+
 ### Webhook
 
 #### validateWebhookEventSignature
