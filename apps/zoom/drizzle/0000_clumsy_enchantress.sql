@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS "organisation" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"region" text NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"access_token" text NOT NULL,
+	"refresh_token" text NOT NULL,
+	"expires_in" bigint NOT NULL
+);
