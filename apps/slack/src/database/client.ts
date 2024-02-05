@@ -7,13 +7,13 @@ import * as schema from './schema';
 // see: https://gal.hagever.com/posts/running-vercel-postgres-locally
 if (!process.env.VERCEL_ENV || process.env.VERCEL_ENV === 'development') {
   // Set the WebSocket proxy to work with the local instance
-  neonConfig.wsProxy = (host) => `${host}:${env.POSTGRES_PROXY_PORT}/v1`;
+  neonConfig.wsProxy = (host) => `${host}:${env.DATABASE_PROXY_PORT}/v1`;
   // Disable all authentication and encryption
   neonConfig.useSecureWebSocket = false;
   neonConfig.pipelineTLS = false;
   neonConfig.pipelineConnect = false;
 }
 
-const pool = new Pool({ connectionString: env.POSTGRES_URL });
+const pool = new Pool({ connectionString: env.DATABASE_URL });
 
 export const db = drizzle(pool, { schema });
