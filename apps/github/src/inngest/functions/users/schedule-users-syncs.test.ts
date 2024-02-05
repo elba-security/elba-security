@@ -1,7 +1,7 @@
 import { expect, test, describe, beforeAll, vi, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { scheduleUsersSyncs } from './schedule-users-syncs';
 import { organisations } from './__mocks__/integration';
 
@@ -25,7 +25,7 @@ describe('schedule-users-syncs', () => {
   });
 
   test('should schedule jobs when there are organisations', async () => {
-    await db.insert(Organisation).values(organisations);
+    await db.insert(organisationsTable).values(organisations);
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
@@ -35,7 +35,7 @@ describe('schedule-users-syncs', () => {
     expect(step.sendEvent).toBeCalledWith(
       'sync-organisations-users',
       organisations.map(({ id, installationId, accountLogin, region }) => ({
-        name: 'users/page_sync.requested',
+        name: 'github/users.page_sync.requested',
         data: {
           installationId,
           organisationId: id,

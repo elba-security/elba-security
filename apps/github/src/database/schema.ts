@@ -1,7 +1,6 @@
 import { uuid, integer, text, timestamp, pgTable, unique } from 'drizzle-orm/pg-core';
-import { type InferSelectModel } from 'drizzle-orm';
 
-export const Organisation = pgTable('organisation', {
+export const organisationsTable = pgTable('organisations', {
   id: uuid('id').primaryKey(),
   region: text('region').notNull(),
   installationId: integer('installation_id').unique().notNull(),
@@ -9,14 +8,12 @@ export const Organisation = pgTable('organisation', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-export type SelectOrganisation = InferSelectModel<typeof Organisation>;
-
-export const Admin = pgTable(
-  'admin',
+export const adminsTable = pgTable(
+  'admins',
   {
     id: text('id').notNull().primaryKey(),
     organisationId: uuid('organisation_id')
-      .references(() => Organisation.id, { onDelete: 'cascade' })
+      .references(() => organisationsTable.id, { onDelete: 'cascade' })
       .notNull(),
     lastSyncAt: timestamp('last_sync_at').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),

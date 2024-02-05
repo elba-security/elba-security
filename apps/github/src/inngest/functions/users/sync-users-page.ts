@@ -1,22 +1,23 @@
 import { Elba, type User } from '@elba-security/sdk';
 import { and, eq, lt } from 'drizzle-orm';
 import { env } from '@/env';
-import type { OrganizationMember } from '@/connectors/organization';
-import { getPaginatedOrganizationMembers } from '@/connectors/organization';
+import type { OrganizationMember } from '@/connectors/github/organization';
+import { getPaginatedOrganizationMembers } from '@/connectors/github/organization';
 import { db } from '@/database/client';
-import { Admin } from '@/database/schema';
+import { adminsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
 const formatElbaUser = (member: OrganizationMember): User => ({
   id: String(member.id),
-  email: member.email ?? undefined,
+  email: member.email || undefined,
   displayName: member.name ?? member.login,
+  role: member.role ?? undefined,
   additionalEmails: [],
 });
 
 export const syncUsersPage = inngest.createFunction(
   {
-    id: 'sync-users-page',
+    id: 'github-sync-users-page',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -30,9 +31,19 @@ export const syncUsersPage = inngest.createFunction(
         limit: 1,
       },
     ],
+    cancelOn: [
+      {
+        event: 'github/github.elba_app.uninstalled',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'github/github.elba_app.installed',
+        match: 'data.organisationId',
+      },
+    ],
   },
   {
-    event: 'users/page_sync.requested',
+    event: 'github/users.page_sync.requested',
   },
   async ({ event, step, logger }) => {
     const { installationId, organisationId, accountLogin, cursor, region } = event.data;
@@ -41,7 +52,6 @@ export const syncUsersPage = inngest.createFunction(
     const elba = new Elba({
       organisationId,
       region,
-      sourceId: env.ELBA_SOURCE_ID,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });
@@ -59,10 +69,10 @@ export const syncUsersPage = inngest.createFunction(
 
       if (admins.length > 0) {
         await db
-          .insert(Admin)
+          .insert(adminsTable)
           .values(admins)
           .onConflictDoUpdate({
-            target: [Admin.id, Admin.organisationId],
+            target: [adminsTable.id, adminsTable.organisationId],
             set: {
               lastSyncAt: syncStartedAt,
             },
@@ -80,7 +90,7 @@ export const syncUsersPage = inngest.createFunction(
 
     if (nextCursor) {
       await step.sendEvent('sync-users-page', {
-        name: 'users/page_sync.requested',
+        name: 'github/users.page_sync.requested',
         data: {
           ...event.data,
           cursor: nextCursor,
@@ -97,8 +107,13 @@ export const syncUsersPage = inngest.createFunction(
       logger.info('Deleting old users on elba', { organisationId, syncedBefore });
       await elba.users.delete({ syncedBefore });
       await db
-        .delete(Admin)
-        .where(and(eq(Admin.organisationId, organisationId), lt(Admin.lastSyncAt, syncStartedAt)));
+        .delete(adminsTable)
+        .where(
+          and(
+            eq(adminsTable.organisationId, organisationId),
+            lt(adminsTable.lastSyncAt, syncStartedAt)
+          )
+        );
     });
 
     return {

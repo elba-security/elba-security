@@ -1,7 +1,7 @@
-import { getInstallation } from '@/connectors/installation';
+import { getInstallation } from '@/connectors/github/installation';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 
 type SetupOrganisationParams = {
   installationId: number;
@@ -25,7 +25,7 @@ export const setupOrganisation = async ({
   }
 
   const [organisation] = await db
-    .insert(Organisation)
+    .insert(organisationsTable)
     .values({
       id: organisationId,
       installationId: installation.id,
@@ -33,7 +33,7 @@ export const setupOrganisation = async ({
       region,
     })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
         installationId: installation.id,
         accountLogin: installation.account.login,
@@ -46,18 +46,26 @@ export const setupOrganisation = async ({
     throw new Error(`Could not setup organisation with id=${organisationId}`);
   }
 
-  await inngest.send({
-    name: 'users/page_sync.requested',
-    data: {
-      organisationId,
-      installationId: installation.id,
-      accountLogin: installation.account.login,
-      region,
-      syncStartedAt: Date.now(),
-      isFirstSync: true,
-      cursor: null,
+  await inngest.send([
+    {
+      name: 'github/github.elba_app.installed',
+      data: {
+        organisationId,
+      },
     },
-  });
+    {
+      name: 'github/users.page_sync.requested',
+      data: {
+        organisationId,
+        installationId: installation.id,
+        accountLogin: installation.account.login,
+        region,
+        syncStartedAt: Date.now(),
+        isFirstSync: true,
+        cursor: null,
+      },
+    },
+  ]);
 
   return organisation;
 };

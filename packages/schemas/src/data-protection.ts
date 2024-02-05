@@ -21,7 +21,7 @@ const permissionSchema = z.union([
   }),
   basePermissionSchema.extend({
     type: z.literal('domain'),
-    domain: z.string().min(1),
+    domain: z.string().min(1).optional(),
   }),
   basePermissionSchema.extend({
     type: z.literal('anyone'),
@@ -53,12 +53,34 @@ export const deleteDataProtectionObjectsSchema = baseDeleteRequestSchema;
 
 export type DeleteDataProtectionObjects = zInfer<typeof deleteDataProtectionObjectsSchema>;
 
-export const dataProtectionContentRequestedDataSchema = z.object({
+export const dataProtectionContentRequestedWebhookDataSchema = z.object({
   organisationId: z.string().uuid(),
   id: z.string().min(1),
-  metadata: jsonSchema.optional(),
+  metadata: jsonSchema
 });
 
 export const dataProtectionScanTriggeredWebhookDataSchema = z.object({
   organisationId: z.string().uuid(),
+});
+
+export const dataProtectionObjectDeletedWebhookDataSchema = z.object({
+  organisationId: z.string().uuid(),
+  id: z.string().min(1),
+  metadata: jsonSchema
+});
+
+export const dataProtectionRefreshObjectRequestedWebhookDataSchema = z.object({
+  organisationId: z.string().uuid(),
+  id: z.string().min(1),
+  metadata: jsonSchema
+});
+
+export  const dataProtectionDeleteObjectPermissionsRequestedDataSchema = z.object({
+  id: z.string().min(1),
+  organisationId: z.string().uuid(),
+  metadata: jsonSchema,
+  permissions: z.array(z.object({
+    id: z.string().min(1),
+    metadata: jsonSchema
+  })),
 });

@@ -1,8 +1,8 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
-import * as installationRepository from '@/connectors/installation';
+import * as installationRepository from '@/connectors/github/installation';
 import * as client from '@/inngest/client';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { setupOrganisation } from './service';
 
 const installationId = 1;
@@ -33,7 +33,7 @@ describe('setupOrganisation', () => {
     await expect(setupOrganisation({ installationId, organisationId, region })).rejects.toThrow(
       new Error('Cannot install elba github app on an account that is not an organization')
     );
-    await expect(db.select().from(Organisation)).resolves.toHaveLength(0);
+    await expect(db.select().from(organisationsTable)).resolves.toHaveLength(0);
     expect(send).toBeCalledTimes(0);
   });
 
@@ -51,7 +51,7 @@ describe('setupOrganisation', () => {
     await expect(setupOrganisation({ installationId, organisationId, region })).rejects.toThrow(
       new Error('Installation is suspended')
     );
-    await expect(db.select().from(Organisation)).resolves.toHaveLength(0);
+    await expect(db.select().from(organisationsTable)).resolves.toHaveLength(0);
     expect(send).toBeCalledTimes(0);
   });
 
@@ -74,19 +74,27 @@ describe('setupOrganisation', () => {
     await expect(
       setupOrganisation({ installationId, organisationId, region })
     ).resolves.toMatchObject(organisation);
-    await expect(db.select().from(Organisation)).resolves.toMatchObject([organisation]);
+    await expect(db.select().from(organisationsTable)).resolves.toMatchObject([organisation]);
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: 'users/page_sync.requested',
-      data: {
-        organisationId,
-        installationId: organisation.installationId,
-        accountLogin: organisation.accountLogin,
-        syncStartedAt: now,
-        isFirstSync: true,
-        region,
-        cursor: null,
+    expect(send).toBeCalledWith([
+      {
+        name: 'github/github.elba_app.installed',
+        data: {
+          organisationId,
+        },
       },
-    });
+      {
+        name: 'github/users.page_sync.requested',
+        data: {
+          organisationId,
+          installationId: organisation.installationId,
+          accountLogin: organisation.accountLogin,
+          syncStartedAt: now,
+          isFirstSync: true,
+          region,
+          cursor: null,
+        },
+      },
+    ]);
   });
 });

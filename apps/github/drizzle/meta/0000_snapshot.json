@@ -1,11 +1,11 @@
 {
-  "id": "6d5fca58-9f7a-4318-a1ec-83fdf09726e2",
+  "id": "b56e6234-5bc1-4345-bd55-c14b06807dd3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "admin": {
-      "name": "admin",
+    "admins": {
+      "name": "admins",
       "schema": "",
       "columns": {
         "id": {
@@ -36,10 +36,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "admin_organisation_id_organisation_id_fk": {
-          "name": "admin_organisation_id_organisation_id_fk",
-          "tableFrom": "admin",
-          "tableTo": "organisation",
+        "admins_organisation_id_organisations_id_fk": {
+          "name": "admins_organisation_id_organisations_id_fk",
+          "tableFrom": "admins",
+          "tableTo": "organisations",
           "columnsFrom": [
             "organisation_id"
           ],
@@ -52,8 +52,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "admin_organisation_id_id_unique": {
-          "name": "admin_organisation_id_id_unique",
+        "admins_organisation_id_id_unique": {
+          "name": "admins_organisation_id_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "organisation_id",
@@ -62,8 +62,8 @@
         }
       }
     },
-    "organisation": {
-      "name": "organisation",
+    "organisations": {
+      "name": "organisations",
       "schema": "",
       "columns": {
         "id": {
@@ -102,8 +102,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "organisation_installation_id_unique": {
-          "name": "organisation_installation_id_unique",
+        "organisations_installation_id_unique": {
+          "name": "organisations_installation_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "installation_id"

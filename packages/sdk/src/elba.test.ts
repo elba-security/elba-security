@@ -3,12 +3,10 @@ import { expect, test, describe } from 'vitest';
 import { Elba } from './elba';
 import type { User } from './resources/users/types';
 import type { ThirdPartyAppsObject } from './resources/third-party-apps/types';
-import type { AuthenticationObject } from './resources/authentication/types';
 import type { DataProtectionObject } from './resources/data-protection/types';
 
 const options = {
   organisationId: '22bc932d-a132-4a63-bde8-5cb5609f0e73',
-  sourceId: '12c7a45b-1dea-44f3-a1ed-92816caff31d',
   baseUrl: process.env.ELBA_API_BASE_URL!,
   apiKey: process.env.ELBA_API_KEY!,
   region: 'us',
@@ -22,6 +20,8 @@ describe('users', () => {
         displayName: `user-${i}`,
         email: `email-${i}@foo.bar`,
         additionalEmails: [`email-2-${i}@foo.bar`, `email-3-${i}@bar.foo`],
+        authMethod: i % 2 === 0 ? 'mfa' : 'password',
+        role: `ROLE_${i}`,
       }));
       const elba = new Elba(options);
       await expect(elba.users.update({ users })).resolves.toStrictEqual({
@@ -94,22 +94,6 @@ describe('third party apps', () => {
           ids: Array.from({ length: 5 }, (_, i) => ({ appId: `app-${i}`, userId: `user-${i}` })),
         })
       ).resolves.toStrictEqual({
-        success: true,
-      });
-    });
-  });
-});
-
-describe('authentication', () => {
-  describe('updateObjects', () => {
-    test('should call the right endpoint and return the response data', async () => {
-      const objects: AuthenticationObject[] = Array.from({ length: 5 }, (_, i) => ({
-        userId: `id-${i}`,
-
-        authMethod: (['mfa', 'password', 'sso'] as const)[i % 3]!,
-      }));
-      const elba = new Elba(options);
-      await expect(elba.authentication.updateObjects({ objects })).resolves.toStrictEqual({
         success: true,
       });
     });

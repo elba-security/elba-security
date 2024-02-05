@@ -14,7 +14,6 @@ export const spyOnElba = () =>
     vi.spyOn(elba.dataProtection, 'deleteObjects');
     vi.spyOn(elba.thirdPartyApps, 'updateObjects');
     vi.spyOn(elba.thirdPartyApps, 'deleteObjects');
-    vi.spyOn(elba.authentication, 'updateObjects');
     vi.spyOn(elba.users, 'update');
     vi.spyOn(elba.users, 'delete');
     vi.spyOn(elba.connectionStatus, 'update');

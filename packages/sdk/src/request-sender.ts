@@ -15,13 +15,11 @@ export type ElbaRequestInit<D extends Record<string, unknown>> = {
 export class RequestSender {
   private readonly baseUrl: string;
   private readonly organisationId: string;
-  private readonly sourceId: string;
   private readonly apiKey: string;
 
-  constructor({ baseUrl, organisationId, sourceId, apiKey }: RequestSenderOptions) {
+  constructor({ baseUrl, organisationId, apiKey }: RequestSenderOptions) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
     this.organisationId = organisationId;
-    this.sourceId = sourceId;
     this.apiKey = apiKey;
   }
 
@@ -32,11 +30,13 @@ export class RequestSender {
     try {
       const response = await fetch(`${this.baseUrl}/${path}`, {
         method,
-        // TODO: add Authorization header
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           ...data,
           organisationId: this.organisationId,
-          sourceId: this.sourceId,
         }),
       });
 
@@ -51,7 +51,7 @@ export class RequestSender {
 
       return response;
     } catch (error) {
-      throw new ElbaError('An unexpected error occured', { path, method, cause: error });
+      throw new ElbaError('An unexpected error occurred', { path, method, cause: error });
     }
   }
 }
