@@ -15,18 +15,18 @@ Remember that your API key is a secret! Do not share it with others or expose it
 
 All API requests should include your API key in an Authorization HTTP header as follows:
 ```shell
-X-elba-Api-Key: ELBA_API_KEY
+Authorization: Bearer <ELBA_API_KEY>
 ```
 
 Example curl request:
 ```shell
-curl --header "X-elba-Api-Key: ELBA_API_KEY" \
+curl
   --request DELETE \
-  --url "https://api.elba.ninja/api/rest/third-party-apps/objects" \
+  --url "https://admin.elba.ninja/api/rest/third-party-apps/objects" \
+  --header "Authorization: Bearer <ELBA_API_KEY>" \
   --header "Content-Type: application/json" \
   --data '{
     "organisationId": "organisation-id",
-    "sourceId": "source-id",
     "ids": [
       {
         "appId": "app-id",
@@ -43,7 +43,6 @@ import { Elba } from '@elba-security/sdk'
 const elba = new Elba({
     apiKey: 'elba-api-key',
     organisationId: 'organisation-id',
-    sourceId: 'source-id',
     region: 'eu',
 });
 

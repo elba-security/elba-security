@@ -1,7 +1,9 @@
 ## Update Third-Party Apps
+
 This endpoint facilitates the updating of third-party app information within an organisation in the Elba system.
 
-### POST 
+### POST
+
 This method allows for updating details of third-party applications associated with an organisation, including app details and associated users.
 
 ```plaintext
@@ -10,34 +12,34 @@ POST /api/rest/third-party-apps/objects
 
 Supported attributes:
 
-| Attribute                | Type     | Required | Description                                             |
-|--------------------------|----------|----------|---------------------------------------------------------|
-| `organisationId` **(uuid)**         | string   | Yes      | Unique identifier for the organisation.      |
-| `sourceId` **(uuid)**            | string   | Yes      | Unique source identifier for tracking.          |
-| `apps`                   | array    | Yes      | Array of third-party app objects to be updated.         |
-| `apps[].id`              | string   | Yes      | Unique identifier for the app.                          |
-| `apps[].name`            | string   | Yes      | Name of the app.                                        |
-| `apps[].description`     | string   | No      | Description of the app.                                 |
-| `apps[].logoUrl`         | string   | No      | URL of the app's logo.                                  |
-| `apps[].url`             | string   | No      | URL of the app.                                         |
-| `apps[].publisherName`   | string   | No      | Name of the app's publisher.                            |
-| `apps[].users`           | array    | Yes      | Array of users associated with the app.                 |
-| `apps[].users[].id`      | string   | Yes      | Unique identifier for the user.                         |
-| `apps[].users[].scopes`  | array    | No      | Scopes associated with the user for this app, Ex: `['scope-1', 'scope-2']`.           |
-| `apps[].users[].createdAt`| datetime| No      | Creation date of the user's association with the app.   |
-| `apps[].users[].lastAccessedAt`| datetime | No | Last access date of the user for this app.             |
-| `apps[].users[].metadata`| object | No | Last access date of the user for this app.             |
-
+| Attribute                       | Type     | Required | Description                                                                 |
+| ------------------------------- | -------- | -------- | --------------------------------------------------------------------------- |
+| `organisationId` **(uuid)**     | string   | Yes      | Unique identifier for the organisation.                                     |
+| `apps`                          | array    | Yes      | Array of third-party app objects to be updated.                             |
+| `apps[].id`                     | string   | Yes      | Unique identifier for the app.                                              |
+| `apps[].name`                   | string   | Yes      | Name of the app.                                                            |
+| `apps[].description`            | string   | No       | Description of the app.                                                     |
+| `apps[].logoUrl`                | string   | No       | URL of the app's logo.                                                      |
+| `apps[].url`                    | string   | No       | URL of the app.                                                             |
+| `apps[].publisherName`          | string   | No       | Name of the app's publisher.                                                |
+| `apps[].users`                  | array    | Yes      | Array of users associated with the app.                                     |
+| `apps[].users[].id`             | string   | Yes      | Unique identifier for the user.                                             |
+| `apps[].users[].scopes`         | array    | No       | Scopes associated with the user for this app, Ex: `['scope-1', 'scope-2']`. |
+| `apps[].users[].createdAt`      | datetime | No       | Creation date of the user's association with the app.                       |
+| `apps[].users[].lastAccessedAt` | datetime | No       | Last access date of the user for this app.                                  |
+| `apps[].users[].metadata`       | object   | No       | Last access date of the user for this app.                                  |
 
 Example requests:
+
 #### CURL:
+
 ```shell
-curl --header "X-elba-Api-Key: ELBA_API_KEY" \
+curl
   --request POST \
-  --url "https://api.elba.ninja/api/rest/third-party-apps/objects" \
+  --url "https://admin.elba.ninja/api/rest/third-party-apps/objects" \
   --header "Content-Type: application/json" \
+  --header "Authorization: Bearer <ELBA_API_KEY>" \
   --data '{
-    "sourceId": "source-id",
     "organisationId": "organisation-id",
     "apps": [
       {
@@ -66,16 +68,16 @@ curl --header "X-elba-Api-Key: ELBA_API_KEY" \
 ```
 
 #### elba SDK:
+
 ```javascript
-elba.thirdPartyApps.updateObjects({ apps: thirdPartyApps })
+elba.thirdPartyApps.updateObjects({ apps: thirdPartyApps });
 ```
 
 Successful response:
 
-| Attribute                | Type     | Description                          |
-|--------------------------|----------|--------------------------------------|
-| `message` | number   | Description of the operation result. |
-| `data`               | object   | Details of the processed apps & users |
-| `data.processedApps`               | number   | Number of processed apps  |
-| `data.processedUsers`               | number   | Number of processed users  |
-
+| Attribute             | Type   | Description                           |
+| --------------------- | ------ | ------------------------------------- |
+| `message`             | number | Description of the operation result.  |
+| `data`                | object | Details of the processed apps & users |
+| `data.processedApps`  | number | Number of processed apps              |
+| `data.processedUsers` | number | Number of processed users             |
