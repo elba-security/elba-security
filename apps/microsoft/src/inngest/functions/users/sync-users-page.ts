@@ -9,6 +9,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
+import { decrypt } from '@/common/crypto';
 
 const formatElbaUser = (user: MicrosoftUser): User => ({
   id: user.id,
@@ -62,7 +63,7 @@ export const syncUsersPage = inngest.createFunction(
 
     const nextSkipToken = await step.run('paginate', async () => {
       const result = await getUsers({
-        token: organisation.token,
+        token: await decrypt(organisation.token),
         tenantId,
         skipToken,
       });
