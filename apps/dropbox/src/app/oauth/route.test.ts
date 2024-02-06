@@ -103,7 +103,7 @@ describe('Callback dropbox', () => {
     expect(response.status).toBe(307);
     expect(redirectSpy).toBeCalledTimes(1);
     expect(redirectSpy).toHaveBeenCalledWith(
-      `http://localhost:3300/dashboard/security/checks/sources/activation/source-id/user-inconsistencies?source_id=${env.ELBA_SOURCE_ID}&error=unauthorized`
+      `https://api.elba.io/dashboard/security/checks/sources/activation/source-id/user-inconsistencies?source_id=${env.ELBA_SOURCE_ID}&error=unauthorized`
     );
     expect(inngest.send).toBeCalledTimes(0);
   });
@@ -122,7 +122,7 @@ describe('Callback dropbox', () => {
     expect(response.status).toBe(307);
     expect(redirectSpy).toBeCalledTimes(1);
     expect(redirectSpy).toHaveBeenCalledWith(
-      `http://localhost:3300/dashboard/security/checks/sources/activation/source-id/user-inconsistencies?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`
+      `https://api.elba.io/dashboard/security/checks/sources/activation/source-id/user-inconsistencies?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`
     );
   });
 
