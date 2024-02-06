@@ -29,3 +29,8 @@ export interface DBXAuthOptions extends DropboxAuthOptions {
 
 export { DropboxResponse, DropboxResponseError };
 export type { team, users };
+
+export type DBXAppsOption = {
+  accessToken: string;
+  teamMemberId?: string;
+};
