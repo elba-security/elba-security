@@ -50,12 +50,9 @@ importers:
       '@sentry/nextjs':
         specifier: ^7.88.0
         version: 7.93.0(next@14.0.1)(react@18.2.0)
-      '@vercel/postgres':
-        specifier: ^0.5.1
-        version: 0.5.1
       drizzle-orm:
         specifier: ^0.29.1
-        version: 0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
+        version: 0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.12.0
         version: 3.12.0(typescript@5.2.2)
@@ -165,12 +162,9 @@ importers:
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
         version: 0.7.1(typescript@5.2.2)(zod@3.22.4)
-      '@vercel/postgres':
-        specifier: 0.5.1
-        version: 0.5.1
       drizzle-orm:
         specifier: ^0.29.1
-        version: 0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
+        version: 0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.12.0
         version: 3.12.0(typescript@5.2.2)
@@ -2468,16 +2462,6 @@ packages:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: true
 
-  /@vercel/postgres@0.5.1:
-    resolution: {integrity: sha512-JKl8QOBIDnifhkxAhIKtY0A5Tb8oWBf2nzZhm0OH7Ffjsl0hGVnDL2w1/FCfpX8xna3JAWM034NGuhZfTFdmiw==}
-    engines: {node: '>=14.6'}
-    dependencies:
-      '@neondatabase/serverless': 0.6.0
-      bufferutil: 4.0.8
-      utf-8-validate: 6.0.3
-      ws: 8.14.2(bufferutil@4.0.8)(utf-8-validate@6.0.3)
-    dev: false
-
   /@vercel/style-guide@5.0.1(eslint@8.53.0)(prettier@3.0.3)(typescript@4.9.5):
     resolution: {integrity: sha512-3J/5xpwJ2Wk+cKB3EGY2KCdVQycaThLKhjBmgXPfIKb+E74lPpXVIDfaQE0D2JoAyIzGsqdH7Lbmr+DojwofxQ==}
     engines: {node: '>=16'}
@@ -2935,14 +2919,6 @@ packages:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
-
-  /bufferutil@4.0.8:
-    resolution: {integrity: sha512-4T53u4PdgsXqKaIctwF8ifXlRTTmEPJ8iEPWFdGZvcf7sbwYo6FKFEX9eNNAnzFZ7EzJAQ3CJeOtCRA4rDp7Pw==}
-    engines: {node: '>=6.14.2'}
-    requiresBuild: true
-    dependencies:
-      node-gyp-build: 4.8.0
-    dev: false
 
   /builtin-modules@3.3.0:
     resolution: {integrity: sha512-zhaCDicdLuWN5UbN5IMnFqNMhNfo919sH85y2/ea+5Yg9TsTkeZxpL+JLbp6cgYFS4sRLp3YV4S6yDuqVWHYOw==}
@@ -3425,7 +3401,7 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm@0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0):
+  /drizzle-orm@0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(postgres@3.4.3)(react@18.2.0):
     resolution: {integrity: sha512-uSE027csliGSGYD0pqtM+SAQATMREb3eSM/U8s6r+Y0RFwTKwftnwwSkqx3oS65UBgqDOM0gMTl5UGNpt6lW0A==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -3498,7 +3474,6 @@ packages:
     dependencies:
       '@neondatabase/serverless': 0.6.0
       '@types/react': 18.2.47
-      '@vercel/postgres': 0.5.1
       postgres: 3.4.3
       react: 18.2.0
     dev: false
@@ -5708,11 +5683,6 @@ packages:
     dependencies:
       whatwg-url: 5.0.0
 
-  /node-gyp-build@4.8.0:
-    resolution: {integrity: sha512-u6fs2AEUljNho3EYTJNBfImO5QTo/J/1Etd+NVdCj7qWKUSN/bSLkZwhDv7I+w/MSC6qJ4cknepkAYykDdK8og==}
-    hasBin: true
-    dev: false
-
   /node-releases@2.0.13:
     resolution: {integrity: sha512-uYr7J37ae/ORWdZeQ1xxMJe3NtdmqMC/JZK+geofDrkLUApKRHPd18/TxtBOJ4A0/+uUIliorNrfYV6s1b02eQ==}
     dev: true
@@ -7163,14 +7133,6 @@ packages:
       punycode: 2.3.1
     dev: true
 
-  /utf-8-validate@6.0.3:
-    resolution: {integrity: sha512-uIuGf9TWQ/y+0Lp+KGZCMuJWc3N9BHA+l/UmHd/oUHwJJDeysyTRxNQVkbzsIWfGFbRe3OcgML/i0mvVRPOyDA==}
-    engines: {node: '>=6.14.2'}
-    requiresBuild: true
-    dependencies:
-      node-gyp-build: 4.8.0
-    dev: false
-
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -7502,22 +7464,6 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
-    dev: false
-
-  /ws@8.14.2(bufferutil@4.0.8)(utf-8-validate@6.0.3):
-    resolution: {integrity: sha512-wEBG1ftX4jcglPxgFCMJmZ2PLtSbJ2Peg6TmpJFTbe9GZYOQCDPdMYu/Tm0/bGZkw8paZnJY45J4K2PZrLYq8g==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-    dependencies:
-      bufferutil: 4.0.8
-      utf-8-validate: 6.0.3
     dev: false
 
   /xtend@4.0.2:
