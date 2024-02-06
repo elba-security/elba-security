@@ -2,6 +2,7 @@ import { FunctionHandler, inngest } from '@/inngest/client';
 import { getOrganisationAccessDetails } from '../common/data';
 import { InputArgWithTrigger } from '@/inngest/types';
 import { DBXApps } from '@/connectors/dropbox/dbx-apps';
+import { decrypt } from '@/common/crypto';
 
 const handler: FunctionHandler = async ({
   event,
@@ -14,11 +15,10 @@ const handler: FunctionHandler = async ({
   if (!organisation) {
     throw new Error(`Organisation not found with id=${organisationId}`);
   }
-
-  const { accessToken } = organisation;
+  const token = await decrypt(organisation.accessToken);
 
   const dbx = new DBXApps({
-    accessToken,
+    accessToken: token,
   });
 
   await step.run('delete-third-party-apps-objects', async () => {

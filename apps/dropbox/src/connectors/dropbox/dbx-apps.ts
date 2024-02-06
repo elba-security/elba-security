@@ -56,7 +56,7 @@ export class DBXApps {
     teamMemberId: string;
     appId: string;
   }) => {
-    await this.dbx.teamLinkedAppsRevokeLinkedApp({
+    return this.dbx.teamLinkedAppsRevokeLinkedApp({
       team_member_id: teamMemberId!,
       app_id: appId,
     });

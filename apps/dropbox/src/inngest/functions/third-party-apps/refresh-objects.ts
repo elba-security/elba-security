@@ -3,6 +3,7 @@ import { getOrganisationAccessDetails } from '../common/data';
 import { InputArgWithTrigger } from '@/inngest/types';
 import { DBXApps } from '@/connectors/dropbox/dbx-apps';
 import { getElba } from '@/connectors';
+import { decrypt } from '@/common/crypto';
 
 const handler: FunctionHandler = async ({
   event,
@@ -18,8 +19,10 @@ const handler: FunctionHandler = async ({
 
   const { accessToken, region } = organisation;
 
+  const token = await decrypt(accessToken);
+
   const dbxAppsFetcher = new DBXApps({
-    accessToken,
+    accessToken: token,
   });
 
   const elba = getElba({
@@ -33,7 +36,7 @@ const handler: FunctionHandler = async ({
     const hasRequestedApp = apps?.some((app) => app.id === appId);
 
     if (!apps.length || !hasRequestedApp) {
-      elba.thirdPartyApps.deleteObjects({
+      await elba.thirdPartyApps.deleteObjects({
         ids: [
           {
             userId,
