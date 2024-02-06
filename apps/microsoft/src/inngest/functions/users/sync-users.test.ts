@@ -3,11 +3,11 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import type { MicrosoftUser } from '@/connectors/users';
 import { env } from '@/env';
 import { encrypt } from '@/common/crypto';
-import { syncUsersPage } from './sync-users-page';
+import { syncUsers } from './sync-users';
 
 const token = 'test-token';
 
@@ -26,15 +26,11 @@ const users: MicrosoftUser[] = Array.from({ length: 5 }, (_, i) => ({
   displayName: `user ${i}`,
 }));
 
-const setup = createInngestFunctionMock(syncUsersPage, 'microsoft/users.sync_page.triggered');
+const setup = createInngestFunctionMock(syncUsers, 'microsoft/users.sync.triggered');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
     const elba = spyOnElba();
-    await db.insert(Organisation).values({
-      ...organisation,
-      tenantId: 'invalid-tenant-id',
-    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       nextSkipToken: null,
       validUsers: users,
@@ -43,11 +39,9 @@ describe('sync-users', () => {
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      tenantId: organisation.tenantId,
       isFirstSync: false,
       syncStartedAt: Date.now(),
       skipToken: '0',
-      region: 'us',
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -63,7 +57,7 @@ describe('sync-users', () => {
     const nextSkipToken = 'next-skip-token';
     const skipToken = null;
     const elba = spyOnElba();
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       nextSkipToken,
       validUsers: users,
@@ -72,9 +66,7 @@ describe('sync-users', () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
-      tenantId: organisation.tenantId,
       syncStartedAt,
-      region: organisation.region,
       skipToken,
     });
 
@@ -111,13 +103,11 @@ describe('sync-users', () => {
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-next-users-page', {
-      name: 'microsoft/users.sync_page.triggered',
+      name: 'microsoft/users.sync.triggered',
       data: {
         organisationId: organisation.id,
         isFirstSync: false,
-        tenantId: organisation.tenantId,
         syncStartedAt,
-        region: organisation.region,
         skipToken: nextSkipToken,
       },
     });
@@ -127,7 +117,7 @@ describe('sync-users', () => {
     const nextSkipToken = null;
     const skipToken = 'skip-token';
     const elba = spyOnElba();
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       nextSkipToken,
       validUsers: users,
@@ -136,9 +126,7 @@ describe('sync-users', () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
-      tenantId: organisation.tenantId,
       syncStartedAt,
-      region: organisation.region,
       skipToken,
     });
 

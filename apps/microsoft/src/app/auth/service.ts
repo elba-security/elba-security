@@ -1,6 +1,6 @@
 import { addMinutes } from 'date-fns/addMinutes';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
@@ -20,35 +20,37 @@ export const setupOrganisation = async ({
 
   const encodedToken = await encrypt(token);
   await db
-    .insert(Organisation)
+    .insert(organisationsTable)
     .values({ id: organisationId, tenantId, token: encodedToken, region })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
         tenantId,
-        token,
+        token: encodedToken,
         region,
       },
     });
 
   await inngest.send([
     {
-      name: 'microsoft/users.sync_page.triggered',
+      name: 'microsoft/users.sync.triggered',
       data: {
-        tenantId,
         organisationId,
-        region,
         isFirstSync: true,
         syncStartedAt: Date.now(),
         skipToken: null,
       },
     },
     {
+      name: 'microsoft/microsoft.elba_app.installed',
+      data: {
+        organisationId,
+      },
+    },
+    {
       name: 'microsoft/token.refresh.triggered',
       data: {
         organisationId,
-        tenantId,
-        region,
       },
       // we schedule a token refresh 5 minutes before it expires
       ts: addMinutes(new Date(), expiresIn - 5).getTime(),

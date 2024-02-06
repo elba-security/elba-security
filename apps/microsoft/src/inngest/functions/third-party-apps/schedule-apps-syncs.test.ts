@@ -1,21 +1,21 @@
-import { expect, test, describe, beforeAll, vi, afterAll } from 'vitest';
+import { expect, test, describe, beforeAll, afterAll, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { scheduleUsersSyncs } from './schedule-users-syncs';
+import { scheduleAppsSyncs } from './schedule-apps-syncs';
 
 const now = Date.now();
 
-const setup = createInngestFunctionMock(scheduleUsersSyncs);
-
-export const organisations = Array.from({ length: 5 }, (_, i) => ({
+const organisations = Array.from({ length: 5 }, (_, i) => ({
   id: `45a76301-f1dd-4a77-b12f-9d7d3fca3c9${i}`,
   tenantId: `tenant-${i}`,
-  token: `token-${i}`,
   region: 'us',
+  token: 'some-token',
 }));
 
-describe('schedule-users-syncs', () => {
+const setup = createInngestFunctionMock(scheduleAppsSyncs);
+
+describe('schedule-apps-syncs', () => {
   beforeAll(() => {
     vi.setSystemTime(now);
   });
@@ -24,31 +24,32 @@ describe('schedule-users-syncs', () => {
     vi.useRealTimers();
   });
 
-  test('should not schedule any jobs when there are no organisations', async () => {
+  test('should not schedule any scans when there are no organisation', async () => {
     const [result, { step }] = setup();
+
     await expect(result).resolves.toStrictEqual({ organisations: [] });
+
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should schedule jobs when there are organisations', async () => {
+  test('should schedule scans when there are organisations', async () => {
     await db.insert(organisationsTable).values(organisations);
+
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- convenience
-      organisations: organisations.map(({ token, ...organisation }) => organisation),
+      organisations: organisations.map(({ id }) => ({ id })),
     });
+
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'sync-organisations-users',
-      organisations.map(({ id, tenantId, region }) => ({
-        name: 'microsoft/users.sync.triggered',
+      'request-apps-syncs',
+      organisations.map(({ id }) => ({
+        name: 'microsoft/third_party_apps.sync.requested',
         data: {
-          tenantId,
           organisationId: id,
-          region,
           skipToken: null,
-          syncStartedAt: now,
+          syncStartedAt: Date.now(),
           isFirstSync: false,
         },
       }))

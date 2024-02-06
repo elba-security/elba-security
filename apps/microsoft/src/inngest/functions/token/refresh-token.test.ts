@@ -3,7 +3,7 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import * as authConnector from '@/connectors/auth';
 import { decrypt, encrypt } from '@/common/crypto';
 import { refreshToken } from './refresh-token';
@@ -33,10 +33,6 @@ describe('refresh-token', () => {
     vi.useRealTimers();
   });
   test('should abort sync when organisation is not registered', async () => {
-    await db.insert(Organisation).values({
-      ...organisation,
-      region: 'eu',
-    });
     vi.spyOn(authConnector, 'getToken').mockResolvedValue({
       token: newToken,
       expiresIn,
@@ -44,8 +40,6 @@ describe('refresh-token', () => {
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      tenantId: organisation.tenantId,
-      region: organisation.region,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -56,7 +50,7 @@ describe('refresh-token', () => {
   });
 
   test('should update encrypted token and schedule the next refresh', async () => {
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     vi.spyOn(authConnector, 'getToken').mockResolvedValue({
       token: newToken,
       expiresIn,
@@ -64,16 +58,14 @@ describe('refresh-token', () => {
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      tenantId: organisation.tenantId,
-      region: organisation.region,
     });
 
     await expect(result).resolves.toBe(undefined);
 
     const [updatedOrganisation] = await db
-      .select({ token: Organisation.token })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
+      .select({ token: organisationsTable.token })
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
     await expect(decrypt(updatedOrganisation?.token ?? '')).resolves.toBe(newToken);
 
     expect(authConnector.getToken).toBeCalledTimes(1);
@@ -85,8 +77,6 @@ describe('refresh-token', () => {
       name: 'microsoft/token.refresh.triggered',
       data: {
         organisationId: organisation.id,
-        tenantId: organisation.tenantId,
-        region: organisation.region,
       },
       ts: now.getTime() + (expiresIn - 5) * 60 * 1000,
     });

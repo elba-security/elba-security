@@ -1,5 +1,15 @@
+import { removeOrganisation } from './organisations/remove-organisation';
+import { scheduleAppsSyncs } from './third-party-apps/schedule-apps-syncs';
+import { syncApps } from './third-party-apps/sync-apps';
 import { refreshToken } from './token/refresh-token';
 import { scheduleUsersSyncs } from './users/schedule-users-syncs';
-import { syncUsersPage } from './users/sync-users-page';
+import { syncUsers } from './users/sync-users';
 
-export const inngestFunctions = [syncUsersPage, scheduleUsersSyncs, refreshToken];
+export const inngestFunctions = [
+  syncUsers,
+  scheduleUsersSyncs,
+  scheduleAppsSyncs,
+  syncApps,
+  refreshToken,
+  removeOrganisation,
+];

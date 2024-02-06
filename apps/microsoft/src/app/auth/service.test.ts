@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import * as crypto from '@/common/crypto';
 import * as authConnector from '@/connectors/auth';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { setupOrganisation } from './service';
 
@@ -48,7 +48,7 @@ describe('setupOrganisation', () => {
     expect(crypto.encrypt).toBeCalledTimes(1);
 
     await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toMatchObject([
       {
         token,
@@ -60,22 +60,24 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'microsoft/users.sync_page.triggered',
+        name: 'microsoft/users.sync.triggered',
         data: {
-          tenantId,
           organisationId: organisation.id,
-          region,
           isFirstSync: true,
           syncStartedAt: now.getTime(),
           skipToken: null,
         },
       },
       {
+        name: 'microsoft/microsoft.elba_app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+      {
         name: 'microsoft/token.refresh.triggered',
         data: {
           organisationId: organisation.id,
-          tenantId,
-          region,
         },
         ts: now.getTime() + (expiresIn - 5) * 60 * 1000,
       },
@@ -87,7 +89,7 @@ describe('setupOrganisation', () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue({ token, expiresIn });
     vi.spyOn(crypto, 'encrypt').mockResolvedValue(token);
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     await expect(
       setupOrganisation({
@@ -102,7 +104,7 @@ describe('setupOrganisation', () => {
     expect(crypto.encrypt).toBeCalledTimes(1);
 
     await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toMatchObject([
       {
         token,
@@ -114,22 +116,24 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'microsoft/users.sync_page.triggered',
+        name: 'microsoft/users.sync.triggered',
         data: {
-          tenantId,
           organisationId: organisation.id,
-          region,
           isFirstSync: true,
           syncStartedAt: now.getTime(),
           skipToken: null,
         },
       },
       {
+        name: 'microsoft/microsoft.elba_app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+      {
         name: 'microsoft/token.refresh.triggered',
         data: {
           organisationId: organisation.id,
-          tenantId,
-          region,
         },
         ts: now.getTime() + (expiresIn - 5) * 60 * 1000,
       },
@@ -155,7 +159,7 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith(wrongTenantId);
 
     await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toHaveLength(0);
 
     expect(send).toBeCalledTimes(0);

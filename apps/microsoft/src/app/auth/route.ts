@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
     } = routeInputSchema.parse({
       organisationId: request.cookies.get('organisation_id')?.value,
       region: request.cookies.get('region')?.value,
+      tenant: request.nextUrl.searchParams.get('tenant'),
+      admin_consent: request.nextUrl.searchParams.get('admin_consent'),
     });
 
     if (!hasConsent) {

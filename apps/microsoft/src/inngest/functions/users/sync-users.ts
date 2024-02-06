@@ -1,12 +1,12 @@
 import type { User } from '@elba-security/sdk';
 import { Elba } from '@elba-security/sdk';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import type { MicrosoftUser } from '@/connectors/users';
 import { getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
@@ -18,17 +18,9 @@ const formatElbaUser = (user: MicrosoftUser): User => ({
   additionalEmails: [],
 });
 
-/**
- * DISCLAIMER:
- * This function, `syncUsersPage`, is provided as an illustrative example and is not a working implementation.
- * It is intended to demonstrate a conceptual approach for syncing users in a SaaS integration context.
- * Developers should note that each SaaS integration may require a unique implementation, tailored to its specific requirements and API interactions.
- * This example should not be used as-is in production environments and should not be taken for granted as a one-size-fits-all solution.
- * It's essential to adapt and modify this logic to fit the specific needs and constraints of the SaaS platform you are integrating with.
- */
-export const syncUsersPage = inngest.createFunction(
+export const syncUsers = inngest.createFunction(
   {
-    id: 'microsoft/sync-users-page',
+    id: 'microsoft/sync-users',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -36,41 +28,53 @@ export const syncUsersPage = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
+    cancelOn: [
+      {
+        event: 'microsoft/microsoft.elba_app.uninstalled',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'microsoft/microsoft.elba_app.installed',
+        match: 'data.organisationId',
+      },
+    ],
     retries: env.USERS_SYNC_MAX_RETRY,
   },
-  { event: 'microsoft/users.sync_page.triggered' },
+  { event: 'microsoft/users.sync.triggered' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, tenantId, skipToken, region } = event.data;
+    const { organisationId, syncStartedAt, skipToken } = event.data;
 
     const [organisation] = await db
-      .select({ token: Organisation.token })
-      .from(Organisation)
-      .where(and(eq(Organisation.id, organisationId), eq(Organisation.tenantId, tenantId)));
+      .select({
+        token: organisationsTable.token,
+        tenantId: organisationsTable.tenantId,
+        region: organisationsTable.region,
+      })
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
 
     if (!organisation) {
-      throw new NonRetriableError(
-        `Could not retrieve organisation with id=${organisationId}, tenantId=${tenantId} and region=${region}`
-      );
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
     const elba = new Elba({
       organisationId,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
-      region,
+      region: organisation.region,
     });
 
     const nextSkipToken = await step.run('paginate', async () => {
       const result = await getUsers({
         token: await decrypt(organisation.token),
-        tenantId,
+        tenantId: organisation.tenantId,
         skipToken,
       });
 
       if (result.invalidUsers.length > 0) {
-        logger.warn('Retrieve users contains invalid data', {
+        logger.warn('Retrieved users contains invalid data', {
           organisationId,
-          tenantId,
+          tenantId: organisation.tenantId,
           invalidUsers: result.invalidUsers,
         });
       }
@@ -84,7 +88,7 @@ export const syncUsersPage = inngest.createFunction(
 
     if (nextSkipToken) {
       await step.sendEvent('sync-next-users-page', {
-        name: 'microsoft/users.sync_page.triggered',
+        name: 'microsoft/users.sync.triggered',
         data: {
           ...event.data,
           skipToken: nextSkipToken,

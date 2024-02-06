@@ -2,7 +2,7 @@ import { addMinutes } from 'date-fns/addMinutes';
 import { and, eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getToken } from '@/connectors/auth';
 import { env } from '@/env';
@@ -18,50 +18,46 @@ export const refreshToken = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
+    cancelOn: [
+      {
+        event: 'microsoft/microsoft.elba_app.uninstalled',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'microsoft/microsoft.elba_app.installed',
+        match: 'data.organisationId',
+      },
+    ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
   { event: 'microsoft/token.refresh.triggered' },
   async ({ event, step }) => {
-    const { organisationId, tenantId, region } = event.data;
+    const { organisationId } = event.data;
 
-    /**
-     * Check that the exact same organisation still exists.
-     * Organisation admin could re-sign with another region or tenantId.
-     */
     const [organisation] = await db
       .select({
-        region: Organisation.region,
+        tenantId: organisationsTable.tenantId,
       })
-      .from(Organisation)
-      .where(
-        and(
-          eq(Organisation.id, organisationId),
-          eq(Organisation.tenantId, tenantId),
-          eq(Organisation.region, region)
-        )
-      );
+      .from(organisationsTable)
+      .where(and(eq(organisationsTable.id, organisationId)));
 
     if (!organisation) {
-      throw new NonRetriableError(
-        `Could not retrieve organisation with id=${organisationId}, tenantId=${tenantId} and region=${region}`
-      );
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const { token, expiresIn } = await getToken(tenantId);
+    const { token, expiresIn } = await getToken(organisation.tenantId);
 
     const encodedToken = await encrypt(token);
 
     await db
-      .update(Organisation)
+      .update(organisationsTable)
       .set({ token: encodedToken })
-      .where(eq(Organisation.id, organisationId));
+      .where(eq(organisationsTable.id, organisationId));
 
     await step.sendEvent('schedule-token-refresh', {
       name: 'microsoft/token.refresh.triggered',
       data: {
         organisationId,
-        tenantId,
-        region,
       },
       // we schedule a token refresh 5 minutes before it expires
       ts: addMinutes(new Date(), expiresIn - 5).getTime(),

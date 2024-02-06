@@ -1,11 +1,11 @@
 {
-  "id": "3d65414f-a2e8-4ac0-99ad-be2f0199c32d",
+  "id": "10868fa0-aefd-415c-a11b-f633ebd75f6f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "organisation": {
-      "name": "organisation",
+    "organisations": {
+      "name": "organisations",
       "schema": "",
       "columns": {
         "id": {
@@ -49,8 +49,8 @@
   "enums": {},
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   }
 }
