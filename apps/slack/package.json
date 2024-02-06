@@ -31,7 +31,6 @@
     "@slack/bolt": "^3.14.0",
     "@slack/web-api": "^6.9.1",
     "@t3-oss/env-nextjs": "^0.7.1",
-    "@vercel/postgres": "0.5.1",
     "drizzle-orm": "^0.29.1",
     "inngest": "3.12.0",
     "next": "14.0.1",
