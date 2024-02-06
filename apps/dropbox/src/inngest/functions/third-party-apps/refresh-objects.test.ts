@@ -4,9 +4,9 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { refreshThirdPartyAppsObject } from './refresh-objects';
 import { insertOrganisations } from '@/test-utils/token';
 import { db, organisations } from '@/database';
+import * as crypto from '@/common/crypto';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
-const sourceId = '00000000-0000-0000-0000-000000000008';
 
 const mocks = vi.hoisted(() => {
   return {
@@ -29,13 +29,14 @@ vi.mock('@/connectors/dropbox/dbx-access', () => {
 
 const setup = createInngestFunctionMock(
   refreshThirdPartyAppsObject,
-  'third-party-apps/refresh-objects'
+  'dropbox/third_party_apps.refresh_objects.requested'
 );
 
 describe('third-party-apps-refresh-objects', () => {
   beforeEach(async () => {
     await db.delete(organisations);
     await insertOrganisations({});
+    vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
     vi.clearAllMocks();
   });
 
@@ -65,7 +66,6 @@ describe('third-party-apps-refresh-objects', () => {
       baseUrl: 'https://api.elba.io',
       apiKey: 'elba-api-key',
       organisationId,
-      sourceId,
       region: 'eu',
     });
 
@@ -118,7 +118,6 @@ describe('third-party-apps-refresh-objects', () => {
       baseUrl: 'https://api.elba.io',
       apiKey: 'elba-api-key',
       organisationId,
-      sourceId,
       region: 'eu',
     });
 
@@ -179,7 +178,6 @@ describe('third-party-apps-refresh-objects', () => {
       baseUrl: 'https://api.elba.io',
       apiKey: 'elba-api-key',
       organisationId,
-      sourceId,
       region: 'eu',
     });
 

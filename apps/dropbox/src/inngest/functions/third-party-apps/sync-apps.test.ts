@@ -4,12 +4,11 @@ import * as crypto from '@/common/crypto';
 import { linkedApps, membersLinkedAppFirstPage } from './__mocks__/member-linked-apps';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { insertOrganisations } from '@/test-utils/token';
-import { runThirdPartyAppsSyncJobs } from './run-sync-jobs';
+import { syncApps } from './sync-apps';
 import { db } from '@/database/client';
 import { organisations } from '@/database';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
-const sourceId = '00000000-0000-0000-0000-000000000008';
 
 const mocks = vi.hoisted(() => {
   return {
@@ -30,10 +29,7 @@ vi.mock('@/connectors/dropbox/dbx-access', () => {
   };
 });
 
-const setup = createInngestFunctionMock(
-  runThirdPartyAppsSyncJobs,
-  'third-party-apps/run-sync-jobs'
-);
+const setup = createInngestFunctionMock(syncApps, 'dropbox/third_party_apps.sync_page.triggered');
 
 describe('run-user-sync-jobs', () => {
   beforeEach(async () => {
@@ -117,7 +113,6 @@ describe('run-user-sync-jobs', () => {
       baseUrl: 'https://api.elba.io',
       apiKey: 'elba-api-key',
       organisationId,
-      sourceId,
       region: 'eu',
     });
 
@@ -157,7 +152,6 @@ describe('run-user-sync-jobs', () => {
       baseUrl: 'https://api.elba.io',
       apiKey: 'elba-api-key',
       organisationId,
-      sourceId,
       region: 'eu',
     });
 
@@ -199,7 +193,6 @@ describe('run-user-sync-jobs', () => {
       baseUrl: 'https://api.elba.io',
       apiKey: 'elba-api-key',
       organisationId,
-      sourceId,
       region: 'eu',
     });
 
@@ -207,7 +200,7 @@ describe('run-user-sync-jobs', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('third-party-apps-run-sync-jobs', {
-      name: 'third-party-apps/run-sync-jobs',
+      name: 'dropbox/third_party_apps.sync_page.triggered',
       data: {
         cursor: 'cursor-1',
         isFirstSync: false,

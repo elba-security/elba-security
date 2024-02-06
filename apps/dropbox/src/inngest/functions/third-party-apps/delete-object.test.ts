@@ -3,11 +3,12 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { deleteThirdPartyAppsObject } from './delete-object';
 import { db, organisations } from '@/database';
 import { insertOrganisations } from '@/test-utils/token';
+import * as crypto from '@/common/crypto';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const setup = createInngestFunctionMock(
   deleteThirdPartyAppsObject,
-  'third-party-apps/delete-object'
+  'dropbox/third_party_apps.delete_object.requested'
 );
 
 const mocks = vi.hoisted(() => {
@@ -33,6 +34,7 @@ describe('third-party-apps-delete-objects', () => {
   beforeEach(async () => {
     await db.delete(organisations);
     await insertOrganisations({});
+    vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
     vi.clearAllMocks();
   });
 

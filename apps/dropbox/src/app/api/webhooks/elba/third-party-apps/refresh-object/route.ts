@@ -6,7 +6,7 @@ export async function POST(request: Request) {
   const data: unknown = await request.json();
 
   const { organisationId, userId, appId } = parseWebhookEventData(
-    'third_party_apps.delete_requested',
+    'third_party_apps.refresh_object_requested',
     data
   );
 

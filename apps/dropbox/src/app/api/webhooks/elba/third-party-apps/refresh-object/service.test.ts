@@ -16,6 +16,7 @@ describe('refreshThirdPartyAppsObject', () => {
       body: {
         organisationId,
         userId,
+        appId,
       },
     });
 
@@ -45,7 +46,7 @@ describe('refreshThirdPartyAppsObject', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'third-party-apps/refresh-objects',
+      name: 'dropbox/third_party_apps.refresh_objects.requested',
       data: {
         organisationId,
         userId,

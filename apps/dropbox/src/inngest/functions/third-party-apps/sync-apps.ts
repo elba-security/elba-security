@@ -8,7 +8,7 @@ import { decrypt } from '@/common/crypto';
 const handler: FunctionHandler = async ({
   event,
   step,
-}: InputArgWithTrigger<'third-party-apps/run-sync-jobs'>) => {
+}: InputArgWithTrigger<'dropbox/third_party_apps.sync_page.triggered'>) => {
   const { organisationId, cursor, syncStartedAt } = event.data;
 
   const [organisation] = await getOrganisationAccessDetails(organisationId);
@@ -45,7 +45,7 @@ const handler: FunctionHandler = async ({
 
   if (memberApps?.hasMore) {
     await step.sendEvent('third-party-apps-run-sync-jobs', {
-      name: 'third-party-apps/run-sync-jobs',
+      name: 'dropbox/third_party_apps.sync_page.triggered',
       data: {
         ...event.data,
         cursor: memberApps.nextCursor,
@@ -68,7 +68,7 @@ const handler: FunctionHandler = async ({
   };
 };
 
-export const runThirdPartyAppsSyncJobs = inngest.createFunction(
+export const syncApps = inngest.createFunction(
   {
     id: 'run-third-party-apps-sync-jobs',
     priority: {
@@ -80,6 +80,6 @@ export const runThirdPartyAppsSyncJobs = inngest.createFunction(
       key: 'event.data.organisationId',
     },
   },
-  { event: 'third-party-apps/run-sync-jobs' },
+  { event: 'dropbox/third_party_apps.sync_page.triggered' },
   handler
 );

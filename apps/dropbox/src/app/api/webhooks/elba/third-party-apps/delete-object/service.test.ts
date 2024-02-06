@@ -46,7 +46,7 @@ describe('deleteThirdPartyAppsObject', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'third-party-apps/delete-object',
+      name: 'dropbox/third_party_apps.delete_object.requested',
       data: {
         organisationId,
         userId,

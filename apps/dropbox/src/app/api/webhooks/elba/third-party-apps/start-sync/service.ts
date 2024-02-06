@@ -8,9 +8,9 @@ export const startThirdPartySync = async (organisationId: string) => {
     throw new Error(`Organisation not found with id=${organisationId}`);
   }
 
-  const syncStartedAt = new Date().toISOString();
+  const syncStartedAt = Date.now();
   await inngest.send({
-    name: 'third-party-apps/run-sync-jobs',
+    name: 'dropbox/third_party_apps.sync_page.triggered',
     data: {
       organisationId,
       isFirstSync: true,

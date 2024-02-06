@@ -19,7 +19,7 @@ export const refreshThirdPartyAppsObject = async ({
   }
 
   await inngest.send({
-    name: 'third-party-apps/refresh-objects',
+    name: 'dropbox/third_party_apps.refresh_objects.requested',
     data: {
       organisationId,
       userId: userId,

@@ -1,9 +1,9 @@
 import { expect, test, describe, vi, afterAll } from 'vitest';
-import { scheduleThirdPartyAppsSyncJobs } from './schedule-sync-jobs';
+import { scheduleAppsSync } from './schedule-apps-sync';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { insertOrganisations } from '@/test-utils/token';
 
-const setup = createInngestFunctionMock(scheduleThirdPartyAppsSyncJobs);
+const setup = createInngestFunctionMock(scheduleAppsSync);
 
 const selectedOrganisations = [
   '00000000-0000-0000-0000-000000000001',
@@ -40,11 +40,11 @@ describe('schedule-third-party-apps-sync-jobs', () => {
     expect(step.sendEvent).toBeCalledWith(
       'run-third-party-apps-sync-jobs',
       selectedOrganisations.map((organisationId) => ({
-        name: 'third-party-apps/run-sync-jobs',
+        name: 'dropbox/third_party_apps.sync_page.triggered',
         data: {
           organisationId,
           isFirstSync: false,
-          syncStartedAt: '2023-01-13T22:02:52.744Z',
+          syncStartedAt: 1673647372744,
         },
       }))
     );

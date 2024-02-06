@@ -5,10 +5,12 @@ import { inngest } from '@/inngest/client';
 import { insertOrganisations } from '@/test-utils/token';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
+const syncStartAt = '2021-01-01T00:00:00.000Z';
 
 describe('triggerThirdPartyAppsScan', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.setSystemTime(syncStartAt);
   });
 
   test('should throw an error when the specified organization does not exist.', async () => {
@@ -26,7 +28,7 @@ describe('triggerThirdPartyAppsScan', () => {
     expect(send).toBeCalledTimes(0);
   });
 
-  test('should schedule trigger the third-party-apps/run-sync-jobs event', async () => {
+  test('should schedule trigger the dropbox/third_party_apps.sync_page.triggered event', async () => {
     await insertOrganisations({});
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
@@ -45,11 +47,11 @@ describe('triggerThirdPartyAppsScan', () => {
     expect(send).toBeCalledTimes(1);
 
     expect(send).toBeCalledWith({
-      name: 'third-party-apps/run-sync-jobs',
+      name: 'dropbox/third_party_apps.sync_page.triggered',
       data: {
         organisationId,
         isFirstSync: true,
-        syncStartedAt: '2021-01-01T00:00:00.000Z',
+        syncStartedAt: 1609459200000,
       },
     });
   });

@@ -7,7 +7,7 @@ import { decrypt } from '@/common/crypto';
 const handler: FunctionHandler = async ({
   event,
   step,
-}: InputArgWithTrigger<'third-party-apps/delete-object'>) => {
+}: InputArgWithTrigger<'dropbox/third_party_apps.delete_object.requested'>) => {
   const { organisationId, userId, appId } = event.data;
 
   const [organisation] = await getOrganisationAccessDetails(organisationId);
@@ -36,12 +36,15 @@ const handler: FunctionHandler = async ({
 export const deleteThirdPartyAppsObject = inngest.createFunction(
   {
     id: 'third-party-apps-delete-objects',
+    priority: {
+      run: 'event.data.isFirstSync ? 600 : 0',
+    },
     retries: 10,
     concurrency: {
       limit: 5,
       key: 'event.data.organisationId',
     },
   },
-  { event: 'third-party-apps/delete-object' },
+  { event: 'dropbox/third_party_apps.delete_object.requested' },
   handler
 );

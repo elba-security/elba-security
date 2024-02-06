@@ -8,7 +8,7 @@ import { decrypt } from '@/common/crypto';
 const handler: FunctionHandler = async ({
   event,
   step,
-}: InputArgWithTrigger<'third-party-apps/refresh-objects'>) => {
+}: InputArgWithTrigger<'dropbox/third_party_apps.refresh_objects.requested'>) => {
   const { organisationId, userId, appId } = event.data;
 
   const [organisation] = await getOrganisationAccessDetails(organisationId);
@@ -70,6 +70,6 @@ export const refreshThirdPartyAppsObject = inngest.createFunction(
       key: 'event.data.organisationId',
     },
   },
-  { event: 'third-party-apps/refresh-objects' },
+  { event: 'dropbox/third_party_apps.refresh_objects.requested' },
   handler
 );
