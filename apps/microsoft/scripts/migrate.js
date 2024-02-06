@@ -8,7 +8,7 @@ dotenv.config({
   path: process.argv[2],
 });
 
-const sql = postgres(process.env.POSTGRES_URL);
+const sql = postgres(process.env.DATABASE_URL);
 
 const db = drizzle(sql);
 
