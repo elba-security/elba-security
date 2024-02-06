@@ -1,5 +1,5 @@
 import { expect, test, describe, vi, beforeEach, afterAll } from 'vitest';
-import { runRefreshToken } from './run-refresh-tokens';
+import { refreshToken } from './refresh-token';
 import { DropboxResponseError } from 'dropbox';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import addSeconds from 'date-fns/addSeconds';
@@ -12,7 +12,7 @@ const TOKEN_WILL_EXPIRE_IN = 14400;
 const TOKEN_EXPIRES_AT = addSeconds(new Date(TOKEN_GENERATED_AT), TOKEN_WILL_EXPIRE_IN);
 const organisationId = '00000000-0000-0000-0000-000000000001';
 
-const setup = createInngestFunctionMock(runRefreshToken, 'dropbox/token.refresh.triggered');
+const setup = createInngestFunctionMock(refreshToken, 'dropbox/token.refresh.triggered');
 
 const mocks = vi.hoisted(() => {
   return {
@@ -77,7 +77,7 @@ describe('run-refresh-token', () => {
     });
 
     await expect(result).resolves.toStrictEqual({
-      success: true,
+      status: 'completed',
     });
     expect(crypto.encrypt).toBeCalledTimes(1);
     expect(crypto.encrypt).toBeCalledWith('test-access-token-0');

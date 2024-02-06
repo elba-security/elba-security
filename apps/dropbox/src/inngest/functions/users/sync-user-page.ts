@@ -49,7 +49,7 @@ const handler: FunctionHandler = async ({
     });
 
     return {
-      success: true,
+      status: 'completed',
     };
   }
 
@@ -60,13 +60,13 @@ const handler: FunctionHandler = async ({
       syncedBefore: syncedBefore.toISOString(),
     });
   });
-  
+
   return {
-    success: true,
+    status: 'completed',
   };
 };
 
-export const runUserSyncJobs = inngest.createFunction(
+export const syncUserPage = inngest.createFunction(
   {
     id: 'run-user-sync-jobs',
     retries: 10,

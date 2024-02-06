@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
 import { config } from 'dotenv';
 
-config({ path: '.env.test.local' });
+config({ path: '.env.test' });
 
 interface EnvironmentVariables {
   [key: string]: string;

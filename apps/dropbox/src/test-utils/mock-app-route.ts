@@ -11,7 +11,7 @@ export const mockNextRequest = async ({
   handler: (req: NextRequest) => Promise<void | NextResponse<unknown>>;
   url: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  body?: any;
+  body?: Record<string, unknown>;
   cookies?: Record<string, string>;
 }): Promise<NextResponse> => {
   const request = new NextRequest(url, {

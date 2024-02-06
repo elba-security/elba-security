@@ -1,7 +1,7 @@
 import { inngest } from '@/inngest/client';
 import { getOrganisationsToSync } from '../common/data';
 
-export const scheduleUserSyncJobs = inngest.createFunction(
+export const scheduleUserSync = inngest.createFunction(
   { id: 'schedule-user-sync-jobs' },
   { cron: '0 0 * * *' },
   async ({ step }) => {

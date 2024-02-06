@@ -40,9 +40,9 @@ const handler: FunctionHandler = async ({
 
     return tokenDetails;
   });
-  
-  if(!('expiresAt' in response)) {
-   throw Error('Schedule refresh token failed')
+
+  if (!('expiresAt' in response)) {
+    throw Error('Schedule refresh token failed');
   }
 
   await step.sendEvent('run-refresh-token', {
@@ -54,11 +54,11 @@ const handler: FunctionHandler = async ({
   });
 
   return {
-    success: true,
+    status: 'completed',
   };
 };
 
-export const runRefreshToken = inngest.createFunction(
+export const refreshToken = inngest.createFunction(
   {
     id: 'run-refresh-token',
     concurrency: {

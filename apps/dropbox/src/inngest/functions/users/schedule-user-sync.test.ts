@@ -1,10 +1,10 @@
 import { expect, test, describe, vi } from 'vitest';
-import { scheduleUserSyncJobs } from './schedule-user-sync-jobs';
+import { scheduleUserSync } from './schedule-user-sync';
 import { insertOrganisations } from '@/test-utils/token';
 import { scheduledOrganisations } from './__mocks__/organisations';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 
-const setup = createInngestFunctionMock(scheduleUserSyncJobs);
+const setup = createInngestFunctionMock(scheduleUserSync);
 
 describe('schedule-users-sync-jobs', () => {
   test('should not schedule any jobs when there are no organisations', async () => {

@@ -3,13 +3,13 @@ import { DropboxResponseError } from 'dropbox';
 import { afterAll, afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { insertOrganisations, insertTestAccessToken } from '@/test-utils/token';
 import { elbaUsers, membersList } from './__mocks__/dropbox';
-import { runUserSyncJobs } from './run-user-sync-jobs';
+import { syncUserPage } from './sync-user-page';
 import * as crypto from '@/common/crypto';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const syncStartedAt = 1707068979946;
 
-const setup = createInngestFunctionMock(runUserSyncJobs, 'dropbox/users.sync_page.triggered');
+const setup = createInngestFunctionMock(syncUserPage, 'dropbox/users.sync_page.triggered');
 
 const mocks = vi.hoisted(() => {
   return {
@@ -89,7 +89,7 @@ describe('run-user-sync-jobs', () => {
     });
 
     expect(await result).toStrictEqual({
-      success: true,
+      status: 'completed',
     });
 
     expect(elba).toBeCalledTimes(1);
@@ -106,7 +106,7 @@ describe('run-user-sync-jobs', () => {
     expect(elbaInstance?.users.update).toBeCalledTimes(0);
     expect(elbaInstance?.users.delete).toBeCalledTimes(1);
     expect(elbaInstance?.users.delete).toBeCalledWith({
-      syncedBefore: new Date(syncStartedAt).toISOString()
+      syncedBefore: new Date(syncStartedAt).toISOString(),
     });
   });
 
@@ -129,7 +129,7 @@ describe('run-user-sync-jobs', () => {
     });
 
     expect(await result).toStrictEqual({
-      success: true,
+      status: 'completed',
     });
 
     expect(elba).toBeCalledTimes(1);
@@ -168,7 +168,7 @@ describe('run-user-sync-jobs', () => {
     });
 
     expect(await result).toStrictEqual({
-      success: true,
+      status: 'completed',
     });
 
     expect(elba).toBeCalledTimes(1);
@@ -178,7 +178,7 @@ describe('run-user-sync-jobs', () => {
       organisationId,
       region: 'eu',
     });
-    
+
     const elbaInstance = elba.mock.results[0]?.value;
 
     expect(elbaInstance?.users.update).toBeCalledTimes(1);

@@ -1,11 +1,11 @@
 import type { GetFunctionInput } from 'inngest';
 import { inngest } from './client';
 
-type RunRefreshTokensSchema = {
+type RefreshTokensSchema = {
   organisationId: string;
 };
 
-type RunUserSyncJobsSchema = {
+type SyncUsersData = {
   organisationId: string;
   isFirstSync: boolean;
   cursor?: string;
@@ -13,10 +13,10 @@ type RunUserSyncJobsSchema = {
 };
 
 export type InngestEvents = {
-  'dropbox/token.refresh.triggered': { data: RunRefreshTokensSchema };
-  'dropbox/token.refresh.canceled': { data: RunRefreshTokensSchema };
-  'dropbox/users.sync_page.triggered': { data: RunUserSyncJobsSchema };
-  'dropbox/users.sync_page.triggered.completed': { data: RunUserSyncJobsSchema };
+  'dropbox/token.refresh.triggered': { data: RefreshTokensSchema };
+  'dropbox/token.refresh.canceled': { data: RefreshTokensSchema };
+  'dropbox/users.sync_page.triggered': { data: SyncUsersData };
+  'dropbox/users.sync_page.triggered.completed': { data: SyncUsersData };
 };
 
 export type InputArgWithTrigger<T extends keyof InngestEvents> = GetFunctionInput<

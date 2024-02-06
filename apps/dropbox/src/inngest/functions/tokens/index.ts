@@ -1,1 +1,1 @@
-export * from './run-refresh-tokens';
+export * from './refresh-token';

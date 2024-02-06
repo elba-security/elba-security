@@ -24,17 +24,13 @@ export class DBXAuth {
   }
 
   async getAccessToken({ code }: GetAccessToken): Promise<DropboxAuthResultWithStatus> {
-    try {
-      const response = await this.dbxAuth.getAccessTokenFromCode(this.redirectUri, code);
-      const dropboxAuthResult = response.result as DropboxAuthResult;
+    const response = await this.dbxAuth.getAccessTokenFromCode(this.redirectUri, code);
+    const dropboxAuthResult = response.result as DropboxAuthResult;
 
-      return {
-        status: response.status,
-        result: dropboxAuthResult,
-      };
-    } catch (error) {
-      throw error;
-    }
+    return {
+      status: response.status,
+      result: dropboxAuthResult,
+    };
   }
 
   async refreshAccessToken(): Promise<{

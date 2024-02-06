@@ -1,15 +1,8 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { env } from '@/env';
+import * as schema from './schema';
 
-const getConnectionString = () => {
-  if (['preview', 'production'].includes(env.VERCEL_ENV as string)) {
-    return `${env.POSTGRES_URL}?sslmode=require`;
-  }
+const sql = postgres(env.DATABASE_URL);
 
-  return env.POSTGRES_URL;
-};
-
-const queryClient = postgres(getConnectionString());
-
-export const db = drizzle(queryClient);
+export const db = drizzle(sql, { schema });

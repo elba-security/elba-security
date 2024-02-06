@@ -64,47 +64,41 @@ export const generateAccessToken = async ({
     throw new Error('Could not get root namespace id');
   }
 
-  try {
-    const tokenExpiresAt = addSeconds(new Date(), expires_in);
-    await insertAccessToken({
-      organisationId,
-      accessToken: await encrypt(accessToken),
-      refreshToken: refresh_token,
-      adminTeamMemberId: team_member_id,
-      rootNamespaceId: root_info.root_namespace_id,
-      region,
-    });
+  const tokenExpiresAt = addSeconds(new Date(), expires_in);
+  await insertAccessToken({
+    organisationId,
+    accessToken: await encrypt(accessToken),
+    refreshToken: refresh_token,
+    adminTeamMemberId: team_member_id,
+    rootNamespaceId: root_info.root_namespace_id,
+    region,
+  });
 
-    await inngest.send([
-      {
-        name: 'dropbox/token.refresh.triggered',
-        data: {
-          organisationId,
-        },
-        ts: subMinutes(tokenExpiresAt, 30).getTime(),
+  await inngest.send([
+    {
+      name: 'dropbox/token.refresh.triggered',
+      data: {
+        organisationId,
       },
-      {
-        name: 'dropbox/token.refresh.canceled',
-        data: {
-          organisationId,
-        },
+      ts: subMinutes(tokenExpiresAt, 30).getTime(),
+    },
+    {
+      name: 'dropbox/token.refresh.canceled',
+      data: {
+        organisationId,
       },
-      {
-        name: 'dropbox/users.sync_page.triggered',
-        data: {
-          organisationId,
-          isFirstSync: true,
-          syncStartedAt: Date.now(),
-        },
+    },
+    {
+      name: 'dropbox/users.sync_page.triggered',
+      data: {
+        organisationId,
+        isFirstSync: true,
+        syncStartedAt: Date.now(),
       },
-    ]);
+    },
+  ]);
 
-    return {
-      success: true,
-    };
-  } catch (error) {
-    throw new Error('An error occurred while saving the Dropbox access token', {
-      cause: error,
-    });
-  }
+  return {
+    status: 'completed',
+  };
 };

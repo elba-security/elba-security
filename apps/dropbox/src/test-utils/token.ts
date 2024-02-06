@@ -14,14 +14,10 @@ const defaultAccessToken = [
 ];
 
 export const insertTestAccessToken = async (tokenDetails: Token[] = defaultAccessToken) => {
-  try {
-    return db.insert(organisations).values(tokenDetails).returning({
-      organisationId: organisations.organisationId,
-      updatedAt: organisations.updatedAt,
-    });
-  } catch (error) {
-    throw error;
-  }
+  return db.insert(organisations).values(tokenDetails).returning({
+    organisationId: organisations.organisationId,
+    updatedAt: organisations.updatedAt,
+  });
 };
 
 export const insertOrganisations = async ({ size = 1 }: { size?: number }) => {
