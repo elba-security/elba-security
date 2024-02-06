@@ -12,10 +12,10 @@
     "big-bang": "pnpm database:down && pnpm test:database:down && pnpm database:up && pnpm test:database:up && pnpm database:migrate && pnpm test:database:migrate",
     "test:database:up": "docker-compose -p integration-test --env-file=.env.test up -d",
     "test:database:down": "docker-compose -p integration-test down --volumes",
-    "test:database:migrate": "npx tsx ./scripts/migrate.ts .env.test",
+    "test:database:migrate": "node ./scripts/migrate.js .env.test",
     "database:up": "docker-compose -p integration --env-file=.env.local up -d",
     "database:down": "docker-compose -p integration down --volumes",
-    "database:migrate": "npx tsx ./scripts/migrate.ts .env.local",
+    "database:migrate": "node ./scripts/migrate.js .env.local",
     "database:generate": "drizzle-kit generate:pg --schema=./src/database/schema.ts"
   },
   "dependencies": {
