@@ -4,7 +4,7 @@ import { env } from '@/env';
 import { db } from '@/database/client';
 
 export const scheduleAppsSyncs = inngest.createFunction(
-  { id: 'microsoft/schedule-apps-syncs' },
+  { id: 'microsoft-schedule-apps-syncs' },
   { cron: env.THIRD_PARTY_APPS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db

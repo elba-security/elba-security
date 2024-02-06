@@ -20,7 +20,7 @@ const formatElbaUser = (user: MicrosoftUser): User => ({
 
 export const syncUsers = inngest.createFunction(
   {
-    id: 'microsoft/sync-users',
+    id: 'microsoft-sync-users',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },

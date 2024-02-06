@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import * as client from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { handleThirdPartyAppsSyncRequested } from './service';
+import { startThirdPartyAppsSync } from './service';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
@@ -14,7 +14,7 @@ const organisation = {
 
 const now = Date.now();
 
-describe('handleElbaOrganisationActivated', () => {
+describe('startThirdPartyAppsSync', () => {
   beforeAll(() => {
     vi.setSystemTime(now);
   });
@@ -24,7 +24,7 @@ describe('handleElbaOrganisationActivated', () => {
   });
 
   test('should throws when organisation is not registered', async () => {
-    await expect(handleThirdPartyAppsSyncRequested(organisation.id)).rejects.toStrictEqual(
+    await expect(startThirdPartyAppsSync(organisation.id)).rejects.toStrictEqual(
       new Error(`Could not retrieve an organisation with id=${organisation.id}`)
     );
   });
@@ -33,7 +33,7 @@ describe('handleElbaOrganisationActivated', () => {
     const send = vi.spyOn(client.inngest, 'send').mockResolvedValue({ ids: [] });
     await db.insert(organisationsTable).values(organisation);
 
-    await expect(handleThirdPartyAppsSyncRequested(organisation.id)).resolves.toStrictEqual({
+    await expect(startThirdPartyAppsSync(organisation.id)).resolves.toStrictEqual({
       success: true,
     });
     expect(send).toBeCalledTimes(1);

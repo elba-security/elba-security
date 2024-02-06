@@ -58,6 +58,7 @@ export const env = z
     REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
     THIRD_PARTY_APPS_SYNC_CRON: z.string().default('0 0 * * *'),
     THIRD_PARTY_APPS_SYNC_BATCH_SIZE: z.coerce.number().positive().default(100),
+    THIRD_PARTY_APPS_SYNC_MAX_RETRY: zEnvRetry(),
     TOKEN_REFRESH_MAX_RETRY: zEnvRetry(),
     USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().default(100),

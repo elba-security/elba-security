@@ -32,7 +32,7 @@ const formatApps = (app: MicrosoftApp) => ({
 
 export const syncApps = inngest.createFunction(
   {
-    id: 'microsoft/sync-apps',
+    id: 'microsoft-sync-apps',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -46,6 +46,7 @@ export const syncApps = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
+    retries: env.THIRD_PARTY_APPS_SYNC_MAX_RETRY,
   },
   {
     event: 'microsoft/third_party_apps.sync.requested',
