@@ -50,6 +50,7 @@ export const refreshToken = inngest.createFunction(
     const { token, expiresIn } = await getToken(tenantId);
 
     const encodedToken = await encrypt(token);
+
     await db
       .update(Organisation)
       .set({ token: encodedToken })

@@ -9,9 +9,11 @@ import { env } from '@/env';
 import { encrypt } from '@/common/crypto';
 import { syncUsersPage } from './sync-users-page';
 
+const token = 'test-token';
+
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  token: await encrypt('test-token'),
+  token: await encrypt(token),
   tenantId: 'tenant-id',
   region: 'us',
 };
@@ -44,7 +46,7 @@ describe('sync-users', () => {
       tenantId: organisation.tenantId,
       isFirstSync: false,
       syncStartedAt: Date.now(),
-      page: 0,
+      skipToken: '0',
       region: 'us',
     });
 
@@ -81,7 +83,7 @@ describe('sync-users', () => {
     expect(usersConnector.getUsers).toBeCalledTimes(1);
     expect(usersConnector.getUsers).toBeCalledWith({
       tenantId: organisation.tenantId,
-      token: organisation.token,
+      token,
       skipToken,
     });
 
@@ -89,7 +91,6 @@ describe('sync-users', () => {
     expect(elba).toBeCalledWith({
       organisationId: organisation.id,
       region: organisation.region,
-      sourceId: env.ELBA_SOURCE_ID,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });
@@ -146,7 +147,7 @@ describe('sync-users', () => {
     expect(usersConnector.getUsers).toBeCalledTimes(1);
     expect(usersConnector.getUsers).toBeCalledWith({
       tenantId: organisation.tenantId,
-      token: organisation.token,
+      token,
       skipToken,
     });
 
@@ -154,7 +155,6 @@ describe('sync-users', () => {
     expect(elba).toBeCalledWith({
       organisationId: organisation.id,
       region: organisation.region,
-      sourceId: env.ELBA_SOURCE_ID,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });

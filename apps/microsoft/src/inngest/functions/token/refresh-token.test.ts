@@ -5,22 +5,26 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as authConnector from '@/connectors/auth';
-import { encrypt } from '@/common/crypto';
+import { decrypt, encrypt } from '@/common/crypto';
 import { refreshToken } from './refresh-token';
+
+const token = 'test-token';
+const encryptedToken = await encrypt(token);
+
+const newToken = 'new-access-token';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  token: await encrypt('test-token'),
+  token: encryptedToken,
   tenantId: 'tenant-id',
   region: 'us',
 };
 const now = new Date();
-const newToken = await encrypt('new-access-token');
 const expiresIn = 60;
 
 const setup = createInngestFunctionMock(refreshToken, 'microsoft/token.refresh.triggered');
 
-describe('sync-users', () => {
+describe('refresh-token', () => {
   beforeAll(() => {
     vi.setSystemTime(now);
   });
@@ -66,16 +70,11 @@ describe('sync-users', () => {
 
     await expect(result).resolves.toBe(undefined);
 
-    await expect(
-      db
-        .select({ token: Organisation.token })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisation.id))
-    ).resolves.toStrictEqual([
-      {
-        token: await encrypt(newToken),
-      },
-    ]);
+    const [updatedOrganisation] = await db
+      .select({ token: Organisation.token })
+      .from(Organisation)
+      .where(eq(Organisation.id, organisation.id));
+    await expect(decrypt(updatedOrganisation?.token ?? '')).resolves.toBe(newToken);
 
     expect(authConnector.getToken).toBeCalledTimes(1);
     expect(authConnector.getToken).toBeCalledWith(organisation.tenantId);
