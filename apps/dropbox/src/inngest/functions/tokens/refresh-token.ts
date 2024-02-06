@@ -13,16 +13,16 @@ const handler: FunctionHandler = async ({
 }: InputArgWithTrigger<'dropbox/token.refresh.triggered'>) => {
   const { organisationId } = event.data;
 
-  const response = await step.run('fetch-refresh-token', async () => {
+  const expiresAt = await step.run('fetch-refresh-token', async () => {
     const [organisation] = await getOrganisationRefreshToken(organisationId);
 
     if (!organisation) {
-      return new NonRetriableError(
+      new NonRetriableError(
         `Not able to get the token details for the organisation with ID: ${organisationId}`
       );
     }
 
-    const token = await decrypt(organisation.refreshToken);
+    const token = await decrypt(organisation!.refreshToken);
 
     const dbxAuth = new DBXAuth({
       refreshToken: token,
@@ -38,19 +38,15 @@ const handler: FunctionHandler = async ({
 
     await updateDropboxTokens(tokenDetails);
 
-    return tokenDetails;
+    return expiresAt;
   });
-
-  if (!('expiresAt' in response)) {
-    throw Error('Schedule refresh token failed');
-  }
 
   await step.sendEvent('run-refresh-token', {
     name: 'dropbox/token.refresh.triggered',
     data: {
       organisationId,
     },
-    ts: subMinutes(new Date(response.expiresAt), 30).getTime(),
+    ts: subMinutes(new Date(expiresAt), 30).getTime(),
   });
 
   return {

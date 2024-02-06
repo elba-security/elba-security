@@ -71,7 +71,7 @@ describe('run-user-sync-jobs', () => {
     await expect(result).rejects.toBeInstanceOf(DropboxResponseError);
   });
 
-  test('should call elba delete even if there are no users', async () => {
+  test('should call elba delete even when there are no users', async () => {
     const elba = spyOnElba();
     mocks.teamMembersListV2.mockImplementation(() => {
       return {

@@ -1,8 +1,6 @@
 import { db, organisations } from '@/database';
 
-export const insertAccessToken = async (
-  accessTokenDetails: typeof organisations.$inferInsert
-) => {
+export const insertAccessToken = async (accessTokenDetails: typeof organisations.$inferInsert) => {
   return await db
     .insert(organisations)
     .values(accessTokenDetails)
@@ -13,7 +11,7 @@ export const insertAccessToken = async (
         refreshToken: accessTokenDetails.refreshToken,
         adminTeamMemberId: accessTokenDetails.adminTeamMemberId,
         rootNamespaceId: accessTokenDetails.rootNamespaceId,
-        region: accessTokenDetails.region
+        region: accessTokenDetails.region,
       },
     });
 };
