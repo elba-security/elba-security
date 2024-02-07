@@ -30,12 +30,7 @@ export const env = z
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     ENCRYPTION_KEY: z.string().min(1),
     DATABASE_URL: z.string().min(1),
-    DATABASE_HOST: z.string().min(1),
-    DATABASE_PORT: z.coerce.number().int().positive(),
-    DATABASE_USER: z.string().min(1),
-    DATABASE_PASSWORD: z.string().min(1),
-    DATABASE_DATABASE: z.string().min(1),
-    DATABASE_PROXY_PORT: z.coerce.number().int().positive(),
+    DATABASE_PROXY_PORT: z.coerce.number().int().positive().optional(),
     REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
     THIRD_PARTY_APPS_SYNC_CRON: z.string().default('0 0 * * *'),
     THIRD_PARTY_APPS_SYNC_BATCH_SIZE: z.coerce.number().positive().default(100),
@@ -46,7 +41,6 @@ export const env = z
     USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().default(100),
     USERS_SYNC_MAX_RETRY: zEnvRetry(),
-    VERCEL_PREFERRED_REGION: z.string().min(1),
     VERCEL_ENV: z.string().min(1).optional(),
   })
   .parse(process.env);

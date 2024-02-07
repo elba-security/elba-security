@@ -3,7 +3,6 @@ import { parseWebhookEventData } from '@elba-security/sdk';
 import { startThirdPartyAppsSync } from './service';
 
 export const dynamic = 'force-dynamic';
-// this route can use edge runtime as it's just sending an inngest event
 export const preferredRegion = 'fra1';
 export const runtime = 'edge';
 
