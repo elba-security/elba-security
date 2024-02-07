@@ -41,7 +41,6 @@ export const env = z
     ELBA_SOURCE_ID: z.string(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     DATABASE_URL: z.string().min(1),
-    DATABASE_HOST: z.string().min(1),
     DATABASE_PORT: z.coerce.number().int().positive(),
     DATABASE_USER: z.string().min(1),
     DATABASE_PASSWORD: z.string().min(1),
