@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateAccessToken } from './service';
 import { redirectOnError, redirectOnSuccess } from '@/common/utils';
 import { logger } from '@elba-security/logger';
+import { DropboxResponseError } from 'dropbox';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -26,6 +27,15 @@ export async function GET(request: NextRequest) {
     logger.warn('Could not setup organisation after Dropbox redirection', {
       error,
     });
+
+    if (error instanceof DropboxResponseError) {
+      const { status } = error;
+
+      if ([401, 403].includes(status)) {
+        return NextResponse.redirect(redirectOnError('unauthorized'));
+      }
+    }
+
     return NextResponse.redirect(redirectOnError('internal_error'));
   }
 
