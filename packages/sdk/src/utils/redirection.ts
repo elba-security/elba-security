@@ -2,7 +2,7 @@ export type RedirectionError = 'unauthorized' | 'internal_error';
 
 export type GetRedirectUrlParams = {
   sourceId: string;
-  baseUrl: string | URL;
+  baseUrl: string;
   error?: RedirectionError;
   region: string;
 };
@@ -13,7 +13,7 @@ export const getRedirectUrl = ({
   region,
   error,
 }: GetRedirectUrlParams): string => {
-  const url = new URL(baseUrl.toString().replace('{REGION}', region));
+  const url = new URL(baseUrl.replace('{REGION}', region));
   url.searchParams.append('source_id', sourceId);
   if (!error) {
     url.searchParams.append('success', 'true');
