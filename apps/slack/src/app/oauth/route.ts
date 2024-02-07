@@ -62,6 +62,7 @@ export const GET = async (request: NextRequest) => {
       });
       redirect(
         getRedirectUrl({
+          region,
           sourceId: env.ELBA_SOURCE_ID,
           baseUrl: env.ELBA_REDIRECT_URL,
           error: 'unauthorized',
@@ -79,6 +80,7 @@ export const GET = async (request: NextRequest) => {
     logger.error('An error occurred during Slack oauth flow', { cause: error });
     redirect(
       getRedirectUrl({
+        region: request.cookies.get('region')?.value ?? 'eu',
         sourceId: env.ELBA_SOURCE_ID,
         baseUrl: env.ELBA_REDIRECT_URL,
         error: 'internal_error',
@@ -89,6 +91,7 @@ export const GET = async (request: NextRequest) => {
 
   redirect(
     getRedirectUrl({
+      region: request.cookies.get('region')?.value ?? 'eu',
       sourceId: env.ELBA_SOURCE_ID,
       baseUrl: env.ELBA_REDIRECT_URL,
     }),

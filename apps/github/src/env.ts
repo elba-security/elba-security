@@ -36,7 +36,7 @@ export const env = z
     DATABASE_URL: z.string().min(0),
     ELBA_API_BASE_URL: z.string().url(),
     ELBA_API_KEY: z.string(),
-    ELBA_REDIRECT_URL: z.string().url(),
+    ELBA_REDIRECT_URL: z.string().min(1),
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     GITHUB_APP_INSTALL_URL: z.string().url(),

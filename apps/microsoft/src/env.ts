@@ -25,7 +25,7 @@ export const env = z
     MICROSOFT_AUTH_API_URL: z.string().url().default('https://login.microsoftonline.com'),
     ELBA_API_KEY: z.string().min(1),
     ELBA_API_BASE_URL: z.string().url(),
-    ELBA_REDIRECT_URL: z.string().url(),
+    ELBA_REDIRECT_URL: z.string().min(1),
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     ENCRYPTION_KEY: z.string().min(1),
