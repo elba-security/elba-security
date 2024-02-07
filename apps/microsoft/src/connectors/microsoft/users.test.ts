@@ -1,7 +1,7 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
-import { server } from '../../vitest/setup-msw-handlers';
+import { server } from '../../../vitest/setup-msw-handlers';
 import { getUsers } from './users';
 import type { MicrosoftUser } from './users';
 import { MicrosoftError } from './commons/error';

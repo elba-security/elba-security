@@ -1,7 +1,7 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import * as crypto from '@/common/crypto';
-import * as authConnector from '@/connectors/auth';
+import * as authConnector from '@/connectors/microsoft/auth';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';

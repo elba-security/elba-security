@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { MicrosoftError } from '@/connectors/commons/error';
+import { MicrosoftError } from '@/connectors/microsoft/commons/error';
 import { unauthorizedMiddleware } from './unauthorized-middleware';
 
 const organisation = {
