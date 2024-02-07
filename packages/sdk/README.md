@@ -43,6 +43,7 @@ const redirectUrl = getRedirectUrl({
   sourceId: env.ELBA_SOURCE_ID,
   baseUrl: env.ELBA_REDIRECT_URL,
   error: 'unauthorized',
+  region: 'eu',
 });
 ```
 

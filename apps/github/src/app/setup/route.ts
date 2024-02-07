@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
     if (error instanceof RequestError && error.response?.status === 401) {
       redirect(
         getRedirectUrl({
+          region: request.cookies.get('region')?.value ?? 'eu',
           sourceId: env.ELBA_SOURCE_ID,
           baseUrl: env.ELBA_REDIRECT_URL,
           error: 'unauthorized',
@@ -40,6 +41,7 @@ export async function GET(request: NextRequest) {
     }
     redirect(
       getRedirectUrl({
+        region: request.cookies.get('region')?.value ?? 'eu',
         sourceId: env.ELBA_SOURCE_ID,
         baseUrl: env.ELBA_REDIRECT_URL,
         error: 'internal_error',
@@ -50,6 +52,7 @@ export async function GET(request: NextRequest) {
 
   redirect(
     getRedirectUrl({
+      region: request.cookies.get('region')?.value ?? 'eu',
       sourceId: env.ELBA_SOURCE_ID,
       baseUrl: env.ELBA_REDIRECT_URL,
     }),

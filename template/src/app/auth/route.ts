@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
   if (!organisationId || !code || !region) {
     redirect(
       getRedirectUrl({
+        region: region ?? 'eu',
         sourceId: env.ELBA_SOURCE_ID,
         baseUrl: env.ELBA_REDIRECT_URL,
         error: 'unauthorized',
@@ -33,6 +34,7 @@ export async function GET(request: NextRequest) {
 
   redirect(
     getRedirectUrl({
+      region,
       sourceId: env.ELBA_SOURCE_ID,
       baseUrl: env.ELBA_REDIRECT_URL,
     }),

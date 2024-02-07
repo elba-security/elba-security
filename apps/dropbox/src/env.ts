@@ -36,7 +36,7 @@ export const env = z
     DROPBOX_REDIRECT_URI: z.string().url(),
     ENCRYPTION_KEY: z.string(),
     ELBA_API_BASE_URL: z.string().url(),
-    ELBA_REDIRECT_URL: z.string().url(),
+    ELBA_REDIRECT_URL: z.string().min(1),
     ELBA_API_KEY: z.string().min(1),
     ELBA_SOURCE_ID: z.string(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),

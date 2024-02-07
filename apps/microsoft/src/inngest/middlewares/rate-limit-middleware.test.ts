@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { RetryAfterError } from 'inngest';
-import { MicrosoftError } from '@/connectors/commons/error';
+import { MicrosoftError } from '@/connectors/microsoft/commons/error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
 describe('rate-limit middleware', () => {

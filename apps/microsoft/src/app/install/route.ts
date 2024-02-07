@@ -5,9 +5,7 @@ import { z } from 'zod';
 import { logger } from '@elba-security/logger';
 import { env } from '@/env';
 
-// Remove the next line if your integration does not works with edge runtime
-export const preferredRegion = env.VERCEL_PREFERRED_REGION;
-// Remove the next line if your integration does not works with edge runtime
+export const preferredRegion = 'fra1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 

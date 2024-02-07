@@ -14,6 +14,20 @@ export const inngest = new Inngest({
         skipToken: string | null;
       };
     };
+    'microsoft/third_party_apps.revoke_app_permission.requested': {
+      data: {
+        organisationId: string;
+        appId: string;
+        permissionId: string;
+      };
+    };
+    'microsoft/third_party_apps.refresh_app_permission.requested': {
+      data: {
+        organisationId: string;
+        appId: string;
+        userId: string;
+      };
+    };
     'microsoft/users.sync.triggered': {
       data: {
         organisationId: string;

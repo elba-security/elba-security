@@ -1,34 +1,14 @@
-import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
-import type { MicrosoftApp } from '@/connectors/apps';
-import { getApps } from '@/connectors/apps';
+import { getApps } from '@/connectors/microsoft/apps';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
-
-type ValidAppRole = { id: string; principalId: string };
-
-const isValidAppRole = (
-  appRole: MicrosoftApp['appRoleAssignedTo'][number]
-): appRole is ValidAppRole => Boolean(appRole.principalId) && Boolean(appRole.id);
-
-const formatApps = (app: MicrosoftApp) => ({
-  id: app.id,
-  name: app.appDisplayName,
-  description: app.description ?? undefined,
-  url: app.homepage ?? undefined,
-  logoUrl: app.info?.logoUrl ?? undefined,
-  publisherName: app.verifiedPublisher?.displayName ?? undefined,
-  users: app.appRoleAssignedTo.filter(isValidAppRole).map((appRole) => ({
-    id: appRole.principalId,
-    scopes: app.oauth2PermissionScopes,
-    metadata: { appRoleId: appRole.id },
-  })),
-});
+import { createElbaClient } from '@/connectors/elba/client';
+import { formatApp } from '@/connectors/elba/third-party-apps/objects';
 
 export const syncApps = inngest.createFunction(
   {
@@ -71,12 +51,7 @@ export const syncApps = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const elba = new Elba({
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-      organisationId,
-      region: organisation.region,
-    });
+    const elba = createElbaClient(organisationId, organisation.region);
 
     const nextSkipToken = await step.run('paginate', async () => {
       const result = await getApps({
@@ -94,7 +69,7 @@ export const syncApps = inngest.createFunction(
       }
 
       await elba.thirdPartyApps.updateObjects({
-        apps: result.validApps.map(formatApps),
+        apps: result.validApps.map(formatApp),
       });
 
       return result.nextSkipToken;

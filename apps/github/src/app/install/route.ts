@@ -28,6 +28,7 @@ export function GET(request: NextRequest) {
     });
     redirect(
       getRedirectUrl({
+        region: request.nextUrl.searchParams.get('region') ?? 'eu',
         sourceId: env.ELBA_SOURCE_ID,
         baseUrl: env.ELBA_REDIRECT_URL,
         error: 'internal_error',

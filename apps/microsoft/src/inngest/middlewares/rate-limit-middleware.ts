@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { MicrosoftError } from '@/connectors/commons/error';
+import { MicrosoftError } from '@/connectors/microsoft/commons/error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
