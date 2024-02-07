@@ -1,5 +1,5 @@
 import { DBXAccess, DBXAuth } from '@/connectors';
-import { insertAccessToken } from './data';
+import { insertOrganisation } from './data';
 import addSeconds from 'date-fns/addSeconds';
 import subMinutes from 'date-fns/subMinutes';
 import { inngest } from '@/inngest/client';
@@ -65,7 +65,7 @@ export const generateAccessToken = async ({
   }
 
   const tokenExpiresAt = addSeconds(new Date(), expires_in);
-  await insertAccessToken({
+  await insertOrganisation({
     organisationId,
     accessToken: await encrypt(accessToken),
     refreshToken: refresh_token,

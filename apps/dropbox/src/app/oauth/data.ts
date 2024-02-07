@@ -1,6 +1,6 @@
 import { db, organisations } from '@/database';
 
-export const insertAccessToken = async (accessTokenDetails: typeof organisations.$inferInsert) => {
+export const insertOrganisation = async (accessTokenDetails: typeof organisations.$inferInsert) => {
   return await db
     .insert(organisations)
     .values(accessTokenDetails)
