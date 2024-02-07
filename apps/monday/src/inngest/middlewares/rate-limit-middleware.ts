@@ -26,26 +26,23 @@ export const rateLimitMiddleware = new InngestMiddleware({
               result: { error, ...result },
               ...context
             } = ctx;
-            const retryAfter =
-              error instanceof MondayError && error.response?.headers.get('Retry-After');
 
-            if (!retryAfter) {
-              return;
+            if(error instanceof MondayError && error.response?.status===429){
+              const retryAfterInSeconds = 60;
+              return {
+                ...context,
+                result: {
+                  ...result,
+                  error: new RetryAfterError(
+                    `Monday rate limit reached by '${fn.name}'`,
+                    retryAfterInSeconds,
+                    {
+                      cause: error,
+                    }
+                  ),
+                },
+              };
             }
-
-            return {
-              ...context,
-              result: {
-                ...result,
-                error: new RetryAfterError(
-                  `Monday rate limit reached by '${fn.name}'`,
-                  retryAfter,
-                  {
-                    cause: error,
-                  }
-                ),
-              },
-            };
           },
         };
       },

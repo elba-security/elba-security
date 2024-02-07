@@ -23,6 +23,7 @@
     "@elba-security/inngest": "workspace:*",
     "@elba-security/logger": "workspace:*",
     "@elba-security/sdk": "workspace:*",
+    "@neondatabase/serverless": "^0.8.1",
     "@sentry/nextjs": "^7.88.0",
     "@vercel/postgres": "0.5.1",
     "drizzle-orm": "^0.29.1",

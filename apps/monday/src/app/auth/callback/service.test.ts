@@ -9,7 +9,7 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import * as authConnector from '@/connectors/auth';
-import { db } from '@/database/client.node';
+import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import type { GetTokenResponseData } from '@/connectors/auth';

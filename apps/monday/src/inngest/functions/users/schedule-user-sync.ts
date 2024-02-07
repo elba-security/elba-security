@@ -1,5 +1,5 @@
 import { env } from '@/env';
-import { db } from '@/database/client.node';
+import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '../../client';
 

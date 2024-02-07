@@ -14,7 +14,7 @@ export default defineConfig({
     setupFiles: ['./vitest/setup-database.ts', './vitest/setup-msw-handlers.ts'],
     env: process.env,
     // use 'node' if your integration is not compatible with edge runtime
-    environment: 'node',
+    environment: 'edge-runtime',
     poolOptions: {
       threads: {
         singleThread: true,

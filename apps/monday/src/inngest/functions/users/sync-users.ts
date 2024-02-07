@@ -3,7 +3,7 @@ import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { type MondayUser, getUsers } from '@/connectors/users';
-import { db } from '@/database/client.node';
+import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';

@@ -11,7 +11,7 @@ import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
-import { db } from '@/database/client.node';
+import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { syncUsers } from './sync-users';
 

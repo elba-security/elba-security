@@ -1,9 +1,11 @@
 import { RedirectType, redirect } from 'next/navigation';
 import type { NextRequest } from 'next/server';
 import { env } from '@/env';
-import { setupOrganisation } from './service';
 import { MondayError } from '@/connectors/commons/error';
+import { setupOrganisation } from './service';
 
+export const preferredRegion = env.VERCEL_PREFERRED_REGION;
+export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 /**

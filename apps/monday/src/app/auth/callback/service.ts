@@ -1,4 +1,4 @@
-import { db } from '@/database/client.node';
+import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { getToken } from '@/connectors/auth';
 import { inngest } from '@/inngest/client';

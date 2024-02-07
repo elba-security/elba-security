@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { type NextRequest } from 'next/server';
 import { env } from '@/env';
 
+export const preferredRegion = env.VERCEL_PREFERRED_REGION;
+export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 export function GET(request: NextRequest) {

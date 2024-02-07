@@ -6,7 +6,9 @@ import { env } from '@/env';
 
 const elbaRequestHandlers = createElbaRequestHandlers(env.ELBA_API_BASE_URL, env.ELBA_API_KEY);
 
-export const server = setupServer(...elbaRequestHandlers);
+export const server = setupServer(
+  http.all(`http://localhost:${env.POSTGRES_PROXY_PORT}/*`, () => passthrough()),
+  ...elbaRequestHandlers);
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
