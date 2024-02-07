@@ -4,7 +4,7 @@ import subMinutes from 'date-fns/subMinutes';
 import { FunctionHandler, inngest } from '@/inngest/client';
 import { DBXAuth } from '@/connectors';
 import { NonRetriableError } from 'inngest';
-import { decrypt, encrypt } from '@/common/crypto';
+import { encrypt } from '@/common/crypto';
 import { env } from '@/env';
 
 const handler: FunctionHandler = async ({
@@ -22,10 +22,8 @@ const handler: FunctionHandler = async ({
       );
     }
 
-    const token = await decrypt(organisation!.refreshToken);
-
     const dbxAuth = new DBXAuth({
-      refreshToken: token,
+      refreshToken: organisation!.refreshToken,
     });
 
     const { access_token: accessToken, expires_at: expiresAt } = await dbxAuth.refreshAccessToken();

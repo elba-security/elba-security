@@ -9,7 +9,7 @@
     "start": "next start",
     "test": "sh ./scripts/run-test.sh",
     "test:watch": "sh ./scripts/run-test.sh -w",
-    "big-bang": "pnpm database:down && pnpm test:database:down && pnpm database:up && pnpm test:database:up && pnpm database:migrate && pnpm test:database:migrate",
+    "big-bang": "sh ./scripts/clean-database.sh",
     "test:database:up": "docker-compose -p integration-test --env-file=.env.test up -d",
     "test:database:down": "docker-compose -p integration-test down --volumes",
     "test:database:migrate": "node ./scripts/migrate.js .env.test",
