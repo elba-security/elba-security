@@ -32,7 +32,7 @@ vi.mock('@/connectors/dropbox/dbx-access', () => {
   };
 });
 
-describe('run-user-sync-jobs', () => {
+describe('syncUserPage', () => {
   beforeEach(async () => {
     await insertOrganisations({});
     vi.clearAllMocks();

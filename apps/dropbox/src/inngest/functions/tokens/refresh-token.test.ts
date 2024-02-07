@@ -30,7 +30,7 @@ vi.mock('@/connectors/dropbox/dbx-auth', () => {
   };
 });
 
-describe('run-refresh-token', () => {
+describe('refreshToken', () => {
   beforeEach(async () => {
     vi.setSystemTime(TOKEN_GENERATED_AT);
     vi.clearAllMocks();
@@ -82,7 +82,7 @@ describe('run-refresh-token', () => {
     expect(crypto.encrypt).toBeCalledTimes(1);
     expect(crypto.encrypt).toBeCalledWith('test-access-token-0');
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('run-refresh-token', {
+    expect(step.sendEvent).toBeCalledWith('dropbox-refresh-token', {
       name: 'dropbox/token.refresh.triggered',
       data: {
         organisationId,

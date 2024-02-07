@@ -6,7 +6,7 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 
 const setup = createInngestFunctionMock(scheduleUserSync);
 
-describe('schedule-users-sync-jobs', () => {
+describe('scheduleUserSync', () => {
   test('should not schedule any jobs when there are no organisations', async () => {
     const [result, { step }] = setup();
     await expect(result).resolves.toStrictEqual({ organisations: [] });
@@ -37,7 +37,7 @@ describe('schedule-users-sync-jobs', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'run-user-sync-jobs',
+      'dropbox-sync-user-page',
       scheduledOrganisations.map((organisation) => ({
         name: 'dropbox/users.sync_page.triggered',
         data: { ...organisation, isFirstSync: false, syncStartedAt: 1609459200000 },

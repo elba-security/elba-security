@@ -39,7 +39,7 @@ const handler: FunctionHandler = async ({
     return expiresAt;
   });
 
-  await step.sendEvent('run-refresh-token', {
+  await step.sendEvent('dropbox-refresh-token', {
     name: 'dropbox/token.refresh.triggered',
     data: {
       organisationId,
@@ -54,7 +54,7 @@ const handler: FunctionHandler = async ({
 
 export const refreshToken = inngest.createFunction(
   {
-    id: 'run-refresh-token',
+    id: 'dropbox-refresh-token',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,

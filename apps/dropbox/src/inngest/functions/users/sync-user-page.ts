@@ -68,7 +68,7 @@ const handler: FunctionHandler = async ({
 
 export const syncUserPage = inngest.createFunction(
   {
-    id: 'run-user-sync-jobs',
+    id: 'dropbox-sync-user-page',
     retries: 10,
     concurrency: {
       limit: 1,
