@@ -41,7 +41,6 @@ export const syncUsersPage = inngest.createFunction(
 
     const elba = new Elba({
       organisationId,
-      sourceId: env.ELBA_SOURCE_ID,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
       region,

@@ -19,7 +19,6 @@ import { Elba } from '@elba-security/sdk';
 
 const elba = new Elba({
   organisationId: 'foo-bar',
-  sourceId: process.env.ELBA_SOURCE_ID,
   apiKey: process.env.ELBA_API_KEY,
   region: 'us',
   // baseUrl: process.env.ELBA_LOCAL_BASE_URL - optional, can be useful in a local environnement
@@ -27,6 +26,26 @@ const elba = new Elba({
 ```
 
 ## API Reference
+
+### Utils
+
+#### getRedirectUrl
+
+Generates a URL with appended parameters for elba redirection based on the source ID, base URL, and an optional error code.
+When no error is given, the user will be redirected on a success page.
+
+**Example:**
+
+```ts
+import { getRedirectUrl } from '@elba-security/sdk';
+
+const redirectUrl = getRedirectUrl({
+  sourceId: env.ELBA_SOURCE_ID,
+  baseUrl: env.ELBA_REDIRECT_URL,
+  error: 'unauthorized',
+  region: 'eu',
+});
+```
 
 ### Webhook
 
@@ -59,7 +78,7 @@ import { parseWebhookEventData } from '@elba-security/sdk';
 
 export async function POST(request: NextRequest) {
   const data: unknown = await request.json();
-  const { organisationId } = parseWebhookEventData('data_protection.scan_triggered', data);
+  const { organisationId } = parseWebhookEventData('data_protection.start_sync_requested', data);
 }
 ```
 

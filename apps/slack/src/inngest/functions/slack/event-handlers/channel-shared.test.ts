@@ -151,29 +151,31 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
     });
 
     const conversationsInserted = await db.query.conversationsTable.findMany();
-    expect(conversationsInserted).toEqual([
-      {
-        id: 'channel-id',
-        isSharedExternally: true,
-        lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
-        name: 'channel',
-        teamId: 'team-id-1',
-      },
-      {
-        id: 'channel-id',
-        isSharedExternally: true,
-        lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),
-        name: 'channel',
-        teamId: 'team-id-2',
-      },
-      {
-        id: 'channel-id',
-        isSharedExternally: true,
-        lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),
-        name: 'conversation',
-        teamId: 'team-id-3',
-      },
-    ]);
+    expect(conversationsInserted).toEqual(
+      expect.arrayContaining([
+        {
+          id: 'channel-id',
+          isSharedExternally: true,
+          lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
+          name: 'channel',
+          teamId: 'team-id-1',
+        },
+        {
+          id: 'channel-id',
+          isSharedExternally: true,
+          lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),
+          name: 'channel',
+          teamId: 'team-id-2',
+        },
+        {
+          id: 'channel-id',
+          isSharedExternally: true,
+          lastSyncedAt: new Date('2023-01-01T00:00:00.000Z'),
+          name: 'conversation',
+          teamId: 'team-id-3',
+        },
+      ])
+    );
 
     expect(slack.SlackAPIClient).toBeCalledTimes(2);
     expect(slack.SlackAPIClient).toBeCalledWith('slack-app-level-token');

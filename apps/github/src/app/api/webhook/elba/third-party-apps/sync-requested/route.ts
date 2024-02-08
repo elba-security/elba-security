@@ -6,7 +6,10 @@ export const dynamic = 'force-dynamic';
 
 export const POST = async (req: NextRequest) => {
   const eventData: unknown = await req.json();
-  const { organisationId } = parseWebhookEventData('third_party_apps.scan_triggered', eventData);
+  const { organisationId } = parseWebhookEventData(
+    'third_party_apps.start_sync_requested',
+    eventData
+  );
 
   const result = await handleThirdPartyAppsSyncRequested(organisationId);
 

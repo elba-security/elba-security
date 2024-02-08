@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import { logger } from '@elba-security/logger';
 import { z } from 'zod';
 import { isRedirectError } from 'next/dist/client/components/redirect';
+import { getRedirectUrl } from '@elba-security/sdk';
 import { env } from '@/common/env';
 import { handleSlackInstallation } from './service';
 
@@ -60,7 +61,12 @@ export const GET = async (request: NextRequest) => {
         errorDescription: searchParamsResult.data.error_description,
       });
       redirect(
-        `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=unauthorized`,
+        getRedirectUrl({
+          region,
+          sourceId: env.ELBA_SOURCE_ID,
+          baseUrl: env.ELBA_REDIRECT_URL,
+          error: 'unauthorized',
+        }),
         RedirectType.replace
       );
     }
@@ -73,13 +79,22 @@ export const GET = async (request: NextRequest) => {
 
     logger.error('An error occurred during Slack oauth flow', { cause: error });
     redirect(
-      `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`,
+      getRedirectUrl({
+        region: request.cookies.get('region')?.value ?? 'eu',
+        sourceId: env.ELBA_SOURCE_ID,
+        baseUrl: env.ELBA_REDIRECT_URL,
+        error: 'internal_error',
+      }),
       RedirectType.replace
     );
   }
 
   redirect(
-    `${env.ELBA_REDIRECT_URL}?success=true&source_id=${env.ELBA_SOURCE_ID}`,
+    getRedirectUrl({
+      region: request.cookies.get('region')?.value ?? 'eu',
+      sourceId: env.ELBA_SOURCE_ID,
+      baseUrl: env.ELBA_REDIRECT_URL,
+    }),
     RedirectType.replace
   );
 };

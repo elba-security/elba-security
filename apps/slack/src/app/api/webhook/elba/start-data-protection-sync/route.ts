@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export const POST = async (request: NextRequest) => {
   const data: unknown = await request.json();
 
-  const { organisationId } = parseWebhookEventData('data_protection.scan_triggered', data);
+  const { organisationId } = parseWebhookEventData('data_protection.start_sync_requested', data);
 
   await startDataProtectionSync(organisationId);
 

@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1707222185477,
+      "tag": "0000_lovely_hemingway",
+      "breakpoints": true
+    }
+  ]
+}

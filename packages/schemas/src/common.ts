@@ -18,7 +18,6 @@ export const jsonSchema = z
 
 export const baseRequestSchema = z.object({
   organisationId: z.string().uuid(),
-  sourceId: z.string().uuid(),
 });
 
 export type BaseRequest = zInfer<typeof baseRequestSchema>;

@@ -108,7 +108,6 @@ describe('synchronize-conversation-thread-messages', () => {
       apiKey: 'elba-api-key',
       organisationId: '00000000-0000-0000-0000-000000000001',
       region: 'eu',
-      sourceId: '00000000-0000-0000-0000-000000000000',
     });
 
     const elbaInstance = elba.mock.results[0]?.value;
@@ -250,7 +249,6 @@ describe('synchronize-conversation-thread-messages', () => {
       apiKey: 'elba-api-key',
       organisationId: '00000000-0000-0000-0000-000000000001',
       region: 'eu',
-      sourceId: '00000000-0000-0000-0000-000000000000',
     });
 
     const elbaInstance = elba.mock.results[0]?.value;

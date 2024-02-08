@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type NextRequest } from 'next/server';
 import { logger } from '@elba-security/logger';
+import { getRedirectUrl } from '@elba-security/sdk';
 import { getSlackInstallationUrl } from '@/connectors/slack/oauth';
 import { env } from '@/common/env';
 
@@ -17,7 +18,14 @@ export const GET = (request: NextRequest) => {
       organisationId,
       region,
     });
-    redirect(`${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`);
+    redirect(
+      getRedirectUrl({
+        region: region ?? 'eu',
+        sourceId: env.ELBA_SOURCE_ID,
+        baseUrl: env.ELBA_REDIRECT_URL,
+        error: 'internal_error',
+      })
+    );
   }
 
   const state = crypto.randomUUID();
