@@ -7,6 +7,7 @@ import { insertOrganisations } from '@/test-utils/token';
 import { syncApps } from './sync-apps';
 import { db } from '@/database/client';
 import { organisations } from '@/database';
+import { NonRetriableError } from 'inngest';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 
@@ -37,6 +38,24 @@ describe('run-user-sync-jobs', () => {
     await insertOrganisations({});
     vi.clearAllMocks();
     vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
+  });
+
+  test('should abort sync when organisation is not registered', async () => {
+    mocks.teamLinkedAppsListMembersLinkedAppsMock.mockImplementation(() => {});
+
+    const elba = spyOnElba();
+    const [result, { step }] = await setup({
+      organisationId: '00000000-0000-0000-0000-000000000010',
+      userId: 'team-member-id',
+      appId: 'app-id',
+      isFirstSync: false,
+    });
+
+    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
+
+    expect(elba).toBeCalledTimes(0);
+    expect(mocks.teamLinkedAppsListMembersLinkedAppsMock).toBeCalledTimes(0);
+    expect(step.sendEvent).toBeCalledTimes(0);
   });
 
   test('should delay the job when Dropbox rate limit is reached', async () => {
@@ -105,7 +124,7 @@ describe('run-user-sync-jobs', () => {
     });
 
     expect(await result).toStrictEqual({
-      success: true,
+      status: 'completed',
     });
 
     expect(elba).toBeCalledTimes(1);
@@ -144,7 +163,7 @@ describe('run-user-sync-jobs', () => {
     });
 
     expect(await result).toStrictEqual({
-      success: true,
+      status: 'completed',
     });
 
     expect(elba).toBeCalledTimes(1);
@@ -185,7 +204,7 @@ describe('run-user-sync-jobs', () => {
     });
 
     expect(await result).toStrictEqual({
-      success: true,
+      status: 'completed',
     });
 
     expect(elba).toBeCalledTimes(1);

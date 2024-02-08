@@ -19,6 +19,6 @@ export const startThirdPartySync = async (organisationId: string) => {
   });
 
   return {
-    success: true,
+    status: 'completed',
   };
 };

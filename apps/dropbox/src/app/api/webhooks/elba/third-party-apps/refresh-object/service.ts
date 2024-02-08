@@ -29,6 +29,6 @@ export const refreshThirdPartyAppsObject = async ({
   });
 
   return {
-    success: true,
+    status: 'completed',
   };
 };

@@ -4,6 +4,8 @@ import { InputArgWithTrigger } from '@/inngest/types';
 import { DBXApps } from '@/connectors/dropbox/dbx-apps';
 import { getElba } from '@/connectors';
 import { decrypt } from '@/common/crypto';
+import { env } from '@/env';
+import { NonRetriableError } from 'inngest';
 
 const handler: FunctionHandler = async ({
   event,
@@ -14,7 +16,9 @@ const handler: FunctionHandler = async ({
   const [organisation] = await getOrganisationAccessDetails(organisationId);
 
   if (!organisation) {
-    throw new Error(`Access token not found for organisation with ID: ${organisationId}`);
+    throw new NonRetriableError(
+      `Access token not found for organisation with ID: ${organisationId}`
+    );
   }
 
   const { accessToken, region } = organisation;
@@ -29,7 +33,7 @@ const handler: FunctionHandler = async ({
     region,
   });
 
-  const memberApps = await step.run('third-party-apps-sync-initialize', async () => {
+  const result = await step.run('third-party-apps-sync-initialize', async () => {
     const { apps, ...rest } = await dbx.fetchTeamMembersThirdPartyApps(cursor);
 
     if (!apps?.length) {
@@ -43,17 +47,17 @@ const handler: FunctionHandler = async ({
     return rest;
   });
 
-  if (memberApps?.hasMore) {
+  if (result?.hasMore) {
     await step.sendEvent('third-party-apps-run-sync-jobs', {
       name: 'dropbox/third_party_apps.sync_page.triggered',
       data: {
         ...event.data,
-        cursor: memberApps.nextCursor,
+        cursor: result.nextCursor,
       },
     });
 
     return {
-      success: true,
+      status: 'completed',
     };
   }
 
@@ -64,19 +68,19 @@ const handler: FunctionHandler = async ({
   });
 
   return {
-    success: true,
+    status: 'completed',
   };
 };
 
 export const syncApps = inngest.createFunction(
   {
-    id: 'run-third-party-apps-sync-jobs',
+    id: 'dropbox-sync-apps',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
-    retries: 10,
+    retries: env.DROPBOX_TPA_SYNC_RETRIES || 5,
     concurrency: {
-      limit: 1,
+      limit: env.DROPBOX_TPA_SYNC_CONCURRENCY || 5,
       key: 'event.data.organisationId',
     },
   },

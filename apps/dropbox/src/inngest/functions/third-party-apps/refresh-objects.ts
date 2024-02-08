@@ -4,6 +4,8 @@ import { InputArgWithTrigger } from '@/inngest/types';
 import { DBXApps } from '@/connectors/dropbox/dbx-apps';
 import { getElba } from '@/connectors';
 import { decrypt } from '@/common/crypto';
+import { env } from '@/env';
+import { NonRetriableError } from 'inngest';
 
 const handler: FunctionHandler = async ({
   event,
@@ -14,7 +16,7 @@ const handler: FunctionHandler = async ({
   const [organisation] = await getOrganisationAccessDetails(organisationId);
 
   if (!organisation) {
-    throw new Error(`Organisation not found with id=${organisationId}`);
+    throw new NonRetriableError(`Organisation not found with id=${organisationId}`);
   }
 
   const { accessToken, region } = organisation;
@@ -54,19 +56,19 @@ const handler: FunctionHandler = async ({
   });
 
   return {
-    success: true,
+    status: 'completed',
   };
 };
 
 export const refreshThirdPartyAppsObject = inngest.createFunction(
   {
-    id: 'third-party-apps-refresh-objects',
+    id: 'dropbox-third-party-apps-refresh-objects',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
-    retries: 10,
+    retries: env.DROPBOX_TPA_REFRESH_OBJECT_RETRIES || 5,
     concurrency: {
-      limit: 5,
+      limit: env.DROPBOX_TPA_REFRESH_OBJECT_CONCURRENCY || 5,
       key: 'event.data.organisationId',
     },
   },

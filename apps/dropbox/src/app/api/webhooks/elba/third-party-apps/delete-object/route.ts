@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { deleteThirdPartyAppsObject } from './service';
 import { parseWebhookEventData } from '@elba-security/sdk';
 
+export const dynamic = 'force-dynamic';
+export const preferredRegion = 'fra1';
+export const runtime = 'edge';
+
 export async function POST(request: Request) {
   const data: unknown = await request.json();
 
@@ -10,11 +14,11 @@ export async function POST(request: Request) {
     data
   );
 
-  const response = await deleteThirdPartyAppsObject({
+  await deleteThirdPartyAppsObject({
     organisationId,
     userId,
     appId,
   });
 
-  return NextResponse.json(response);
+  return new NextResponse();
 }

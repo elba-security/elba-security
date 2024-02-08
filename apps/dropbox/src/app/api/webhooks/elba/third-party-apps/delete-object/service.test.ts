@@ -40,9 +40,6 @@ describe('deleteThirdPartyAppsObject', () => {
     });
 
     expect(response.status).toBe(200);
-    expect(response.json()).resolves.toStrictEqual({
-      success: true,
-    });
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({

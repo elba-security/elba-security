@@ -1,5 +1,5 @@
 {
-  "id": "473fb22d-6709-46b0-8877-7a1fc404a948",
+  "id": "5399e46a-145b-4ed6-accc-92ae8a419c1f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -68,8 +68,8 @@
   "enums": {},
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   }
 }

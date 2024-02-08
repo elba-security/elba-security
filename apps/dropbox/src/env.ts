@@ -44,5 +44,11 @@ export const env = z
     TOKEN_REFRESH_MAX_RETRY: zEnvRetry(),
     VERCEL_ENV: z.string().optional(),
     ELBA_REGION: z.string(),
+    DROPBOX_TPA_DELETE_OBJECT_RETRIES: zEnvRetry(),
+    DROPBOX_TPA_DELETE_OBJECT_CONCURRENCY: zEnvInt(),
+    DROPBOX_TPA_REFRESH_OBJECT_RETRIES: zEnvRetry(),
+    DROPBOX_TPA_REFRESH_OBJECT_CONCURRENCY: zEnvInt(),
+    DROPBOX_TPA_SYNC_RETRIES: zEnvRetry(),
+    DROPBOX_TPA_SYNC_CONCURRENCY: zEnvInt(),
   })
   .parse(process.env);
