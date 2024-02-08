@@ -1,7 +1,7 @@
 import { addMinutes } from 'date-fns/addMinutes';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { getToken } from '@/connectors/auth';
+import { getToken } from '@/connectors/microsoft/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 

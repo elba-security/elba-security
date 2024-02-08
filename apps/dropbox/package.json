@@ -1,0 +1,61 @@
+{
+  "name": "@elba-security/dropbox",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev -p 3300",
+    "lint": "next lint",
+    "start": "next start",
+    "test": "sh ./scripts/run-test.sh",
+    "test:watch": "sh ./scripts/run-test.sh -w",
+    "big-bang": "sh ./scripts/clean-database.sh",
+    "test:database:up": "docker-compose -p dropbox-test --env-file=.env.test up -d",
+    "test:database:down": "docker-compose -p dropbox-test down --volumes",
+    "test:database:migrate": "node ./scripts/migrate.js .env.test",
+    "database:up": "docker-compose -p dropbox --env-file=.env.local up -d",
+    "database:down": "docker-compose -p dropbox down --volumes",
+    "database:migrate": "node ./scripts/migrate.js .env.local",
+    "database:generate": "drizzle-kit generate:pg --schema=./src/database/schema.ts"
+  },
+  "dependencies": {
+    "@elba-security/config": "workspace:*",
+    "@elba-security/schemas": "workspace:*",
+    "@elba-security/sdk": "workspace:*",
+    "@elba-security/utils": "workspace:*",
+    "@sentry/nextjs": "^7.88.0",
+    "date-fns": "^2.30.0",
+    "drizzle-orm": "^0.29.1",
+    "dropbox": "^10.34.0",
+    "inngest": "^3.13.0",
+    "next": "14.0.1",
+    "postgres": "^3.4.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "^3.1.7",
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/logger": "workspace:*",
+    "@elba-security/test-utils": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
+    "@next/eslint-plugin-next": "^14.0.2",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "dotenv": "^16.3.1",
+    "drizzle-kit": "^0.20.6",
+    "eslint": "^8.53.0",
+    "msw": "^2.0.1",
+    "ts-node": "^10.9.1",
+    "tsx": "^3.12.2",
+    "typescript": "^5.2.2",
+    "vitest": "^1.2.1"
+  },
+  "engines": {
+    "node": "18",
+    "pnpm": "8"
+  },
+  "packageManager": "pnpm@8.10.2"
+}

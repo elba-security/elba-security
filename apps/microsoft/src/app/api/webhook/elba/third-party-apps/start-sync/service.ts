@@ -24,6 +24,4 @@ export const startThirdPartyAppsSync = async (organisationId: string) => {
       skipToken: null,
     },
   });
-
-  return { success: true };
 };

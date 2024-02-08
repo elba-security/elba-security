@@ -4,7 +4,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getToken } from '@/connectors/auth';
+import { getToken } from '@/connectors/microsoft/auth';
 import { env } from '@/env';
 import { encrypt } from '@/common/crypto';
 

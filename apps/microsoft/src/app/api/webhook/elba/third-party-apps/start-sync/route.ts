@@ -3,6 +3,8 @@ import { parseWebhookEventData } from '@elba-security/sdk';
 import { startThirdPartyAppsSync } from './service';
 
 export const dynamic = 'force-dynamic';
+export const preferredRegion = 'fra1';
+export const runtime = 'edge';
 
 export const POST = async (req: NextRequest) => {
   const eventData: unknown = await req.json();
@@ -11,7 +13,7 @@ export const POST = async (req: NextRequest) => {
     eventData
   );
 
-  const result = await startThirdPartyAppsSync(organisationId);
+  await startThirdPartyAppsSync(organisationId);
 
-  return NextResponse.json(result);
+  return new NextResponse();
 };

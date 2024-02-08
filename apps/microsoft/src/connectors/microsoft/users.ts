@@ -6,14 +6,14 @@ import {
   type MicrosoftPaginatedResponse,
 } from './commons/pagination';
 
-const UserSchema = z.object({
+const userSchema = z.object({
   id: z.string(),
   mail: z.string().nullable().optional(),
   userPrincipalName: z.string(),
   displayName: z.string().nullable().optional(),
 });
 
-export type MicrosoftUser = z.infer<typeof UserSchema>;
+export type MicrosoftUser = z.infer<typeof userSchema>;
 
 export type GetUsersParams = {
   token: string;
@@ -45,7 +45,7 @@ export const getUsers = async ({ token, tenantId, skipToken }: GetUsersParams) =
   const invalidUsers: unknown[] = [];
 
   for (const user of data.value) {
-    const result = UserSchema.safeParse(user);
+    const result = userSchema.safeParse(user);
     if (result.success) {
       validUsers.push(result.data);
     } else {

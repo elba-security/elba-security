@@ -1,7 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as appsConnector from '@/connectors/apps';
+import * as appsConnector from '@/connectors/microsoft/apps';
 import { encrypt } from '@/common/crypto';
 import { env } from '@/env';
 import { organisationsTable } from '@/database/schema';
@@ -21,7 +21,7 @@ const organisation = {
 
 const setup = createInngestFunctionMock(syncApps, 'microsoft/third_party_apps.sync.requested');
 
-const formattedApps = [
+const apps = [
   {
     appDisplayName: 'elba test',
     description: 'some description',
@@ -48,13 +48,13 @@ const data = {
   skipToken: null,
 };
 
-describe('scan-users', () => {
+describe('sync-apps', () => {
   test('should abort sync when organisation is not registered', async () => {
     const nextSkipToken = 'nextSkipToken';
     const elba = spyOnElba();
     const getApps = vi.spyOn(appsConnector, 'getApps').mockResolvedValue({
       invalidApps: [],
-      validApps: formattedApps,
+      validApps: apps,
       nextSkipToken,
     });
     const [result, { step }] = setup(data);
@@ -75,7 +75,7 @@ describe('scan-users', () => {
     const elba = spyOnElba();
     const getApps = vi.spyOn(appsConnector, 'getApps').mockResolvedValue({
       invalidApps: [],
-      validApps: formattedApps,
+      validApps: apps,
       nextSkipToken,
     });
     const [result, { step }] = setup(data);
@@ -105,7 +105,7 @@ describe('scan-users', () => {
             {
               id: 'principal-id',
               metadata: {
-                appRoleId: 'role-id',
+                permissionId: 'role-id',
               },
               scopes: [],
             },
@@ -136,7 +136,7 @@ describe('scan-users', () => {
     const elba = spyOnElba();
     const getApps = vi.spyOn(appsConnector, 'getApps').mockResolvedValue({
       invalidApps: [],
-      validApps: formattedApps,
+      validApps: apps,
       nextSkipToken,
     });
     const [result, { step }] = setup(data);
@@ -166,7 +166,7 @@ describe('scan-users', () => {
             {
               id: 'principal-id',
               metadata: {
-                appRoleId: 'role-id',
+                permissionId: 'role-id',
               },
               scopes: [],
             },

@@ -1,10 +1,10 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/microsoft/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import type { MicrosoftUser } from '@/connectors/users';
+import type { MicrosoftUser } from '@/connectors/microsoft/users';
 import { env } from '@/env';
 import { encrypt } from '@/common/crypto';
 import { syncUsers } from './sync-users';

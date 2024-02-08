@@ -33,9 +33,7 @@ describe('startThirdPartyAppsSync', () => {
     const send = vi.spyOn(client.inngest, 'send').mockResolvedValue({ ids: [] });
     await db.insert(organisationsTable).values(organisation);
 
-    await expect(startThirdPartyAppsSync(organisation.id)).resolves.toStrictEqual({
-      success: true,
-    });
+    await expect(startThirdPartyAppsSync(organisation.id)).resolves.toBeUndefined();
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
       name: 'microsoft/third_party_apps.sync.requested',
