@@ -37,12 +37,11 @@ export const syncUsersPage = inngest.createFunction(
   },
 
   { event: 'zoom/users.page_sync.requested' },
-  async ({ event, step, logger }) => {
+  async ({ event, step }) => {
     const { organisationId, syncStartedAt, page, region } = event.data;
 
     const elba = new Elba({
       organisationId,
-      sourceId: env.ELBA_SOURCE_ID,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
       region,
@@ -57,27 +56,28 @@ export const syncUsersPage = inngest.createFunction(
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      // console.log('🚀 ~ file: sync-users-page.ts:55 ~ token ~ organisation:', organisation);
 
       return organisation.token;
     });
-    // console.log('🚀 ~ file: sync-users-page.ts:63 ~ const{token}=awaitstep.run ~ token:', token);
 
     // retrieve the SaaS organisation token
 
     const nextPage = await step.run('list-users', async () => {
-      // retrieve this users page
-      // console.log('Get user Before hit');
       const result = await getUsers(token, page);
+      console.log('🚀 ~ file: sync-users-page.ts:67 ~ nextPage ~ result:', result);
       // format each SaaS users to elba users
-      // const users = result.users.map(formatElbaUser);
-      // // send the batch of users to elba
-      // await elba.users.update({ users });
+      const users = result.users.map(formatElbaUser);
+      console.log('🚀 ~ file: sync-users-page.ts:69 ~ nextPage ~ users:', users);
 
-      // return result.nextPage;
+      // send the batch of users to elba
+      // TODO: will do it later because i need elba working url and api key
+      await elba.users.update({ users });
+
+      return result.next_page_token;
     });
 
     // if there is a next page enqueue a new sync user event
+
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
         name: 'zoom/users.page_sync.requested',
@@ -92,9 +92,10 @@ export const syncUsersPage = inngest.createFunction(
     }
 
     // delete the elba users that has been sent before this sync
-    await step.run('finalize', () =>
-      elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
-    );
+    await step.run('finalize', () => {
+      // TODO: will do it later as i Need elab redirect url and api key
+      return elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() });
+    });
 
     return {
       status: 'completed',

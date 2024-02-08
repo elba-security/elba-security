@@ -1,5 +1,5 @@
 {
-  "id": "5315ef9d-66e1-498e-9b44-a1c6d21c964e",
+  "id": "bd67be1c-01a6-43a3-a4c4-f885c8df53fa",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -39,9 +39,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "expires_in": {
-          "name": "expires_in",
-          "type": "bigint",
+        "expire_at": {
+          "name": "expire_at",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true
         }
@@ -55,8 +55,8 @@
   "enums": {},
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   }
 }

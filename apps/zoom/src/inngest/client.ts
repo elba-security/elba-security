@@ -15,6 +15,12 @@ export const inngest = new Inngest({
         page: number | null;
       };
     };
+    'zoom/zoom.token.refresh.requested': {
+      data: {
+        organisationId: string;
+        region: string;
+      };
+    };
   }>(),
   middleware: [rateLimitMiddleware, sentryMiddleware],
   logger,

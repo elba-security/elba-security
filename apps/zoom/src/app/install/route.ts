@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '@/env';
 
 // Remove the next line if your integration does not works with edge runtime
@@ -9,7 +9,7 @@ export const preferredRegion = env.VERCEL_PREFERRED_REGION;
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export function GET(request: NextRequest) {
+export function GET(request: NextRequest, response: NextResponse) {
   const organisationId = request.nextUrl.searchParams.get('organisation_id');
   const region = request.nextUrl.searchParams.get('region');
 
@@ -27,5 +27,5 @@ export function GET(request: NextRequest) {
   zoomLoginUrl.searchParams.append('redirect_uri', env.ZOOM_REDIRECT_URL);
   // we redirect the user to the installation page of the SaaS application
 
-  redirect(zoomLoginUrl.toString());
+  return redirect(zoomLoginUrl.toString());
 }

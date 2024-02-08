@@ -4,5 +4,5 @@ CREATE TABLE IF NOT EXISTS "organisation" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"access_token" text NOT NULL,
 	"refresh_token" text NOT NULL,
-	"expires_in" bigint NOT NULL
+	"expire_at" timestamp NOT NULL
 );

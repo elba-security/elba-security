@@ -28,7 +28,7 @@ const users: usersConnector.MySaasUser[] = Array.from({ length: 5 }, (_, i) => (
   email: `username-${i}@foo.bar`,
 }));
 
-const setup = createInngestFunctionMock(syncUsersPage, '{SaaS}/users.page_sync.requested');
+const setup = createInngestFunctionMock(syncUsersPage, 'zoom/users.page_sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {

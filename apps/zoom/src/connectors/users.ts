@@ -22,22 +22,30 @@ export type MySaasUser = {
 
 type GetUsersResponseData = {
   users: MySaasUser[];
-  nextPage: { page_count: number; page_number: number; total_records: number };
+
+  page_number: number;
+  page_size: number;
+  total_record: number;
+  next_page_token: string;
 };
 
-export const getUsers = async (token: string, page: number | null) => {
-  // console.log('Get User fn Hit');
-  const response = await fetch(`${env.ZOOM_API_URL}/users?page_number=${page}`, {
+export const getUsers = async (token: string, page: string | null) => {
+  const zoomUrl = new URL(`${env.ZOOM_API_URL}/users`);
+  zoomUrl.searchParams.append('page_size', '2');
+
+  if (page != null) {
+    zoomUrl.searchParams.append('next_page_token', page);
+  }
+
+  const response = await fetch(zoomUrl.toString(), {
     headers: { Authorization: `Bearer ${token}` },
   });
+
   if (!response.ok) {
     throw new MySaasError('Could not retrieve users', { response });
   }
-  // console.log('🚀 ~ file: users.ts:40 ~ getUsers ~ response.json():', response.json());
-  // console.log(
-  //   '🚀 ~ file: users.ts:40 ~ getUsers ~ response.json():',
-  //   response.json() as Promise<GetUsersResponseData>
-  // );
 
-  return response.json() as Promise<GetUsersResponseData>;
+  const data = await response.json();
+
+  return data as Promise<GetUsersResponseData>;
 };

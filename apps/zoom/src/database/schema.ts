@@ -10,7 +10,7 @@ export const Organisation = pgTable('organisation', {
 
   accessToken: text('access_token').notNull(),
   refreshToken: text('refresh_token').notNull(),
-  expiresIn: bigint('expires_in', { mode: 'number' }).notNull(),
+  expiresIn: timestamp('expire_at').notNull(),
 });
 
 export type SelectOrganisation = InferSelectModel<typeof Organisation>;

@@ -35,3 +35,32 @@ export const getToken = async (code: string) => {
   const data = (await response.json()) as GetTokenResponseData;
   return data;
 };
+
+export const zoomRefreshToken = async (refresh_token: string) => {
+  const requestBody = new URLSearchParams();
+  requestBody.append('grant_type', 'refresh_token');
+  requestBody.append('refresh_token', refresh_token);
+
+  const response = await fetch(env.ZOOM_TOKEN_URL, {
+    method: 'POST',
+    body: requestBody.toString(),
+    headers: {
+      Authorization: `Basic ${btoa(`${env.ZOOM_CLIENT_KEY}:${env.ZOOM_CLIENT_SECRET}`)}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+
+  if (!response.ok) {
+    throw new MySaasError('Could not retrieve token', { response });
+  }
+
+  const data = await response.json();
+
+  const expiresAt = new Date(Date.now() + data.expires_in * 1000);
+
+  return {
+    accessToken: data.access_token,
+    refreshToken: data.refresh_token,
+    expiresIn: expiresAt,
+  };
+};
