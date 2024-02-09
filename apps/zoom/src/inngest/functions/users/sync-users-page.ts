@@ -64,10 +64,8 @@ export const syncUsersPage = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers(token, page);
-      console.log('🚀 ~ file: sync-users-page.ts:67 ~ nextPage ~ result:', result);
       // format each SaaS users to elba users
       const users = result.users.map(formatElbaUser);
-      console.log('🚀 ~ file: sync-users-page.ts:69 ~ nextPage ~ users:', users);
 
       // send the batch of users to elba
       // TODO: will do it later because i need elba working url and api key

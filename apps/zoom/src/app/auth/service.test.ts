@@ -21,8 +21,16 @@ const now = new Date();
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  token: 'test-token',
+  accessToken: 'test-access-token',
+  refreshToken: 'test-refresh-token',
+  expiresIn: new Date(),
   region,
+};
+
+const getTokenResponse = {
+  access_token: 'test-access-token',
+  refresh_token: 'test-refresh-token',
+  expires_in: 1,
 };
 
 describe('setupOrganisation', () => {
@@ -39,7 +47,7 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mock the getToken function to return a predefined token
-    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(token);
+    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenResponse);
 
     // assert the function resolves without returning a value
     await expect(
@@ -59,15 +67,14 @@ describe('setupOrganisation', () => {
       db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
     ).resolves.toMatchObject([
       {
-        token,
-        region,
+        ...organisation,
       },
     ]);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: '{SaaS}/users.page_sync.requested',
+      name: 'zoom/users.page_sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
@@ -86,7 +93,7 @@ describe('setupOrganisation', () => {
     await db.insert(Organisation).values(organisation);
 
     // mock getToken as above
-    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(token);
+    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenResponse);
 
     // assert the function resolves without returning a value
     await expect(
@@ -104,12 +111,12 @@ describe('setupOrganisation', () => {
     // check if the token in the database is updated
     await expect(
       db
-        .select({ token: Organisation.token })
+        .select({ accessToken: Organisation.accessToken })
         .from(Organisation)
         .where(eq(Organisation.id, organisation.id))
     ).resolves.toMatchObject([
       {
-        token,
+        accessToken: 'test-access-token',
       },
     ]);
 

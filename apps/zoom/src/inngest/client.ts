@@ -18,7 +18,7 @@ export const inngest = new Inngest({
     'zoom/zoom.token.refresh.requested': {
       data: {
         organisationId: string;
-        region: string;
+        refreshToken: string;
       };
     };
   }>(),

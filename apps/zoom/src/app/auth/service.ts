@@ -37,16 +37,14 @@ export const setupOrganisation = async ({
       },
     });
 
-  await inngest.send([
-    {
-      name: 'zoom/users.page_sync.requested',
-      data: {
-        isFirstSync: true,
-        organisationId,
-        region,
-        syncStartedAt: Date.now(),
-        page: null,
-      },
+  await inngest.send({
+    name: 'zoom/users.page_sync.requested',
+    data: {
+      isFirstSync: true,
+      organisationId,
+      region,
+      syncStartedAt: Date.now(),
+      page: null,
     },
-  ]);
+  });
 };

@@ -10,7 +10,17 @@
 import { env } from '@/env';
 import { MySaasError } from './commons/error';
 
-type GetTokenResponseData = { access_token: string; refresh_token: string; expires_in: number };
+export type GetTokenResponseData = {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+};
+
+export type RefreshTokenResponse = {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: Date;
+};
 
 export const getToken = async (code: string) => {
   const requestBody = new URLSearchParams();
@@ -37,6 +47,7 @@ export const getToken = async (code: string) => {
 };
 
 export const zoomRefreshToken = async (refresh_token: string) => {
+  console.log('refresh token hit');
   const requestBody = new URLSearchParams();
   requestBody.append('grant_type', 'refresh_token');
   requestBody.append('refresh_token', refresh_token);
@@ -54,7 +65,8 @@ export const zoomRefreshToken = async (refresh_token: string) => {
     throw new MySaasError('Could not retrieve token', { response });
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as GetTokenResponseData;
+  console.log('🚀 ~ file: auth.ts:68 ~ zoomRefreshToken ~ data:', data);
 
   const expiresAt = new Date(Date.now() + data.expires_in * 1000);
 

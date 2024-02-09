@@ -11,34 +11,92 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getToken } from './auth';
+import { getToken, zoomRefreshToken } from './auth';
 import { MySaasError } from './commons/error';
-
+import { env } from '@/env';
+import { z } from 'zod';
+import type { GetTokenResponseData, RefreshTokenResponse } from './auth';
 const validCode = '1234';
 const token = 'token-1234';
 
 describe('auth connector', () => {
   describe('getToken', () => {
     // mock token API endpoint using msw
+
+    const validDataSchema = z.object({
+      grant_type: z.literal('authorization_code'),
+      client_id: z.literal(env.ZOOM_CLIENT_KEY),
+      client_secret: z.literal(env.ZOOM_CLIENT_SECRET),
+      redirect_uri: z.literal(env.ZOOM_REDIRECT_URL),
+      code: z.literal(validCode),
+    });
+
+    const responseToken: GetTokenResponseData = {
+      access_token: 'some_access_token',
+      refresh_token: 'some_refresh_token',
+      expires_in: 3600,
+    };
     beforeEach(() => {
       server.use(
-        http.post('https://mysaas.com/api/v1/token', async ({ request }) => {
+        http.post(env.ZOOM_TOKEN_URL, async ({ request }) => {
           // briefly implement API endpoint behaviour
-          const data = (await request.json()) as { code: string };
-          if (!data.code || data.code !== validCode) {
+          const data = Object.fromEntries(new URLSearchParams(await request.text()));
+          const result = validDataSchema.safeParse(data);
+
+          if (!result.success) {
             return new Response(undefined, { status: 401 });
           }
-          return Response.json({ token });
+
+          return Response.json(responseToken);
         })
       );
     });
 
     test('should return the token when the code is valid', async () => {
-      await expect(getToken(validCode)).resolves.toBe(token);
+      await expect(getToken(validCode)).resolves.toStrictEqual(responseToken);
     });
 
     test('should throw when the code is invalid', async () => {
       await expect(getToken('wrong-code')).rejects.toBeInstanceOf(MySaasError);
+    });
+  });
+
+  describe('zoomRefreshToken', () => {
+    const validRefreshToken = 'some_refresh_token';
+
+    const validationSchema = z.object({
+      grant_type: z.literal('refresh_token'),
+      refresh_token: z.literal(validRefreshToken),
+    });
+
+    const refreshTokenData = {
+      refreshToken: 'some_refresh_token',
+      accessToken: 'some_access_token',
+      expiresIn: new Date(),
+    };
+    beforeEach(() => {
+      server.use(
+        http.post(env.ZOOM_TOKEN_URL, async ({ request }) => {
+          const data = Object.fromEntries(new URLSearchParams(await request.text()));
+          const result = validationSchema.safeParse(data);
+
+          if (!result.success) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          return Response.json(refreshTokenData);
+        })
+      );
+    });
+
+    test('should return a new token when the refreshToken is valid', async () => {
+      await expect(zoomRefreshToken(validRefreshToken)).resolves.toStrictEqual(refreshTokenData);
+    });
+
+    test('should throw when the refreshToken is invalid', async () => {
+      await expect(zoomRefreshToken('some invalid refreshToken')).rejects.toBeInstanceOf(
+        MySaasError
+      );
     });
   });
 });
