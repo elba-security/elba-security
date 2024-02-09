@@ -155,7 +155,11 @@ importers:
         version: 7.93.0(next@14.0.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.1
+<<<<<<< HEAD
         version: 0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
+=======
+        version: 0.29.1(@neondatabase/serverless@0.8.1)(@vercel/postgres@0.5.1)(postgres@3.4.3)
+>>>>>>> d70119d (PR updated as per request)
       inngest:
         specifier: 3.12.0
         version: 3.12.0(typescript@5.2.2)
@@ -344,6 +348,9 @@ importers:
       '@elba-security/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@neondatabase/serverless':
+        specifier: ^0.8.1
+        version: 0.8.1
       '@sentry/nextjs':
         specifier: ^7.88.0
         version: 7.93.0(next@14.0.1)(react@18.2.0)
@@ -352,7 +359,11 @@ importers:
         version: 0.5.1
       drizzle-orm:
         specifier: ^0.29.1
+<<<<<<< HEAD
         version: 0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
+=======
+        version: 0.29.1(@neondatabase/serverless@0.8.1)(@vercel/postgres@0.5.1)(postgres@3.4.3)
+>>>>>>> d70119d (PR updated as per request)
       inngest:
         specifier: 3.6.2
         version: 3.6.2(typescript@5.2.2)
@@ -1574,6 +1585,12 @@ packages:
 
   /@neondatabase/serverless@0.6.0:
     resolution: {integrity: sha512-qXxBRYN0m2v8kVQBfMxbzNGn2xFAhTXFibzQlE++NfJ56Shz3m7+MyBBtXDlEH+3Wfa6lToDXf1MElocY4sJ3w==}
+    dependencies:
+      '@types/pg': 8.6.6
+    dev: false
+
+  /@neondatabase/serverless@0.8.1:
+    resolution: {integrity: sha512-nxZfTLbGqvDrw0W9WnQxzoPn4KC6SLjkvK4grdf6eWVMQSc24X+8udz9inZWOGu8f0O3wJAq586fCZ32r22lwg==}
     dependencies:
       '@types/pg': 8.6.6
     dev: false
@@ -3872,8 +3889,13 @@ packages:
       - supports-color
     dev: true
 
+<<<<<<< HEAD
   /drizzle-orm@0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0):
     resolution: {integrity: sha512-uSE027csliGSGYD0pqtM+SAQATMREb3eSM/U8s6r+Y0RFwTKwftnwwSkqx3oS65UBgqDOM0gMTl5UGNpt6lW0A==}
+=======
+  /drizzle-orm@0.29.1(@neondatabase/serverless@0.8.1)(@vercel/postgres@0.5.1)(postgres@3.4.3):
+    resolution: {integrity: sha512-yItc4unfHnk8XkDD3/bdC63vdboTY7e7I03lCF1OJYABXSIfQYU9BFTQJXMMovVeb3T1/OJWwfW/70T1XPnuUA==}
+>>>>>>> d70119d (PR updated as per request)
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=3'
@@ -3943,8 +3965,12 @@ packages:
       sqlite3:
         optional: true
     dependencies:
+<<<<<<< HEAD
       '@neondatabase/serverless': 0.6.0
       '@types/react': 18.2.47
+=======
+      '@neondatabase/serverless': 0.8.1
+>>>>>>> d70119d (PR updated as per request)
       '@vercel/postgres': 0.5.1
       postgres: 3.4.3
       react: 18.2.0

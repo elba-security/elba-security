@@ -16,7 +16,7 @@ import { MondayError } from './commons/error';
 
 const validToken =
   'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjMxNTEyNTgwMywiYWFpIjoyMjY3NDYsInVpZCI6NTQ3MjAyMTIsImlhZCI6IjIwMjQtMDEtMjlUMTE6NDk6MzYuMjI0WiIsInBlciI6InVzZXJzOnJlYWQsbWU6cmVhZCxib2FyZHM6cmVhZCIsImFjdGlkIjoyMDg2MjcyMiwicmduIjoiYXBzZTIifQ.y7N8M91hTkZ0EREtDazDE0gldfkJlo7n3IyIYYf-MEk';
-const maxPage = 2;
+const maxPage = 1;
 
 const users: MondayUser[] = [
   {
@@ -49,9 +49,8 @@ describe('auth connector', () => {
           const url = new URL(request.url);
           const pageParam = url.searchParams.get('page');
           const page = pageParam ? Number(pageParam) : 0;
-          if (page === maxPage) {
-            return Response.json({ data: { users } });
-          }
+          if (page === maxPage) return Response.json({ data: { users } });
+          if (page > maxPage) return Response.json({ data: { users: [] } });
           return Response.json({ data: { users } });
         })
       );
@@ -66,14 +65,14 @@ describe('auth connector', () => {
       });
     });
 
-    // test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-    //   await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
-    //     data:{
-    //       users
-    //     },
-    //     nextPage: null,
-    //   });
-    // });
+    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
+      await expect(getUsers(validToken, maxPage+1)).resolves.toStrictEqual({
+        data:{
+          users
+        },
+        nextPage: null,
+      });
+    });
 
     test('should throws when the token is invalid', async () => {
       await expect(getUsers('foo-bar', 0)).rejects.toBeInstanceOf(MondayError);
