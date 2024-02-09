@@ -38,10 +38,10 @@ export const synchronizeConversationMessages = inngest.createFunction(
       run: 'event.data.isFirstSync ? 600 : 0',
     },
     concurrency: {
-      limit: 3,
+      limit: env.SLACK_SYNC_CONVERSATIONS_MESSAGES_CONCURRENCY,
       key: 'event.data.teamId',
     },
-    retries: 5,
+    retries: env.SLACK_SYNC_CONVERSATIONS_MESSAGES_RETRY,
   },
   {
     event: 'slack/conversations.sync.messages.requested',
