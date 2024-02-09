@@ -1,32 +1,11 @@
 import { z } from 'zod';
 
-const zEnvInt = () => z.string().transform(Number).pipe(z.number().int());
+const zEnvInt = () => z.coerce.number().int().positive();
 const zEnvRetry = () =>
-  z.string().transform(Number).pipe(z.number().int().min(0).max(20)) as unknown as z.ZodUnion<
-    [
-      z.ZodLiteral<0>,
-      z.ZodLiteral<1>,
-      z.ZodLiteral<2>,
-      z.ZodLiteral<3>,
-      z.ZodLiteral<4>,
-      z.ZodLiteral<5>,
-      z.ZodLiteral<6>,
-      z.ZodLiteral<7>,
-      z.ZodLiteral<8>,
-      z.ZodLiteral<9>,
-      z.ZodLiteral<10>,
-      z.ZodLiteral<11>,
-      z.ZodLiteral<12>,
-      z.ZodLiteral<13>,
-      z.ZodLiteral<14>,
-      z.ZodLiteral<15>,
-      z.ZodLiteral<16>,
-      z.ZodLiteral<17>,
-      z.ZodLiteral<18>,
-      z.ZodLiteral<19>,
-      z.ZodLiteral<20>,
-    ]
+  z.coerce.number().int().min(0).max(20).optional().default(3) as unknown as z.ZodLiteral<
+    0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20
   >;
+
 export const env = z
   .object({
     DROPBOX_CLIENT_ID: z.string(),
@@ -41,14 +20,16 @@ export const env = z
     ELBA_SOURCE_ID: z.string(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     DATABASE_URL: z.string().min(1),
-    TOKEN_REFRESH_MAX_RETRY: zEnvRetry(),
     VERCEL_ENV: z.string().optional(),
     ELBA_REGION: z.string(),
-    DROPBOX_TPA_DELETE_OBJECT_RETRIES: zEnvRetry(),
-    DROPBOX_TPA_DELETE_OBJECT_CONCURRENCY: zEnvInt(),
-    DROPBOX_TPA_REFRESH_OBJECT_RETRIES: zEnvRetry(),
-    DROPBOX_TPA_REFRESH_OBJECT_CONCURRENCY: zEnvInt(),
-    DROPBOX_TPA_SYNC_RETRIES: zEnvRetry(),
-    DROPBOX_TPA_SYNC_CONCURRENCY: zEnvInt(),
+    DROPBOX_TOKEN_REFRESH_RETRIES: zEnvRetry().default(5),
+    DROPBOX_USER_SYNC_RETRIES: zEnvRetry().default(5),
+    DROPBOX_USER_SYNC_CONCURRENCY: zEnvInt().default(2),
+    DROPBOX_TPA_DELETE_OBJECT_RETRIES: zEnvRetry().default(5),
+    DROPBOX_TPA_DELETE_OBJECT_CONCURRENCY: zEnvInt().default(5),
+    DROPBOX_TPA_REFRESH_OBJECT_RETRIES: zEnvRetry().default(5),
+    DROPBOX_TPA_REFRESH_OBJECT_CONCURRENCY: zEnvInt().default(5),
+    DROPBOX_TPA_SYNC_RETRIES: zEnvRetry().default(5),
+    DROPBOX_TPA_SYNC_CONCURRENCY: zEnvInt().default(5),
   })
   .parse(process.env);

@@ -65,7 +65,7 @@ export const refreshToken = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
-    retries: env.TOKEN_REFRESH_MAX_RETRY,
+    retries: env.DROPBOX_TOKEN_REFRESH_RETRIES,
   },
   { event: 'dropbox/token.refresh.triggered' },
   handler

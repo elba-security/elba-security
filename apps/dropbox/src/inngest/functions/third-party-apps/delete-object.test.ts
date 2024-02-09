@@ -65,9 +65,7 @@ describe('third-party-apps-delete-objects', () => {
       appId: 'app-id',
     });
 
-    expect(await result).toStrictEqual({
-      status: 'completed',
-    });
+    await expect(result).resolves.toBeUndefined();
 
     await expect(mocks.teamLinkedAppsRevokeLinkedAppMock).toBeCalledTimes(1);
   });

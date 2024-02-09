@@ -123,9 +123,7 @@ describe('run-user-sync-jobs', () => {
       syncStartedAt: '2021-01-01T00:00:00.000Z',
     });
 
-    expect(await result).toStrictEqual({
-      status: 'completed',
-    });
+    await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
@@ -162,9 +160,7 @@ describe('run-user-sync-jobs', () => {
       syncStartedAt: '2021-01-01T00:00:00.000Z',
     });
 
-    expect(await result).toStrictEqual({
-      status: 'completed',
-    });
+    await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
@@ -203,9 +199,7 @@ describe('run-user-sync-jobs', () => {
       cursor: 'cursor-1',
     });
 
-    expect(await result).toStrictEqual({
-      status: 'completed',
-    });
+    await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({

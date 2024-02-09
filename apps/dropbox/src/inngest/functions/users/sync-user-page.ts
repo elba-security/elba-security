@@ -5,6 +5,8 @@ import { FunctionHandler, inngest } from '@/inngest/client';
 import { DBXUsers } from '@/connectors';
 import { decrypt } from '@/common/crypto';
 import { logger } from '@elba-security/logger';
+import { env } from '@/env';
+import { NonRetriableError } from 'inngest';
 
 const handler: FunctionHandler = async ({
   event,
@@ -15,7 +17,9 @@ const handler: FunctionHandler = async ({
   const [organisation] = await getOrganisationAccessDetails(organisationId);
 
   if (!organisation) {
-    throw new Error(`Access token not found for organisation with ID: ${organisationId}`);
+    throw new NonRetriableError(
+      `Access token not found for organisation with ID: ${organisationId}`
+    );
   }
 
   const { accessToken, region } = organisation;
@@ -43,14 +47,10 @@ const handler: FunctionHandler = async ({
   });
 
   if (users?.hasMore) {
-    await step.sendEvent('run-user-sync-job', {
+    return await step.sendEvent('run-user-sync-job', {
       name: 'dropbox/users.sync_page.triggered',
       data: { ...event.data, cursor: users.nextCursor },
     });
-
-    return {
-      status: 'completed',
-    };
   }
 
   await step.run('user-sync-finalize', async () => {
@@ -60,18 +60,14 @@ const handler: FunctionHandler = async ({
       syncedBefore: syncedBefore.toISOString(),
     });
   });
-
-  return {
-    status: 'completed',
-  };
 };
 
 export const syncUserPage = inngest.createFunction(
   {
     id: 'dropbox-sync-user-page',
-    retries: 10,
+    retries: env.DROPBOX_USER_SYNC_RETRIES,
     concurrency: {
-      limit: 1,
+      limit: env.DROPBOX_USER_SYNC_CONCURRENCY,
       key: 'event.data.organisationId',
     },
     priority: {

@@ -9,7 +9,6 @@ import { NonRetriableError } from 'inngest';
 
 const handler: FunctionHandler = async ({
   event,
-  step,
 }: InputArgWithTrigger<'dropbox/third_party_apps.refresh_objects.requested'>) => {
   const { organisationId, userId, appId } = event.data;
 
@@ -32,32 +31,26 @@ const handler: FunctionHandler = async ({
     region,
   });
 
-  await step.run('refresh-third-party-apps-objects', async () => {
-    const { apps } = await dbxAppsFetcher.fetchTeamMemberThirdPartyApps(userId);
+  const { apps } = await dbxAppsFetcher.fetchTeamMemberThirdPartyApps(userId);
 
-    const hasRequestedApp = apps?.some((app) => app.id === appId);
+  const hasRequestedApp = apps?.some((app) => app.id === appId);
 
-    if (!apps.length || !hasRequestedApp) {
-      await elba.thirdPartyApps.deleteObjects({
-        ids: [
-          {
-            userId,
-            appId,
-          },
-        ],
-      });
-
-      if (!apps.length) return;
-    }
-
-    await elba.thirdPartyApps.updateObjects({
-      apps,
+  if (!apps.length || !hasRequestedApp) {
+    await elba.thirdPartyApps.deleteObjects({
+      ids: [
+        {
+          userId,
+          appId,
+        },
+      ],
     });
-  });
 
-  return {
-    status: 'completed',
-  };
+    if (!apps.length) return;
+  }
+
+  await elba.thirdPartyApps.updateObjects({
+    apps,
+  });
 };
 
 export const refreshThirdPartyAppsObject = inngest.createFunction(
@@ -66,9 +59,9 @@ export const refreshThirdPartyAppsObject = inngest.createFunction(
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
-    retries: env.DROPBOX_TPA_REFRESH_OBJECT_RETRIES || 5,
+    retries: env.DROPBOX_TPA_REFRESH_OBJECT_RETRIES,
     concurrency: {
-      limit: env.DROPBOX_TPA_REFRESH_OBJECT_CONCURRENCY || 5,
+      limit: env.DROPBOX_TPA_REFRESH_OBJECT_CONCURRENCY,
       key: 'event.data.organisationId',
     },
   },

@@ -76,9 +76,7 @@ describe('third-party-apps-refresh-objects', () => {
       isFirstSync: false,
     });
 
-    expect(await result).toStrictEqual({
-      status: 'completed',
-    });
+    await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
@@ -128,9 +126,7 @@ describe('third-party-apps-refresh-objects', () => {
       isFirstSync: false,
     });
 
-    expect(await result).toStrictEqual({
-      status: 'completed',
-    });
+    await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
@@ -188,9 +184,7 @@ describe('third-party-apps-refresh-objects', () => {
       isFirstSync: false,
     });
 
-    expect(await result).toStrictEqual({
-      status: 'completed',
-    });
+    await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({

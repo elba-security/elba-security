@@ -26,10 +26,6 @@ const handler: FunctionHandler = async ({
     teamMemberId: userId,
     appId,
   });
-
-  return {
-    status: 'completed',
-  };
 };
 
 export const deleteThirdPartyAppsObject = inngest.createFunction(
@@ -38,9 +34,9 @@ export const deleteThirdPartyAppsObject = inngest.createFunction(
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
-    retries: env.DROPBOX_TPA_DELETE_OBJECT_RETRIES || 5,
+    retries: env.DROPBOX_TPA_DELETE_OBJECT_RETRIES,
     concurrency: {
-      limit: env.DROPBOX_TPA_DELETE_OBJECT_CONCURRENCY || 5,
+      limit: env.DROPBOX_TPA_DELETE_OBJECT_CONCURRENCY,
       key: 'event.data.organisationId',
     },
   },

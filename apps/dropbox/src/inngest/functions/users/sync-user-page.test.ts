@@ -5,6 +5,7 @@ import { insertOrganisations, insertTestAccessToken } from '@/test-utils/token';
 import { elbaUsers, membersList } from './__mocks__/dropbox';
 import { syncUserPage } from './sync-user-page';
 import * as crypto from '@/common/crypto';
+import { NonRetriableError } from 'inngest';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const syncStartedAt = 1707068979946;
@@ -45,6 +46,23 @@ describe('syncUserPage', () => {
 
   afterAll(() => {
     vi.resetModules();
+  });
+
+  test('should abort sync when organisation is not registered', async () => {
+    mocks.teamMembersListV2.mockResolvedValue({});
+
+    const elba = spyOnElba();
+    const [result, { step }] = await setup({
+      organisationId: '00000000-0000-0000-0000-000000000010',
+      teamMemberId: 'team-member-id',
+      appId: 'app-id',
+    });
+
+    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
+
+    expect(elba).toBeCalledTimes(0);
+    expect(mocks.teamMembersListV2).toBeCalledTimes(0);
+    expect(step.sendEvent).toBeCalledTimes(0);
   });
 
   test('should delay the job when Dropbox rate limit is reached', async () => {
@@ -88,9 +106,7 @@ describe('syncUserPage', () => {
       syncStartedAt,
     });
 
-    expect(await result).toStrictEqual({
-      status: 'completed',
-    });
+    await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
@@ -128,9 +144,7 @@ describe('syncUserPage', () => {
       syncStartedAt,
     });
 
-    expect(await result).toStrictEqual({
-      status: 'completed',
-    });
+    await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
@@ -167,9 +181,7 @@ describe('syncUserPage', () => {
       syncStartedAt,
     });
 
-    expect(await result).toStrictEqual({
-      status: 'completed',
-    });
+    await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({

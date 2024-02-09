@@ -48,17 +48,13 @@ const handler: FunctionHandler = async ({
   });
 
   if (result?.hasMore) {
-    await step.sendEvent('third-party-apps-run-sync-jobs', {
+    return await step.sendEvent('third-party-apps-run-sync-jobs', {
       name: 'dropbox/third_party_apps.sync_page.triggered',
       data: {
         ...event.data,
         cursor: result.nextCursor,
       },
     });
-
-    return {
-      status: 'completed',
-    };
   }
 
   await step.run('third-party-apps-sync-finalize', async () => {
@@ -66,10 +62,6 @@ const handler: FunctionHandler = async ({
       syncedBefore: new Date(syncStartedAt).toISOString(),
     });
   });
-
-  return {
-    status: 'completed',
-  };
 };
 
 export const syncApps = inngest.createFunction(
@@ -78,9 +70,9 @@ export const syncApps = inngest.createFunction(
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
-    retries: env.DROPBOX_TPA_SYNC_RETRIES || 5,
+    retries: env.DROPBOX_TPA_SYNC_RETRIES,
     concurrency: {
-      limit: env.DROPBOX_TPA_SYNC_CONCURRENCY || 5,
+      limit: env.DROPBOX_TPA_SYNC_CONCURRENCY,
       key: 'event.data.organisationId',
     },
   },
