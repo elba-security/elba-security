@@ -13,7 +13,8 @@ type GetAccountResponseData =  {
   timeZone: string;
 };
 
-export const getAccountDetails = async (token: string) => {
+export const getAccountTimezone = async (token: string) => {
+
   const response = await fetch(`https://api.hubapi.com/account-info/v3/details`, {
     headers: { Authorization: `Bearer ${token}` },
   });
