@@ -20,13 +20,13 @@ export type MySaasUser = {
   role_id: number;
 };
 
-type GetUsersResponseData = {
+export type GetUsersResponseData = {
   users: MySaasUser[];
 
   page_number: number;
   page_size: number;
   total_record: number;
-  next_page_token: string;
+  next_page_token: string | null;
 };
 
 export const getUsers = async (token: string, page: string | null) => {

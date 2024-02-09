@@ -15,8 +15,8 @@ export const scheduleTokenRefresh = inngest.createFunction(
         id: Organisation.id,
         refreshToken: Organisation.refreshToken,
       })
-      .from(Organisation);
-    // .where(lte(Organisation.expiresIn, thirtyMinutesFromNow));
+      .from(Organisation)
+      .where(lte(Organisation.expiresIn, thirtyMinutesFromNow));
 
     if (organisations.length > 0) {
       await step.sendEvent(

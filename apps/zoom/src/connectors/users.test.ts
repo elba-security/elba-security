@@ -1,71 +1,91 @@
-// /* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-// /* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
-// /**
-//  * DISCLAIMER:
-//  * The tests provided in this file are specifically designed for the `auth` connectors function.
-//  * Theses tests exists because the services & inngest functions using this connector mock it.
-//  * If you are using an SDK we suggest you to mock it not to implements calls using msw.
-//  * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
-//  */
+/**
+ * DISCLAIMER:
+ * The tests provided in this file are specifically designed for the `auth` connectors function.
+ * Theses tests exists because the services & inngest functions using this connector mock it.
+ * If you are using an SDK we suggest you to mock it not to implements calls using msw.
+ * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
+ */
 
-// import { http } from 'msw';
-// import { describe, expect, test, beforeEach } from 'vitest';
-// import { server } from '../../vitest/setup-msw-handlers';
-// import { type MySaasUser, getUsers } from './users';
-// import { MySaasError } from './commons/error';
-// import { env } from '@/env';
+import { http } from 'msw';
+import { describe, expect, test, beforeEach } from 'vitest';
+import { env } from '@/env';
+import { server } from '../../vitest/setup-msw-handlers';
+import { getUsers, GetUsersResponseData } from './users';
+import { MySaasError } from './commons/error';
 
-// const validToken = 'token-1234';
-// const maxPage = 3;
+const validAccessToken = 'valid_access_token';
 
-// const users: MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
-//   id: `id-${i}`,
-//   first_name: `first_name-${i}`,
-//   last_name: `last_name-${i}`,
-//   email: `user-${i}@foo.bar`,
-//   display_name: `display_name-${i}`,
-//   pmi: `pmi-${i}`,
-//   phone_number: `phone_number-${i}`,
-//   role_id: `role_id-${i}`,
-// }));
+const users: any = Array.from({ length: 5 }, (_, i) => ({
+  role_id: 1,
+  id: `id-${i}`,
+  pmi: `pmi-${i}`,
+  last_name: `last-name-${i}`,
+  first_name: `first-name-${i}`,
+  email: `username-${i}@foo.bar`,
+  display_name: `first-name_last-name-${i}`,
+  phone_number: '9967834639',
+}));
 
-// describe('auth connector', () => {
-//   describe('getUsers', () => {
-//     // mock token API endpoint using msw
-//     beforeEach(() => {
-//       server.use(
-//         http.get(env.ZOOM_API_URL, ({ request }) => {
-//           // briefly implement API endpoint behaviour
-//           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-//             return new Response(undefined, { status: 401 });
-//           }
-//           const url = new URL(request.url);
-//           const pageParam = url.searchParams.get('next_page_token');
-//           const page = pageParam ? Number(pageParam) : 0;
-//           if (page === maxPage) {
-//             return Response.json({ nextPage: null, users });
-//           }
-//           return Response.json({ nextPage: page + 1, users });
-//         })
-//       );
-//     });
+const newPageToken: any = 'some_next_page_token';
 
-//     test('should return users and nextPage when the token is valid and their is another page', async () => {
-//       await expect(getUsers(validToken, 0)).resolves.toStrictEqual({
-//         users,
-//         nextPage: 1,
-//       });
-//     });
+describe('user connector', () => {
+  describe('getUsers', () => {
+    // Mock response data when there is another page
+    const usersDataWithNextPage: GetUsersResponseData = {
+      users,
+      page_number: 1,
+      page_size: 1,
+      total_record: 5,
+      next_page_token: newPageToken,
+    };
 
-//     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-//       await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
-//         users,
-//         nextPage: null,
-//       });
-//     });
+    // Mock response data when there is no other page (last page)
+    const usersDataLastPage: GetUsersResponseData = {
+      users,
+      page_number: 1,
+      page_size: 1,
+      total_record: 5,
+      next_page_token: null,
+    };
 
-//     test('should throws when the token is invalid', async () => {
-//       await expect(getUsers('foo-bar', 0)).rejects.toBeInstanceOf(MySaasError);
-//     });
-//   });
-// });
+    beforeEach(() => {
+      //   / eslint-disable -- no type here /
+      server.use(
+        http.get(`${env.ZOOM_API_URL}/users`, ({ request }) => {
+          const accessToken = request.headers.get('Authorization')?.split(' ')[1];
+          // Extracting the 'workspace' query parameter
+          const url = new URL(request.url);
+          const nextPage = url.searchParams.get('next_page_token');
+
+          if (accessToken !== validAccessToken) {
+            return new Response(undefined, { status: 401 });
+          }
+          if (!nextPage) {
+            return Response.json(usersDataLastPage);
+          }
+          return Response.json(usersDataWithNextPage);
+        })
+      );
+    });
+
+    // / eslint-enable -- no type here /;
+    test('should return users and nextPage when the token is valid and there is another page', async () => {
+      await expect(getUsers(validAccessToken, newPageToken)).resolves.toStrictEqual(
+        usersDataWithNextPage
+      );
+    });
+
+    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
+      await expect(getUsers(validAccessToken, null)).resolves.toStrictEqual(
+        usersDataLastPage
+        // offset: null, // Assuming the absence of next_page implies no more pages
+      );
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getUsers('invalid_access_token', 'invalid-token')).rejects.toBeInstanceOf(
+        MySaasError
+      );
+    });
+  });
+});

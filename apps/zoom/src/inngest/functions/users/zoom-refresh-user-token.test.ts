@@ -23,7 +23,7 @@ describe('refresh-token', () => {
     vi.spyOn(authConnector, 'zoomRefreshToken').mockResolvedValue({
       accessToken: 'd',
       refreshToken: 'd',
-      expiresIn: new Date(),
+      expiresIn: 3600,
     });
     // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({

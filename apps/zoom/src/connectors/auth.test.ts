@@ -9,7 +9,7 @@
  */
 
 import { http } from 'msw';
-import { describe, expect, test, beforeEach } from 'vitest';
+import { describe, expect, test, beforeEach, vi } from 'vitest';
 import { server } from '../../vitest/setup-msw-handlers';
 import { getToken, zoomRefreshToken } from './auth';
 import { MySaasError } from './commons/error';
@@ -70,9 +70,15 @@ describe('auth connector', () => {
     });
 
     const refreshTokenData = {
-      refreshToken: 'some_refresh_token',
+      refresh_token: 'some_refresh_token',
+      access_token: 'some_access_token',
+      expires_in: 3600,
+    };
+
+    const validResponseToken = {
       accessToken: 'some_access_token',
-      expiresIn: new Date(),
+      refreshToken: 'some_refresh_token',
+      expiresIn: 3600,
     };
     beforeEach(() => {
       server.use(
@@ -90,7 +96,7 @@ describe('auth connector', () => {
     });
 
     test('should return a new token when the refreshToken is valid', async () => {
-      await expect(zoomRefreshToken(validRefreshToken)).resolves.toStrictEqual(refreshTokenData);
+      await expect(zoomRefreshToken(validRefreshToken)).resolves.toStrictEqual(validResponseToken);
     });
 
     test('should throw when the refreshToken is invalid', async () => {

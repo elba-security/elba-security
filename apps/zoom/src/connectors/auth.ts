@@ -66,13 +66,10 @@ export const zoomRefreshToken = async (refresh_token: string) => {
   }
 
   const data = (await response.json()) as GetTokenResponseData;
-  console.log('🚀 ~ file: auth.ts:68 ~ zoomRefreshToken ~ data:', data);
-
-  const expiresAt = new Date(Date.now() + data.expires_in * 1000);
 
   return {
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
-    expiresIn: expiresAt,
+    expiresIn: data.expires_in,
   };
 };

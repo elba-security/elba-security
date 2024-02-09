@@ -15,12 +15,14 @@ export const refreshZoomToken = inngest.createFunction(
 
     retries: 1,
   },
+
   { event: 'zoom/zoom.token.refresh.requested' },
   async ({ event, step }) => {
     const { organisationId, refreshToken: orgRefreshToken } = event.data;
 
     // fetch new accessToken & refreshToken using the SaaS endpoint
     const { accessToken, refreshToken, expiresIn } = await zoomRefreshToken(orgRefreshToken);
+    const expiresAt = new Date(Date.now() + expiresIn * 1000);
 
     // update organisation accessToken & refreshToken
     await db
@@ -28,7 +30,7 @@ export const refreshZoomToken = inngest.createFunction(
       .set({
         accessToken,
         refreshToken,
-        expiresIn,
+        expiresIn: expiresAt,
       })
       .where(eq(Organisation.id, organisationId));
 
