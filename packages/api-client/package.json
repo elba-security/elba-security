@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint server.ts src",
     "lint:fix": "pnpm lint --fix",
-    "start": "tsx watch server.ts -v"
+    "start": "tsx watch server.ts -v",
+    "start:quiet": "tsx watch server.ts"
   },
   "dependencies": {
     "@elba-security/schemas": "workspace:*",
