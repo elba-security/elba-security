@@ -27,7 +27,7 @@ export const synchronizeConversations = inngest.createFunction(
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
-    retries: 5,
+    retries: env.SLACK_SYNC_CONVERSATIONS_RETRY,
   },
   {
     event: 'slack/conversations.sync.requested',
