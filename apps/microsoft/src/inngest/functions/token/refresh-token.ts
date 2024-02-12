@@ -1,4 +1,5 @@
-import { addMinutes } from 'date-fns/addMinutes';
+import { subMinutes } from 'date-fns/subMinutes';
+import { addSeconds } from 'date-fns/addSeconds';
 import { and, eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
@@ -60,7 +61,7 @@ export const refreshToken = inngest.createFunction(
         organisationId,
       },
       // we schedule a token refresh 5 minutes before it expires
-      ts: addMinutes(new Date(), expiresIn - 5).getTime(),
+      ts: subMinutes(addSeconds(new Date(), expiresIn), 5).getTime(),
     });
   }
 );

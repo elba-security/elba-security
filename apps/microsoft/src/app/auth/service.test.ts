@@ -79,7 +79,7 @@ describe('setupOrganisation', () => {
         data: {
           organisationId: organisation.id,
         },
-        ts: now.getTime() + (expiresIn - 5) * 60 * 1000,
+        ts: now.getTime() + expiresIn * 1000 - 5 * 60 * 1000,
       },
     ]);
   });
@@ -135,7 +135,7 @@ describe('setupOrganisation', () => {
         data: {
           organisationId: organisation.id,
         },
-        ts: now.getTime() + (expiresIn - 5) * 60 * 1000,
+        ts: now.getTime() + expiresIn * 1000 - 5 * 60 * 1000,
       },
     ]);
   });
