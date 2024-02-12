@@ -33,7 +33,7 @@ export const getUsers = async (token: string, page: string | null) => {
   const zoomUrl = new URL(`${env.ZOOM_API_URL}/users`);
   zoomUrl.searchParams.append('page_size', '2');
 
-  if (page != null) {
+  if (page !== null) {
     zoomUrl.searchParams.append('next_page_token', page);
   }
 
@@ -45,7 +45,7 @@ export const getUsers = async (token: string, page: string | null) => {
     throw new MySaasError('Could not retrieve users', { response });
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as Promise<GetUsersResponseData>;
 
-  return data as Promise<GetUsersResponseData>;
+  return data;
 };

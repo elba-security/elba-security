@@ -15,7 +15,6 @@ import { inngest } from '@/inngest/client';
 import { setupOrganisation } from './service';
 
 const code = 'some-code';
-const token = 'some-token';
 const region = 'us';
 const now = new Date();
 

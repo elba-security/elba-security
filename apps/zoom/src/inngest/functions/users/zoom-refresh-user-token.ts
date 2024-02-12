@@ -1,5 +1,4 @@
-import { and, eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
+import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -17,10 +16,12 @@ export const refreshZoomToken = inngest.createFunction(
   },
 
   { event: 'zoom/zoom.token.refresh.requested' },
-  async ({ event, step }) => {
+  async ({ event }) => {
+    /* eslint-disable -- no type here */
     const { organisationId, refreshToken: orgRefreshToken } = event.data;
 
     // fetch new accessToken & refreshToken using the SaaS endpoint
+
     const { accessToken, refreshToken, expiresIn } = await zoomRefreshToken(orgRefreshToken);
     const expiresAt = new Date(Date.now() + expiresIn * 1000);
 

@@ -1,6 +1,6 @@
 import type { User } from '@elba-security/sdk';
 import { Elba } from '@elba-security/sdk';
-import { eq, or } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { type MySaasUser, getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
@@ -38,6 +38,7 @@ export const syncUsersPage = inngest.createFunction(
 
   { event: 'zoom/users.page_sync.requested' },
   async ({ event, step }) => {
+    /* eslint-disable -- no type here */
     const { organisationId, syncStartedAt, page, region } = event.data;
 
     const elba = new Elba({

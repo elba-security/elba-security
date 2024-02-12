@@ -10,13 +10,12 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getUsers, GetUsersResponseData } from './users';
+import { getUsers, type GetUsersResponseData, type MySaasUser } from './users';
 import { MySaasError } from './commons/error';
 
 const validAccessToken = 'valid_access_token';
 
-const users: any = Array.from({ length: 5 }, (_, i) => ({
-  role_id: 1,
+const users: MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
   pmi: `pmi-${i}`,
   last_name: `last-name-${i}`,
@@ -24,9 +23,10 @@ const users: any = Array.from({ length: 5 }, (_, i) => ({
   email: `username-${i}@foo.bar`,
   display_name: `first-name_last-name-${i}`,
   phone_number: '9967834639',
+  role_id: i,
 }));
 
-const newPageToken: any = 'some_next_page_token';
+const newPageToken: string | null = 'some_next_page_token';
 
 describe('user connector', () => {
   describe('getUsers', () => {
@@ -49,7 +49,7 @@ describe('user connector', () => {
     };
 
     beforeEach(() => {
-      //   / eslint-disable -- no type here /
+      /* eslint-disable -- no type here */
       server.use(
         http.get(`${env.ZOOM_API_URL}/users`, ({ request }) => {
           const accessToken = request.headers.get('Authorization')?.split(' ')[1];
@@ -58,7 +58,7 @@ describe('user connector', () => {
           const nextPage = url.searchParams.get('next_page_token');
 
           if (accessToken !== validAccessToken) {
-            return new Response(undefined, { status: 401 });
+            return Response.json({ status: 401 });
           }
           if (!nextPage) {
             return Response.json(usersDataLastPage);

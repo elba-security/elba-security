@@ -1,9 +1,9 @@
+import { logger } from '@elba-security/logger';
 import { RedirectType, redirect } from 'next/navigation';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { z } from 'zod';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
-import { z } from 'zod';
-import { logger } from '@elba-security/logger';
 // import { getRedirectUrl } from '@elba-security/sdk';
 
 // Remove the next line if your integration does not works with edge runtime
@@ -23,9 +23,11 @@ const routeInputSchema = z.object({
 });
 export async function GET(request: NextRequest) {
   try {
-    const code = request.nextUrl.searchParams.get('code');
-    const organisationId = request.cookies.get('organisation_id')?.value;
-    const region = request.cookies.get('region')?.value;
+    const { organisationId, code, region } = routeInputSchema.parse({
+      code: request.nextUrl.searchParams.get('code'),
+      organisationId: request.cookies.get('organisation_id')?.value,
+      region: request.cookies.get('region')?.value,
+    });
 
     if (!organisationId || !code || !region) {
       // TODO: Need to use getRedirect Url later as new code has been added only adding the code as placeholder
@@ -42,25 +44,25 @@ export async function GET(request: NextRequest) {
     }
 
     await setupOrganisation({ organisationId, code, region });
-  } catch (error: any) {
+  } catch (error) {
     logger.warn(
       '🚀 ~ file: route.ts:48 ~ GET ~ error: Could not setp organisation after Zoom redirection ',
       { error }
     );
 
-    if (error.response?.status == 401) {
-      redirect(`${env.ELBA_REDIRECT_URL}?error=unauthorized`, RedirectType.replace);
+    // if (error.response?.status === 401) {
+    //   redirect(`${env.ELBA_REDIRECT_URL}?error=unauthorized`, RedirectType.replace);
 
-      // TODO: Used this commented code later
-      //  redirect(
-      //    getRedirectUrl({
-      //      sourceId: env.ELBA_SOURCE_ID,
-      //      baseUrl: env.ELBA_REDIRECT_URL,
-      //      error: 'unauthorized',
-      //    }),
-      //    RedirectType.replace
-      //  );
-    }
+    // TODO: Used this commented code later
+    //  redirect(
+    //    getRedirectUrl({
+    //      sourceId: env.ELBA_SOURCE_ID,
+    //      baseUrl: env.ELBA_REDIRECT_URL,
+    //      error: 'unauthorized',
+    //    }),
+    //    RedirectType.replace
+    //  );
+    // }
 
     redirect(`${env.ELBA_REDIRECT_URL}?error=true`, RedirectType.replace);
     // TODO: Used this commented code later
@@ -77,11 +79,4 @@ export async function GET(request: NextRequest) {
   redirect(`${env.ELBA_REDIRECT_URL}`, RedirectType.replace);
 
   // TODO: Used this commented code later
-  // redirect(
-  //   getRedirectUrl({
-  //     sourceId: env.ELBA_SOURCE_ID,
-  //     baseUrl: env.ELBA_REDIRECT_URL,
-  //   }),
-  //   RedirectType.replace
-  // );
 }

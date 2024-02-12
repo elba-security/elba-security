@@ -46,11 +46,10 @@ export const getToken = async (code: string) => {
   return data;
 };
 
-export const zoomRefreshToken = async (refresh_token: string) => {
-  console.log('refresh token hit');
+export const zoomRefreshToken = async (refreshToken: string) => {
   const requestBody = new URLSearchParams();
   requestBody.append('grant_type', 'refresh_token');
-  requestBody.append('refresh_token', refresh_token);
+  requestBody.append('refresh_token', refreshToken);
 
   const response = await fetch(env.ZOOM_TOKEN_URL, {
     method: 'POST',

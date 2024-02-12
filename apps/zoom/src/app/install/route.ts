@@ -1,6 +1,6 @@
+import type { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '@/env';
 
 // Remove the next line if your integration does not works with edge runtime
@@ -9,7 +9,7 @@ export const preferredRegion = env.VERCEL_PREFERRED_REGION;
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export function GET(request: NextRequest, response: NextResponse) {
+export function GET(request: NextRequest) {
   const organisationId = request.nextUrl.searchParams.get('organisation_id');
   const region = request.nextUrl.searchParams.get('region');
 

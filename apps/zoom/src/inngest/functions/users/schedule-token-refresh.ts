@@ -25,7 +25,7 @@ export const scheduleTokenRefresh = inngest.createFunction(
           name: 'zoom/zoom.token.refresh.requested',
           data: {
             organisationId: id,
-            refreshToken: refreshToken,
+            refreshToken,
             syncStartedAt: Date.now(),
             isFirstSync: false,
           },

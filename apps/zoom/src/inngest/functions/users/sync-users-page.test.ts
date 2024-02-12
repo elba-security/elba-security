@@ -16,7 +16,7 @@ const organisation = {
 const syncStartedAt = Date.now();
 const newPageToken = 'some_next_page_token';
 
-const users: any = Array.from({ length: 5 }, (_, i) => ({
+const users: usersConnector.MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
   role_id: 1,
   id: `id-${i}`,
   pmi: `pmi-${i}`,
@@ -27,6 +27,7 @@ const users: any = Array.from({ length: 5 }, (_, i) => ({
   phone_number: '9967834639',
 }));
 
+/* eslint-disable -- no type here */
 const setup = createInngestFunctionMock(syncUsersPage as any, 'zoom/users.page_sync.requested');
 
 describe('sync-users', () => {
@@ -35,7 +36,7 @@ describe('sync-users', () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
-      syncStartedAt: syncStartedAt,
+      syncStartedAt,
       page: null,
       region: organisation.region,
     });
@@ -63,7 +64,7 @@ describe('sync-users', () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
-      syncStartedAt: syncStartedAt,
+      syncStartedAt,
       page: 1,
       region: organisation.region,
     });
@@ -72,6 +73,7 @@ describe('sync-users', () => {
 
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
+    /* eslint-disable -- no type here */
     expect(step.sendEvent).toBeCalledWith('sync-users-page', {
       name: 'zoom/users.page_sync.requested',
       data: {
@@ -96,7 +98,7 @@ describe('sync-users', () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
-      syncStartedAt: syncStartedAt,
+      syncStartedAt,
       page: 0,
       region: organisation.region,
     });

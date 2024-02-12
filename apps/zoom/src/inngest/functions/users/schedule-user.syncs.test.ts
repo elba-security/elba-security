@@ -18,6 +18,7 @@ const organisations = Array.from({ length: 5 }, (_, i) => ({
 }));
 const now = Date.now();
 
+/* eslint-disable -- no type here */
 const setup = createInngestFunctionMock(scheduleTokenRefresh as any);
 
 describe('schedule-token-refresh', () => {
@@ -51,7 +52,7 @@ describe('schedule-token-refresh', () => {
           organisationId: id,
           isFirstSync: false,
           syncStartedAt: Date.now(),
-          refreshToken: refreshToken,
+          refreshToken,
         },
       }))
     );

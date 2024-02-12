@@ -9,15 +9,15 @@
  */
 
 import { http } from 'msw';
-import { describe, expect, test, beforeEach, vi } from 'vitest';
+import { describe, expect, test, beforeEach } from 'vitest';
+import { z } from 'zod';
+import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
 import { getToken, zoomRefreshToken } from './auth';
 import { MySaasError } from './commons/error';
-import { env } from '@/env';
-import { z } from 'zod';
-import type { GetTokenResponseData, RefreshTokenResponse } from './auth';
+import type { GetTokenResponseData } from './auth';
+
 const validCode = '1234';
-const token = 'token-1234';
 
 describe('auth connector', () => {
   describe('getToken', () => {
