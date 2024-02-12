@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint server.ts src",
     "lint:fix": "pnpm lint --fix",
-    "start": "tsx watch server.ts"
+    "start": "tsx watch server.ts -v",
+    "start:quiet": "tsx watch server.ts"
   },
   "dependencies": {
     "@elba-security/schemas": "workspace:*",
@@ -16,6 +17,7 @@
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
     "@hono/node-server": "^1.2.3",
+    "@types/node": "^20.11.16",
     "eslint": "^8",
     "hono": "^3.11.7",
     "tsx": "^3.12.2"

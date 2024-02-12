@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import { RequestError } from '@octokit/request-error';
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
+import { getRedirectUrl } from '@elba-security/sdk';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
 
@@ -29,18 +30,32 @@ export async function GET(request: NextRequest) {
     });
     if (error instanceof RequestError && error.response?.status === 401) {
       redirect(
-        `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=unauthorized`,
+        getRedirectUrl({
+          region: request.cookies.get('region')?.value ?? 'eu',
+          sourceId: env.ELBA_SOURCE_ID,
+          baseUrl: env.ELBA_REDIRECT_URL,
+          error: 'unauthorized',
+        }),
         RedirectType.replace
       );
     }
     redirect(
-      `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`,
+      getRedirectUrl({
+        region: request.cookies.get('region')?.value ?? 'eu',
+        sourceId: env.ELBA_SOURCE_ID,
+        baseUrl: env.ELBA_REDIRECT_URL,
+        error: 'internal_error',
+      }),
       RedirectType.replace
     );
   }
 
   redirect(
-    `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&success=true`,
+    getRedirectUrl({
+      region: request.cookies.get('region')?.value ?? 'eu',
+      sourceId: env.ELBA_SOURCE_ID,
+      baseUrl: env.ELBA_REDIRECT_URL,
+    }),
     RedirectType.replace
   );
 }

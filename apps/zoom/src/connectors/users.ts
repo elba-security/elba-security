@@ -22,7 +22,6 @@ export type MySaasUser = {
 
 export type GetUsersResponseData = {
   users: MySaasUser[];
-
   page_number: number;
   page_size: number;
   total_record: number;

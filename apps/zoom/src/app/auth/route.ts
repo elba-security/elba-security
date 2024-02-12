@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
-// import { getRedirectUrl } from '@elba-security/sdk';
+import { getRedirectUrl } from '@elba-security/sdk';
 
 // Remove the next line if your integration does not works with edge runtime
 export const preferredRegion = env.VERCEL_PREFERRED_REGION;
@@ -31,52 +31,61 @@ export async function GET(request: NextRequest) {
 
     if (!organisationId || !code || !region) {
       // TODO: Need to use getRedirect Url later as new code has been added only adding the code as placeholder
-      // redirect(
-      //   getRedirectUrl({
-      //     sourceId: env.ELBA_SOURCE_ID,
-      //     baseUrl: env.ELBA_REDIRECT_URL,
-      //     error: 'internal_error',
-      //   }),
-      //   RedirectType.replace
-      // );
+      redirect(
+        getRedirectUrl({
+          sourceId: env.ELBA_SOURCE_ID,
+          baseUrl: env.ELBA_REDIRECT_URL,
+          region,
+          error: 'internal_error',
+        }),
+        RedirectType.replace
+      );
 
-      redirect(`${env.ELBA_REDIRECT_URL}?error=true`, RedirectType.replace);
+      // redirect(`${env.ELBA_REDIRECT_URL}?error=true`, RedirectType.replace);
     }
 
     await setupOrganisation({ organisationId, code, region });
-  } catch (error) {
+    /* eslint-disable -- no type here */
+  } catch (error: any) {
     logger.warn(
       '🚀 ~ file: route.ts:48 ~ GET ~ error: Could not setp organisation after Zoom redirection ',
       { error }
     );
 
-    // if (error.response?.status === 401) {
-    //   redirect(`${env.ELBA_REDIRECT_URL}?error=unauthorized`, RedirectType.replace);
+    if (error.response?.status === 401) {
+      //   redirect(`${env.ELBA_REDIRECT_URL}?error=unauthorized`, RedirectType.replace);
 
-    // TODO: Used this commented code later
-    //  redirect(
-    //    getRedirectUrl({
-    //      sourceId: env.ELBA_SOURCE_ID,
-    //      baseUrl: env.ELBA_REDIRECT_URL,
-    //      error: 'unauthorized',
-    //    }),
-    //    RedirectType.replace
-    //  );
-    // }
+      redirect(
+        getRedirectUrl({
+          sourceId: env.ELBA_SOURCE_ID,
+          baseUrl: env.ELBA_REDIRECT_URL,
+          error: 'unauthorized',
+          region: '',
+        }),
+        RedirectType.replace
+      );
+    }
 
-    redirect(`${env.ELBA_REDIRECT_URL}?error=true`, RedirectType.replace);
-    // TODO: Used this commented code later
-    //  redirect(
-    //    getRedirectUrl({
-    //      sourceId: env.ELBA_SOURCE_ID,
-    //      baseUrl: env.ELBA_REDIRECT_URL,
-    //      error: 'internal_error',
-    //    }),
-    //    RedirectType.replace
-    //  );
+    // redirect(`${env.ELBA_REDIRECT_URL}?error=true`, RedirectType.replace);
+    redirect(
+      getRedirectUrl({
+        sourceId: env.ELBA_SOURCE_ID,
+        baseUrl: env.ELBA_REDIRECT_URL,
+        error: 'internal_error',
+        region: '',
+      }),
+      RedirectType.replace
+    );
   }
 
-  redirect(`${env.ELBA_REDIRECT_URL}`, RedirectType.replace);
+  // redirect(`${env.ELBA_REDIRECT_URL}`, RedirectType.replace);
 
-  // TODO: Used this commented code later
+  redirect(
+    getRedirectUrl({
+      sourceId: env.ELBA_SOURCE_ID,
+      baseUrl: env.ELBA_REDIRECT_URL,
+      region: '',
+    }),
+    RedirectType.replace
+  );
 }

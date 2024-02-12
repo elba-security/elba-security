@@ -9,11 +9,11 @@ dotenv.config({
 });
 
 const sql = postgres({
-  host: process.env.POSTGRES_HOST,
-  port: process.env.POSTGRES_PORT,
-  username: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
-  db: process.env.POSTGRES_DATABASE,
+  host: process.env.DATABASE_HOST,
+  port: process.env.DATABASE_PORT,
+  username: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  db: process.env.DATABASE_DATABASE,
 });
 
 const db = drizzle(sql);
