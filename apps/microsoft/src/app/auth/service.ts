@@ -33,18 +33,18 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
+      name: 'microsoft/microsoft.elba_app.installed',
+      data: {
+        organisationId,
+      },
+    },
+    {
       name: 'microsoft/users.sync.triggered',
       data: {
         organisationId,
         isFirstSync: true,
         syncStartedAt: Date.now(),
         skipToken: null,
-      },
-    },
-    {
-      name: 'microsoft/microsoft.elba_app.installed',
-      data: {
-        organisationId,
       },
     },
     {

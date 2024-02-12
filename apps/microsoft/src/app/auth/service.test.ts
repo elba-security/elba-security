@@ -60,18 +60,18 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
+        name: 'microsoft/microsoft.elba_app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+      {
         name: 'microsoft/users.sync.triggered',
         data: {
           organisationId: organisation.id,
           isFirstSync: true,
           syncStartedAt: now.getTime(),
           skipToken: null,
-        },
-      },
-      {
-        name: 'microsoft/microsoft.elba_app.installed',
-        data: {
-          organisationId: organisation.id,
         },
       },
       {
@@ -116,18 +116,18 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
+        name: 'microsoft/microsoft.elba_app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+      {
         name: 'microsoft/users.sync.triggered',
         data: {
           organisationId: organisation.id,
           isFirstSync: true,
           syncStartedAt: now.getTime(),
           skipToken: null,
-        },
-      },
-      {
-        name: 'microsoft/microsoft.elba_app.installed',
-        data: {
-          organisationId: organisation.id,
         },
       },
       {
