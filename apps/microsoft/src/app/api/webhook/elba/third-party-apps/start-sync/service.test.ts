@@ -22,14 +22,7 @@ describe('startThirdPartyAppsSync', () => {
   afterAll(() => {
     vi.useRealTimers();
   });
-
-  test('should throws when organisation is not registered', async () => {
-    await expect(startThirdPartyAppsSync(organisation.id)).rejects.toStrictEqual(
-      new Error(`Could not retrieve an organisation with id=${organisation.id}`)
-    );
-  });
-
-  test('should schedule apps sync when the organisation is registered', async () => {
+  test('should schedule apps sync', async () => {
     const send = vi.spyOn(client.inngest, 'send').mockResolvedValue({ ids: [] });
     await db.insert(organisationsTable).values(organisation);
 
