@@ -1,10 +1,6 @@
-import { eq } from 'drizzle-orm';
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
-import { db } from '@/database/client';
 import { DropboxResponseError } from 'dropbox';
-import { organisations } from '@/database';
-import { getElba } from '@/connectors/elba/client';
 
 const apiRequiredDataSchema = z.object({
   organisationId: z.string().uuid(),
@@ -17,7 +13,7 @@ const hasApiRequiredDataProperties = (
 
 export const unauthorizedMiddleware = new InngestMiddleware({
   name: 'unauthorized',
-  init: () => {
+  init: ({ client }) => {
     return {
       onFunctionRun: ({
         fn,
@@ -34,15 +30,12 @@ export const unauthorizedMiddleware = new InngestMiddleware({
 
             if (error instanceof DropboxResponseError && error.status === 401) {
               if (hasApiRequiredDataProperties(data)) {
-                const elba = getElba({
-                  organisationId: data.organisationId,
-                  region: data.region,
+                await client.send({
+                  name: 'dropbox/elba_app.uninstall.requested',
+                  data: {
+                    organisationId: data.organisationId,
+                  },
                 });
-
-                await db
-                  .delete(organisations)
-                  .where(eq(organisations.organisationId, data.organisationId));
-                await elba.connectionStatus.update({ hasError: true });
               }
               return {
                 ...context,
