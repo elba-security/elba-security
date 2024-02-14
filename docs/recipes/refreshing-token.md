@@ -91,7 +91,7 @@ export const refreshSaaSToken = inngest.createFunction(
 
     // send an event that will refresh the organisation access token
     await step.sendEvent('next-refresh', {
-      name: 'microsoft/microsoft.token.refresh.triggered',
+      name: '{SaaS}/{Saas}.token.refresh.triggered',
       data: {
         organisationId,
         expiresAt: nextExpiresAt,
