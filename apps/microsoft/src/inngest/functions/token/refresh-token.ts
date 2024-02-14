@@ -12,9 +12,6 @@ import { encrypt } from '@/common/crypto';
 export const refreshToken = inngest.createFunction(
   {
     id: 'microsoft-refresh-token',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
