@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+console.log('changes made for test');
+
 const zEnvInt = () => z.coerce.number().int().positive();
 const zEnvRetry = () =>
   z.coerce.number().int().min(0).max(20).optional().default(3) as unknown as z.ZodLiteral<
