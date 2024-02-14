@@ -35,7 +35,7 @@ vi.mock('@/connectors/dropbox/dbx-access', () => {
 
 describe('syncUserPage', () => {
   beforeEach(async () => {
-    await insertOrganisations({});
+    await insertOrganisations();
     vi.clearAllMocks();
     vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
   });

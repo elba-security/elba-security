@@ -34,7 +34,7 @@ describe('refreshToken', () => {
   beforeEach(async () => {
     vi.setSystemTime(TOKEN_GENERATED_AT);
     vi.clearAllMocks();
-    await insertOrganisations({});
+    await insertOrganisations();
     vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
   });
 

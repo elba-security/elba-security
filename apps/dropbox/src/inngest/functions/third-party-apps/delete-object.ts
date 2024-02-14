@@ -16,6 +16,7 @@ const handler: FunctionHandler = async ({
   if (!organisation) {
     throw new NonRetriableError(`Organisation not found with id=${organisationId}`);
   }
+
   const token = await decrypt(organisation.accessToken);
 
   const dbx = new DBXApps({

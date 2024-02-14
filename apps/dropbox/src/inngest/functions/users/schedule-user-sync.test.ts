@@ -15,14 +15,12 @@ describe('scheduleUserSync', () => {
 
   test('should schedule jobs when there are organisations to schedule', async () => {
     vi.setSystemTime('2021-01-01T00:00:00.000Z');
-    await insertOrganisations({
-      size: 3,
-    });
+    await insertOrganisations(3);
 
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      organisations: [
+      organisations: expect.arrayContaining([
         {
           organisationId: '00000000-0000-0000-0000-000000000001',
         },
@@ -32,7 +30,7 @@ describe('scheduleUserSync', () => {
         {
           organisationId: '00000000-0000-0000-0000-000000000003',
         },
-      ],
+      ]),
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);

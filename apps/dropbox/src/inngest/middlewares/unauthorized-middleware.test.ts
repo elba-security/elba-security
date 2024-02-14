@@ -10,9 +10,7 @@ const region = 'eu';
 
 describe('unauthorized middleware', () => {
   beforeEach(async () => {
-    await insertOrganisations({
-      size: 1,
-    });
+    await insertOrganisations();
   });
 
   test('should not transform the output when their is no error', async () => {

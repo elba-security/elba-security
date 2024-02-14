@@ -24,9 +24,7 @@ describe('schedule-third-party-apps-sync-jobs', () => {
   });
 
   test('should schedule third party apps sync jobs for available organisations', async () => {
-    await insertOrganisations({
-      size: 3,
-    });
+    await insertOrganisations(3);
     vi.setSystemTime('2023-01-13T22:02:52.744Z');
     const [result, { step }] = await setup();
 
