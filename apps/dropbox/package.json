@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
+    "@elba-security/nextjs": "workspace:*",
     "@elba-security/schemas": "workspace:*",
     "@elba-security/sdk": "workspace:*",
     "@elba-security/utils": "workspace:*",

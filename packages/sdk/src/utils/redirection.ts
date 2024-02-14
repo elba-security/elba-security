@@ -3,7 +3,7 @@ export type RedirectionError = 'unauthorized' | 'internal_error';
 export type GetRedirectUrlParams = {
   sourceId: string;
   baseUrl: string;
-  error?: RedirectionError;
+  error?: RedirectionError | null;
   region: string;
 };
 
