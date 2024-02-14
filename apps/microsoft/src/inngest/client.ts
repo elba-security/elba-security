@@ -47,9 +47,10 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'microsoft/token.refresh.triggered': {
+    'microsoft/microsoft.token.refresh.triggered': {
       data: {
         organisationId: string;
+        expiresAt: number;
       };
     };
   }>(),
