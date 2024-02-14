@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { generateAccessToken } from './service';
 import { redirectOnError, redirectOnSuccess } from '@/common/utils';
 import { logger } from '@elba-security/logger';
@@ -15,11 +15,11 @@ export async function GET(request: NextRequest) {
 
   try {
     if (error === 'access_denied') {
-      return NextResponse.redirect(redirectOnError('unauthorized'));
+      return redirectOnError(region, 'unauthorized');
     }
 
     if (typeof code !== 'string' || state !== cookieState || !organisationId || !region) {
-      return NextResponse.redirect(redirectOnError('internal_error'));
+      return redirectOnError(region, 'internal_error');
     }
 
     await generateAccessToken({ code, organisationId, region });
@@ -32,12 +32,12 @@ export async function GET(request: NextRequest) {
       const { status } = error;
 
       if ([401, 403].includes(status)) {
-        return NextResponse.redirect(redirectOnError('unauthorized'));
+        return redirectOnError(region, 'unauthorized');
       }
     }
 
-    return NextResponse.redirect(redirectOnError('internal_error'));
+    return redirectOnError(region, 'internal_error');
   }
 
-  return NextResponse.redirect(redirectOnSuccess());
+  return redirectOnSuccess(region);
 }

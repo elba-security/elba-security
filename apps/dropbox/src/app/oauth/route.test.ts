@@ -1,9 +1,10 @@
 import { expect, test, describe, vi, beforeAll, beforeEach } from 'vitest';
 import { GET as handler } from './route';
 import { NextResponse } from 'next/server';
+
+import * as utils from '@/common/utils';
 import { inngest } from '@/inngest/client';
 import { mockNextRequest } from '@/test-utils/mock-app-route';
-import { env } from '@/env';
 import * as crypto from '@/common/crypto';
 import { addSeconds, subMinutes } from 'date-fns';
 
@@ -81,14 +82,17 @@ vi.mock('dropbox', () => {
 });
 
 describe('Callback dropbox', () => {
-  const redirectSpy = vi.spyOn(NextResponse, 'redirect');
+  const errorRedirectResponse = new NextResponse('error');
+  const successRedirectResponse = new NextResponse('success');
+
+  beforeEach(() => {
+    vi.spyOn(utils, 'redirectOnError').mockReturnValueOnce(errorRedirectResponse);
+    vi.spyOn(utils, 'redirectOnSuccess').mockReturnValueOnce(successRedirectResponse);
+  });
+
   beforeAll(async () => {
     vi.setSystemTime(new Date(SYNC_STARTED_AT));
     vi.clearAllMocks();
-  });
-
-  beforeEach(() => {
-    redirectSpy.mockClear();
   });
 
   test('should redirect to the right page when the callback url has error', async () => {
@@ -98,13 +102,16 @@ describe('Callback dropbox', () => {
       method: 'GET',
       handler,
       url: `http://localhost:3000/oauth?error=access_denied`,
+      cookies: {
+        organisationId,
+        region: 'eu',
+      },
     });
 
-    expect(response.status).toBe(307);
-    expect(redirectSpy).toBeCalledTimes(1);
-    expect(redirectSpy).toHaveBeenCalledWith(
-      `https://api.elba.io/dashboard/security/checks/sources/activation/source-id/user-inconsistencies?source_id=${env.ELBA_SOURCE_ID}&error=unauthorized`
-    );
+    expect(response).toBe(errorRedirectResponse);
+    expect(utils.redirectOnError).toBeCalledTimes(1);
+    expect(utils.redirectOnError).toBeCalledWith('eu', 'unauthorized');
+    expect(utils.redirectOnSuccess).toBeCalledTimes(0);
     expect(inngest.send).toBeCalledTimes(0);
   });
 
@@ -119,11 +126,11 @@ describe('Callback dropbox', () => {
       },
     });
 
-    expect(response.status).toBe(307);
-    expect(redirectSpy).toBeCalledTimes(1);
-    expect(redirectSpy).toHaveBeenCalledWith(
-      `https://api.elba.io/dashboard/security/checks/sources/activation/source-id/user-inconsistencies?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`
-    );
+    expect(response).toBe(errorRedirectResponse);
+    expect(utils.redirectOnError).toBeCalledTimes(1);
+    expect(utils.redirectOnError).toBeCalledWith('eu', 'internal_error');
+    expect(utils.redirectOnSuccess).toBeCalledTimes(0);
+    expect(inngest.send).toBeCalledTimes(0);
   });
 
   test('should generate the token, insert to db and initiate the user sync process', async () => {
@@ -141,11 +148,10 @@ describe('Callback dropbox', () => {
       },
     });
 
-    expect(response.status).toBe(307);
-
-    expect(crypto.encrypt).toBeCalledTimes(1);
-    expect(crypto.encrypt).toHaveBeenCalledWith('test-access-token');
-    expect(redirectSpy).toBeCalledTimes(1);
+    expect(response).toBe(successRedirectResponse);
+    expect(utils.redirectOnError).toBeCalledTimes(0);
+    expect(utils.redirectOnSuccess).toBeCalledTimes(1);
+    expect(utils.redirectOnSuccess).toBeCalledWith('eu');
     expect(inngest.send).toBeCalledTimes(1);
     expect(inngest.send).toHaveBeenCalledWith([
       {

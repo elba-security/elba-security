@@ -7,12 +7,12 @@ import { NextResponse, type NextRequest } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  try {
-    const organisationId = request.nextUrl.searchParams.get('organisation_id');
-    const region = request.nextUrl.searchParams.get('region');
+  const organisationId = request.nextUrl.searchParams.get('organisation_id');
+  const region = request.nextUrl.searchParams.get('region');
 
+  try {
     if (!organisationId || !region) {
-      return NextResponse.redirect(redirectOnError('internal_error'));
+      return redirectOnError(region, 'internal_error');
     }
 
     cookies().set('state', organisationId);
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const authUrl = await dbxAuth.getAuthUrl({ state: organisationId });
 
     if (!authUrl) {
-      return NextResponse.redirect(redirectOnError('internal_error'));
+      return redirectOnError(region, 'internal_error');
     }
 
     return NextResponse.redirect(String(authUrl));
@@ -30,6 +30,6 @@ export async function GET(request: NextRequest) {
     logger.warn('Could not redirect user to Dropbox app install url', {
       error,
     });
-    return NextResponse.redirect(redirectOnError('internal_error'));
+    return redirectOnError(region, 'internal_error');
   }
 }
