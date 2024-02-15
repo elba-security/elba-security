@@ -104,7 +104,7 @@ describe('unauthorized middleware', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'microsoft/microsoft.elba_app.uninstalled',
+      name: 'microsoft/app.uninstalled',
       data: {
         organisationId: organisation.id,
       },

@@ -18,17 +18,17 @@ export const refreshToken = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'microsoft/microsoft.elba_app.uninstalled',
+        event: 'microsoft/app.uninstalled',
         match: 'data.organisationId',
       },
       {
-        event: 'microsoft/microsoft.elba_app.installed',
+        event: 'microsoft/app.installed',
         match: 'data.organisationId',
       },
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
-  { event: 'microsoft/microsoft.token.refresh.triggered' },
+  { event: 'microsoft/token.refresh.triggered' },
   async ({ event, step }) => {
     const { organisationId, expiresAt } = event.data;
 
@@ -59,7 +59,7 @@ export const refreshToken = inngest.createFunction(
     });
 
     await step.sendEvent('next-refresh', {
-      name: 'microsoft/microsoft.token.refresh.triggered',
+      name: 'microsoft/token.refresh.triggered',
       data: {
         organisationId,
         expiresAt: new Date(nextExpiresAt).getTime(),

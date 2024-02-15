@@ -60,7 +60,7 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'microsoft/microsoft.elba_app.installed',
+        name: 'microsoft/app.installed',
         data: {
           organisationId: organisation.id,
         },
@@ -75,7 +75,7 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'microsoft/microsoft.token.refresh.triggered',
+        name: 'microsoft/token.refresh.triggered',
         data: {
           organisationId: organisation.id,
           expiresAt: now.getTime() + expiresIn * 1000,
@@ -116,7 +116,7 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'microsoft/microsoft.elba_app.installed',
+        name: 'microsoft/app.installed',
         data: {
           organisationId: organisation.id,
         },
@@ -131,7 +131,7 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'microsoft/microsoft.token.refresh.triggered',
+        name: 'microsoft/token.refresh.triggered',
         data: {
           organisationId: organisation.id,
           expiresAt: now.getTime() + expiresIn * 1000,

@@ -15,7 +15,7 @@ export const revokeAppPermission = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'microsoft/microsoft.elba_app.uninstalled',
+        event: 'microsoft/app.uninstalled',
         match: 'data.organisationId',
       },
     ],

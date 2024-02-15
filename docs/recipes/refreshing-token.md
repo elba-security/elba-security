@@ -41,17 +41,17 @@ export const refreshSaaSToken = inngest.createFunction(
     // this is used to prevent several loops to take place
     cancelOn: [
       {
-        event: `{SaaS}/{SaaS}.elba_app.uninstalled`,
+        event: `{SaaS}/app.uninstalled`,
         match: 'data.organisationId',
       },
       {
-        event: `{SaaS}/{SaaS}.elba_app.installed`,
+        event: `{SaaS}/app.installed`,
         match: 'data.organisationId',
       },
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
-  { event: '{SaaS}/{SaaS}.token.refresh.requested' },
+  { event: '{SaaS}/token.refresh.requested' },
   async ({ event, step }) => {
     const { organisationId, expiresAt } = event.data;
 
@@ -147,7 +147,7 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
-      name: '{SaaS}/users.sync_page.triggered',
+      name: '{SaaS}/users.sync.triggered',
       data: {
         organisationId,
         isFirstSync: true,
@@ -157,14 +157,14 @@ export const setupOrganisation = async ({
     },
     // this will cancel scheduled token refresh if it exists
     {
-      name: '{SaaS}/{SaaS}.elba_app.installed',
+      name: '{SaaS}/app.installed',
       data: {
         organisationId,
       },
     },
     // schedule a new token refresh loop
     {
-      name: '{SaaS}/{SaaS}.token.refresh.triggered',
+      name: '{SaaS}/token.refresh.triggered',
       data: {
         organisationId,
         expiresAt: addSeconds(new Date(), expiresIn).getTime(),

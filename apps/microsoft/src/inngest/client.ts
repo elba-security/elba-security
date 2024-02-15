@@ -37,17 +37,17 @@ export const inngest = new Inngest({
         skipToken: string | null;
       };
     };
-    'microsoft/microsoft.elba_app.installed': {
+    'microsoft/app.installed': {
       data: {
         organisationId: string;
       };
     };
-    'microsoft/microsoft.elba_app.uninstalled': {
+    'microsoft/app.uninstalled': {
       data: {
         organisationId: string;
       };
     };
-    'microsoft/microsoft.token.refresh.triggered': {
+    'microsoft/token.refresh.triggered': {
       data: {
         organisationId: string;
         expiresAt: number;

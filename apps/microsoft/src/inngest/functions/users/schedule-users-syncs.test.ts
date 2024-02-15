@@ -41,12 +41,10 @@ describe('schedule-users-syncs', () => {
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
       'sync-organisations-users',
-      organisations.map(({ id, tenantId, region }) => ({
+      organisations.map(({ id }) => ({
         name: 'microsoft/users.sync.triggered',
         data: {
-          tenantId,
           organisationId: id,
-          region,
           skipToken: null,
           syncStartedAt: now,
           isFirstSync: false,

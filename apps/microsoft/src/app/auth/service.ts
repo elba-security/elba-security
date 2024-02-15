@@ -33,7 +33,7 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
-      name: 'microsoft/microsoft.elba_app.installed',
+      name: 'microsoft/app.installed',
       data: {
         organisationId,
       },
@@ -48,7 +48,7 @@ export const setupOrganisation = async ({
       },
     },
     {
-      name: 'microsoft/microsoft.token.refresh.triggered',
+      name: 'microsoft/token.refresh.triggered',
       data: {
         organisationId,
         expiresAt: addSeconds(new Date(), expiresIn).getTime(),

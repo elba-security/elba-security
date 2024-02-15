@@ -29,7 +29,7 @@ export const unauthorizedMiddleware = new InngestMiddleware({
             if (error instanceof MicrosoftError && error.response?.status === 401) {
               if (hasRequiredDataProperties(data)) {
                 await client.send({
-                  name: 'microsoft/microsoft.elba_app.uninstalled',
+                  name: 'microsoft/app.uninstalled',
                   data: {
                     organisationId: data.organisationId,
                   },
