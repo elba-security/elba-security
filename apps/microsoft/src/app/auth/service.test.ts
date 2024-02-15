@@ -60,6 +60,12 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
+        name: 'microsoft/microsoft.elba_app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+      {
         name: 'microsoft/users.sync.triggered',
         data: {
           organisationId: organisation.id,
@@ -69,17 +75,11 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'microsoft/microsoft.elba_app.installed',
-        data: {
-          organisationId: organisation.id,
-        },
-      },
-      {
         name: 'microsoft/token.refresh.triggered',
         data: {
           organisationId: organisation.id,
         },
-        ts: now.getTime() + (expiresIn - 5) * 60 * 1000,
+        ts: now.getTime() + expiresIn * 1000 - 5 * 60 * 1000,
       },
     ]);
   });
@@ -116,6 +116,12 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
+        name: 'microsoft/microsoft.elba_app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+      {
         name: 'microsoft/users.sync.triggered',
         data: {
           organisationId: organisation.id,
@@ -125,17 +131,11 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'microsoft/microsoft.elba_app.installed',
-        data: {
-          organisationId: organisation.id,
-        },
-      },
-      {
         name: 'microsoft/token.refresh.triggered',
         data: {
           organisationId: organisation.id,
         },
-        ts: now.getTime() + (expiresIn - 5) * 60 * 1000,
+        ts: now.getTime() + expiresIn * 1000 - 5 * 60 * 1000,
       },
     ]);
   });

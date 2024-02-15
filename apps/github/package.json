@@ -20,8 +20,9 @@
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
-    "@elba-security/logger": "workspace:*",
     "@elba-security/inngest": "workspace:*",
+    "@elba-security/logger": "workspace:*",
+    "@elba-security/nextjs": "workspace:*",
     "@elba-security/sdk": "workspace:*",
     "@octokit/app": "^14.0.2",
     "@octokit/request-error": "^5.0.1",

@@ -1,4 +1,5 @@
-import { addMinutes } from 'date-fns/addMinutes';
+import { subMinutes } from 'date-fns/subMinutes';
+import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/microsoft/auth';
@@ -33,6 +34,12 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
+      name: 'microsoft/microsoft.elba_app.installed',
+      data: {
+        organisationId,
+      },
+    },
+    {
       name: 'microsoft/users.sync.triggered',
       data: {
         organisationId,
@@ -42,18 +49,12 @@ export const setupOrganisation = async ({
       },
     },
     {
-      name: 'microsoft/microsoft.elba_app.installed',
-      data: {
-        organisationId,
-      },
-    },
-    {
       name: 'microsoft/token.refresh.triggered',
       data: {
         organisationId,
       },
       // we schedule a token refresh 5 minutes before it expires
-      ts: addMinutes(new Date(), expiresIn - 5).getTime(),
+      ts: subMinutes(addSeconds(new Date(), expiresIn), 5).getTime(),
     },
   ]);
 };

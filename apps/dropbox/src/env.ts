@@ -31,5 +31,6 @@ export const env = z
     DROPBOX_TPA_REFRESH_OBJECT_CONCURRENCY: zEnvInt().default(5),
     DROPBOX_TPA_SYNC_RETRIES: zEnvRetry().default(5),
     DROPBOX_TPA_SYNC_CONCURRENCY: zEnvInt().default(5),
+    DROPBOX_REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry().default(5),
   })
   .parse(process.env);
