@@ -9,9 +9,6 @@ import { organisations } from '@/database';
 export const removeOrganisation = inngest.createFunction(
   {
     id: 'dropbox-remove-organisation',
-    priority: {
-      run: '600',
-    },
     retries: env.DROPBOX_REMOVE_ORGANISATION_MAX_RETRY,
     cancelOn: [
       {
