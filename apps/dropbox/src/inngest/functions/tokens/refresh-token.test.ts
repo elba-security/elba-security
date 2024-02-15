@@ -5,7 +5,6 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import addSeconds from 'date-fns/addSeconds';
 import { insertOrganisations } from '@/test-utils/token';
 import * as crypto from '@/common/crypto';
-import { subMinutes } from 'date-fns';
 
 const TOKEN_GENERATED_AT = '2023-03-13T16:19:20.818Z';
 const TOKEN_WILL_EXPIRE_IN = 14400;
@@ -79,6 +78,7 @@ describe('refreshToken', () => {
     await expect(result).resolves.toStrictEqual({
       status: 'completed',
     });
+
     expect(crypto.encrypt).toBeCalledTimes(1);
     expect(crypto.encrypt).toBeCalledWith('test-access-token-0');
     expect(step.sendEvent).toBeCalledTimes(1);
@@ -86,8 +86,8 @@ describe('refreshToken', () => {
       name: 'dropbox/token.refresh.triggered',
       data: {
         organisationId,
+        expiresAt: TOKEN_EXPIRES_AT.getTime(),
       },
-      ts: subMinutes(new Date(TOKEN_EXPIRES_AT), 30).getTime(),
     });
   });
 });

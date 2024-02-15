@@ -6,6 +6,7 @@ type UninstallSchema = {
 
 type RefreshTokensSchema = {
   organisationId: string;
+  expiresAt: number;
 };
 
 type SyncUsersData = {
@@ -35,8 +36,9 @@ type DeleteThirdPArtyAppsObject = {
 };
 
 export type InngestEvents = {
-  'dropbox/elba_app.uninstall.requested': { data: UninstallSchema };
-  'dropbox/elba_app.cancel.uninstall.requested': { data: UninstallSchema };
+  'dropbox/app.install.requested': { data: { organisationId: string } };
+  'dropbox/app.uninstall.requested': { data: UninstallSchema };
+  'dropbox/app.cancel.uninstall.requested': { data: UninstallSchema };
   'dropbox/token.refresh.triggered': { data: RefreshTokensSchema };
   'dropbox/token.refresh.canceled': { data: RefreshTokensSchema };
   'dropbox/users.sync_page.triggered': { data: SyncUsersData };

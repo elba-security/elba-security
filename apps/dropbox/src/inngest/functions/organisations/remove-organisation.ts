@@ -12,13 +12,13 @@ export const removeOrganisation = inngest.createFunction(
     retries: env.DROPBOX_REMOVE_ORGANISATION_MAX_RETRY,
     cancelOn: [
       {
-        event: 'dropbox/elba_app.cancel.uninstall.requested',
+        event: 'dropbox/app.cancel.uninstall.requested',
         match: 'data.organisationId',
       },
     ],
   },
   {
-    event: 'dropbox/elba_app.uninstall.requested',
+    event: 'dropbox/app.uninstall.requested',
   },
   async ({ event }) => {
     const { organisationId } = event.data;

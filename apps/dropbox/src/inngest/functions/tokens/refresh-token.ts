@@ -11,9 +11,11 @@ const handler: FunctionHandler = async ({
   event,
   step,
 }: InputArgWithTrigger<'dropbox/token.refresh.triggered'>) => {
-  const { organisationId } = event.data;
+  const { organisationId, expiresAt } = event.data;
 
-  const expiresAt = await step.run('fetch-refresh-token', async () => {
+  await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 30));
+
+  const nextExpiresAt = await step.run('fetch-refresh-token', async () => {
     const [organisation] = await getOrganisationRefreshToken(organisationId);
 
     if (!organisation) {
@@ -30,7 +32,6 @@ const handler: FunctionHandler = async ({
 
     const tokenDetails = {
       organisationId,
-      expiresAt,
       accessToken: await encrypt(accessToken),
     };
 
@@ -39,12 +40,12 @@ const handler: FunctionHandler = async ({
     return expiresAt;
   });
 
-  await step.sendEvent('dropbox-refresh-token', {
+  await step.sendEvent('dropbox-next-refresh', {
     name: 'dropbox/token.refresh.triggered',
     data: {
       organisationId,
+      expiresAt: new Date(nextExpiresAt).getTime(),
     },
-    ts: subMinutes(new Date(expiresAt), 30).getTime(),
   });
 
   return {
@@ -61,7 +62,11 @@ export const refreshToken = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: `dropbox/token.refresh.canceled`,
+        event: `dropbox/app.install.requested`,
+        match: 'data.organisationId',
+      },
+      {
+        event: `dropbox/app.uninstall.requested`,
         match: 'data.organisationId',
       },
     ],
