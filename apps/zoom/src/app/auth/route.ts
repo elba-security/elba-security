@@ -1,10 +1,10 @@
 import { logger } from '@elba-security/logger';
 import { RedirectType, redirect } from 'next/navigation';
 import type { NextRequest } from 'next/server';
+import { getRedirectUrl } from '@elba-security/sdk';
 import { z } from 'zod';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
-import { getRedirectUrl } from '@elba-security/sdk';
 
 // Remove the next line if your integration does not works with edge runtime
 export const preferredRegion = env.VERCEL_PREFERRED_REGION;

@@ -16,7 +16,7 @@ const organisation = {
 const syncStartedAt = Date.now();
 const newPageToken = 'some_next_page_token';
 
-const users: usersConnector.MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
+const users: usersConnector.ZoomUser[] = Array.from({ length: 5 }, (_, i) => ({
   role_id: 1,
   id: `id-${i}`,
   pmi: `pmi-${i}`,

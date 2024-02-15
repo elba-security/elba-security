@@ -1,9 +1,9 @@
-type MySaasErrorOptions = { response?: Response };
+type ZoomErrorOptions = { response?: Response };
 
-export class MySaasError extends Error {
+export class ZoomError extends Error {
   response?: Response;
 
-  constructor(message: string, { response }: MySaasErrorOptions = {}) {
+  constructor(message: string, { response }: ZoomErrorOptions = {}) {
     super(message);
     this.response = response;
   }

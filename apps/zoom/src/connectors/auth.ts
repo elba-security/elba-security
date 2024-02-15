@@ -8,7 +8,7 @@
  */
 
 import { env } from '@/env';
-import { MySaasError } from './commons/error';
+import { ZoomError } from './commons/error';
 
 export type GetTokenResponseData = {
   access_token: string;
@@ -40,7 +40,7 @@ export const getToken = async (code: string) => {
   });
 
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve token', { response });
+    throw new ZoomError('Could not retrieve token', { response });
   }
   const data = (await response.json()) as GetTokenResponseData;
   return data;
@@ -61,7 +61,7 @@ export const zoomRefreshToken = async (refreshToken: string) => {
   });
 
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve token', { response });
+    throw new ZoomError('Could not retrieve token', { response });
   }
 
   const data = (await response.json()) as GetTokenResponseData;

@@ -14,7 +14,7 @@ import { z } from 'zod';
 import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
 import { getToken, zoomRefreshToken } from './auth';
-import { MySaasError } from './commons/error';
+import { ZoomError } from './commons/error';
 import type { GetTokenResponseData } from './auth';
 
 const validCode = '1234';
@@ -57,7 +57,7 @@ describe('auth connector', () => {
     });
 
     test('should throw when the code is invalid', async () => {
-      await expect(getToken('wrong-code')).rejects.toBeInstanceOf(MySaasError);
+      await expect(getToken('wrong-code')).rejects.toBeInstanceOf(ZoomError);
     });
   });
 
@@ -100,9 +100,7 @@ describe('auth connector', () => {
     });
 
     test('should throw when the refreshToken is invalid', async () => {
-      await expect(zoomRefreshToken('some invalid refreshToken')).rejects.toBeInstanceOf(
-        MySaasError
-      );
+      await expect(zoomRefreshToken('some invalid refreshToken')).rejects.toBeInstanceOf(ZoomError);
     });
   });
 });

@@ -25,6 +25,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
             cursor: null,
             syncStartedAt: Date.now(),
             isFirstSync: false,
+            page: null,
           },
         }))
       );

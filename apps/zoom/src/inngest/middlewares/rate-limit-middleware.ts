@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { MySaasError } from '@/connectors/commons/error';
+import { ZoomError } from '@/connectors/commons/error';
 
 /**
  * This middleware, `rateLimitMiddleware`, is designed for use with the Inngest serverless framework.
@@ -15,6 +15,7 @@ import { MySaasError } from '@/connectors/commons/error';
  *
  * Note: This is a generic middleware template and might require adjustments to fit specific SaaS APIs' error handling and rate limiting schemes.
  */
+
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
   init: () => {
@@ -26,8 +27,11 @@ export const rateLimitMiddleware = new InngestMiddleware({
               result: { error, ...result },
               ...context
             } = ctx;
-            const retryAfter =
-              error instanceof MySaasError && error.response?.headers.get('Retry-After');
+
+            let retryAfter: string | boolean | null = false;
+            if (error instanceof ZoomError && error.response?.headers['Retry-After']) {
+              retryAfter = error.response.headers.get('Retry-After');
+            }
 
             if (!retryAfter) {
               return;
@@ -38,8 +42,8 @@ export const rateLimitMiddleware = new InngestMiddleware({
               result: {
                 ...result,
                 error: new RetryAfterError(
-                  `MySaaS rate limit reached by '${fn.name}'`,
-                  retryAfter,
+                  `Zoom rate limit reached by '${fn.name}'`,
+                  new Date(retryAfter),
                   {
                     cause: error,
                   }
@@ -52,3 +56,41 @@ export const rateLimitMiddleware = new InngestMiddleware({
     };
   },
 });
+
+// export const rateLimitMiddleware = new InngestMiddleware({
+//   name: 'rate-limit',
+//   init: () => {
+//     return {
+//       onFunctionRun: ({ fn }) => {
+//         return {
+//           transformOutput: (ctx) => {
+//             const {
+//               result: { error, ...result },
+//               ...context
+//             } = ctx;
+//             const retryAfter =
+//               error instanceof MySaasError && error.response?.headers.get('Retry-After');
+
+//             if (!retryAfter) {
+//               return;
+//             }
+
+//             return {
+//               ...context,
+//               result: {
+//                 ...result,
+//                 error: new RetryAfterError(
+//                   `MySaaS rate limit reached by '${fn.name}'`,
+//                   retryAfter,
+//                   {
+//                     cause: error,
+//                   }
+//                 ),
+//               },
+//             };
+//           },
+//         };
+//       },
+//     };
+//   },
+// });

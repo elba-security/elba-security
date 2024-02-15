@@ -10,12 +10,12 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getUsers, type GetUsersResponseData, type MySaasUser } from './users';
-import { MySaasError } from './commons/error';
+import { getUsers, type GetUsersResponseData, type ZoomUser } from './users';
+import { ZoomError } from './commons/error';
 
 const validAccessToken = 'valid_access_token';
 
-const users: MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
+const users: ZoomUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
   pmi: `pmi-${i}`,
   last_name: `last-name-${i}`,
@@ -58,7 +58,7 @@ describe('user connector', () => {
           const nextPage = url.searchParams.get('next_page_token');
 
           if (accessToken !== validAccessToken) {
-            return Response.json({ status: 401 });
+            throw new ZoomError('Not Found');
           }
           if (!nextPage) {
             return Response.json(usersDataLastPage);
@@ -83,9 +83,7 @@ describe('user connector', () => {
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(getUsers('invalid_access_token', 'invalid-token')).rejects.toBeInstanceOf(
-        MySaasError
-      );
+      await expect(getUsers('invalid_access_token', null)).rejects.toBeInstanceOf(ZoomError);
     });
   });
 });

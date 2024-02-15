@@ -2,13 +2,13 @@ import type { User } from '@elba-security/sdk';
 import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { type MySaasUser, getUsers } from '@/connectors/users';
+import { type ZoomUser, getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 
-const formatElbaUser = (user: MySaasUser): User => ({
+const formatElbaUser = (user: ZoomUser): User => ({
   id: user.id,
   displayName: user.display_name,
   email: user.email,
@@ -31,8 +31,9 @@ export const syncUsersPage = inngest.createFunction(
     },
     concurrency: {
       key: 'event.data.organisationId',
-      limit: 1,
+      limit: 100,
     },
+
     retries: 1,
   },
 
@@ -47,7 +48,7 @@ export const syncUsersPage = inngest.createFunction(
       baseUrl: env.ELBA_API_BASE_URL,
       region,
     });
-
+    console.log('sync user hit');
     const token = await step.run('get-token', async () => {
       const [organisation] = await db
         .select({ token: Organisation.accessToken })
@@ -58,7 +59,8 @@ export const syncUsersPage = inngest.createFunction(
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
 
-      return organisation.token;
+      // return '';
+      return organisation?.token;
     });
 
     // retrieve the SaaS organisation token
