@@ -86,9 +86,9 @@ export type FolderAndFilePermissions = {
   metadata?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
-export type FileAndFolderType = files.FolderMetadataReference | files.FileMetadataReference;
+export type FileOrFolder = files.FolderMetadataReference | files.FileMetadataReference;
 
-export type FileToAdd = FileAndFolderType & {
+export type FileToAdd = FileOrFolder & {
   permissions: FolderAndFilePermissions[];
   metadata: {
     name: string;

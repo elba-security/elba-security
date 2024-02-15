@@ -98,7 +98,7 @@ const handler: FunctionHandler = async ({
   });
 };
 
-export const createSharedLinkSyncJobs = inngest.createFunction(
+export const createSyncSharedLinks = inngest.createFunction(
   {
     id: 'dropbox-create-shared-link-sync-page',
     priority: {

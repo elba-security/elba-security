@@ -3,7 +3,7 @@ import { InputArgWithTrigger } from '@/inngest/types';
 import { getOrganisationAccessDetails } from '../common/data';
 import { DBXFiles, getElba } from '@/connectors';
 import { decrypt } from '@/common/crypto';
-import { FileAndFolderType } from '@/connectors/types';
+import { FileOrFolder } from '@/connectors/types';
 import { NonRetriableError } from 'inngest';
 
 const handler: FunctionHandler = async ({
@@ -49,7 +49,7 @@ const handler: FunctionHandler = async ({
     const fileMetadata = (await dbx.fetchFolderOrFileMetadataByPath({
       isPersonal,
       path,
-    })) as FileAndFolderType;
+    })) as FileOrFolder;
 
     if (!fileMetadata.path_lower) {
       return await elba.dataProtection.deleteObjects({

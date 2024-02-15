@@ -25,6 +25,7 @@ export const filterSharedLinks = (sharedLinks: sharing.ListSharedLinksResult['li
       pathLower: path_lower!,
     };
 
-    return [...acc, linkObject];
+    acc.push(linkObject);
+    return acc;
   }, []);
 };

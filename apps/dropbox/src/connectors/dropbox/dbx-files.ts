@@ -2,7 +2,7 @@ import { files as DbxFiles, sharing } from 'dropbox/types/dropbox_types';
 import { DBXAccess } from './dbx-access';
 import {
   DBXFilesOptions,
-  FileAndFolderType,
+  FileOrFolder,
   FolderFilePermissions,
   GeneralFolderFilePermissions,
   SharedLinks,
@@ -10,10 +10,7 @@ import {
 import { formatPermissions } from '../utils/format-permissions';
 import { formatFilesToAdd } from '../utils/format-file-and-folders-to-elba';
 import { filterSharedLinks } from '../utils/format-shared-links';
-
-const DROPBOX_LIST_FILE_MEMBERS_LIMIT = 300; // UInt32(min=1, max=300)
-const DROPBOX_LIST_FOLDER_MEMBERS_LIMIT = 1000;
-const DROPBOX_LIST_FOLDER_BATCH_SIZE = 500;
+import { env } from '@/env';
 
 export class DBXFiles {
   private adminTeamMemberId?: string;
@@ -101,11 +98,11 @@ export class DBXFiles {
           include_mounted_folders: true,
           include_non_downloadable_files: true,
           recursive: true,
-          limit: DROPBOX_LIST_FOLDER_BATCH_SIZE,
+          limit: env.DROPBOX_LIST_FOLDER_BATCH_SIZE,
         });
 
     return {
-      foldersAndFiles: foldersAndFiles as FileAndFolderType[],
+      foldersAndFiles: foldersAndFiles as FileOrFolder[],
       nextCursor,
       hasMore,
     };
@@ -169,7 +166,7 @@ export class DBXFiles {
             : await this.dbx.sharingListFileMembers({
                 file: fileId,
                 include_inherited: true,
-                limit: DROPBOX_LIST_FILE_MEMBERS_LIMIT,
+                limit: env.DROPBOX_LIST_FILE_MEMBERS_LIMIT,
               });
 
           filePermissions.users.push(...users);
@@ -270,7 +267,7 @@ export class DBXFiles {
               ? await this.dbx.sharingListFolderMembersContinue({ cursor: nextCursor })
               : await this.dbx.sharingListFolderMembers({
                   shared_folder_id: shareFolderId!,
-                  limit: DROPBOX_LIST_FOLDER_MEMBERS_LIMIT,
+                  limit: env.DROPBOX_LIST_FOLDER_MEMBERS_LIMIT,
                 });
 
             const { users, groups, invitees, cursor } = response.result;

@@ -36,7 +36,7 @@ type DeleteThirdPArtyAppsObject = {
   appId: string;
 };
 
-type CreateSharedLinkSyncJobsSchema = {
+type CreateSyncSharedLinksSchema = {
   organisationId: string;
   isFirstSync: boolean;
   syncStartedAt: number;
@@ -105,7 +105,7 @@ export type InngestEvents = {
   'dropbox/third_party_apps.refresh_objects.requested': { data: RefreshThirdPartyAppsObjectSchema };
   'dropbox/third_party_apps.delete_object.requested': { data: DeleteThirdPArtyAppsObject };
   'dropbox/data_protection.shared_link.create.sync_page.requested': {
-    data: CreateSharedLinkSyncJobsSchema;
+    data: CreateSyncSharedLinksSchema;
   };
   'dropbox/data_protection.shared_links.sync_page.requested': {
     data: SynchronizeSharedLinksSchema;
