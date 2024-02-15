@@ -1,6 +1,7 @@
 import type { GetFunctionInput } from 'inngest';
 import { inngest } from './client';
-type UninstallSchema = {
+
+type AppSchema = {
   organisationId: string;
 };
 
@@ -36,9 +37,8 @@ type DeleteThirdPArtyAppsObject = {
 };
 
 export type InngestEvents = {
-  'dropbox/app.install.requested': { data: { organisationId: string } };
-  'dropbox/app.uninstall.requested': { data: UninstallSchema };
-  'dropbox/app.cancel.uninstall.requested': { data: UninstallSchema };
+  'dropbox/app.install.requested': { data: AppSchema };
+  'dropbox/app.uninstall.requested': { data: AppSchema };
   'dropbox/token.refresh.triggered': { data: RefreshTokensSchema };
   'dropbox/token.refresh.canceled': { data: RefreshTokensSchema };
   'dropbox/users.sync_page.triggered': { data: SyncUsersData };

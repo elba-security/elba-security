@@ -10,12 +10,6 @@ export const removeOrganisation = inngest.createFunction(
   {
     id: 'dropbox-remove-organisation',
     retries: env.DROPBOX_REMOVE_ORGANISATION_MAX_RETRY,
-    cancelOn: [
-      {
-        event: 'dropbox/app.cancel.uninstall.requested',
-        match: 'data.organisationId',
-      },
-    ],
   },
   {
     event: 'dropbox/app.uninstall.requested',

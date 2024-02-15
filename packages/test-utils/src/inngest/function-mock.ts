@@ -30,6 +30,7 @@ type MockSetupReturns<
       run: VitestUtils['fn'];
       sendEvent: VitestUtils['fn'];
       waitForEvent: VitestUtils['fn'];
+      sleepUntil: VitestUtils['fn'];
     };
   },
 ];
@@ -58,6 +59,7 @@ export const createInngestFunctionMock =
         .mockImplementation((name: string, stepHandler: () => Promise<unknown>) => stepHandler()),
       sendEvent: vi.fn().mockResolvedValue(undefined),
       waitForEvent: vi.fn().mockResolvedValue(undefined),
+      sleepUntil: vi.fn().mockResolvedValue(undefined),
     };
     const ts = Date.now();
     const context = {
