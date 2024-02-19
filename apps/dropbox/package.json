@@ -7,7 +7,6 @@
     "dev": "next dev -p 3300",
     "lint": "next lint",
     "start": "next start",
-    "vi": "vitest",
     "test": "sh ./scripts/run-test.sh",
     "test:watch": "sh ./scripts/run-test.sh -w",
     "big-bang": "sh ./scripts/clean-database.sh",

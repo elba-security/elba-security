@@ -101,7 +101,7 @@ const handler: FunctionHandler = async ({
 
 export const startSharedLinkSync = inngest.createFunction(
   {
-    id: 'dropbox-create-shared-link-sync-page',
+    id: 'dropbox-start-shared-link-sync',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },

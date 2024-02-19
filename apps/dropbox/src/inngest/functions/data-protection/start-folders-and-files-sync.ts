@@ -76,7 +76,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({
 
 export const startFolderAndFileSync = inngest.createFunction(
   {
-    id: 'dropbox-create-sync-folder-and-files-page',
+    id: 'dropbox-start-folder-and-files-sync',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
