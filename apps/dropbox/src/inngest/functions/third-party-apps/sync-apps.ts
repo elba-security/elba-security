@@ -70,6 +70,16 @@ export const syncApps = inngest.createFunction(
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
+    cancelOn: [
+      {
+        event: 'dropbox/app.install.requested',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'dropbox/app.uninstall.requested',
+        match: 'data.organisationId',
+      },
+    ],
     retries: env.DROPBOX_TPA_SYNC_RETRIES,
     concurrency: {
       limit: env.DROPBOX_TPA_SYNC_CONCURRENCY,
