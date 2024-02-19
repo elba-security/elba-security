@@ -1,6 +1,6 @@
 import type { GetEvents, GetFunctionInput } from 'inngest';
 import { EventSchemas, Inngest } from 'inngest';
-import { encryptionMiddleware, sentryMiddleware } from '@elba-security/inngest';
+import { encryptionMiddleware, sentryMiddleware } from '@elba-security/app-core/inngest';
 import { env } from '@/common/env';
 import type { InngestEvents } from './functions';
 import { slackRateLimitMiddleware } from './middlewares/slack-rate-limit';

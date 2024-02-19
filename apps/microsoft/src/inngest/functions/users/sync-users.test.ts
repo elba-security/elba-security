@@ -41,7 +41,7 @@ describe('sync-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt: Date.now(),
-      skipToken: '0',
+      cursor: '0',
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -67,7 +67,7 @@ describe('sync-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      skipToken,
+      cursor: skipToken,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -108,7 +108,7 @@ describe('sync-users', () => {
         organisationId: organisation.id,
         isFirstSync: false,
         syncStartedAt,
-        skipToken: nextSkipToken,
+        cursor: nextSkipToken,
       },
     });
   });
@@ -127,7 +127,7 @@ describe('sync-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      skipToken,
+      cursor: skipToken,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });

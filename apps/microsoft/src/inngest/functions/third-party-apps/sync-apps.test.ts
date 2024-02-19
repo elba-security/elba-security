@@ -45,7 +45,7 @@ const data = {
   organisationId: organisation.id,
   syncStartedAt,
   isFirstSync: true,
-  skipToken: null,
+  cursor: null,
 };
 
 describe('sync-apps', () => {
@@ -120,12 +120,12 @@ describe('sync-apps', () => {
     expect(getApps).toBeCalledWith({
       token,
       tenantId: organisation.tenantId,
-      skipToken: data.skipToken,
+      skipToken: data.cursor,
     });
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-next-apps-page', {
       name: 'microsoft/third_party_apps.sync.requested',
-      data: { ...data, skipToken: nextSkipToken },
+      data: { ...data, cursor: nextSkipToken },
     });
   });
 
@@ -184,7 +184,7 @@ describe('sync-apps', () => {
     expect(getApps).toBeCalledWith({
       token,
       tenantId: organisation.tenantId,
-      skipToken: data.skipToken,
+      skipToken: data.cursor,
     });
 
     expect(step.sendEvent).toBeCalledTimes(0);

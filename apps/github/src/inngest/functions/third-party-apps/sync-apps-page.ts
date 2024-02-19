@@ -2,13 +2,14 @@ import { eq } from 'drizzle-orm';
 import type { ThirdPartyAppsObject } from '@elba-security/sdk';
 import { Elba } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
+import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { env } from '@/env';
 import type { OrganizationInstallation } from '@/connectors/github/organization';
 import { getPaginatedOrganizationInstallations } from '@/connectors/github/organization';
 import type { App } from '@/connectors/github/app';
 import { getApp } from '@/connectors/github/app';
-import { adminsTable } from '@/database/schema';
+import { adminsTable, organisationsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
 const formatElbaAppScopes = (installationPermissions: OrganizationInstallation['permissions']) =>
@@ -52,21 +53,37 @@ export const syncAppsPage = inngest.createFunction(
     ],
     cancelOn: [
       {
-        event: 'github/github.elba_app.uninstalled',
+        event: 'github/app.uninstalled',
         match: 'data.organisationId',
       },
       {
-        event: 'github/github.elba_app.installed',
+        event: 'github/app.installed',
         match: 'data.organisationId',
       },
     ],
   },
   {
-    event: 'github/third_party_apps.page_sync.requested',
+    event: 'github/third_party_apps.sync.requested',
   },
   async ({ event, step }) => {
-    const { installationId, organisationId, cursor, accountLogin, region } = event.data;
+    const { organisationId, cursor } = event.data;
     const syncStartedAt = new Date(event.data.syncStartedAt);
+
+    const [organisation] = await db
+      .select({
+        installationId: organisationsTable.installationId,
+        accountLogin: organisationsTable.accountLogin,
+        region: organisationsTable.region,
+      })
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
+
+    if (!organisation) {
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+    }
+
+    const { region, installationId, accountLogin } = organisation;
+
     const elba = new Elba({
       organisationId,
       region,
@@ -114,7 +131,7 @@ export const syncAppsPage = inngest.createFunction(
 
     if (nextCursor) {
       await step.sendEvent('sync-apps-page', {
-        name: 'github/third_party_apps.page_sync.requested',
+        name: 'github/third_party_apps.sync.requested',
         data: {
           ...event.data,
           cursor: nextCursor,

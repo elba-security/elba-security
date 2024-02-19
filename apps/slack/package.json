@@ -20,9 +20,8 @@
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
-    "@elba-security/inngest": "workspace:*",
+    "@elba-security/app-core": "workspace:*",
     "@elba-security/logger": "workspace:*",
-    "@elba-security/nextjs": "workspace:*",
     "@elba-security/schemas": "workspace:*",
     "@elba-security/sdk": "workspace:*",
     "@elba-security/test-utils": "workspace:*",

@@ -25,7 +25,7 @@ const data = {
   cursor: null,
 };
 
-const setup = createInngestFunctionMock(syncUsersPage, 'github/users.page_sync.requested');
+const setup = createInngestFunctionMock(syncUsersPage, 'github/users.sync.requested');
 
 describe('sync-users-page', () => {
   beforeEach(async () => {
@@ -81,7 +81,7 @@ describe('sync-users-page', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users-page', {
-      name: 'github/users.page_sync.requested',
+      name: 'github/users.sync.requested',
       data: {
         ...data,
         cursor: nextCursor,

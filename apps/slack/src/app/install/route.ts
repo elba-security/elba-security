@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type NextRequest } from 'next/server';
 import { logger } from '@elba-security/logger';
-import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
+import { ElbaInstallRedirectResponse } from '@elba-security/app-core/nextjs';
 import { getSlackInstallationUrl } from '@/connectors/slack/oauth';
 import { env } from '@/common/env';
 

@@ -34,7 +34,7 @@ describe('startThirdPartyAppsSync', () => {
         organisationId: organisation.id,
         syncStartedAt: Date.now(),
         isFirstSync: true,
-        skipToken: null,
+        cursor: null,
       },
     });
     await expect(

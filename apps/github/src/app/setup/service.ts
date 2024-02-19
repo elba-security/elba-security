@@ -1,19 +1,18 @@
+import { z } from 'zod';
+import type { InstallationHandler } from '@elba-security/app-core/nextjs';
 import { getInstallation } from '@/connectors/github/installation';
-import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 
-type SetupOrganisationParams = {
-  installationId: number;
-  organisationId: string;
-  region: string;
-};
+export const searchParamsSchema = z.object({
+  installationId: z.coerce.number().int().positive(),
+});
 
-export const setupOrganisation = async ({
-  installationId,
+export const handleInstallation: InstallationHandler<typeof searchParamsSchema> = async ({
   organisationId,
   region,
-}: SetupOrganisationParams) => {
+  searchParams: { installationId },
+}) => {
   const installation = await getInstallation(installationId);
 
   if (installation.account.type !== 'Organization') {
@@ -24,7 +23,7 @@ export const setupOrganisation = async ({
     throw new Error('Installation is suspended');
   }
 
-  const [organisation] = await db
+  await db
     .insert(organisationsTable)
     .values({
       id: organisationId,
@@ -39,33 +38,9 @@ export const setupOrganisation = async ({
         accountLogin: installation.account.login,
         region,
       },
-    })
-    .returning();
+    });
 
-  if (!organisation) {
-    throw new Error(`Could not setup organisation with id=${organisationId}`);
-  }
-
-  await inngest.send([
-    {
-      name: 'github/github.elba_app.installed',
-      data: {
-        organisationId,
-      },
-    },
-    {
-      name: 'github/users.page_sync.requested',
-      data: {
-        organisationId,
-        installationId: installation.id,
-        accountLogin: installation.account.login,
-        region,
-        syncStartedAt: Date.now(),
-        isFirstSync: true,
-        cursor: null,
-      },
-    },
-  ]);
-
-  return organisation;
+  return {
+    tokenExpiresAt: null,
+  };
 };

@@ -11,7 +11,7 @@ export const POST = async (req: NextRequest) => {
     eventData
   );
 
-  const result = await handleThirdPartyAppsSyncRequested(organisationId);
+  await handleThirdPartyAppsSyncRequested(organisationId);
 
-  return NextResponse.json(result);
+  return new NextResponse();
 };

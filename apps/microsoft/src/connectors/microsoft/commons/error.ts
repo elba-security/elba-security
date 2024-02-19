@@ -8,3 +8,12 @@ export class MicrosoftError extends Error {
     this.response = response;
   }
 }
+
+export const isUnauthorizedError = (error: unknown) =>
+  error instanceof MicrosoftError && error.response?.status === 401;
+
+export const getErrorRetryAfter = (error: unknown) => {
+  if (error instanceof MicrosoftError) {
+    return error.response?.headers.get('Retry-After');
+  }
+};

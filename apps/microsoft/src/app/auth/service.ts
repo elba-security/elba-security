@@ -1,24 +1,28 @@
 import { addSeconds } from 'date-fns/addSeconds';
+import type { InstallationHandler } from '@elba-security/app-core/nextjs';
+import { z } from 'zod';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/microsoft/auth';
-import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
-type SetupOrganisationParams = {
-  organisationId: string;
-  region: string;
-  tenantId: string;
-};
+export const searchParamsSchema = z.object({
+  adminConsent: z.preprocess(
+    (value) => typeof value === 'string' && value.toLocaleLowerCase() === 'true',
+    z.literal(true)
+  ),
+  tenantId: z.string().min(1),
+});
 
-export const setupOrganisation = async ({
+export const handleInstallation: InstallationHandler<typeof searchParamsSchema> = async ({
   organisationId,
   region,
-  tenantId,
-}: SetupOrganisationParams) => {
+  searchParams: { tenantId },
+}) => {
   const { token, expiresIn } = await getToken(tenantId);
 
   const encodedToken = await encrypt(token);
+
   await db
     .insert(organisationsTable)
     .values({ id: organisationId, tenantId, token: encodedToken, region })
@@ -31,28 +35,7 @@ export const setupOrganisation = async ({
       },
     });
 
-  await inngest.send([
-    {
-      name: 'microsoft/app.installed',
-      data: {
-        organisationId,
-      },
-    },
-    {
-      name: 'microsoft/users.sync.requested',
-      data: {
-        organisationId,
-        isFirstSync: true,
-        syncStartedAt: Date.now(),
-        skipToken: null,
-      },
-    },
-    {
-      name: 'microsoft/token.refresh.requested',
-      data: {
-        organisationId,
-        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
-      },
-    },
-  ]);
+  return {
+    tokenExpiresAt: addSeconds(new Date(), expiresIn),
+  };
 };

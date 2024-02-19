@@ -36,7 +36,7 @@ export const syncApps = inngest.createFunction(
     },
   },
   async ({ event, step }) => {
-    const { syncStartedAt, organisationId, skipToken } = event.data;
+    const { syncStartedAt, organisationId, cursor } = event.data;
 
     const [organisation] = await db
       .select({
@@ -53,11 +53,11 @@ export const syncApps = inngest.createFunction(
 
     const elba = createElbaClient(organisationId, organisation.region);
 
-    const nextSkipToken = await step.run('paginate', async () => {
+    const nextCursor = await step.run('paginate', async () => {
       const result = await getApps({
         token: await decrypt(organisation.token),
         tenantId: organisation.tenantId,
-        skipToken,
+        skipToken: cursor,
       });
 
       if (result.invalidApps.length > 0) {
@@ -75,12 +75,12 @@ export const syncApps = inngest.createFunction(
       return result.nextSkipToken;
     });
 
-    if (nextSkipToken) {
+    if (nextCursor) {
       await step.sendEvent('sync-next-apps-page', {
         name: 'microsoft/third_party_apps.sync.requested',
         data: {
           ...event.data,
-          skipToken: nextSkipToken,
+          cursor: nextCursor,
         },
       });
 

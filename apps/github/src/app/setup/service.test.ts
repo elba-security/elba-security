@@ -78,20 +78,17 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'github/github.elba_app.installed',
+        name: 'github/app.installed',
         data: {
           organisationId,
         },
       },
       {
-        name: 'github/users.page_sync.requested',
+        name: 'github/users.sync.requested',
         data: {
           organisationId,
-          installationId: organisation.installationId,
-          accountLogin: organisation.accountLogin,
           syncStartedAt: now,
           isFirstSync: true,
-          region,
           cursor: null,
         },
       },

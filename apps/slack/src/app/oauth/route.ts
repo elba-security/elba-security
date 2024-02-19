@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { logger } from '@elba-security/logger';
 import { z } from 'zod';
-import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
+import { ElbaInstallRedirectResponse } from '@elba-security/app-core/nextjs';
 import { env } from '@/common/env';
 import { handleSlackInstallation } from './service';
 
@@ -26,10 +26,7 @@ const cookiesSchema = z.object({
 });
 
 export const GET = async (request: NextRequest) => {
-  const searchParams = [...request.nextUrl.searchParams.entries()].reduce<Record<string, string>>(
-    (acc, [key, value]) => ({ ...acc, [key]: value }),
-    {}
-  );
+  const searchParams = Object.fromEntries(request.nextUrl.searchParams.entries());
 
   const region = request.cookies.get('region')?.value;
 

@@ -17,3 +17,4 @@ if (!env.VERCEL_ENV || env.VERCEL_ENV === 'development') {
 const pool = new Pool({ connectionString: env.DATABASE_URL });
 
 export const db = drizzle(pool, { schema });
+export const dbSchema = schema;

@@ -1,4 +1,4 @@
-import { createElbaMiddleware } from '@elba-security/nextjs';
+import { createElbaMiddleware } from '@elba-security/app-core/nextjs';
 import { env } from '@/common/env';
 
 export const middleware = createElbaMiddleware({
