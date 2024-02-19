@@ -59,7 +59,7 @@ const handler: FunctionHandler = async ({
   if (team.members.length > 0) {
     const eventsToWait = sharedLinkJobs.map(
       async (sharedLinkJob) =>
-        await step.waitForEvent(`dropbox-wait-sync-shared-links`, {
+        await step.waitForEvent(`wait-sync-shared-links`, {
           event: 'dropbox/data_protection.synchronize_shared_links.sync_page.completed',
           timeout: '1 day',
           if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${sharedLinkJob.teamMemberId}' && async.data.isPersonal == ${sharedLinkJob.isPersonal}`,
@@ -67,7 +67,7 @@ const handler: FunctionHandler = async ({
     );
 
     await step.sendEvent(
-      'dropbox-sync-shared-links-page',
+      'sync-shared-links',
       sharedLinkJobs.map((sharedLinkJob) => ({
         name: 'dropbox/data_protection.shared_links.sync_page.requested',
         data: sharedLinkJob,
@@ -78,7 +78,7 @@ const handler: FunctionHandler = async ({
   }
 
   if (team.hasMore) {
-    return await step.sendEvent('dropbox-create-shared-link-sync-page', {
+    return await step.sendEvent('start-shared-link-sync', {
       name: 'dropbox/data_protection.shared_link.create.sync_page.requested',
       data: {
         ...event.data,
@@ -87,8 +87,9 @@ const handler: FunctionHandler = async ({
     });
   }
 
-  // Once all the shared links are fetched, we can create path sync jobs for  all the users of organisation
-  await step.sendEvent('dropbox-create-sync-folder-and-files-page', {
+  // Once all the shared links are fetched,
+  // Create start folder-and-file sync for the organisation
+  await step.sendEvent('start-folder-and-files-sync', {
     name: 'dropbox/data_protection.folder_and_files.create.sync_page.requested',
     data: {
       organisationId,

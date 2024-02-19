@@ -49,7 +49,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({
 
   if (team.members.length > 0) {
     await step.sendEvent(
-      'dropbox-sync-folder-and-files-page',
+      'sync-folder-and-files',
       fileSyncJobs.map((fileSyncJob) => ({
         name: 'dropbox/data_protection.folder_and_files.sync_page.requested',
         data: fileSyncJob,
@@ -58,7 +58,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({
   }
 
   if (team.hasMore) {
-    return await step.sendEvent('dropbox-create-sync-folder-and-files-page', {
+    return await step.sendEvent('start-folder-and-files-sync', {
       name: 'dropbox/data_protection.folder_and_files.create.sync_page.requested',
       data: {
         ...event.data,

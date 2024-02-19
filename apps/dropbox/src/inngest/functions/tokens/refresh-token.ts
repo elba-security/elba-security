@@ -40,7 +40,7 @@ const handler: FunctionHandler = async ({
     return expiresAt;
   });
 
-  await step.sendEvent('dropbox-next-refresh', {
+  await step.sendEvent('refresh-token', {
     name: 'dropbox/token.refresh.triggered',
     data: {
       organisationId,

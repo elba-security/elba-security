@@ -47,7 +47,7 @@ const handler: FunctionHandler = async ({
   }
 
   if (sharedLinks?.hasMore) {
-    return await step.sendEvent('dropbox-sync-shared-links-page', {
+    return await step.sendEvent('sync-shared-links', {
       name: 'dropbox/data_protection.shared_links.sync_page.requested',
       data: {
         ...event.data,
@@ -56,7 +56,7 @@ const handler: FunctionHandler = async ({
     });
   }
 
-  await step.sendEvent(`dropbox-wait-for-shared-links-to-be-fetched`, {
+  await step.sendEvent(`wait-for-shared-links-to-be-fetched`, {
     name: 'dropbox/data_protection.synchronize_shared_links.sync_page.completed',
     data: {
       ...event.data,

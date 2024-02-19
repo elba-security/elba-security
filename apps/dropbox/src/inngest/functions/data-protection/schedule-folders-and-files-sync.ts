@@ -9,7 +9,7 @@ export const scheduleDataProtectionSyncJobs = inngest.createFunction(
     const organisations = await getOrganisationsToSync();
     if (organisations.length > 0) {
       await step.sendEvent(
-        'dropbox-create-sync-shared-link-page',
+        'start-shared-link-sync',
         organisations.map(({ organisationId }) => ({
           name: 'dropbox/data_protection.shared_link.create.sync_page.requested',
           data: {
