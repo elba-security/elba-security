@@ -33,7 +33,7 @@ const handler: FunctionHandler = async ({
 
 export const deleteObjectPermissions = inngest.createFunction(
   {
-    id: 'delete-data-protection-object-permission',
+    id: 'dropbox-delete-data-protection-object-permission',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },

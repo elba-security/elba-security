@@ -87,7 +87,7 @@ const handler: FunctionHandler = async ({
 
 export const synchronizeFoldersAndFiles = inngest.createFunction(
   {
-    id: 'synchronize-folders-and-files',
+    id: 'dropbox-synchronize-folders-and-files',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
