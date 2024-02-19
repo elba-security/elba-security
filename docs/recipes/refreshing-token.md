@@ -14,12 +14,15 @@ _If the integrated SaaS does not provide OAuth based authentication flow, the fo
 
 ## Refreshing the token using an Inngest function
 
+The function start by suspending itself until some minutes before the previous token expires.
+
 Since an organization may uninstall the SaaS integration, the Inngest function that refreshes the token should always verify the existence of the organization before proceeding to refresh the token.
 
-After retrieving the new token and updating it in the database, the function should schedule itself to run again in the future, before the new token expires. This ensures that the access token stored in the database will always be valid.
+After retrieving the new token and updating it in the database, it should re-trigger itself to refresh the newly retrieved token. This ensures that the access token stored in the database will always be valid.
 
 ```ts
-import { addMinutes } from 'date-fns/addMinutes';
+import { subMinutes } from 'date-fns/subMinutes';
+import { addSeconds } from 'date-fns/addSeconds';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
@@ -38,54 +41,61 @@ export const refreshSaaSToken = inngest.createFunction(
     // this is used to prevent several loops to take place
     cancelOn: [
       {
-        event: `{SaaS}/{SaaS}.elba_app.uninstalled`,
+        event: `{SaaS}/app.uninstalled`,
         match: 'data.organisationId',
       },
       {
-        event: `{SaaS}/{SaaS}.elba_app.installed`,
+        event: `{SaaS}/app.installed`,
         match: 'data.organisationId',
       },
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
-  { event: '{SaaS}/{SaaS}.token.refresh.requested' },
+  { event: '{SaaS}/token.refresh.requested' },
   async ({ event, step }) => {
-    const { organisationId, region } = event.data;
+    const { organisationId, expiresAt } = event.data;
 
-    // retrieve organisation refresh token
-    const [organisation] = await db
-      .select({
-        refreshToken: Organisation.refreshToken,
-      })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisationId));
+    // wait until 5 minutes before the token expires
+    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 5));
 
-    if (!organisation) {
-      // make sure that the function will not be retried
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
+    const nextExpiresAt = await step.run('refresh-token', async () => {
+      // retrieve organisation refresh token
+      const [organisation] = await db
+        .select({
+          refreshToken: Organisation.refreshToken,
+        })
+        .from(Organisation)
+        .where(eq(Organisation.id, organisationId));
 
-    // fetch new accessToken & refreshToken using the SaaS endpoint
-    const { accessToken, refreshToken, expiresIn } = await refreshToken(organisation.refreshToken);
+      if (!organisation) {
+        // make sure that the function will not be retried
+        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+      }
 
-    // update organisation accessToken & refreshToken
-    await db
-      .update(Organisation)
-      .set({
-        accessToken,
-        refreshToken,
-      })
-      .where(eq(Organisation.id, organisationId));
+      // fetch new accessToken & refreshToken using the SaaS endpoint
+      const { accessToken, refreshToken, expiresIn } = await refreshToken(
+        organisation.refreshToken
+      );
 
-    // send an event that will refresh the organisation access token before it expires
-    await step.sendEvent('schedule-token-refresh', {
-      name: '{SaaS}/{SaaS}.token.refresh.requested',
+      // update organisation accessToken & refreshToken
+      await db
+        .update(Organisation)
+        .set({
+          accessToken,
+          refreshToken,
+        })
+        .where(eq(Organisation.id, organisationId));
+
+      return addSeconds(new Date(), expiresIn);
+    });
+
+    // send an event that will refresh the organisation access token
+    await step.sendEvent('next-refresh', {
+      name: '{SaaS}/{Saas}.token.refresh.triggered',
       data: {
         organisationId,
-        region,
+        expiresAt: nextExpiresAt,
       },
-      // we schedule the event to run 5 minutes before the access token expires
-      ts: addMinutes(new Date(), expiresIn - 5).getTime(),
     });
   }
 );
@@ -137,10 +147,9 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
-      name: '{SaaS}/users.sync_page.requested',
+      name: '{SaaS}/users.sync.triggered',
       data: {
         organisationId,
-        region,
         isFirstSync: true,
         syncStartedAt: Date.now(),
         page: 0,
@@ -148,21 +157,18 @@ export const setupOrganisation = async ({
     },
     // this will cancel scheduled token refresh if it exists
     {
-      name: '{SaaS}/{SaaS}.elba_app.installed',
+      name: '{SaaS}/app.installed',
       data: {
         organisationId,
-        region,
       },
     },
     // schedule a new token refresh loop
     {
-      name: '{SaaS}/{SaaS}.token.refresh.requested',
+      name: '{SaaS}/token.refresh.triggered',
       data: {
         organisationId,
-        region,
+        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
       },
-      // we schedule a token refresh 5 minutes before it expires
-      ts: addMinutes(new Date(), expiresIn - 5).getTime(),
     },
   ]);
 };

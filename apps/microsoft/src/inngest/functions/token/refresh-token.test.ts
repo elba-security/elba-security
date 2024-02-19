@@ -20,7 +20,10 @@ const organisation = {
   region: 'us',
 };
 const now = new Date();
-const expiresIn = 60;
+// current token expires in an hour
+const expiresAt = now.getTime() + 60 * 1000;
+// next token duration
+const expiresIn = 60 * 1000;
 
 const setup = createInngestFunctionMock(refreshToken, 'microsoft/token.refresh.triggered');
 
@@ -40,6 +43,7 @@ describe('refresh-token', () => {
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
+      expiresAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -58,6 +62,7 @@ describe('refresh-token', () => {
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
+      expiresAt,
     });
 
     await expect(result).resolves.toBe(undefined);
@@ -71,14 +76,19 @@ describe('refresh-token', () => {
     expect(authConnector.getToken).toBeCalledTimes(1);
     expect(authConnector.getToken).toBeCalledWith(organisation.tenantId);
 
-    // check that the function continue the pagination process
+    expect(step.sleepUntil).toBeCalledTimes(1);
+    expect(step.sleepUntil).toBeCalledWith(
+      'wait-before-expiration',
+      new Date(expiresAt - 5 * 60 * 1000)
+    );
+
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('schedule-token-refresh', {
+    expect(step.sendEvent).toBeCalledWith('next-refresh', {
       name: 'microsoft/token.refresh.triggered',
       data: {
         organisationId: organisation.id,
+        expiresAt: now.getTime() + expiresIn * 1000,
       },
-      ts: now.getTime() + expiresIn * 1000 - 5 * 60 * 1000,
     });
   });
 });
