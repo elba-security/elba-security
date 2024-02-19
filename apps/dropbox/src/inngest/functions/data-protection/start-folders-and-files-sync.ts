@@ -74,7 +74,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({
   });
 };
 
-export const createPathSyncJobs = inngest.createFunction(
+export const startFolderAndFileSync = inngest.createFunction(
   {
     id: 'dropbox-create-sync-folder-and-files-page',
     priority: {

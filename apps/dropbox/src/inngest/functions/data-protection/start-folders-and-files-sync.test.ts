@@ -3,7 +3,7 @@ import { DropboxResponseError } from 'dropbox';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { membersList } from '../users/__mocks__/dropbox';
 import { pathJobEvents } from './__mocks__/path-jobs-events';
-import { createPathSyncJobs } from './create-sync-folders-and-files';
+import { startFolderAndFileSync } from './start-folders-and-files-sync';
 import { insertOrganisations } from '@/test-utils/token';
 import * as crypto from '@/common/crypto';
 import { NonRetriableError } from 'inngest';
@@ -19,7 +19,7 @@ const elbaOptions = {
 };
 
 const setup = createInngestFunctionMock(
-  createPathSyncJobs,
+  startFolderAndFileSync,
   'dropbox/data_protection.folder_and_files.create.sync_page.requested'
 );
 

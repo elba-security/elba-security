@@ -3,7 +3,7 @@ import { DropboxResponseError } from 'dropbox';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { membersList } from '../users/__mocks__/dropbox';
 import { sharedLinksEvents } from './__mocks__/shared-links-events';
-import { createSyncSharedLinks } from './create-sync-shared-links';
+import { startSharedLinkSync } from './start-shared-links-sync';
 import { insertOrganisations } from '@/test-utils/token';
 import * as crypto from '@/common/crypto';
 import { NonRetriableError } from 'inngest';
@@ -12,7 +12,7 @@ const RETRY_AFTER = '300';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 
 const setup = createInngestFunctionMock(
-  createSyncSharedLinks,
+  startSharedLinkSync,
   'dropbox/data_protection.shared_link.create.sync_page.requested'
 );
 
