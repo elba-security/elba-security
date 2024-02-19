@@ -8,7 +8,7 @@ import { NonRetriableError } from 'inngest';
 const handler: Parameters<typeof inngest.createFunction>[2] = async ({
   event,
   step,
-}: InputArgWithTrigger<'dropbox/data_protection.folder_and_files.create.sync_page.requested'>) => {
+}: InputArgWithTrigger<'dropbox/data_protection.folder_and_files.start.sync_page.requested'>) => {
   const { organisationId, cursor, syncStartedAt } = event.data;
 
   const [organisation] = await getOrganisationAccessDetails(organisationId);
@@ -59,7 +59,7 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({
 
   if (team.hasMore) {
     return await step.sendEvent('start-folder-and-files-sync', {
-      name: 'dropbox/data_protection.folder_and_files.create.sync_page.requested',
+      name: 'dropbox/data_protection.folder_and_files.start.sync_page.requested',
       data: {
         ...event.data,
         cursor: team.nextCursor,
@@ -86,6 +86,6 @@ export const startFolderAndFileSync = inngest.createFunction(
       key: 'event.data.organisationId',
     },
   },
-  { event: 'dropbox/data_protection.folder_and_files.create.sync_page.requested' },
+  { event: 'dropbox/data_protection.folder_and_files.start.sync_page.requested' },
   handler
 );

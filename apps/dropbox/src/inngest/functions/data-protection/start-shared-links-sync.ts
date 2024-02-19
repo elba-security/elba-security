@@ -9,7 +9,7 @@ import { NonRetriableError } from 'inngest';
 const handler: FunctionHandler = async ({
   event,
   step,
-}: InputArgWithTrigger<'dropbox/data_protection.shared_link.create.sync_page.requested'>) => {
+}: InputArgWithTrigger<'dropbox/data_protection.shared_link.start.sync_page.requested'>) => {
   const { organisationId, isFirstSync, syncStartedAt, cursor } = event.data;
 
   const [organisation] = await getOrganisationAccessDetails(organisationId);
@@ -79,7 +79,7 @@ const handler: FunctionHandler = async ({
 
   if (team.hasMore) {
     return await step.sendEvent('start-shared-link-sync', {
-      name: 'dropbox/data_protection.shared_link.create.sync_page.requested',
+      name: 'dropbox/data_protection.shared_link.start.sync_page.requested',
       data: {
         ...event.data,
         cursor: team.nextCursor,
@@ -90,7 +90,7 @@ const handler: FunctionHandler = async ({
   // Once all the shared links are fetched,
   // Create start folder-and-file sync for the organisation
   await step.sendEvent('start-folder-and-files-sync', {
-    name: 'dropbox/data_protection.folder_and_files.create.sync_page.requested',
+    name: 'dropbox/data_protection.folder_and_files.start.sync_page.requested',
     data: {
       organisationId,
       syncStartedAt,
@@ -111,6 +111,6 @@ export const startSharedLinkSync = inngest.createFunction(
       key: 'event.data.organisationId',
     },
   },
-  { event: 'dropbox/data_protection.shared_link.create.sync_page.requested' },
+  { event: 'dropbox/data_protection.shared_link.start.sync_page.requested' },
   handler
 );

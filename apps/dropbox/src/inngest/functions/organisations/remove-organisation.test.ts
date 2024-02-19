@@ -23,7 +23,7 @@ describe('remove-organisation', () => {
 
   test("should remove given organisation when it's registered", async () => {
     const elba = spyOnElba();
-    await insertOrganisations({});
+    await insertOrganisations();
 
     const [result] = setup({ organisationId });
 

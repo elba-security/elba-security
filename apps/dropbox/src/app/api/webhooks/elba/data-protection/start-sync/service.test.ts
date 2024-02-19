@@ -31,7 +31,7 @@ describe('startSync', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'dropbox/data_protection.shared_link.create.sync_page.requested',
+      name: 'dropbox/data_protection.shared_link.start.sync_page.requested',
       data: {
         organisationId,
         isFirstSync: true,

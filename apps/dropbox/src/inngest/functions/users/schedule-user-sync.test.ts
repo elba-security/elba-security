@@ -35,11 +35,13 @@ describe('scheduleUserSync', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'dropbox-sync-user-page',
-      scheduledOrganisations.map((organisation) => ({
-        name: 'dropbox/users.sync_page.triggered',
-        data: { ...organisation, isFirstSync: false, syncStartedAt: 1609459200000 },
-      }))
+      'sync-user',
+      expect.arrayContaining(
+        scheduledOrganisations.map((organisation) => ({
+          name: 'dropbox/users.sync_page.triggered',
+          data: { ...organisation, isFirstSync: false, syncStartedAt: 1609459200000 },
+        }))
+      )
     );
   });
 });

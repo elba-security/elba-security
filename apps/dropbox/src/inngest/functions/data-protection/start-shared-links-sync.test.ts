@@ -13,7 +13,7 @@ const organisationId = '00000000-0000-0000-0000-000000000001';
 
 const setup = createInngestFunctionMock(
   startSharedLinkSync,
-  'dropbox/data_protection.shared_link.create.sync_page.requested'
+  'dropbox/data_protection.shared_link.start.sync_page.requested'
 );
 
 const mocks = vi.hoisted(() => {
@@ -101,7 +101,7 @@ describe('run-user-sync-jobs', () => {
     expect(step.waitForEvent).toBeCalledTimes(6);
 
     sharedLinksEvents.forEach((link) => {
-      expect(step.waitForEvent).toBeCalledWith(`dropbox-wait-sync-shared-links`, {
+      expect(step.waitForEvent).toBeCalledWith(`wait-sync-shared-links`, {
         event: 'dropbox/data_protection.synchronize_shared_links.sync_page.completed',
         timeout: '1 day',
         if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${link.teamMemberId}' && async.data.isPersonal == ${link.isPersonal}`,
@@ -110,20 +110,20 @@ describe('run-user-sync-jobs', () => {
 
     expect(step.sendEvent).toBeCalledTimes(2);
     expect(step.sendEvent).toBeCalledWith(
-      'dropbox-sync-shared-links-page',
+      'sync-shared-links',
       sharedLinksEvents.map((sharedLinkJob) => ({
         name: 'dropbox/data_protection.shared_links.sync_page.requested',
         data: sharedLinkJob,
       }))
     );
 
-    expect(step.sendEvent).toBeCalledWith('dropbox-create-sync-folder-and-files-page', {
+    expect(step.sendEvent).toBeCalledWith('start-folder-and-files-sync', {
       data: {
         isFirstSync: true,
         organisationId: '00000000-0000-0000-0000-000000000001',
         syncStartedAt: '2021-01-01T00:00:00.000Z',
       },
-      name: 'dropbox/data_protection.folder_and_files.create.sync_page.requested',
+      name: 'dropbox/data_protection.folder_and_files.start.sync_page.requested',
     });
   });
 
@@ -149,7 +149,7 @@ describe('run-user-sync-jobs', () => {
     expect(step.waitForEvent).toBeCalledTimes(6);
 
     sharedLinksEvents.forEach((link) => {
-      expect(step.waitForEvent).toBeCalledWith(`dropbox-wait-sync-shared-links`, {
+      expect(step.waitForEvent).toBeCalledWith(`wait-sync-shared-links`, {
         event: 'dropbox/data_protection.synchronize_shared_links.sync_page.completed',
         timeout: '1 day',
         if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${link.teamMemberId}' && async.data.isPersonal == ${link.isPersonal}`,
@@ -158,21 +158,21 @@ describe('run-user-sync-jobs', () => {
 
     expect(step.sendEvent).toBeCalledTimes(2);
     expect(step.sendEvent).toBeCalledWith(
-      'dropbox-sync-shared-links-page',
+      'sync-shared-links',
       sharedLinksEvents.map((sharedLinkJob) => ({
         name: 'dropbox/data_protection.shared_links.sync_page.requested',
         data: sharedLinkJob,
       }))
     );
 
-    expect(step.sendEvent).toBeCalledWith('dropbox-create-shared-link-sync-page', {
+    expect(step.sendEvent).toBeCalledWith('start-shared-link-sync', {
       data: {
         isFirstSync: true,
         organisationId: '00000000-0000-0000-0000-000000000001',
         syncStartedAt: '2021-01-01T00:00:00.000Z',
         cursor: 'cursor-1',
       },
-      name: 'dropbox/data_protection.shared_link.create.sync_page.requested',
+      name: 'dropbox/data_protection.shared_link.start.sync_page.requested',
     });
   });
 });

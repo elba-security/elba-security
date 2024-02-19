@@ -104,7 +104,7 @@ export type InngestEvents = {
   'dropbox/third_party_apps.sync_page.triggered': { data: RunThirdPartyAppsSyncJobsSchema };
   'dropbox/third_party_apps.refresh_objects.requested': { data: RefreshThirdPartyAppsObjectSchema };
   'dropbox/third_party_apps.delete_object.requested': { data: DeleteThirdPArtyAppsObject };
-  'dropbox/data_protection.shared_link.create.sync_page.requested': {
+  'dropbox/data_protection.shared_link.start.sync_page.requested': {
     data: CreateSyncSharedLinksSchema;
   };
   'dropbox/data_protection.shared_links.sync_page.requested': {
@@ -113,7 +113,7 @@ export type InngestEvents = {
   'dropbox/data_protection.synchronize_shared_links.sync_page.completed': {
     data: SynchronizeSharedLinksSchema;
   };
-  'dropbox/data_protection.folder_and_files.create.sync_page.requested': {
+  'dropbox/data_protection.folder_and_files.start.sync_page.requested': {
     data: CreateFolderAndFilesSyncJobsSchema;
   };
   'dropbox/data_protection.folder_and_files.sync_page.requested': {

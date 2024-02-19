@@ -89,7 +89,7 @@ describe('refreshToken', () => {
       subMinutes(new Date(TOKEN_EXPIRES_AT), 30)
     );
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('dropbox-next-refresh', {
+    expect(step.sendEvent).toBeCalledWith('refresh-token', {
       name: 'dropbox/token.refresh.triggered',
       data: {
         organisationId,

@@ -20,7 +20,7 @@ const elbaOptions = {
 
 const setup = createInngestFunctionMock(
   startFolderAndFileSync,
-  'dropbox/data_protection.folder_and_files.create.sync_page.requested'
+  'dropbox/data_protection.folder_and_files.start.sync_page.requested'
 );
 
 const mocks = vi.hoisted(() => {
@@ -108,7 +108,7 @@ describe('run-user-sync-jobs', () => {
     await expect(result).resolves.toBeUndefined();
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('dropbox-sync-folder-and-files-page', pathJobEvents);
+    expect(step.sendEvent).toBeCalledWith('sync-folder-and-files', pathJobEvents);
   });
 
   test('should fetch team members of the organisation & trigger events to synchronize folders and files', async () => {
@@ -131,16 +131,16 @@ describe('run-user-sync-jobs', () => {
     await expect(result).resolves.toBeUndefined();
 
     expect(step.sendEvent).toBeCalledTimes(2);
-    expect(step.sendEvent).toBeCalledWith('dropbox-sync-folder-and-files-page', pathJobEvents);
+    expect(step.sendEvent).toBeCalledWith('sync-folder-and-files', pathJobEvents);
 
-    expect(step.sendEvent).toBeCalledWith('dropbox-create-sync-folder-and-files-page', {
+    expect(step.sendEvent).toBeCalledWith('start-folder-and-files-sync', {
       data: {
         cursor: 'cursor-1',
         isFirstSync: false,
         organisationId,
         syncStartedAt: '2021-01-01T00:00:00.000Z',
       },
-      name: 'dropbox/data_protection.folder_and_files.create.sync_page.requested',
+      name: 'dropbox/data_protection.folder_and_files.start.sync_page.requested',
     });
   });
 
@@ -170,7 +170,7 @@ describe('run-user-sync-jobs', () => {
     const elbaInstance = elba.mock.results[0]?.value;
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('dropbox-sync-folder-and-files-page', pathJobEvents);
+    expect(step.sendEvent).toBeCalledWith('sync-folder-and-files', pathJobEvents);
 
     await expect(step.run).toBeCalledTimes(2);
     await expect(elbaInstance?.dataProtection.deleteObjects).toBeCalledTimes(1);

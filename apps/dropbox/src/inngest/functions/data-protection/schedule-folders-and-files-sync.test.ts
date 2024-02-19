@@ -31,14 +31,14 @@ describe('scheduleDataProtectionSyncJobs', () => {
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('dropbox-create-sync-shared-link-page', [
+    expect(step.sendEvent).toBeCalledWith('start-shared-link-sync', [
       {
         data: {
           isFirstSync: false,
           organisationId: '00000000-0000-0000-0000-000000000001',
           syncStartedAt: 1705744800007,
         },
-        name: 'dropbox/data_protection.shared_link.create.sync_page.requested',
+        name: 'dropbox/data_protection.shared_link.start.sync_page.requested',
       },
     ]);
   });

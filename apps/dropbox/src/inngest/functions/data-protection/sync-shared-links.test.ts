@@ -101,7 +101,7 @@ describe('fetch-shared-links', () => {
     await expect(result).resolves.toBeUndefined();
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('dropbox-sync-shared-links-page', {
+    expect(step.sendEvent).toBeCalledWith('sync-shared-links', {
       data: {
         isFirstSync: false,
         isPersonal: false,
@@ -131,7 +131,7 @@ describe('fetch-shared-links', () => {
     await expect(result).resolves.toBeUndefined();
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('dropbox-wait-for-shared-links-to-be-fetched', {
+    expect(step.sendEvent).toBeCalledWith('wait-for-shared-links-to-be-fetched', {
       data: {
         cursor: 'has-more-cursor',
         isFirstSync: false,
