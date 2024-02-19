@@ -77,7 +77,7 @@ export const syncUsersPage = inngest.createFunction(
         name: 'segment/users.page_sync.requested',
         data: {
           ...event.data,
-          page: Number(nextPage),
+          page: nextPage,
         },
       });
       return {

@@ -12,7 +12,7 @@ export const inngest = new Inngest({
         region: string;
         isFirstSync: boolean;
         syncStartedAt: number;
-        page: number | null;
+        page: string | null;
       };
     };
     'segment/segment.elba_app.uninstalled': {

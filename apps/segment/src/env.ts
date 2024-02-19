@@ -51,5 +51,6 @@ export const env = z
     USERS_SYNC_MAX_RETRY: zEnvRetry(),
     REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
     SEGMENT_API_TOKEN: z.string(),
+    USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().default(200),
   })
   .parse(process.env);

@@ -23,7 +23,7 @@ describe('sync-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt: Date.now(),
-      page: 0,
+      page: '0',
       region: 'us',
     });
 
@@ -46,7 +46,7 @@ describe('sync-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: 0,
+      page: '0',
       region: organisation.region,
     });
 
@@ -61,7 +61,7 @@ describe('sync-users', () => {
         isFirstSync: false,
         syncStartedAt,
         region: organisation.region,
-        page: 1,
+        page: '1',
       },
     });
   });
@@ -77,7 +77,7 @@ describe('sync-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: 0,
+      page: '0',
       region: 'us',
     });
 

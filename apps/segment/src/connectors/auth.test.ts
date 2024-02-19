@@ -1,3 +1,4 @@
+import { fail } from 'node:assert';
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
@@ -18,13 +19,21 @@ describe('validateToken', () => {
     );
   });
 
-  test('should return status code 200 when token is valid', async () => {
-    const result = await validateToken(validToken);
-    expect(result).toEqual(200);
+  test('should not throw when token is valid', async () => {
+    try {
+      await validateToken(validToken);
+      expect(true).toBe(true);
+    } catch (error) {
+      expect(error).toBeNull();
+    }
   });
 
-  test('should return status code 401 when token is invalid', async () => {
-    const result = await validateToken('invalidToken');
-    expect(result).toEqual(401);
+  test('should throw an error when token is invalid', async () => {
+    try {
+      await validateToken('invalidToken');
+      fail('Expected an error to be thrown');
+    } catch (error) {
+      expect((error as Error).message).toBe('Could not validate token');
+    }
   });
 });

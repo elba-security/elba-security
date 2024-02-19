@@ -29,7 +29,22 @@ describe('getUsers', () => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
-        return new Response(JSON.stringify({ users, nextPage: pagination }), { status: 200 });
+        const url = new URL(request.url);
+        const cursor = url.searchParams.get('pagination.cursor');
+        const lastCursor = 'last-cursor';
+        const nextCursor = 'next-cursor';
+        const previousCursor = 'previous-cursor';
+        return new Response(
+          JSON.stringify({
+            users,
+            nextPage: {
+              ...pagination,
+              next: cursor === lastCursor ? null : nextCursor,
+              previous: previousCursor,
+            },
+          }),
+          { status: 200 }
+        );
       })
     );
   });
@@ -48,8 +63,13 @@ describe('getUsers', () => {
     }
   });
 
+  test('should return nextPage when there is next cursor', async () => {
+    const result = await getUsers(validToken, 'first-cursor');
+    expect(result.nextPage.next).equals('next-cursor');
+  });
+
   test('should return nextPage as null when end of list is reached', async () => {
-    const result = await getUsers(validToken, null);
+    const result = await getUsers(validToken, 'last-cursor');
     expect(result.nextPage.next).toBeNull();
   });
 });

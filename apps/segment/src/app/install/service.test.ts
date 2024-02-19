@@ -3,15 +3,17 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
+import { env } from '@/env';
+import * as auth from '@/connectors/auth';
 import { registerOrganisation } from './service';
 
-const token = 'some-token';
+const token = env.SEGMENT_API_TOKEN;
 const region = 'us';
 const now = new Date();
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
-  token: 'test-token',
+  token,
   region,
 };
 
@@ -25,6 +27,8 @@ describe('registerOrganisation', () => {
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
+    const validateTokenMock = vi.spyOn(auth, 'validateToken').mockResolvedValue(undefined);
+
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     await expect(
@@ -55,6 +59,8 @@ describe('registerOrganisation', () => {
         page: 0,
       },
     });
+
+    expect(validateTokenMock).toBeCalledWith(token);
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
