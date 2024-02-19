@@ -34,7 +34,7 @@ vi.mock('@/connectors/dropbox/dbx-access', () => {
 describe('third-party-apps-delete-objects', () => {
   beforeEach(async () => {
     await db.delete(organisations);
-    await insertOrganisations({});
+    await insertOrganisations();
     vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
     vi.clearAllMocks();
   });

@@ -1,19 +1,15 @@
 import { expect, test, describe, vi, beforeAll, beforeEach } from 'vitest';
 import { GET as handler } from './route';
 import { NextResponse } from 'next/server';
-
 import * as utils from '@/common/utils';
 import { inngest } from '@/inngest/client';
 import { mockNextRequest } from '@/test-utils/mock-app-route';
 import * as crypto from '@/common/crypto';
-import { addSeconds, subMinutes } from 'date-fns';
 
 const tokenWillExpiresIn = 14400; // seconds
 const rootNamespaceId = '356986';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const SYNC_STARTED_AT = 1674496756;
-const TOKEN_WILL_EXPIRE_IN = 14400;
-const TOKEN_EXPIRES_AT = addSeconds(new Date(SYNC_STARTED_AT), TOKEN_WILL_EXPIRE_IN);
 
 vi.mock('dropbox', () => {
   const actual = vi.importActual('dropbox');
@@ -153,28 +149,30 @@ describe('Callback dropbox', () => {
     expect(utils.redirectOnSuccess).toBeCalledTimes(1);
     expect(utils.redirectOnSuccess).toBeCalledWith('eu');
     expect(inngest.send).toBeCalledTimes(1);
-    expect(inngest.send).toHaveBeenCalledWith([
-      {
-        data: {
-          organisationId: '00000000-0000-0000-0000-000000000001',
+    expect(inngest.send).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        {
+          data: {
+            organisationId: '00000000-0000-0000-0000-000000000001',
+            expiresAt: 1688896756,
+          },
+          name: 'dropbox/token.refresh.triggered',
         },
-        name: 'dropbox/token.refresh.triggered',
-        ts: subMinutes(new Date(TOKEN_EXPIRES_AT), 30).getTime(),
-      },
-      {
-        data: {
-          organisationId: '00000000-0000-0000-0000-000000000001',
+        {
+          data: {
+            organisationId: '00000000-0000-0000-0000-000000000001',
+          },
+          name: 'dropbox/app.install.requested',
         },
-        name: 'dropbox/token.refresh.canceled',
-      },
-      {
-        data: {
-          isFirstSync: true,
-          organisationId: '00000000-0000-0000-0000-000000000001',
-          syncStartedAt: SYNC_STARTED_AT,
+        {
+          data: {
+            isFirstSync: true,
+            organisationId: '00000000-0000-0000-0000-000000000001',
+            syncStartedAt: SYNC_STARTED_AT,
+          },
+          name: 'dropbox/users.sync_page.triggered',
         },
-        name: 'dropbox/users.sync_page.triggered',
-      },
-    ]);
+      ])
+    );
   });
 });

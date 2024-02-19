@@ -5,7 +5,7 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import addSeconds from 'date-fns/addSeconds';
 import { insertOrganisations } from '@/test-utils/token';
 import * as crypto from '@/common/crypto';
-import { subMinutes } from 'date-fns';
+import subMinutes from 'date-fns/subMinutes';
 
 const TOKEN_GENERATED_AT = '2023-03-13T16:19:20.818Z';
 const TOKEN_WILL_EXPIRE_IN = 14400;
@@ -34,7 +34,7 @@ describe('refreshToken', () => {
   beforeEach(async () => {
     vi.setSystemTime(TOKEN_GENERATED_AT);
     vi.clearAllMocks();
-    await insertOrganisations({});
+    await insertOrganisations();
     vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
   });
 
@@ -74,20 +74,27 @@ describe('refreshToken', () => {
 
     const [result, { step }] = setup({
       organisationId,
+      expiresAt: TOKEN_EXPIRES_AT.getTime(),
     });
 
     await expect(result).resolves.toStrictEqual({
       status: 'completed',
     });
+
     expect(crypto.encrypt).toBeCalledTimes(1);
     expect(crypto.encrypt).toBeCalledWith('test-access-token-0');
+    expect(step.sleepUntil).toBeCalledTimes(1);
+    expect(step.sleepUntil).toBeCalledWith(
+      'wait-before-expiration',
+      subMinutes(new Date(TOKEN_EXPIRES_AT), 30)
+    );
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('dropbox-refresh-token', {
+    expect(step.sendEvent).toBeCalledWith('refresh-token', {
       name: 'dropbox/token.refresh.triggered',
       data: {
         organisationId,
+        expiresAt: TOKEN_EXPIRES_AT.getTime(),
       },
-      ts: subMinutes(new Date(TOKEN_EXPIRES_AT), 30).getTime(),
     });
   });
 });
