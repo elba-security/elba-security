@@ -35,6 +35,9 @@ export const getUsers = async ({ token, page }: GetUsersParams) => {
   url.searchParams.append('per_page', env.USERS_SYNC_BATCH_SIZE);
   url.searchParams.append('order_by', 'id');
   url.searchParams.append('sort', 'asc');
+  url.searchParams.append('active', 'true');
+  url.searchParams.append('without_project_bots', 'true')
+  
   if (page) {
     url.searchParams.append('id_after', page);
   }
