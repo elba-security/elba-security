@@ -59,14 +59,15 @@ export const syncUsersPage = inngest.createFunction(
     const nextPage = await step.run('list-users', async () => {
       // retrieve this users page
       const result = await getUsers(token, page);
+      console.log('result', result);
       // format each Segment Users to elba users
       const users = result.users.map(formatElbaUser);
       // send the batch of users to elba
       logger.debug('Sending batch of users to elba: ', { organisationId, users });
       await elba.users.update({ users });
 
-      if (result.nextPage.next) {
-        return result.nextPage.next;
+      if (result.pagination.next) {
+        return result.pagination.next;
       }
       return null;
     });

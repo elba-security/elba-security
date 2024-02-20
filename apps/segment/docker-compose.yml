@@ -5,8 +5,20 @@ services:
     image: postgres:latest
     container_name: 'postgres-${COMPOSE_PROJECT_NAME}'
     environment:
-      POSTGRES_DB: ${POSTGRES_DATABASE}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DATABASE_DATABASE}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     ports:
-      - '${POSTGRES_PORT}:5432'
+      - '${DATABASE_PORT}:5432'
+  # remove the proxy service if your integration does not works with edge runtime
+  pg_proxy:
+    image: ghcr.io/neondatabase/wsproxy:latest
+    container_name: "pg_proxy-${COMPOSE_PROJECT_NAME}"
+    environment:
+      APPEND_PORT: postgres:5432
+      ALLOW_ADDR_REGEX: '.*'
+      LOG_TRAFFIC: 'true'
+    ports:
+      - '${DATABASE_PROXY_PORT}:80'
+    depends_on:
+      - postgres
