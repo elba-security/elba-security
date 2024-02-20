@@ -28,6 +28,7 @@ export const env = z
     JIRA_SCOPES: z.string(),
     JIRA_TOKEN_URL: z.string().url(),
     JIRA_API_BASE_URL: z.string().url(),
+    JIRA_CLOUD_ID_URL: z.string().url(),
     POSTGRES_URL: z.string().min(1),
     POSTGRES_PORT: z.coerce.number().int().positive(),
     POSTGRES_USER: z.string().min(1),
@@ -36,6 +37,7 @@ export const env = z
     REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
     TOKEN_REFRESH_MAX_RETRY: zEnvRetry(),
     USERS_SYNC_MAX_RETRY: zEnvRetry(),
+    USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().default(100),
     VERCEL_PREFERRED_REGION: z.string().min(1),
     VERCEL_ENV: z.string().min(1).optional(),
   })

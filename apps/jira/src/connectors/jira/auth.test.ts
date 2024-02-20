@@ -92,7 +92,7 @@ describe('auth connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${env.JIRA_TOKEN_URL}/accessible-resources`, ({ request }) => {
+        http.get(env.JIRA_CLOUD_ID_URL, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${accessToken}`) {
             return new Response(undefined, { status: 401 });
           }

@@ -9,10 +9,11 @@ import { removeOrganisation } from './remove-organisation';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  token: 'test-token',
+  accessToken: 'test-token',
   region: 'us-test-1',
   refreshToken: 'test-refresh-token',
   tokenExpiration: 60,
+  cloudId: '00000000-0000-0000-0000-000000000000',
 };
 
 const setup = createInngestFunctionMock(removeOrganisation, 'jira/jira.elba_app.uninstalled');

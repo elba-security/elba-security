@@ -1,4 +1,5 @@
-// import { syncUsersPage } from './users/sync-users-page';
+import { removeOrganisation } from './organisations/remove-organisation';
+import { handleRefreshToken } from './token/refresh-token';
+import { syncUsers } from './users/sync-users';
 
-// export const inngestFunctions = [syncUsersPage];
-export const inngestFunctions = [];
+export const inngestFunctions = [syncUsers, handleRefreshToken, removeOrganisation];

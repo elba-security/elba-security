@@ -58,6 +58,15 @@ describe('setupOrganisation', () => {
         },
       },
       {
+        name: 'jira/users.sync.triggered',
+        data: {
+          organisationId: organisation.id,
+          isFirstSync: true,
+          syncStartedAt: vi.getMockedSystemTime()?.getTime(),
+          startAt: null,
+        },
+      },
+      {
         name: 'jira/token.refresh.triggered',
         data: {
           organisationId: organisation.id,
@@ -103,8 +112,9 @@ describe('setupOrganisation', () => {
         id: organisation.id,
         cloudId: organisation.cloudId,
         region: organisation.region,
+        createdAt: expect.any(Date) as Date,
         refreshToken: newRefreshToken,
-        token: newAccessToken,
+        accessToken: newAccessToken,
       },
     ]);
 
@@ -114,6 +124,15 @@ describe('setupOrganisation', () => {
         name: 'jira/jira.elba_app.installed',
         data: {
           organisationId: organisation.id,
+        },
+      },
+      {
+        name: 'jira/users.sync.triggered',
+        data: {
+          organisationId: organisation.id,
+          isFirstSync: true,
+          syncStartedAt: vi.getMockedSystemTime()?.getTime(),
+          startAt: null,
         },
       },
       {

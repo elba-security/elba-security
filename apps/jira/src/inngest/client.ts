@@ -3,8 +3,16 @@ import { sentryMiddleware } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
 
 export const inngest = new Inngest({
-  id: 'slack',
+  id: 'jira',
   schemas: new EventSchemas().fromRecord<{
+    'jira/users.sync.triggered': {
+      data: {
+        organisationId: string;
+        isFirstSync: boolean;
+        syncStartedAt: number;
+        startAt: number | null;
+      };
+    };
     'jira/jira.elba_app.installed': {
       data: {
         organisationId: string;

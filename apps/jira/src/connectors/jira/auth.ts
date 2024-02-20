@@ -67,25 +67,25 @@ export const refreshAccessToken = async (refreshToken: string) => {
 
 export async function getCloudId(accessToken: string) {
   try {
-    const response = await fetch(`${env.JIRA_TOKEN_URL}/accessible-resources`, {
+    const response = await fetch(env.JIRA_CLOUD_ID_URL, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
 
     if (!response.ok) {
-      throw new JiraError(`Bad response when getting client id - ${response.statusText}`);
+      throw new JiraError(`Bad response when getting cloud id - ${response.statusText}`);
     }
 
     const data = (await response.json()) as AccessibilityResource[];
 
     if (!data.length || !data[0]?.id) {
-      throw new JiraError('Could not retrieve client id - No accessible resources');
+      throw new JiraError('Could not retrieve cloud id - No accessible resources');
     }
 
     return { cloudId: data[0].id };
   } catch (error) {
     const message = error?.toString() || 'Unknown error';
-    throw new JiraError(`Could not retrieve client id - ${message}`);
+    throw new JiraError(`Could not retrieve cloud id - ${message}`);
   }
 }
