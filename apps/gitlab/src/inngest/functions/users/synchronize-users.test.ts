@@ -1,114 +1,161 @@
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `synchronizeUsers` function example.
- * These tests serve as a conceptual framework and are not intended to be used as definitive tests in a production environment.
- * They are meant to illustrate potential test scenarios and methodologies that might be relevant for a SaaS integration.
- * Developers should create their own tests tailored to the specific implementation details and requirements of their SaaS integration.
- * The mock data, assertions, and scenarios used here are simplified and may not cover all edge cases or real-world complexities.
- * It is crucial to expand upon these tests, adapting them to the actual logic and behaviors of your specific SaaS integration.
- */
 import { expect, test, describe, vi } from 'vitest';
-import { createInngestFunctionMock } from '@elba-security/test-utils';
+import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/gitlab/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
+import { env } from '@/common/env';
+import { encrypt } from '@/common/crypto';
 import { synchronizeUsers } from './synchronize-users';
+
+const accessToken = 'access-token';
+const refreshToken = 'refresh-token';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  accessToken: 'test-access-token',
-  refreshToken: 'test-refresh-token',
-  timeZone: "us/eastern",
+  accessToken: await encrypt(accessToken),
+  refreshToken: await encrypt(refreshToken),
   region: 'us',
 };
 const syncStartedAt = Date.now();
 
 const users: usersConnector.GitlabUser[] = Array.from({ length: 5 }, (_, i) => ({
-  id: `id-${i}`,
+  id: i,
   username: `username-${i}`,
   name: `name-${i}`,
   email: `user-${i}@foo.bar`,
 }));
 
-const paging = 1;
+const nextPage = 1;
 
-const setup = createInngestFunctionMock(synchronizeUsers, 'gitlab/users.sync.requested');
+const setup = createInngestFunctionMock(synchronizeUsers, 'gitlab/users.sync.triggered');
 
 describe('synchronize-users', () => {
   test('should abort sync when organisation is not registered', async () => {
+    const elba = spyOnElba();
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      data: users, // Use 'data' key instead of 'results'
-      paging, 
+      users,
+      nextPage,
     });
 
-    // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt: Date.now(),
-      page: "",
-      region: 'us',
+      page: null,
     });
 
-    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
+    expect(elba).toBeCalledTimes(0);
     expect(usersConnector.getUsers).toBeCalledTimes(0);
-
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
   test('should continue the sync when there is a next page', async () => {
-    // setup the test with an organisation
-    await db.insert(Organisation).values(organisation);
-    // mock the getUser function that returns SaaS users page
+    const elba = spyOnElba();
+    await db.insert(organisationsTable).values(organisation);
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      data: users, 
-      paging,
+      users,
+      nextPage,
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: "some after",
-      region: 'us',
+      page: '0',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
-    // check that the function continue the pagination process
+    expect(usersConnector.getUsers).toBeCalledTimes(1);
+    expect(usersConnector.getUsers).toBeCalledWith({
+      accessToken,
+      page: '0',
+    });
+
+    expect(elba).toBeCalledTimes(1);
+    expect(elba).toBeCalledWith({
+      organisationId: organisation.id,
+      region: organisation.region,
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
+    });
+    const elbaInstance = elba.mock.results.at(0)?.value;
+
+    expect(elbaInstance?.users.update).toBeCalledTimes(1);
+    expect(elbaInstance?.users.update).toBeCalledWith({
+      users: users.map(({ id, username, name, email }) => ({
+        id,
+        email: email || null,
+        displayName: name || username,
+        additionalEmails: [],
+      })),
+    });
+
+    expect(elbaInstance?.users.delete).toBeCalledTimes(0);
+
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
-      name: 'gitlab/users.sync.requested',
+      name: 'gitlab/users.sync.triggered',
       data: {
         organisationId: organisation.id,
         isFirstSync: false,
         syncStartedAt,
-        region: organisation.region,
-        page: "1",
+        page: '1',
       },
     });
   });
 
   test('should finalize the sync when there is a no next page', async () => {
-    await db.insert(Organisation).values(organisation);
-    // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
+    const elba = spyOnElba();
+    await db.insert(organisationsTable).values(organisation);
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      data: users, 
-      paging: null
+      users,
+      nextPage: null,
     });
+
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
       page: null,
-      region: 'us',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
-    // the function should not send another event that continue the pagination
+    expect(usersConnector.getUsers).toBeCalledTimes(1);
+    expect(usersConnector.getUsers).toBeCalledWith({
+      accessToken,
+      page: null,
+    });
+
+    expect(elba).toBeCalledTimes(1);
+    expect(elba).toBeCalledWith({
+      organisationId: organisation.id,
+      region: organisation.region,
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
+    });
+    const elbaInstance = elba.mock.results.at(0)?.value;
+
+    expect(elbaInstance?.users.update).toBeCalledTimes(1);
+    expect(elbaInstance?.users.update).toBeCalledWith({
+      users: users.map(({ id, username, name, email }) => ({
+        id,
+        email: email || null,
+        displayName: name || username,
+        additionalEmails: [],
+      })),
+    });
+
+    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
+    expect(elbaInstance?.users.delete).toBeCalledWith({
+      syncedBefore: new Date(syncStartedAt).toISOString(),
+    });
+
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 });

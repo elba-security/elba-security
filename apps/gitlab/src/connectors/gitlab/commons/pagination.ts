@@ -6,7 +6,7 @@ const nextPageFromLinkSchema = z.preprocess((value) => {
   const nextPageUrl = /<(?<nextPageUrl>[^>]+)>;\s*rel="next"/.exec(value)?.groups?.nextPageUrl;
   if (!nextPageUrl) return null;
 
-  return new URL(nextPageUrl).searchParams.get('page');
+  return new URL(nextPageUrl).searchParams.get('id_after');
 }, z.coerce.number().nullable());
 
 // eslint-disable-next-line @typescript-eslint/unbound-method -- convenience

@@ -1,8 +1,9 @@
-import { addMinutes } from 'date-fns/addMinutes';
+import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { getToken } from '@/connectors/auth';
+import { organisationsTable } from '@/database/schema';
+import { getToken } from '@/connectors/gitlab/auth';
 import { inngest } from '@/inngest/client';
+import { encrypt } from '@/common/crypto';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -15,47 +16,45 @@ export const setupOrganisation = async ({
   code,
   region,
 }: SetupOrganisationParams) => {
-  
-  // retrieve token from SaaS API using the given code
-  const { accessToken, refreshToken, expiresIn } = await getToken(code);
+  const result = await getToken(code);
 
-  await db.insert(Organisation).values({ id: organisationId, accessToken, refreshToken, region }).onConflictDoUpdate({
-    target: Organisation.id,
-    set: {
-      accessToken,
-      refreshToken,
-      region
-    },
-  });
+  const accessToken = await encrypt(result.accessToken);
+  const refreshToken = await encrypt(result.refreshToken);
+
+  await db
+    .insert(organisationsTable)
+    .values({ id: organisationId, accessToken, refreshToken, region })
+    .onConflictDoUpdate({
+      target: organisationsTable.id,
+      set: {
+        accessToken,
+        refreshToken,
+        region,
+      },
+    });
 
   await inngest.send([
     {
-      name: 'gitlab/users.sync.requested',
+      name: 'gitlab/users.sync.triggered',
       data: {
         organisationId,
-        region,
         isFirstSync: true,
         syncStartedAt: Date.now(),
-        page: "",
+        page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
-      name: 'gitlab/gitlab.elba_app.installed',
+      name: 'gitlab/app.installed',
       data: {
         organisationId,
-        region,
       },
     },
-    // schedule a new token refresh loop
     {
-      name: 'gitlab/gitlab.token.refresh.requested',
+      name: 'gitlab/token.refresh.triggered',
       data: {
         organisationId,
-        region,
+        expiresAt: addSeconds(new Date(), result.expiresIn).getTime(),
       },
-      // we schedule a token refresh 5 minutes before it expires
-      ts: addMinutes(new Date(), expiresIn - 5).getTime(),
     },
   ]);
 };

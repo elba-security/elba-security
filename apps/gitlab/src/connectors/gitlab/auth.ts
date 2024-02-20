@@ -7,26 +7,24 @@
  * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
  */
 
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { GitlabError } from './commons/error';
 
-type GetTokenResponseData = { access_token: string, refresh_token: string, expires_in: number };
-type RefreshTokenResponseData = { access_token: string, refresh_token: string, expires_in: number };
+type GetTokenResponseData = { access_token: string; refresh_token: string; expires_in: number };
+type RefreshTokenResponseData = { access_token: string; refresh_token: string; expires_in: number };
 
 export const getToken = async (code: string) => {
- 
-  const response = await fetch(`${env.GITLAB_API_BASE_URL}oauth/token`, {
+  const response = await fetch('https://gitlab.com/oauth/token', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams({
-      grant_type: "authorization_code",
+      grant_type: 'authorization_code',
       client_id: env.GITLAB_CLIENT_ID,
       client_secret: env.GITLAB_CLIENT_SECRET,
       redirect_uri: env.GITLAB_REDIRECT_URI,
-      code_verifier: "ks02i3jdikdo2k0dkfodf3m39rjfjsdk0wk349rj3jrhf",
-      code
+      code,
     }).toString(),
   });
 
@@ -37,13 +35,12 @@ export const getToken = async (code: string) => {
   return {
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
-    // TODO: undo /60 when new refresh token flow is implemented 
-    expiresIn: data.expires_in/60,
+    expiresIn: data.expires_in,
   };
 };
 
 export const getRefreshToken = async (refreshTokenInfo: string) => {
-  const response = await fetch(`${env.GITLAB_API_BASE_URL}oauth/token`, {
+  const response = await fetch('https://gitlab.com/oauth/token', {
     method: 'POST',
     body: new URLSearchParams({
       grant_type: 'refresh_token',
@@ -57,13 +54,13 @@ export const getRefreshToken = async (refreshTokenInfo: string) => {
   });
 
   if (!response.ok) {
-    throw new GitlabError('Could not retrieve token', { response });
+    throw new GitlabError('Could not refresh token', { response });
   }
 
   const data = (await response.json()) as RefreshTokenResponseData;
   return {
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
-    expiresIn: data.expires_in/60,
+    expiresIn: data.expires_in,
   };
 };

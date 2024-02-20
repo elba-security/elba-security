@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { validateWebhookRequestSignature } from '@elba-security/sdk';
-import { env } from '@/env';
+import { env } from '@/common/env';
 
 export async function middleware(request: NextRequest) {
   try {
