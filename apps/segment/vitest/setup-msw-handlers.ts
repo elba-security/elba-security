@@ -8,7 +8,7 @@ const elbaRequestHandlers = createElbaRequestHandlers(env.ELBA_API_BASE_URL, env
 
 export const server = setupServer(
   // Remove the next line if your integration does not works with edge runtime
-  http.all(`http://localhost:${env.POSTGRES_PROXY_PORT}/*`, () => passthrough()),
+  http.all(`http://localhost:${env.DATABASE_PROXY_PORT}/*`, () => passthrough()),
   ...elbaRequestHandlers
 );
 

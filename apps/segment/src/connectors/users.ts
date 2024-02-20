@@ -14,7 +14,7 @@ export type Pagination = {
   totalEntries: number;
 };
 
-type GetUsersResponseData = { users: SegmentUser[]; nextPage: Pagination };
+type GetUsersResponseData = { data: { users: SegmentUser[]; pagination: Pagination } };
 
 export const getUsers = async (token: string, page: string | null) => {
   const response = await fetch(
@@ -26,5 +26,6 @@ export const getUsers = async (token: string, page: string | null) => {
   if (!response.ok) {
     throw new SegmentError('Could not retrieve users', { response });
   }
-  return response.json() as Promise<GetUsersResponseData>;
+  const data = (await response.json()) as GetUsersResponseData;
+  return data.data;
 };
