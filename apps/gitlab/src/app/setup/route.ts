@@ -16,12 +16,15 @@ export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
   const organisationId = request.cookies.get('organisation_id')?.value;
   const region = request.cookies.get('region')?.value;
+  const state = request.searchParams.get('state')
+  const cookieState = request.cookies.get('state')?.value;
 
   console.log("code:", code)
   console.log("organisationId:", organisationId)
-  if (!organisationId || !code || !region) {
+  if (!organisationId || !code || !region || state !== cookieState) {
     redirect(`${env.ELBA_REDIRECT_URL}?error=true`, RedirectType.replace);
   }
+
 
   await setupOrganisation({ organisationId, code, region });
 
