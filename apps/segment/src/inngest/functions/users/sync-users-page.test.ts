@@ -39,7 +39,7 @@ describe('sync-users', () => {
     await db.insert(Organisation).values(organisation);
     // mock the getUser function that returns Segment users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      nextPage: { current: '0', next: '1', previous: null, totalEntries: 10 },
+      pagination: { current: '0', next: '1', previous: null, totalEntries: 10 },
       users,
     });
     const [result, { step }] = setup({
@@ -70,7 +70,7 @@ describe('sync-users', () => {
     await db.insert(Organisation).values(organisation);
     // mock the getUser function that returns Segment users page, but this time the response does not indicate that their is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      nextPage: { current: '0', next: null, previous: null, totalEntries: 10 },
+      pagination: { current: '0', next: null, previous: null, totalEntries: 10 },
       users,
     });
     const [result, { step }] = setup({
