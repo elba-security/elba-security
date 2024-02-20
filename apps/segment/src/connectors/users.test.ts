@@ -36,11 +36,13 @@ describe('getUsers', () => {
         const previousCursor = 'previous-cursor';
         return new Response(
           JSON.stringify({
-            users,
-            nextPage: {
-              ...pagination,
-              next: cursor === lastCursor ? null : nextCursor,
-              previous: previousCursor,
+            data: {
+              users,
+              pagination: {
+                ...pagination,
+                next: cursor === lastCursor ? null : nextCursor,
+                previous: previousCursor,
+              },
             },
           }),
           { status: 200 }
@@ -65,11 +67,11 @@ describe('getUsers', () => {
 
   test('should return nextPage when there is next cursor', async () => {
     const result = await getUsers(validToken, 'first-cursor');
-    expect(result.nextPage.next).equals('next-cursor');
+    expect(result.pagination.next).equals('next-cursor');
   });
 
   test('should return nextPage as null when end of list is reached', async () => {
     const result = await getUsers(validToken, 'last-cursor');
-    expect(result.nextPage.next).toBeNull();
+    expect(result.pagination.next).toBeNull();
   });
 });
