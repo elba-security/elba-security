@@ -1,5 +1,5 @@
-import { RedirectType, redirect } from 'next/navigation';
 import type { NextRequest } from 'next/server';
+import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { env } from '@/common/env';
 import { setupOrganisation } from './service';
 
@@ -15,10 +15,28 @@ export async function GET(request: NextRequest) {
   const cookieState = request.cookies.get('state')?.value;
 
   if (!organisationId || !code || !region || state !== cookieState) {
-    redirect(`${env.ELBA_REDIRECT_URL}?error=true`, RedirectType.replace);
+    return new ElbaInstallRedirectResponse({
+      region,
+      baseUrl: env.ELBA_REDIRECT_URL,
+      sourceId: env.ELBA_SOURCE_ID,
+      error: code ? 'internal_error' : 'unauthorized',
+    });
   }
 
-  await setupOrganisation({ organisationId, code, region });
+  try {
+    await setupOrganisation({ organisationId, code, region });
 
-  redirect(env.ELBA_REDIRECT_URL, RedirectType.replace);
+    return new ElbaInstallRedirectResponse({
+      region,
+      baseUrl: env.ELBA_REDIRECT_URL,
+      sourceId: env.ELBA_SOURCE_ID,
+    });
+  } catch {
+    return new ElbaInstallRedirectResponse({
+      region,
+      baseUrl: env.ELBA_REDIRECT_URL,
+      sourceId: env.ELBA_SOURCE_ID,
+      error: 'internal_error',
+    });
+  }
 }
