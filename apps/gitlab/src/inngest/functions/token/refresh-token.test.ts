@@ -35,7 +35,7 @@ const expiresAt = now.getTime() + 60 * 1000;
 // next token duration
 const expiresIn = 60 * 1000;
 
-const setup = createInngestFunctionMock(refreshToken, 'gitlab/token.refresh.triggered');
+const setup = createInngestFunctionMock(refreshToken, 'gitlab/token.refresh.requested');
 
 describe('refresh-token', () => {
   beforeAll(() => {
@@ -103,7 +103,7 @@ describe('refresh-token', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('next-refresh', {
-      name: 'gitlab/token.refresh.triggered',
+      name: 'gitlab/token.refresh.requested',
       data: {
         organisationId: organisation.id,
         expiresAt: now.getTime() + expiresIn * 1000,

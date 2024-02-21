@@ -28,7 +28,7 @@ export const refreshToken = inngest.createFunction(
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
-  { event: 'gitlab/token.refresh.triggered' },
+  { event: 'gitlab/token.refresh.requested' },
   async ({ event, step }) => {
     const { organisationId, expiresAt } = event.data;
 
@@ -64,7 +64,7 @@ export const refreshToken = inngest.createFunction(
     });
 
     await step.sendEvent('next-refresh', {
-      name: 'gitlab/token.refresh.triggered',
+      name: 'gitlab/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: new Date(nextExpiresAt).getTime(),

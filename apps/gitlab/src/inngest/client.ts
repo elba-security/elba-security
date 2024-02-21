@@ -7,13 +7,13 @@ import { unauthorizedMiddleware } from './middlewares/unauthorized-middleware';
 export const inngest = new Inngest({
   id: 'slack',
   schemas: new EventSchemas().fromRecord<{
-    'gitlab/token.refresh.triggered': {
+    'gitlab/token.refresh.requested': {
       data: {
         organisationId: string;
         expiresAt: number;
       };
     };
-    'gitlab/users.sync.triggered': {
+    'gitlab/users.sync.requested': {
       data: {
         organisationId: string;
         isFirstSync: boolean;

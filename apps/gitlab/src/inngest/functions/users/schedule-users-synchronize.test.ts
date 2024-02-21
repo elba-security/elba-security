@@ -41,7 +41,7 @@ describe('schedule-users-syncs', () => {
     expect(step.sendEvent).toBeCalledWith(
       'synchronize-users',
       organisations.map(({ id }) => ({
-        name: 'gitlab/users.sync.triggered',
+        name: 'gitlab/users.sync.requested',
         data: {
           organisationId: id,
           syncStartedAt: now,

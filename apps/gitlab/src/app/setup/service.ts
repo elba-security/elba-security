@@ -35,7 +35,7 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
-      name: 'gitlab/users.sync.triggered',
+      name: 'gitlab/users.sync.requested',
       data: {
         organisationId,
         isFirstSync: true,
@@ -50,7 +50,7 @@ export const setupOrganisation = async ({
       },
     },
     {
-      name: 'gitlab/token.refresh.triggered',
+      name: 'gitlab/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: addSeconds(new Date(), result.expiresIn).getTime(),

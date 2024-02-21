@@ -72,7 +72,7 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'gitlab/users.sync.triggered',
+        name: 'gitlab/users.sync.requested',
         data: {
           isFirstSync: true,
           organisationId: organisation.id,
@@ -87,7 +87,7 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'gitlab/token.refresh.triggered',
+        name: 'gitlab/token.refresh.requested',
         data: {
           organisationId: organisation.id,
           expiresAt: now.getTime() + expiresIn * 1000,
@@ -136,7 +136,7 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'gitlab/users.sync.triggered',
+        name: 'gitlab/users.sync.requested',
         data: {
           isFirstSync: true,
           organisationId: organisation.id,
@@ -151,7 +151,7 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'gitlab/token.refresh.triggered',
+        name: 'gitlab/token.refresh.requested',
         data: {
           organisationId: organisation.id,
           expiresAt: now.getTime() + expiresIn * 1000,

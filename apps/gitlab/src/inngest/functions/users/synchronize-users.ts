@@ -27,7 +27,7 @@ export const synchronizeUsers = inngest.createFunction(
     },
     retries: 3,
   },
-  { event: 'gitlab/users.sync.triggered' },
+  { event: 'gitlab/users.sync.requested' },
   async ({ event, step }) => {
     const { organisationId, syncStartedAt, page } = event.data;
 
@@ -59,7 +59,7 @@ export const synchronizeUsers = inngest.createFunction(
 
     if (nextPage) {
       await step.sendEvent('synchronize-users', {
-        name: 'gitlab/users.sync.triggered',
+        name: 'gitlab/users.sync.requested',
         data: {
           ...event.data,
           page: String(nextPage),
