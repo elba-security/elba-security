@@ -26,6 +26,7 @@ export class DBXUsers extends DBXAccess {
       nextCursor,
       hasMore,
       members: formatUsers(members),
+      unFormattedMembers: members,
     };
   };
 }

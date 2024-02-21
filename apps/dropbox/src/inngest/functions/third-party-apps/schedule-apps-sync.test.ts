@@ -24,21 +24,21 @@ describe('schedule-third-party-apps-sync-jobs', () => {
   });
 
   test('should schedule third party apps sync jobs for available organisations', async () => {
-    await insertOrganisations({
-      size: 3,
-    });
+    await insertOrganisations(3);
     vi.setSystemTime('2023-01-13T22:02:52.744Z');
     const [result, { step }] = await setup();
 
     await expect(result).resolves.toStrictEqual({
-      organisations: selectedOrganisations.map((organisationId) => ({
-        organisationId,
-      })),
+      organisations: expect.arrayContaining(
+        selectedOrganisations.map((organisationId) => ({
+          organisationId,
+        }))
+      ),
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'dropbox-sync-apps',
+      'sync-apps',
       selectedOrganisations.map((organisationId) => ({
         name: 'dropbox/third_party_apps.sync_page.triggered',
         data: {

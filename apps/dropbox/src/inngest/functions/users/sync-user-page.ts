@@ -36,7 +36,6 @@ const handler: FunctionHandler = async ({
     });
 
     const { members, ...rest } = await dbx.fetchUsers(cursor);
-
     if (members.length > 0) {
       await elba.users.update({
         users: members,

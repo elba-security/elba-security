@@ -35,7 +35,7 @@ const setup = createInngestFunctionMock(syncApps, 'dropbox/third_party_apps.sync
 describe('run-user-sync-jobs', () => {
   beforeEach(async () => {
     await db.delete(organisations);
-    await insertOrganisations({});
+    await insertOrganisations();
     vi.clearAllMocks();
     vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
   });

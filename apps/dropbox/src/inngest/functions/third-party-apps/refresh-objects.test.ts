@@ -36,7 +36,7 @@ const setup = createInngestFunctionMock(
 describe('third-party-apps-refresh-objects', () => {
   beforeEach(async () => {
     await db.delete(organisations);
-    await insertOrganisations({});
+    await insertOrganisations();
     vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
     vi.clearAllMocks();
   });

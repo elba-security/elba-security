@@ -30,11 +30,11 @@ export const syncUsers = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'microsoft/microsoft.elba_app.uninstalled',
+        event: 'microsoft/app.uninstalled',
         match: 'data.organisationId',
       },
       {
-        event: 'microsoft/microsoft.elba_app.installed',
+        event: 'microsoft/app.installed',
         match: 'data.organisationId',
       },
     ],
