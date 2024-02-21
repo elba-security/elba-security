@@ -30,7 +30,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
 
             let retryAfter: string | boolean | null = false;
             if (error instanceof ZoomError && error.response?.headers['Retry-After']) {
-              retryAfter = error.response.headers.get('Retry-After');
+              retryAfter = error.response.headers['Retry-After'] as string;
             }
 
             if (!retryAfter) {

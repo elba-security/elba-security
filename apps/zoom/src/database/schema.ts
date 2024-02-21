@@ -10,6 +10,8 @@ export const Organisation = pgTable('organisation', {
 
   accessToken: text('access_token').notNull(),
   refreshToken: text('refresh_token').notNull(),
+
+  // TODO: remove this field + update token refreshing logic
   expiresIn: timestamp('expire_at').notNull(),
 });
 

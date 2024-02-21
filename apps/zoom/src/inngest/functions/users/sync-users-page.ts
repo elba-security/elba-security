@@ -48,7 +48,6 @@ export const syncUsersPage = inngest.createFunction(
       baseUrl: env.ELBA_API_BASE_URL,
       region,
     });
-    console.log('sync user hit');
     const token = await step.run('get-token', async () => {
       const [organisation] = await db
         .select({ token: Organisation.accessToken })
@@ -59,7 +58,6 @@ export const syncUsersPage = inngest.createFunction(
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
 
-      // return '';
       return organisation?.token;
     });
 
@@ -71,7 +69,6 @@ export const syncUsersPage = inngest.createFunction(
       const users = result.users.map(formatElbaUser);
 
       // send the batch of users to elba
-      // TODO: will do it later because i need elba working url and api key
       await elba.users.update({ users });
 
       return result.next_page_token;
@@ -94,7 +91,6 @@ export const syncUsersPage = inngest.createFunction(
 
     // delete the elba users that has been sent before this sync
     await step.run('finalize', () => {
-      // TODO: will do it later as i Need elab redirect url and api key
       return elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() });
     });
 

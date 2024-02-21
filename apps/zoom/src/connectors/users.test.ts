@@ -53,12 +53,13 @@ describe('user connector', () => {
       server.use(
         http.get(`${env.ZOOM_API_URL}/users`, ({ request }) => {
           const accessToken = request.headers.get('Authorization')?.split(' ')[1];
+
           // Extracting the 'workspace' query parameter
           const url = new URL(request.url);
           const nextPage = url.searchParams.get('next_page_token');
 
           if (accessToken !== validAccessToken) {
-            throw new ZoomError('Not Found');
+            return new Response(undefined, { status: 401 });
           }
           if (!nextPage) {
             return Response.json(usersDataLastPage);

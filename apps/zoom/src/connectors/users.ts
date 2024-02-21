@@ -35,22 +35,18 @@ export const getUsers = async (token: string, page: string | null) => {
   if (page !== null) {
     zoomUrl.searchParams.append('next_page_token', page);
   }
-  let response: Response;
-  try {
-    response = await fetch(zoomUrl.toString(), {
-      headers: { Authorization: `Bearer ${token}` },
+
+  const response = await fetch(zoomUrl.toString(), {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!response.ok || response.status === 401) {
+    throw new ZoomError('Could not retrieve users', {
+      response,
     });
-
-    if (!response.ok || response.status === 401) {
-      throw new ZoomError('Could not retrieve users', {
-        response,
-      });
-    }
-
-    const data = (await response.json()) as Promise<GetUsersResponseData>;
-
-    return data;
-  } catch (error) {
-    throw new ZoomError('Could not retrieve users', { response });
   }
+
+  const data = (await response.json()) as Promise<GetUsersResponseData>;
+
+  return data;
 };
