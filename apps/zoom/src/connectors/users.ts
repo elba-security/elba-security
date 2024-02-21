@@ -40,7 +40,7 @@ export const getUsers = async (token: string, page: string | null) => {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  if (!response.ok || response.status === 401) {
+  if (!response.ok) {
     throw new ZoomError('Could not retrieve users', {
       response,
     });

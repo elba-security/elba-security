@@ -1,4 +1,4 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
@@ -29,8 +29,16 @@ const users: usersConnector.ZoomUser[] = Array.from({ length: 5 }, (_, i) => ({
 
 /* eslint-disable -- no type here */
 const setup = createInngestFunctionMock(syncUsersPage as any, 'zoom/users.page_sync.requested');
-
+const now = Date.now();
 describe('sync-users', () => {
+  beforeAll(() => {
+    vi.setSystemTime(now);
+  });
+
+  afterAll(() => {
+    vi.useRealTimers();
+  });
+
   test('should abort sync when organisation is not registered', async () => {
     // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
