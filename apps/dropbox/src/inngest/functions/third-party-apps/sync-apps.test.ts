@@ -30,7 +30,7 @@ vi.mock('@/connectors/dropbox/dbx-access', () => {
   };
 });
 
-const setup = createInngestFunctionMock(syncApps, 'dropbox/third_party_apps.sync_page.triggered');
+const setup = createInngestFunctionMock(syncApps, 'dropbox/third_party_apps.sync_page.requested');
 
 describe('run-user-sync-jobs', () => {
   beforeEach(async () => {
@@ -213,7 +213,7 @@ describe('run-user-sync-jobs', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('third-party-apps-run-sync-jobs', {
-      name: 'dropbox/third_party_apps.sync_page.triggered',
+      name: 'dropbox/third_party_apps.sync_page.requested',
       data: {
         cursor: 'cursor-1',
         isFirstSync: false,

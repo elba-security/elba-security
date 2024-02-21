@@ -12,7 +12,7 @@ const TOKEN_WILL_EXPIRE_IN = 14400;
 const TOKEN_EXPIRES_AT = addSeconds(new Date(TOKEN_GENERATED_AT), TOKEN_WILL_EXPIRE_IN);
 const organisationId = '00000000-0000-0000-0000-000000000001';
 
-const setup = createInngestFunctionMock(refreshToken, 'dropbox/token.refresh.triggered');
+const setup = createInngestFunctionMock(refreshToken, 'dropbox/token.refresh.requested');
 
 const mocks = vi.hoisted(() => {
   return {
@@ -90,7 +90,7 @@ describe('refreshToken', () => {
     );
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('refresh-token', {
-      name: 'dropbox/token.refresh.triggered',
+      name: 'dropbox/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: TOKEN_EXPIRES_AT.getTime(),

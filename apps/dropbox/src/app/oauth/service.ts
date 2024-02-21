@@ -74,14 +74,14 @@ export const generateAccessToken = async ({
 
   await inngest.send([
     {
-      name: 'dropbox/token.refresh.triggered',
+      name: 'dropbox/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: addSeconds(new Date(), expires_in).getTime(),
       },
     },
     {
-      name: 'dropbox/users.sync_page.triggered',
+      name: 'dropbox/users.sync_page.requested',
       data: {
         organisationId,
         isFirstSync: true,

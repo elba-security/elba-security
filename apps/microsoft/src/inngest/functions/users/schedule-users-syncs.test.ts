@@ -41,7 +41,7 @@ describe('schedule-users-syncs', () => {
     expect(step.sendEvent).toBeCalledWith(
       'sync-organisations-users',
       organisations.map(({ id }) => ({
-        name: 'microsoft/users.sync.triggered',
+        name: 'microsoft/users.sync.requested',
         data: {
           organisationId: id,
           skipToken: null,

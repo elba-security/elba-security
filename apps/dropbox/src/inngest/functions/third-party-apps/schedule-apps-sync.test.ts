@@ -40,7 +40,7 @@ describe('schedule-third-party-apps-sync-jobs', () => {
     expect(step.sendEvent).toBeCalledWith(
       'sync-apps',
       selectedOrganisations.map((organisationId) => ({
-        name: 'dropbox/third_party_apps.sync_page.triggered',
+        name: 'dropbox/third_party_apps.sync_page.requested',
         data: {
           organisationId,
           isFirstSync: false,

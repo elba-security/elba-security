@@ -12,7 +12,7 @@ describe('triggerThirdPartyAppsScan', () => {
     vi.restoreAllMocks();
   });
 
-  test('should schedule trigger the dropbox/third_party_apps.sync_page.triggered event', async () => {
+  test('should schedule trigger the dropbox/third_party_apps.sync_page.requested event', async () => {
     vi.setSystemTime(syncStartAt);
     await insertOrganisations();
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
@@ -29,7 +29,7 @@ describe('triggerThirdPartyAppsScan', () => {
     expect(send).toBeCalledTimes(1);
 
     expect(send).toBeCalledWith({
-      name: 'dropbox/third_party_apps.sync_page.triggered',
+      name: 'dropbox/third_party_apps.sync_page.requested',
       data: {
         organisationId,
         isFirstSync: true,

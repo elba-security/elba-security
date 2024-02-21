@@ -40,7 +40,7 @@ export const syncUsers = inngest.createFunction(
     ],
     retries: env.USERS_SYNC_MAX_RETRY,
   },
-  { event: 'microsoft/users.sync.triggered' },
+  { event: 'microsoft/users.sync.requested' },
   async ({ event, step }) => {
     const { organisationId, syncStartedAt, skipToken } = event.data;
 
@@ -88,7 +88,7 @@ export const syncUsers = inngest.createFunction(
 
     if (nextSkipToken) {
       await step.sendEvent('sync-next-users-page', {
-        name: 'microsoft/users.sync.triggered',
+        name: 'microsoft/users.sync.requested',
         data: {
           ...event.data,
           skipToken: nextSkipToken,
