@@ -60,7 +60,7 @@ export const synchronizeUsers = inngest.createFunction(
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ token, afterCursor: page });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers.filter(({ active }) => active).map(formatElbaUser);
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
