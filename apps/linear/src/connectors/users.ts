@@ -1,30 +1,24 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation. When requesting against API endpoint we might prefer
- * to valid the response data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
-
+import { z } from 'zod';
 import { env } from '@/env';
 import { LinearError } from './commons/error';
-import { z } from 'zod'; 
 
-// Define the schema for a user using zod for runtime validation
-const LinearUserSchema = z.object({
+const linearUserSchema = z.object({
   id: z.string(),
-  username: z.string(), // Adjusted to match the response field
+  username: z.string(),
   name: z.string(),
-  email: z.string().optional(), // Email is optional
+  active: z.boolean(),
+  email: z.string().optional(),
 });
 
-const LinearResponseSchema = z.object({
+export type LinearUser = z.infer<typeof linearUserSchema>;
+
+const linearResponseSchema = z.object({
   data: z.object({
     users: z.object({
-      nodes: z.array(LinearUserSchema),
+      nodes: z.array(z.unknown()),
       pageInfo: z.object({
         hasNextPage: z.boolean(),
-        endCursor: z.string().nullable(), // Ensure this matches the expected type
+        endCursor: z.string().nullable(),
       }),
     }),
   }),
@@ -38,15 +32,15 @@ export type GetUsersParams = {
 const perPage = env.USERS_SYNC_BATCH_SIZE;
 
 export const getUsers = async ({ token, afterCursor }: GetUsersParams) => {
-  console.log("aftercursor", afterCursor)
   const query = {
     query: `
-      query($afterCursor: String) {
+      query($afterCursor: String, $perPage: Int) {
         users(first: $perPage, after: $afterCursor) {
           nodes {
             id
             username: name
             name: displayName
+            active
             email
           }
           pageInfo {
@@ -58,13 +52,11 @@ export const getUsers = async ({ token, afterCursor }: GetUsersParams) => {
     `,
     variables: {
       afterCursor: afterCursor ? afterCursor : null,
-      perPage
+      perPage,
     },
   };
 
-  const url = `${env.LINEAR_API_BASE_URL}graphql`;
-
-  const response = await fetch(url, {
+  const response = await fetch(`${env.LINEAR_API_BASE_URL}graphql`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -73,30 +65,33 @@ export const getUsers = async ({ token, afterCursor }: GetUsersParams) => {
     },
     body: JSON.stringify(query),
   });
-  
+
   if (!response.ok) {
     throw new LinearError('Could not retrieve users', { response });
   }
 
-  
-  const jsonResponse = await response.json();
-  console.log("jsonResponse:", jsonResponse)
+  const data: unknown = await response.json();
+  const {
+    data: {
+      users: { nodes, pageInfo },
+    },
+  } = linearResponseSchema.parse(data);
 
-  // Validate response using zod
-  const result = LinearResponseSchema.safeParse(jsonResponse);
-  if (!result.success) {
-    console.log("Validataion errors:", result.error.issues)
-    throw new LinearError('Invalid response structure', { response: jsonResponse });
+  const validUsers: LinearUser[] = [];
+  const invalidUsers: unknown[] = [];
+
+  for (const node of nodes) {
+    const result = linearUserSchema.safeParse(node);
+    if (result.success) {
+      validUsers.push(result.data);
+    } else {
+      invalidUsers.push(node);
+    }
   }
 
-  // Extract data from the validated response
-  const users = result.data.data.users.nodes;
-  const pageInfo = result.data.data.users.pageInfo;
-
   return {
-    data: users,
-    paging: {
-      next: pageInfo.hasNextPage ? pageInfo.endCursor : null,
-    },
+    validUsers,
+    invalidUsers,
+    nextPage: pageInfo.endCursor,
   };
 };

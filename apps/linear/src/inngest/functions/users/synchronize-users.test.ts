@@ -19,35 +19,27 @@ const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   accessToken: 'test-access-token',
   refreshToken: 'test-refresh-token',
-  timeZone: "us/eastern",
+  timeZone: 'us/eastern',
   region: 'us',
 };
 const syncStartedAt = Date.now();
 
-type LinearUser = {
-  id: string;
-  name: string;
-  username: string;
-  email?: string;
-};
-
-const users: LinearUser[] = Array.from({ length: 5 }, (_, i) => ({
+const users: usersConnector.LinearUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
   name: `name-${i}`,
   username: `username-${i}`,
+  active: true,
   email: `user-${i}@foo.bar`,
 }));
-
-const hasNext = false;
-const paging = { next: hasNext ? "1" : null };
 
 const setup = createInngestFunctionMock(synchronizeUsers, 'linear/users.sync.requested');
 
 describe('synchronize-users', () => {
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      data: users, 
-      paging, 
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: null,
     });
 
     // setup the test without organisation entries in the database, the function cannot retrieve a token
@@ -72,16 +64,16 @@ describe('synchronize-users', () => {
     await db.insert(Organisation).values(organisation);
     // mock the getUser function that returns SaaS users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      data: users, 
-      paging: {
-        next: "some page"
-      },
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: 'some page',
     });
+
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: "some aftera",
+      page: 'some aftera',
       region: 'us',
     });
 
@@ -96,7 +88,7 @@ describe('synchronize-users', () => {
         isFirstSync: false,
         syncStartedAt,
         region: organisation.region,
-        page: null,
+        page: 'some page',
       },
     });
   });
@@ -105,11 +97,11 @@ describe('synchronize-users', () => {
     await db.insert(Organisation).values(organisation);
     // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      data: users, 
-      paging: {
-        next: null
-      },
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: null,
     });
+
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,

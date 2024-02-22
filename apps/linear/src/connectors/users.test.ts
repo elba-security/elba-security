@@ -11,46 +11,50 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
+import type { LinearUser } from './users';
 import { getUsers } from './users';
 import { LinearError } from './commons/error';
-import { LinearUser } from '@/inngest/functions/users/synchronize-users';
 
 const validToken = 'token-1234';
-const page = "some page";
+const endCursor = 'end-cursor';
+const nextCursor = 'next-cursor';
 
-const mockUsers = [
-  { id: '1', username: 'user1', name: 'User One', email: 'user1@example.com' },
-  { id: '2', username: 'user2', name: 'User Two', email: 'user2@example.com' },
-];
-const pageInfo = {
-  hasNextPage: true,
-  endCursor: 'end-cursor-token',
-};
-
-const users: LinearUser[] = Array.from({ length: 5 }, (_, i) => ({
+const validUsers: LinearUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
   username: `username-${i}`,
+  name: `name-${i}`,
+  active: true,
   email: `user-${i}@foo.bar`,
 }));
+
+const invalidUsers = [
+  {
+    id: `id-deactivated`,
+  },
+];
 
 describe('users connector', () => {
   describe('getUsers', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.post(`${env.LINEAR_API_BASE_URL}graphql`, ({ request }) => {
+        http.post(`${env.LINEAR_API_BASE_URL}graphql`, async ({ request }) => {
           // briefly implement API endpoint behaviour
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
 
+          // @ts-expect-error -- convenience
+          const data: { variables: { afterCursor: string } } = await request.json();
+          const { afterCursor } = data.variables;
+
           return Response.json({
             data: {
               users: {
-                nodes: mockUsers,
+                nodes: [...validUsers, ...invalidUsers],
                 pageInfo: {
-                  hasNextPage: false,
-                  endCursor: page,
+                  hasNextPage: afterCursor !== endCursor,
+                  endCursor: afterCursor !== endCursor ? nextCursor : null,
                 },
               },
             },
@@ -60,25 +64,23 @@ describe('users connector', () => {
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(getUsers({token:validToken, afterCursor: page})).resolves.toStrictEqual({
-        data: mockUsers,
-        paging: {
-          next: null
-        },
+      await expect(getUsers({ token: validToken, afterCursor: 'start' })).resolves.toStrictEqual({
+        validUsers,
+        invalidUsers,
+        nextPage: nextCursor,
       });
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(getUsers({token: validToken, afterCursor: null})).resolves.toStrictEqual({
-        data: mockUsers,
-        paging: {
-          next: null
-        },
+      await expect(getUsers({ token: validToken, afterCursor: endCursor })).resolves.toStrictEqual({
+        validUsers,
+        invalidUsers,
+        nextPage: null,
       });
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(getUsers({token: 'foo-bar'})).rejects.toBeInstanceOf(LinearError);
+      await expect(getUsers({ token: 'foo-bar' })).rejects.toBeInstanceOf(LinearError);
     });
   });
 });
