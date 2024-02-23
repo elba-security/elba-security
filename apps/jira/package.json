@@ -8,7 +8,7 @@
     "database:generate": "drizzle-kit generate:pg --schema=./src/database/schema.ts",
     "database:migrate": "node ./scripts/migrate.js .env.local",
     "database:up": "docker-compose -p jira --env-file=.env.local up -d",
-    "dev:inngest": "inngest-cli dev -uv http://localhost:4000/api/inngest",
+    "dev:inngest": "inngest-cli dev --verbose -u http://localhost:4000/api/inngest",
     "dev": "next dev -p 4000",
     "lint": "next lint",
     "start": "next start",

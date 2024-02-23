@@ -50,6 +50,15 @@ export const setupOrganisation = async ({
       },
     },
     {
+      name: 'jira/users.sync.requested',
+      data: {
+        organisationId,
+        isFirstSync: true,
+        syncStartedAt: Date.now(),
+        startAt: null,
+      },
+    },
+    {
       name: 'jira/token.refresh.requested',
       data: {
         organisationId,
