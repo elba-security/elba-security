@@ -1,3 +1,4 @@
+import { syncUsers } from './users/sync-users';
 import { handleRefreshToken } from './token/refresh-token';
 
-export const inngestFunctions = [handleRefreshToken];
+export const inngestFunctions = [syncUsers, handleRefreshToken];

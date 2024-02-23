@@ -3,7 +3,8 @@ import { eq } from 'drizzle-orm';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import * as authConnector from '@/connectors/auth';
+import * as authConnector from '@/connectors/bitbucket/auth';
+import * as workspaceConnector from '@/connectors/bitbucket/workspace';
 import { setupOrganisation } from './service';
 
 const accessCode = 'mock-access-code';
@@ -14,6 +15,7 @@ const organisation = {
   region: 'us-test-1',
   refreshToken: 'refresh-token-123',
   accessToken: 'access-token-123',
+  workspaceId: 'workspace-id-123',
 };
 
 describe('setupOrganisation', () => {
@@ -32,6 +34,9 @@ describe('setupOrganisation', () => {
       expiresIn,
       accessToken: organisation.accessToken,
     });
+    const getWorkspace = vi
+      .spyOn(workspaceConnector, 'getWorkspace')
+      .mockResolvedValue({ uuid: organisation.workspaceId });
 
     await setupOrganisation({
       organisationId: organisation.id,
@@ -43,12 +48,23 @@ describe('setupOrganisation', () => {
 
     expect(getAccessToken).toBeCalledTimes(1);
     expect(getAccessToken).toBeCalledWith(accessCode);
+    expect(getWorkspace).toBeCalledTimes(1);
+    expect(getWorkspace).toBeCalledWith(organisation.accessToken);
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
         name: 'bitbucket/bitbucket.elba_app.installed',
         data: {
           organisationId: organisation.id,
+        },
+      },
+      {
+        name: 'bitbucket/users.sync.requested',
+        data: {
+          organisationId: organisation.id,
+          syncStartedAt: vi.getMockedSystemTime()?.getTime(),
+          isFirstSync: true,
+          nextUrl: null,
         },
       },
       {
@@ -72,6 +88,9 @@ describe('setupOrganisation', () => {
       refreshToken: newRefreshToken,
       expiresIn,
     });
+    const getWorkspace = vi
+      .spyOn(workspaceConnector, 'getWorkspace')
+      .mockResolvedValue({ uuid: organisation.workspaceId });
 
     await db.insert(organisationsTable).values(organisation);
 
@@ -85,6 +104,7 @@ describe('setupOrganisation', () => {
 
     expect(getAccessToken).toBeCalledTimes(1);
     expect(getAccessToken).toBeCalledWith(accessCode);
+    expect(getWorkspace).toBeCalledTimes(1);
 
     await expect(
       db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
@@ -95,6 +115,7 @@ describe('setupOrganisation', () => {
         createdAt: expect.any(Date) as Date,
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
+        workspaceId: organisation.workspaceId,
       },
     ]);
 
@@ -104,6 +125,15 @@ describe('setupOrganisation', () => {
         name: 'bitbucket/bitbucket.elba_app.installed',
         data: {
           organisationId: organisation.id,
+        },
+      },
+      {
+        name: 'bitbucket/users.sync.requested',
+        data: {
+          organisationId: organisation.id,
+          syncStartedAt: vi.getMockedSystemTime()?.getTime(),
+          isFirstSync: true,
+          nextUrl: null,
         },
       },
       {

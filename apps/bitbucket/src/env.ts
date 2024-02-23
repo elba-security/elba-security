@@ -20,15 +20,11 @@ export const env = z
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
 
-    BB_APP_ID: z.string().uuid(),
     BB_CLIENT_ID: z.string(),
     BB_CLIENT_SECRET: z.string(),
     BB_AUTH_URL: z.string().url(),
     BB_ACCESS_TOKEN_URL: z.string().url(),
     BB_CALLBACK_URL: z.string().url(),
-
-    BB_APP_INSTALL_URL: z.string().url(),
-    BB_API_BASE_URL: z.string().url(),
 
     POSTGRES_URL: z.string().min(1),
     POSTGRES_PORT: z.coerce.number().int().positive(),

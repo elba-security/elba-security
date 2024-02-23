@@ -5,7 +5,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
-import { refreshAccessToken } from '@/connectors/auth';
+import { refreshAccessToken } from '@/connectors/bitbucket/auth';
 
 export const handleRefreshToken = inngest.createFunction(
   {

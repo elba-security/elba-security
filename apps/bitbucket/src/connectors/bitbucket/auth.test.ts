@@ -3,9 +3,9 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
-import { server } from '../../vitest/setup-msw-handlers';
+import { server } from '../../../vitest/setup-msw-handlers';
+import { BitbucketError } from '../commons/error';
 import { getAccessToken, refreshAccessToken } from './auth';
-import { BitbucketError } from './commons/error';
 
 describe('auth connector', () => {
   describe('getAccessToken', () => {

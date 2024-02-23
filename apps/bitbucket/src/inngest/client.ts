@@ -16,6 +16,14 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
+    'bitbucket/users.sync.requested': {
+      data: {
+        organisationId: string;
+        isFirstSync: boolean;
+        syncStartedAt: number;
+        nextUrl: string | null;
+      };
+    };
   }>(),
   middleware: [rateLimitMiddleware, sentryMiddleware],
   logger,

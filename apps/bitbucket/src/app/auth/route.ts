@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     await setupOrganisation({ organisationId, region, accessCode });
   } catch (error) {
-    logger.warn('Could not setup organisation after Jira redirection', { error });
+    logger.warn('Could not setup organisation after Bitbucket redirection', { error });
     if (isRedirectError(error)) {
       throw error;
     }

@@ -4,19 +4,19 @@ import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import * as authConnector from '@/connectors/auth';
+import * as authConnector from '@/connectors/bitbucket/auth';
 import { handleRefreshToken } from './refresh-token';
 
 const newToken = 'new-test-access-token';
 const newRefreshToken = 'new-test-refresh-token';
+const expiresIn = 60;
 
 const organisation = {
   id: '11111111-1111-1111-1111-111111111111',
   refreshToken: 'refresh-token-123',
   region: 'us-test-1',
   accessToken: 'access-token-123',
-  tokenExpiration: 60,
-  cloudId: '00000000-0000-0000-0000-000000000000',
+  workspaceId: 'workspace-id-123',
 };
 const now = new Date();
 
@@ -34,7 +34,7 @@ describe('refresh-token', () => {
   test('should abort sync when organisation is not registered', async () => {
     const refreshAccessToken = vi.spyOn(authConnector, 'refreshAccessToken').mockResolvedValue({
       accessToken: newToken,
-      expiresIn: organisation.tokenExpiration,
+      expiresIn,
       refreshToken: newRefreshToken,
     });
 
@@ -54,7 +54,7 @@ describe('refresh-token', () => {
     const refreshAccessToken = vi.spyOn(authConnector, 'refreshAccessToken').mockResolvedValue({
       refreshToken: newRefreshToken,
       accessToken: newToken,
-      expiresIn: organisation.tokenExpiration,
+      expiresIn,
     });
 
     const [result, { step }] = setup({
@@ -79,7 +79,7 @@ describe('refresh-token', () => {
       data: {
         organisationId: organisation.id,
       },
-      ts: now.getTime() + organisation.tokenExpiration * 1000 - 5 * 60 * 1000,
+      ts: now.getTime() + expiresIn * 1000 - 5 * 60 * 1000,
     });
   });
 });

@@ -24,7 +24,7 @@ export function GET(request: NextRequest) {
     cookies().set('organisation_id', organisationId);
     cookies().set('region', region);
   } catch (error) {
-    logger.error('Could not redirect user to Jira app install url', {
+    logger.error('Could not redirect user to Bitbucket app install url', {
       error,
     });
 

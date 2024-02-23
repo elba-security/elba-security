@@ -1,5 +1,5 @@
 import { env } from '@/env';
-import { BitbucketError } from './commons/error';
+import { BitbucketError } from '../commons/error';
 
 type TokenResponseData = {
   access_token: string;
@@ -19,6 +19,7 @@ export const getAccessToken = async (accessCode: string) => {
       client_secret: env.BB_CLIENT_SECRET,
       grant_type: 'authorization_code',
       code: accessCode,
+      redirect_uri: env.BB_CALLBACK_URL,
     }),
   });
 

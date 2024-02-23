@@ -1,8 +1,9 @@
 import { addSeconds, subMinutes } from 'date-fns';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { getAccessToken } from '@/connectors/auth';
 import { inngest } from '@/inngest/client';
+import { getWorkspace } from '@/connectors/bitbucket/workspace';
+import { getAccessToken } from '@/connectors/bitbucket/auth';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -17,15 +18,17 @@ export const setupOrganisation = async ({
 }: SetupOrganisationParams) => {
   // Exchange the authorization code for an access token
   const { refreshToken, accessToken, expiresIn } = await getAccessToken(accessCode);
+  const { uuid: workspaceId } = await getWorkspace(accessToken);
 
   await db
     .insert(organisationsTable)
-    .values({ id: organisationId, accessToken, refreshToken, region })
+    .values({ id: organisationId, region, accessToken, refreshToken, workspaceId })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
         accessToken,
         refreshToken,
+        workspaceId,
       },
     });
 
@@ -34,6 +37,15 @@ export const setupOrganisation = async ({
       name: 'bitbucket/bitbucket.elba_app.installed',
       data: {
         organisationId,
+      },
+    },
+    {
+      name: 'bitbucket/users.sync.requested',
+      data: {
+        organisationId,
+        isFirstSync: true,
+        syncStartedAt: Date.now(),
+        nextUrl: null,
       },
     },
     {
