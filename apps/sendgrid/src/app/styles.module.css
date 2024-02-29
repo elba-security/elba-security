@@ -1,0 +1,101 @@
+.container {
+  padding-top: 8rem;
+}
+
+.modal {
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  padding: 2rem 10rem;
+  height: 400px;
+  max-width: 1080px;
+  margin: auto;
+}
+
+.timeline_container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.step_number {
+  padding: 5px 10px;
+  border-radius: 100%;
+  cursor: pointer;
+  margin: 0 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.step_text {
+  position: absolute;
+  width: max-content;
+  top: 35px;
+}
+
+.timeline {
+  flex: 1;
+  border-top: 2px solid green;
+  height: 2px;
+  margin-top: 10px;
+}
+
+.instructions_container {
+  margin-top: 5rem;
+}
+
+.instruction {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.instruction_number {
+  padding: 3px 8px;
+  border-radius: 100%;
+  background-color: gray;
+  font-size: 14px;
+  color: white;
+}
+
+.instruction_text {
+  font-size: 16px;
+}
+.formContainer {
+  padding-top: 20px;
+  text-align: left;
+}
+
+.formContainer form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.formContainer label {
+  margin: 10px;
+}
+
+.formContainer input {
+  width: 300px;
+  margin-bottom: 10px;
+  padding: 10px;
+  text-align: left;
+}
+
+.formContainer button {
+  padding: 10px 20px;
+  background-color: #194751;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+  margin-top: 10px;
+  margin-left: 170px;
+}
