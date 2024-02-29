@@ -1,6 +1,7 @@
 import { Pool, neon, neonConfig } from '@neondatabase/serverless';
 import type { NeonDatabase } from 'drizzle-orm/neon-serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
+import { drizzle as drizzleNeonServerless } from 'drizzle-orm/neon-serverless';
+import { drizzle as drizzleNeonHttp } from 'drizzle-orm/neon-http';
 import { env } from '@/common/env';
 import * as schema from './schema';
 
@@ -18,10 +19,10 @@ if (!process.env.VERCEL_ENV || process.env.VERCEL_ENV === 'development') {
   neonConfig.pipelineConnect = false;
 
   const pool = new Pool({ connectionString: env.DATABASE_URL });
-  db = drizzle(pool, { schema });
+  db = drizzleNeonServerless(pool, { schema });
 } else {
   // @ts-expect-error -- to make it work locally
-  db = drizzle(neon(env.DATABASE_URL), { schema });
+  db = drizzleNeonHttp(neon(env.DATABASE_URL), { schema });
 }
 
 export { db };
