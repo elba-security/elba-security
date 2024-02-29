@@ -24,6 +24,6 @@ export const POST = async (request: NextRequest) => {
     metadata, // eslint-disable-line -- metadata type is any,
   });
 
-  logger.error('Returning message content', { scope: LOG_SCOPE });
+  logger.info('Returning message content', { scope: LOG_SCOPE });
   return new NextResponse(content);
 };
