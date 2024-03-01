@@ -10,7 +10,7 @@ import { NonRetriableError } from 'inngest';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const syncStartedAt = 1707068979946;
 
-const setup = createInngestFunctionMock(syncUserPage, 'dropbox/users.sync_page.triggered');
+const setup = createInngestFunctionMock(syncUserPage, 'dropbox/users.sync_page.requested');
 
 const mocks = vi.hoisted(() => {
   return {
@@ -198,7 +198,7 @@ describe('syncUserPage', () => {
     expect(elbaInstance?.users.delete).toBeCalledTimes(0);
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('run-user-sync-job', {
-      name: 'dropbox/users.sync_page.triggered',
+      name: 'dropbox/users.sync_page.requested',
       data: {
         organisationId,
         isFirstSync: true,

@@ -97,11 +97,11 @@ export type RefreshDataProtectionObjectSchema = {
 export type InngestEvents = {
   'dropbox/app.install.requested': { data: AppSchema };
   'dropbox/app.uninstall.requested': { data: AppSchema };
-  'dropbox/token.refresh.triggered': { data: RefreshTokensSchema };
+  'dropbox/token.refresh.requested': { data: RefreshTokensSchema };
   'dropbox/token.refresh.canceled': { data: RefreshTokensSchema };
-  'dropbox/users.sync_page.triggered': { data: SyncUsersData };
-  'dropbox/users.sync_page.triggered.completed': { data: SyncUsersData };
-  'dropbox/third_party_apps.sync_page.triggered': { data: RunThirdPartyAppsSyncJobsSchema };
+  'dropbox/users.sync_page.requested': { data: SyncUsersData };
+  'dropbox/users.sync_page.requested.completed': { data: SyncUsersData };
+  'dropbox/third_party_apps.sync_page.requested': { data: RunThirdPartyAppsSyncJobsSchema };
   'dropbox/third_party_apps.refresh_objects.requested': { data: RefreshThirdPartyAppsObjectSchema };
   'dropbox/third_party_apps.delete_object.requested': { data: DeleteThirdPArtyAppsObject };
   'dropbox/data_protection.shared_link.start.sync_page.requested': {

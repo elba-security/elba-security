@@ -39,7 +39,7 @@ export const setupOrganisation = async ({
       },
     },
     {
-      name: 'microsoft/users.sync.triggered',
+      name: 'microsoft/users.sync.requested',
       data: {
         organisationId,
         isFirstSync: true,
@@ -48,7 +48,7 @@ export const setupOrganisation = async ({
       },
     },
     {
-      name: 'microsoft/token.refresh.triggered',
+      name: 'microsoft/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: addSeconds(new Date(), expiresIn).getTime(),

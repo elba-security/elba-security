@@ -156,7 +156,7 @@ describe('Callback dropbox', () => {
             organisationId: '00000000-0000-0000-0000-000000000001',
             expiresAt: 1688896756,
           },
-          name: 'dropbox/token.refresh.triggered',
+          name: 'dropbox/token.refresh.requested',
         },
         {
           data: {
@@ -170,7 +170,7 @@ describe('Callback dropbox', () => {
             organisationId: '00000000-0000-0000-0000-000000000001',
             syncStartedAt: SYNC_STARTED_AT,
           },
-          name: 'dropbox/users.sync_page.triggered',
+          name: 'dropbox/users.sync_page.requested',
         },
       ])
     );

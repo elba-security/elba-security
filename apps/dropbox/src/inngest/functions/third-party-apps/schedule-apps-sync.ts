@@ -11,7 +11,7 @@ export const scheduleAppsSync = inngest.createFunction(
       await step.sendEvent(
         'sync-apps',
         organisations.map(({ organisationId }) => ({
-          name: 'dropbox/third_party_apps.sync_page.triggered',
+          name: 'dropbox/third_party_apps.sync_page.requested',
           data: { organisationId, isFirstSync: false, syncStartedAt },
         }))
       );

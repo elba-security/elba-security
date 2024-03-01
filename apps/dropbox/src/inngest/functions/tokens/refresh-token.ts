@@ -10,7 +10,7 @@ import { env } from '@/env';
 const handler: FunctionHandler = async ({
   event,
   step,
-}: InputArgWithTrigger<'dropbox/token.refresh.triggered'>) => {
+}: InputArgWithTrigger<'dropbox/token.refresh.requested'>) => {
   const { organisationId, expiresAt } = event.data;
 
   await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 30));
@@ -41,7 +41,7 @@ const handler: FunctionHandler = async ({
   });
 
   await step.sendEvent('refresh-token', {
-    name: 'dropbox/token.refresh.triggered',
+    name: 'dropbox/token.refresh.requested',
     data: {
       organisationId,
       expiresAt: new Date(nextExpiresAt).getTime(),
@@ -72,6 +72,6 @@ export const refreshToken = inngest.createFunction(
     ],
     retries: env.DROPBOX_TOKEN_REFRESH_RETRIES,
   },
-  { event: 'dropbox/token.refresh.triggered' },
+  { event: 'dropbox/token.refresh.requested' },
   handler
 );

@@ -17,7 +17,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
       await step.sendEvent(
         'sync-organisations-users',
         organisations.map(({ id }) => ({
-          name: 'microsoft/users.sync.triggered',
+          name: 'microsoft/users.sync.requested',
           data: {
             organisationId: id,
             isFirstSync: false,

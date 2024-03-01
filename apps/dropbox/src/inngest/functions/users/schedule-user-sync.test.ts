@@ -38,7 +38,7 @@ describe('scheduleUserSync', () => {
       'sync-user',
       expect.arrayContaining(
         scheduledOrganisations.map((organisation) => ({
-          name: 'dropbox/users.sync_page.triggered',
+          name: 'dropbox/users.sync_page.requested',
           data: { ...organisation, isFirstSync: false, syncStartedAt: 1609459200000 },
         }))
       )

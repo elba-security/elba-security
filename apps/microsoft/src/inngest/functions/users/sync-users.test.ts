@@ -26,7 +26,7 @@ const users: MicrosoftUser[] = Array.from({ length: 5 }, (_, i) => ({
   displayName: `user ${i}`,
 }));
 
-const setup = createInngestFunctionMock(syncUsers, 'microsoft/users.sync.triggered');
+const setup = createInngestFunctionMock(syncUsers, 'microsoft/users.sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
@@ -103,7 +103,7 @@ describe('sync-users', () => {
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-next-users-page', {
-      name: 'microsoft/users.sync.triggered',
+      name: 'microsoft/users.sync.requested',
       data: {
         organisationId: organisation.id,
         isFirstSync: false,

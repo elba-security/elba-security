@@ -66,7 +66,7 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'microsoft/users.sync.triggered',
+        name: 'microsoft/users.sync.requested',
         data: {
           organisationId: organisation.id,
           isFirstSync: true,
@@ -75,7 +75,7 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'microsoft/token.refresh.triggered',
+        name: 'microsoft/token.refresh.requested',
         data: {
           organisationId: organisation.id,
           expiresAt: now.getTime() + expiresIn * 1000,
@@ -122,7 +122,7 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'microsoft/users.sync.triggered',
+        name: 'microsoft/users.sync.requested',
         data: {
           organisationId: organisation.id,
           isFirstSync: true,
@@ -131,7 +131,7 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'microsoft/token.refresh.triggered',
+        name: 'microsoft/token.refresh.requested',
         data: {
           organisationId: organisation.id,
           expiresAt: now.getTime() + expiresIn * 1000,
