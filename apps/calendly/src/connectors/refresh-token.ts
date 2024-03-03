@@ -1,14 +1,13 @@
 import { env } from '@/env';
 import { type GetTokenResponseData } from './types';
 
-export const getAccessToken = async (code: string) => {
+export const refreshAccessToken = async (refreshToken: string) => {
   const credentials = `${env.CALENDLY_CLIENT_ID}:${env.CALENDLY_CLIENT_SECRET}`;
   const encodedCredentials = btoa(credentials);
 
   const bodyData = {
-    grant_type: 'authorization_code',
-    code,
-    redirect_uri: env.CALENDLY_REDIRECT_URI,
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
   };
 
   const response = await fetch('https://auth.calendly.com/oauth/token', {
@@ -21,7 +20,7 @@ export const getAccessToken = async (code: string) => {
   });
 
   if (!response.ok) {
-    throw new Error('Could not get Calendly access token.');
+    throw new Error('Could not refresh Calendly access token.');
   }
   const data = (await response.json()) as GetTokenResponseData;
   const tokenData = {

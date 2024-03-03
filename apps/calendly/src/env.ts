@@ -1,34 +1,8 @@
 import { z } from 'zod';
 
-const zEnvRetry = (defaultValue = '3') =>
-  z
-    .string()
-    .transform(Number)
-    .pipe(z.number().int().min(0).max(20))
-    .default(defaultValue) as unknown as z.ZodUnion<
-    [
-      z.ZodLiteral<0>,
-      z.ZodLiteral<1>,
-      z.ZodLiteral<2>,
-      z.ZodLiteral<3>,
-      z.ZodLiteral<4>,
-      z.ZodLiteral<5>,
-      z.ZodLiteral<6>,
-      z.ZodLiteral<7>,
-      z.ZodLiteral<8>,
-      z.ZodLiteral<9>,
-      z.ZodLiteral<10>,
-      z.ZodLiteral<11>,
-      z.ZodLiteral<12>,
-      z.ZodLiteral<13>,
-      z.ZodLiteral<14>,
-      z.ZodLiteral<15>,
-      z.ZodLiteral<16>,
-      z.ZodLiteral<17>,
-      z.ZodLiteral<18>,
-      z.ZodLiteral<19>,
-      z.ZodLiteral<20>,
-    ]
+const zEnvRetry = () =>
+  z.coerce.number().int().min(0).max(20).optional().default(3) as unknown as z.ZodLiteral<
+    0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20
   >;
 
 export const env = z
@@ -54,5 +28,6 @@ export const env = z
     CALENDLY_CLIENT_ID: z.string(),
     CALENDLY_CLIENT_SECRET: z.string(),
     CALENDLY_REDIRECT_URI: z.string().url(),
+    CALENDLY_TOKEN_REFRESH_RETRIES: zEnvRetry().default(5),
   })
   .parse(process.env);
