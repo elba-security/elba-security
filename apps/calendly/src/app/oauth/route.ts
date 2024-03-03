@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import { NextResponse, type NextRequest } from 'next/server';
 import { logger } from '@elba-security/logger';
 import { env } from '@/env';
@@ -25,7 +24,7 @@ export async function GET(request: NextRequest) {
       `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&success=true`
     );
   } catch (error) {
-    logger.warn('Could not setup organisation after Calendly redirection', {});
+    logger.warn('Could not setup organisation after Calendly redirection', { error });
     return NextResponse.redirect(
       `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`
     );
