@@ -1,4 +1,3 @@
-import { getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -30,15 +29,14 @@ export const registerOrganisation = async ({
   if (!organisation) {
     throw new Error(`Could not setup organisation with id=${organisationId}`);
   }
-  // await inngest.send({
-  //   name: 'sendgrid/users.page_sync.requested',
-  //   data: {
-  //     isFirstSync: true,
-  //     organisationId,
-  //     region,
-  //     syncStartedAt: Date.now(),
-  //     offset: 0,
-  //   },
-  // });
-  // return organisation;
+  await inngest.send({
+    name: 'open-ai/users.page_sync.requested',
+    data: {
+      isFirstSync: true,
+      organisationId,
+      region,
+      syncStartedAt: Date.now(),
+    },
+  });
+  return organisation;
 };
