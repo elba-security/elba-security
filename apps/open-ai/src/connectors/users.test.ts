@@ -1,26 +1,15 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
+import { users } from '@/inngest/functions/users/__mocks__/integration';
 import { server } from '../../vitest/setup-msw-handlers';
 import { getUsers } from './users';
 import type { OpenAiError } from './commons/error';
 
-const usersResponse = Array.from({ length: 10 }, (_, i) => ({
-  role: 'admin',
-  user: { id: `userId-${i}`, name: `username-${i}`, email: `username-${i}@foo.bar` },
-}));
-
-const OpenAiUsers = Array.from({ length: 10 }, (_, i) => ({
-  id: `userId-${i}`,
-  username: `username-${i}`,
-  role: 'admin',
-  email: `username-${i}@foo.bar`,
-}));
-
 const validToken = env.OPENAI_API_TOKEN;
 const sourceOrganizationId = env.OPENAI_ORGANIZATION_ID;
 
-describe('getSendGridUsers', () => {
+describe('getOpenAiUsers', () => {
   beforeEach(() => {
     server.use(
       http.get(
@@ -31,7 +20,7 @@ describe('getSendGridUsers', () => {
           }
           return new Response(
             JSON.stringify({
-              members: { data: usersResponse },
+              members: { data: users },
             }),
             { status: 200 }
           );
@@ -40,12 +29,12 @@ describe('getSendGridUsers', () => {
     );
   });
 
-  test('should fetch SendGrid users when token is valid', async () => {
+  test('should fetch OpenAI users when token is valid', async () => {
     const result = await getUsers(validToken, env.OPENAI_ORGANIZATION_ID);
-    expect(result.users).toEqual(OpenAiUsers);
+    expect(result.users).toEqual(users);
   });
 
-  test('should throw SendgridError when token is invalid', async () => {
+  test('should throw OpenAiError when token is invalid', async () => {
     try {
       await getUsers('invalidToken', env.OPENAI_ORGANIZATION_ID);
     } catch (error) {
