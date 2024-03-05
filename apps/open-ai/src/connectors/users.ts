@@ -1,27 +1,29 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation. When requesting against API endpoint we might prefer
- * to valid the response data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { env } from '@/env';
+import { OpenAiError } from './commons/error';
 
-import { MySaasError } from './commons/error';
-
-export type MySaasUser = {
-  id: string;
-  username: string;
-  email: string;
+export type OpenAiUser = {
+  role: string;
+  user: { id: string; name: string; email: string };
 };
 
-type GetUsersResponseData = { users: MySaasUser[]; nextPage: number | null };
+type GetUsersResponseData = { members: { data: OpenAiUser[] } };
 
-export const getUsers = async (token: string, page: number | null) => {
-  const response = await fetch(`https://mysaas.com/api/v1/users?page=${page}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const getUsers = async (token: string, organizationId: string) => {
+  const response = await fetch(
+    `https://api.openai.com/v1/organizations/${organizationId}/users?limit=${env.USERS_SYNC_BATCH_SIZE}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve users', { response });
+    throw new OpenAiError('Could not retrieve users', { response });
   }
-  return response.json() as Promise<GetUsersResponseData>;
+  const data = (await response.json()) as GetUsersResponseData;
+  const users = data.members.data.map((user: OpenAiUser) => ({
+    id: user.user.id,
+    username: user.user.name,
+    email: user.user.email,
+    role: user.role,
+  }));
+  return { users };
 };
