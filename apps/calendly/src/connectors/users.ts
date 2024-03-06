@@ -6,22 +6,33 @@
  * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
  */
 
-import { MySaasError } from './commons/error';
+import { env } from '@/env';
+import { CalendlyError } from './commons/error';
 
-export type MySaasUser = {
+export type CalendlyUser = {
   id: string;
-  username: string;
+  name: string;
   email: string;
 };
 
-type GetUsersResponseData = { users: MySaasUser[]; nextPage: number | null };
+export type Pagination = {
+  next_page: string | null;
+  next_page_token: string | null;
+  previous_page: string | null;
+  previous_page_token: string | null;
+};
 
-export const getUsers = async (token: string, page: number | null) => {
-  const response = await fetch(`https://mysaas.com/api/v1/users?page=${page}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+type GetOrganizationMembersResponseData = { members: CalendlyUser[]; nextPage: Pagination };
+
+export const getOrganizationMembers = async (token: string, page: string | null) => {
+  const response = await fetch(
+    `https://api.calendly.com/organization_memberships?pagination_count=${env.USERS_SYNC_BATCH_SIZE}&page_token=${page}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve users', { response });
+    throw new CalendlyError('Could not retrieve organization members', { response });
   }
-  return response.json() as Promise<GetUsersResponseData>;
+  return response.json() as Promise<GetOrganizationMembersResponseData>;
 };
