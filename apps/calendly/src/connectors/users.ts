@@ -10,7 +10,7 @@ import { env } from '../env';
 import { CalendlyError } from './commons/error';
 
 export type CalendlyUser = {
-  id: string;
+  uri: string;
   name: string;
   email: string;
 };
