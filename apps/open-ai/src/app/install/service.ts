@@ -1,3 +1,4 @@
+import { getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -15,6 +16,7 @@ export const registerOrganisation = async ({
   sourceOrganizationId,
   region,
 }: SetupOrganisationParams) => {
+  await getUsers(token, sourceOrganizationId);
   const [organisation] = await db
     .insert(Organisation)
     .values({ id: organisationId, sourceOrganizationId, region, token })
@@ -23,6 +25,7 @@ export const registerOrganisation = async ({
       set: {
         region,
         token,
+        sourceOrganizationId,
       },
     })
     .returning();

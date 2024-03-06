@@ -13,8 +13,14 @@ export const inngest = new Inngest({
         syncStartedAt: number;
       };
     };
-    'open-ai/open-ai.elba_app.uninstalled': {
+    'open-ai/elba_app.uninstalled': {
       data: {
+        organisationId: string;
+      };
+    };
+    'open-ai/users.delete.requested': {
+      data: {
+        id: string;
         organisationId: string;
       };
     };

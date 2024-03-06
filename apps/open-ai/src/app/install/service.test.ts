@@ -4,6 +4,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { env } from '@/env';
+import * as userConnector from '@/connectors/users';
 import { registerOrganisation } from './service';
 
 const token = env.OPENAI_API_TOKEN;
@@ -30,6 +31,9 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    // mocked the getUsers function
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
@@ -63,6 +67,9 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    // mocked the getUsers function
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
     // pre-insert an organisation to simulate an existing entry
     await db.insert(Organisation).values(organisation);
 
@@ -107,6 +114,10 @@ describe('registerOrganisation', () => {
   test('should not setup the organisation when the organisation id is invalid', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    // mocked the getUsers function
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
+
     const wrongId = 'xfdhg-dsf';
     const error = new Error(`invalid input syntax for type uuid: "${wrongId}"`);
 
