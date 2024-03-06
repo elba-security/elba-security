@@ -10,56 +10,75 @@
 
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
+import { env } from '../env';
 import { server } from '../../vitest/setup-msw-handlers';
-import { type MySaasUser, getUsers } from './users';
-import { MySaasError } from './commons/error';
+import { type CalendlyUser, type Pagination, getOrganizationMembers } from './users'; 
+import type { CalendlyError } from './commons/error';
 
-const validToken = 'token-1234';
-const maxPage = 3;
+const users: CalendlyUser[] = [
+  {
+    uri: `https://api.calendly.com/users/886e3726-320a-4ce7-8e53-d3d5e1ca537b`,
+    name: `Ahmed Hashir`,
+    email: `ahmedhashir471@gmail.com`,
+  },
+];
 
-const users: MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
-  id: `id-${i}`,
-  username: `username-${i}`,
-  email: `user-${i}@foo.bar`,
-}));
+const pagination: Pagination = {
+  next_page: 'next-cursor',
+  next_page_token: 'next-token',
+  previous_page: 'previous-cursor',
+  previous_page_token: 'previous-token',
+};
 
-describe('auth connector', () => {
-  describe('getUsers', () => {
-    // mock token API endpoint using msw
-    beforeEach(() => {
-      server.use(
-        http.get('https://mysaas.com/api/v1/users', ({ request }) => {
-          // briefly implement API endpoint behaviour
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-          const url = new URL(request.url);
-          const pageParam = url.searchParams.get('page');
-          const page = pageParam ? Number(pageParam) : 0;
-          if (page === maxPage) {
-            return Response.json({ nextPage: null, users });
-          }
-          return Response.json({ nextPage: page + 1, users });
-        })
-      );
-    });
+const validToken: string = env.CALENDLY_TOKEN as string;
 
-    test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(getUsers(validToken, 0)).resolves.toStrictEqual({
-        users,
-        nextPage: 1,
-      });
-    });
-
-    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
-        users,
-        nextPage: null,
-      });
-    });
-
-    test('should throws when the token is invalid', async () => {
-      await expect(getUsers('foo-bar', 0)).rejects.toBeInstanceOf(MySaasError);
-    });
+describe('getOrganizationMembers', () => { 
+  beforeEach(() => {
+    server.use(
+      http.get('https://api.calendly.com/organization_memberships', ({ request }) => { 
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
+        }
+        const url = new URL(request.url);
+        const pageToken = url.searchParams.get('page_token');
+        const nextPageToken = 'next-token';
+        const previousPageToken = 'previous-token';
+        return new Response(
+          JSON.stringify({
+            members: users,
+            nextPage: {
+              ...pagination,
+              next_page_token: pageToken === nextPageToken ? null : nextPageToken,
+              previous_page_token: previousPageToken,
+            },
+          }),
+          { status: 200 }
+        );
+      })
+    );
   });
+
+  test('should fetch organization members when token is valid', async () => {
+    const result = await getOrganizationMembers(validToken, null);
+    expect(result.members).toEqual(users);
+  });
+
+  test('should throw CalendlyError when token is invalid', async () => {
+    try {
+      await getOrganizationMembers('invalidToken', null);
+    } catch (error) {
+      const calendlyError = error as CalendlyError;
+      expect(calendlyError.message).toEqual('Could not retrieve organization members');
+    }
+  });
+
+  test('should return next_page_token as null when end of list is reached', async () => {
+    const result = await getOrganizationMembers(validToken, 'last-token');
+    expect(result.nextPage.next_page_token).toBeNull();
+  });
+
+  test('should return next_page_token when there is next cursor', async () => {
+    const result = await getOrganizationMembers(validToken, 'first-token');
+    expect(result.nextPage.next_page_token).toEqual('next-token');
+ });
 });

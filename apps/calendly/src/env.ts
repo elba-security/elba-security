@@ -29,5 +29,6 @@ export const env = z
     CALENDLY_CLIENT_SECRET: z.string(),
     CALENDLY_REDIRECT_URI: z.string().url(),
     CALENDLY_TOKEN_REFRESH_RETRIES: zEnvRetry().default(5),
+    CALENDLY_TOKEN: z.string(),
   })
   .parse(process.env);
