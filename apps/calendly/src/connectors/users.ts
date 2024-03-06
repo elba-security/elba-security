@@ -6,7 +6,7 @@
  * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
  */
 
-import { env } from '@/env';
+import { env } from '../env';
 import { CalendlyError } from './commons/error';
 
 export type CalendlyUser = {
