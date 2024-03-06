@@ -36,7 +36,7 @@ export const syncUsersPage = inngest.createFunction(
     retries: env.USERS_SYNC_MAX_RETRY,
     cancelOn: [
       {
-        event: 'open-ai/open-ai.elba_app.uninstalled',
+        event: 'open-ai/elba_app.uninstalled',
         match: 'data.organisationId',
       },
     ],

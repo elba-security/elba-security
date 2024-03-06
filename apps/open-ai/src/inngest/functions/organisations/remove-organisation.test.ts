@@ -14,7 +14,7 @@ const organisation = {
   region: 'us',
 };
 
-const setup = createInngestFunctionMock(removeOrganisation, 'open-ai/open-ai.elba_app.uninstalled');
+const setup = createInngestFunctionMock(removeOrganisation, 'open-ai/elba_app.uninstalled');
 
 describe('remove-organisation', () => {
   test("should not remove given organisation when it's not registered", async () => {

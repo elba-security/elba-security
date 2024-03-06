@@ -41,13 +41,8 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
     };
   }
 
-  const organisationId = result.data.organisationId;
-  const region = result.data.region;
-  const token = result.data.token;
-  const sourceOrganizationId = result.data.sourceOrganizationId;
-
   try {
-    await registerOrganisation({ organisationId, token, sourceOrganizationId, region });
+    await registerOrganisation(result.data);
     return {
       redirectUrl: `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&success=true`,
     };
