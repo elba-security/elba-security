@@ -11,9 +11,9 @@ import { SmartSheetError } from './commons/error';
 
 export type SmartSheetUser = {
   email: string;
-  name: string;
-  firstName: string;
-  lastName: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
   admin: boolean;
   licensedSheetCreator: boolean;
   groupAdmin: boolean;
@@ -31,7 +31,6 @@ export type GetUsersResponseData = {
 
 export const getUsers = async (token: string, page: number) => {
   const smartSheetUrl = new URL(`${env.SMART_SHEET_API_URL}users`);
-  smartSheetUrl.searchParams.append('pageSize', '1');
 
   smartSheetUrl.searchParams.append('page', `${page}`);
 

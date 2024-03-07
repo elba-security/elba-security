@@ -9,13 +9,19 @@ import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 
-const elbaUsers = (userData: SmartSheetUser[]) => {
-  return userData
+const getElbaUserDisplayName = (user: SmartSheetUser) => {
+  if (user.name) return user.name;
+  if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`;
+  return user.email;
+};
+
+const getElbaUsers = (users: SmartSheetUser[]) => {
+  return users
     .filter((user) => user.status === 'ACTIVE')
     .map(
       (user: SmartSheetUser): User => ({
         id: JSON.stringify(user.id),
-        displayName: user.name,
+        displayName: getElbaUserDisplayName(user),
         email: user.email,
         additionalEmails: [],
       })
@@ -44,6 +50,7 @@ export const syncUsersPage = inngest.createFunction(
   },
   { event: 'smart-sheet/users.page_sync.requested' },
   async ({ event, step }) => {
+    /* eslint-disable -- no type here */
     const { organisationId, syncStartedAt, page, region } = event.data;
 
     const elba = new Elba({
@@ -73,7 +80,7 @@ export const syncUsersPage = inngest.createFunction(
       const result = await getUsers(accessToken, page);
 
       // format each SaaS users to elba users
-      const users = elbaUsers(result.users);
+      const users = getElbaUsers(result.users);
 
       // send the batch of users to elba
       await elba.users.update({ users });

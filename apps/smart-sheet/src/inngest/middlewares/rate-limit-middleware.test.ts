@@ -35,7 +35,6 @@ describe('rate-limit middleware', () => {
       // @ts-expect-error this is a mock
       response: {
         status: 429,
-        headers: new Headers({ 'Retry-After': '30' }),
       },
     });
 
@@ -57,7 +56,7 @@ describe('rate-limit middleware', () => {
       .transformOutput(context);
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
 
-    expect(result?.result.error.retryAfter).toStrictEqual('30');
+    expect(result?.result.error.retryAfter).toStrictEqual('60');
     expect(result).toMatchObject({
       foo: 'bar',
       baz: {

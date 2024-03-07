@@ -27,10 +27,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            const retryAfter =
-              error instanceof SmartSheetError && error.response?.headers.get('Retry-After');
-
-            if (!retryAfter) {
+            if (!(error instanceof SmartSheetError && error.response?.status === 429)) {
               return;
             }
 
@@ -40,7 +37,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                 ...result,
                 error: new RetryAfterError(
                   `Smart sheet rate limit reached by '${fn.name}'`,
-                  `${retryAfter}s`,
+                  '60s',
                   {
                     cause: error,
                   }
