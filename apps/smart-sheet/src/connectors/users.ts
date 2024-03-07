@@ -24,10 +24,8 @@ export type SmartSheetUser = {
 };
 
 export type GetUsersResponseData = {
-  pageNumber?: number;
-  pageSize?: number;
-  totalPages?: number;
-  totalCount?: number;
+  pageNumber: number;
+  totalPages: number;
   data: SmartSheetUser[];
 };
 
@@ -47,7 +45,16 @@ export const getUsers = async (token: string, page: number) => {
     });
   }
 
-  const data = (await response.json()) as Promise<GetUsersResponseData>;
+  const { data: users, pageNumber, totalPages } = (await response.json()) as GetUsersResponseData;
 
-  return data;
+  let nextPage: null | number = null;
+  const nextPageNumber = pageNumber + 1;
+  if (nextPageNumber <= totalPages) {
+    nextPage = nextPageNumber;
+  }
+
+  return {
+    nextPage,
+    users,
+  };
 };

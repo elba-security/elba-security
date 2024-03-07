@@ -4,13 +4,14 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
+import { encrypt } from '@/common/crypto';
 import { syncUsersPage } from './sync-users-page';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   region: 'us',
-  accessToken: 'some_data_access_token',
-  refreshToken: 'some_data_refresh_token',
+  accessToken: await encrypt('some_data_access_token'),
+  refreshToken: await encrypt('some_data_refresh_token'),
   expiresIn: new Date(Date.now()),
 };
 const syncStartedAt = Date.now();
@@ -68,11 +69,8 @@ describe('sync-users', () => {
 
     // mock the getUser function that returns SaaS users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      pageNumber: 1,
-      pageSize: 1,
-      totalPages: 2,
-      totalCount: 2,
-      data: users,
+      nextPage: 2,
+      users,
     });
 
     const [result, { step }] = setup({
@@ -104,7 +102,8 @@ describe('sync-users', () => {
 
     // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      data: users,
+      users,
+      nextPage: null,
     });
 
     const [result, { step }] = setup({

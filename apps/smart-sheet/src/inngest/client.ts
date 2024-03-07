@@ -20,6 +20,7 @@ export const inngest = new Inngest({
         organisationId: string;
         refreshToken?: string;
         region?: string;
+        expiresAt: number;
       };
     };
   }>(),

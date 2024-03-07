@@ -46,7 +46,7 @@ export const getToken = async (code: string) => {
   return data;
 };
 
-export const smartSheetRefreshToken = async (refreshToken: string) => {
+export const getRefreshedToken = async (refreshToken: string) => {
   const requestBody = new URLSearchParams();
   requestBody.append('grant_type', 'refresh_token');
   requestBody.append('refresh_token', refreshToken);

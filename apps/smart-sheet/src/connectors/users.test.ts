@@ -13,7 +13,8 @@ import { server } from '../../vitest/setup-msw-handlers';
 import { type SmartSheetUser, getUsers, type GetUsersResponseData } from './users';
 import { SmartSheetError } from './commons/error';
 
-const validAccessToken = 'valid_access_token';
+const validToken = 'valid_access_token';
+const endPage = 2;
 
 const users: SmartSheetUser[] = Array.from({ length: 5 }, (_, i) => ({
   email: `username-${i}@foo.bar`,
@@ -29,57 +30,56 @@ const users: SmartSheetUser[] = Array.from({ length: 5 }, (_, i) => ({
   sheetCount: 1,
 }));
 
-describe('user connector', () => {
+describe('users connector', () => {
   describe('getUsers', () => {
     // Mock response data when there is another page
     const usersDataWithFirstPage: GetUsersResponseData = {
       data: users,
       pageNumber: 1,
-      pageSize: 5,
-      totalCount: 10,
       totalPages: 2,
     };
 
     const usersDataWithSecondPage: GetUsersResponseData = {
       data: users,
       pageNumber: 2,
-      pageSize: 5,
-      totalCount: 10,
       totalPages: 2,
     };
 
     beforeEach(() => {
-      /* eslint-disable -- no type here */
       server.use(
-        http.get(`${env.SMART_SHEET_API_URL}users`, ({ request }: any) => {
-          const accessToken = request.headers.get('Authorization')?.split(' ')[1];
-          const pageNumber = Number(new URL(request.url).searchParams.get('page'));
-
-          if (accessToken !== validAccessToken) {
+        http.get(`${env.SMART_SHEET_API_URL}users`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
+          const pageNumber = Number(new URL(request.url).searchParams.get('page'));
 
           if (pageNumber === 1) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
             return Response.json(usersDataWithFirstPage);
           } else if (pageNumber === 2) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
             return Response.json(usersDataWithSecondPage);
-          } else {
-            return new Response(undefined, { status: 404 });
           }
         })
       );
     });
 
-    test('should return users when the token is valid and their is another page', async () => {
-      await expect(getUsers(validAccessToken, 1)).resolves.toStrictEqual(usersDataWithFirstPage);
+    test('should return users and nextPage when the token is valid and their is another page', async () => {
+      await expect(getUsers(validToken, 1)).resolves.toStrictEqual({
+        nextPage: endPage,
+        users,
+      });
     });
 
-    test('should return users when the token is valid and their is no other page', async () => {
-      await expect(getUsers(validAccessToken, 2)).resolves.toStrictEqual(usersDataWithSecondPage);
+    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
+      await expect(getUsers(validToken, endPage)).resolves.toStrictEqual({
+        nextPage: null,
+        users,
+      });
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(getUsers('invalid_access_token', 1)).rejects.toBeInstanceOf(SmartSheetError);
+      await expect(getUsers('foo-bar', 1)).rejects.toBeInstanceOf(SmartSheetError);
     });
   });
 });

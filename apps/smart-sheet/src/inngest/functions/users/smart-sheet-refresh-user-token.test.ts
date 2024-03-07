@@ -1,17 +1,39 @@
-import { expect, test, describe, vi } from 'vitest';
+import { NonRetriableError } from 'inngest';
+import { eq } from 'drizzle-orm';
+import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as authConnector from '@/connectors/auth';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
+import { decrypt, encrypt } from '@/common/crypto';
 import { refreshSmartSheetToken } from './smart-sheet-refresh-user-token';
+
+const tokens = {
+  accessToken: 'access-token',
+  refreshToken: 'refresh-token',
+};
+
+const encryptedTokens = {
+  accessToken: await encrypt(tokens.accessToken),
+  refreshToken: await encrypt(tokens.refreshToken),
+};
+
+const newTokens = {
+  accessToken: 'new-access-token',
+  refreshToken: 'new-refresh-token',
+};
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  region: 'asia',
-  accessToken: 'some_data_access_token',
-  refreshToken: 'some_data_refresh_token',
-  expiresIn: new Date(Date.now()),
+  accessToken: encryptedTokens.accessToken,
+  refreshToken: encryptedTokens.refreshToken,
+  region: 'us',
 };
+const now = new Date();
+// current token expires in an hour
+const expiresAt = now.getTime() + 60 * 1000;
+// next token duration
+const expiresIn = 60 * 1000;
 
 const setup = createInngestFunctionMock(
   refreshSmartSheetToken,
@@ -19,24 +41,78 @@ const setup = createInngestFunctionMock(
 );
 
 describe('refresh-token', () => {
-  test('should update the organisation with the new access token and expiry', async () => {
-    // setup the test with an organisation
-    await db.insert(Organisation).values(organisation);
+  beforeAll(() => {
+    vi.setSystemTime(now);
+  });
 
-    vi.spyOn(authConnector, 'smartSheetRefreshToken').mockResolvedValue({
-      accessToken: 'd',
-      refreshToken: 'd',
-      expiresIn: 3600,
+  afterAll(() => {
+    vi.useRealTimers();
+  });
+
+  test('should abort sync when organisation is not registered', async () => {
+    vi.spyOn(authConnector, 'getRefreshedToken').mockResolvedValue({
+      ...newTokens,
+      expiresIn,
     });
-    // setup the test without organisation entries in the database, the function cannot retrieve a token
+
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      region: organisation.region,
+      expiresAt,
     });
 
-    await expect(result).resolves.toStrictEqual({ status: 'success' });
+    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    // check that the function is not sending other event
+    expect(authConnector.getRefreshedToken).toBeCalledTimes(0);
+
     expect(step.sendEvent).toBeCalledTimes(0);
+  });
+
+  test('should update encrypted tokens and schedule the next refresh', async () => {
+    await db.insert(Organisation).values(organisation);
+    vi.spyOn(authConnector, 'getToken').mockResolvedValue({
+      ...newTokens,
+      expires_in: expiresIn,
+      access_token: tokens.accessToken,
+      refresh_token: tokens.refreshToken,
+    });
+
+    const [result, { step }] = setup({
+      organisationId: organisation.id,
+      expiresAt,
+    });
+
+    await expect(result).resolves.toBe(undefined);
+
+    const [updatedOrganisation] = await db
+      .select({
+        accessToken: Organisation.accessToken,
+        refreshToken: Organisation.refreshToken,
+      })
+      .from(Organisation)
+      .where(eq(Organisation.id, organisation.id));
+    await expect(decrypt(updatedOrganisation?.accessToken ?? '')).resolves.toBe(
+      newTokens.accessToken
+    );
+    await expect(decrypt(updatedOrganisation?.refreshToken ?? '')).resolves.toBe(
+      newTokens.refreshToken
+    );
+
+    expect(authConnector.getRefreshedToken).toBeCalledTimes(1);
+    expect(authConnector.getRefreshedToken).toBeCalledWith(tokens.refreshToken);
+
+    expect(step.sleepUntil).toBeCalledTimes(1);
+    expect(step.sleepUntil).toBeCalledWith(
+      'wait-before-expiration',
+      new Date(expiresAt - 5 * 60 * 1000)
+    );
+
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith('next-refresh', {
+      name: 'smart-sheet/smart-sheet.token.refresh.requested',
+      data: {
+        organisationId: organisation.id,
+        expiresAt: now.getTime() + expiresIn * 1000,
+      },
+    });
   });
 });

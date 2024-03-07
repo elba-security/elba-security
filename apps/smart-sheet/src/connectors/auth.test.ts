@@ -13,7 +13,7 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { z } from 'zod';
 import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getToken, smartSheetRefreshToken, type GetTokenResponseData } from './auth';
+import { getToken, getRefreshedToken, type GetTokenResponseData } from './auth';
 import { SmartSheetError } from './commons/error';
 
 const validCode = '1234';
@@ -60,7 +60,7 @@ describe('auth connector', () => {
     });
   });
 
-  describe('smartSheetRefreshToken', () => {
+  describe('getRefreshedToken', () => {
     const validRefreshToken = 'some_refresh_token';
 
     const validationSchema = z.object({
@@ -95,13 +95,13 @@ describe('auth connector', () => {
     });
 
     test('should return a new token when the refreshToken is valid', async () => {
-      await expect(smartSheetRefreshToken(validRefreshToken)).resolves.toStrictEqual(
+      await expect(getRefreshedToken(validRefreshToken)).resolves.toStrictEqual(
         validResponseToken
       );
     });
 
     test('should throw when the refreshToken is invalid', async () => {
-      await expect(smartSheetRefreshToken('some invalid refreshToken')).rejects.toBeInstanceOf(
+      await expect(getRefreshedToken('some invalid refreshToken')).rejects.toBeInstanceOf(
         SmartSheetError
       );
     });

@@ -7,6 +7,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
+import { decrypt } from '@/common/crypto';
 
 const elbaUsers = (userData: SmartSheetUser[]) => {
   return userData
@@ -43,7 +44,6 @@ export const syncUsersPage = inngest.createFunction(
   },
   { event: 'smart-sheet/users.page_sync.requested' },
   async ({ event, step }) => {
-    /* eslint-disable -- no type here */
     const { organisationId, syncStartedAt, page, region } = event.data;
 
     const elba = new Elba({
@@ -67,21 +67,18 @@ export const syncUsersPage = inngest.createFunction(
     });
 
     const nextPage = await step.run('list-users', async () => {
+      const accessToken = await decrypt(token);
+
       // retrieve this users page
-      const result: any = await getUsers(token, page);
+      const result = await getUsers(accessToken, page);
 
       // format each SaaS users to elba users
-      const users = elbaUsers(result.data);
+      const users = elbaUsers(result.users);
 
       // send the batch of users to elba
       await elba.users.update({ users });
 
-      let pageIndex = null;
-      const nextPageNumber = result.pageNumber + 1;
-      if (nextPageNumber <= result.totalPages) {
-        pageIndex = nextPageNumber;
-      }
-      return pageIndex;
+      return result.nextPage;
     });
 
     // if there is a next page enqueue a new sync user event

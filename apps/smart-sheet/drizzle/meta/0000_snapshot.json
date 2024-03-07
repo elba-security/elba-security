@@ -1,5 +1,5 @@
 {
-  "id": "4a5ec88e-6b5a-4e81-b680-6efeb9531f31",
+  "id": "9b56e454-00de-474d-88f3-676812062215",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -36,12 +36,6 @@
         "refresh_token": {
           "name": "refresh_token",
           "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "expire_at": {
-          "name": "expire_at",
-          "type": "timestamp",
           "primaryKey": false,
           "notNull": true
         }

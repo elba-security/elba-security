@@ -30,18 +30,12 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should transform the output error to RetryAfterError when the error is about smartsheet rate limit', () => {
-    const dateString = '2020-05-31T00:00:00Z';
+  test('should transform the output error to RetryAfterError when the error is about gitlab rate limit', () => {
     const rateLimitError = new SmartSheetError('foo bar', {
+      // @ts-expect-error this is a mock
       response: {
         status: 429,
-        headers: {
-          //   @ts-expect-error this is a mock
-          //   get(name) {
-          //     if (name === 'Retry-After') return rateLimitReset;
-          //   },
-          'Retry-After': new Date(dateString),
-        },
+        headers: new Headers({ 'Retry-After': '30' }),
       },
     });
 
@@ -62,7 +56,8 @@ describe('rate-limit middleware', () => {
       .onFunctionRun({ fn: { name: 'foo' } })
       .transformOutput(context);
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect(result?.result.error.retryAfter).toEqual(new Date(dateString).toISOString());
+
+    expect(result?.result.error.retryAfter).toStrictEqual('30');
     expect(result).toMatchObject({
       foo: 'bar',
       baz: {

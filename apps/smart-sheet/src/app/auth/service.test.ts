@@ -12,24 +12,26 @@ import * as authConnector from '@/connectors/auth';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
+import { decrypt, encrypt } from '@/common/crypto';
 import { setupOrganisation } from './service';
 
 const code = 'some-code';
 const region = 'us';
 const now = new Date();
 
+const expiresIn = 60;
+
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  accessToken: 'test-access-token',
-  refreshToken: 'test-refresh-token',
-  expiresIn: new Date(),
+  accessToken: await encrypt('test-access-token'),
+  refreshToken: await encrypt('test-refresh-token'),
   region,
 };
 
 const getTokenResponse = {
   access_token: 'test-access-token',
   refresh_token: 'test-refresh-token',
-  expires_in: 1,
+  expires_in: expiresIn,
 };
 
 describe('setupOrganisation', () => {
@@ -62,26 +64,46 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith(code);
 
     // verify the organisation token is set in the database
-    await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        ...organisation,
-      },
-    ]);
+    const insertedOrganisation = await db
+      .select({
+        accessToken: Organisation.accessToken,
+        refreshToken: Organisation.refreshToken,
+        region: Organisation.region,
+      })
+      .from(Organisation)
+      .where(eq(Organisation.id, organisation.id));
+
+    expect({
+      region: organisation.region,
+      accessToken: await decrypt(insertedOrganisation.at(0)?.accessToken ?? ''),
+      refreshToken: await decrypt(insertedOrganisation.at(0)?.refreshToken ?? ''),
+    }).toStrictEqual({
+      region,
+      accessToken: getTokenResponse.access_token,
+      refreshToken: getTokenResponse.refresh_token,
+    });
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: 'smart-sheet/users.page_sync.requested',
-      data: {
-        isFirstSync: true,
-        organisationId: organisation.id,
-        syncStartedAt: now.getTime(),
-        region,
-        page: 1,
+    expect(send).toBeCalledWith([
+      {
+        name: 'smart-sheet/users.page_sync.requested',
+        data: {
+          isFirstSync: true,
+          organisationId: organisation.id,
+          syncStartedAt: now.getTime(),
+          region,
+          page: 1,
+        },
       },
-    });
+      {
+        name: 'smart-sheet/smart-sheet.token.refresh.requested',
+        data: {
+          organisationId: organisation.id,
+          expiresAt: now.getTime() + expiresIn * 1000,
+        },
+      },
+    ]);
   });
 
   test('should setup organisation when the code is valid and the organisation is already registered', async () => {
@@ -108,29 +130,46 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith(code);
 
     // check if the token in the database is updated
-    await expect(
-      db
-        .select({ accessToken: Organisation.accessToken })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        accessToken: 'test-access-token',
-      },
-    ]);
+    const insertedOrganisation = await db
+      .select({
+        accessToken: Organisation.accessToken,
+        refreshToken: Organisation.refreshToken,
+        region: Organisation.region,
+      })
+      .from(Organisation)
+      .where(eq(Organisation.id, organisation.id));
+
+    expect({
+      region: organisation.region,
+      accessToken: await decrypt(insertedOrganisation.at(0)?.accessToken ?? ''),
+      refreshToken: await decrypt(insertedOrganisation.at(0)?.refreshToken ?? ''),
+    }).toStrictEqual({
+      region,
+      accessToken: getTokenResponse.access_token,
+      refreshToken: getTokenResponse.refresh_token,
+    });
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: 'smart-sheet/users.page_sync.requested',
-      data: {
-        isFirstSync: true,
-        organisationId: organisation.id,
-        syncStartedAt: now.getTime(),
-        region,
-        page: 1,
+    expect(send).toBeCalledWith([
+      {
+        name: 'smart-sheet/users.page_sync.requested',
+        data: {
+          isFirstSync: true,
+          organisationId: organisation.id,
+          syncStartedAt: now.getTime(),
+          page: 1,
+          region,
+        },
       },
-    });
+      {
+        name: 'smart-sheet/smart-sheet.token.refresh.requested',
+        data: {
+          organisationId: organisation.id,
+          expiresAt: now.getTime() + expiresIn * 1000,
+        },
+      },
+    ]);
   });
 
   test('should not setup the organisation when the code is invalid', async () => {

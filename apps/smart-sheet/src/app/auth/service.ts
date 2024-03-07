@@ -1,7 +1,9 @@
+import { addSeconds } from 'date-fns';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { getToken } from '@/connectors/auth';
 import { inngest } from '@/inngest/client';
+import { encrypt } from '@/common/crypto';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -17,34 +19,43 @@ export const setupOrganisation = async ({
   // retrieve token from SaaS API using the given code
   const token = await getToken(code);
 
-  const expiresAt = new Date(Date.now() + token.expires_in * 1000);
+  const accessToken = await encrypt(token.access_token);
+  const refreshToken = await encrypt(token.refresh_token);
+
   await db
     .insert(Organisation)
     .values({
       id: organisationId,
-      accessToken: token.access_token,
-      refreshToken: token.refresh_token,
-      expiresIn: expiresAt,
+      accessToken,
+      refreshToken,
       region,
     })
     .onConflictDoUpdate({
       target: Organisation.id,
       set: {
-        accessToken: token.access_token,
-        refreshToken: token.refresh_token,
-        expiresIn: expiresAt,
+        accessToken,
+        refreshToken,
         region,
       },
     });
 
-  await inngest.send({
-    name: 'smart-sheet/users.page_sync.requested',
-    data: {
-      isFirstSync: true,
-      organisationId,
-      region,
-      syncStartedAt: Date.now(),
-      page: 1,
+  await inngest.send([
+    {
+      name: 'smart-sheet/users.page_sync.requested',
+      data: {
+        isFirstSync: true,
+        organisationId,
+        region,
+        syncStartedAt: Date.now(),
+        page: 1,
+      },
     },
-  });
+    {
+      name: 'smart-sheet/smart-sheet.token.refresh.requested',
+      data: {
+        organisationId,
+        expiresAt: addSeconds(new Date(), token.expires_in).getTime(),
+      },
+    },
+  ]);
 };

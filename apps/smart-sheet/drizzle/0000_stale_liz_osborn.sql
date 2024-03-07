@@ -3,6 +3,5 @@ CREATE TABLE IF NOT EXISTS "organisation" (
 	"region" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"access_token" text NOT NULL,
-	"refresh_token" text NOT NULL,
-	"expire_at" timestamp NOT NULL
+	"refresh_token" text NOT NULL
 );

@@ -17,16 +17,19 @@ export function GET(request: NextRequest) {
     redirect(`${env.ELBA_REDIRECT_URL}?error=true`);
   }
 
+  const state = crypto.randomUUID();
+
   // we store the organisationId in the cookies to be able to retrieve after the SaaS redirection
   cookies().set('organisation_id', organisationId);
   cookies().set('region', region);
+  cookies().set('state', state);
 
   const smartSheetLoginUrl = new URL(env.SMART_SHEET_LOGIN_URL);
   smartSheetLoginUrl.searchParams.append('client_id', env.SMART_SHEET_CLIENT_KEY);
   smartSheetLoginUrl.searchParams.append('response_type', 'code');
   smartSheetLoginUrl.searchParams.append('redirect_uri', env.SMART_SHEET_REDIRECT_URL);
   smartSheetLoginUrl.searchParams.append('scope', 'READ_USERS');
-  smartSheetLoginUrl.searchParams.append('state', 'MY_STATE');
+  smartSheetLoginUrl.searchParams.append('state', state);
 
   // we redirect the user to the installation page of the Smartsheet application
   return redirect(smartSheetLoginUrl.toString());
