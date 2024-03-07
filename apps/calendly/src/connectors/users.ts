@@ -36,3 +36,16 @@ export const getOrganizationMembers = async (token: string, page: string | null)
   }
   return response.json() as Promise<GetOrganizationMembersResponseData>;
 };
+export const deleteUser = async (token: string, userId: string) => {
+  const response = await fetch(
+    `https://api.calendly.com/organization_memberships/${userId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+
+  if (!response.ok) {
+    throw new CalendlyError(`Could not delete user with Id: ${userId}`, { response });
+  }
+};

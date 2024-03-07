@@ -12,7 +12,7 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '../env';
 import { server } from '../../vitest/setup-msw-handlers';
-import { type CalendlyUser, type Pagination, getOrganizationMembers } from './users'; 
+import { type CalendlyUser, type Pagination, getOrganizationMembers, deleteUser } from './users'; 
 import type { CalendlyError } from './commons/error';
 
 const users: CalendlyUser[] = [
@@ -31,6 +31,8 @@ const pagination: Pagination = {
 };
 
 const validToken: string = env.CALENDLY_TOKEN as string;
+const userId = 'test-user-id';
+
 
 describe('getOrganizationMembers', () => { 
   beforeEach(() => {
@@ -82,3 +84,33 @@ describe('getOrganizationMembers', () => {
     expect(result.nextPage.next_page_token).toEqual('next-token');
  });
 });
+
+describe('deleteUser', () => {
+  beforeEach(() => {
+    server.use(
+      http.delete(
+        `https://api.calendly.com/organization_memberships/${userId}`,
+        ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+          return new Response(undefined, { status: 200 });
+        }
+      )
+    );
+  });
+
+  test('should delete user successfully when token and organization id are valid', async () => {
+    await expect(deleteUser(validToken, userId)).resolves.not.toThrow();
+  });
+
+  test('should throw calendlyError when token is invalid', async () => {
+    try {
+      await deleteUser('invalidToken', userId);
+    } catch (error) {
+      const calendlyError = error as CalendlyError;
+      expect(calendlyError.message).toEqual(`Could not delete user with Id: ${userId}`);
+    }
+  });
+});
+
