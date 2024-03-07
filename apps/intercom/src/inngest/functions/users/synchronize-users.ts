@@ -31,19 +31,11 @@ export const synchronizeUsers = inngest.createFunction(
   },
   { event: 'intercom/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page, region } = event.data;
+    const { organisationId, syncStartedAt, page } = event.data;
 
-    const elba = new Elba({
-      organisationId,
-      // sourceId: env.ELBA_SOURCE_ID,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-      region,
-    });
-
-    const token = await step.run('get-token', async () => {
+      const { token, region } = await step.run('get-token', async () => {
       const [organisation] = await db
-        .select({ token: Organisation.accessToken })
+        .select({ token: Organisation.accessToken, region: Organisation.region })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
       if (!organisation) {
@@ -53,6 +45,14 @@ export const synchronizeUsers = inngest.createFunction(
     });
     console.log("token:", token)
 
+    const elba = new Elba({
+      organisationId,
+      // sourceId: env.ELBA_SOURCE_ID,
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
+      region,
+    });
+    
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ token, next: page });
 
