@@ -17,7 +17,7 @@ const intercomResponseSchema = z.object({
       starting_after: z.string().nullable(),
     }).optional(),
   }).optional(),
-  admins: z.array(intercomUserSchema),
+  admins: z.array(z.unknown()),
 });
 
 export type GetUsersParams = {
