@@ -23,8 +23,7 @@ const setup = createInngestFunctionMock(
 describe('remove-organisation', () => {
   test("should not remove given organisation when it's not registered", async () => {
     const elba = spyOnElba();
-    const [result] = setup({ organizationId: organisation.id }); // updated property name
-
+    const [result] = setup({ organisationId: organisation.id }); 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(elba).toBeCalledTimes(0);
@@ -34,7 +33,7 @@ describe('remove-organisation', () => {
     const elba = spyOnElba();
     await db.insert(Organisation).values(organisation);
 
-    const [result] = setup({ organizationId: organisation.id }); // updated property name
+    const [result] = setup({ organisationId: organisation.id }); 
 
     await expect(result).resolves.toBeUndefined();
 
