@@ -40,7 +40,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                 ...result,
                 error: new RetryAfterError(
                   `Intercom rate limit reached by '${fn.name}'`,
-                  retryAfter,
+                  new Date(retryAfter * 1000),
                   {
                     cause: error,
                   }
