@@ -9,8 +9,7 @@ export const scheduleUsersSynchronize = inngest.createFunction(
   async ({ step }) => {
     const organisations = await db
       .select({
-        id: Organisation.id,
-        region: Organisation.region,
+        id: Organisation.id
       })
       .from(Organisation);
 
@@ -23,8 +22,7 @@ export const scheduleUsersSynchronize = inngest.createFunction(
             isFirstSync: false,
             organisationId: id,
             syncStartedAt: Date.now(),
-            page: null,
-            region
+            page: null
           },
         }))
       );
