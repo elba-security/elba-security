@@ -67,7 +67,7 @@ describe('synchronize-users', () => {
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
-
+    expect(usersConnector.getUsers).toBeCalledTimes(1)
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
@@ -100,7 +100,8 @@ describe('synchronize-users', () => {
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
-
+    
+    expect(usersConnector.getUsers).toBeCalledTimes(1)
     // the function should not send another event that continue the pagination
     expect(step.sendEvent).toBeCalledTimes(0);
   });
