@@ -28,7 +28,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
             const retryAfter =
-              error instanceof IntercomError && error.response?.headers.get('Retry-After');
+              error instanceof IntercomError && error.response?.headers.get('X-RateLimit-Reset');
 
             if (!retryAfter) {
               return;
