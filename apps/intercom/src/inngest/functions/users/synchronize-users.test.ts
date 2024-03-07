@@ -1,12 +1,3 @@
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `synchronizeUsers` function example.
- * These tests serve as a conceptual framework and are not intended to be used as definitive tests in a production environment.
- * They are meant to illustrate potential test scenarios and methodologies that might be relevant for a SaaS integration.
- * Developers should create their own tests tailored to the specific implementation details and requirements of their SaaS integration.
- * The mock data, assertions, and scenarios used here are simplified and may not cover all edge cases or real-world complexities.
- * It is crucial to expand upon these tests, adapting them to the actual logic and behaviors of your specific SaaS integration.
- */
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';

@@ -17,8 +17,6 @@ export async function GET(request: NextRequest) {
   const organisationId = request.cookies.get('organisation_id')?.value;
   const region = request.cookies.get('region')?.value;
 
-  console.log("code:", code)
-  console.log("organisationId:", organisationId)
   if (!organisationId || !code || !region) {
     redirect(`${env.ELBA_REDIRECT_URL}?error=true`, RedirectType.replace);
   }

@@ -10,42 +10,43 @@ const intercomUserSchema = z.object({
 export type IntercomUser = z.infer<typeof intercomUserSchema>;
 
 const intercomResponseSchema = z.object({
-  pages: z.object({
-    page: z.number().nullable(),
-    per_page: z.number().nullable(),
-    next: z.object({
-      starting_after: z.string().nullable(),
-    }).optional(),
-  }).optional(),
+  pages: z
+    .object({
+      page: z.number().nullable(),
+      per_page: z.number().nullable(),
+      next: z
+        .object({
+          starting_after: z.string().nullable(),
+        })
+        .optional(),
+    })
+    .optional(),
   admins: z.array(z.unknown()),
 });
 
 export type GetUsersParams = {
-  token: string;
+  accessToken: string;
   next?: string | null;
 };
 
-
-export const getUsers = async ({ token, next }: GetUsersParams) => {
-  
-  const query = next ? new URLSearchParams({
-    per_page: '20',
-    starting_after: next
-  }).toString() : "";
+export const getUsers = async ({ accessToken, next }: GetUsersParams) => {
+  const query = next
+    ? new URLSearchParams({
+        per_page: '20',
+        starting_after: next,
+      }).toString()
+    : '';
 
   const endpoint = `${process.env.INTERCOM_API_BASE_URL}/admins?${query}`;
 
-  const response = await fetch(
-    endpoint,
-    {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
-        "Intercom-Version": '2.10'
-      },
-    }
-  );
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      'Intercom-Version': '2.10',
+    },
+  });
 
   if (!response.ok) {
     throw new IntercomError('Could not retrieve users', { response });

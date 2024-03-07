@@ -14,17 +14,18 @@ export const setupOrganisation = async ({
   code,
   region,
 }: SetupOrganisationParams) => {
-  
-  // retrieve token from SaaS API using the given code
   const { accessToken } = await getToken(code);
 
-  await db.insert(Organisation).values({ id: organisationId, accessToken, region }).onConflictDoUpdate({
-    target: Organisation.id,
-    set: {
-      accessToken,
-      region
-    },
-  });
+  await db
+    .insert(Organisation)
+    .values({ id: organisationId, accessToken, region })
+    .onConflictDoUpdate({
+      target: Organisation.id,
+      set: {
+        accessToken,
+        region,
+      },
+    });
 
   await inngest.send([
     {
@@ -37,7 +38,6 @@ export const setupOrganisation = async ({
         page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
       name: 'intercom/intercom.elba_app.installed',
       data: {
@@ -45,6 +45,5 @@ export const setupOrganisation = async ({
         region,
       },
     },
-   
   ]);
 };

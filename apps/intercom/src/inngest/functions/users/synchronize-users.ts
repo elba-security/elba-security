@@ -14,6 +14,7 @@ const formatElbaUser = (user: IntercomUser): User => ({
   id: user.id,
   displayName: user.name,
   email: user.email,
+  role: 'admin',
   additionalEmails: [],
 });
 
@@ -33,17 +34,16 @@ export const synchronizeUsers = inngest.createFunction(
   async ({ event, step }) => {
     const { organisationId, syncStartedAt, page } = event.data;
 
-      const { token, region } = await step.run('get-token', async () => {
+    const { accessToken, region } = await step.run('get-token', async () => {
       const [organisation] = await db
-        .select({ token: Organisation.accessToken, region: Organisation.region })
+        .select({ accessToken: Organisation.accessToken, region: Organisation.region })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      return organisation.token;
+      return organisation;
     });
-    console.log("token:", token)
 
     const elba = new Elba({
       organisationId,
@@ -52,13 +52,12 @@ export const synchronizeUsers = inngest.createFunction(
       baseUrl: env.ELBA_API_BASE_URL,
       region,
     });
-    
+
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ token, next: page });
+      const result = await getUsers({ accessToken, next: page });
 
       const users = result.validUsers.map(formatElbaUser);
 
-      console.log("users:", users)
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
           organisationId,
@@ -69,7 +68,6 @@ export const synchronizeUsers = inngest.createFunction(
 
       return result.nextPage;
     });
-    console.log("nextPage:", nextPage)
 
     // if there is a next page enqueue a new sync user event
     if (nextPage) {
