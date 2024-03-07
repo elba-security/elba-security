@@ -1,19 +1,19 @@
+import type { InstallationHandler } from '@elba-security/nextjs';
+import { z } from 'zod';
 import { getInstallation } from '@/connectors/github/installation';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 
-type SetupOrganisationParams = {
-  installationId: number;
-  organisationId: string;
-  region: string;
-};
+export const searchParamsSchema = z.object({
+  installation_id: z.coerce.number().int().positive(),
+});
 
-export const setupOrganisation = async ({
-  installationId,
+export const handleInstallation: InstallationHandler<typeof searchParamsSchema> = async ({
   organisationId,
   region,
-}: SetupOrganisationParams) => {
+  searchParams: { installation_id: installationId },
+}) => {
   const installation = await getInstallation(installationId);
 
   if (installation.account.type !== 'Organization') {
@@ -66,6 +66,4 @@ export const setupOrganisation = async ({
       },
     },
   ]);
-
-  return organisation;
 };

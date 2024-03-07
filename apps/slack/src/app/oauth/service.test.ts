@@ -88,7 +88,9 @@ describe('handleSlackInstallation', () => {
     await handleSlackInstallation({
       organisationId: '00000000-0000-0000-0000-000000000001',
       region: 'eu',
-      code: 'code',
+      searchParams: {
+        code: 'code',
+      },
     });
 
     expect(slack.SlackAPIClient).toBeCalledTimes(1);
@@ -190,7 +192,9 @@ describe('handleSlackInstallation', () => {
       handleSlackInstallation({
         organisationId: '00000000-0000-0000-0000-000000000001',
         region: 'eu',
-        code: 'code',
+        searchParams: {
+          code: 'code',
+        },
       })
     ).rejects.toThrowError('Unsupported token type');
 
@@ -284,7 +288,9 @@ describe('handleSlackInstallation', () => {
       handleSlackInstallation({
         organisationId: '00000000-0000-0000-0000-000000000001',
         region: 'eu',
-        code: 'code',
+        searchParams: {
+          code: 'code',
+        },
       })
     ).rejects.toThrowError('Missing OAuth scopes');
 
@@ -379,7 +385,9 @@ describe('handleSlackInstallation', () => {
       handleSlackInstallation({
         organisationId: '00000000-0000-0000-0000-000000000001',
         region: 'eu',
-        code: 'code',
+        searchParams: {
+          code: 'code',
+        },
       })
     ).rejects.toThrowError('Slack enterprise is not supported');
 
@@ -474,7 +482,9 @@ describe('handleSlackInstallation', () => {
       handleSlackInstallation({
         organisationId: '00000000-0000-0000-0000-000000000001',
         region: 'eu',
-        code: 'code',
+        searchParams: {
+          code: 'code',
+        },
       })
     ).rejects.toThrowError('User is not admin');
 

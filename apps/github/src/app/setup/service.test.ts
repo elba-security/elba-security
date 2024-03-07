@@ -3,7 +3,7 @@ import * as installationRepository from '@/connectors/github/installation';
 import * as client from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { setupOrganisation } from './service';
+import { handleInstallation } from './service';
 
 const installationId = 1;
 const organisationId = `45a76301-f1dd-4a77-b12f-9d7d3fca3c90`;
@@ -30,7 +30,13 @@ describe('setupOrganisation', () => {
       suspended_at: null,
     });
 
-    await expect(setupOrganisation({ installationId, organisationId, region })).rejects.toThrow(
+    await expect(
+      handleInstallation({
+        searchParams: { installation_id: installationId },
+        organisationId,
+        region,
+      })
+    ).rejects.toThrow(
       new Error('Cannot install elba github app on an account that is not an organization')
     );
     await expect(db.select().from(organisationsTable)).resolves.toHaveLength(0);
@@ -48,9 +54,13 @@ describe('setupOrganisation', () => {
       suspended_at: new Date().toISOString(),
     });
 
-    await expect(setupOrganisation({ installationId, organisationId, region })).rejects.toThrow(
-      new Error('Installation is suspended')
-    );
+    await expect(
+      handleInstallation({
+        searchParams: { installation_id: installationId },
+        organisationId,
+        region,
+      })
+    ).rejects.toThrow(new Error('Installation is suspended'));
     await expect(db.select().from(organisationsTable)).resolves.toHaveLength(0);
     expect(send).toBeCalledTimes(0);
   });
@@ -72,8 +82,12 @@ describe('setupOrganisation', () => {
     });
 
     await expect(
-      setupOrganisation({ installationId, organisationId, region })
-    ).resolves.toMatchObject(organisation);
+      handleInstallation({
+        searchParams: { installation_id: installationId },
+        organisationId,
+        region,
+      })
+    ).resolves.toBeUndefined();
     await expect(db.select().from(organisationsTable)).resolves.toMatchObject([organisation]);
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([

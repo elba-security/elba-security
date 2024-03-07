@@ -23,11 +23,10 @@ export const getSlackMissingScopes = (scope: string) => {
   return missingScopes;
 };
 
-export const getSlackInstallationUrl = (state: string) => {
+export const getSlackInstallationUrl = () => {
   const url = new URL('https://slack.com/oauth/v2/authorize');
   url.searchParams.append('client_id', env.SLACK_CLIENT_ID);
   url.searchParams.append('user_scope', slackUserScopes.join(','));
-  url.searchParams.append('state', state);
 
   return url.toString();
 };

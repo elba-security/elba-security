@@ -1,21 +1,25 @@
 import { addSeconds } from 'date-fns/addSeconds';
+import { z } from 'zod';
+import type { InstallationHandler } from '@elba-security/nextjs';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/microsoft/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
-type SetupOrganisationParams = {
-  organisationId: string;
-  region: string;
-  tenantId: string;
-};
+export const searchParamsSchema = z.object({
+  admin_consent: z.preprocess(
+    (value) => typeof value === 'string' && value.toLocaleLowerCase() === 'true',
+    z.literal(true)
+  ),
+  tenant: z.string().min(1),
+});
 
-export const setupOrganisation = async ({
+export const handleInstallation: InstallationHandler<typeof searchParamsSchema> = async ({
   organisationId,
   region,
-  tenantId,
-}: SetupOrganisationParams) => {
+  searchParams: { tenant: tenantId },
+}) => {
   const { token, expiresIn } = await getToken(tenantId);
 
   const encodedToken = await encrypt(token);
