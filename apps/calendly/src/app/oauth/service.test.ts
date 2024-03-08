@@ -1,27 +1,25 @@
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `setupOrganisation` function.
- * These tests illustrate potential scenarios and methodologies relevant for SaaS integration.
- * Developers should create tests tailored to their specific implementation and requirements.
- * Mock data and assertions here are simplified and may not cover all real-world complexities.
- * Expanding upon these tests to fit the actual logic and behaviors of specific integrations is crucial.
- */
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
-import * as authConnector from '@/connectors/auth';
+import { addSeconds } from 'date-fns';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
+import * as auth from '@/connectors/auth';
 import { setupOrganisation } from './service';
 
-const code = 'some-code';
-const token = 'some-token';
+const code = 'code';
 const region = 'us';
 const now = new Date();
+const accessToken = 'access-token';
+const refreshToken = 'refresh-token';
+const organizationUri = 'org-uri';
+const expiresAt = addSeconds(new Date(), 7200).getTime();
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  token: 'test-token',
+  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+  accessToken,
+  refreshToken,
+  organizationUri,
   region,
 };
 
@@ -34,119 +32,122 @@ describe('setupOrganisation', () => {
     vi.useRealTimers();
   });
 
-  test('should setup organisation when the code is valid and the organisation is not registered', async () => {
-    // mock inngest client, only inngest.send should be used
+  test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
+    const getAccessToken = vi.spyOn(auth, 'getAccessToken').mockResolvedValue({
+      accessToken,
+      refreshToken,
+      expiresIn: 7200,
+      organization: organizationUri,
+    });
+
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mock the getToken function to return a predefined token
-    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(token);
-
-    // assert the function resolves without returning a value
     await expect(
       setupOrganisation({
         organisationId: organisation.id,
         code,
         region,
       })
-    ).resolves.toBeUndefined();
+    ).resolves.toBeDefined();
 
-    // check if getToken was called correctly
-    expect(getToken).toBeCalledTimes(1);
-    expect(getToken).toBeCalledWith(code);
-
-    // verify the organisation token is set in the database
     await expect(
       db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
     ).resolves.toMatchObject([
       {
-        token,
+        accessToken,
+        refreshToken,
+        organizationUri,
         region,
       },
     ]);
 
-    // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: '{SaaS}/users.page_sync.requested',
-      data: {
-        isFirstSync: true,
-        organisationId: organisation.id,
-        syncStartedAt: now.getTime(),
-        region,
-        page: null,
+    expect(send).toBeCalledWith([
+      {
+        name: 'calendly/token.refresh.requested',
+        data: {
+          organisationId: organisation.id,
+          expiresAt,
+        },
       },
-    });
+      {
+        name: 'calendly/users.page_sync.requested',
+        data: {
+          isFirstSync: true,
+          organisationId: organisation.id,
+          region,
+          syncStartedAt: Date.now(),
+          page: null,
+        },
+      },
+    ]);
+
+    expect(getAccessToken).toBeCalledWith(code);
   });
 
-  test('should setup organisation when the code is valid and the organisation is already registered', async () => {
-    // mock inngest client, only inngest.send should be used
+  test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // pre-insert an organisation to simulate an existing entry
     await db.insert(Organisation).values(organisation);
 
-    // mock getToken as above
-    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(token);
-
-    // assert the function resolves without returning a value
     await expect(
       setupOrganisation({
         organisationId: organisation.id,
         code,
         region,
       })
-    ).resolves.toBeUndefined();
-
-    // verify getToken usage
-    expect(getToken).toBeCalledTimes(1);
-    expect(getToken).toBeCalledWith(code);
+    ).resolves.toBeDefined();
 
     // check if the token in the database is updated
     await expect(
       db
-        .select({ token: Organisation.token })
+        .select({ accessToken: Organisation.accessToken })
         .from(Organisation)
         .where(eq(Organisation.id, organisation.id))
     ).resolves.toMatchObject([
       {
-        token,
+        accessToken,
       },
     ]);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: '{SaaS}/users.page_sync.requested',
-      data: {
-        isFirstSync: true,
-        organisationId: organisation.id,
-        syncStartedAt: now.getTime(),
-        region,
-        page: null,
+    expect(send).toBeCalledWith([
+      {
+        name: 'calendly/token.refresh.requested',
+        data: {
+          organisationId: organisation.id,
+          expiresAt,
+        },
       },
-    });
+      {
+        name: 'calendly/users.page_sync.requested',
+        data: {
+          isFirstSync: true,
+          organisationId: organisation.id,
+          region,
+          syncStartedAt: Date.now(),
+          page: null,
+        },
+      },
+    ]);
   });
 
-  test('should not setup the organisation when the code is invalid', async () => {
-    // mock inngest client
+  test('should not setup the organisation when the organisation id is invalid', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    const error = new Error('invalid code');
-    // mock getToken to reject with a dumb error for an invalid code
-    const getToken = vi.spyOn(authConnector, 'getToken').mockRejectedValue(error);
+    const wrongId = 'xfdhg-dsf';
+    const error = new Error(`invalid input syntax for type uuid: "${wrongId}"`);
 
     // assert that the function throws the mocked error
     await expect(
       setupOrganisation({
-        organisationId: organisation.id,
+        organisationId: wrongId,
         code,
         region,
       })
     ).rejects.toThrowError(error);
-
-    // verify getToken usage
-    expect(getToken).toBeCalledTimes(1);
-    expect(getToken).toBeCalledWith(code);
 
     // ensure no organisation is added or updated in the database
     await expect(

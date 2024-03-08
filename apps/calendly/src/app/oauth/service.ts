@@ -15,7 +15,7 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn, organization } = await getAccessToken(code);
-  await db
+  const [organisation] = await db
     .insert(Organisation)
     .values({
       id: organisationId,
@@ -30,10 +30,11 @@ export const setupOrganisation = async ({
         id: organisationId,
         accessToken,
         refreshToken,
-        region,
         organizationUri: organization,
+        region,
       },
-    });
+    })
+    .returning();
 
   await inngest.send([
     {
@@ -54,4 +55,5 @@ export const setupOrganisation = async ({
       },
     },
   ]);
+  return organisation;
 };

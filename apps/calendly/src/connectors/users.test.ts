@@ -9,9 +9,9 @@ const users: CalendlyUser[] = [
   {
     role: 'admin',
     user: {
-      uri: `https://api.calendly.com/users/886e3726-320a-4ce7-8e53-d3d5e1ca537b`,
-      name: `Ahmed Hashir`,
-      email: `ahmedhashir471@gmail.com`,
+      uri: `user-uri`,
+      name: `username`,
+      email: `user@gmail.com`,
     },
   },
 ];

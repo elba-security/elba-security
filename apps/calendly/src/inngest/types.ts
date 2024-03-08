@@ -8,7 +8,7 @@ export type InngestEvents = {
       region: string;
       isFirstSync: boolean;
       syncStartedAt: number;
-      page: number | null;
+      page: string | null;
     };
   };
   'calendly/token.refresh.requested': {

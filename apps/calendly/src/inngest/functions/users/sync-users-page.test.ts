@@ -1,12 +1,3 @@
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `syncUsersPage` function example.
- * These tests serve as a conceptual framework and are not intended to be used as definitive tests in a production environment.
- * They are meant to illustrate potential test scenarios and methodologies that might be relevant for a SaaS integration.
- * Developers should create their own tests tailored to the specific implementation details and requirements of their SaaS integration.
- * The mock data, assertions, and scenarios used here are simplified and may not cover all edge cases or real-world complexities.
- * It is crucial to expand upon these tests, adapting them to the actual logic and behaviors of your specific SaaS integration.
- */
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
@@ -15,20 +6,26 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { syncUsersPage } from './sync-users-page';
 
+export const users = Array.from({ length: 10 }, (_, i) => ({
+  role: 'admin',
+  user: { uri: `uri-${i}`, name: `user-${i}`, email: `username-${i}@foo.bar` },
+}));
+
+const region = 'us';
+const accessToken = 'access-token';
+const refreshToken = 'refresh-token';
+const organizationUri = 'org-uri';
+
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  token: 'test-token',
-  region: 'us',
+  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+  accessToken,
+  refreshToken,
+  organizationUri,
+  region,
 };
 const syncStartedAt = Date.now();
 
-const users: usersConnector.MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
-  id: `id-${i}`,
-  username: `username-${i}`,
-  email: `username-${i}@foo.bar`,
-}));
-
-const setup = createInngestFunctionMock(syncUsersPage, '{SaaS}/users.page_sync.requested');
+const setup = createInngestFunctionMock(syncUsersPage, 'calendly/users.page_sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
@@ -37,7 +34,7 @@ describe('sync-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt: Date.now(),
-      page: 0,
+      page: '0',
       region: 'us',
     });
 
@@ -51,17 +48,23 @@ describe('sync-users', () => {
   test('should continue the sync when there is a next page', async () => {
     // setup the test with an organisation
     await db.insert(Organisation).values(organisation);
-    // mock the getUser function that returns SaaS users page
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      nextPage: 1,
-      users,
+    // mock the getOrganizationMembers function that returns Calendly users page
+    vi.spyOn(usersConnector, 'getOrganizationMembers').mockResolvedValue({
+      collection: users,
+      pagination: {
+        count: 1,
+        next_page: 'next-page',
+        next_page_token: 'next-page-token',
+        previous_page: 'previous-page',
+        previous_page_token: 'previous-page-token',
+      },
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: 0,
-      region: 'us',
+      page: '0',
+      region: organisation.region,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -69,29 +72,35 @@ describe('sync-users', () => {
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users-page', {
-      name: '{SaaS}/users.page_sync.requested',
+      name: 'calendly/users.page_sync.requested',
       data: {
         organisationId: organisation.id,
         isFirstSync: false,
         syncStartedAt,
         region: organisation.region,
-        page: 1,
+        page: 'next-page-token',
       },
     });
   });
 
   test('should finalize the sync when there is a no next page', async () => {
     await db.insert(Organisation).values(organisation);
-    // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      nextPage: null,
-      users,
+    // mock the getOrganizationMembers function that returns Calendly users page, but this time the response does not indicate that their is a next page
+    vi.spyOn(usersConnector, 'getOrganizationMembers').mockResolvedValue({
+      collection: users,
+      pagination: {
+        count: 1,
+        next_page: null,
+        next_page_token: null,
+        previous_page: 'previous-page',
+        previous_page_token: 'previous-token',
+      },
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: 0,
+      page: '0',
       region: 'us',
     });
 

@@ -2,7 +2,7 @@ import { addSeconds, subMinutes } from 'date-fns';
 import { NonRetriableError } from 'inngest';
 import { env } from '@/env';
 import { type FunctionHandler, inngest } from '@/inngest/client';
-import { refreshAccessToken } from '@/connectors/refresh-token';
+import { refreshAccessToken } from '@/connectors/auth';
 import { type InputArgWithTrigger } from '@/inngest/types';
 import { getOrganisationRefreshToken, updateOrganisationTokens } from './utils';
 
