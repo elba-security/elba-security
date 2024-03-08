@@ -2,8 +2,6 @@ import { addSeconds } from 'date-fns';
 import { getAccessToken } from '@/connectors/auth';
 import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
-import { CalendlyUser, getOrganizationMembers } from '@/connectors/users';
-import { User } from '@elba-security/sdk';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -17,55 +15,43 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn, organization } = await getAccessToken(code);
-  const { collection, pagination } = await getOrganizationMembers(accessToken, organization, null);
-  const formatElbaUser = (user: CalendlyUser): User => ({
-    id: user.user.uri,
-    displayName: user.user.name,
-    email: user.user.email,
-    role: user.role,
-    authMethod: 'mfa',
-    additionalEmails: [],
-  });
-  const users = collection.map(formatElbaUser);
-  console.log('USERS: ', users);
-  console.log('PAGINATION: ', pagination);
-  // await db
-  //   .insert(Organisation)
-  //   .values({
-  //     id: organisationId,
-  //     accessToken,
-  //     refreshToken,
-  //     organizationUri: organization,
-  //     region,
-  //   })
-  //   .onConflictDoUpdate({
-  //     target: [Organisation.id],
-  //     set: {
-  //       id: organisationId,
-  //       accessToken,
-  //       refreshToken,
-  //       region,
-  //       organizationUri: organization,
-  //     },
-  //   });
+  await db
+    .insert(Organisation)
+    .values({
+      id: organisationId,
+      accessToken,
+      refreshToken,
+      organizationUri: organization,
+      region,
+    })
+    .onConflictDoUpdate({
+      target: [Organisation.id],
+      set: {
+        id: organisationId,
+        accessToken,
+        refreshToken,
+        region,
+        organizationUri: organization,
+      },
+    });
 
-  // await inngest.send([
-  //   {
-  //     name: 'calendly/token.refresh.requested',
-  //     data: {
-  //       organisationId,
-  //       expiresAt: addSeconds(new Date(), expiresIn).getTime(),
-  //     },
-  //   },
-  //   {
-  //     name: 'calendly/users.page_sync.requested',
-  //     data: {
-  //       isFirstSync: true,
-  //       organisationId,
-  //       region,
-  //       syncStartedAt: Date.now(),
-  //       page: null,
-  //     },
-  //   },
-  // ]);
+  await inngest.send([
+    {
+      name: 'calendly/token.refresh.requested',
+      data: {
+        organisationId,
+        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
+      },
+    },
+    {
+      name: 'calendly/users.page_sync.requested',
+      data: {
+        isFirstSync: true,
+        organisationId,
+        region,
+        syncStartedAt: Date.now(),
+        page: null,
+      },
+    },
+  ]);
 };

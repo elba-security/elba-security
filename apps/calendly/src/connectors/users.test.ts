@@ -64,8 +64,7 @@ describe('getOrganizationMembers', () => {
     try {
       await getOrganizationMembers('invalidToken', organizationUri, null);
     } catch (error) {
-      const calendlyError = error as CalendlyError;
-      expect(calendlyError.message).toEqual('Could not retrieve organization members');
+      expect((error as CalendlyError).message).toEqual('Could not retrieve organization members');
     }
   });
 
@@ -100,8 +99,7 @@ describe('deleteUser', () => {
     try {
       await deleteUser('invalidToken', userId);
     } catch (error) {
-      const calendlyError = error as CalendlyError;
-      expect(calendlyError.message).toEqual(`Could not delete user with Id: ${userId}`);
+      expect((error as CalendlyError).message).toEqual(`Could not delete user with Id: ${userId}`);
     }
   });
 });

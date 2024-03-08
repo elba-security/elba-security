@@ -1,5 +1,6 @@
 import { env } from '@/env';
 import { type GetTokenResponseData } from './types';
+import { CalendlyError } from './commons/error';
 
 export const getAccessToken = async (code: string) => {
   const credentials = `${env.CALENDLY_CLIENT_ID}:${env.CALENDLY_CLIENT_SECRET}`;
@@ -21,7 +22,7 @@ export const getAccessToken = async (code: string) => {
   });
 
   if (!response.ok) {
-    throw new Error('Could not get Calendly access token.');
+    throw new CalendlyError('Failed to fetch', { response });
   }
   const data = (await response.json()) as GetTokenResponseData;
   const tokenResponse = {
