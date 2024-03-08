@@ -4,7 +4,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { env } from '@/env';
 import { Organisation } from '@/database/schema';
-import { inngest } from "../../client";
+import { inngest } from '../../client';
 
 export const removeOrganisation = inngest.createFunction(
   {
@@ -15,7 +15,7 @@ export const removeOrganisation = inngest.createFunction(
     retries: env.REMOVE_ORGANISATION_MAX_RETRY,
   },
   {
-    event: 'calendly/calendly.elba_app.uninstalled',
+    event: 'calendly/app.uninstall.requested',
   },
   async ({ event }) => {
     const { organisationId } = event.data as unknown as { organisationId: string };

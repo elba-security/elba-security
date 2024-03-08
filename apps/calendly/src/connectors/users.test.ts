@@ -1,56 +1,51 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `auth` connectors function.
- * Theses tests exists because the services & inngest functions using this connector mock it.
- * If you are using an SDK we suggest you to mock it not to implements calls using msw.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
-
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '../env';
 import { server } from '../../vitest/setup-msw-handlers';
-import { type CalendlyUser, type Pagination, getOrganizationMembers, deleteUser } from './users'; 
+import { type CalendlyUser, type Pagination, getOrganizationMembers, deleteUser } from './users';
 import type { CalendlyError } from './commons/error';
 
 const users: CalendlyUser[] = [
   {
-    uri: `https://api.calendly.com/users/886e3726-320a-4ce7-8e53-d3d5e1ca537b`,
-    name: `Ahmed Hashir`,
-    email: `ahmedhashir471@gmail.com`,
+    role: 'admin',
+    user: {
+      uri: `https://api.calendly.com/users/886e3726-320a-4ce7-8e53-d3d5e1ca537b`,
+      name: `Ahmed Hashir`,
+      email: `ahmedhashir471@gmail.com`,
+    },
   },
 ];
 
 const pagination: Pagination = {
+  count: 10,
   next_page: 'next-cursor',
   next_page_token: 'next-token',
   previous_page: 'previous-cursor',
   previous_page_token: 'previous-token',
 };
 
-const validToken: string = env.CALENDLY_TOKEN as string;
+const validToken: string = env.CALENDLY_TOKEN;
 const userId = 'test-user-id';
+const organizationUri = 'test-uri';
 
-
-describe('getOrganizationMembers', () => { 
+describe('getOrganizationMembers', () => {
   beforeEach(() => {
     server.use(
-      http.get('https://api.calendly.com/organization_memberships', ({ request }) => { 
+      http.get('https://api.calendly.com/organization_memberships', ({ request }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
         const url = new URL(request.url);
         const pageToken = url.searchParams.get('page_token');
+        const lastToken = 'last-token';
         const nextPageToken = 'next-token';
         const previousPageToken = 'previous-token';
         return new Response(
           JSON.stringify({
-            members: users,
-            nextPage: {
+            collection: users,
+            pagination: {
               ...pagination,
-              next_page_token: pageToken === nextPageToken ? null : nextPageToken,
+              next_page_token: pageToken === lastToken ? null : nextPageToken,
               previous_page_token: previousPageToken,
             },
           }),
@@ -61,13 +56,13 @@ describe('getOrganizationMembers', () => {
   });
 
   test('should fetch organization members when token is valid', async () => {
-    const result = await getOrganizationMembers(validToken, null);
-    expect(result.members).toEqual(users);
+    const result = await getOrganizationMembers(validToken, organizationUri, null);
+    expect(result.collection).toEqual(users);
   });
 
   test('should throw CalendlyError when token is invalid', async () => {
     try {
-      await getOrganizationMembers('invalidToken', null);
+      await getOrganizationMembers('invalidToken', organizationUri, null);
     } catch (error) {
       const calendlyError = error as CalendlyError;
       expect(calendlyError.message).toEqual('Could not retrieve organization members');
@@ -75,28 +70,25 @@ describe('getOrganizationMembers', () => {
   });
 
   test('should return next_page_token as null when end of list is reached', async () => {
-    const result = await getOrganizationMembers(validToken, 'last-token');
-    expect(result.nextPage.next_page_token).toBeNull();
+    const result = await getOrganizationMembers(validToken, organizationUri, 'last-token');
+    expect(result.pagination.next_page_token).toBeNull();
   });
 
   test('should return next_page_token when there is next cursor', async () => {
-    const result = await getOrganizationMembers(validToken, 'first-token');
-    expect(result.nextPage.next_page_token).toEqual('next-token');
- });
+    const result = await getOrganizationMembers(validToken, organizationUri, 'first-token');
+    expect(result.pagination.next_page_token).toEqual('next-token');
+  });
 });
 
 describe('deleteUser', () => {
   beforeEach(() => {
     server.use(
-      http.delete(
-        `https://api.calendly.com/organization_memberships/${userId}`,
-        ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-          return new Response(undefined, { status: 200 });
+      http.delete(`https://api.calendly.com/organization_memberships/${userId}`, ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
         }
-      )
+        return new Response(undefined, { status: 200 });
+      })
     );
   });
 
@@ -113,4 +105,3 @@ describe('deleteUser', () => {
     }
   });
 });
-

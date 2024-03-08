@@ -24,10 +24,11 @@ export const getAccessToken = async (code: string) => {
     throw new Error('Could not get Calendly access token.');
   }
   const data = (await response.json()) as GetTokenResponseData;
-  const tokenData = {
+  const tokenResponse = {
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
     expiresIn: data.expires_in,
+    organization: data.organization,
   };
-  return tokenData;
+  return tokenResponse;
 };

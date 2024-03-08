@@ -11,19 +11,17 @@ const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   token: 'test-token',
   region: 'us',
+  organizationUri: 'test-uri',
   accessToken: 'access_test_token',
   refreshToken: 'refresh_test_token_here',
 };
 
-const setup = createInngestFunctionMock(
-  removeOrganisation,
-  'calendly/calendly.elba_app.uninstalled'
-);
+const setup = createInngestFunctionMock(removeOrganisation, 'calendly/app.uninstall.requested');
 
 describe('remove-organisation', () => {
   test("should not remove given organisation when it's not registered", async () => {
     const elba = spyOnElba();
-    const [result] = setup({ organisationId: organisation.id }); 
+    const [result] = setup({ organisationId: organisation.id });
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(elba).toBeCalledTimes(0);
@@ -33,7 +31,7 @@ describe('remove-organisation', () => {
     const elba = spyOnElba();
     await db.insert(Organisation).values(organisation);
 
-    const [result] = setup({ organisationId: organisation.id }); 
+    const [result] = setup({ organisationId: organisation.id });
 
     await expect(result).resolves.toBeUndefined();
 

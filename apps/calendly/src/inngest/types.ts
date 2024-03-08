@@ -17,7 +17,7 @@ export type InngestEvents = {
       expiresAt: number;
     };
   };
-  'calendly/calendly.elba_app.uninstalled': { data: { organisationId: string } };
+  'calendly/app.uninstall.requested': { data: { organisationId: string } };
 };
 
 export type InputArgWithTrigger<T extends keyof InngestEvents> = GetFunctionInput<
