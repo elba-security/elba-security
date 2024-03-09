@@ -17,6 +17,12 @@ export type InngestEvents = {
       expiresAt: number;
     };
   };
+  'calendly/users.delete.requested': {
+    data: {
+      id: string;
+      organisationId: string;
+    };
+  };
   'calendly/app.uninstall.requested': { data: { organisationId: string } };
 };
 

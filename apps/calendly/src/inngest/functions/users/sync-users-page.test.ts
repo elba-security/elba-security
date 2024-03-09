@@ -8,7 +8,8 @@ import { syncUsersPage } from './sync-users-page';
 
 export const users = Array.from({ length: 10 }, (_, i) => ({
   role: 'admin',
-  user: { uri: `uri-${i}`, name: `user-${i}`, email: `username-${i}@foo.bar` },
+  uri: `uri-${i}`,
+  user: { name: `user-${i}`, email: `username-${i}@foo.bar` },
 }));
 
 const region = 'us';

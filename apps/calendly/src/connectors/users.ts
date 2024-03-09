@@ -3,7 +3,8 @@ import { CalendlyError } from './commons/error';
 
 export type CalendlyUser = {
   role: string;
-  user: { uri: string; name: string; email: string };
+  uri: string;
+  user: { name: string; email: string };
 };
 
 export type Pagination = {
@@ -36,13 +37,13 @@ export const getOrganizationMembers = async (
   return data;
 };
 
-export const deleteUser = async (token: string, userId: string) => {
-  const response = await fetch(`https://api.calendly.com/organization_memberships/${userId}`, {
+export const deleteUser = async (token: string, uri: string) => {
+  const response = await fetch(uri, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${token}` },
   });
 
   if (!response.ok) {
-    throw new CalendlyError(`Could not delete user with Id: ${userId}`, { response });
+    throw new CalendlyError(`Could not delete user: ${uri}`, { response });
   }
 };

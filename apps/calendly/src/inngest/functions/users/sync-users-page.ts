@@ -9,7 +9,7 @@ import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 
 const formatElbaUser = (user: CalendlyUser): User => ({
-  id: user.user.uri,
+  id: user.uri,
   displayName: user.user.name,
   email: user.user.email,
   role: user.role,
