@@ -14,14 +14,14 @@ export const setupOrganisation = async ({
   code,
   region,
 }: SetupOrganisationParams) => {
-  const { accessToken, refreshToken, expiresIn, organization } = await getAccessToken(code);
+  const { accessToken, refreshToken, expiresIn, organizationUri } = await getAccessToken(code);
   const [organisation] = await db
     .insert(Organisation)
     .values({
       id: organisationId,
       accessToken,
       refreshToken,
-      organizationUri: organization,
+      organizationUri,
       region,
     })
     .onConflictDoUpdate({
@@ -30,7 +30,7 @@ export const setupOrganisation = async ({
         id: organisationId,
         accessToken,
         refreshToken,
-        organizationUri: organization,
+        organizationUri,
         region,
       },
     })

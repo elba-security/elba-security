@@ -29,7 +29,7 @@ describe('getAccessToken', () => {
             accessToken: 'access-token',
             refreshToken: 'refresh-token',
             expiresIn: 'expire-time',
-            organization: 'organization-uri',
+            organizationUri: 'organization-uri',
           }),
           { status: 200 }
         );

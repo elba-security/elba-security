@@ -7,10 +7,8 @@ export async function DELETE(request: Request) {
 
   const { id, organisationId } = parseWebhookEventData('users.delete_user_requested', data);
 
-  const userId: string = id as string; // Explicitly type id as string
-
   await deleteUserRequest({
-    id: userId,
+    id,
     organisationId,
   });
 
