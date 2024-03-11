@@ -14,7 +14,6 @@ const formatElbaUser = (user: IntercomUser): User => ({
   id: user.id,
   displayName: user.name,
   email: user.email,
-  role: 'admin',
   additionalEmails: [],
 });
 
@@ -32,18 +31,7 @@ export const synchronizeUsers = inngest.createFunction(
   },
   { event: 'intercom/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
-
-    const { accessToken, region } = await step.run('get-token', async () => {
-      const [organisation] = await db
-        .select({ accessToken: Organisation.accessToken, region: Organisation.region })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisationId));
-      if (!organisation) {
-        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-      }
-      return organisation;
-    });
+    const { organisationId, syncStartedAt, page, region } = event.data;
 
     const elba = new Elba({
       organisationId,
@@ -53,11 +41,24 @@ export const synchronizeUsers = inngest.createFunction(
       region,
     });
 
+    const token = await step.run('get-token', async () => {
+      const [organisation] = await db
+        .select({ token: Organisation.accessToken })
+        .from(Organisation)
+        .where(eq(Organisation.id, organisationId));
+      if (!organisation) {
+        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+      }
+      return organisation.token;
+    });
+    console.log("token:", token)
+
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken, next: page });
+      const result = await getUsers({ token, next: page });
 
       const users = result.validUsers.map(formatElbaUser);
 
+      console.log("users:", users)
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
           organisationId,
@@ -68,6 +69,7 @@ export const synchronizeUsers = inngest.createFunction(
 
       return result.nextPage;
     });
+    console.log("nextPage:", nextPage)
 
     // if there is a next page enqueue a new sync user event
     if (nextPage) {
