@@ -6,6 +6,6 @@ export type GetTokenResponseData = {
     access_token: string;
     scope: string;
     owner: string;
-    organization: string;
+    team: string;
    };
    

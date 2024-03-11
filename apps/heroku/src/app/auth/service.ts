@@ -14,14 +14,14 @@ export const setupOrganisation = async ({
   code,
   region,
 }: SetupOrganisationParams) => {
-  const { accessToken, refreshToken, expiresIn, teamID } = await getAccessToken(code);
+  const { accessToken, refreshToken, expiresIn, team } = await getAccessToken(code);
   const [organisation] = await db
     .insert(Organisation)
     .values({
       id: organisationId,
       accessToken,
       refreshToken,
-      teamID,
+      teamID:team,
       region,
     })
     .onConflictDoUpdate({
@@ -30,7 +30,7 @@ export const setupOrganisation = async ({
         id: organisationId,
         accessToken,
         refreshToken,
-        teamID,
+        teamID:team,
         region,
       },
     })
@@ -38,14 +38,14 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
-      name: 'calendly/token.refresh.requested',
+      name: 'heroku/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: addSeconds(new Date(), expiresIn).getTime(),
       },
     },
     {
-      name: 'calendly/users.page_sync.requested',
+      name: 'heroku/users.page_sync.requested',
       data: {
         isFirstSync: true,
         organisationId,

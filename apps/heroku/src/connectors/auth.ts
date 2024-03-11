@@ -33,7 +33,7 @@ export const getAccessToken = async (code: string) => {
    accessToken: data.access_token,
    refreshToken: data.refresh_token,
    expiresIn: data.expires_in,
-   team: data.organization,
+   team: data.team,
  };
  return tokenResponse;
 };
