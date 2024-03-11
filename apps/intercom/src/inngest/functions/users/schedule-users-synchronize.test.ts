@@ -47,7 +47,7 @@ describe('schedule-users-syncs', () => {
           region,
           syncStartedAt: now,
           isFirstSync: false,
-          page:null
+          page: null,
         },
       }))
     );
