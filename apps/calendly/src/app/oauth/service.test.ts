@@ -37,7 +37,7 @@ describe('setupOrganisation', () => {
       accessToken,
       refreshToken,
       expiresIn: 7200,
-      organization: organizationUri,
+      organizationUri,
     });
 
     // @ts-expect-error -- this is a mock
