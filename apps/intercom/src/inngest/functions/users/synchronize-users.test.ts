@@ -21,6 +21,7 @@ const users: usersConnector.IntercomUser[] = Array.from({ length: 5 }, (_, i) =>
   email: `user-${i}@foo.bar`,
 }));
 
+const next = 'some next page';
 const setup = createInngestFunctionMock(synchronizeUsers, 'intercom/users.sync.requested');
 
 describe('synchronize-users', () => {
@@ -62,17 +63,17 @@ describe('synchronize-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: 'some aftera',
+      page: next,
       region: 'us',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
-    expect(usersConnector.getUsers).toBeCalledTimes(1)
+    expect(usersConnector.getUsers).toBeCalledTimes(1);
     expect(usersConnector.getUsers).toBeCalledWith({
-      accessToken: organisation.accessToken,
-      next: 'some next page'
+      token: organisation.accessToken,
+      next,
     });
-    
+
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
@@ -105,11 +106,11 @@ describe('synchronize-users', () => {
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
-    
-    expect(usersConnector.getUsers).toBeCalledTimes(1)
+
+    expect(usersConnector.getUsers).toBeCalledTimes(1);
     expect(usersConnector.getUsers).toBeCalledWith({
-      accessToken: organisation.accessToken,
-      next: 'some next page'
+      token: organisation.accessToken,
+      next: null,
     });
     // the function should not send another event that continue the pagination
     expect(step.sendEvent).toBeCalledTimes(0);
