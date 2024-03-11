@@ -21,7 +21,7 @@ export const setupOrganisation = async ({
   //     id: organisationId,
   //     accessToken,
   //     refreshToken,
-  //     teamID: team,
+  //     teamId: team,
   //     region,
   //   })
   //   .onConflictDoUpdate({
@@ -30,7 +30,7 @@ export const setupOrganisation = async ({
   //       id: organisationId,
   //       accessToken,
   //       refreshToken,
-  //       teamID: team,
+  //       teamId: team,
   //       region,
   //     },
   //   })
