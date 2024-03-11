@@ -1,10 +1,13 @@
-type MySaasErrorOptions = { response?: Response };
+type HerokuErrorOptions = { response?: Response; request?: Request };
 
-export class MySaasError extends Error {
-  response?: Response;
+export class HerokuError extends Error {
+ response?: Response;
+ request?: Request;
 
-  constructor(message: string, { response }: MySaasErrorOptions = {}) {
-    super(message);
-    this.response = response;
-  }
+
+ constructor(message: string, { response, request }: HerokuErrorOptions = {}) {
+   super(message);
+   this.response = response;
+   this.request = request;
+ }
 }

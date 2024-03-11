@@ -1,6 +1,6 @@
-import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { getToken } from '@/connectors/auth';
+import { addSeconds } from 'date-fns';
+import { getAccessToken } from '@/connectors/auth';
+import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
 
 type SetupOrganisationParams = {
@@ -14,24 +14,46 @@ export const setupOrganisation = async ({
   code,
   region,
 }: SetupOrganisationParams) => {
-  // retrieve token from SaaS API using the given code
-  const token = await getToken(code);
-
-  await db.insert(Organisation).values({ id: organisationId, token, region }).onConflictDoUpdate({
-    target: Organisation.id,
-    set: {
-      token,
-    },
-  });
-
-  await inngest.send({
-    name: '{SaaS}/users.page_sync.requested',
-    data: {
-      isFirstSync: true,
-      organisationId,
+  const { accessToken, refreshToken, expiresIn, teamID } = await getAccessToken(code);
+  const [organisation] = await db
+    .insert(Organisation)
+    .values({
+      id: organisationId,
+      accessToken,
+      refreshToken,
+      teamID,
       region,
-      syncStartedAt: Date.now(),
-      page: null,
+    })
+    .onConflictDoUpdate({
+      target: [Organisation.id],
+      set: {
+        id: organisationId,
+        accessToken,
+        refreshToken,
+        teamID,
+        region,
+      },
+    })
+    .returning();
+
+  await inngest.send([
+    {
+      name: 'calendly/token.refresh.requested',
+      data: {
+        organisationId,
+        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
+      },
     },
-  });
+    {
+      name: 'calendly/users.page_sync.requested',
+      data: {
+        isFirstSync: true,
+        organisationId,
+        region,
+        syncStartedAt: Date.now(),
+        page: null,
+      },
+    },
+  ]);
+  return organisation;
 };
