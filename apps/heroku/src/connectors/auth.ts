@@ -1,25 +1,73 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation.
- * When requesting against API endpoint we might prefer to valid the response
- * data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { env } from '@/env';
+import { type GetTokenResponseData } from './types';
+import { HerokuError } from './commons/error';
 
-import { MySaasError } from './commons/error';
 
-type GetTokenResponseData = { token: string };
+export const getAccessToken = async (code: string) => {
+ const credentials = `${env.HEROKU_CLIENT_ID}:${env.HEROKU_CLIENT_SECRET}`;
+ const encodedCredentials = btoa(credentials);
 
-export const getToken = async (code: string) => {
-  const response = await fetch('https://mysaas.com/api/v1/token', {
-    method: 'POST',
-    body: JSON.stringify({ code }),
-  });
 
-  if (!response.ok) {
-    throw new MySaasError('Could not retrieve token', { response });
-  }
-  const data = (await response.json()) as GetTokenResponseData;
-  return data.token;
+ const bodyData = {
+   grant_type: 'authorization_code',
+   code,
+   redirect_uri: env.HEROKU_REDIRECT_URI,
+ };
+
+
+ const response = await fetch('https://id.heroku.com/oauth/token', {
+   method: 'POST',
+   headers: {
+     'Content-Type': 'application/json',
+     Authorization: `Basic ${encodedCredentials}`,
+   },
+   body: JSON.stringify(bodyData),
+ });
+
+
+ if (!response.ok) {
+   throw new HerokuError('Failed to fetch', { response });
+ }
+ const data = (await response.json()) as GetTokenResponseData;
+ const tokenResponse = {
+   accessToken: data.access_token,
+   refreshToken: data.refresh_token,
+   expiresIn: data.expires_in,
+   team: data.team,
+ };
+ return tokenResponse;
+};
+
+
+export const refreshAccessToken = async (refreshToken: string) => {
+ const credentials = `${env.HEROKU_CLIENT_ID}:${env.HEROKU_CLIENT_SECRET}`;
+ const encodedCredentials = btoa(credentials);
+
+
+ const bodyData = {
+   grant_type: 'refresh_token',
+   refresh_token: refreshToken,
+ };
+
+
+ const response = await fetch('https://id.heroku.com/oauth/token', {
+   method: 'POST',
+   headers: {
+     'Content-Type': 'application/json',
+     Authorization: `Basic ${encodedCredentials}`,
+   },
+   body: JSON.stringify(bodyData),
+ });
+
+
+ if (!response.ok) {
+   throw new HerokuError('Failed to fetch', { response });
+ }
+ const data = (await response.json()) as GetTokenResponseData;
+ const tokenResponse = {
+   accessToken: data.access_token,
+   refreshToken: data.refresh_token,
+   expiresIn: data.expires_in,
+ };
+ return tokenResponse;
 };

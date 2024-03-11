@@ -1,43 +1,35 @@
-import { RedirectType, redirect } from 'next/navigation';
-import type { NextRequest } from 'next/server';
-import { getRedirectUrl } from '@elba-security/sdk';
+import { NextResponse, type NextRequest } from 'next/server';
+import { logger } from '@elba-security/logger';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
 
-// Remove the next line if your integration does not works with edge runtime
+
 export const preferredRegion = env.VERCEL_PREFERRED_REGION;
-// Remove the next line if your integration does not works with edge runtime
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-/**
- * This route path can be changed to fit your implementation specificities.
- */
+
 export async function GET(request: NextRequest) {
-  const code = request.nextUrl.searchParams.get('code');
-  const organisationId = request.cookies.get('organisation_id')?.value;
-  const region = request.cookies.get('region')?.value;
+ const { searchParams } = request.nextUrl;
+ const code = searchParams.get('code');
+ const state = searchParams.get('state');
+ const organisationId = request.cookies.get('organisation_id')?.value;
+ const region = request.cookies.get('region')?.value;
+ const cookieState = request.cookies.get('state')?.value;
 
-  if (!organisationId || !code || !region) {
-    redirect(
-      getRedirectUrl({
-        region: region ?? 'eu',
-        sourceId: env.ELBA_SOURCE_ID,
-        baseUrl: env.ELBA_REDIRECT_URL,
-        error: 'unauthorized',
-      }),
-      RedirectType.replace
-    );
-  }
 
-  await setupOrganisation({ organisationId, code, region });
-
-  redirect(
-    getRedirectUrl({
-      region,
-      sourceId: env.ELBA_SOURCE_ID,
-      baseUrl: env.ELBA_REDIRECT_URL,
-    }),
-    RedirectType.replace
-  );
+ try {
+   if (typeof code !== 'string' || state !== cookieState || !organisationId || !region) {
+     return NextResponse.redirect(`${env.ELBA_REDIRECT_URL}?error=unauthorized`);
+   }
+   await setupOrganisation({ organisationId, code, region });
+   return NextResponse.redirect(
+     `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&success=true`
+   );
+ } catch (error) {
+   logger.warn('Could not setup organisation after Heroku redirection', { error });
+   return NextResponse.redirect(
+     `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`
+   );
+ }
 }

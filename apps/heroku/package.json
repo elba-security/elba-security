@@ -26,6 +26,7 @@
     "@elba-security/sdk": "workspace:*",
     "@neondatabase/serverless": "0.9.0",
     "@sentry/nextjs": "^7.88.0",
+    "date-fns": "^3.4.0",
     "drizzle-orm": "^0.29.4",
     "inngest": "3.14.2",
     "msw": "^2.0.1",
