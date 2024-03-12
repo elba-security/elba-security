@@ -96,9 +96,6 @@ export const getAccountId = async (accessToken: string) => {
     throw new DocusignError('Could not retrieve account id', { response });
   }
   const { account_id: accountId, base_uri: apiBaseURI } = accounts[0];
-  if (!accountId) {
-    throw new DocusignError('Could not retrieve account id', { response });
-  }
 
   return {
     accountId,
