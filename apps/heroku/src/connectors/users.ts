@@ -42,7 +42,6 @@ export const getHerokuUsers = async (
   }
 
   const responseData = (await response.json());
-  console.log("response Data is:",responseData)
 
   // Extract the Next-Range header from the response
   const nextRangeHeader = response.headers.get('Next-Range');
@@ -55,4 +54,20 @@ export const getHerokuUsers = async (
 
 
   return { users: responseData, pagination };
+};
+export const deleteTeamMember = async (token: string, teamId: string, memberId: string) => {
+  const uri = `https://api.heroku.com/teams/${teamId}/members/${memberId}`;
+  
+  const response = await fetch(uri, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/vnd.heroku+json; version=3',
+    },
+  });
+
+  if (!response.ok) {
+    throw new HerokuError(`Could not delete team member: ${memberId}`, { response });
+  }
 };

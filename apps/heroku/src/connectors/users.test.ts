@@ -11,55 +11,82 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '../../vitest/setup-msw-handlers';
-import { type MySaasUser, getUsers } from './users';
-import { MySaasError } from './commons/error';
+import type { HerokuError } from './commons/error';
+import { type HerokuUser, type HerokuPagination, getHerokuUsers, deleteTeamMember } from './users';
 
-const validToken = 'token-1234';
-const maxPage = 3;
+const validToken = 'valid_token';
+const validTeamId = 'valid_team_id';
+const validMemberId = 'valid_member_id';
 
-const users: MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
-  id: `id-${i}`,
-  username: `username-${i}`,
-  email: `user-${i}@foo.bar`,
-}));
+const users: HerokuUser[] = [
+  {
+    role: 'admin',
+    user: {
+      id: 'user_id_1',
+      name: 'User 1',
+      email: 'user1@example.com',
+    },
+  },
+];
 
-describe('auth connector', () => {
-  describe('getUsers', () => {
-    // mock token API endpoint using msw
-    beforeEach(() => {
-      server.use(
-        http.get('https://mysaas.com/api/v1/users', ({ request }) => {
-          // briefly implement API endpoint behaviour
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-          const url = new URL(request.url);
-          const pageParam = url.searchParams.get('page');
-          const page = pageParam ? Number(pageParam) : 0;
-          if (page === maxPage) {
-            return Response.json({ nextPage: null, users });
-          }
-          return Response.json({ nextPage: page + 1, users });
-        })
-      );
-    });
+const pagination: HerokuPagination = {
+  nextRange: 'next-range',
+};
 
-    test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(getUsers(validToken, 0)).resolves.toStrictEqual({
-        users,
-        nextPage: 1,
-      });
-    });
+describe('getHerokuUsers', () => {
+  beforeEach(() => {
+    server.use(
+      http.get(`https://api.heroku.com/teams/${validTeamId}/members`, ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
+        }
 
-    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
-        users,
-        nextPage: null,
-      });
-    });
+        return new Response(JSON.stringify({ users, pagination }), {
+          status: 200,
+          headers: {
+            Accept: 'application/vnd.heroku+json; version=3',
+          },
+        });
+      })
+    );
+  });
 
-    test('should throws when the token is invalid', async () => {
-      await expect(getUsers('foo-bar', 0)).rejects.toBeInstanceOf(MySaasError);
-    });
+  test('should fetch Heroku users when token and team ID are valid', async () => {
+    const result = await getHerokuUsers(validToken, validTeamId);
+    expect(result.users).toEqual(users);
+    expect(result.pagination).toEqual(pagination);
+  });
+
+  test('should throw HerokuError when token is invalid', async () => {
+    try {
+      await getHerokuUsers('invalid_token', validTeamId);
+    } catch (error) {
+      expect((error as HerokuError).message).toEqual('Could not retrieve Heroku users');
+    }
+  });
+});
+
+describe('deleteTeamMember', () => {
+  beforeEach(() => {
+    server.use(
+      http.delete(`https://api.heroku.com/teams/${validTeamId}/members/${validMemberId}`, ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
+        }
+        return new Response(undefined, { status: 200 });
+      })
+    );
+  });
+
+  test('should delete team member successfully when token, team ID, and member ID are valid', async () => {
+    await expect(deleteTeamMember(validToken, validTeamId, validMemberId)).resolves.not.toThrow();
+  });
+
+  test('should throw HerokuError when token is invalid', async () => {
+    try {
+      await deleteTeamMember('invalid_token', validTeamId, validMemberId);
+    } catch (error) {
+      expect((error as HerokuError).message).toEqual(`Could not delete team member: ${validMemberId}`);
+    }
   });
 });
