@@ -15,6 +15,11 @@ export const updateUsersSchema = z.object({
   ),
 });
 
+export const usersDeleteUserRequestedWebhookDataSchema = z.object({
+  organisationId: z.string().uuid(),
+  id: z.string().min(1),
+});
+
 export type UpdateUsers = zInfer<typeof updateUsersSchema>;
 
 export const deleteUsersSchema = baseDeleteRequestSchema;
