@@ -42,5 +42,13 @@ export const env = z
     USERS_SYNC_MAX_RETRY: zEnvRetry(),
     USERS_SYNC_BATCH_SIZE: z.string(),
     USERS_SYNC_CRON: z.string(),
+    TEAMS_SYNC_BATCH_SIZE: z.string(),
+    TEAMS_SYNC_MAX_RETRY: zEnvRetry(),
+    CHANNEL_SYNC_BATCH_SIZE: z.string(),
+    CHANNELS_SYNC_MAX_RETRY: zEnvRetry(),
+    MESSAGES_SYNC_BATCH_SIZE: z.string(),
+    MESSAGES_SYNC_MAX_RETRY: zEnvRetry(),
+    REPLIES_SYNC_MAX_RETRY: zEnvRetry(),
+    REPLIES_SYNC_BATCH_SIZE: z.string(),
   })
   .parse(process.env);

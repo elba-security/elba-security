@@ -6,7 +6,7 @@ import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 export const inngest = new Inngest({
   id: 'teams',
   schemas: new EventSchemas().fromRecord<{
-    'teams/app.installed': {
+    'teams/teams.elba_app.installed': {
       data: {
         organisationId: string;
       };
@@ -14,7 +14,7 @@ export const inngest = new Inngest({
     'teams/token.refresh.triggered': {
       data: {
         organisationId: string;
-        expiresAt: number;
+        expiresIn: number;
       };
     };
     'teams/users.sync.triggered': {
@@ -23,6 +23,57 @@ export const inngest = new Inngest({
         isFirstSync: boolean;
         syncStartedAt: number;
         skipToken: string | null;
+      };
+    };
+    'teams/teams.sync.triggered': {
+      data: {
+        organisationId: string;
+        skipToken: string | null;
+      };
+    };
+    'teams/channels.sync.triggered': {
+      data: {
+        organisationId: string;
+        teamId: string;
+      };
+    };
+    'teams/channels.sync.completed': {
+      data: {
+        organisationId: string;
+        teamId: string;
+      };
+    };
+    'teams/messages.sync.triggered': {
+      data: {
+        organisationId: string;
+        skipToken?: string | null;
+        teamId: string;
+        channelId: string;
+        channelName: string;
+        membershipType: string;
+      };
+    };
+    'teams/messages.sync.completed': {
+      data: {
+        organisationId: string;
+        channelId: string;
+      };
+    };
+    'teams/replies.sync.triggered': {
+      data: {
+        organisationId: string;
+        skipToken?: string | null;
+        teamId: string;
+        channelId: string;
+        messageId: string;
+        channelName: string;
+        membershipType: string;
+      };
+    };
+    'teams/replies.sync.completed': {
+      data: {
+        organisationId: string;
+        messageId: string;
       };
     };
   }>(),

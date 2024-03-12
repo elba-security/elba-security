@@ -4,7 +4,7 @@ import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import * as authConnector from '@/connectors/microsoft/auth';
+import * as authConnector from '@/connectors/microsoft/auth/auth';
 import { decrypt, encrypt } from '@/common/crypto';
 import { refreshToken } from './refresh-token';
 
@@ -20,7 +20,6 @@ const organisation = {
   region: 'us',
 };
 const now = new Date();
-const expiresAt = now.getTime() + 60 * 1000;
 const expiresIn = 60;
 
 const setup = createInngestFunctionMock(refreshToken, 'teams/token.refresh.triggered');
@@ -41,7 +40,7 @@ describe('refresh-token', () => {
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      expiresAt,
+      expiresIn,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -60,7 +59,7 @@ describe('refresh-token', () => {
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      expiresAt,
+      expiresIn,
     });
 
     await expect(result).resolves.toBe(undefined);
@@ -74,18 +73,12 @@ describe('refresh-token', () => {
     expect(authConnector.getToken).toBeCalledTimes(1);
     expect(authConnector.getToken).toBeCalledWith(organisation.tenantId);
 
-    expect(step.sleepUntil).toBeCalledTimes(1);
-    expect(step.sleepUntil).toBeCalledWith(
-      'wait-before-expiration',
-      new Date(expiresAt - 5 * 60 * 1000)
-    );
-
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('schedule-token-refresh', {
       name: 'teams/token.refresh.triggered',
       data: {
         organisationId: organisation.id,
-        expiresAt: now.getTime() + expiresIn * 1000,
+        expiresIn,
       },
     });
   });

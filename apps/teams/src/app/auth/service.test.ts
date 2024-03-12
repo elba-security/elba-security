@@ -1,7 +1,7 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import * as crypto from '@/common/crypto';
-import * as authConnector from '@/connectors/microsoft/auth';
+import * as authConnector from '@/connectors/microsoft/auth/auth';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -60,7 +60,7 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'teams/app.installed',
+        name: 'teams/teams.elba_app.installed',
         data: {
           organisationId: organisation.id,
         },
@@ -75,10 +75,17 @@ describe('setupOrganisation', () => {
         },
       },
       {
+        name: 'teams/teams.sync.triggered',
+        data: {
+          organisationId: organisation.id,
+          skipToken: null,
+        },
+      },
+      {
         name: 'teams/token.refresh.triggered',
         data: {
           organisationId: organisation.id,
-          expiresAt: now.getTime() + expiresIn * 1000,
+          expiresIn,
         },
       },
     ]);
@@ -116,7 +123,7 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'teams/app.installed',
+        name: 'teams/teams.elba_app.installed',
         data: {
           organisationId: organisation.id,
         },
@@ -131,10 +138,17 @@ describe('setupOrganisation', () => {
         },
       },
       {
+        name: 'teams/teams.sync.triggered',
+        data: {
+          organisationId: organisation.id,
+          skipToken: null,
+        },
+      },
+      {
         name: 'teams/token.refresh.triggered',
         data: {
           organisationId: organisation.id,
-          expiresAt: now.getTime() + expiresIn * 1000,
+          expiresIn,
         },
       },
     ]);

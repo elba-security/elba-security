@@ -1,27 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
 /* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `auth` connectors function.
- * Theses tests exists because the services & inngest functions using this connector mock it.
- * If you are using an SDK we suggest you to mock it not to implements calls using msw.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
-
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
-import { server } from '../../../vitest/setup-msw-handlers';
+import { server } from '../../../../vitest/setup-msw-handlers';
+import { MicrosoftError } from '../commons/error';
 import { getUsers } from './users';
 import type { MicrosoftUser } from './users';
-import { MicrosoftError } from './commons/error';
 
 const validToken = 'token-1234';
 const startSkipToken = 'start-skip-token';
 const endSkipToken = 'end-skip-token';
 const nextSkipToken = 'next-skip-token';
 
-const tenantId = 'some-tenant-id';
+const tenantId = 'some-team-id';
 
 const invalidUsers = [
   {
@@ -38,6 +30,7 @@ const validUsers: MicrosoftUser[] = Array.from(
     mail: `user-${i}@foo.bar`,
     userPrincipalName: `user-${i}`,
     displayName: `user ${i}`,
+    userType: `user-${i}`,
   })
 );
 

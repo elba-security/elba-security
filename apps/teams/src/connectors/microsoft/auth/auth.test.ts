@@ -3,9 +3,9 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
-import { server } from '../../../vitest/setup-msw-handlers';
+import { server } from '../../../../vitest/setup-msw-handlers';
+import { MicrosoftError } from '../commons/error';
 import { getToken } from './auth';
-import { MicrosoftError } from './commons/error';
 
 const token = 'token-1234';
 const expiresIn = 60;
