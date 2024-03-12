@@ -19,7 +19,7 @@ export const deleteSourceUsers = inngest.createFunction(
       .from(Organisation)
       .where(eq(Organisation.accountId, userId));
     if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve ${userId}`);
+      throw new NonRetriableError(`Could not retrieve organisation`);
     }
 
     const result = await deleteUsers({
