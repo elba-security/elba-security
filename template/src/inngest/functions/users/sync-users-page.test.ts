@@ -13,11 +13,13 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
+import { encrypt } from '@/common/crypto';
 import { syncUsersPage } from './sync-users-page';
 
+const token = 'test-token';
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  token: 'test-token',
+  token: await encrypt(token),
   region: 'us',
 };
 const syncStartedAt = Date.now();
