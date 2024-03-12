@@ -12,7 +12,7 @@ import { type DocusignUser } from '@/connectors/users';
 
 const formatElbaUser = (user: DocusignUser): User => ({
   id: user.userId,
-  displayName: [user.firstName, user.middleName, user.lastName].filter((name) => name).join(' '),
+  displayName: [user.firstName, user.middleName, user.lastName].filter(Boolean).join(' '),
   role: user.isAdmin ? 'admin' : 'user',
   email: user.email,
   additionalEmails: [],
