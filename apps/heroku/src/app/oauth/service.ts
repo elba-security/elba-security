@@ -3,6 +3,8 @@ import { getAccessToken, refreshAccessToken } from '@/connectors/auth';
 import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
 
+
+
 type SetupOrganisationParams = {
   organisationId: string;
   code: string;
@@ -15,6 +17,8 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn } = await getAccessToken(code);
+ 
+  
   // const [organisation] = await db
   //   .insert(Organisation)
   //   .values({
