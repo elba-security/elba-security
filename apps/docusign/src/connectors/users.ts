@@ -100,7 +100,4 @@ export const deleteUsers = async ({ userId, apiBaseURI, token }: DeleteUsersPara
     throw new DocusignError('Could not retrieve users', { response });
   }
 
-  return {
-    success: true,
-  };
 };
