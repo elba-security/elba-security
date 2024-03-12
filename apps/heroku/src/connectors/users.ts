@@ -1,27 +1,58 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation. When requesting against API endpoint we might prefer
- * to valid the response data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { HerokuError } from './commons/error';
 
-import { MySaasError } from './commons/error';
-
-export type MySaasUser = {
-  id: string;
-  username: string;
-  email: string;
+export type HerokuUser = {
+  role: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
 };
 
-type GetUsersResponseData = { users: MySaasUser[]; nextPage: number | null };
+export type HerokuPagination = {
+  nextRange: string | null;
+};
 
-export const getUsers = async (token: string, page: number | null) => {
-  const response = await fetch(`https://mysaas.com/api/v1/users?page=${page}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!response.ok) {
-    throw new MySaasError('Could not retrieve users', { response });
+// type GetHerokuUsersResponseData = {HerokuUser[] };
+
+export const getHerokuUsers = async (
+  token: string,
+  teamId: string,
+  range?: string // Optional parameter to handle Range header
+): Promise<{ users: HerokuUser[]; pagination: HerokuPagination }> => {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.heroku+json; version=3',
+  };
+
+  // Add Range header if provided
+  if (range) {
+    headers.Range = range;
   }
-  return response.json() as Promise<GetUsersResponseData>;
+
+  const response = await fetch(
+    `https://api.heroku.com/teams/${teamId}/members`,
+    {
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    throw new HerokuError('Could not retrieve Heroku users', { response });
+  }
+
+  const responseData = (await response.json());
+  console.log("response Data is:",responseData)
+
+  // Extract the Next-Range header from the response
+  const nextRangeHeader = response.headers.get('Next-Range');
+  
+  // Check if the status code is 206 Partial Content
+  const pagination: HerokuPagination = {
+    nextRange: response.status === 206 ? nextRangeHeader : null,
+  };
+
+
+
+  return { users: responseData, pagination };
 };

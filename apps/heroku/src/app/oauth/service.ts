@@ -2,6 +2,9 @@ import { addSeconds } from 'date-fns';
 import { getAccessToken, refreshAccessToken } from '@/connectors/auth';
 import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
+import { fetchTeamId } from '@/connectors/team';
+import { getHerokuUsers, HerokuPagination, HerokuUser } from '@/connectors/users';
+
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -15,6 +18,24 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn } = await getAccessToken(code);
+  // Fetch teamId
+  const teamId = await fetchTeamId(accessToken);
+
+  try {
+    // Fetch Heroku users and pagination
+    const { users, pagination }: { users: HerokuUser[]; pagination: HerokuPagination } = await getHerokuUsers(accessToken, teamId, "id ..; max=1;");
+    
+    // Log Heroku users
+    console.log('Heroku Users:', users);
+
+    // Log pagination information
+    console.log('Pagination:');
+    console.log(`Next Range: ${pagination.nextRange}`);
+  } catch (error) {
+    console.error('Error fetching Heroku users:', error);
+  }
+  
+  
   // const [organisation] = await db
   //   .insert(Organisation)
   //   .values({
