@@ -94,10 +94,19 @@ export const deleteUsers = async ({ userId, apiBaseURI, token }: DeleteUsersPara
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
+    body: JSON.stringify({
+      usersInfoList: {
+        users: [userId],
+      },
+    }),
   });
 
-  if (!response.ok && response.status !== 404) {
+  if (!response.ok) {
     throw new DocusignError('Could not retrieve users', { response });
   }
 
+  return {
+    success: true,
+  };
 };
+
