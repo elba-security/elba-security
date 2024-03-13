@@ -1,92 +1,91 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `auth` connectors function.
- * Theses tests exists because the services & inngest functions using this connector mock it.
- * If you are using an SDK we suggest you to mock it not to implements calls using msw.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
-
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
+import { env } from '../env';
 import { server } from '../../vitest/setup-msw-handlers';
+import { getUsers, deleteUser } from './users';
 import type { HerokuError } from './commons/error';
-import { type HerokuUser, type HerokuPagination, getHerokuUsers, deleteTeamMember } from './users';
+import { users } from './__mocks__/fetch-users';
 
-const validToken = 'valid_token';
-const validTeamId = 'valid_team_id';
-const validMemberId = 'valid_member_id';
+const validToken: string = env.HEROKU_TOKEN;
+const teamId = 'test-team-id';
+const userId = 'test-user-id';
 
-const users: HerokuUser[] = [
-  {
-    role: 'admin',
-    user: {
-      id: 'user_id_1',
-      name: 'User 1',
-      email: 'user1@example.com',
-    },
-  },
-];
-
-const pagination: HerokuPagination = {
-  nextRange: 'next-range',
-};
-
-describe('getHerokuUsers', () => {
+describe('getUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get(`https://api.heroku.com/teams/${validTeamId}/members`, ({ request }) => {
+      http.get(`https://api.heroku.com/enterprise-accounts/${teamId}/members`, ({ request }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
+        const range = request.headers.get('Range');
+        const lastRange = 'last-range';
+        if (range !== lastRange) {
+          return new Response(
+            JSON.stringify({
+              users,
+            }),
+            { headers: { 'Next-Range': 'next-range' }, status: 206 }
+          );
+        }
 
-        return new Response(JSON.stringify({ users, pagination }), {
-          status: 200,
-          headers: {
-            Accept: 'application/vnd.heroku+json; version=3',
-          },
-        });
+        return new Response(
+          JSON.stringify({
+            users,
+          }),
+          { status: 200 }
+        );
       })
     );
   });
 
-  test('should fetch Heroku users when token and team ID are valid', async () => {
-    const result = await getHerokuUsers(validToken, validTeamId);
-    expect(result.users).toEqual(users);
-    expect(result.pagination).toEqual(pagination);
+  test('should fetch users when token is valid', async () => {
+    const result = await getUsers(validToken, teamId);
+    expect(result.users).toEqual({ users });
   });
 
   test('should throw HerokuError when token is invalid', async () => {
     try {
-      await getHerokuUsers('invalid_token', validTeamId);
+      await getUsers('invalidToken', teamId);
     } catch (error) {
-      expect((error as HerokuError).message).toEqual('Could not retrieve Heroku users');
+      expect((error as HerokuError).message).toEqual('Could not retrieve heroku users');
     }
+  });
+
+  test('should return next range as null when end of list is reached', async () => {
+    const result = await getUsers(validToken, teamId, 'last-range');
+    expect(result.pagination.nextRange).toBeNull();
+  });
+
+  test('should return next range when there is next range', async () => {
+    const result = await getUsers(validToken, teamId, 'first-range');
+    expect(result.pagination.nextRange).toEqual('next-range');
   });
 });
 
-describe('deleteTeamMember', () => {
+describe('deleteUser', () => {
   beforeEach(() => {
     server.use(
-      http.delete(`https://api.heroku.com/teams/${validTeamId}/members/${validMemberId}`, ({ request }) => {
-        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-          return new Response(undefined, { status: 401 });
+      http.delete(
+        `https://api.heroku.com/enterprise-accounts/${teamId}/members/${userId}`,
+        ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+          return new Response(undefined, { status: 200 });
         }
-        return new Response(undefined, { status: 200 });
-      })
+      )
     );
   });
 
-  test('should delete team member successfully when token, team ID, and member ID are valid', async () => {
-    await expect(deleteTeamMember(validToken, validTeamId, validMemberId)).resolves.not.toThrow();
+  test('should delete user successfully when token are valid', async () => {
+    await expect(deleteUser(validToken, teamId, userId)).resolves.not.toThrow();
   });
 
   test('should throw HerokuError when token is invalid', async () => {
     try {
-      await deleteTeamMember('invalid_token', validTeamId, validMemberId);
+      await deleteUser('invalidToken', teamId, userId);
     } catch (error) {
-      expect((error as HerokuError).message).toEqual(`Could not delete team member: ${validMemberId}`);
+      expect((error as HerokuError).message).toEqual(`Could not delete user with Id: ${userId}`);
     }
   });
 });
