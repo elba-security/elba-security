@@ -5,7 +5,7 @@ export type Pagination = {
   nextRange: string | null;
 };
 
-export const getUsers = async (token: string, teamId: string, range?: string) => {
+export const getUsers = async (token: string, teamId: string, range: string | null) => {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
     Accept: 'application/vnd.heroku+json; version=3',

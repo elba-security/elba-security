@@ -39,13 +39,13 @@ describe('getUsers', () => {
   });
 
   test('should fetch users when token is valid', async () => {
-    const result = await getUsers(validToken, teamId);
+    const result = await getUsers(validToken, teamId, null);
     expect(result.users).toEqual({ users });
   });
 
   test('should throw HerokuError when token is invalid', async () => {
     try {
-      await getUsers('invalidToken', teamId);
+      await getUsers('invalidToken', teamId, null);
     } catch (error) {
       expect((error as HerokuError).message).toEqual('Could not retrieve heroku users');
     }
