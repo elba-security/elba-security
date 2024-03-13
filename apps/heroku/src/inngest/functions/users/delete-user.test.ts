@@ -4,19 +4,19 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { deleteCalendlyUser } from './delete-user';
+import { deleteHerokuUser } from './delete-user';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accessToken: 'access-token',
   refreshToken: 'refresh-token',
-  organizationUri: 'org-uri',
+  teamId: 'team-id',
   region: 'us',
 };
 
 const userId = 'user-id';
 
-const setup = createInngestFunctionMock(deleteCalendlyUser, 'calendly/users.delete.requested');
+const setup = createInngestFunctionMock(deleteHerokuUser, 'heroku/users.delete.requested');
 
 describe('delete-user-request', () => {
   test('should abort request when organisation is not registered', async () => {
