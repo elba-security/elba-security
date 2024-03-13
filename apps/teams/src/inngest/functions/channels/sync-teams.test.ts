@@ -1,4 +1,4 @@
-import { createInngestFunctionMock } from '@elba-security/test-utils';
+import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
 import { syncTeams } from '@/inngest/functions/channels/sync-teams';
@@ -25,6 +25,7 @@ const setup = createInngestFunctionMock(syncTeams, 'teams/teams.sync.triggered')
 const data = {
   organisationId: organisation.id,
   skipToken: startSkipToken,
+  syncStartedAt: '2024-03-13T11:29:15.185Z',
 };
 
 const validTeams: MicrosoftTeam[] = [
@@ -124,6 +125,8 @@ describe('sync-teams', () => {
   });
 
   test('should finalize the sync when there is a no next page', async () => {
+    const elba = spyOnElba();
+
     await db.insert(organisationsTable).values(organisation);
 
     const getTeams = vi.spyOn(teamConnector, 'getTeams').mockResolvedValue({
@@ -135,6 +138,7 @@ describe('sync-teams', () => {
     const [result, { step }] = setup(data);
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
+    const elbaInstance = elba.mock.results.at(0)?.value;
 
     expect(getTeams).toBeCalledTimes(1);
     expect(getTeams).toBeCalledWith({
@@ -185,5 +189,8 @@ describe('sync-teams', () => {
         name: 'teams/channels.sync.triggered',
       },
     ]);
+
+    expect(elba).toBeCalledTimes(1);
+    expect(elbaInstance?.dataProtection.deleteObjects).toBeCalledTimes(1);
   });
 });

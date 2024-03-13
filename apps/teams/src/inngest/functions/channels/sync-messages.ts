@@ -20,6 +20,17 @@ export const syncMessages = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
+    onFailure: async ({ event, step }) => {
+      const { organisationId, channelId } = event.data.event.data;
+
+      await step.sendEvent('messages-sync-complete', {
+        name: 'teams/messages.sync.completed',
+        data: {
+          channelId,
+          organisationId,
+        },
+      });
+    },
     cancelOn: [
       {
         event: 'teams/teams.elba_app.installed',

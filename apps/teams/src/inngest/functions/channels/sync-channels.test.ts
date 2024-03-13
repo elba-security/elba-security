@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
 import * as channelsConnector from '@/connectors/microsoft/channels/channels';
 import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { channelsTable, organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { syncChannels } from '@/inngest/functions/channels/sync-channels';
 import type { MicrosoftChannel } from '@/connectors/microsoft/channels/channels';
@@ -73,6 +73,15 @@ describe('sync-channels', () => {
       validChannels,
     });
 
+    const channelsToInsert = validChannels.map((channel) => ({
+      organisationId: organisation.id,
+      id: channel.id,
+      membershipType: channel.membershipType,
+      displayName: channel.displayName,
+    }));
+
+    await db.insert(channelsTable).values(channelsToInsert);
+
     const [result, { step }] = setup(data);
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
@@ -102,7 +111,7 @@ describe('sync-channels', () => {
       timeout: '1d',
     });
 
-    expect(step.sendEvent).toBeCalledTimes(2);
+    expect(step.sendEvent).toBeCalledTimes(3);
     expect(step.sendEvent).toBeCalledWith('start-messages-sync', [
       {
         data: {

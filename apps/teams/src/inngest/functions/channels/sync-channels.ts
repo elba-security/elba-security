@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { channelsTable, organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
@@ -17,6 +17,17 @@ export const syncChannels = inngest.createFunction(
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
+    },
+    onFailure: async ({ event, step }) => {
+      const { organisationId, teamId } = event.data.event.data;
+
+      await step.sendEvent('channels-sync-complete', {
+        name: 'teams/channels.sync.completed',
+        data: {
+          teamId,
+          organisationId,
+        },
+      });
     },
     cancelOn: [
       {
@@ -60,7 +71,30 @@ export const syncChannels = inngest.createFunction(
       return result;
     });
 
+    await step.run('insert-channels-to-db', async () => {
+      const channelsToInsert = validChannels.map((channel) => ({
+        organisationId,
+        id: channel.id,
+        membershipType: channel.membershipType,
+        displayName: channel.displayName,
+      }));
+
+      await db.insert(channelsTable).values(channelsToInsert).onConflictDoNothing();
+    });
+
     if (validChannels.length) {
+      await step.sendEvent(
+        'subscribe-to-channel',
+        validChannels.map((channel) => ({
+          name: 'teams/channel.subscribe.triggered',
+          data: {
+            organisationId,
+            channelId: channel.id,
+            teamId,
+          },
+        }))
+      );
+
       const eventsWait = validChannels.map(async ({ id }) => {
         return step.waitForEvent(`wait-for-messages-complete-${id}`, {
           event: 'teams/messages.sync.completed',

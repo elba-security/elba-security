@@ -79,6 +79,7 @@ describe('setupOrganisation', () => {
         data: {
           organisationId: organisation.id,
           skipToken: null,
+          syncStartedAt: new Date().toISOString(),
         },
       },
       {
@@ -86,6 +87,12 @@ describe('setupOrganisation', () => {
         data: {
           organisationId: organisation.id,
           expiresIn,
+        },
+      },
+      {
+        name: 'teams/channels.subscribe.triggered',
+        data: {
+          organisationId: organisation.id,
         },
       },
     ]);
@@ -142,6 +149,7 @@ describe('setupOrganisation', () => {
         data: {
           organisationId: organisation.id,
           skipToken: null,
+          syncStartedAt: new Date().toISOString(),
         },
       },
       {
@@ -149,6 +157,12 @@ describe('setupOrganisation', () => {
         data: {
           organisationId: organisation.id,
           expiresIn,
+        },
+      },
+      {
+        name: 'teams/channels.subscribe.triggered',
+        data: {
+          organisationId: organisation.id,
         },
       },
     ]);

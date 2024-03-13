@@ -7,6 +7,7 @@ import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { getTeams } from '@/connectors/microsoft/teams/teams';
+import { createElbaClient } from '@/connectors/elba/client';
 
 export const syncTeams = inngest.createFunction(
   {
@@ -28,7 +29,7 @@ export const syncTeams = inngest.createFunction(
   },
   { event: 'teams/teams.sync.triggered' },
   async ({ event, step }) => {
-    const { organisationId, skipToken } = event.data;
+    const { organisationId, skipToken, syncStartedAt } = event.data;
 
     const [organisation] = await db
       .select({
@@ -96,6 +97,9 @@ export const syncTeams = inngest.createFunction(
         status: 'ongoing',
       };
     }
+
+    const elbaClient = createElbaClient(organisationId, organisation.region);
+    await elbaClient.dataProtection.deleteObjects({ syncedBefore: syncStartedAt });
 
     return {
       status: 'completed',

@@ -50,5 +50,7 @@ export const env = z
     MESSAGES_SYNC_MAX_RETRY: zEnvRetry(),
     REPLIES_SYNC_MAX_RETRY: zEnvRetry(),
     REPLIES_SYNC_BATCH_SIZE: z.string(),
+    SUBSCRIBE_SYNC_MAX_RETRY: zEnvRetry(),
+    WEBHOOK_URL: z.string().url(),
   })
   .parse(process.env);

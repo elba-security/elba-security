@@ -56,6 +56,7 @@ export const setupOrganisation = async ({
       name: 'teams/teams.sync.triggered',
       data: {
         organisationId,
+        syncStartedAt: new Date().toISOString(),
         skipToken: null,
       },
     },
@@ -64,6 +65,12 @@ export const setupOrganisation = async ({
       data: {
         organisationId,
         expiresIn,
+      },
+    },
+    {
+      name: 'teams/channels.subscribe.triggered',
+      data: {
+        organisationId,
       },
     },
   ]);

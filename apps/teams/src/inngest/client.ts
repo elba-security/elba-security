@@ -1,7 +1,15 @@
-import { EventSchemas, Inngest } from 'inngest';
+import { EventSchemas, type GetEvents, type GetFunctionInput, Inngest } from 'inngest';
 import { sentryMiddleware } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
+import type { WebhookPayload } from '@/app/api/webhook/types';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+
+type InngestClient = typeof inngest;
+
+export type GetInngestFunctionInput<T extends keyof GetEvents<InngestClient>> = GetFunctionInput<
+  InngestClient,
+  T
+>;
 
 export const inngest = new Inngest({
   id: 'teams',
@@ -29,6 +37,7 @@ export const inngest = new Inngest({
       data: {
         organisationId: string;
         skipToken: string | null;
+        syncStartedAt: string;
       };
     };
     'teams/channels.sync.triggered': {
@@ -74,6 +83,29 @@ export const inngest = new Inngest({
       data: {
         organisationId: string;
         messageId: string;
+      };
+    };
+    'teams/channels.subscribe.triggered': {
+      data: {
+        organisationId: string;
+      };
+    };
+    'teams/channel.subscribe.triggered': {
+      data: {
+        teamId: string;
+        channelId: string;
+        organisationId: string;
+      };
+    };
+    'teams/teams.webhook.event.received': {
+      data: {
+        payload: WebhookPayload;
+      };
+    };
+    'teams/subscribe.refresh.triggered': {
+      data: {
+        subscriptionId: string;
+        organisationId: string;
       };
     };
   }>(),

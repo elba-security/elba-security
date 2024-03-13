@@ -7,12 +7,16 @@ import {
   type MicrosoftPaginatedResponse,
 } from '../commons/pagination';
 
-export type GetMessagesParams = {
+export type GetRepliesParams = {
   token: string;
   teamId: string;
   channelId: string;
   skipToken?: string | null;
   messageId: string;
+};
+
+type GetReplyParams = Omit<GetRepliesParams, 'skipToken'> & {
+  replyId: string;
 };
 
 export const getReplies = async ({
@@ -21,7 +25,7 @@ export const getReplies = async ({
   skipToken,
   channelId,
   messageId,
-}: GetMessagesParams) => {
+}: GetRepliesParams) => {
   const url = new URL(
     `${env.MICROSOFT_API_URL}/teams/${teamId}/channels/${channelId}/messages/${messageId}/replies`
   );
@@ -34,11 +38,12 @@ export const getReplies = async ({
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
+      Prefer: 'include-unknown-enum-members',
     },
   });
 
   if (!response.ok) {
-    throw new MicrosoftError('Could not retrieve messages', { response });
+    throw new MicrosoftError('Could not retrieve replies', { response });
   }
 
   const data = (await response.json()) as MicrosoftPaginatedResponse<object>;
@@ -59,4 +64,44 @@ export const getReplies = async ({
   const nextSkipToken = getNextSkipTokenFromNextLink(data['@odata.nextLink']);
 
   return { nextSkipToken, validReplies, invalidReplies };
+};
+
+export const getReply = async ({
+  token,
+  teamId,
+  channelId,
+  messageId,
+  replyId,
+}: GetReplyParams) => {
+  const url = new URL(
+    `${env.MICROSOFT_API_URL}/teams/${teamId}/channels/${channelId}/messages/${messageId}/replies/${replyId}`
+  );
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Prefer: 'include-unknown-enum-members',
+    },
+  });
+
+  if (!response.ok) {
+    throw new MicrosoftError('Could not retrieve reply', { response });
+  }
+
+  const data = (await response.json()) as MicrosoftMessage;
+
+  if (data.messageType !== 'message') {
+    return;
+  }
+
+  const result = messageSchema.safeParse({
+    ...data,
+    type: 'reply',
+  });
+
+  if (!result.success) {
+    return null;
+  }
+
+  return result.data;
 };
