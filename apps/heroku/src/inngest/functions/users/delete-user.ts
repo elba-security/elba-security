@@ -8,35 +8,36 @@ import { inngest } from '../../client';
 
 export const deleteHerokuUser = inngest.createFunction(
   {
-    id: 'calendly-delete-user',
+    id: 'heroku-delete-user',
     priority: {
       run: '600',
     },
     retries: env.REMOVE_ORGANISATION_MAX_RETRY,
   },
   {
-    event: 'calendly/users.delete.requested',
+    event: 'heroku/users.delete.requested',
   },
   async ({ event, step }) => {
     const { id, organisationId } = event.data;
 
-    // retrieve the Calendly organisation access token
-    const accessToken = await step.run('get-access-token', async () => {
+    // retrieve the Heroku organisation access token and team Id
+    const [accessToken, teamId] = await step.run('get-access-token', async () => {
       const [organisation] = await db
         .select({
           accessToken: Organisation.accessToken,
+          teamId: Organisation.teamId,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      return organisation.accessToken;
+      return [organisation.accessToken, organisation.teamId];
     });
 
-    if (accessToken) {
+    if (accessToken && teamId) {
       await step.run('delete-user', async () => {
-        await deleteUser(accessToken, id);
+        await deleteUser(accessToken, teamId, id);
       });
     }
 

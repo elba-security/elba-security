@@ -54,7 +54,7 @@ export const setupOrganisation = async ({
           organisationId,
           region,
           syncStartedAt: Date.now(),
-          page: null,
+          range: null,
         },
       },
     ]);
