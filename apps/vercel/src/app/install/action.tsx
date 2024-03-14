@@ -5,23 +5,18 @@ import { VercelError } from '@/connectors/commons/error';
 import { env } from '@/env';
 import { registerOrganisation } from './service';
 
-
 const formSchema = z.object({
  organisationId: z.string().uuid(),
  token: z.string().min(1),
  teamId: z.string().min(1),
  region: z.string().min(1),
 });
-
-
 export type FormState = {
  redirectUrl?: string;
  errors?: {
    token?: string[] | undefined;
  };
 };
-
-
 export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
  const result = formSchema.safeParse({
    token: formData.get('token'),
@@ -29,7 +24,6 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
    organisationId: formData.get('organisationId'),
    region: formData.get('region'),
  });
-
  if (!result.success) {
    const { fieldErrors } = result.error.flatten();
    if (fieldErrors.organisationId || fieldErrors.region) {
@@ -37,20 +31,12 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
        redirectUrl: `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`,
      };
    }
-
-
    return {
      errors: fieldErrors,
    };
  }
-
-
- try {
-    
+ try {  
    await registerOrganisation(result.data);
-
-   
-
    return {
      redirectUrl: `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&success=true`,
    };

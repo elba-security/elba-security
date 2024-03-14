@@ -1,4 +1,4 @@
-import { env } from '../env';
+import { env } from '@/env';
 import { VercelError } from './commons/error';
 
 
@@ -18,8 +18,8 @@ export type Pagination = {
 
 type GetTeamMembersResponseData = { members: VercelUser[]; pagination: Pagination };
 
-export const getUsers = async (token: string, teamId: string, nextPage:string|null) => {
-  const url = `https://api.vercel.com/v2/teams/${teamId}/members${nextPage !== null ? `?limit=${env.USERS_SYNC_BATCH_SIZE}&until=${nextPage}` : `?limit=${env.USERS_SYNC_BATCH_SIZE}`}`;
+export const getUsers = async (token: string, teamId: string, page:string|null) => {
+  const url = `https://api.vercel.com/v2/teams/${teamId}/members${page !== null ? `?limit=${env.USERS_SYNC_BATCH_SIZE}&until=${page}` : `?limit=${env.USERS_SYNC_BATCH_SIZE}`}`;
 
   
   const response = await fetch(url, {

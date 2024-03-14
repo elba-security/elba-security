@@ -1,6 +1,6 @@
-import { getUsers } from '../../connectors/users';
-import { db } from '../../database/client';
-import { Organisation } from '../../database/schema';
+import { validateToken } from '@/connectors/auth';
+import { db } from '@/database/client';
+import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 
 type SetupOrganisationParams = {
@@ -16,6 +16,7 @@ export const registerOrganisation = async ({
   teamId,
   region,
 }: SetupOrganisationParams) => {
+  await validateToken(token);
  await db
     .insert(Organisation)
     .values({ id: organisationId, teamId, region, token })
@@ -27,7 +28,6 @@ export const registerOrganisation = async ({
         teamId,
       },
     })
-    .returning();
 
   await inngest.send({
     name: 'vercel/users.page_sync.requested',

@@ -33,14 +33,14 @@ describe('getUsers', () => {
         }
 
         const url = new URL(request.url);
-        const nextPage = url.searchParams.get('until');
+        const page = url.searchParams.get('until');
 
         return new Response(
           JSON.stringify({
             members: users,
             pagination: {
               ...pagination,
-              next: nextPage === 'next-page' ? 'next-page' : null,
+              next: page === 'next-page' ? 'next-page' : null,
               prev: "previous-value",
 
             },
