@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { env } from '@/env';
 import { YousignError } from './commons/error';
 
 const yousignUserSchema = z.object({
@@ -26,7 +27,7 @@ export type GetUsersParams = {
 };
 
 export const getUsers = async ({ token, after }: GetUsersParams) => {
-  const url = new URL(`https://api-sandbox.yousign.app/v3/users`);
+  const url = new URL(`${env.YOUSIGN_API_BASE_URL}v3/users`);
   if (after) {
     url.searchParams.append('after', String(after));
   }

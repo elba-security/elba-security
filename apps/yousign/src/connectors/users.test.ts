@@ -3,6 +3,7 @@
 
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
+import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
 import { type YousignUser, getUsers } from './users';
 import { YousignError } from './commons/error';
@@ -25,7 +26,7 @@ const invalidUsers = [];
 describe('getYousignUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get(`https://api-sandbox.yousign.app/v3/users`, ({ request }) => {
+      http.get(`${env.YOUSIGN_API_BASE_URL}v3/users`, ({ request }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }

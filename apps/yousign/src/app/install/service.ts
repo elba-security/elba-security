@@ -18,7 +18,7 @@ export const registerOrganisation = async ({
 
   await db
     .insert(Organisation)
-    .values({ id: organisationId, region, token })
+    .values({ id: organisationId, region, token: encodedToken })
     .onConflictDoUpdate({
       target: Organisation.id,
       set: {
