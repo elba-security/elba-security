@@ -40,7 +40,7 @@ describe('getUsers', () => {
             members: users,
             pagination: {
               ...pagination,
-              next: nextPage === 'next-page' ? null : nextPage,
+              next: nextPage === 'next-page' ? 'next-page' : null,
               prev: "previous-value",
 
             },
@@ -66,11 +66,11 @@ describe('getUsers', () => {
 
   test('should return next page when there is next page', async () => {
     const result = await getUsers(validToken, teamId, 'next-page');
-    expect(result.pagination.next).toBeNull();
+    expect(result.pagination.next).toEqual('next-page');
   });
   
   test('should return next as null when there are no more pages', async () => {
     const result = await getUsers(validToken, teamId, null);
-    expect(result.pagination.next).toEqual(2);
+    expect(result.pagination.next).toBeNull();
   });
 });
