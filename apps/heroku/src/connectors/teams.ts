@@ -10,11 +10,5 @@ export const getTeamId = async (token: string) => {
     throw new HerokuError('Failed to fetch', { response });
   }
   const data = (await response.json()) as HerokuTeam[];
-  let teamId: string | null | undefined = null;
-
-  //extract first team of the enterprise account
-  if (data.length > 0) {
-    teamId = data[0]?.id;
-  }
-  return teamId;
+  return data.at(0)?.id;
 };

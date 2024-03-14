@@ -21,28 +21,22 @@ export const deleteHerokuUser = inngest.createFunction(
     const { id, organisationId } = event.data;
 
     // retrieve the Heroku organisation access token and team Id
-    const [accessToken, teamId] = await step.run('get-access-token', async () => {
-      const [organisation] = await db
+    const organisation = await step.run('get-organisation', async () => {
+      const [result] = await db
         .select({
           accessToken: Organisation.accessToken,
           teamId: Organisation.teamId,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
-      if (!organisation) {
+      if (!result) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      return [organisation.accessToken, organisation.teamId];
+      return result;
     });
 
-    if (accessToken && teamId) {
-      await step.run('delete-user', async () => {
-        await deleteUser(accessToken, teamId, id);
-      });
-    }
-
-    return {
-      status: 'completed',
-    };
+    await step.run('delete-user', async () => {
+      await deleteUser(organisation.accessToken, organisation.teamId, id);
+    });
   }
 );

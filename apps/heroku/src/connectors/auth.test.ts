@@ -1,12 +1,14 @@
-import { fail } from 'node:assert';
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '../../vitest/setup-msw-handlers';
 import { getAccessToken, refreshAccessToken } from './auth';
-import { type HerokuError } from './commons/error';
+import { HerokuError } from './commons/error';
 
 const validAuthCode = 'valid-code';
 const validRefreshToken = 'valid-refresh-token';
+const accessToken = 'access-token';
+const refreshToken = 'refresh-token';
+const expiresIn = 'expiry-time';
 
 describe('getAccessToken', () => {
   beforeEach(() => {
@@ -19,9 +21,9 @@ describe('getAccessToken', () => {
         }
         return new Response(
           JSON.stringify({
-            accessToken: 'access-token',
-            refreshToken: 'refresh-token',
-            expiresIn: 'expiry-time',
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            expires_in: expiresIn,
           }),
           { status: 200 }
         );
@@ -31,8 +33,11 @@ describe('getAccessToken', () => {
 
   test('should not throw when authorization code is valid', async () => {
     try {
-      await getAccessToken(validAuthCode);
-      expect(true).toBe(true);
+      await expect(getAccessToken(validAuthCode)).resolves.toStrictEqual({
+        accessToken,
+        refreshToken,
+        expiresIn,
+      });
     } catch (error) {
       expect(error).toBeNull();
     }
@@ -40,8 +45,7 @@ describe('getAccessToken', () => {
 
   test('should throw an error when authorization code is invalid', async () => {
     try {
-      await getAccessToken('invalid-auth-code');
-      fail('Expected an error to be thrown');
+      await expect(getAccessToken('invalid-auth-code')).rejects.toBeInstanceOf(HerokuError);
     } catch (error) {
       expect((error as HerokuError).message).toBe('Failed to fetch');
     }
@@ -53,15 +57,15 @@ describe('refreshAccessToken', () => {
     server.use(
       http.post('https://id.heroku.com/oauth/token', ({ request }) => {
         const url = new URL(request.url);
-        const refreshToken = url.searchParams.get('refresh_token');
-        if (refreshToken !== validRefreshToken) {
+        const refreshTokenParam = url.searchParams.get('refresh_token');
+        if (refreshTokenParam !== validRefreshToken) {
           return new Response(undefined, { status: 401 });
         }
         return new Response(
           JSON.stringify({
-            accessToken: 'access-token',
-            refreshToken: 'refresh-token',
-            expiresIn: 'expire-time',
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            expires_in: expiresIn,
           }),
           { status: 200 }
         );
@@ -71,8 +75,11 @@ describe('refreshAccessToken', () => {
 
   test('should not throw when refresh token is valid', async () => {
     try {
-      await refreshAccessToken(validRefreshToken);
-      expect(true).toBe(true);
+      await expect(refreshAccessToken(validRefreshToken)).resolves.toStrictEqual({
+        accessToken,
+        refreshToken,
+        expiresIn,
+      });
     } catch (error) {
       expect(error).toBeNull();
     }
@@ -80,8 +87,7 @@ describe('refreshAccessToken', () => {
 
   test('should throw an error when refresh token is invalid', async () => {
     try {
-      await refreshAccessToken('invalid-refresh-token');
-      fail('Expected an error to be thrown');
+      await expect(refreshAccessToken('invalid-refresh-token')).rejects.toBeInstanceOf(HerokuError);
     } catch (error) {
       expect((error as HerokuError).message).toBe('Failed to refresh token');
     }
