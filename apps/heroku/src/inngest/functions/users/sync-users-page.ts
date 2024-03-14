@@ -48,26 +48,23 @@ export const syncUsersPage = inngest.createFunction(
     });
 
     // retrieve the Heroku API Access Token and team Id
-    const [accessToken, teamId] = await step.run('get-access-token', async () => {
-      const [organisation] = await db
+    const organisation = await step.run('get-organisation', async () => {
+      const [result] = await db
         .select({
           accessToken: Organisation.accessToken,
           teamId: Organisation.teamId,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
-      if (!organisation) {
+      if (!result) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      return [organisation.accessToken, organisation.teamId];
+      return result;
     });
 
     const nextRange = await step.run('list-users', async () => {
-      if (!accessToken || !teamId) {
-        throw new Error('Access token or team Id is undefined.');
-      }
       // retrieve this users page
-      const result = await getUsers(accessToken, teamId, range);
+      const result = await getUsers(organisation.accessToken, organisation.teamId, range);
       // format each Heroku User to elba user
       const users = result.users.map(formatElbaUser);
       // send the batch of users to elba
