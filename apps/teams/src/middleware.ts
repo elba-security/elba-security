@@ -5,7 +5,7 @@ import { env } from '@/env';
 
 export async function middleware(request: NextRequest) {
   try {
-    await validateWebhookRequestSignature(request, env.ELBA_WEBHOOK_SECRET);
+    await validateWebhookRequestSignature(request, `${env.ELBA_WEBHOOK_SECRET}1`);
   } catch (error) {
     // TODO: add log
     return new NextResponse(null, { status: 401, statusText: 'unauthorized' });
