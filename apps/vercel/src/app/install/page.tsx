@@ -1,13 +1,10 @@
 'use client';
-
-
 import React, { useState, useEffect } from 'react';
 import { useFormState } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
 import styles from '../styles.module.css';
 import { install } from './action';
 import type { FormState } from './action';
-
 
 function Step({
  number,
@@ -39,8 +36,6 @@ function Step({
    </div>
  );
 }
-
-
 function InstructionItems({ heading, instructions }: { heading: string; instructions: string[] }) {
  return (
    <div className={styles.instructions_container}>
@@ -54,8 +49,6 @@ function InstructionItems({ heading, instructions }: { heading: string; instruct
    </div>
  );
 }
-
-
 function InstructionsModal() {
  const [active, setActive] = useState<string>('1');
  const searchParams = useSearchParams();
@@ -64,15 +57,11 @@ function InstructionsModal() {
 
 
  const [state, formAction] = useFormState<FormState, FormData>(install, {});
-
-
  useEffect(() => {
    if (state.redirectUrl) {
      window.location.assign(state.redirectUrl);
    }
  }, [state, state.redirectUrl]);
-
-
  return (
    <div className={styles.container}>
      <div className={styles.modal}>
@@ -176,11 +165,7 @@ function InstructionsModal() {
    </div>
  );
 }
-
-
 const page = () => {
  return <InstructionsModal />;
 };
-
-
 export default page;

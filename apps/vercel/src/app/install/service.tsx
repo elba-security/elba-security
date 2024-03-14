@@ -1,4 +1,4 @@
-import { getUsers } from '@/connectors/users';
+import { validateToken } from '@/connectors/auth';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -16,8 +16,8 @@ export const registerOrganisation = async ({
   teamId,
   region,
 }: SetupOrganisationParams) => {
-  await getUsers(token, teamId);
-  const [organisation] = await db
+  await validateToken(token);
+ await db
     .insert(Organisation)
     .values({ id: organisationId, teamId, region, token })
     .onConflictDoUpdate({
@@ -28,9 +28,14 @@ export const registerOrganisation = async ({
         teamId,
       },
     })
-    .returning();
-  if (!organisation) {
-    throw new Error(`Could not setup organisation with id=${organisationId}`);
-  }
-  return organisation;
+
+  await inngest.send({
+    name: 'vercel/users.page_sync.requested',
+    data: {
+      isFirstSync: true,
+      organisationId,
+      region,
+      syncStartedAt: Date.now(),
+    },
+  });
 };
