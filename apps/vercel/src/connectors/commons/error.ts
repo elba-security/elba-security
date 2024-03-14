@@ -1,9 +1,9 @@
-type MySaasErrorOptions = { response?: Response };
+type VercelErrorOptions = { response?: Response };
 
-export class MySaasError extends Error {
+export class VercelError extends Error {
   response?: Response;
 
-  constructor(message: string, { response }: MySaasErrorOptions = {}) {
+  constructor(message: string, { response }: VercelErrorOptions = {}) {
     super(message);
     this.response = response;
   }
