@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { logger } from '@elba-security/logger';
 import { env } from '@/env';
 
-export const preferredRegion = 'fra1';
+export const preferredRegion = 'cle1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 

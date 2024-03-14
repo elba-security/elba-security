@@ -5,7 +5,7 @@ import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
 
-export const preferredRegion = 'fra1';
+export const preferredRegion = 'cle1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
