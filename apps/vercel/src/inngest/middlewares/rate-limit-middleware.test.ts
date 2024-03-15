@@ -42,7 +42,6 @@ describe('rate-limit middleware', () => {
        // @ts-expect-error -- this is a mock
        headers: { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': rateLimitReset },
      },
-     // @ts-expect-error -- this is a mock
      request: { method: 'GET', url: 'http://foo.bar', headers: {} },
    });
 

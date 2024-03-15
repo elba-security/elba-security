@@ -1,31 +1,24 @@
-import type { User } from '@elba-security/sdk';
-import { Elba } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
+import { Elba, type User } from '@elba-security/sdk';
 import { NonRetriableError } from 'inngest';
-import { type MySaasUser, getUsers } from '@/connectors/users';
+import { eq } from 'drizzle-orm';
+import { type VercelUser, getUsers} from '@/connectors/users'; 
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 
-const formatElbaUser = (user: MySaasUser): User => ({
-  id: user.id,
-  displayName: user.username,
+const formatElbaUser = (user: VercelUser): User => ({
+  id: user.uid,
+  displayName: user.name,
   email: user.email,
+  role: user.role,
+  authMethod: 'password', 
   additionalEmails: [],
 });
 
-/**
- * DISCLAIMER:
- * This function, `syncUsersPage`, is provided as an illustrative example and is not a working implementation.
- * It is intended to demonstrate a conceptual approach for syncing users in a SaaS integration context.
- * Developers should note that each SaaS integration may require a unique implementation, tailored to its specific requirements and API interactions.
- * This example should not be used as-is in production environments and should not be taken for granted as a one-size-fits-all solution.
- * It's essential to adapt and modify this logic to fit the specific needs and constraints of the SaaS platform you are integrating with.
- */
 export const syncUsersPage = inngest.createFunction(
   {
-    id: '{SaaS}-sync-users-page',
+    id: 'vercel-sync-users-page',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -33,11 +26,17 @@ export const syncUsersPage = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
-    retries: 3,
+    retries: env.USERS_SYNC_MAX_RETRY,
+    cancelOn: [
+      {
+        event: 'vercel/elba_app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
   },
-  { event: '{SaaS}/users.page_sync.requested' },
-  async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page, region } = event.data;
+  { event: 'vercel/users.page_sync.requested' }, 
+  async ({ event, step, logger }) => {
+    const { organisationId, syncStartedAt, region, page } = event.data;
 
     const elba = new Elba({
       organisationId,
@@ -46,33 +45,42 @@ export const syncUsersPage = inngest.createFunction(
       region,
     });
 
-    // retrieve the SaaS organisation token
-    const token = await step.run('get-token', async () => {
+    // retrieve the Vercel organisation token
+    const [token, teamId] = await step.run('get-token', async () => {
       const [organisation] = await db
-        .select({ token: Organisation.token })
+        .select({
+          token: Organisation.token,
+          teamId: Organisation.teamId, 
+        })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      return organisation.token;
+      return [organisation.token, organisation.teamId];
     });
+
 
     const nextPage = await step.run('list-users', async () => {
       // retrieve this users page
-      const result = await getUsers(token, page);
-      // format each SaaS users to elba users
-      const users = result.users.map(formatElbaUser);
-      // send the batch of users to elba
+      const result = await getUsers(token,teamId,page);
+      // format each Vercel user to Elba users
+      const users = result.members.map(formatElbaUser);
+      // send the batch of users to Elba
+      logger.debug('Sending batch of users to Elba: ', { organisationId, users });
       await elba.users.update({ users });
 
-      return result.nextPage;
+      if (result.pagination.next) {
+
+        return result.pagination.next;
+      }
+      return null;
     });
 
-    // if there is a next page enqueue a new sync user event
+    // if there is a next page, enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
-        name: '{SaaS}/users.page_sync.requested',
+        name: 'vercel/users.page_sync.requested', 
         data: {
           ...event.data,
           page: nextPage,
@@ -83,8 +91,8 @@ export const syncUsersPage = inngest.createFunction(
       };
     }
 
-    // delete the elba users that has been sent before this sync
-    await step.run('finalize', () =>
+    // delete the Elba users that have been sent before this sync
+      await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );
 
@@ -93,3 +101,5 @@ export const syncUsersPage = inngest.createFunction(
     };
   }
 );
+
+

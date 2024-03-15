@@ -60,6 +60,7 @@ describe('registerOrganisation', () => {
         organisationId: organisation.id,
         syncStartedAt: now.getTime(),
         region,
+        page:null,
       },
     });
   });
@@ -107,6 +108,7 @@ describe('registerOrganisation', () => {
         organisationId: organisation.id,
         syncStartedAt: now.getTime(),
         region,
+        page:null,
       },
     });
   });
