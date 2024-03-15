@@ -11,6 +11,7 @@ export const inngest = new Inngest({
         region: string;
         isFirstSync: boolean;
         syncStartedAt: number;
+        page:string|null;
       };
     };
     'vercel/elba_app.uninstalled': {

@@ -33,3 +33,15 @@ export const getUsers = async (token: string, teamId: string, page:string|null) 
   const data = (await response.json()) as GetTeamMembersResponseData;
   return data;
 };
+export const deleteUser = async (token: string, teamId: string, userId: string) => {
+  const response = await fetch(
+    `https://api.vercel.com/v2/teams/${teamId}/members/${userId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  if (!response.ok) {
+    throw new VercelError(`Could not delete team member with Id: ${userId}`, { response });
+  }
+};

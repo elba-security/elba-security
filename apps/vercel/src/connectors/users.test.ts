@@ -2,7 +2,7 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { http } from 'msw';
 import { env } from '../env';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getUsers, type VercelUser, type Pagination } from './users';
+import { getUsers, deleteUser, type VercelUser, type Pagination } from './users';
 import type { VercelError } from './commons/error';
 
 const users: VercelUser[] = [
@@ -23,6 +23,7 @@ const pagination: Pagination = {
 
 const validToken: string = env.VERCEL_API_TOKEN;
 const teamId = 'test-team-id';
+const userId = "test-user-id";
 
 describe('getUsers', () => {
   beforeEach(() => {
@@ -72,5 +73,31 @@ describe('getUsers', () => {
   test('should return next as null when there are no more pages', async () => {
     const result = await getUsers(validToken, teamId, null);
     expect(result.pagination.next).toBeNull();
+  });
+});
+
+describe('deleteUser', () => {
+  beforeEach(() => {
+    server.use(
+      http.delete(`https://api.vercel.com/v2/teams/${teamId}/members/${userId}`, ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
+        }
+        return new Response(undefined, { status: 200 });
+      })
+    );
+  });
+
+  test('should delete User successfully when token and team id are valid', async () => {
+    await expect(deleteUser(validToken, teamId, userId)).resolves.not.toThrow();
+  });
+
+  test('should throw VercelError when token is invalid', async () => {
+    try {
+      await deleteUser('invalidToken', teamId, userId);
+    } catch (error) {
+      const vercelError = error as VercelError;
+      expect(vercelError.message).toEqual(`Could not delete team member with Id: ${userId}`);
+    }
   });
 });

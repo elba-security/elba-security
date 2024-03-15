@@ -36,6 +36,7 @@ export const registerOrganisation = async ({
       organisationId,
       region,
       syncStartedAt: Date.now(),
+      page: null,
     },
   });
 };
