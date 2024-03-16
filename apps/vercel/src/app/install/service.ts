@@ -1,7 +1,7 @@
-import { validateToken } from '@/connectors/auth';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
+import { getUsers } from '@/connectors/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -16,7 +16,7 @@ export const registerOrganisation = async ({
   teamId,
   region,
 }: SetupOrganisationParams) => {
-  await validateToken(token);
+  await getUsers(token,teamId,null);
  await db
     .insert(Organisation)
     .values({ id: organisationId, teamId, region, token })
