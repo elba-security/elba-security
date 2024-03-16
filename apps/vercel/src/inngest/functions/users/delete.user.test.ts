@@ -24,6 +24,7 @@ const setup = createInngestFunctionMock(deleteVercelUser, 'vercel/users.delete.r
 describe('delete-user-request', () => {
  test('should abort request when organisation is not registered', async () => {
    // setup the test without organisation entries in the database, the function cannot retrieve a token
+   vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
    const [result, { step }] = setup({
      id: userId,
      organisationId: organisation.id,
@@ -33,7 +34,8 @@ describe('delete-user-request', () => {
    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-
+   expect(usersConnector.deleteUser).toBeCalledTimes(0);
+  
    // check that the function is not sending other event
    expect(step.sendEvent).toBeCalledTimes(0);
  });
@@ -48,8 +50,13 @@ describe('delete-user-request', () => {
      organisationId: organisation.id,
    });
 
-
-   await expect(result).resolves.toStrictEqual({ status: 'completed' });
+   await expect(result).resolves.toBeUndefined();
+   expect(usersConnector.deleteUser).toBeCalledTimes(1);
+   expect(usersConnector.deleteUser).toBeCalledWith(
+     organisation.token,
+     organisation.teamId,
+     userId
+   );
  });
 });
 

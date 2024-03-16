@@ -16,7 +16,7 @@ export const registerOrganisation = async ({
   teamId,
   region,
 }: SetupOrganisationParams) => {
-  await getUsers(token,teamId,'next');
+  await getUsers(token,teamId,null);
  await db
     .insert(Organisation)
     .values({ id: organisationId, teamId, region, token })

@@ -38,15 +38,8 @@ export const deleteVercelUser = inngest.createFunction(
    });
 
 
-   if (token && teamId) {
      await step.run('delete-user', async () => {
        await deleteUser(token, teamId, id);
      });
-   }
-
-
-   return {
-     status: 'completed',
-   };
  }
 );
