@@ -8,6 +8,7 @@ This document outlines the architecture for integrations. It emphasizes the sepa
 
 The `/app` folder contains the Next.js application structure, including the API endpoints and other routing-related files. This folder is essential when using the Next.js App Router.
 
+
 ### `/api`
 
 This directory houses the API endpoints. Each folder contains a file named `route.ts` that represents an accessible route, and usually a `service.ts` that's associated with the route file.
@@ -19,6 +20,11 @@ The route file (`route.ts`) is responsible for handling the requests data extrac
 ### `service.ts`
 
 The service file (`service.ts`) focuses exclusively on business logic. It should neither create a `Response` object nor read properties from the `Request`. If external API data access is required, the service should import a function from a connector. Using the database client to query or mutate data within a service is acceptable.
+
+### `webhooks`
+
+All webhook handlers must be located in the `/api/webhooks` directory, primarily dedicated to  `elba` and/or the `{source}` SaaS integrations.
+
 
 ## `/connectors`
 
@@ -46,3 +52,61 @@ An Inngest function can be broken down into smaller steps. Usually the steps sho
 
 Inngest middlewares allow errors thrown in Inngest functions to be handled in a single place. Each middleware should address a specific type of error, such as unauthorized exceptions leading to organization removal, or rate limit issues.
 _Currently, we are expecting usage of middlewares to be limited only to error handling._
+
+
+### Detailed Directory Structure
+
+```
+apps/
+├── {saas}/
+│   ├── scripts/
+│   │   ├── migrate.ts
+│   │   └── run-test.sh
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── api/
+│   │   │   │   ├── inngest/
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── webhooks/
+│   │   │   │       ├── elba/
+│   │   │   │       │   ├── third-party-apps/
+│   │   │   │       │   │   ├── refresh-object.ts
+│   │   │   │       │   │   ├── delete-object.ts
+│   │   │   │       │   │   └── start-sync.ts
+│   │   │   │       │   └── data-protection/
+│   │   │   │       │       ├── refresh-object.ts
+│   │   │   │       │       ├── delete-object.ts
+│   │   │   │       │       └── start-sync.ts
+│   │   │   │       └── {source}/
+│   │   │   │           ├── ...
+│   │   │   │           └── ...
+│   │   │   ├── auth/
+│   │   │   │   ├── route.ts
+│   │   │   │   ├── service.ts
+│   │   │   │   └── service.test.ts
+│   │   │   └── install/
+│   │   │       └── route.ts
+│   │   ├── connectors/
+│   │   ├── database/
+│   │   ├── inngest/
+│   │   │   ├── functions/
+│   │   │   │   └── users/
+│   │   │   │       ├── sync-user-page.ts
+│   │   │   │       └── sync-user-page.test.test
+│   │   │   ├── middlewares/
+│   │   │   │   └── rate-limit-middleware.ts
+│   │   │   └── client.ts
+│   │   ├── env.ts
+│   │   └── middleware.ts
+│   ├── vitest/
+│   │   ├── setup-database.ts
+│   │   └── setup-msw-handlers.ts
+│   ├── .env.local
+│   └── .env.test
+├── docs
+├── packages
+├── template
+├── ...
+├── ...
+└── package.json
+```
