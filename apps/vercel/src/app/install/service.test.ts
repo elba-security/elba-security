@@ -41,7 +41,7 @@ describe('registerOrganisation', () => {
         teamId,
         region,
       })
-    ).resolves.toBeDefined();
+    ).resolves.toBeUndefined();
 
     await expect(
       db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
@@ -81,7 +81,7 @@ describe('registerOrganisation', () => {
         teamId,
         region,
       })
-    ).resolves.toBeDefined();
+    ).resolves.toBeUndefined();
 
     // check if the token in the database is updated
     await expect(
