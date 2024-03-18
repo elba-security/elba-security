@@ -28,9 +28,13 @@ const userId = "test-user-id";
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get(`https://api.vercel.com/v2/teams/${teamId}/members`, ({ request }) => {
+      http.get(`https://api.vercel.com/v2/teams/${teamId}/members`, ({ request,params }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
+        }
+        if (params.teamId !== teamId)
+        {
+          return new Response(undefined, { status: 404 });
         }
 
         const url = new URL(request.url);
@@ -79,9 +83,13 @@ describe('getUsers', () => {
 describe('deleteUser', () => {
   beforeEach(() => {
     server.use(
-      http.delete(`https://api.vercel.com/v2/teams/${teamId}/members/${userId}`, ({ request }) => {
+      http.delete(`https://api.vercel.com/v2/teams/${teamId}/members/${userId}`, ({ request,params }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
+        }
+        if (params.teamId !== teamId)
+        {
+          return new Response(undefined, { status: 404 });
         }
         return new Response(undefined, { status: 200 });
       })
