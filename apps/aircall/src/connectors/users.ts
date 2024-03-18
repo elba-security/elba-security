@@ -80,11 +80,7 @@ export const deleteUsers = async ({ userId, token }: DeleteUsersParams) => {
     }
   });
 
-  if (!response.ok) {
+  if (!response.ok && response.status !== 404) {
     throw new AircallError('Could not delete user', { response });
   }
-
-  return {
-    success: true,
-  };
 };
