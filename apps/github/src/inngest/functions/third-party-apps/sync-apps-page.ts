@@ -89,12 +89,21 @@ export const syncAppsPage = inngest.createFunction(
         cursor
       );
 
-      const apps = await Promise.all(
+      const appsResults = await Promise.allSettled(
         result.validInstallations
           .filter((appInstallation) => appInstallation.suspended_at === null)
           .map(async (appInstallation) => {
-            const app = await getApp(installationId, appInstallation.app_slug);
-            return formatElbaApp(app, appInstallation, adminIds);
+            try {
+              const app = await getApp(installationId, appInstallation.app_slug);
+              return formatElbaApp(app, appInstallation, adminIds);
+            } catch (error) {
+              logger.error('Failed to retrieve app', {
+                organisationId,
+                appSlug: appInstallation.app_slug,
+              });
+
+              throw error;
+            }
           })
       );
 
@@ -105,7 +114,14 @@ export const syncAppsPage = inngest.createFunction(
         });
       }
 
-      if (result.validInstallations.length) {
+      const apps: ThirdPartyAppsObject[] = [];
+      for (const appResult of appsResults) {
+        if (appResult.status === 'fulfilled') {
+          apps.push(appResult.value);
+        }
+      }
+
+      if (apps.length) {
         logger.info('Sending apps batch to elba', { organisationId, apps });
         await elba.thirdPartyApps.updateObjects({ apps });
       }
