@@ -1,0 +1,53 @@
+import { validateToken } from '@/connectors/auth';
+import { db } from '@/database/client';
+import { Organisation } from '@/database/schema';
+import { inngest } from '@/inngest/client';
+
+type SetupOrganisationParams = {
+  organisationId: string;
+  clientId: string;
+  clientSecret: string;
+  domain: string;
+  audience: string;
+  sourceOrganizationId: string;
+  region: string;
+};
+
+export const registerOrganisation = async ({
+  organisationId,
+  clientId,
+  clientSecret,
+  domain,
+  audience,
+  sourceOrganizationId,
+  region,
+}: SetupOrganisationParams) => {
+  await validateToken(token);
+  // const [organisation] = await db
+  //   .insert(Organisation)
+  //   .values({ id: organisationId, region, token })
+  //   .onConflictDoUpdate({
+  //     target: Organisation.id,
+  //     set: {
+  //       region,
+  //       token,
+  //     },
+  //   })
+  //   .returning();
+
+  // if (!organisation) {
+  //   throw new Error(`Could not setup organisation with id=${organisationId}`);
+  // }
+
+  await inngest.send({
+    name: 'sendgrid/users.page_sync.requested',
+    data: {
+      isFirstSync: true,
+      organisationId,
+      region,
+      syncStartedAt: Date.now(),
+      offset: 0,
+    },
+  });
+  // return organisation;
+};
