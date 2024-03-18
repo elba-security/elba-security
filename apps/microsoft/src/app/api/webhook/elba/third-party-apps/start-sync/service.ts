@@ -7,7 +7,7 @@ export const startThirdPartyAppsSync = async (organisationId: string) => {
       organisationId,
       syncStartedAt: Date.now(),
       isFirstSync: true,
-      skipToken: null,
+      cursor: null,
     },
   });
 };

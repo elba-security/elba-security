@@ -1,3 +1,4 @@
+import type { ElbaDatabaseOrganisationsTable } from '@elba-security/app-core/src/drizzle/database';
 import { uuid, integer, text, timestamp, pgTable, unique } from 'drizzle-orm/pg-core';
 
 export const organisationsTable = pgTable('organisations', {
@@ -6,7 +7,7 @@ export const organisationsTable = pgTable('organisations', {
   installationId: integer('installation_id').unique().notNull(),
   accountLogin: text('account_login').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+}) satisfies ElbaDatabaseOrganisationsTable;
 
 export const adminsTable = pgTable(
   'admins',

@@ -1,13 +1,16 @@
-import { removeOrganisation } from './organisations/remove-organisation';
-import { scheduleAppsSyncs } from './third-party-apps/schedule-apps-syncs';
+import {
+  removeOrganisation,
+  scheduleThirdPartyAppsSyncs,
+  scheduleUsersSyncs,
+} from '@elba-security/app-core/inngest';
+import { inngest } from '../client';
 import { syncAppsPage } from './third-party-apps/sync-apps-page';
-import { scheduleUsersSyncs } from './users/schedule-users-syncs';
 import { syncUsersPage } from './users/sync-users-page';
 
 export const inngestFunctions = [
-  removeOrganisation,
+  removeOrganisation(inngest),
   syncUsersPage,
-  scheduleUsersSyncs,
+  scheduleThirdPartyAppsSyncs(inngest),
   syncAppsPage,
-  scheduleAppsSyncs,
+  scheduleUsersSyncs(inngest),
 ];

@@ -1,6 +1,6 @@
 import { RedirectionError } from '@elba-security/sdk';
 import { env } from '@/env';
-import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
+import { ElbaInstallRedirectResponse } from '@elba-security/app-core/nextjs';
 
 export const redirectOnError = (region?: string | null, code?: RedirectionError) =>
   new ElbaInstallRedirectResponse({

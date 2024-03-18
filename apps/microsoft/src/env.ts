@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { envSchema } from '@elba-security/app-core/common';
 
 const zEnvRetry = () =>
   z
@@ -12,8 +13,8 @@ const zEnvRetry = () =>
     0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20
   >;
 
-export const env = z
-  .object({
+export const env = envSchema
+  .extend({
     MICROSOFT_CLIENT_ID: z.string().min(1),
     MICROSOFT_CLIENT_SECRET: z.string().min(1),
     MICROSOFT_REDIRECT_URI: z.string().url(),
@@ -23,8 +24,6 @@ export const env = z
       .default('https://login.microsoftonline.com/organizations/adminconsent'),
     MICROSOFT_API_URL: z.string().url().default('https://graph.microsoft.com/v1.0'),
     MICROSOFT_AUTH_API_URL: z.string().url().default('https://login.microsoftonline.com'),
-    ELBA_API_KEY: z.string().min(1),
-    ELBA_API_BASE_URL: z.string().url(),
     ELBA_REDIRECT_URL: z.string().min(1),
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),

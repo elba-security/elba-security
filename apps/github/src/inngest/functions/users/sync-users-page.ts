@@ -1,10 +1,11 @@
 import { Elba, type User } from '@elba-security/sdk';
 import { and, eq, lt } from 'drizzle-orm';
+import { NonRetriableError } from 'inngest';
 import { env } from '@/env';
 import type { OrganizationMember } from '@/connectors/github/organization';
 import { getPaginatedOrganizationMembers } from '@/connectors/github/organization';
 import { db } from '@/database/client';
-import { adminsTable } from '@/database/schema';
+import { adminsTable, organisationsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
 const formatElbaUser = (member: OrganizationMember): User => ({
@@ -33,21 +34,36 @@ export const syncUsersPage = inngest.createFunction(
     ],
     cancelOn: [
       {
-        event: 'github/github.elba_app.uninstalled',
+        event: 'github/app.uninstalled',
         match: 'data.organisationId',
       },
       {
-        event: 'github/github.elba_app.installed',
+        event: 'github/app.installed',
         match: 'data.organisationId',
       },
     ],
   },
   {
-    event: 'github/users.page_sync.requested',
+    event: 'github/users.sync.requested',
   },
   async ({ event, step, logger }) => {
-    const { installationId, organisationId, accountLogin, cursor, region } = event.data;
+    const { organisationId, cursor } = event.data;
     const syncStartedAt = new Date(event.data.syncStartedAt);
+
+    const [organisation] = await db
+      .select({
+        installationId: organisationsTable.installationId,
+        accountLogin: organisationsTable.accountLogin,
+        region: organisationsTable.region,
+      })
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
+
+    if (!organisation) {
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+    }
+
+    const { region, installationId, accountLogin } = organisation;
 
     const elba = new Elba({
       organisationId,
@@ -90,7 +106,7 @@ export const syncUsersPage = inngest.createFunction(
 
     if (nextCursor) {
       await step.sendEvent('sync-users-page', {
-        name: 'github/users.page_sync.requested',
+        name: 'github/users.sync.requested',
         data: {
           ...event.data,
           cursor: nextCursor,

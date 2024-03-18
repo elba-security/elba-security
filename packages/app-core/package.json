@@ -1,0 +1,60 @@
+{
+  "name": "@elba-security/app-core",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "lint": "eslint src/**/*.ts"
+  },
+  "dependencies": {
+    "@elba-security/utils": "workspace:*",
+    "drizzle-orm": "^0.29.1"
+  },
+  "exports": {
+    "./common": "./src/common/index.ts",
+    "./drizzle": "./src/drizzle/index.ts",
+    "./inngest": "./src/inngest/index.ts",
+    "./elba": "./src/elba/index.ts",
+    "./nextjs": "./src/nextjs/index.ts"
+  },
+  "typesVersions": {
+    "*": {
+      "inngest": [
+        "./src/inngest/index.ts"
+      ],
+      "common": [
+        "./src/common/index.ts"
+      ],
+      "drizzle": [
+        "./src/drizzle/index.ts"
+      ],
+      "elba": [
+        "./src/elba/index.ts"
+      ],
+      "nextjs": [
+        "./src/nextjs/index.ts"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/logger": "workspace:*",
+    "@elba-security/sdk": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
+    "@sentry/nextjs": "^7.88.0",
+    "eslint": "^8",
+    "inngest": "3.14.2",
+    "next": "14.0.1",
+    "vitest": "1.1.1",
+    "zod": "3.22.4"
+  },
+  "peerDependencies": {
+    "@elba-security/logger": "workspace:*",
+    "@elba-security/sdk": "workspace:*",
+    "@sentry/nextjs": "^7.88.0",
+    "drizzle-orm": ">=0.29.0",
+    "inngest": ">=3.12.0",
+    "next": ">=14.0.0",
+    "zod": ">=3.0.0"
+  }
+}

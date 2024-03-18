@@ -71,7 +71,7 @@ describe('setupOrganisation', () => {
           organisationId: organisation.id,
           isFirstSync: true,
           syncStartedAt: now.getTime(),
-          skipToken: null,
+          cursor: null,
         },
       },
       {
@@ -127,7 +127,7 @@ describe('setupOrganisation', () => {
           organisationId: organisation.id,
           isFirstSync: true,
           syncStartedAt: now.getTime(),
-          skipToken: null,
+          cursor: null,
         },
       },
       {

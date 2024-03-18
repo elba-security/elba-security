@@ -42,7 +42,7 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'microsoft/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, skipToken } = event.data;
+    const { organisationId, syncStartedAt, cursor } = event.data;
 
     const [organisation] = await db
       .select({
@@ -64,11 +64,11 @@ export const syncUsers = inngest.createFunction(
       region: organisation.region,
     });
 
-    const nextSkipToken = await step.run('paginate', async () => {
+    const nextCursor = await step.run('paginate', async () => {
       const result = await getUsers({
         token: await decrypt(organisation.token),
         tenantId: organisation.tenantId,
-        skipToken,
+        skipToken: cursor,
       });
 
       if (result.invalidUsers.length > 0) {
@@ -86,12 +86,12 @@ export const syncUsers = inngest.createFunction(
       return result.nextSkipToken;
     });
 
-    if (nextSkipToken) {
+    if (nextCursor) {
       await step.sendEvent('sync-next-users-page', {
         name: 'microsoft/users.sync.requested',
         data: {
           ...event.data,
-          skipToken: nextSkipToken,
+          cursor: nextCursor,
         },
       });
 
