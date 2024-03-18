@@ -24,9 +24,6 @@ type SynchronizeConversationsRequested = {
 export const synchronizeConversations = inngest.createFunction(
   {
     id: 'slack-synchronize-conversations',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     retries: env.SLACK_SYNC_CONVERSATIONS_RETRY,
   },
   {
@@ -137,8 +134,10 @@ export const synchronizeConversations = inngest.createFunction(
           );
       });
 
-      const elbaClient = createElbaClient(elbaOrganisationId, elbaRegion);
-      await elbaClient.dataProtection.deleteObjects({ syncedBefore: syncStartedAt });
+      await step.run('delete-data-protection-objects', async () => {
+        const elbaClient = createElbaClient(elbaOrganisationId, elbaRegion);
+        await elbaClient.dataProtection.deleteObjects({ syncedBefore: syncStartedAt });
+      });
     }
 
     return { conversationsToInsert, nextCursor };
