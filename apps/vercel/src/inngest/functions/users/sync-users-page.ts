@@ -9,7 +9,7 @@ import { inngest } from '@/inngest/client';
 
 const formatElbaUser = (user: VercelUser): User => ({
   id: user.uid,
-  displayName: user.name,
+  displayName: user.name || user.email,
   email: user.email,
   role: user.role,
   authMethod: 'password', 
@@ -45,25 +45,24 @@ export const syncUsersPage = inngest.createFunction(
       region,
     });
 
-    // retrieve the Vercel organisation token
-    const [token, teamId] = await step.run('get-token', async () => {
-      const [organisation] = await db
+    const organisation = await step.run('get-organisation', async () => {
+      const [result] = await db
         .select({
           token: Organisation.token,
           teamId: Organisation.teamId, 
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
-      if (!organisation) {
+      if (!result) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      return [organisation.token, organisation.teamId];
+      return result;
     });
 
 
     const nextPage = await step.run('list-users', async () => {
       // retrieve this users page
-      const result = await getUsers(token,teamId,page);
+      const result = await getUsers(organisation.token,organisation.teamId,page);
       // format each Vercel user to Elba users
       const users = result.members.map(formatElbaUser);
       // send the batch of users to Elba

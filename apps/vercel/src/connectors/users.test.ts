@@ -21,7 +21,7 @@ const pagination: Pagination = {
   hasNext: true,
 };
 
-const validToken: string = env.VERCEL_API_TOKEN;
+const validToken='test-token';
 const teamId = 'test-team-id';
 const userId = "test-user-id";
 

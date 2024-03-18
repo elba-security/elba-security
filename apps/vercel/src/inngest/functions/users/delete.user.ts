@@ -1,3 +1,4 @@
+import { Elba} from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
@@ -19,27 +20,34 @@ export const deleteVercelUser = inngest.createFunction(
    event: 'vercel/users.delete.requested',
  },
  async ({ event, step }) => {
-   const { id, organisationId } = event.data;
+   const { id, organisationId,region } = event.data;
 
+   const elba = new Elba({
+    organisationId,
+    apiKey: env.ELBA_API_KEY,
+    baseUrl: env.ELBA_API_BASE_URL,
+    region,
+  });
 
    // retrieve the Vercel organisation token
-   const [token, teamId] = await step.run('get-token', async () => {
-     const [organisation] = await db
-       .select({
-         token: Organisation.token,
-         teamId: Organisation.teamId,
-       })
-       .from(Organisation)
-       .where(eq(Organisation.id, organisationId));
-     if (!organisation) {
-       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-     }
-     return [organisation.token, organisation.teamId];
+   const organisation = await step.run('get-organisation', async () => {
+    const [result] = await db
+      .select({
+        token: Organisation.token,
+        teamId: Organisation.teamId, 
+      })
+      .from(Organisation)
+      .where(eq(Organisation.id, organisationId));
+    if (!result) {
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+    }
+    return result;
+  });
+
+
+    await step.run('delete-user', async () => {
+     await deleteUser(organisation.token, organisation.teamId, id);
+     await elba.users.delete({ ids: [id] });
    });
-
-
-     await step.run('delete-user', async () => {
-       await deleteUser(token, teamId, id);
-     });
- }
+  }
 );

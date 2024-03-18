@@ -5,7 +5,7 @@ import { VercelError } from './commons/error';
 export type VercelUser = {
   role: string;
   uid: string;
-  name: string;
+  name?: string;
   email: string;
 };
 
@@ -19,14 +19,18 @@ export type Pagination = {
 type GetTeamMembersResponseData = { members: VercelUser[]; pagination: Pagination };
 
 export const getUsers = async (token: string, teamId: string, page:string|null) => {
-  const url = `https://api.vercel.com/v2/teams/${teamId}/members${page !== null ? `?limit=${env.USERS_SYNC_BATCH_SIZE}&until=${page}` : `?limit=${env.USERS_SYNC_BATCH_SIZE}`}`;
+  const url = new URL('https://api.vercel.com/v2/teams/${teamId}/members')
+  url.searchParams.append('limit', String(env.USERS_SYNC_BATCH_SIZE))
+  if (page) {
+    url.searchParams.append('until', page)
+  }
 
   
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  if (!response.ok) {
+  if (!response.ok && response.status !== 404) {
     throw new VercelError('Could not retrieve team members', { response });
   }
 
@@ -41,7 +45,7 @@ export const deleteUser = async (token: string, teamId: string, userId: string) 
       headers: { Authorization: `Bearer ${token}` },
     }
   );
-  if (!response.ok) {
+  if (!response.ok && response.status !== 404) {
     throw new VercelError(`Could not delete team member with Id: ${userId}`, { response });
   }
 };

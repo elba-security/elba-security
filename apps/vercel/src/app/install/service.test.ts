@@ -7,7 +7,7 @@ import { env } from '@/env';
 import * as userConnector from '@/connectors/users';
 import { registerOrganisation } from './service';
 
-const token = env.VERCEL_API_TOKEN;
+const token = 'test-token';
 const teamId= 'test-id';
 const region = 'us';
 const now = new Date();

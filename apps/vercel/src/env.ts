@@ -50,8 +50,6 @@ export const env = z
     USERS_SYNC_CRON: z.string(),
     USERS_SYNC_MAX_RETRY: zEnvRetry(),
     REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
-    VERCEL_TEAM_ID: z.string(),
-    VERCEL_API_TOKEN: z.string(),
     USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().default(200),
   })
   .parse(process.env);

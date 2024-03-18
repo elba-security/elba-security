@@ -23,6 +23,7 @@ export const inngest = new Inngest({
       data: {
         id: string;
         organisationId: string;
+        region:string;
       };
     };
   }>(),
