@@ -7,6 +7,7 @@ import { Organisation } from '@/database/schema';
 import { db } from '@/database/client';
 import { encrypt } from '@/app/common/crypto';
 import { deleteSourceUsers } from './delete-users';
+import { unknown } from 'zod';
 
 const accessToken = 'test-access-token';
 const region = 'us';
@@ -44,13 +45,13 @@ describe('deleteSourceUsers', () => {
     vi.spyOn(crypto, 'encrypt').mockResolvedValue(accessToken);
 
     // Mock database response to return organisation details
-    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce({ success: true });
+    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
     await db.insert(Organisation).values(organisation);
 
     const [result] = setup({ userId });
 
     // Assert the function resolves successfully
-    await expect(result).resolves.toStrictEqual({ success: true });
+    await expect(result).resolves.toStrictEqual(undefined);
 
     expect(usersConnector.deleteUsers).toBeCalledTimes(1);
     expect(usersConnector.deleteUsers).toBeCalledWith({
