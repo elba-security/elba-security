@@ -21,11 +21,9 @@ export const deleteSourceUsers = inngest.createFunction(
     }
 
     const decryptToken = await decrypt(organisation.token)
-    const result = await deleteUsers({
+    await deleteUsers({
       userId,
       token: decryptToken,
     });
-
-    return result;
   }
 );
