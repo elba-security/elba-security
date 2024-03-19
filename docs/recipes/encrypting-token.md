@@ -39,7 +39,7 @@ await db
   });
 ```
 
-To avoid giving the decrypted token to Inngest, make sure to always returns encrypted token from `step.run` and decrypt it right before using it.
+To avoid passing the decrypted token to Inngest, make sure to always return the encrypted token from `step.run` and decrypt it right before using it.
 
 ```ts
 import { decrypt } from '@/common/crypto';
