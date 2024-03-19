@@ -63,4 +63,4 @@ const nextPage = step.run('paginate', async () => {
 });
 ```
 
-> Make sure token is also encrypted while refreshing it
+> Make sure the token is also encrypted while refreshing it.
