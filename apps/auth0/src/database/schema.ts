@@ -7,7 +7,7 @@ export const Organisation = pgTable('organisation', {
   clientId: text('client_id').notNull(),
   clientSecret: text('client_secret').notNull(),
   domain: text('domain').notNull(),
-  audience: text('domain').notNull(),
+  audience: text('audience').notNull(),
   sourceOrganizationId: text('source_organization_id').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

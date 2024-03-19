@@ -2,30 +2,25 @@ import type { User } from '@elba-security/sdk';
 import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { type MySaasUser, getUsers } from '@/connectors/users';
+import { type Auth0User, getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
+import { getToken } from '@/connectors/auth';
 
-const formatElbaUser = (user: MySaasUser): User => ({
-  id: user.id,
-  displayName: user.username,
+const formatElbaUser = (user: Auth0User): User => ({
+  id: user.user_id,
+  displayName: user.name,
   email: user.email,
+  role: 'member',
+  authMethod: undefined,
   additionalEmails: [],
 });
 
-/**
- * DISCLAIMER:
- * This function, `syncUsersPage`, is provided as an illustrative example and is not a working implementation.
- * It is intended to demonstrate a conceptual approach for syncing users in a SaaS integration context.
- * Developers should note that each SaaS integration may require a unique implementation, tailored to its specific requirements and API interactions.
- * This example should not be used as-is in production environments and should not be taken for granted as a one-size-fits-all solution.
- * It's essential to adapt and modify this logic to fit the specific needs and constraints of the SaaS platform you are integrating with.
- */
 export const syncUsersPage = inngest.createFunction(
   {
-    id: '{SaaS}-sync-users-page',
+    id: 'auth0-sync-users-page',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -33,11 +28,17 @@ export const syncUsersPage = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
-    retries: 3,
+    retries: env.USERS_SYNC_MAX_RETRY,
+    cancelOn: [
+      {
+        event: 'auth0/app.uninstall.requested',
+        match: 'data.organisationId',
+      },
+    ],
   },
-  { event: '{SaaS}/users.page_sync.requested' },
-  async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page, region } = event.data;
+  { event: 'auth0/users.page_sync.requested' },
+  async ({ event, step, logger }) => {
+    const { organisationId, syncStartedAt, region, page } = event.data;
 
     const elba = new Elba({
       organisationId,
@@ -46,33 +47,61 @@ export const syncUsersPage = inngest.createFunction(
       region,
     });
 
-    // retrieve the SaaS organisation token
-    const token = await step.run('get-token', async () => {
-      const [organisation] = await db
-        .select({ token: Organisation.token })
+    // retrieve the Auth0 organization
+    const organisation = await step.run('get-organisation', async () => {
+      const [result] = await db
+        .select({
+          clientId: Organisation.clientId,
+          clientSecret: Organisation.clientSecret,
+          domain: Organisation.domain,
+          audience: Organisation.audience,
+          sourceOrganizationId: Organisation.sourceOrganizationId,
+        })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
-      if (!organisation) {
+      if (!result) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      return organisation.token;
+      return result;
+    });
+
+    // get the Auth0 Management API access token
+    const accessToken = await step.run('get-token', async () => {
+      const tokenResponse = await getToken(
+        organisation.clientId,
+        organisation.clientSecret,
+        organisation.audience,
+        organisation.domain
+      );
+      return tokenResponse.access_token;
     });
 
     const nextPage = await step.run('list-users', async () => {
       // retrieve this users page
-      const result = await getUsers(token, page);
-      // format each SaaS users to elba users
-      const users = result.users.map(formatElbaUser);
+      const result = await getUsers(
+        accessToken,
+        organisation.domain,
+        organisation.sourceOrganizationId,
+        page
+      );
+      // format each Auth0 User to elba user
+      const users = result.members.map(formatElbaUser);
       // send the batch of users to elba
+      logger.debug('Sending batch of users to elba: ', {
+        organisationId,
+        users,
+      });
       await elba.users.update({ users });
 
-      return result.nextPage;
+      if (result.next) {
+        return result.next;
+      }
     });
 
     // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
-        name: '{SaaS}/users.page_sync.requested',
+        name: 'auth0/users.page_sync.requested',
         data: {
           ...event.data,
           page: nextPage,
