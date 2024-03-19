@@ -1,25 +1,32 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation.
- * When requesting against API endpoint we might prefer to valid the response
- * data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { Auth0Error } from './commons/error';
 
-import { MySaasError } from './commons/error';
+type GetTokenResponseData = {
+  access_token: string;
+  scope: string;
+  expires_in: string;
+  token_type: string;
+};
 
-type GetTokenResponseData = { token: string };
-
-export const getToken = async (code: string) => {
-  const response = await fetch('https://mysaas.com/api/v1/token', {
+export const getToken = async (
+  clientId: string,
+  clientSecret: string,
+  audience: string,
+  domain: string
+) => {
+  const response = await fetch(`https://${domain}/oauth/token`, {
     method: 'POST',
-    body: JSON.stringify({ code }),
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body: JSON.stringify({
+      grant_type: 'client_credentials',
+      client_id: clientId,
+      client_secret: clientSecret,
+      audience,
+    }),
   });
 
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve token', { response });
+    throw new Auth0Error('Could not retrieve token', { response });
   }
   const data = (await response.json()) as GetTokenResponseData;
-  return data.token;
+  return data;
 };

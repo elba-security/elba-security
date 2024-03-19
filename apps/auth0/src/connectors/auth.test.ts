@@ -1,44 +1,71 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `auth` connectors function.
- * Theses tests exists because the services & inngest functions using this connector mock it.
- * If you are using an SDK we suggest you to mock it not to implements calls using msw.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
-
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '../../vitest/setup-msw-handlers';
 import { getToken } from './auth';
-import { MySaasError } from './commons/error';
+import { Auth0Error } from './commons/error';
 
-const validCode = '1234';
-const token = 'token-1234';
+const validClientId = 'test-client-id';
+const validClientSecret = 'test-client-secret';
+const domain = 'test-domain';
+const audience = 'test-audience';
+const accessToken = 'access-token';
+const scope = 'scope';
+const expiresIn = 'expires_in';
+const tokenType = 'bearer';
 
-describe('auth connector', () => {
-  describe('getToken', () => {
-    // mock token API endpoint using msw
-    beforeEach(() => {
-      server.use(
-        http.post('https://mysaas.com/api/v1/token', async ({ request }) => {
-          // briefly implement API endpoint behaviour
-          const data = (await request.json()) as { code: string };
-          if (!data.code || data.code !== validCode) {
+describe('getToken', () => {
+  beforeEach(() => {
+    server.use(
+      http.post(`https://${domain}/oauth/token`, async ({ request }) => {
+        if (request.body !== null) {
+          const requestBody = JSON.parse(await request.text()) as {
+            client_id: string;
+            client_secret: string;
+            audience: string;
+          };
+          if (
+            requestBody.client_id !== validClientId ||
+            requestBody.client_secret !== validClientSecret ||
+            requestBody.audience !== audience
+          ) {
             return new Response(undefined, { status: 401 });
           }
-          return Response.json({ token });
-        })
-      );
-    });
+        }
+        return new Response(
+          JSON.stringify({
+            access_token: accessToken,
+            scope,
+            expires_in: expiresIn,
+            token_type: tokenType,
+          }),
+          { status: 200 }
+        );
+      })
+    );
+  });
 
-    test('should return the token when the code is valid', async () => {
-      await expect(getToken(validCode)).resolves.toBe(token);
-    });
+  test('should not throw when client id, client secret, domain or audience is valid', async () => {
+    try {
+      await expect(
+        getToken(validClientId, validClientSecret, audience, domain)
+      ).resolves.toStrictEqual({
+        access_token: accessToken,
+        scope,
+        expires_in: expiresIn,
+        token_type: tokenType,
+      });
+    } catch (error) {
+      expect(error).toBeNull();
+    }
+  });
 
-    test('should throw when the code is invalid', async () => {
-      await expect(getToken('wrong-code')).rejects.toBeInstanceOf(MySaasError);
-    });
+  test('should throw an error when client id, client secret, domain or audience is invalid', async () => {
+    try {
+      await expect(
+        getToken('invalid-client-id', validClientSecret, audience, domain)
+      ).rejects.toBeInstanceOf(Auth0Error);
+    } catch (error) {
+      expect((error as Auth0Error).message).toBe('Failed to fetch');
+    }
   });
 });
