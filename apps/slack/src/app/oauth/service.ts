@@ -1,5 +1,7 @@
 import { SlackAPIClient } from 'slack-web-api-client';
 import { logger } from '@elba-security/logger';
+import type { InstallationHandler } from '@elba-security/nextjs';
+import { z } from 'zod';
 import { encrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 import { getSlackMissingScopes } from '@/connectors/slack/oauth';
@@ -8,14 +10,14 @@ import { teamsTable } from '@/database/schema';
 import { slackTeamSchema } from '@/connectors/slack/teams';
 import { inngest } from '@/inngest/client';
 
-export const handleSlackInstallation = async ({
+export const searchParamsSchema = z.object({
+  code: z.string().min(1),
+});
+
+export const handleSlackInstallation: InstallationHandler<typeof searchParamsSchema> = async ({
   organisationId,
   region,
-  code,
-}: {
-  organisationId: string;
-  region: string;
-  code: string;
+  searchParams: { code },
 }) => {
   const slackClient = new SlackAPIClient();
   let accessToken: string | undefined;

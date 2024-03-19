@@ -5,7 +5,7 @@ import * as authConnector from '@/connectors/microsoft/auth';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { setupOrganisation } from './service';
+import { handleInstallation } from './service';
 
 const tenantId = 'some-tenant';
 const token = 'some-token';
@@ -20,7 +20,7 @@ const organisation = {
   region: 'eu',
 };
 
-describe('setupOrganisation', () => {
+describe('handleInstallation', () => {
   beforeAll(() => {
     vi.setSystemTime(now);
   });
@@ -36,10 +36,13 @@ describe('setupOrganisation', () => {
     vi.spyOn(crypto, 'encrypt').mockResolvedValue(token);
 
     await expect(
-      setupOrganisation({
+      handleInstallation({
         organisationId: organisation.id,
-        tenantId,
         region,
+        searchParams: {
+          admin_consent: true,
+          tenant: tenantId,
+        },
       })
     ).resolves.toBeUndefined();
 
@@ -92,10 +95,13 @@ describe('setupOrganisation', () => {
     await db.insert(organisationsTable).values(organisation);
 
     await expect(
-      setupOrganisation({
+      handleInstallation({
         organisationId: organisation.id,
-        tenantId,
         region,
+        searchParams: {
+          admin_consent: true,
+          tenant: tenantId,
+        },
       })
     ).resolves.toBeUndefined();
 
@@ -148,10 +154,13 @@ describe('setupOrganisation', () => {
     const getToken = vi.spyOn(authConnector, 'getToken').mockRejectedValue(error);
 
     await expect(
-      setupOrganisation({
+      handleInstallation({
         organisationId: organisation.id,
-        tenantId: wrongTenantId,
         region,
+        searchParams: {
+          admin_consent: true,
+          tenant: 'wrong-tenant-id',
+        },
       })
     ).rejects.toThrowError(error);
 

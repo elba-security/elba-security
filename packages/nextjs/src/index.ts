@@ -3,3 +3,4 @@ export {
   ElbaInstallRedirectResponse,
   type ElbaInstallRedirectResponseOptions,
 } from './install-redirect-response';
+export * from './routes';
