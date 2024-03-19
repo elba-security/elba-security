@@ -1,27 +1,60 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation. When requesting against API endpoint we might prefer
- * to valid the response data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { env } from '@/env';
+import { Auth0Error } from './commons/error';
 
-import { MySaasError } from './commons/error';
-
-export type MySaasUser = {
-  id: string;
-  username: string;
+export type Auth0User = {
+  user_id: string;
   email: string;
+  picture: string;
+  name: string;
 };
 
-type GetUsersResponseData = { users: MySaasUser[]; nextPage: number | null };
+export type Pagination = {
+  nextRange: string | null;
+};
 
-export const getUsers = async (token: string, page: number | null) => {
-  const response = await fetch(`https://mysaas.com/api/v1/users?page=${page}`, {
+type GetUsersResponseData = { members: Auth0User[]; next: string | undefined };
+
+export const getUsers = async (
+  token: string,
+  domain: string,
+  organizationId: string,
+  page?: string
+) => {
+  const url = new URL(`https://${domain}/api/v2/organizations/${organizationId}/members`);
+  url.searchParams.append('take', String(env.USERS_SYNC_BATCH_SIZE));
+  if (page) {
+    url.searchParams.append('from', page);
+  }
+  const response = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve users', { response });
+    throw new Auth0Error('Could not retrieve auth0 users', { response });
   }
-  return response.json() as Promise<GetUsersResponseData>;
+  const data = (await response.json()) as GetUsersResponseData;
+
+  return data;
+};
+
+export const deleteUser = async (
+  token: string,
+  domain: string,
+  organizationId: string,
+  userId: string
+) => {
+  const body = JSON.stringify({
+    members: [userId],
+  });
+  const response = await fetch(`https://${domain}/api/v2/organizations/${organizationId}/members`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body,
+  });
+
+  if (!response.ok) {
+    throw new Auth0Error(`Could not delete user with Id: ${userId}`, { response });
+  }
 };

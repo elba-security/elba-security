@@ -1,65 +1,88 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `auth` connectors function.
- * Theses tests exists because the services & inngest functions using this connector mock it.
- * If you are using an SDK we suggest you to mock it not to implements calls using msw.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
-
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '../../vitest/setup-msw-handlers';
-import { type MySaasUser, getUsers } from './users';
-import { MySaasError } from './commons/error';
+import { deleteUser, getUsers } from './users';
+import type { Auth0Error } from './commons/error';
+import { users } from './__mocks__/users';
 
-const validToken = 'token-1234';
-const maxPage = 3;
+const validToken = 'valid-token';
+const organizationId = 'test-organization-id';
+const userId = 'test-user-id';
+const domain = 'test-domain';
 
-const users: MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
-  id: `id-${i}`,
-  username: `username-${i}`,
-  email: `user-${i}@foo.bar`,
-}));
-
-describe('auth connector', () => {
-  describe('getUsers', () => {
-    // mock token API endpoint using msw
-    beforeEach(() => {
-      server.use(
-        http.get('https://mysaas.com/api/v1/users', ({ request }) => {
-          // briefly implement API endpoint behaviour
+describe('getUsers', () => {
+  beforeEach(() => {
+    server.use(
+      http.get(
+        `https://${domain}/api/v2/organizations/${organizationId}/members`,
+        ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
           const url = new URL(request.url);
-          const pageParam = url.searchParams.get('page');
-          const page = pageParam ? Number(pageParam) : 0;
-          if (page === maxPage) {
-            return Response.json({ nextPage: null, users });
+          const page = url.searchParams.get('from') || 'current-page';
+          const nextPage = 'next-page';
+          const lastPage = 'last-page';
+          return new Response(
+            JSON.stringify({
+              members: { users },
+              next: page !== lastPage ? nextPage : undefined,
+            }),
+            { status: 200 }
+          );
+        }
+      )
+    );
+  });
+
+  test('should fetch users when token is valid', async () => {
+    const result = await getUsers(validToken, domain, organizationId);
+    expect(result.members).toEqual({ users });
+  });
+
+  test('should throw Auth0Error when token is invalid', async () => {
+    try {
+      await getUsers('invalidToken', domain, organizationId);
+    } catch (error) {
+      expect((error as Auth0Error).message).toEqual('Could not retrieve auth0 users');
+    }
+  });
+
+  test('should return next page as undefined when end of list is reached', async () => {
+    const result = await getUsers(validToken, domain, organizationId, 'last-page');
+    expect(result.next).toBeUndefined();
+  });
+
+  test('should return next page when there is next page', async () => {
+    const result = await getUsers(validToken, domain, organizationId, 'first-page');
+    expect(result.next).toEqual('next-page');
+  });
+});
+
+describe('deleteUser', () => {
+  beforeEach(() => {
+    server.use(
+      http.delete(
+        `https://${domain}/api/v2/organizations/${organizationId}/members`,
+        ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
           }
-          return Response.json({ nextPage: page + 1, users });
-        })
-      );
-    });
+          return new Response(undefined, { status: 200 });
+        }
+      )
+    );
+  });
 
-    test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(getUsers(validToken, 0)).resolves.toStrictEqual({
-        users,
-        nextPage: 1,
-      });
-    });
+  test('should delete user successfully when token is valid', async () => {
+    await expect(deleteUser(validToken, domain, organizationId, userId)).resolves.not.toThrow();
+  });
 
-    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
-        users,
-        nextPage: null,
-      });
-    });
-
-    test('should throws when the token is invalid', async () => {
-      await expect(getUsers('foo-bar', 0)).rejects.toBeInstanceOf(MySaasError);
-    });
+  test('should throw Auth0Error when token is invalid', async () => {
+    try {
+      await deleteUser('invalidToken', domain, organizationId, userId);
+    } catch (error) {
+      expect((error as Auth0Error).message).toEqual(`Could not delete user with Id: ${userId}`);
+    }
   });
 });

@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+const zEnvRetry = () =>
+  z.coerce.number().int().min(0).max(20).optional().default(3) as unknown as z.ZodLiteral<
+    0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20
+  >;
+
 export const env = z
   .object({
     ELBA_API_KEY: z.string().min(1),
@@ -16,5 +21,9 @@ export const env = z
     DATABASE_PROXY_PORT: z.coerce.number().int().positive(),
     VERCEL_PREFERRED_REGION: z.string().min(1),
     VERCEL_ENV: z.string().min(1).optional(),
+    USERS_SYNC_CRON: z.string(),
+    USERS_SYNC_MAX_RETRY: zEnvRetry(),
+    REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
+    USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().default(200),
   })
   .parse(process.env);

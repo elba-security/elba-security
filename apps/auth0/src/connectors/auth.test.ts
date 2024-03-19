@@ -44,7 +44,7 @@ describe('getToken', () => {
     );
   });
 
-  test('should not throw when client id, client secret, domain or audience is valid', async () => {
+  test('should not throw when client id, client secret, domain and audience are valid', async () => {
     try {
       await expect(
         getToken(validClientId, validClientSecret, audience, domain)
