@@ -3,17 +3,23 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { env } from '@/env';
 import * as auth from '@/connectors/auth';
 import { registerOrganisation } from './service';
 
-const token = env.SENDGRID_API_TOKEN;
-const region = 'us';
 const now = new Date();
-
+const region = 'us';
+const clientId = 'test-client-id';
+const clientSecret = 'test-client-secret';
+const domain = 'test-domain';
+const audience = 'test-audience';
+const sourceOrganizationId = 'test-org-id';
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
-  token,
+  clientId,
+  clientSecret,
+  domain,
+  audience,
+  sourceOrganizationId,
   region,
 };
 
@@ -27,40 +33,52 @@ describe('registerOrganisation', () => {
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
-    const validateTokenMock = vi.spyOn(auth, 'validateToken').mockResolvedValue(undefined);
+    const getTokenMock = vi.spyOn(auth, 'getToken').mockResolvedValue({
+      access_token: 'access-token',
+      expires_in: 'expiry-time',
+      scope: 'scope',
+      token_type: 'bearer',
+    });
 
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
-        token,
+        clientId: organisation.clientId,
+        clientSecret: organisation.clientSecret,
+        audience: organisation.audience,
+        domain: organisation.domain,
+        sourceOrganizationId: organisation.sourceOrganizationId,
         region,
       })
-    ).resolves.toBeDefined();
+    ).resolves.toBeUndefined();
 
     await expect(
       db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
     ).resolves.toMatchObject([
       {
-        token,
+        clientId,
+        clientSecret,
+        audience,
+        domain,
+        sourceOrganizationId,
         region,
       },
     ]);
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'sendgrid/users.page_sync.requested',
+      name: 'auth0/users.page_sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
-        syncStartedAt: now.getTime(),
         region,
-        offset: 0,
+        syncStartedAt: Date.now(),
       },
     });
 
-    expect(validateTokenMock).toBeCalledWith(token);
+    expect(getTokenMock).toBeCalledWith(clientId, clientSecret, audience, domain);
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
@@ -72,33 +90,46 @@ describe('registerOrganisation', () => {
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
-        token,
+        clientId: organisation.clientId,
+        clientSecret: organisation.clientSecret,
+        audience: organisation.audience,
+        domain: organisation.domain,
+        sourceOrganizationId: organisation.sourceOrganizationId,
         region,
       })
-    ).resolves.toBeDefined();
+    ).resolves.toBeUndefined();
 
     // check if the token in the database is updated
     await expect(
       db
-        .select({ token: Organisation.token })
+        .select({
+          clientId: Organisation.clientId,
+          clientSecret: Organisation.clientSecret,
+          audience: Organisation.audience,
+          domain: Organisation.domain,
+          sourceOrganizationId: Organisation.sourceOrganizationId,
+        })
         .from(Organisation)
         .where(eq(Organisation.id, organisation.id))
     ).resolves.toMatchObject([
       {
-        token,
+        clientId,
+        clientSecret,
+        audience,
+        domain,
+        sourceOrganizationId,
       },
     ]);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'sendgrid/users.page_sync.requested',
+      name: 'auth0/users.page_sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
-        syncStartedAt: now.getTime(),
         region,
-        offset: 0,
+        syncStartedAt: Date.now(),
       },
     });
   });
@@ -113,7 +144,11 @@ describe('registerOrganisation', () => {
     await expect(
       registerOrganisation({
         organisationId: wrongId,
-        token,
+        clientId: organisation.clientId,
+        clientSecret: organisation.clientSecret,
+        audience: organisation.audience,
+        domain: organisation.domain,
+        sourceOrganizationId: organisation.sourceOrganizationId,
         region,
       })
     ).rejects.toThrowError(error);
