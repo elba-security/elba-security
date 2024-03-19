@@ -15,7 +15,7 @@ export const getToken = async (
 ) => {
   const response = await fetch(`https://${domain}/oauth/token`, {
     method: 'POST',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: JSON.stringify({
       grant_type: 'client_credentials',
       client_id: clientId,
