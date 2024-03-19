@@ -1,6 +1,6 @@
 # Encrypting token
 
-In order to secure organisation credentials like oauth token, each sensitive data must be encrypted in the database.
+In order to secure organisation credentials such as the OAuth token, each sensitive data must be encrypted in the database.
 
 As well, once a token is decrypted, it should not be passed to inngest context.
 
