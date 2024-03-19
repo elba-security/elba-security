@@ -13,7 +13,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as crypto from '@/common/crypto';
-import { encrypt } from '@/common/crypto';
+import { decrypt } from '@/common/crypto';
 import { setupOrganisation } from './service';
 
 const code = 'some-code';
@@ -60,21 +60,18 @@ describe('setupOrganisation', () => {
         region,
       })
     ).resolves.toBeUndefined();
-    const encryptToken = await encrypt(accessToken);
 
     // check if getToken was called correctly
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
     // verify the organisation token is set in the database
-    await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        accessToken: encryptToken,
-        region,
-      },
-    ]);
+    const [storedOrganisation] = await db
+      .select()
+      .from(Organisation)
+      .where(eq(Organisation.id, organisation.id));
+    expect(storedOrganisation.region).toBe(region);
+    await expect(decrypt(storedOrganisation.accessToken)).resolves(accessToken);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
@@ -124,23 +121,17 @@ describe('setupOrganisation', () => {
         region,
       })
     ).resolves.toBeUndefined();
-    const encryptToken = await encrypt(accessToken);
 
     // verify getToken usage
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
     // check if the token in the database is updated
-    await expect(
-      db
-        .select({ accessToken: Organisation.accessToken })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        accessToken: encryptToken,
-      },
-    ]);
+    const [storedOrganisation] = await db
+      .select()
+      .from(Organisation)
+      .where(eq(Organisation.id, organisation.id));
+    await expect(decrypt(storedOrganisation.accessToken)).resolves(accessToken);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
