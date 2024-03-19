@@ -1,5 +1,4 @@
 import { getToken } from '@/connectors/auth';
-import { deleteUser, getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -23,37 +22,36 @@ export const registerOrganisation = async ({
   sourceOrganizationId,
   region,
 }: SetupOrganisationParams) => {
-  // await getToken(clientId, clientSecret, domain, audience);
-  // await db
-  //   .insert(Organisation)
-  //   .values({
-  //     id: organisationId,
-  //     region,
-  //     clientId,
-  //     clientSecret,
-  //     audience,
-  //     domain,
-  //     sourceOrganizationId,
-  //   })
-  //   .onConflictDoUpdate({
-  //     target: Organisation.id,
-  //     set: {
-  //       region,
-  //       clientId,
-  //       clientSecret,
-  //       domain,
-  //       audience,
-  //       sourceOrganizationId,
-  //     },
-  //   });
-  // await inngest.send({
-  //   name: 'sendgrid/users.page_sync.requested',
-  //   data: {
-  //     isFirstSync: true,
-  //     organisationId,
-  //     region,
-  //     syncStartedAt: Date.now(),
-  //     offset: 0,
-  //   },
-  // });
+  await getToken(clientId, clientSecret, audience, domain);
+  await db
+    .insert(Organisation)
+    .values({
+      id: organisationId,
+      region,
+      clientId,
+      clientSecret,
+      audience,
+      domain,
+      sourceOrganizationId,
+    })
+    .onConflictDoUpdate({
+      target: Organisation.id,
+      set: {
+        region,
+        clientId,
+        clientSecret,
+        domain,
+        audience,
+        sourceOrganizationId,
+      },
+    });
+  await inngest.send({
+    name: 'auth0/users.page_sync.requested',
+    data: {
+      isFirstSync: true,
+      organisationId,
+      region,
+      syncStartedAt: Date.now(),
+    },
+  });
 };
