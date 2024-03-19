@@ -1,27 +1,34 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation. When requesting against API endpoint we might prefer
- * to valid the response data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { ApolloError} from './commons/error';
 
-import { MySaasError } from './commons/error';
-
-export type MySaasUser = {
+export type ApolloUser = {
   id: string;
-  username: string;
+  name: string;
   email: string;
 };
 
-type GetUsersResponseData = { users: MySaasUser[]; nextPage: number | null };
+export type Pagination = {
+  page: number;
+  per_page: number;
+  total_entries: number;
+  total_pages: number;
+};
 
-export const getUsers = async (token: string, page: number | null) => {
-  const response = await fetch(`https://mysaas.com/api/v1/users?page=${page}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!response.ok) {
-    throw new MySaasError('Could not retrieve users', { response });
+type GetUsersResponseData = {users: ApolloUser[]; pagination: Pagination;};
+
+export const getUsers = async (token: string, page: number|null) => {
+  const url = new URL(`https://api.apollo.io/v1/users/search`);
+  url.searchParams.append('api_key', token);
+
+  if (page !== null) {
+    url.searchParams.append('page', page.toString());
   }
-  return response.json() as Promise<GetUsersResponseData>;
+
+  const response = await fetch(url.toString());
+
+  if (!response.ok && response.status !== 404) {
+    throw new ApolloError('Could not retrieve users',{response});
+  }
+
+  const data = (await response.json()) as GetUsersResponseData;
+  return data;
 };

@@ -1,7 +1,6 @@
-import { validateToken } from '@/connectors/auth';
-import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { inngest } from '@/inngest/client';
+import { getUsers } from '../../connectors/users';
+import { db } from '../../database/client';
+import { Organisation } from '../../database/schema';
 
 
 type SetupOrganisationParams = {
@@ -16,8 +15,8 @@ export const registerOrganisation = async ({
  token,
  region,
 }: SetupOrganisationParams) => {
- await validateToken(token);
- const [organisation] = await db
+ await getUsers(token,null)
+ await db
    .insert(Organisation)
    .values({ id: organisationId, region, token })
    .onConflictDoUpdate({
@@ -27,23 +26,4 @@ export const registerOrganisation = async ({
        token,
      },
    })
-   .returning();
-
-
- if (!organisation) {
-   throw new Error(`Could not setup organisation with id=${organisationId}`);
- }
-
-
- await inngest.send({
-   name: 'sendgrid/users.page_sync.requested',
-   data: {
-     isFirstSync: true,
-     organisationId,
-     region,
-     syncStartedAt: Date.now(),
-     offset: 0,
-   },
- });
- return organisation;
 };
