@@ -32,3 +32,15 @@ export const getUsers = async (token: string, page: number|null) => {
   const data = (await response.json()) as GetUsersResponseData;
   return data;
 };
+export const deleteUser = async (apiKey: string, userId: string) => {
+  const response = await fetch(
+    `https://api.apollo.io/v1/users/${userId}/?api_key=${apiKey}`,
+    {
+      method: 'DELETE',
+    }
+  );
+  // Check if response is successful (status 200) or user not found (status 404)
+  if (!response.ok && response.status !== 404) {
+    throw new Error(`Could not delete user with Id: ${userId}`);
+  }
+};
