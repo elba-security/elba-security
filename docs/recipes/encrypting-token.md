@@ -10,7 +10,7 @@ The package `@elba-security/utils` must be installed. An encryption key should b
 
 ## Usage
 
-> This section assume crypto utils as been configured as it is in the [template](https://github.com/elba-security/elba-security/blob/staging/template/src/common/crypto.ts)
+> This section assumes that the crypto utils have been configured as in the [template](https://github.com/elba-security/elba-security/blob/staging/template/src/common/crypto.ts)
 
 Whenever a token (`access_token`, `refresh_token`...) is inserted or updated in the database it should be encrypted.
 
