@@ -1,9 +1,9 @@
-type MySaasErrorOptions = { response?: Response };
+type ApolloErrorOptions = { response?: Response };
 
-export class MySaasError extends Error {
+export class ApolloError extends Error {
   response?: Response;
 
-  constructor(message: string, { response }: MySaasErrorOptions = {}) {
+  constructor(message: string, { response }: ApolloErrorOptions = {}) {
     super(message);
     this.response = response;
   }
