@@ -15,6 +15,12 @@ export const inngest = new Inngest({
         page?: string;
       };
     };
+    'auth0/users.delete.requested': {
+      data: {
+        id: string;
+        organisationId: string;
+      };
+    };
     'auth0/app.uninstall.requested': { data: { organisationId: string } };
   }>(),
   middleware: [rateLimitMiddleware, sentryMiddleware],
