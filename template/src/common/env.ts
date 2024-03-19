@@ -17,5 +17,9 @@ export const env = z
     VERCEL_PREFERRED_REGION: z.string().min(1),
     VERCEL_ENV: z.string().min(1).optional(),
     ENCRYPTION_KEY: z.string().length(64),
+    // integration specifics
+    X_SAAS_CLIENT_ID: z.string().min(1),
+    X_SAAS_CLIENT_SECRET: z.string().min(1),
+    X_SAAS_REDIRECT_URI: z.string().url(),
   })
   .parse(process.env);

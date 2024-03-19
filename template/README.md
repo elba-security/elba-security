@@ -4,24 +4,15 @@ Rename `.env.local.example` to `.env.local`.
 
 This file will be used for local development environment.
 
-### Setting up node integration
-
-If your integration does not support **edge runtime** some files has to be edited:
-
-- `docker-compose.yml`: remove the `pg_proxy` service
-- `vitest/setup-msw-handlers`: remove the first arguments of `setupServer()`, setting a passthrough
-- `src/database/client.ts`: replace this file by `client.node.ts` (and remove it)
-- `vitest.config.js`: update `environment` to `'node'`
-- `package.json`: remove dependency `"@neondatabase/serverless"`
-- remove each `route.ts` exports of `preferredRegion` & `runtime` constants.
-
-### Setting up edge-runtime integration
-
-If your integration does supports **edge runtime** you just have to remove file ending with `.node.ts` like `src/database/client.node.ts`.
-
 ### Running the integration
 
-First of all, ensure that the PostgreSQL database is running. You can start it by executing the following command:
+First of all, install dependencies:
+
+```bash
+pnpm i
+```
+
+Then, ensure that the PostgreSQL database is running. You can start it by executing the following command:
 
 ```bash
 pnpm database:up

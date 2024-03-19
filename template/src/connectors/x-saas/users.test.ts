@@ -10,14 +10,14 @@
 
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
-import { server } from '../../vitest/setup-msw-handlers';
-import { type MySaasUser, getUsers } from './users';
-import { MySaasError } from './commons/error';
+import { server } from '../../../vitest/setup-msw-handlers';
+import { type XSaasUser, getUsers } from './users';
+import { XSaasError } from './commons/error';
 
 const validToken = 'token-1234';
 const maxPage = 3;
 
-const users: MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
+const users: XSaasUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
   username: `username-${i}`,
   email: `user-${i}@foo.bar`,
@@ -59,7 +59,7 @@ describe('auth connector', () => {
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(getUsers('foo-bar', 0)).rejects.toBeInstanceOf(MySaasError);
+      await expect(getUsers('foo-bar', 0)).rejects.toBeInstanceOf(XSaasError);
     });
   });
 });
