@@ -13,7 +13,7 @@ const users: ApolloUser[] = [
 ];
 
 const pagination: Pagination = {
-  page: 1,
+  page: "1",
   per_page: 10,
   total_entries: 2,
   total_pages: 1,
@@ -21,48 +21,45 @@ const pagination: Pagination = {
 
 const validToken = 'test-token';
 const userId= "test-id";
-const maxPage = 2; 
+const maxPage = "2"; 
 describe('getUsers', () => {
-beforeEach(() => {
-  server.use(
-    http.get('https://api.apollo.io/v1/users/search', ({ request }) => {
-      const url = new URL(request.url);
-      if (url.searchParams.get('api_key') !== validToken) {
-        return new Response(undefined, { status: 401 });
-      }
-      const pageParam = url.searchParams.get('page');
-      const page = pageParam ? Number(pageParam) : 0;
-      if (page === maxPage) {
-        return new Response(JSON.stringify({ users, pagination: { ...pagination, total_pages: maxPage } }), {
-          status: 200,
+  beforeEach(() => {
+    server.use(
+      http.get('https://api.apollo.io/v1/users/search', ({ request }) => {
+        const url = new URL(request.url);
+        if (url.searchParams.get('api_key') !== validToken) {
+          return new Response(undefined, { status: 401 });
+        }
+        const page = parseInt(url.searchParams.get('page') || "0");
+        const response = {
+          users: page >= pagination.total_pages ? [] : users,
+          pagination: { ...pagination, page: String(page) }
+        };
+        return new Response(JSON.stringify(response), {
+          status: 200
         });
-      }
-      return new Response(
-        JSON.stringify({ users, pagination: { ...pagination, total_pages: maxPage, page: page + 1 } }),
-        { status: 200 }
-      );
-    })
-  );
-});
+      })
+    );
+  });
 
-test('should return users and nextPage when the token is valid and there is another page', async () => {
-  await expect(getUsers(validToken, 0)).resolves.toStrictEqual({
-    users,
-    pagination: { ...pagination, page: 1 },
+  test('should return users and nextPage when the token is valid and there is another page', async () => {
+    await expect(getUsers(validToken, "0")).resolves.toStrictEqual({
+      users,
+      pagination: { ...pagination, page: "0" },
+    });
+  });
+
+  test('should return users and no nextPage when the token is valid and there is no other page', async () => {
+    await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
+      users,
+      pagination: { ...pagination, page: maxPage }, 
+    });
+  });
+  test('should throw ApolloError when the token is invalid', async () => {
+    await expect(getUsers('invalidToken', "0")).rejects.toBeInstanceOf(ApolloError);
   });
 });
 
-test('should return users and no nextPage when the token is valid and there is no other page', async () => {
-  await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
-    users,
-    pagination: { ...pagination, page: maxPage },
-  });
-});
-
-test('should throw ApolloError when the token is invalid', async () => {
-  await expect(getUsers('invalidToken', 0)).rejects.toBeInstanceOf(ApolloError);
-});
-});
 describe('deleteUser', () => {
   beforeEach(() => {
     // Mock the DELETE request to the Apollo API endpoint
@@ -86,7 +83,7 @@ describe('deleteUser', () => {
     try {
       await deleteUser('invalidToken', userId); 
     } catch (error) {
-      expect(error.message).toEqual(`Could not delete user with Id: ${userId}`); // Expect error message
+      expect((error as ApolloError).message).toEqual(`Could not delete user with Id: ${userId}`); // Expect error message
     }
   });
 });
