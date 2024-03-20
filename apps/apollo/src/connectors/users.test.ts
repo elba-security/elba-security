@@ -32,7 +32,7 @@ describe('getUsers', () => {
         }
         const page = parseInt(url.searchParams.get('page') || "0");
         const response = {
-          users: page >= pagination.total_pages ? [] : users,
+          users: page > pagination.total_pages ? [] : users,
           pagination: { ...pagination, page: String(page) }
         };
         return new Response(JSON.stringify(response), {
@@ -49,9 +49,9 @@ describe('getUsers', () => {
     });
   });
 
-  test('should return users and no nextPage when the token is valid and there is no other page', async () => {
+  test('should return no users when the token is valid and there is no other page', async () => {
     await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
-      users,
+      users: [],
       pagination: { ...pagination, page: maxPage }, 
     });
   });
@@ -67,10 +67,10 @@ describe('deleteUser', () => {
       http.delete(`https://api.apollo.io/v1/users/${userId}/?api_key=${validToken}`, ({ request }) => {
         // Check if the API key matches
         if (request.url.includes(`api_key=${validToken}`)) {
-          return new Response(undefined, { status: 200 }); // Success status
-        } else {
-          return new Response(undefined, { status: 401 }); // Unauthorized status
-        }
+          return new Response(undefined, { status: 200 }); 
+        } 
+          return new Response(undefined, { status: 401 }); 
+        
       })
     );
   });
@@ -83,7 +83,7 @@ describe('deleteUser', () => {
     try {
       await deleteUser('invalidToken', userId); 
     } catch (error) {
-      expect((error as ApolloError).message).toEqual(`Could not delete user with Id: ${userId}`); // Expect error message
+      expect((error as ApolloError).message).toEqual(`Could not delete user with Id: ${userId}`); 
     }
   });
 });

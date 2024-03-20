@@ -42,7 +42,7 @@ describe('sync-users', () => {
     // Mock the getUsers function that returns Apollo users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       pagination: {
-        page: '2',
+        page: '1',
         per_page: 10,
         total_entries: 20,
         total_pages: 2,
