@@ -23,7 +23,7 @@ export const getUsers = async (token: string, page: string|null) => {
     url.searchParams.append('page', page);
   }
 
-  const response = await fetch(url.toString());
+  const response = await fetch(url);
 
   if (!response.ok && response.status !== 404) {
     throw new ApolloError('Could not retrieve users',{response});

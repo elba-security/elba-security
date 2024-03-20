@@ -34,7 +34,7 @@ async ({ event, step }) => {
 
 
   // retrieve the Apollo organisation token
-  const organisation = await step.run('get-organisation', async () => {
+  const organisation = await step.run('get-token', async () => {
    const [result] = await db
      .select({
        token: Organisation.token,
