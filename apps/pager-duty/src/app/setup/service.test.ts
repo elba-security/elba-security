@@ -15,6 +15,7 @@ import { inngest } from '@/inngest/client';
 import * as crypto from '@/common/crypto';
 import { decrypt } from '@/common/crypto';
 import { setupOrganisation } from './service';
+import { PagerdutyError } from '@/connectors/commons/error';
 
 const code = 'some-code';
 const accessToken = 'some token';
@@ -50,7 +51,6 @@ describe('setupOrganisation', () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mock the getToken function to return a predefined token
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
-    vi.spyOn(crypto, 'encrypt').mockResolvedValue(accessToken);
 
     // assert the function resolves without returning a value
     await expect(
@@ -70,8 +70,11 @@ describe('setupOrganisation', () => {
       .select()
       .from(Organisation)
       .where(eq(Organisation.id, organisation.id));
+    if (!storedOrganisation) {
+      throw new PagerdutyError(`Organisation with ID ${organisation.id} not found.`);
+    }
     expect(storedOrganisation.region).toBe(region);
-    await expect(decrypt(storedOrganisation.accessToken)).resolves(accessToken);
+    await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
@@ -106,7 +109,6 @@ describe('setupOrganisation', () => {
     // mock inngest client, only inngest.send should be used
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    vi.spyOn(crypto, 'encrypt').mockResolvedValue(accessToken);
     // pre-insert an organisation to simulate an existing entry
     await db.insert(Organisation).values(organisation);
 
@@ -131,7 +133,10 @@ describe('setupOrganisation', () => {
       .select()
       .from(Organisation)
       .where(eq(Organisation.id, organisation.id));
-    await expect(decrypt(storedOrganisation.accessToken)).resolves(accessToken);
+    if (!storedOrganisation) {
+      throw new PagerdutyError(`Organisation with ID ${organisation.id} not found.`);
+    }
+    await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
