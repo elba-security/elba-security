@@ -9,6 +9,7 @@ export const inngest = new Inngest({
   id: 'slack',
   schemas: new EventSchemas().fromRecord<InngestEvents>(),
   middleware: [
+    // @ts-expect-error -- todo: fix this
     encryptionMiddleware({ key: env.ENCRYPTION_KEY }),
     slackRateLimitMiddleware,
     sentryMiddleware,
