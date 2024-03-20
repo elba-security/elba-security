@@ -34,7 +34,7 @@ async ({ event, step }) => {
 
 
   // retrieve the Apollo organisation token
-  const organisation = await step.run('get-token', async () => {
+  const token = await step.run('get-token', async () => {
    const [result] = await db
      .select({
        token: Organisation.token,
@@ -44,14 +44,14 @@ async ({ event, step }) => {
    if (!result) {
      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
    }
-   return result;
+   return result.token;
  });
 
 
 
 
    await step.run('delete-user', async () => {
-    await deleteUser(organisation.token, id);
+    await deleteUser(token, id);
     await elba.users.delete({ ids: [id] });
   });
  }
