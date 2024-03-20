@@ -1,6 +1,7 @@
 import { getUsers } from '../../connectors/users';
 import { db } from '../../database/client';
 import { Organisation } from '../../database/schema';
+import { inngest } from '../../inngest/client';
 
 
 type SetupOrganisationParams = {
@@ -26,4 +27,14 @@ export const registerOrganisation = async ({
        token,
      },
    })
+   await inngest.send({
+    name: 'apollo/users.page_sync.requested',
+    data: {
+      isFirstSync: true,
+      organisationId,
+      region,
+      syncStartedAt: Date.now(),
+      page: null,
+    },
+  });
 };

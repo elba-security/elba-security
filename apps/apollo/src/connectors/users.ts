@@ -7,7 +7,7 @@ export type ApolloUser = {
 };
 
 export type Pagination = {
-  page: number;
+  page: string;
   per_page: number;
   total_entries: number;
   total_pages: number;
@@ -15,12 +15,12 @@ export type Pagination = {
 
 type GetUsersResponseData = {users: ApolloUser[]; pagination: Pagination;};
 
-export const getUsers = async (token: string, page: number|null) => {
+export const getUsers = async (token: string, page: string|null) => {
   const url = new URL(`https://api.apollo.io/v1/users/search`);
   url.searchParams.append('api_key', token);
 
   if (page !== null) {
-    url.searchParams.append('page', page.toString());
+    url.searchParams.append('page', page);
   }
 
   const response = await fetch(url.toString());
@@ -31,4 +31,16 @@ export const getUsers = async (token: string, page: number|null) => {
 
   const data = (await response.json()) as GetUsersResponseData;
   return data;
+};
+export const deleteUser = async (token: string, userId: string) => {
+  const response = await fetch(
+    `https://api.apollo.io/v1/users/${userId}/?api_key=${token}`,
+    {
+      method: 'DELETE',
+    }
+  );
+  // Check if response is successful (status 200) or user not found (status 404)
+  if (!response.ok && response.status !== 404) {
+    throw new Error(`Could not delete user with Id: ${userId}`);
+  }
 };
