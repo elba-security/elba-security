@@ -61,10 +61,6 @@ export const syncUsersPage = inngest.createFunction(
      }
      return result;
    });
-
-
-
-
    const nextPage = await step.run('list-users', async () => {
     // retrieve this users page
     const result = await getUsers(organisation.token, page);
@@ -75,7 +71,7 @@ export const syncUsersPage = inngest.createFunction(
     await elba.users.update({ users });
 
     if (result.pagination.total_pages > 1) {
-        return String(parseInt(result.pagination.page, 10) + 1); // Assuming pagination.page is a string
+        return String(parseInt(result.pagination.page, 10) + 1);
     }
     return null;
   });
@@ -93,15 +89,10 @@ export const syncUsersPage = inngest.createFunction(
             status: 'ongoing',
         };
     }
-
-
-
    // delete the Elba users that have been sent before this sync
      await step.run('finalize', () =>
      elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
    );
-
-
    return {
      status: 'completed',
    };
