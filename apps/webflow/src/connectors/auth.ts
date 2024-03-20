@@ -1,25 +1,21 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation.
- * When requesting against API endpoint we might prefer to valid the response
- * data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { env } from '@/env';
+import { WebflowError } from './commons/error';
 
-import { MySaasError } from './commons/error';
+export type GetTokenResponseData = { access_token: string; token_type: string; scope: string };
 
-type GetTokenResponseData = { token: string };
-
-export const getToken = async (code: string) => {
-  const response = await fetch('https://mysaas.com/api/v1/token', {
-    method: 'POST',
-    body: JSON.stringify({ code }),
-  });
-
+export const getAccessToken = async (code: string) => {
+  const response = await fetch(
+    `https://api.webflow.com/oauth/access_token?grant_type=authorization_code&code=${code}&client_id=${env.WEBFLOW_CLIENT_ID}&client_secret=${env.WEBFLOW_CLIENT_SECRET}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve token', { response });
+    throw new WebflowError('Failed to fetch', { response });
   }
   const data = (await response.json()) as GetTokenResponseData;
-  return data.token;
+  return data.access_token;
 };
