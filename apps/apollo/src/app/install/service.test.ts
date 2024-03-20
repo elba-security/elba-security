@@ -7,6 +7,7 @@ import * as userConnector from '@/connectors/users';
 import { registerOrganisation } from './service';
 
 
+
 const token = 'test-token';
 const region = 'us';
 const now = new Date();
@@ -35,7 +36,21 @@ describe('registerOrganisation', () => {
    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
    // mocked the getUsers function
    // @ts-expect-error -- this is a mock
-   vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
+   const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue({
+    users: [
+      {
+        id: 'user-id',
+        name: 'Username',
+        email: 'user@gmail.com',
+      }
+    ],
+    pagination: {
+      page: "1",
+      per_page: 10,
+      total_entries: 1,
+      total_pages: 1,
+    }
+  });
    await expect(
      registerOrganisation({
        organisationId: organisation.id,
@@ -66,6 +81,7 @@ describe('registerOrganisation', () => {
        page:null,
      },
    });
+   expect(getUsers).toBeCalledWith(token,null);
  });
 
 
@@ -74,7 +90,21 @@ describe('registerOrganisation', () => {
    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
    // mocked the getUsers function
    // @ts-expect-error -- this is a mock
-   vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
+   const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue({
+    users: [
+      {
+        id: 'user-id',
+        name: 'Username',
+        email: 'user@gmail.com',
+      }
+    ],
+    pagination: {
+      page: "1",
+      per_page: 10,
+      total_entries: 1,
+      total_pages: 1,
+    }
+  });
    // pre-insert an organisation to simulate an existing entry
    await db.insert(Organisation).values(organisation);
 
@@ -111,6 +141,7 @@ describe('registerOrganisation', () => {
        page:null,
      },
    });
+   expect(getUsers).toBeCalledWith(token,null);
  });
 
  test('should not setup the organisation when the organisation id is invalid', async () => {
@@ -118,7 +149,21 @@ describe('registerOrganisation', () => {
    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
    // mocked the getUsers function
    // @ts-expect-error -- this is a mock
-   vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
+     vi.spyOn(userConnector, 'getUsers').mockResolvedValue({
+    users: [
+      {
+        id: 'user-id',
+        name: 'Username',
+        email: 'user@gmail.com',
+      }
+    ],
+    pagination: {
+      page: "1",
+      per_page: 10,
+      total_entries: 1,
+      total_pages: 1,
+    }
+  });
    const wrongId = 'xfdhg-dsf';
    const error = new Error(`invalid input syntax for type uuid: "${wrongId}"`);
 

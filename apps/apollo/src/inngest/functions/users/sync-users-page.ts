@@ -49,7 +49,7 @@ export const syncUsersPage = inngest.createFunction(
    });
 
 
-   const organisation = await step.run('get-organisation', async () => {
+   const token = await step.run('get-token', async () => {
      const [result] = await db
        .select({
          token: Organisation.token,
@@ -59,11 +59,11 @@ export const syncUsersPage = inngest.createFunction(
      if (!result) {
        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
      }
-     return result;
+     return result.token;
    });
    const nextPage = await step.run('list-users', async () => {
     // retrieve this users page
-    const result = await getUsers(organisation.token, page);
+    const result = await getUsers(token, page);
     // format each Apollo user to Elba users
     const users = result.users.map(formatElbaUser);
     // send the batch of users to Elba

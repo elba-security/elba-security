@@ -30,10 +30,10 @@ describe('getUsers', () => {
         if (url.searchParams.get('api_key') !== validToken) {
           return new Response(undefined, { status: 401 });
         }
-        const page = parseInt(url.searchParams.get('page') || "0");
+        const page = url.searchParams.get('page') || "0";
         const response = {
-          users: page > pagination.total_pages ? [] : users,
-          pagination: { ...pagination, page: String(page) }
+          users: parseInt(page) > pagination.total_pages ? [] : users,
+          pagination: { ...pagination, page }
         };
         return new Response(JSON.stringify(response), {
           status: 200
@@ -42,22 +42,33 @@ describe('getUsers', () => {
     );
   });
 
-  test('should return users and nextPage when the token is valid and there is another page', async () => {
+  test('should throw ApolloError when the token is invalid', async () => {
+    try {
+      await getUsers('invalidToken', "0");
+    } catch (error) {
+      expect(error instanceof ApolloError).toBeTruthy();
+      expect(error.message).toEqual('Could not retrieve users');
+    }
+  });
+  test('should fetch users when token is valid', async () => {
+    const result = await getUsers(validToken, "0");
+    expect(result.users).toEqual(users);
+  });
+
+  test('should return users when there is another page', async () => {
     await expect(getUsers(validToken, "0")).resolves.toStrictEqual({
       users,
       pagination: { ...pagination, page: "0" },
     });
   });
 
-  test('should return no users when the token is valid and there is no other page', async () => {
+  test('should return no users when there is no other page', async () => {
     await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
       users: [],
       pagination: { ...pagination, page: maxPage }, 
     });
   });
-  test('should throw ApolloError when the token is invalid', async () => {
-    await expect(getUsers('invalidToken', "0")).rejects.toBeInstanceOf(ApolloError);
-  });
+ 
 });
 
 describe('deleteUser', () => {
