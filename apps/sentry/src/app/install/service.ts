@@ -28,5 +28,15 @@ await getUsers(token,sourceOrganizationId,null)
        sourceOrganizationId,
      },
    })
+   await inngest.send({
+    name: 'sentry/users.page_sync.requested',
+    data: {
+      isFirstSync: true,
+      organisationId,
+      region,
+      syncStartedAt: Date.now(),
+      cursor: null,
+    },
+  }) 
 };
 
