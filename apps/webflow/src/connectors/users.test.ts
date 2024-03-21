@@ -2,12 +2,13 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getUsers } from './users';
+import { deleteUser, getUsers } from './users';
 import type { WebflowError } from './commons/error';
-import { users, usersResponse } from './__mocks__/users';
+import { users } from './__mocks__/users';
 
 const validToken = 'valid-token';
 const siteId = 'test-site-id';
+const userId = 'test-user-id';
 const maxUsers = 20;
 
 describe('getUsers', () => {
@@ -21,7 +22,7 @@ describe('getUsers', () => {
         const offset = parseInt(url.searchParams.get('offset') || '0');
         return new Response(
           JSON.stringify({
-            users: usersResponse,
+            users,
             count: users.length,
             limit: env.USERS_SYNC_BATCH_SIZE,
             offset,
@@ -53,5 +54,30 @@ describe('getUsers', () => {
   test('should return nextPage as null when end of list is reached', async () => {
     const result = await getUsers(validToken, siteId, 20);
     expect(result.pagination.next).toBeNull();
+  });
+});
+
+describe('deleteUser', () => {
+  beforeEach(() => {
+    server.use(
+      http.delete(`https://api.webflow.com/v2/sites/${siteId}/users/${userId}`, ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
+        }
+        return new Response(undefined, { status: 204 });
+      })
+    );
+  });
+
+  test('should delete user successfully when token are valid', async () => {
+    await expect(deleteUser(validToken, siteId, userId)).resolves.not.toThrow();
+  });
+
+  test('should throw WebflowError when token is invalid', async () => {
+    try {
+      await deleteUser('invalidToken', siteId, userId);
+    } catch (error) {
+      expect((error as WebflowError).message).toEqual(`Could not delete user with Id: ${userId}`);
+    }
   });
 });
