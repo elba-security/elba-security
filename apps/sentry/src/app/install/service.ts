@@ -16,18 +16,17 @@ export const registerOrganisation = async ({
  sourceOrganizationId,
  region,
 }: SetupOrganisationParams) => {
- const result=await getUsers(token,sourceOrganizationId,null)
- console.log("result:",result)
-//  await db
-//    .insert(Organisation)
-//    .values({ id: organisationId, region, token,sourceOrganizationId })
-//    .onConflictDoUpdate({
-//      target: Organisation.id,
-//      set: {
-//        region,
-//        token,
-//        sourceOrganizationId,
-//      },
-//    })
+await getUsers(token,sourceOrganizationId,null)
+ await db
+   .insert(Organisation)
+   .values({ id: organisationId, region, token,sourceOrganizationId })
+   .onConflictDoUpdate({
+     target: Organisation.id,
+     set: {
+       region,
+       token,
+       sourceOrganizationId,
+     },
+   })
 };
 

@@ -1,4 +1,5 @@
 import { SentryError } from './commons/error';
+import { env } from '@/env';
 
 export type SentryUser = {
   role: string;
@@ -24,7 +25,7 @@ export const getUsers = async (
     Authorization: `Bearer ${token}`,
   };
 
-  const url = `https://sentry.io/api/0/organizations/${organizationSlug}/members/?per_page=1${
+  const url = `https://sentry.io/api/0/organizations/${organizationSlug}/members/?per_page=${env.USERS_SYNC_BATCH_SIZE}${
     cursor ? `&cursor=${cursor}` : ''
   }`;
 
@@ -52,4 +53,19 @@ export const getUsers = async (
   }
 
   return { members: data, pagination };
+};
+export const deleteUser = async (token: string, organizationSlug: string, memberId: string) => {
+  const url = `https://api.sentry.io/api/0/organizations/${organizationSlug}/members/${memberId}`;
+
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new SentryError('Could not delete Sentry user', { response });
+  }
 };
