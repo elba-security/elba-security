@@ -1,5 +1,5 @@
-import { SentryError } from './commons/error';
 import { env } from '@/env';
+import { SentryError } from './commons/error';
 
 export type SentryUser = {
   role: string;
@@ -13,8 +13,6 @@ export type SentryUser = {
 export type Pagination = {
   nextCursor: string | null;
 };
-
-type GetUsersResponseData = { users: SentryUser[]; pagination: Pagination };
 
 export const getUsers = async (
   token: string,
@@ -46,7 +44,7 @@ export const getUsers = async (
   const linkHeader = response.headers.get('Link');
   if (linkHeader) {
     const match = /<(?<url>[^>]+)>/.exec(linkHeader);
-    if (match && match.groups && match.groups.url) {
+    if (match?.groups?.url) {
       const parsedUrl = new URL(match.groups.url);
       pagination.nextCursor = parsedUrl.searchParams.get('cursor');
     }
