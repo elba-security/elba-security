@@ -1,27 +1,29 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation. When requesting against API endpoint we might prefer
- * to valid the response data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { env } from '@/env';
+import { WebflowError } from './commons/error';
+import { type WebflowUser, type GetUsersResponseData } from './types';
 
-import { MySaasError } from './commons/error';
-
-export type MySaasUser = {
-  id: string;
-  username: string;
-  email: string;
+export type Pagination = {
+  next: number | null;
 };
 
-type GetUsersResponseData = { users: MySaasUser[]; nextPage: number | null };
-
-export const getUsers = async (token: string, page: number | null) => {
-  const response = await fetch(`https://mysaas.com/api/v1/users?page=${page}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const getUsers = async (token: string, siteId: string, offset: number) => {
+  const response = await fetch(
+    `https://api.webflow.com/v2/sites/${siteId}/users?limit=${env.USERS_SYNC_BATCH_SIZE}&offset=${offset}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve users', { response });
+    throw new WebflowError('Could not retrieve users', { response });
   }
-  return response.json() as Promise<GetUsersResponseData>;
+  const data = (await response.json()) as GetUsersResponseData;
+  const users = data.users.map((user: WebflowUser) => ({
+    id: user.id,
+    name: user.data.name,
+    email: user.data.email,
+  }));
+  const pagination: Pagination = {
+    next: data.offset + data.limit < data.total ? data.offset + data.limit : null,
+  };
+  return { users, pagination };
 };

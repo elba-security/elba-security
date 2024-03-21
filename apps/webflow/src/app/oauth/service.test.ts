@@ -5,7 +5,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as auth from '@/connectors/auth';
-import * as team from '@/connectors/teams';
+import * as team from '@/connectors/sites';
 import { setupOrganisation } from './service';
 
 const code = 'code';

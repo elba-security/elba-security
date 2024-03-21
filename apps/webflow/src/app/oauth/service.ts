@@ -1,4 +1,6 @@
 import { getAccessToken } from '@/connectors/auth';
+import { getSiteId } from '@/connectors/sites';
+import { getUsers } from '@/connectors/users';
 import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
 
@@ -14,27 +16,27 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const accessToken = await getAccessToken(code);
-  // const teamId = await getTeamId(accessToken);
-  // if (!teamId) {
-  //   throw new Error('Could not retrieve connected team');
-  // }
-  // await db
-  //   .insert(Organisation)
-  //   .values({
-  //     id: organisationId,
-  //     accessToken,
-  //     siteId,
-  //     region,
-  //   })
-  //   .onConflictDoUpdate({
-  //     target: [Organisation.id],
-  //     set: {
-  //       id: organisationId,
-  //       accessToken,
-  //       siteId,
-  //       region,
-  //     },
-  //   });
+  const siteId = await getSiteId(accessToken);
+  if (!siteId) {
+    throw new Error('Could not retrieve site id');
+  }
+  await db
+    .insert(Organisation)
+    .values({
+      id: organisationId,
+      accessToken,
+      siteId,
+      region,
+    })
+    .onConflictDoUpdate({
+      target: [Organisation.id],
+      set: {
+        id: organisationId,
+        accessToken,
+        siteId,
+        region,
+      },
+    });
 
   // await inngest.send([
   //   {

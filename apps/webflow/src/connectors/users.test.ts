@@ -1,65 +1,57 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `auth` connectors function.
- * Theses tests exists because the services & inngest functions using this connector mock it.
- * If you are using an SDK we suggest you to mock it not to implements calls using msw.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
-
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
+import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
-import { type MySaasUser, getUsers } from './users';
-import { MySaasError } from './commons/error';
+import { getUsers } from './users';
+import type { WebflowError } from './commons/error';
+import { users, usersResponse } from './__mocks__/users';
 
-const validToken = 'token-1234';
-const maxPage = 3;
+const validToken = 'valid-token';
+const siteId = 'test-site-id';
+const maxUsers = 20;
 
-const users: MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
-  id: `id-${i}`,
-  username: `username-${i}`,
-  email: `user-${i}@foo.bar`,
-}));
+describe('getUsers', () => {
+  beforeEach(() => {
+    server.use(
+      http.get(`https://api.webflow.com/v2/sites/${siteId}/users`, ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
+        }
+        const url = new URL(request.url);
+        const offset = parseInt(url.searchParams.get('offset') || '0');
+        return new Response(
+          JSON.stringify({
+            users: usersResponse,
+            count: users.length,
+            limit: env.USERS_SYNC_BATCH_SIZE,
+            offset,
+            total: maxUsers,
+          }),
+          { status: 200 }
+        );
+      })
+    );
+  });
 
-describe('auth connector', () => {
-  describe('getUsers', () => {
-    // mock token API endpoint using msw
-    beforeEach(() => {
-      server.use(
-        http.get('https://mysaas.com/api/v1/users', ({ request }) => {
-          // briefly implement API endpoint behaviour
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-          const url = new URL(request.url);
-          const pageParam = url.searchParams.get('page');
-          const page = pageParam ? Number(pageParam) : 0;
-          if (page === maxPage) {
-            return Response.json({ nextPage: null, users });
-          }
-          return Response.json({ nextPage: page + 1, users });
-        })
-      );
-    });
+  test('should fetch users when token is valid', async () => {
+    const result = await getUsers(validToken, siteId, 0);
+    expect(result.users).toEqual(users);
+  });
 
-    test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(getUsers(validToken, 0)).resolves.toStrictEqual({
-        users,
-        nextPage: 1,
-      });
-    });
+  test('should throw WebflowError when token is invalid', async () => {
+    try {
+      await getUsers('invalidToken', siteId, 0);
+    } catch (error) {
+      expect((error as WebflowError).message).toEqual('Could not retrieve users');
+    }
+  });
+  test('should return nextPage when there are more users available', async () => {
+    const result = await getUsers(validToken, siteId, 0);
+    expect(result.pagination.next).equals(10);
+  });
 
-    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
-        users,
-        nextPage: null,
-      });
-    });
-
-    test('should throws when the token is invalid', async () => {
-      await expect(getUsers('foo-bar', 0)).rejects.toBeInstanceOf(MySaasError);
-    });
+  test('should return nextPage as null when end of list is reached', async () => {
+    const result = await getUsers(validToken, siteId, 20);
+    expect(result.pagination.next).toBeNull();
   });
 });
