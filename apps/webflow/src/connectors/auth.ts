@@ -1,7 +1,6 @@
 import { env } from '@/env';
 import { WebflowError } from './commons/error';
-
-export type GetTokenResponseData = { access_token: string; token_type: string; scope: string };
+import { GetTokenResponseData } from './types';
 
 export const getAccessToken = async (code: string) => {
   const response = await fetch(
