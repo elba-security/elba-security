@@ -47,6 +47,7 @@ export const env = z
     DATABASE_PROXY_PORT: z.coerce.number().int().positive(),
     VERCEL_PREFERRED_REGION: z.string().min(1),
     VERCEL_ENV: z.string().min(1).optional(),
+    ENCRYPTION_KEY: z.string().length(64),
     USERS_SYNC_CRON: z.string(),
     USERS_SYNC_MAX_RETRY: zEnvRetry(),
     REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
