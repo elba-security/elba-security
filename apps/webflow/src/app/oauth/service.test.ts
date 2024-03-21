@@ -1,25 +1,22 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
-import { addSeconds } from 'date-fns';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as auth from '@/connectors/auth';
-import * as team from '@/connectors/sites';
+import * as sites from '@/connectors/sites';
 import { setupOrganisation } from './service';
 
 const code = 'code';
 const region = 'us';
 const now = new Date();
 const accessToken = 'access-token';
-const refreshToken = 'refresh-token';
-const teamId = 'team-id';
+const siteId = 'site-id';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accessToken,
-  refreshToken,
-  teamId,
+  siteId,
   region,
 };
 
@@ -33,13 +30,9 @@ describe('setupOrganisation', () => {
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
-    const getAccessToken = vi.spyOn(auth, 'getAccessToken').mockResolvedValue({
-      accessToken,
-      refreshToken,
-      expiresIn: 7200,
-    });
+    const getAccessToken = vi.spyOn(auth, 'getAccessToken').mockResolvedValue(accessToken);
 
-    const getTeamId = vi.spyOn(team, 'getTeamId').mockResolvedValue(teamId);
+    const getSiteId = vi.spyOn(sites, 'getSiteId').mockResolvedValue(siteId);
 
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
@@ -56,35 +49,25 @@ describe('setupOrganisation', () => {
     ).resolves.toMatchObject([
       {
         accessToken,
-        refreshToken,
-        teamId,
+        siteId,
         region,
       },
     ]);
 
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith([
-      {
-        name: 'heroku/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: addSeconds(new Date(), 7200).getTime(),
-        },
+    expect(send).toBeCalledWith({
+      name: 'webflow/users.page_sync.requested',
+      data: {
+        isFirstSync: true,
+        organisationId: organisation.id,
+        region,
+        syncStartedAt: Date.now(),
+        page: 0,
       },
-      {
-        name: 'heroku/users.page_sync.requested',
-        data: {
-          isFirstSync: true,
-          organisationId: organisation.id,
-          region,
-          syncStartedAt: Date.now(),
-          range: null,
-        },
-      },
-    ]);
+    });
 
     expect(getAccessToken).toBeCalledWith(code);
-    expect(getTeamId).toBeCalledWith(accessToken);
+    expect(getSiteId).toBeCalledWith(accessToken);
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
@@ -115,25 +98,16 @@ describe('setupOrganisation', () => {
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith([
-      {
-        name: 'heroku/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: addSeconds(new Date(), 7200).getTime(),
-        },
+    expect(send).toBeCalledWith({
+      name: 'webflow/users.page_sync.requested',
+      data: {
+        isFirstSync: true,
+        organisationId: organisation.id,
+        region,
+        syncStartedAt: Date.now(),
+        page: 0,
       },
-      {
-        name: 'heroku/users.page_sync.requested',
-        data: {
-          isFirstSync: true,
-          organisationId: organisation.id,
-          region,
-          syncStartedAt: Date.now(),
-          range: null,
-        },
-      },
-    ]);
+    });
   });
 
   test('should not setup the organisation when the organisation id is invalid', async () => {
