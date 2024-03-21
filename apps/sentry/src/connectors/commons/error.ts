@@ -1,9 +1,9 @@
-type MySaasErrorOptions = { response?: Response };
+type SentryErrorOptions = { response?: Response };
 
-export class MySaasError extends Error {
+export class SentryError extends Error {
   response?: Response;
 
-  constructor(message: string, { response }: MySaasErrorOptions = {}) {
+  constructor(message: string, { response }: SentryErrorOptions = {}) {
     super(message);
     this.response = response;
   }
