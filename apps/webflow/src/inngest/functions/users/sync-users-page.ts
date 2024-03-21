@@ -80,7 +80,7 @@ export const syncUsersPage = inngest.createFunction(
       return null;
     });
 
-    // if there is a next range enqueue a new sync user event
+    // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
         name: 'webflow/users.page_sync.requested',
