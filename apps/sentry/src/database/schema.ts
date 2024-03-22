@@ -4,7 +4,7 @@ export const Organisation = pgTable('organisation', {
   id: uuid('id').primaryKey(),
   region: text('region').notNull(),
   token: text('token').notNull(),
-  sourceOrganizationId: text('source_organization_id').notNull(),
+  organizationSlug: text('organization_slug').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

@@ -36,7 +36,7 @@ async ({ event, step }) => {
    const [result] = await db
      .select({
        token: Organisation.token,
-       sourceOrganizationId: Organisation.sourceOrganizationId,
+       organizationSlug: Organisation.organizationSlug,
      })
      .from(Organisation)
      .where(eq(Organisation.id, organisationId));
@@ -47,7 +47,7 @@ async ({ event, step }) => {
  });
 
    await step.run('delete-user', async () => {
-    await deleteUser(organisation.token, organisation.sourceOrganizationId, id);
+    await deleteUser(organisation.token, organisation.organizationSlug, id);
     await elba.users.delete({ ids: [id] });
   });
  }

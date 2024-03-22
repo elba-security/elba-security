@@ -13,7 +13,7 @@ const formatElbaUser = (user: SentryUser): User => ({
   displayName: user.user.name,
   email: user.user.email,
   role: user.role,
-  authMethod: undefined,
+  authMethod: user.user.has2fa ? 'mfa' : 'password',
   additionalEmails: [],
 });
 
@@ -53,7 +53,7 @@ export const syncUsersPage = inngest.createFunction(
      const [result] = await db
        .select({
          token: Organisation.token,
-         sourceOrganizationId: Organisation.sourceOrganizationId,
+         organizationSlug: Organisation.organizationSlug,
        })
        .from(Organisation)
        .where(eq(Organisation.id, organisationId));
@@ -68,7 +68,7 @@ export const syncUsersPage = inngest.createFunction(
 
    const nextPage = await step.run('list-users', async () => {
      // retrieve this users page
-     const result = await getUsers(organisation.token,organisation.sourceOrganizationId,cursor);
+     const result = await getUsers(organisation.token,organisation.organizationSlug,cursor);
      // format each Sentry user to Elba users
      const users = result.members.map(formatElbaUser);
      // send the batch of users to Elba

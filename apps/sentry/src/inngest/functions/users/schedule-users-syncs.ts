@@ -14,7 +14,7 @@ async ({ step }) => {
     .select({
       id: Organisation.id,
       token: Organisation.token,
-      sourceOrganizationId: Organisation.sourceOrganizationId,
+      organizationSlug: Organisation.organizationSlug,
       region: Organisation.region,
     })
     .from(Organisation);

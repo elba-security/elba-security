@@ -10,7 +10,7 @@ import { removeOrganisation } from './remove-organisation';
 const organisation = {
 id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
 token: 'test-token',
-sourceOrganizationId: 'test-id',
+organizationSlug: 'test-id',
 region: "us",
 };
 const setup = createInngestFunctionMock(

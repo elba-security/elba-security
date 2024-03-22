@@ -11,7 +11,7 @@ import { users } from './__mocks__/integration';
 const organisation = {
  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
  token: 'test-token',
- sourceOrganizationId: 'test-Organization-id',
+ organizationSlug: 'test-Organization-id',
  region: 'us',
 };
 const syncStartedAt = Date.now();

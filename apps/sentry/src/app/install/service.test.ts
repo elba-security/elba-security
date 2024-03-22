@@ -10,7 +10,7 @@ import { registerOrganisation } from './service';
 
 const token = 'test-token';
 const region = 'us';
-const sourceOrganizationId="test-id";
+const organizationSlug="test-id";
 const now = new Date();
 const getUsersMockData = {
   members: [
@@ -31,7 +31,7 @@ const getUsersMockData = {
 
 const organisation = {
  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
- sourceOrganizationId,
+ organizationSlug,
  token,
  region,
 };
@@ -58,7 +58,7 @@ describe('registerOrganisation', () => {
      registerOrganisation({
        organisationId: organisation.id,
        token,
-       sourceOrganizationId,
+       organizationSlug,
        region,
      })
    ).resolves.toBeUndefined();
@@ -85,7 +85,7 @@ describe('registerOrganisation', () => {
        cursor:null,
      },
    });
-   expect(getUsers).toBeCalledWith(token,sourceOrganizationId,null);
+   expect(getUsers).toBeCalledWith(token,organizationSlug,null);
  });
 
 
@@ -101,7 +101,7 @@ describe('registerOrganisation', () => {
      registerOrganisation({
        organisationId: organisation.id,
        token,
-       sourceOrganizationId,
+       organizationSlug,
        region,
      })
    ).resolves.toBeUndefined();
@@ -130,7 +130,7 @@ describe('registerOrganisation', () => {
        cursor:null,
      },
    });
-   expect(getUsers).toBeCalledWith(token,sourceOrganizationId,null);
+   expect(getUsers).toBeCalledWith(token,organizationSlug,null);
  });
 
  test('should not setup the organisation when the organisation id is invalid', async () => {
@@ -147,7 +147,7 @@ describe('registerOrganisation', () => {
      registerOrganisation({
        organisationId: wrongId,
        token,
-       sourceOrganizationId,
+       organizationSlug,
        region,
      })
    ).rejects.toThrowError(error);

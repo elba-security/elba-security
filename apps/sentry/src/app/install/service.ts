@@ -5,7 +5,7 @@ import { inngest } from '../../inngest/client';
 
 type SetupOrganisationParams = {
  organisationId: string;
- sourceOrganizationId:string;
+ organizationSlug:string;
  token: string;
  region: string;
 };
@@ -13,19 +13,19 @@ type SetupOrganisationParams = {
 export const registerOrganisation = async ({
  organisationId,
  token,
- sourceOrganizationId,
+ organizationSlug,
  region,
 }: SetupOrganisationParams) => {
-await getUsers(token,sourceOrganizationId,null)
+await getUsers(token,organizationSlug,null)
  await db
    .insert(Organisation)
-   .values({ id: organisationId, region, token,sourceOrganizationId })
+   .values({ id: organisationId, region, token,organizationSlug })
    .onConflictDoUpdate({
      target: Organisation.id,
      set: {
        region,
        token,
-       sourceOrganizationId,
+       organizationSlug,
      },
    })
    await inngest.send({

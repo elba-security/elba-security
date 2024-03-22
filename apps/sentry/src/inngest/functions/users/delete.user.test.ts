@@ -9,7 +9,7 @@ import { deleteSentryUser } from './delete.user';
 const organisation = {
 id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
 token: 'test-token',
-sourceOrganizationId: 'test-id',
+organizationSlug: 'test-id',
 region: 'us',
 };
 
@@ -43,7 +43,7 @@ test('should continue the request when the organization is registered', async ()
   expect(usersConnector.deleteUser).toBeCalledTimes(1);
   expect(usersConnector.deleteUser).toBeCalledWith(
     organisation.token,
-    organisation.sourceOrganizationId,
+    organisation.organizationSlug,
     userId
   );
 });
