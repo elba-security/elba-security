@@ -1,5 +1,5 @@
 import { expect, test, describe, vi } from 'vitest';
-import { mockNextRequest } from '@/test-utils/mock-app-route';
+import { mockNextRequest } from '@/test-utilis/mock-app-route';
 import { inngest } from '@/inngest/client';
 import { DELETE as handler } from './route';
 
