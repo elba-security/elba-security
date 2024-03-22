@@ -16,14 +16,14 @@ export type Pagination = {
 
 export const getUsers = async (
   token: string,
-  organizationSlug: string,
+  sourceOrganizationId: string,
   cursor: string | null
 ) => {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
   };
 
-  const url = `https://sentry.io/api/0/organizations/${organizationSlug}/members/?per_page=${env.USERS_SYNC_BATCH_SIZE}${
+  const url = `https://sentry.io/api/0/organizations/${sourceOrganizationId}/members/?per_page=${env.USERS_SYNC_BATCH_SIZE}${
     cursor ? `&cursor=${cursor}` : ''
   }`;
 
@@ -52,8 +52,8 @@ export const getUsers = async (
 
   return { members: data, pagination };
 };
-export const deleteUser = async (token: string, organizationSlug: string, memberId: string) => {
-  const url = `https://api.sentry.io/api/0/organizations/${organizationSlug}/members/${memberId}`;
+export const deleteUser = async (token: string, sourceOrganizationId: string, memberId: string) => {
+  const url = `https://api.sentry.io/api/0/organizations/${sourceOrganizationId}/members/${memberId}`;
 
   const response = await fetch(url, {
     method: 'DELETE',

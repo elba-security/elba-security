@@ -9,7 +9,7 @@ import { getUsers, type SentryUser, type Pagination, deleteUser } from './users'
 import { SentryError } from './commons/error';
 
 const validToken = 'test-token';
-const organizationSlug = 'test-organization';
+const sourceOrganizationId = 'test-organization';
 const cursor = 'test-cursor';
 const memberId= "test-member-id";
 
@@ -31,15 +31,19 @@ const pagination: Pagination = {
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get(`https://sentry.io/api/0/organizations/${organizationSlug}/members/`, ({ request }) => {
+      http.get(`https://sentry.io/api/0/organizations/${sourceOrganizationId}/members/`, ({ request }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
         const url = new URL(request.url); 
-        if (url.searchParams.get('cursor') !== cursor) {
+        const lastCursor = 'last-cursor';
+        const nextCursor = 'next-cursor';
+        const requestCursor = url.searchParams.get('cursor');
+
+        if (requestCursor !== lastCursor) {
           return new Response(
             JSON.stringify(sentryUsers),
-            { headers: { Link: '<https://example.com>; rel="next"' }, status: 200 }
+            { headers: { Link: `<https://example.com?cursor=${nextCursor}>; rel="next"` }, status: 200 }
           );
         }
 
@@ -52,25 +56,25 @@ describe('getUsers', () => {
   });
 
   test('should fetch users when token is valid', async () => {
-    const result = await getUsers(validToken, organizationSlug, null);
+    const result = await getUsers(validToken, sourceOrganizationId, null);
     expect(result.members).toEqual(sentryUsers);
   });
 
   test('should throw SentryError when token is invalid', async () => {
     try {
-      await getUsers('invalidToken', organizationSlug, null);
+      await getUsers('invalidToken', sourceOrganizationId, null);
     } catch (error) {
       expect((error as SentryError).message).toEqual('Could not retrieve Sentry organization members');
     }
   });
 
   test('should return nextCursor as null when end of list is reached', async () => {
-    const result = await getUsers(validToken, organizationSlug, cursor);
+    const result = await getUsers(validToken, sourceOrganizationId, "last-cursor");
     expect(result.pagination.nextCursor).toBeNull();
   });
 
   test('should return nextCursor when there is next cursor available', async () => {
-    const result = await getUsers(validToken, organizationSlug, 'first-cursor');
+    const result = await getUsers(validToken, sourceOrganizationId, 'first-cursor');
     expect(result.pagination.nextCursor).toEqual('next-cursor');
   });
 });
@@ -78,7 +82,7 @@ describe('deleteUser', () => {
   beforeEach(() => {
     server.use(
       http.delete(
-        `https://api.sentry.io/api/0/organizations/${organizationSlug}/members/${memberId}`,
+        `https://api.sentry.io/api/0/organizations/${sourceOrganizationId}/members/${memberId}`,
         ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
@@ -90,12 +94,12 @@ describe('deleteUser', () => {
   });
 
   test('should delete user successfully when token is valid', async () => {
-    await expect(deleteUser(validToken, organizationSlug, memberId)).resolves.not.toThrow();
+    await expect(deleteUser(validToken, sourceOrganizationId, memberId)).resolves.not.toThrow();
   });
 
   test('should throw SentryError when token is invalid', async () => {
     try {
-      await deleteUser("invalidToken", organizationSlug, memberId);
+      await deleteUser("invalidToken", sourceOrganizationId, memberId);
     } catch (error) {
       expect(error instanceof SentryError).toBe(true);
       expect(error.message).toEqual('Could not delete Sentry user');
