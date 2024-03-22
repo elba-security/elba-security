@@ -1,27 +1,69 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation. When requesting against API endpoint we might prefer
- * to valid the response data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { env } from '@/env';
+import { SentryError } from './commons/error';
 
-import { MySaasError } from './commons/error';
-
-export type MySaasUser = {
-  id: string;
-  username: string;
-  email: string;
+export type SentryUser = {
+  role: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    has2fa: boolean;
+  };
 };
 
-type GetUsersResponseData = { users: MySaasUser[]; nextPage: number | null };
+export type Pagination = {
+  nextCursor: string | null;
+};
 
-export const getUsers = async (token: string, page: number | null) => {
-  const response = await fetch(`https://mysaas.com/api/v1/users?page=${page}`, {
-    headers: { Authorization: `Bearer ${token}` },
+export const getUsers = async (
+  token: string,
+  organizationSlug: string,
+  cursor: string | null
+) => {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const url = `https://sentry.io/api/0/organizations/${organizationSlug}/members/?per_page=${env.USERS_SYNC_BATCH_SIZE}$&cursor=${cursor}'
+  }`;
+
+  const response = await fetch(url, {
+    headers,
   });
+
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve users', { response });
+    throw new SentryError('Could not retrieve Sentry organization members', { response });
   }
-  return response.json() as Promise<GetUsersResponseData>;
+
+  const data = (await response.json()) as SentryUser[];
+
+  const pagination: Pagination = {
+    nextCursor: null,
+  };
+
+  const linkHeader = response.headers.get('Link');
+  if (linkHeader) {
+    const match = /<(?<url>[^>]+)>/.exec(linkHeader);
+    if (match?.groups?.url) {
+      const parsedUrl = new URL(match.groups.url);
+      pagination.nextCursor = parsedUrl.searchParams.get('cursor');
+    }
+  }
+
+  return { members: data, pagination };
+};
+export const deleteUser = async (token: string, organizationSlug: string, memberId: string) => {
+  const url = `https://api.sentry.io/api/0/organizations/${organizationSlug}/members/${memberId}`;
+
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new SentryError('Could not delete Sentry user', { response });
+  }
 };

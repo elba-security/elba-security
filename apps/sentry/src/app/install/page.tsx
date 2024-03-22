@@ -123,7 +123,7 @@ function InstructionsModal() {
           <>
             <InstructionItems
               heading="Link Application"
-              instructions={['Paste the Auth Token and Organization ID from your application below:']}
+              instructions={['Paste the Auth Token and Organization Slug from your application below:']}
             />
             <form action={formAction} className={styles.formContainer}>
               <div className={styles.inputFields}>
@@ -139,12 +139,12 @@ function InstructionsModal() {
                   {state.errors?.token?.at(0) ? <span>{state.errors.token.at(0)}</span> : null}
                 </div>
                 <div role="group">
-                  <label htmlFor="sourceOrganizationId">Source Organization Id</label>
+                  <label htmlFor="organizationSlug">Organization Slug</label>
                   <input
-                    id="sourceOrganizationId"
+                    id="organizationSlug"
                     minLength={1}
-                    name="sourceOrganizationId"
-                    placeholder="Paste Your Organization ID"
+                    name="organizationSlug"
+                    placeholder="Paste Your Organization Slug"
                     type="text"
                   />
                   {state.errors?.token?.at(0) ? <span>{state.errors.token.at(0)}</span> : null}

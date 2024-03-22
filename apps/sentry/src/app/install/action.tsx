@@ -3,11 +3,12 @@ import { logger } from '@elba-security/logger';
 import { z } from 'zod';
 import { SentryError } from '@/connectors/commons/error';
 import { env } from '@/env';
+import { registerOrganisation } from './service';
 
 const formSchema = z.object({
   organisationId: z.string().uuid(),
   token: z.string().min(1),
-  sourceOrganizationId: z.string().min(1),
+  organizationSlug: z.string().min(1),
   region: z.string().min(1),
 });
 
@@ -15,6 +16,7 @@ export type FormState = {
   redirectUrl?: string;
   errors?: {
     token?: string[] | undefined;
+    organizationSlug?: string[] | undefined;
     // we are not handling organisationId and region errors in the client as fields are hidden
   };
 };
@@ -22,7 +24,7 @@ export type FormState = {
 export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
   const result = formSchema.safeParse({
     token: formData.get('token'),
-    sourceOrganizationId: formData.get('sourceOrganizationId'),
+    organizationSlug: formData.get('organizationSlug'),
     organisationId: formData.get('organisationId'),
     region: formData.get('region'),
   });
@@ -41,6 +43,7 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
   }
 
   try {
+    await registerOrganisation(result.data);
     return {
       redirectUrl: `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&success=true`,
     };
