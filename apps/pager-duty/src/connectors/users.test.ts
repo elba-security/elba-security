@@ -83,8 +83,11 @@ describe('users connector', () => {
   describe('deleteUser', () => {
     beforeEach(() => {
       server.use(
-        http.delete(`${env.PAGERDUTY_API_BASE_URL}users/${userId}`, ({ request }) => {
+        http.delete<{ userId: string }>(`${env.PAGERDUTY_API_BASE_URL}users/${userId}`, ({ request, params }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+          if (params.userId !== userId) {
             return new Response(undefined, { status: 404 });
           }
           return new Response(undefined, { status: 200 });
