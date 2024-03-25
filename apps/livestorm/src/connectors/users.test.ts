@@ -1,65 +1,78 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `auth` connectors function.
- * Theses tests exists because the services & inngest functions using this connector mock it.
- * If you are using an SDK we suggest you to mock it not to implements calls using msw.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
-
-import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
+import { http } from 'msw';
 import { server } from '../../vitest/setup-msw-handlers';
-import { type MySaasUser, getUsers } from './users';
-import { MySaasError } from './commons/error';
+import { getUsers,type LivestormUser, type Pagination } from './users';
+import  { LivestormError } from './commons/error';
 
-const validToken = 'token-1234';
-const maxPage = 3;
+const users: LivestormUser[] = [
+  {
+    id: 'user-id',
+    attributes: {
+      role: 'participant',
+      first_name: 'John',
+      last_name: 'Doe',
+      email: 'john@example.com',
+    },
+  },
+];
 
-const users: MySaasUser[] = Array.from({ length: 5 }, (_, i) => ({
-  id: `id-${i}`,
-  username: `username-${i}`,
-  email: `user-${i}@foo.bar`,
-}));
+const pagination: Pagination = {
+  current_page: 1,
+  previous_page: null,
+  next_page: null,
+  record_count: 1,
+  page_count: 1,
+  items_per_page: 10,
+};
 
-describe('auth connector', () => {
-  describe('getUsers', () => {
-    // mock token API endpoint using msw
-    beforeEach(() => {
-      server.use(
-        http.get('https://mysaas.com/api/v1/users', ({ request }) => {
-          // briefly implement API endpoint behaviour
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-          const url = new URL(request.url);
-          const pageParam = url.searchParams.get('page');
-          const page = pageParam ? Number(pageParam) : 0;
-          if (page === maxPage) {
-            return Response.json({ nextPage: null, users });
-          }
-          return Response.json({ nextPage: page + 1, users });
-        })
-      );
-    });
+const validToken = 'test-token';
+// const userId= "test-id";
+const maxPage = 2; 
+describe('getUsers', () => {
+  beforeEach(() => {
+    server.use(
+      http.get('https://api.livestorm.co/v1/users', ({ request }) => {
+        const url = new URL(request.url);
+        if (request.headers.get('Authorization') !== validToken) {
+          return new Response(undefined, { status: 401 });
+        }
+        const page = parseInt(url.searchParams.get('page[number]') || "0");
+        const response = {
+          users: page > pagination.page_count ? [] : users,
+          pagination: { ...pagination, current_page: page }
+        };
+        return new Response(JSON.stringify(response), {
+          status: 200
+        });
+      })
+    );
+  });
 
-    test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(getUsers(validToken, 0)).resolves.toStrictEqual({
-        users,
-        nextPage: 1,
-      });
-    });
+  test('should throw LivestormError when the token is invalid', async () => {
+    try {
+      await getUsers('invalidToken', 0);
+    } catch (error) {
+      expect(error instanceof LivestormError).toBeTruthy();
+      expect(error.message).toEqual('Could not retrieve Livestorm users');
+    }
+  });
+  test('should fetch users when token is valid', async () => {
+    const result = await getUsers(validToken, 0);
+    expect(result.users).toEqual(users);
+  });
 
-    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
-        users,
-        nextPage: null,
-      });
-    });
-
-    test('should throws when the token is invalid', async () => {
-      await expect(getUsers('foo-bar', 0)).rejects.toBeInstanceOf(MySaasError);
+  test('should return users when there is another page', async () => {
+    await expect(getUsers(validToken, 0)).resolves.toStrictEqual({
+      users,
+      pagination: { ...pagination, current_page: 0 },
     });
   });
+
+  test('should return no users when there is no other page', async () => {
+    await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
+      users: [],
+      pagination: { ...pagination, current_page: maxPage }, 
+    });
+  });
+ 
 });
