@@ -33,3 +33,14 @@ export const getUsers = async (token: string, page: number | null) => {
   const data = (await response.json()) as GetUsersResponseData;
   return data;
 };
+export const deleteUser = async (token: string, userId: string) => {
+
+  const url = `https://api.livestorm.co/v1/users/${userId}`;
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: { Authorization: token },
+  });
+  if (!response.ok) {
+    throw new LivestormError('Could not delete Livestorm user', { response });
+  }
+};

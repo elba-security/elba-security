@@ -1,7 +1,7 @@
 import { describe, expect, test, beforeEach } from 'vitest';
 import { http } from 'msw';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getUsers,type LivestormUser, type Pagination } from './users';
+import { getUsers,deleteUser,type LivestormUser, type Pagination } from './users';
 import  { LivestormError } from './commons/error';
 
 const users: LivestormUser[] = [
@@ -26,7 +26,7 @@ const pagination: Pagination = {
 };
 
 const validToken = 'test-token';
-// const userId= "test-id";
+const userId= "test-id";
 const maxPage = 2; 
 describe('getUsers', () => {
   beforeEach(() => {
@@ -74,5 +74,32 @@ describe('getUsers', () => {
       pagination: { ...pagination, current_page: maxPage }, 
     });
   });
- 
+});
+describe('deleteUser', () => {
+  beforeEach(() => {
+    server.use(
+      http.delete(
+        `https://api.livestorm.co/v1/users/${userId}`,
+        ({ request }) => {
+          if (request.headers.get('Authorization') !== validToken) {
+            return new Response(undefined, { status: 401 });
+          }
+          return new Response(undefined, { status: 204 }); // Assuming a 204 No Content response for successful deletion
+        }
+      )
+    );
+  });
+
+  test('should delete user successfully when token is valid', async () => {
+    await expect(deleteUser(validToken, userId)).resolves.not.toThrow();
+  });
+
+  test('should throw LivestormError when token is invalid', async () => {
+    try {
+      await deleteUser("invalidToken", userId);
+    } catch (error) {
+      expect(error instanceof LivestormError).toBe(true);
+      expect(error.message).toEqual('Could not delete Livestorm user');
+    }
+  });
 });
