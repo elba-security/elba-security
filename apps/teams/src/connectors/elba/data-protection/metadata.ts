@@ -6,6 +6,7 @@ export const messageMetadataSchema = z.object({
   channelId: z.string().min(1),
   teamId: z.string().min(1),
   organisationId: z.string().min(1),
+  replyId: z.string().optional(),
   type: z.string(),
 });
 

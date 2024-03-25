@@ -74,25 +74,12 @@ describe('setupOrganisation', () => {
           skipToken: null,
         },
       },
-      {
-        name: 'teams/teams.sync.triggered',
-        data: {
-          organisationId: organisation.id,
-          skipToken: null,
-          syncStartedAt: new Date().toISOString(),
-        },
-      },
+
       {
         name: 'teams/token.refresh.triggered',
         data: {
           organisationId: organisation.id,
           expiresIn,
-        },
-      },
-      {
-        name: 'teams/channels.subscribe.triggered',
-        data: {
-          organisationId: organisation.id,
         },
       },
     ]);
@@ -145,24 +132,10 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'teams/teams.sync.triggered',
-        data: {
-          organisationId: organisation.id,
-          skipToken: null,
-          syncStartedAt: new Date().toISOString(),
-        },
-      },
-      {
         name: 'teams/token.refresh.triggered',
         data: {
           organisationId: organisation.id,
           expiresIn,
-        },
-      },
-      {
-        name: 'teams/channels.subscribe.triggered',
-        data: {
-          organisationId: organisation.id,
         },
       },
     ]);

@@ -7,9 +7,16 @@ export const messageSchema = z.object({
     content: z.string(),
   }),
   from: z.object({
-    user: z.object({
-      id: z.string(),
-    }),
+    user: z
+      .object({
+        id: z.string(),
+      })
+      .nullable(),
+    application: z
+      .object({
+        id: z.string(),
+      })
+      .nullable(),
   }),
   lastEditedDateTime: z.string().nullable(),
   createdDateTime: z.string(),

@@ -1,10 +1,12 @@
-import { channelCreatedHandler } from '@/inngest/functions/teams/event-handlers/channel-create';
+import { channelCreatedHandler } from '@/inngest/functions/teams/event-handlers/channel-created';
 import type { TeamsWebhookHandlerContext } from '@/inngest/functions/teams/handle-team-webhook-event';
-import { channelDeleteHandler } from '@/inngest/functions/teams/event-handlers/channel-delete';
-import { messageCreatedHandler } from '@/inngest/functions/teams/event-handlers/message-create';
-import { replyCreatedHandler } from '@/inngest/functions/teams/event-handlers/reply-create';
-import { EventType} from '@/app/api/webhook/types';
-import type { WebhookPayload } from '@/app/api/webhook/types';
+import { channelDeletedHandler } from '@/inngest/functions/teams/event-handlers/channel-deleted';
+import type { WebhookPayload } from '@/app/api/webhooks/microsoft/event-handler/service';
+import { EventType } from '@/app/api/webhooks/microsoft/event-handler/service';
+import { messageCreatedOrUpdatedHandler } from '@/inngest/functions/teams/event-handlers/message-created-updated';
+import { replyCreatedOrUpdatedHandler } from '@/inngest/functions/teams/event-handlers/reply-created-updated';
+import { messageDeletedHandler } from '@/inngest/functions/teams/event-handlers/message-deleted';
+import { replyDeletedHandler } from '@/inngest/functions/teams/event-handlers/reply-deleted';
 
 export type TeamsEventHandler = (
   event: WebhookPayload,
@@ -13,13 +15,17 @@ export type TeamsEventHandler = (
 
 const teamsEventHandlers: Record<EventType, TeamsEventHandler> = {
   [EventType.ChannelCreated]: channelCreatedHandler,
-  [EventType.ChannelDeleted]: channelDeleteHandler,
-  [EventType.MessageCreated]: messageCreatedHandler,
-  [EventType.ReplyCreated]: replyCreatedHandler,
-};
+  [EventType.ChannelDeleted]: channelDeletedHandler,
+  [EventType.MessageCreated]: messageCreatedOrUpdatedHandler,
+  [EventType.MessageUpdated]: messageCreatedOrUpdatedHandler,
+  [EventType.MessageDeleted]: messageDeletedHandler,
+  [EventType.ReplyCreated]: replyCreatedOrUpdatedHandler,
+  [EventType.ReplyUpdated]: replyCreatedOrUpdatedHandler,
+  [EventType.ReplyDeleted]: replyDeletedHandler,
+}; //
 export const teamsEventHandler = async (context: TeamsWebhookHandlerContext) => {
   const payload = context.event.data.payload;
-  const type = payload.event as EventType;
+  const type = payload.event;
   const eventHandler = teamsEventHandlers[type];
 
   return eventHandler(payload, context);

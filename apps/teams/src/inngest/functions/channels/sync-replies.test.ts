@@ -40,7 +40,7 @@ function createValidRepliesArray() {
 
   for (let i = 0; i < 2; i++) {
     const obj: MicrosoftMessage = {
-      id: `message-id-${i}`,
+      id: `reply-id-${i}`,
       webUrl: `http://wb.uk-${i}.com`,
       etag: `122123213`,
       createdDateTime: '2023-03-28T21:11:12.395Z',
@@ -76,7 +76,7 @@ const invalidReplies = [
 ];
 
 describe('sync-channels', () => {
-  test('should abort sync when organisation is not registered', async () => {
+  test('should abort the sync when the organisation is not registered', async () => {
     const getReplies = vi.spyOn(replyConnector, 'getReplies').mockResolvedValue({
       nextSkipToken,
       validReplies,
@@ -120,6 +120,7 @@ describe('sync-channels', () => {
             organisationId: data.organisationId,
             channelId: data.channelId,
             messageId: data.messageId,
+            replyId: 'reply-id-0',
             type: 'reply',
           } satisfies MessageMetadata,
           updatedAt: '2024-02-28T21:11:12.395Z',
@@ -146,6 +147,7 @@ describe('sync-channels', () => {
             organisationId: data.organisationId,
             channelId: data.channelId,
             messageId: data.messageId,
+            replyId: 'reply-id-1',
             type: 'reply',
           } satisfies MessageMetadata,
           updatedAt: '2024-02-28T21:11:12.395Z',
@@ -183,7 +185,7 @@ describe('sync-channels', () => {
     });
   });
 
-  test('should finalize the sync when there is a no next page', async () => {
+  test('should finalize the sync when there is no next page', async () => {
     await db.insert(organisationsTable).values(organisation);
 
     const elba = spyOnElba();
@@ -211,6 +213,7 @@ describe('sync-channels', () => {
             organisationId: data.organisationId,
             channelId: data.channelId,
             messageId: data.messageId,
+            replyId: 'reply-id-0',
             type: 'reply',
           } satisfies MessageMetadata,
           updatedAt: '2024-02-28T21:11:12.395Z',
@@ -237,6 +240,7 @@ describe('sync-channels', () => {
             organisationId: data.organisationId,
             channelId: data.channelId,
             messageId: data.messageId,
+            replyId: 'reply-id-1',
             type: 'reply',
           } satisfies MessageMetadata,
           updatedAt: '2024-02-28T21:11:12.395Z',

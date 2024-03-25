@@ -1,4 +1,4 @@
-import { uuid, text, timestamp, pgTable, boolean } from 'drizzle-orm/pg-core';
+import { uuid, text, timestamp, pgTable } from 'drizzle-orm/pg-core';
 
 export const organisationsTable = pgTable('organisations', {
   id: uuid('id').primaryKey(),
@@ -14,6 +14,15 @@ export const channelsTable = pgTable('channels', {
     .references(() => organisationsTable.id)
     .notNull(),
   membershipType: text('membershipType').notNull(),
-  isDeleted: boolean('deleted').default(false),
   displayName: text('displayName').notNull(),
+  messages: text('messages').array(),
+});
+
+export const subscriptionsTable = pgTable('subscriptions', {
+  id: text('id').primaryKey(),
+  organisationId: uuid('organisation_id')
+    .references(() => organisationsTable.id)
+    .notNull(),
+  resource: text('resource').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });

@@ -1,21 +1,19 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { channelsTable, organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { getMessages } from '@/connectors/microsoft/messages/messages';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
+import { filterMessagesByMessageType } from '@/common/utils';
 
 export const syncMessages = inngest.createFunction(
   {
     id: 'sync-messages',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
@@ -57,33 +55,35 @@ export const syncMessages = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const { nextSkipToken, validMessages: messages } = await step.run('paginate', async () => {
-      const result = await getMessages({
+    const { nextSkipToken, validMessages } = await step.run('paginate', async () => {
+      const messages = await getMessages({
         token: await decrypt(organisation.token),
         teamId,
         skipToken,
         channelId,
       });
 
-      if (result.invalidMessages.length > 0) {
+      if (messages.invalidMessages.length > 0) {
         logger.warn('Retrieved messages contains invalid data', {
           organisationId,
           tenantId: organisation.tenantId,
-          invalidMessages: result.invalidMessages,
+          invalidMessages: messages.invalidMessages,
         });
       }
 
-      return result;
+      const filterMessages = filterMessagesByMessageType(messages.validMessages);
+
+      return { ...messages, validMessages: filterMessages };
     });
 
-    const elbaClient = createElbaClient(organisationId, organisation.region);
-
     await step.run('elba-data-sync', async () => {
-      if (!messages.length) {
+      const elbaClient = createElbaClient(organisationId, organisation.region);
+
+      if (!validMessages.length) {
         return;
       }
 
-      const objects = messages.map((message) => {
+      const objects = validMessages.map((message) => {
         return formatDataProtectionObject({
           teamId,
           messageId: message.id,
@@ -98,8 +98,23 @@ export const syncMessages = inngest.createFunction(
       await elbaClient.dataProtection.updateObjects({ objects });
     });
 
-    if (messages.length) {
-      const eventsWait = messages.map(async ({ id }) => {
+    await step.run('add-messages-to-db', async () => {
+      if (validMessages.length) {
+        const messagesIds = validMessages.map((message) => message.id);
+
+        await db
+          .update(channelsTable)
+          .set({
+            messages: sql`array_cat(
+                ${channelsTable.messages},
+                ${`{${messagesIds.join(', ')}}`}
+                )`,
+          })
+          .where(eq(channelsTable.id, channelId));
+      }
+    });
+    if (validMessages.length) {
+      const eventsWait = validMessages.map(async ({ id }) => {
         return step.waitForEvent(`wait-for-replies-complete-${id}`, {
           event: 'teams/replies.sync.completed',
           timeout: '1d',
@@ -110,7 +125,7 @@ export const syncMessages = inngest.createFunction(
 
       await step.sendEvent(
         'start-replies-sync',
-        messages.map(({ id }) => ({
+        validMessages.map(({ id }) => ({
           name: 'teams/replies.sync.triggered',
           data: {
             messageId: id,

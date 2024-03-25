@@ -51,7 +51,7 @@ function createValidChannelsArray() {
 const validChannels: MicrosoftChannel[] = createValidChannelsArray();
 
 describe('sync-channels', () => {
-  test('should abort sync when organisation is not registered', async () => {
+  test('should abort sync when the organisation is not registered', async () => {
     const getTeams = vi.spyOn(channelsConnector, 'getChannels').mockResolvedValue({
       validChannels,
       invalidChannels,
@@ -65,7 +65,7 @@ describe('sync-channels', () => {
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should finalize the sync when there is a no next page', async () => {
+  test('should finalize the sync when there is no next page', async () => {
     await db.insert(organisationsTable).values(organisation);
 
     const getChannels = vi.spyOn(channelsConnector, 'getChannels').mockResolvedValue({

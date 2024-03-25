@@ -1,7 +1,7 @@
 import { EventSchemas, type GetEvents, type GetFunctionInput, Inngest } from 'inngest';
 import { sentryMiddleware } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
-import type { WebhookPayload } from '@/app/api/webhook/types';
+import type { WebhookPayload } from '@/app/api/webhooks/microsoft/event-handler/service';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 
 type InngestClient = typeof inngest;
@@ -85,12 +85,12 @@ export const inngest = new Inngest({
         messageId: string;
       };
     };
-    'teams/channels.subscribe.triggered': {
+    'teams/channels.subscription.triggered': {
       data: {
         organisationId: string;
       };
     };
-    'teams/channel.subscribe.triggered': {
+    'teams/channel.subscription.triggered': {
       data: {
         teamId: string;
         channelId: string;
@@ -102,7 +102,7 @@ export const inngest = new Inngest({
         payload: WebhookPayload;
       };
     };
-    'teams/subscribe.refresh.triggered': {
+    'teams/subscription.refresh.triggered': {
       data: {
         subscriptionId: string;
         organisationId: string;

@@ -37,8 +37,8 @@ export const channelCreatedHandler: TeamsEventHandler = async ({ channelId, team
     channelId,
   });
 
-  if (channel.membershipType === 'private') {
-    return { message: 'Ignore private channel' };
+  if (!channel || channel.membershipType === 'private') {
+    return { message: 'Ignore private or invalid channel' };
   }
 
   await db
@@ -52,7 +52,7 @@ export const channelCreatedHandler: TeamsEventHandler = async ({ channelId, team
     .onConflictDoNothing();
 
   await inngest.send({
-    name: 'teams/channel.subscribe.triggered',
+    name: 'teams/channel.subscription.triggered',
     data: {
       organisationId: organisation.id,
       channelId: channel.id,

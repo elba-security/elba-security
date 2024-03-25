@@ -5,7 +5,7 @@ import { env } from '@/env';
 
 export async function middleware(request: NextRequest) {
   try {
-    await validateWebhookRequestSignature(request, `${env.ELBA_WEBHOOK_SECRET}1`);
+    await validateWebhookRequestSignature(request, env.ELBA_WEBHOOK_SECRET);
   } catch (error) {
     // TODO: add log
     return new NextResponse(null, { status: 401, statusText: 'unauthorized' });
@@ -13,5 +13,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/webhook/elba/:path*',
+  matcher: '/webhooks/elba/:path*',
 };

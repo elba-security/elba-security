@@ -6,15 +6,16 @@ import { channelsTable, organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
-import { getMessage } from '@/connectors/microsoft/messages/messages';
+import { getReply } from '@/connectors/microsoft/replies/replies';
 
-export const messageCreatedHandler: TeamsEventHandler = async ({
+export const replyCreatedOrUpdatedHandler: TeamsEventHandler = async ({
   channelId,
-  messageId,
+  replyId,
   teamId,
+  messageId,
   tenantId,
 }) => {
-  if (!messageId) {
+  if (!messageId || !replyId) {
     return;
   }
 
@@ -31,17 +32,6 @@ export const messageCreatedHandler: TeamsEventHandler = async ({
     throw new NonRetriableError(`Could not retrieve organisation with tenant=${tenantId}`);
   }
 
-  const message = await getMessage({
-    token: await decrypt(organisation.token),
-    teamId,
-    channelId,
-    messageId,
-  });
-
-  if (!message) {
-    return;
-  }
-
   const [channel] = await db
     .select({
       id: channelsTable.id,
@@ -55,16 +45,29 @@ export const messageCreatedHandler: TeamsEventHandler = async ({
     throw new NonRetriableError(`Could not retrieve channel with channelId=${channelId}`);
   }
 
+  const reply = await getReply({
+    token: await decrypt(organisation.token),
+    teamId,
+    channelId,
+    messageId,
+    replyId,
+  });
+
+  if (!reply || reply.messageType !== 'message') {
+    return;
+  }
+
   const elbaClient = createElbaClient(organisation.id, organisation.region);
 
   const object = formatDataProtectionObject({
     teamId,
-    messageId: message.id,
     channelId,
+    messageId,
+    replyId: reply.id,
     channelName: channel.displayName,
     organisationId: organisation.id,
     membershipType: channel.membershipType,
-    message,
+    message: reply,
   });
 
   await elbaClient.dataProtection.updateObjects({ objects: [object] });

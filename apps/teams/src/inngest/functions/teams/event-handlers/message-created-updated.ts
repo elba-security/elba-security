@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import type { TeamsEventHandler } from '@/inngest/functions/teams/event-handlers/index';
 import { db } from '@/database/client';
@@ -6,16 +6,15 @@ import { channelsTable, organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
-import { getReply } from '@/connectors/microsoft/replies/replies';
+import { getMessage } from '@/connectors/microsoft/messages/messages';
 
-export const replyCreatedHandler: TeamsEventHandler = async ({
+export const messageCreatedOrUpdatedHandler: TeamsEventHandler = async ({
   channelId,
-  replyId,
-  teamId,
   messageId,
+  teamId,
   tenantId,
 }) => {
-  if (!messageId || !replyId) {
+  if (!messageId) {
     return;
   }
 
@@ -45,29 +44,37 @@ export const replyCreatedHandler: TeamsEventHandler = async ({
     throw new NonRetriableError(`Could not retrieve channel with channelId=${channelId}`);
   }
 
-  const reply = await getReply({
+  const message = await getMessage({
     token: await decrypt(organisation.token),
     teamId,
     channelId,
     messageId,
-    replyId,
   });
 
-  if (!reply) {
+  if (!message || message.messageType !== 'message') {
     return;
   }
+
+  await db
+    .update(channelsTable)
+    .set({
+      messages: sql`array_append(
+                ${channelsTable.messages},
+                ${message.id}
+                )`,
+    })
+    .where(eq(channelsTable.id, channelId));
 
   const elbaClient = createElbaClient(organisation.id, organisation.region);
 
   const object = formatDataProtectionObject({
     teamId,
-    messageId: reply.id,
+    messageId: message.id,
     channelId,
     channelName: channel.displayName,
     organisationId: organisation.id,
     membershipType: channel.membershipType,
-    message: reply,
+    message,
   });
-
   await elbaClient.dataProtection.updateObjects({ objects: [object] });
 };

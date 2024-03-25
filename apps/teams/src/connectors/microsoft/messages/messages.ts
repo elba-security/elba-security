@@ -45,9 +45,7 @@ export const getMessages = async ({ token, teamId, skipToken, channelId }: GetMe
   for (const message of data.value) {
     const result = messageSchema.safeParse({ ...message, type: 'message' });
     if (result.success) {
-      if (result.data.messageType === 'message') {
-        validMessages.push(result.data);
-      }
+      validMessages.push(result.data);
     } else {
       invalidMessages.push(message);
     }
@@ -74,16 +72,35 @@ export const getMessage = async ({ token, teamId, channelId, messageId }: GetMes
     throw new MicrosoftError('Could not retrieve message', { response });
   }
 
-  const data = (await response.json()) as MicrosoftMessage;
+  const data = (await response.json()) as object;
 
-  if (data.messageType !== 'message') {
-    return;
-  }
-
-  const message: MicrosoftMessage = messageSchema.parse({
+  const result = messageSchema.safeParse({
     ...data,
     type: 'message',
   });
 
-  return message;
+  if (!result.success) {
+    return null;
+  }
+
+  return result.data;
+};
+
+export const deleteMessage = async ({ token, teamId, channelId, messageId }: GetMessageParams) => {
+  const url = new URL(
+    `${env.MICROSOFT_API_URL}/teams/${teamId}/channels/${channelId}/messages/${messageId}/softDelete`
+  );
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new MicrosoftError('Could not delete message', { response });
+  }
+
+  return { message: 'message was deleted' };
 };

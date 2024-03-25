@@ -69,7 +69,7 @@ describe('getTeams', () => {
     );
   });
 
-  test('should return teams and nextSkipToken when the token is valid and their is another page', async () => {
+  test('should return teams and nextSkipToken when the token is valid and there is another page', async () => {
     await expect(getTeams({ token: validToken, skipToken: startSkipToken })).resolves.toStrictEqual(
       {
         nextSkipToken,
@@ -79,7 +79,7 @@ describe('getTeams', () => {
     );
   });
 
-  test('should return teams and no nextSkipToken when the token is valid and their is no other page', async () => {
+  test('should return teams and no nextSkipToken when the token is valid and there is no other page', async () => {
     await expect(getTeams({ token: validToken, skipToken: endSkipToken })).resolves.toStrictEqual({
       validTeams,
       invalidTeams,
@@ -87,7 +87,7 @@ describe('getTeams', () => {
     });
   });
 
-  test('should throws when the token is invalid', async () => {
+  test('should throw when the token is invalid', async () => {
     await expect(
       getTeams({ token: 'invalid-token', skipToken: endSkipToken })
     ).rejects.toBeInstanceOf(MicrosoftError);

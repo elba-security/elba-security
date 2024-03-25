@@ -6,12 +6,12 @@ import {
   type MicrosoftPaginatedResponse,
 } from '../commons/pagination';
 
-const teamSchema = z.object({
+const teamsSchema = z.object({
   id: z.string(),
   visibility: z.enum(['private', 'public', 'hiddenMembership']),
 });
 
-export type MicrosoftTeam = z.infer<typeof teamSchema>;
+export type MicrosoftTeam = z.infer<typeof teamsSchema>;
 
 export type GetTeamsParams = {
   token: string;
@@ -43,7 +43,7 @@ export const getTeams = async ({ token, skipToken }: GetTeamsParams) => {
   const invalidTeams: unknown[] = [];
 
   for (const team of data.value) {
-    const result = teamSchema.safeParse(team);
+    const result = teamsSchema.safeParse(team);
     if (result.success) {
       validTeams.push(result.data);
     } else {

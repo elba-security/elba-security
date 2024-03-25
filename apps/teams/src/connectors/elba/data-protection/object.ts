@@ -13,11 +13,13 @@ export const formatDataProtectionObject = ({
   membershipType,
   channelName,
   channelId,
+  replyId,
 }: {
   teamId: string;
   channelId: string;
   organisationId: string;
   messageId: string;
+  replyId?: string;
   membershipType: string;
   channelName: string;
   message: MicrosoftMessage;
@@ -33,9 +35,10 @@ export const formatDataProtectionObject = ({
       channelId,
       messageId,
       type: message.type,
+      replyId: message.type === 'reply' ? replyId : undefined,
     } satisfies MessageMetadata,
     updatedAt: message.lastEditedDateTime ?? undefined,
-    ownerId: message.from.user.id,
+    ownerId: message.from.user?.id ? message.from.user.id : message.from.application?.id ?? '',
     permissions: [
       membershipType === 'shared'
         ? {

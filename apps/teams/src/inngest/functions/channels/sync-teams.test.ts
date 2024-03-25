@@ -40,7 +40,7 @@ const invalidTeams = [
 ];
 
 describe('sync-teams', () => {
-  test('should abort sync when organisation is not registered', async () => {
+  test('should abort sync when the organisation is not registered', async () => {
     const getTeams = vi.spyOn(teamConnector, 'getTeams').mockResolvedValue({
       nextSkipToken,
       validTeams,
@@ -124,7 +124,7 @@ describe('sync-teams', () => {
     });
   });
 
-  test('should finalize the sync when there is a no next page', async () => {
+  test('should finalize the sync when there is no next page', async () => {
     const elba = spyOnElba();
 
     await db.insert(organisationsTable).values(organisation);

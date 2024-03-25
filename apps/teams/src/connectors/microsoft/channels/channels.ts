@@ -6,7 +6,7 @@ import { type MicrosoftPaginatedResponse } from '../commons/pagination';
 const channelSchema = z.object({
   id: z.string(),
   membershipType: z.enum(['standard', 'private', 'unknownFutureValue', 'shared']),
-  webUrl: z.string().url(),
+  webUrl: z.string().url().optional(),
   displayName: z.string(),
 });
 
@@ -17,11 +17,11 @@ type GetChannelsParams = {
   teamId: string;
 };
 
-type GetChannel = GetChannelsParams & {
+type GetChannelParams = GetChannelsParams & {
   channelId: string;
 };
 
-type GetChannelResponse = Omit<MicrosoftChannel, 'webUrl'>;
+export type GetChannelResponse = Omit<MicrosoftChannel, 'webUrl'>;
 
 export const getChannels = async ({ token, teamId }: GetChannelsParams) => {
   const url = new URL(`${env.MICROSOFT_API_URL}/teams/${teamId}/channels`);
@@ -36,10 +36,10 @@ export const getChannels = async ({ token, teamId }: GetChannelsParams) => {
   });
 
   if (!response.ok) {
-    throw new MicrosoftError('Could not retrieve channel', { response });
+    throw new MicrosoftError('Could not retrieve channels', { response });
   }
 
-  const data = (await response.json()) as MicrosoftPaginatedResponse<unknown>;
+  const data = (await response.json()) as MicrosoftPaginatedResponse<object>;
 
   const validChannels: MicrosoftChannel[] = [];
   const invalidChannels: unknown[] = [];
@@ -56,7 +56,7 @@ export const getChannels = async ({ token, teamId }: GetChannelsParams) => {
   return { validChannels, invalidChannels };
 };
 
-export const getChannel = async ({ token, teamId, channelId }: GetChannel) => {
+export const getChannel = async ({ token, teamId, channelId }: GetChannelParams) => {
   const url = new URL(`${env.MICROSOFT_API_URL}/teams/${teamId}/channels/${channelId}`);
   url.searchParams.append('$select', 'id,membershipType,displayName');
 
@@ -71,5 +71,13 @@ export const getChannel = async ({ token, teamId, channelId }: GetChannel) => {
     throw new MicrosoftError('Could not retrieve channel', { response });
   }
 
-  return (await response.json()) as GetChannelResponse;
+  const data = (await response.json()) as object;
+
+  const result = channelSchema.safeParse(data);
+
+  if (!result.success) {
+    return null;
+  }
+
+  return result.data;
 };
