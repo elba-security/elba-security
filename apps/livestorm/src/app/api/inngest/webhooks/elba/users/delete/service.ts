@@ -12,7 +12,6 @@ await inngest.send({
  data: {
      id,
      organisationId,
-     region: 'us',
  },
 });
 };
