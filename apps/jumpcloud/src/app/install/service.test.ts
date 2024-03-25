@@ -25,7 +25,7 @@ const validUsers: JumpcloudUser[] = Array.from({ length: 5 }, (_, i) => ({
 const getUsersData = {
   validUsers,
   invalidUsers: [],
-  next: null,
+  nextPage: null,
 };
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
