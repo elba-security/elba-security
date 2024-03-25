@@ -29,11 +29,11 @@ describe('deleteSourceUsers', () => {
     // Mock database response to simulate no organisation found
     vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
 
-    const [result] = setup({ userId });
+    const [result] = setup({ userId, organisationId: organisation.id });
 
     // Assert that the function throws a NonRetriableError
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-    await expect(result).rejects.toHaveProperty('message', `Could not retrieve ${userId}`);
+    await expect(result).rejects.toHaveProperty('message', `Could not retrieve organisation`);
   });
 
   test('should call deleteUsers with correct parameters', async () => {
@@ -41,7 +41,7 @@ describe('deleteSourceUsers', () => {
     vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
     await db.insert(Organisation).values(organisation);
 
-    const [result] = setup({ userId });
+    const [result] = setup({ userId, organisationId: organisation.id });
 
     // Assert the function resolves successfully
     await expect(result).resolves.toStrictEqual(undefined);

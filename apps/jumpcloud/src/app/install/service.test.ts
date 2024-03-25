@@ -6,12 +6,27 @@ import { inngest } from '@/inngest/client';
 import * as userConnector from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
 import { JumpcloudError } from '@/connectors/commons/error';
+import { type JumpcloudUser } from '@/connectors/users';
 import { registerOrganisation } from './service';
 
 const apiKey = 'test-access-id';
 const region = 'us';
 const now = new Date();
 
+const validUsers: JumpcloudUser[] = Array.from({ length: 5 }, (_, i) => ({
+  _id: '0442f541-45d2-487a-9e4b-de03ce4c559e',
+  firstname: `firstname-${i}`,
+  lastname: `lastname-${i}`,
+  suspended: false,
+  enableMultiFactor: false,
+  email: `user-${i}@foo.bar`,
+}));
+
+const getUsersData = {
+  validUsers,
+  invalidUsers: [],
+  next: null,
+};
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   apiKey,
@@ -30,6 +45,7 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
 
     await expect(
       registerOrganisation({
@@ -38,7 +54,9 @@ describe('registerOrganisation', () => {
         region,
       })
     ).resolves.toBeUndefined();
-
+    // check if getUsers was called correctly
+    expect(getUsers).toBeCalledTimes(1);
+    expect(getUsers).toBeCalledWith({ apiKey, after: null });
     // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
