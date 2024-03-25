@@ -83,6 +83,6 @@ export const deleteUsers = async ({ userId, token }: DeleteUsersParams) => {
   });
 
   if (!response.ok && response.status !== 404) {
-    throw new PagerdutyError('Could not delete user', { response });
+    throw new PagerdutyError(`Could not delete user with Id: ${userId}`, { response });
   }
 };

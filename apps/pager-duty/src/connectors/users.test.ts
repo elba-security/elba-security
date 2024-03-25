@@ -12,12 +12,12 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
 import type { PagerdutyUser } from './users';
-import { getUsers } from './users';
+import { getUsers, deleteUsers } from './users';
 import { PagerdutyError } from './commons/error';
 
 const validToken = 'token-1234';
 const nextPage = '1';
-
+const userId = 'test-id';
 const validUsers: PagerdutyUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
   name: `userName-${i}`,
@@ -60,9 +60,7 @@ describe('users connector', () => {
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(
-        getUsers({ token: validToken, nextPage })
-      ).resolves.toStrictEqual({
+      await expect(getUsers({ token: validToken, nextPage })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
         nextPage: parseInt(nextPage, 10) + 1,
@@ -70,9 +68,7 @@ describe('users connector', () => {
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(
-        getUsers({ token: validToken, nextPage: '' })
-      ).resolves.toStrictEqual({
+      await expect(getUsers({ token: validToken, nextPage: '' })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
         nextPage: null,
@@ -80,9 +76,34 @@ describe('users connector', () => {
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(
-        getUsers({ token: 'foo-bar'})
-      ).rejects.toBeInstanceOf(PagerdutyError);
+      await expect(getUsers({ token: 'foo-bar' })).rejects.toBeInstanceOf(PagerdutyError);
+    });
+  });
+
+  describe('deleteUser', () => {
+    beforeEach(() => {
+      server.use(
+        http.delete(`${env.PAGERDUTY_API_BASE_URL}users/${userId}`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 404 });
+          }
+          return new Response(undefined, { status: 200 });
+        })
+      );
+    });
+
+    test('should delete user successfully when token is valid', async () => {
+      await expect(deleteUsers({ token: validToken, userId })).resolves.not.toThrow();
+    });
+
+    test('should throw PagerdutyError when token is invalid', async () => {
+      try {
+        await deleteUsers({ token: 'invalidToken', userId });
+      } catch (error) {
+        expect((error as PagerdutyError).message).toEqual(
+          `Could not delete user with id: ${userId}`
+        );
+      }
     });
   });
 });
