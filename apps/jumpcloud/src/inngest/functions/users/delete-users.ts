@@ -15,7 +15,8 @@ export const deleteSourceUsers = inngest.createFunction(
       .select({
         apiKey: Organisation.apiKey,
       })
-      .from(Organisation);
+      .from(Organisation)
+      .where(eq(Organisation.id, organisationId));
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve ${userId}`);
     }
