@@ -3,7 +3,7 @@ import { logger } from '@elba-security/logger';
 import { z } from 'zod';
 import {LivestormError } from '@/connectors/commons/error';
 import { env } from '@/env';
-// import { registerOrganisation } from './service';
+import { registerOrganisation } from './service';
 
 
 const formSchema = z.object({
@@ -35,7 +35,7 @@ if (!result.success) {
   };
 }
 try { 
-//   await registerOrganisation(result.data);
+  await registerOrganisation(result.data);
   return {
     redirectUrl: `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&success=true`,
   };
