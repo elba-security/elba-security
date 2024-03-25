@@ -1,7 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users'; 
+import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { syncUsersPage } from './sync-users-page';
@@ -69,7 +69,7 @@ describe('sync-users', () => {
         isFirstSync: false,
         syncStartedAt,
         region: organisation.region,
-        page: '2', 
+        page: '2',
       },
     });
   });

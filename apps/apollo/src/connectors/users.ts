@@ -1,4 +1,4 @@
-import { ApolloError} from './commons/error';
+import { ApolloError } from './commons/error';
 
 export type ApolloUser = {
   id: string;
@@ -13,9 +13,9 @@ export type Pagination = {
   total_pages: number;
 };
 
-type GetUsersResponseData = {users: ApolloUser[]; pagination: Pagination;};
+type GetUsersResponseData = { users: ApolloUser[]; pagination: Pagination };
 
-export const getUsers = async (token: string, page: string|null) => {
+export const getUsers = async (token: string, page: string | null) => {
   const url = new URL(`https://api.apollo.io/v1/users/search`);
   url.searchParams.append('api_key', token);
 
@@ -26,19 +26,16 @@ export const getUsers = async (token: string, page: string|null) => {
   const response = await fetch(url);
 
   if (!response.ok && response.status !== 404) {
-    throw new ApolloError('Could not retrieve users',{response});
+    throw new ApolloError('Could not retrieve users', { response });
   }
 
   const data = (await response.json()) as GetUsersResponseData;
   return data;
 };
 export const deleteUser = async (token: string, userId: string) => {
-  const response = await fetch(
-    `https://api.apollo.io/v1/users/${userId}/?api_key=${token}`,
-    {
-      method: 'DELETE',
-    }
-  );
+  const response = await fetch(`https://api.apollo.io/v1/users/${userId}/?api_key=${token}`, {
+    method: 'DELETE',
+  });
   // Check if response is successful (status 200) or user not found (status 404)
   if (!response.ok && response.status !== 404) {
     throw new Error(`Could not delete user with Id: ${userId}`);
