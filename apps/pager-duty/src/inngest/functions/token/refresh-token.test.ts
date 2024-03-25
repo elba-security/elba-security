@@ -5,9 +5,10 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as authConnector from '@/connectors/auth';
-import { refreshToken } from './refresh-token';
 import * as crypto from '@/common/crypto';
-import { encrypt } from '@/common/crypto';
+import { decrypt } from '@/common/crypto';
+import { PagerdutyError } from '@/connectors/commons/error';
+import { refreshToken } from './refresh-token';
 
 const tokens = {
   accessToken: 'access-token',
@@ -36,7 +37,10 @@ const expiresAt = now.getTime() + 60 * 1000;
 // next token duration
 const expiresIn = 60 * 1000;
 
-const setup = createInngestFunctionMock(refreshToken, 'pagerduty/pagerduty.token.refresh.requested');
+const setup = createInngestFunctionMock(
+  refreshToken,
+  'pagerduty/pagerduty.token.refresh.requested'
+);
 
 describe('refresh-token', () => {
   beforeAll(() => {
@@ -68,8 +72,6 @@ describe('refresh-token', () => {
   test('should update encrypted tokens and schedule the next refresh', async () => {
     await db.insert(Organisation).values(organisation);
 
-    vi.spyOn(crypto, 'encrypt').mockResolvedValue(newTokens.accessToken);
-
     vi.spyOn(authConnector, 'getRefreshToken').mockResolvedValue({
       ...newTokens,
       expiresIn,
@@ -89,8 +91,10 @@ describe('refresh-token', () => {
       })
       .from(Organisation)
       .where(eq(Organisation.id, organisation.id));
-
-    expect(updatedOrganisation?.accessToken ?? '').toBe(newTokens.accessToken);
+    if (!updatedOrganisation) {
+      throw new PagerdutyError(`Organisation with ID ${organisation.id} not found.`);
+    }
+    await expect(decrypt(updatedOrganisation.accessToken)).resolves.toEqual(newTokens.accessToken);
 
     expect(authConnector.getRefreshToken).toBeCalledTimes(1);
     expect(authConnector.getRefreshToken).toBeCalledWith(tokens.refreshToken);

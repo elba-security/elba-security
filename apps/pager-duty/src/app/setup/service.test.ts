@@ -13,8 +13,9 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as crypto from '@/common/crypto';
-import { encrypt } from '@/common/crypto';
+import { decrypt } from '@/common/crypto';
 import { setupOrganisation } from './service';
+import { PagerdutyError } from '@/connectors/commons/error';
 
 const code = 'some-code';
 const accessToken = 'some token';
@@ -50,7 +51,6 @@ describe('setupOrganisation', () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mock the getToken function to return a predefined token
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
-    vi.spyOn(crypto, 'encrypt').mockResolvedValue(accessToken);
 
     // assert the function resolves without returning a value
     await expect(
@@ -60,21 +60,21 @@ describe('setupOrganisation', () => {
         region,
       })
     ).resolves.toBeUndefined();
-    const encryptToken = await encrypt(accessToken);
 
     // check if getToken was called correctly
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
     // verify the organisation token is set in the database
-    await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        accessToken: encryptToken,
-        region,
-      },
-    ]);
+    const [storedOrganisation] = await db
+      .select()
+      .from(Organisation)
+      .where(eq(Organisation.id, organisation.id));
+    if (!storedOrganisation) {
+      throw new PagerdutyError(`Organisation with ID ${organisation.id} not found.`);
+    }
+    expect(storedOrganisation.region).toBe(region);
+    await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
@@ -109,7 +109,6 @@ describe('setupOrganisation', () => {
     // mock inngest client, only inngest.send should be used
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    vi.spyOn(crypto, 'encrypt').mockResolvedValue(accessToken);
     // pre-insert an organisation to simulate an existing entry
     await db.insert(Organisation).values(organisation);
 
@@ -124,23 +123,20 @@ describe('setupOrganisation', () => {
         region,
       })
     ).resolves.toBeUndefined();
-    const encryptToken = await encrypt(accessToken);
 
     // verify getToken usage
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
     // check if the token in the database is updated
-    await expect(
-      db
-        .select({ accessToken: Organisation.accessToken })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        accessToken: encryptToken,
-      },
-    ]);
+    const [storedOrganisation] = await db
+      .select()
+      .from(Organisation)
+      .where(eq(Organisation.id, organisation.id));
+    if (!storedOrganisation) {
+      throw new PagerdutyError(`Organisation with ID ${organisation.id} not found.`);
+    }
+    await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);

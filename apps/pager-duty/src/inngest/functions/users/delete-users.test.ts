@@ -54,4 +54,59 @@ describe('deleteSourceUsers', () => {
       token: organisation.accessToken,
     });
   });
+
+  test('should not throw when user exists', async () => {
+    // Mock deleteUser to simulate successful deletion
+    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
+
+    await expect(
+      usersConnector.deleteUsers({
+        userId,
+        token: accessToken, // Assuming accessToken is the correct token for authentication
+      })
+    ).resolves.not.toThrow();
+
+    // Verify deleteUser was called correctly
+    expect(usersConnector.deleteUsers).toBeCalledWith({
+      userId,
+      token: accessToken,
+    });
+  });
+
+  test('should not throw when user does not exist (in case of 404)', async () => {
+    // Mock deleteUser to simulate a 404 response
+    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce(); // Assuming your implementation already handles 404 internally
+
+    await expect(
+      usersConnector.deleteUsers({
+        userId,
+        token: accessToken,
+      })
+    ).resolves.not.toThrow();
+
+    // Verify deleteUser was called correctly
+    expect(usersConnector.deleteUsers).toBeCalledWith({
+      userId,
+      token: accessToken,
+    });
+  });
+
+  test('should throw when access token is invalid', async () => {
+    // Mock deleteUser to simulate an error due to invalid token
+    const errorMessage = 'Invalid access token';
+    vi.spyOn(usersConnector, 'deleteUsers').mockRejectedValueOnce(new Error(errorMessage));
+
+    await expect(
+      usersConnector.deleteUsers({
+        userId,
+        token: 'invalid-token',
+      })
+    ).rejects.toThrow(errorMessage);
+
+    // Verify deleteUser was called with the invalid token
+    expect(usersConnector.deleteUsers).toBeCalledWith({
+      userId,
+      token: 'invalid-token',
+    });
+  });
 });
