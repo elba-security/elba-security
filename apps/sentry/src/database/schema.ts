@@ -7,4 +7,3 @@ export const Organisation = pgTable('organisation', {
   organizationSlug: text('organization_slug').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
-

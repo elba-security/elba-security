@@ -40,4 +40,3 @@ export const rateLimitMiddleware = new InngestMiddleware({
     };
   },
 });
-

@@ -10,7 +10,7 @@ import { SentryError } from './commons/error';
 
 const validToken = 'test-token';
 const organizationSlug = 'test-organization';
-const memberId= "test-member-id";
+const memberId = 'test-member-id';
 
 const sentryUsers: SentryUser[] = [
   {
@@ -19,29 +19,33 @@ const sentryUsers: SentryUser[] = [
       id: 'user-id',
       name: 'Username',
       email: 'user@gmail.com',
-      has2fa: false
+      has2fa: false,
     },
   },
 ];
 
-
-
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get(`https://sentry.io/api/0/organizations/${organizationSlug}/members/`, ({ request }) => {
-        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-          return new Response(undefined, { status: 401 });
+      http.get(
+        `https://sentry.io/api/0/organizations/${organizationSlug}/members/`,
+        ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+          const url = new URL(request.url);
+          const lastCursor = 'last-cursor';
+          const nextCursor = 'next-cursor';
+          const requestCursor = url.searchParams.get('cursor');
+          return new Response(JSON.stringify(sentryUsers), {
+            headers:
+              requestCursor !== lastCursor
+                ? { Link: `<https://example.com?cursor=${nextCursor}>; rel="next"` }
+                : undefined,
+            status: 200,
+          });
         }
-        const url = new URL(request.url); 
-        const lastCursor = 'last-cursor';
-        const nextCursor = 'next-cursor';
-        const requestCursor = url.searchParams.get('cursor');
-        return new Response(
-          JSON.stringify(sentryUsers),
-          { headers: requestCursor !== lastCursor ? { Link: `<https://example.com?cursor=${nextCursor}>; rel="next"` } : undefined, status: 200 }
-        );
-      })
+      )
     );
   });
 
@@ -54,7 +58,9 @@ describe('getUsers', () => {
     try {
       await getUsers('invalidToken', organizationSlug, null);
     } catch (error) {
-      expect((error as SentryError).message).toEqual('Could not retrieve Sentry organization members');
+      expect((error as SentryError).message).toEqual(
+        'Could not retrieve Sentry organization members'
+      );
     }
   });
 
@@ -89,7 +95,7 @@ describe('deleteUser', () => {
 
   test('should throw SentryError when token is invalid', async () => {
     try {
-      await deleteUser("invalidToken", organizationSlug, memberId);
+      await deleteUser('invalidToken', organizationSlug, memberId);
     } catch (error) {
       expect(error instanceof SentryError).toBe(true);
       expect(error.message).toEqual('Could not delete Sentry user');

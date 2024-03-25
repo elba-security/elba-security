@@ -1,5 +1,4 @@
-Styles.module.css
-.container {
+Styles.module.css .container {
   padding-top: 8rem;
 }
 
@@ -105,4 +104,3 @@ Styles.module.css
   display: flex;
   justify-content: space-between;
 }
-

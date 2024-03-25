@@ -73,4 +73,3 @@ describe('rate-limit middleware', () => {
     });
   });
 });
-

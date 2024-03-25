@@ -3,13 +3,13 @@ import { parseWebhookEventData } from '@elba-security/sdk';
 import { deleteUserRequest } from './service';
 
 export async function DELETE(request: Request) {
-const data: unknown = await request.json();
+  const data: unknown = await request.json();
 
-const { id, organisationId } = parseWebhookEventData('users.delete_user_requested', data);
+  const { id, organisationId } = parseWebhookEventData('users.delete_user_requested', data);
 
-await deleteUserRequest({
-  id,
-  organisationId,
-});
-return new NextResponse();
+  await deleteUserRequest({
+    id,
+    organisationId,
+  });
+  return new NextResponse();
 }

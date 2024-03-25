@@ -59,4 +59,3 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
     };
   }
 };
-

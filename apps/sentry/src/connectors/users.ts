@@ -15,18 +15,14 @@ export type Pagination = {
   nextCursor: string | null;
 };
 
-export const getUsers = async (
-  token: string,
-  organizationSlug: string,
-  cursor: string | null
-) => {
+export const getUsers = async (token: string, organizationSlug: string, cursor: string | null) => {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
   };
 
-  const url = `https://sentry.io/api/0/organizations/${organizationSlug}/members/?per_page=${env.USERS_SYNC_BATCH_SIZE}${
-    cursor ? `&cursor=${cursor}` : ''
-  }`;
+  const url = `https://sentry.io/api/0/organizations/${organizationSlug}/members/?per_page=${
+    env.USERS_SYNC_BATCH_SIZE
+  }${cursor ? `&cursor=${cursor}` : ''}`;
 
   const response = await fetch(url, {
     headers,

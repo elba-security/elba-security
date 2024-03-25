@@ -105,7 +105,7 @@ function InstructionsModal() {
               'Click on Create New Token.',
               'Enter a descriptive name for your token.',
               'Select the desired scopes (permissions) for the token.',
-              'Click Create Token and then Copy your Auth Token.'
+              'Click Create Token and then Copy your Auth Token.',
             ]}
           />
         )}
@@ -123,7 +123,9 @@ function InstructionsModal() {
           <>
             <InstructionItems
               heading="Link Application"
-              instructions={['Paste the Auth Token and Organization Slug from your application below:']}
+              instructions={[
+                'Paste the Auth Token and Organization Slug from your application below:',
+              ]}
             />
             <form action={formAction} className={styles.formContainer}>
               <div className={styles.inputFields}>
@@ -170,4 +172,3 @@ const page = () => {
 };
 
 export default page;
-
