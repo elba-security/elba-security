@@ -99,6 +99,10 @@ describe('users connector', () => {
       await expect(deleteUsers({ token: validToken, userId })).resolves.not.toThrow();
     });
 
+    test('should not throw when the user is not found', async () => {
+      await expect(deleteUsers({ token: validToken, userId })).resolves.toBeUndefined();
+    })
+    
     test('should throw PagerdutyError when token is invalid', async () => {
         await expect(deleteUsers({ token: 'invalidToken', userId })).rejects.toBeInstanceOf(PagerdutyError);
     });
