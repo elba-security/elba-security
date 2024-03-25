@@ -13,26 +13,25 @@ organisationId,
 token,
 region,
 }: SetupOrganisationParams) => {
-const result=await getUsers(token,null);
-console.log("result is:",result);
-// await db
-//   .insert(Organisation)
-//   .values({ id: organisationId, region, token })
-//   .onConflictDoUpdate({
-//     target: Organisation.id,
-//     set: {
-//       region,
-//       token,
-//     },
-//   })
-//   await inngest.send({
-//    name: 'apollo/users.page_sync.requested',
-//    data: {
-//      isFirstSync: true,
-//      organisationId,
-//      region,
-//      syncStartedAt: Date.now(),
-//      page: null,
-//    },
-//  });
+await getUsers(token,null);
+await db
+  .insert(Organisation)
+  .values({ id: organisationId, region, token })
+  .onConflictDoUpdate({
+    target: Organisation.id,
+    set: {
+      region,
+      token,
+    },
+  })
+  await inngest.send({
+   name: 'livestorm/users.page_sync.requested',
+   data: {
+     isFirstSync: true,
+     organisationId,
+     region,
+     syncStartedAt: Date.now(),
+     page: null,
+   },
+ });
 };
