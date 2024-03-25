@@ -19,6 +19,7 @@ const sentryUsers: SentryUser[] = [
       id: 'user-id',
       name: 'Username',
       email: 'user@gmail.com',
+      has2fa: false
     },
   },
 ];

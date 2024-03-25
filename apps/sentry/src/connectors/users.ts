@@ -24,7 +24,8 @@ export const getUsers = async (
     Authorization: `Bearer ${token}`,
   };
 
-  const url = `https://sentry.io/api/0/organizations/${organizationSlug}/members/?per_page=${env.USERS_SYNC_BATCH_SIZE}$&cursor=${cursor}'
+  const url = `https://sentry.io/api/0/organizations/${organizationSlug}/members/?per_page=${env.USERS_SYNC_BATCH_SIZE}${
+    cursor ? `&cursor=${cursor}` : ''
   }`;
 
   const response = await fetch(url, {

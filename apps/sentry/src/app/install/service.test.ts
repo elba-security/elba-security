@@ -20,6 +20,7 @@ const getUsersMockData = {
         id: 'user-id',
         name: 'Username',
         email: 'user@gmail.com',
+        has2fa: false,
       },
     },
   ],
