@@ -100,13 +100,7 @@ describe('users connector', () => {
     });
 
     test('should throw PagerdutyError when token is invalid', async () => {
-      try {
-        await deleteUsers({ token: 'invalidToken', userId });
-      } catch (error) {
-        expect((error as PagerdutyError).message).toEqual(
-          `Could not delete user with id: ${userId}`
-        );
-      }
+        await expect(deleteUsers({ token: 'invalidToken', userId })).rejects.toBeInstanceOf(PagerdutyError);
     });
   });
 });
