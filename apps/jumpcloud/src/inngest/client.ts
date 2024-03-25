@@ -29,6 +29,7 @@ export const inngest = new Inngest({
     'jumpcloud/users.delete.requested': {
       data: {
         userId: string;
+        organisationId: string
       };
     };
   }>(),
