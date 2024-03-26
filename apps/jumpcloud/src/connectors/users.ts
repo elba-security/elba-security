@@ -85,7 +85,7 @@ export const deleteUsers = async ({ userId, apiKey }: DeleteUsersParams) => {
     },
   });
 
-  if (!response.ok && response.status !== 404 && response.status !== 400) {
+  if (!response.ok && response.status !== 404) {
     throw new JumpcloudError('Could not delete user', { response });
   }
 };
