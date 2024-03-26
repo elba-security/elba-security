@@ -22,10 +22,7 @@ if (!process.env.VERCEL_ENV || process.env.VERCEL_ENV === 'development') {
   db = drizzleNeonServerless(pool, { schema });
 } else {
   // @ts-expect-error -- to make it work locally
-  db = drizzleNeonHttp(
-    neon(env.DATABASE_URL, { fetchOptions: { signal: AbortSignal.timeout(60 * 1000) } }),
-    { schema }
-  );
+  db = drizzleNeonHttp(neon(env.DATABASE_URL), { schema });
 }
 
 export { db };
