@@ -5,11 +5,12 @@ import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
 import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
-import { type JumpcloudUser, getUsers } from './users';
+import { type JumpcloudUser, getUsers, deleteUsers } from './users';
 import { JumpcloudError } from './commons/error';
 
 const nextCursor = 'test-next-cursor';
-const validApiKey = 'test-access-id';
+const validApiKey = 'test-api-key';
+const userId = 'test-user-id';
 
 const validUsers: JumpcloudUser[] = Array.from({ length: 5 }, (_, i) => ({
   _id: '0442f541-45d2-487a-9e4b-de03ce4c559e',
@@ -68,5 +69,40 @@ describe('getJumpcloudUsers', () => {
     await expect(
       getUsers({ apiKey: 'foo-id', after: nextCursor })
     ).rejects.toBeInstanceOf(JumpcloudError);
+  });
+});
+
+describe('deleteUser', () => {
+  beforeEach(() => {
+    server.use(
+      http.delete<{ userId: string }>(
+        `${env.JUMPCLOUD_API_BASE_URL}users/${userId}`,
+        ({ request, params }) => {
+
+          if (request.headers.get('x-api-key') !== `${validApiKey}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          if (params.userId !== userId) {
+            return new Response(undefined, { status: 404 });
+          }
+          return new Response(undefined, { status: 200 });
+        }
+      )
+    );
+  });
+
+  test('should delete user successfully when token is valid', async () => {
+    await expect(deleteUsers({ userId, apiKey: validApiKey })).resolves.not.toThrow();
+  });
+
+  test('should not throw when the user is not found', async () => {
+    await expect(deleteUsers({ userId, apiKey: validApiKey })).resolves.toBeUndefined();
+  });
+
+  test('should throw JumpcloudError when token is invalid', async () => {
+    await expect(deleteUsers({ userId, apiKey: 'invalid-key' })).rejects.toBeInstanceOf(
+      JumpcloudError
+    );
   });
 });
