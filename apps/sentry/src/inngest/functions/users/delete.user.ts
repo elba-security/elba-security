@@ -27,6 +27,7 @@ export const deleteSentryUser = inngest.createFunction(
         .select({
           token: Organisation.token,
           region: Organisation.region,
+          organizationSlug: Organisation.organizationSlug,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -44,7 +45,7 @@ export const deleteSentryUser = inngest.createFunction(
     });
 
     await step.run('delete-user', async () => {
-      await deleteUser(organisation.token, id);
+      await deleteUser(organisation.token, organisation.organizationSlug, id);
       await elba.users.delete({ ids: [id] });
     });
   }
