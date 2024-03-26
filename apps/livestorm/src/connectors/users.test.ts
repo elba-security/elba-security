@@ -1,8 +1,8 @@
 import { describe, expect, test, beforeEach } from 'vitest';
 import { http } from 'msw';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getUsers,deleteUser,type LivestormUser, type Pagination } from './users';
-import  { LivestormError } from './commons/error';
+import { getUsers, deleteUser, type LivestormUser, type Pagination } from './users';
+import { LivestormError } from './commons/error';
 
 const users: LivestormUser[] = [
   {
@@ -26,8 +26,8 @@ const pagination: Pagination = {
 };
 
 const validToken = 'test-token';
-const userId= "test-id";
-const maxPage = 2; 
+const userId = 'test-id';
+const maxPage = 2;
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
@@ -36,13 +36,13 @@ describe('getUsers', () => {
         if (request.headers.get('Authorization') !== validToken) {
           return new Response(undefined, { status: 401 });
         }
-        const page = parseInt(url.searchParams.get('page[number]') || "0");
+        const page = parseInt(url.searchParams.get('page[number]') || '0');
         const response = {
           users: page > pagination.page_count ? [] : users,
-          pagination: { ...pagination, current_page: page }
+          pagination: { ...pagination, current_page: page },
         };
         return new Response(JSON.stringify(response), {
-          status: 200
+          status: 200,
         });
       })
     );
@@ -71,22 +71,19 @@ describe('getUsers', () => {
   test('should return no users when there is no other page', async () => {
     await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
       users: [],
-      pagination: { ...pagination, current_page: maxPage }, 
+      pagination: { ...pagination, current_page: maxPage },
     });
   });
 });
 describe('deleteUser', () => {
   beforeEach(() => {
     server.use(
-      http.delete(
-        `https://api.livestorm.co/v1/users/${userId}`,
-        ({ request }) => {
-          if (request.headers.get('Authorization') !== validToken) {
-            return new Response(undefined, { status: 401 });
-          }
-          return new Response(undefined, { status: 204 }); // Assuming a 204 No Content response for successful deletion
+      http.delete(`https://api.livestorm.co/v1/users/${userId}`, ({ request }) => {
+        if (request.headers.get('Authorization') !== validToken) {
+          return new Response(undefined, { status: 401 });
         }
-      )
+        return new Response(undefined, { status: 204 }); // Assuming a 204 No Content response for successful deletion
+      })
     );
   });
 
@@ -96,7 +93,7 @@ describe('deleteUser', () => {
 
   test('should throw LivestormError when token is invalid', async () => {
     try {
-      await deleteUser("invalidToken", userId);
+      await deleteUser('invalidToken', userId);
     } catch (error) {
       expect(error instanceof LivestormError).toBe(true);
       expect(error.message).toEqual('Could not delete Livestorm user');

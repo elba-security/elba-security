@@ -50,6 +50,7 @@
     "inngest-cli": "^0.25.2",
     "msw": "^2.0.1",
     "postgres": "^3.4.3",
+    "prettier": "^3.0.3",
     "typescript": "^5",
     "vitest": "1.1.1"
   }

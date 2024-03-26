@@ -1,6 +1,5 @@
 import { env } from '@/env';
-import { LivestormError} from './commons/error';
-
+import { LivestormError } from './commons/error';
 
 export type LivestormUser = {
   id: string;
@@ -21,12 +20,15 @@ export type Pagination = {
   items_per_page: number;
 };
 
-type GetUsersResponseData = {users: LivestormUser[]; pagination: Pagination;};
+type GetUsersResponseData = { users: LivestormUser[]; pagination: Pagination };
 
 export const getUsers = async (token: string, page: number | null) => {
-  const response = await fetch(`https://api.livestorm.co/v1/users?page[size]=${env.USERS_SYNC_BATCH_SIZE}&page[number]=${page}`, {
-    headers: { Authorization: token },
-  });
+  const response = await fetch(
+    `https://api.livestorm.co/v1/users?page[size]=${env.USERS_SYNC_BATCH_SIZE}&page[number]=${page}`,
+    {
+      headers: { Authorization: token },
+    }
+  );
   if (!response.ok) {
     throw new LivestormError('Could not retrieve Livestorm users', { response });
   }
@@ -34,7 +36,6 @@ export const getUsers = async (token: string, page: number | null) => {
   return data;
 };
 export const deleteUser = async (token: string, userId: string) => {
-
   const url = `https://api.livestorm.co/v1/users/${userId}`;
   const response = await fetch(url, {
     method: 'DELETE',

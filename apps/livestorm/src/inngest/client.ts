@@ -4,30 +4,29 @@ import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 
 export const inngest = new Inngest({
-id: 'livestorm',
-schemas: new EventSchemas().fromRecord<{
-  'livestorm/users.page_sync.requested': {
-    data: {
-      organisationId: string;
-      region: string;
-      isFirstSync: boolean;
-      syncStartedAt: number;
-      page:number|null;
+  id: 'livestorm',
+  schemas: new EventSchemas().fromRecord<{
+    'livestorm/users.page_sync.requested': {
+      data: {
+        organisationId: string;
+        region: string;
+        isFirstSync: boolean;
+        syncStartedAt: number;
+        page: number | null;
+      };
     };
-  };
-  'livestorm/elba_app.uninstalled': {
-    data: {
-      organisationId: string;
+    'livestorm/elba_app.uninstalled': {
+      data: {
+        organisationId: string;
+      };
     };
-  };
-  'livestorm/users.delete.requested': {
-    data: {
-      id: string;
-      organisationId: string;
-      region:string;
+    'livestorm/users.delete.requested': {
+      data: {
+        id: string;
+        organisationId: string;
+      };
     };
-  };
-}>(),
-middleware: [sentryMiddleware,rateLimitMiddleware],
-logger,
+  }>(),
+  middleware: [sentryMiddleware, rateLimitMiddleware],
+  logger,
 });
