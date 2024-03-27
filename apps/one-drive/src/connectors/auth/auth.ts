@@ -1,5 +1,5 @@
 import { env } from '@/env';
-import { MicrosoftError } from './commons/error';
+import { MicrosoftError } from '../../common/error';
 
 type GetTokenResponseData = { access_token: string; expires_in: number };
 

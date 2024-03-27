@@ -1,12 +1,12 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/one-drive/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import type { MicrosoftUser } from '@/connectors/one-drive/users';
 import { env } from '@/env';
 import { encrypt } from '@/common/crypto';
+import type { MicrosoftUser } from '@/connectors/users/users';
+import * as usersConnector from '@/connectors/users/users';
 import { syncUsers } from './sync-users';
 
 const token = 'test-token';

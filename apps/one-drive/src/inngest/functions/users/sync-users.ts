@@ -3,13 +3,13 @@ import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
-import type { MicrosoftUser } from '@/connectors/one-drive/users';
-import { getUsers } from '@/connectors/one-drive/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
+import { getUsers } from '@/connectors/users/users';
+import type { MicrosoftUser } from '@/connectors/users/users';
 
 const formatElbaUser = (user: MicrosoftUser): User => ({
   id: user.id,

@@ -2,9 +2,9 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
 import { server } from '../../../vitest/setup-msw-handlers';
+import { MicrosoftError } from '../../common/error';
 import { getUsers } from './users';
 import type { MicrosoftUser } from './users';
-import { MicrosoftError } from './commons/error';
 
 const validToken = 'token-1234';
 const startSkipToken = 'start-skip-token';

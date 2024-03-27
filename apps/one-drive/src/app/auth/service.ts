@@ -1,9 +1,8 @@
-import { subMinutes } from 'date-fns/subMinutes';
 import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getToken } from '@/connectors/one-drive/auth';
+import { getToken } from '@/connectors/auth/auth';
 import { encrypt } from '@/common/crypto';
 
 type SetupOrganisationParams = {
@@ -49,12 +48,20 @@ export const setupOrganisation = async ({
       },
     },
     {
-      name: 'one-drive/token.refresh.triggered',
+      name: 'one-drive/token.refresh.requested',
       data: {
         organisationId,
+        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
       },
-      // we schedule a token refresh 5 minutes before it expires
-      ts: subMinutes(addSeconds(new Date(), expiresIn), 5).getTime(),
+    },
+    {
+      name: 'one-drive/data_protection.sync.requested',
+      data: {
+        organisationId,
+        syncStartedAt: Date.now(),
+        isFirstSync: true,
+        skipToken: null,
+      },
     },
   ]);
 };

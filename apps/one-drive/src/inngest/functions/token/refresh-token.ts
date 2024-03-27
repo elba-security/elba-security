@@ -5,7 +5,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getToken } from '@/connectors/one-drive/auth';
+import { getToken } from '@/connectors/auth/auth';
 import { env } from '@/env';
 import { encrypt } from '@/common/crypto';
 
@@ -28,37 +28,42 @@ export const refreshToken = inngest.createFunction(
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
-  { event: 'one-drive/token.refresh.triggered' },
+  { event: 'one-drive/token.refresh.requested' },
   async ({ event, step }) => {
-    const { organisationId } = event.data;
+    const { organisationId, expiresAt } = event.data;
 
-    const [organisation] = await db
-      .select({
-        tenantId: organisationsTable.tenantId,
-      })
-      .from(organisationsTable)
-      .where(and(eq(organisationsTable.id, organisationId)));
+    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 5));
 
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
+    const nextExpiresAt = await step.run('refresh-token', async () => {
+      const [organisation] = await db
+        .select({
+          tenantId: organisationsTable.tenantId,
+        })
+        .from(organisationsTable)
+        .where(and(eq(organisationsTable.id, organisationId)));
 
-    const { token, expiresIn } = await getToken(organisation.tenantId);
+      if (!organisation) {
+        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+      }
 
-    const encodedToken = await encrypt(token);
+      const { token, expiresIn } = await getToken(organisation.tenantId);
 
-    await db
-      .update(organisationsTable)
-      .set({ token: encodedToken })
-      .where(eq(organisationsTable.id, organisationId));
+      const encodedToken = await encrypt(token);
 
-    await step.sendEvent('schedule-token-refresh', {
-      name: 'one-drive/token.refresh.triggered',
+      await db
+        .update(organisationsTable)
+        .set({ token: encodedToken })
+        .where(eq(organisationsTable.id, organisationId));
+
+      return addSeconds(new Date(), expiresIn);
+    });
+
+    await step.sendEvent('next-refresh', {
+      name: 'one-drive/token.refresh.requested',
       data: {
         organisationId,
+        expiresAt: new Date(nextExpiresAt).getTime(),
       },
-      // we schedule a token refresh 5 minutes before it expires
-      ts: subMinutes(addSeconds(new Date(), expiresIn), 5).getTime(),
     });
   }
 );

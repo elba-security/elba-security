@@ -4,7 +4,7 @@ import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import * as authConnector from '@/connectors/one-drive/auth';
+import * as authConnector from '@/connectors/auth/auth';
 import { decrypt, encrypt } from '@/common/crypto';
 import { refreshToken } from './refresh-token';
 
@@ -19,10 +19,14 @@ const organisation = {
   tenantId: 'tenant-id',
   region: 'us',
 };
-const now = new Date();
-const expiresIn = 60;
 
-const setup = createInngestFunctionMock(refreshToken, 'one-drive/token.refresh.triggered');
+const now = new Date();
+// current token expires in an hour
+const expiresAt = now.getTime() + 60 * 1000;
+// next token duration
+const expiresIn = 60 * 1000;
+
+const setup = createInngestFunctionMock(refreshToken, 'one-drive/token.refresh.requested');
 
 describe('refresh-token', () => {
   beforeAll(() => {
@@ -40,6 +44,7 @@ describe('refresh-token', () => {
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
+      expiresAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -58,6 +63,7 @@ describe('refresh-token', () => {
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
+      expiresAt,
     });
 
     await expect(result).resolves.toBe(undefined);
@@ -71,14 +77,20 @@ describe('refresh-token', () => {
     expect(authConnector.getToken).toBeCalledTimes(1);
     expect(authConnector.getToken).toBeCalledWith(organisation.tenantId);
 
+    expect(step.sleepUntil).toBeCalledTimes(1);
+    expect(step.sleepUntil).toBeCalledWith(
+      'wait-before-expiration',
+      new Date(expiresAt - 5 * 60 * 1000)
+    );
+
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('schedule-token-refresh', {
-      name: 'one-drive/token.refresh.triggered',
+    expect(step.sendEvent).toBeCalledWith('next-refresh', {
+      name: 'one-drive/token.refresh.requested',
       data: {
         organisationId: organisation.id,
+        expiresAt: now.getTime() + expiresIn * 1000,
       },
-      ts: now.getTime() + expiresIn * 1000 - 5 * 60 * 1000,
     });
   });
 });

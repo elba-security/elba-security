@@ -1,6 +1,6 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
-import { MicrosoftError } from '@/connectors/one-drive/commons/error';
+import { MicrosoftError } from '@/common/error';
 
 const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),
