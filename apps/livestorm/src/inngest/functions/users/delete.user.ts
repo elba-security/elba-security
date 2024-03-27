@@ -19,7 +19,7 @@ export const deleteLivestormUser = inngest.createFunction(
     event: 'livestorm/users.delete.requested',
   },
   async ({ event, step }) => {
-    const { id, organisationId, region } = event.data;
+    const { id, organisationId } = event.data;
     const organisation = await step.run('get-organisation', async () => {
       const [row] = await db
         .select({
