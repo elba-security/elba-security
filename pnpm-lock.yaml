@@ -52,7 +52,7 @@ importers:
         version: 2.30.0
       drizzle-orm:
         specifier: ^0.29.1
-        version: 0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
+        version: 0.29.3(@types/react@18.2.47)(postgres@3.4.3)(react@18.2.0)
       dropbox:
         specifier: ^10.34.0
         version: 10.34.0(@types/node-fetch@2.6.11)
@@ -152,7 +152,7 @@ importers:
         version: 7.93.0(next@14.0.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.1
-        version: 0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
+        version: 0.29.3(@types/react@18.2.47)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.14.2
         version: 3.14.2(typescript@5.2.2)
@@ -245,8 +245,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       '@neondatabase/serverless':
-        specifier: 0.6.0
-        version: 0.6.0
+        specifier: 0.9.0
+        version: 0.9.0
       '@sentry/nextjs':
         specifier: ^7.88.0
         version: 7.93.0(next@14.0.1)(react@18.2.0)
@@ -257,8 +257,8 @@ importers:
         specifier: ^3.2.0
         version: 3.3.1
       drizzle-orm:
-        specifier: ^0.29.1
-        version: 0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
+        specifier: ^0.29.4
+        version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.14.2
         version: 3.14.2(typescript@5.2.2)
@@ -370,7 +370,7 @@ importers:
         version: 0.7.1(typescript@5.2.2)(zod@3.22.4)
       drizzle-orm:
         specifier: ^0.29.4
-        version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.47)(postgres@3.4.3)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.14.2
         version: 3.14.2(typescript@5.2.2)
@@ -3786,7 +3786,7 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm@0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0):
+  /drizzle-orm@0.29.3(@types/react@18.2.47)(postgres@3.4.3)(react@18.2.0):
     resolution: {integrity: sha512-uSE027csliGSGYD0pqtM+SAQATMREb3eSM/U8s6r+Y0RFwTKwftnwwSkqx3oS65UBgqDOM0gMTl5UGNpt6lW0A==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -3857,14 +3857,12 @@ packages:
       sqlite3:
         optional: true
     dependencies:
-      '@neondatabase/serverless': 0.6.0
       '@types/react': 18.2.47
-      '@vercel/postgres': 0.5.1
       postgres: 3.4.3
       react: 18.2.0
     dev: false
 
-  /drizzle-orm@0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.47)(postgres@3.4.3)(react@18.2.0):
+  /drizzle-orm@0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0):
     resolution: {integrity: sha512-ZnSM8TAxFhzH7p1s3+w3pRE/eKaOeNkH9SKitm717pubDVVcV2I0BCDBPGKV+pe02+wMfw37ntlTcCyo2rA3IA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -3937,6 +3935,7 @@ packages:
     dependencies:
       '@neondatabase/serverless': 0.9.0
       '@types/react': 18.2.47
+      '@vercel/postgres': 0.5.1
       postgres: 3.4.3
       react: 18.2.0
     dev: false

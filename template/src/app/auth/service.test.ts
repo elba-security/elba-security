@@ -11,6 +11,7 @@ import { eq } from 'drizzle-orm';
 import * as authConnector from '@/connectors/auth';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
+import { decrypt } from '@/common/crypto';
 import { inngest } from '@/inngest/client';
 import { setupOrganisation } from './service';
 
@@ -55,14 +56,12 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith(code);
 
     // verify the organisation token is set in the database
-    await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        token,
-        region,
-      },
-    ]);
+    const [storedOrganisation] = await db
+      .select()
+      .from(Organisation)
+      .where(eq(Organisation.id, organisation.id));
+    expect(storedOrganisation.region).toBe(region);
+    await expect(decrypt(storedOrganisation.token)).resolves(token);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
@@ -102,16 +101,11 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith(code);
 
     // check if the token in the database is updated
-    await expect(
-      db
-        .select({ token: Organisation.token })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        token,
-      },
-    ]);
+    const [storedOrganisation] = await db
+      .select()
+      .from(Organisation)
+      .where(eq(Organisation.id, organisation.id));
+    await expect(decrypt(storedOrganisation.token)).resolves(token);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
