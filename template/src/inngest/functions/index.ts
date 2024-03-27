@@ -1,3 +1,3 @@
-import { syncUsersPage } from './users/sync-users-page';
+import { syncUsers } from './users/sync-users';
 
-export const inngestFunctions = [syncUsersPage];
+export const inngestFunctions = [syncUsers];

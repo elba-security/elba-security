@@ -1,5 +1,5 @@
 {
-  "name": "next-elba-template",
+  "name": "@elba-security/x-saas",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -27,6 +27,7 @@
     "@elba-security/utils": "workspace:*",
     "@neondatabase/serverless": "0.9.0",
     "@sentry/nextjs": "^7.88.0",
+    "date-fns": "^3.6.0",
     "drizzle-orm": "^0.29.4",
     "inngest": "3.14.2",
     "msw": "^2.0.1",

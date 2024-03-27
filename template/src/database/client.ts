@@ -1,6 +1,6 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import * as schema from './schema';
 
 // To have a local neon database like environment as vercel postgres use neon

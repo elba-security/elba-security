@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { MySaasError } from '@/connectors/commons/error';
+import { XSaasError } from '@/connectors/x-saas/commons/error';
 
 /**
  * This middleware, `rateLimitMiddleware`, is designed for use with the Inngest serverless framework.
@@ -10,7 +10,7 @@ import { MySaasError } from '@/connectors/commons/error';
  *
  * Key Features:
  * - Intercepts function output to check for rate limit errors.
- * - Handles MySaaSError, specifically looking for a 'Retry-After' header in the error response.
+ * - Handles XSaasError, specifically looking for a 'Retry-After' header in the error response.
  * - Generates a RetryAfterError to reschedule the function run, preventing immediate retries that could violate the SaaS's rate limits.
  *
  * Note: This is a generic middleware template and might require adjustments to fit specific SaaS APIs' error handling and rate limiting schemes.
@@ -27,7 +27,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
             const retryAfter =
-              error instanceof MySaasError && error.response?.headers.get('Retry-After');
+              error instanceof XSaasError && error.response?.headers.get('Retry-After');
 
             if (!retryAfter) {
               return;

@@ -1,7 +1,8 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type NextRequest } from 'next/server';
-import { env } from '@/env';
+import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
+import { env } from '@/common/env';
 
 // Remove the next line if your integration does not works with edge runtime
 export const preferredRegion = env.VERCEL_PREFERRED_REGION;
@@ -14,7 +15,12 @@ export function GET(request: NextRequest) {
   const region = request.nextUrl.searchParams.get('region');
 
   if (!organisationId || !region) {
-    redirect(`${env.ELBA_REDIRECT_URL}?error=true`);
+    return new ElbaInstallRedirectResponse({
+      error: 'internal_error',
+      region,
+      baseUrl: env.ELBA_REDIRECT_URL,
+      sourceId: env.ELBA_SOURCE_ID,
+    });
   }
 
   // we store the organisationId in the cookies to be able to retrieve after the SaaS redirection

@@ -6,22 +6,24 @@
  * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
  */
 
-import { MySaasError } from './commons/error';
+import { XSaasError } from './commons/error';
 
-export type MySaasUser = {
+export type XSaasUser = {
   id: string;
   username: string;
   email: string;
 };
 
-type GetUsersResponseData = { users: MySaasUser[]; nextPage: number | null };
+type GetUsersResponseData = { users: XSaasUser[]; nextPage: number | null };
 
 export const getUsers = async (token: string, page: number | null) => {
   const response = await fetch(`https://mysaas.com/api/v1/users?page=${page}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve users', { response });
+    throw new XSaasError('Could not retrieve users', { response });
   }
+
   return response.json() as Promise<GetUsersResponseData>;
 };

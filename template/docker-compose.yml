@@ -10,7 +10,6 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     ports:
       - "${DATABASE_PORT}:5432"
-  # remove the proxy service if your integration does not works with edge runtime
   pg_proxy:
     image: ghcr.io/neondatabase/wsproxy:latest
     container_name: "pg_proxy-${COMPOSE_PROJECT_NAME}"
