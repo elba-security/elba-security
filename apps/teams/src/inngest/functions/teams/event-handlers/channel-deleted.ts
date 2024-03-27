@@ -42,7 +42,7 @@ export const channelDeletedHandler: TeamsEventHandler = async ({
 
   await deleteSubscription(organisation.token, subscriptionId);
 
-  if (channel.messages) {
+  if (channel.messages?.length) {
     const elbaClient = createElbaClient(organisation.id, organisation.region);
 
     await elbaClient.dataProtection.deleteObjects({ ids: channel.messages });

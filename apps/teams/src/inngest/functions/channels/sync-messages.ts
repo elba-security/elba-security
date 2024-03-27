@@ -9,7 +9,6 @@ import { decrypt } from '@/common/crypto';
 import { getMessages } from '@/connectors/microsoft/messages/messages';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
-import { filterMessagesByMessageType } from '@/common/utils';
 
 export const syncMessages = inngest.createFunction(
   {
@@ -71,7 +70,9 @@ export const syncMessages = inngest.createFunction(
         });
       }
 
-      const filterMessages = filterMessagesByMessageType(messages.validMessages);
+      const filterMessages = messages.validMessages.filter(
+        (message) => message.messageType === 'message'
+      );
 
       return { ...messages, validMessages: filterMessages };
     });
@@ -79,23 +80,31 @@ export const syncMessages = inngest.createFunction(
     await step.run('elba-data-sync', async () => {
       const elbaClient = createElbaClient(organisationId, organisation.region);
 
-      if (!validMessages.length) {
-        return;
+      if (validMessages.length) {
+        const objects = validMessages
+          .flatMap((message) => [
+            { ...message, messageId: message.id },
+            ...message.replies.map((reply) => ({
+              ...reply,
+              replyId: reply.id,
+              messageId: message.id,
+            })),
+          ])
+          .map((message) => {
+            return formatDataProtectionObject({
+              teamId,
+              messageId: message.messageId,
+              channelId,
+              channelName,
+              organisationId,
+              membershipType,
+              replyId: 'replyId' in message ? message.replyId : undefined,
+              message,
+            });
+          });
+
+        await elbaClient.dataProtection.updateObjects({ objects });
       }
-
-      const objects = validMessages.map((message) => {
-        return formatDataProtectionObject({
-          teamId,
-          messageId: message.id,
-          channelId,
-          channelName,
-          organisationId,
-          membershipType,
-          message,
-        });
-      });
-
-      await elbaClient.dataProtection.updateObjects({ objects });
     });
 
     await step.run('add-messages-to-db', async () => {
@@ -113,30 +122,41 @@ export const syncMessages = inngest.createFunction(
           .where(eq(channelsTable.id, channelId));
       }
     });
+
     if (validMessages.length) {
-      const eventsWait = validMessages.map(async ({ id }) => {
+      const messagesToSyncReplies = validMessages.filter((message) =>
+        Boolean(message['replies@odata.nextLink'])
+      );
+
+      const eventsWait = messagesToSyncReplies.map(async ({ id }) => {
         return step.waitForEvent(`wait-for-replies-complete-${id}`, {
           event: 'teams/replies.sync.completed',
           timeout: '1d',
-
           if: `async.data.organisationId == '${organisationId}' && async.data.messageId == '${id}'`,
         });
       });
 
-      await step.sendEvent(
-        'start-replies-sync',
-        validMessages.map(({ id }) => ({
-          name: 'teams/replies.sync.triggered',
-          data: {
-            messageId: id,
-            channelId,
-            organisationId,
-            teamId,
-            channelName,
-            membershipType,
-          },
-        }))
-      );
+      if (messagesToSyncReplies.length) {
+        await step.sendEvent(
+          'start-replies-sync',
+          messagesToSyncReplies.map((message) => {
+            const urlParams = new URLSearchParams(message['replies@odata.nextLink']?.split('$')[1]);
+
+            return {
+              name: 'teams/replies.sync.triggered',
+              data: {
+                messageId: message.id,
+                channelId,
+                organisationId,
+                teamId,
+                channelName,
+                membershipType,
+                skipToken: urlParams.get('skipToken'),
+              },
+            };
+          })
+        );
+      }
 
       await Promise.all(eventsWait);
     }

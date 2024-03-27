@@ -1,15 +1,14 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { channelsTable, organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { getReplies } from '@/connectors/microsoft/replies/replies';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
-import { filterMessagesByMessageType } from '@/common/utils';
 
 export const syncReplies = inngest.createFunction(
   {
@@ -72,7 +71,7 @@ export const syncReplies = inngest.createFunction(
         });
       }
 
-      const filterReplies = filterMessagesByMessageType(replies.validReplies);
+      const filterReplies = replies.validReplies.filter((reply) => reply.messageType === 'message');
 
       return { ...replies, validReplies: filterReplies };
     });
@@ -98,6 +97,22 @@ export const syncReplies = inngest.createFunction(
       });
 
       await elbaClient.dataProtection.updateObjects({ objects });
+    });
+
+    await step.run('add-replies-to-db', async () => {
+      if (validReplies.length) {
+        const repliesIds = validReplies.map((reply) => reply.id);
+
+        await db
+          .update(channelsTable)
+          .set({
+            messages: sql`array_cat(
+                ${channelsTable.messages},
+                ${`{${repliesIds.join(', ')}}`}
+                )`,
+          })
+          .where(eq(channelsTable.id, channelId));
+      }
     });
 
     if (nextSkipToken) {

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const messageSchema = z.object({
+export const commonMessageSchema = z.object({
   id: z.string(),
   webUrl: z.string().url(),
   body: z.object({
@@ -30,3 +30,10 @@ export const messageSchema = z.object({
   ]),
   type: z.enum(['message', 'reply']),
 });
+
+const replyMessage = z.object({
+  replies: z.array(commonMessageSchema),
+  'replies@odata.nextLink': z.string().optional(),
+});
+
+export const messageSchema = commonMessageSchema.merge(replyMessage);

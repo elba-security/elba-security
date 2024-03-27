@@ -77,6 +77,7 @@ export const handleWebhook = async (data: SubscriptionPayload[]) => {
   if (!data.length) {
     return;
   }
+
   const webhookPayloads: WebhookPayload[] = groupResources(data)
     .filter((event) => {
       return Object.values(EventType).includes(event.eventName as EventType);

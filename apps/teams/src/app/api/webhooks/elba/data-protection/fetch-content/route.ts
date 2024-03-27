@@ -12,11 +12,11 @@ export const POST = async (request: NextRequest) => {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
   }
 
-  const resourceData = await fetchDataProtectionContent(result.data);
+  const message = await fetchDataProtectionContent(result.data);
 
-  if (!resourceData) {
-    return NextResponse.json({ error: 'Resource not received' }, { status: 400 });
+  if (!message) {
+    return NextResponse.json({ error: 'Data protection object not received' }, { status: 400 });
   }
 
-  return new NextResponse(resourceData.body.content);
+  return new NextResponse(message.body.content);
 };

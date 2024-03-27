@@ -4,12 +4,14 @@ import type { MicrosoftSubscriptionEvent } from '@/app/api/webhooks/microsoft/li
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 
-export const handleSubscriptionEvent = async (data: MicrosoftSubscriptionEvent[]) => {
-  if (!data.length) {
+export const handleSubscriptionEvent = async (
+  subscriptionsEvents: MicrosoftSubscriptionEvent[]
+) => {
+  if (!subscriptionsEvents.length) {
     return;
   }
 
-  const tenantIds = data.map((tenant) => tenant.organizationId);
+  const tenantIds = subscriptionsEvents.map((tenant) => tenant.organizationId);
 
   const organisations = await db
     .select({
@@ -19,12 +21,12 @@ export const handleSubscriptionEvent = async (data: MicrosoftSubscriptionEvent[]
     .from(organisationsTable)
     .where(inArray(organisationsTable.tenantId, tenantIds));
 
-  const subscriptionEvents = data.map((subscription) => {
+  const subscriptionEvents = subscriptionsEvents.map((subscription) => {
     const currentOrganisation = organisations.find(
       (organisation) => organisation.tenantId === subscription.organizationId
     );
-    if (subscription.organizationId === currentOrganisation?.tenantId) {
-      subscription.organizationId = currentOrganisation.organisationId;
+    if (currentOrganisation?.tenantId) {
+      return { ...subscription, organizationId: currentOrganisation.organisationId };
     }
     return subscription;
   });

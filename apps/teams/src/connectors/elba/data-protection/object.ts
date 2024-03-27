@@ -22,12 +22,12 @@ export const formatDataProtectionObject = ({
   replyId?: string;
   membershipType: string;
   channelName: string;
-  message: MicrosoftMessage;
+  message: Omit<MicrosoftMessage, 'replies@odata.nextLink' | 'replies'>;
 }): DataProtectionObject => {
   const creationDate = convertISOToDate(message.createdDateTime);
 
   return {
-    id: messageId,
+    id: message.id,
     name: `#${channelName} - ${creationDate}`,
     metadata: {
       teamId,
@@ -38,7 +38,7 @@ export const formatDataProtectionObject = ({
       replyId: message.type === 'reply' ? replyId : undefined,
     } satisfies MessageMetadata,
     updatedAt: message.lastEditedDateTime ?? undefined,
-    ownerId: message.from.user?.id ? message.from.user.id : message.from.application?.id ?? '',
+    ownerId: message.from.user?.id || message.from.application?.id || '',
     permissions: [
       membershipType === 'shared'
         ? {

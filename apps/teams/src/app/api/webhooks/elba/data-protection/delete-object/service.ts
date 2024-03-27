@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
 import type { ElbaPayload } from '@/app/api/webhooks/elba/data-protection/types';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
@@ -16,9 +15,7 @@ export const deleteDataProtectionObject = async (data: ElbaPayload) => {
     .where(eq(organisationsTable.id, data.organisationId));
 
   if (!organisation) {
-    throw new NonRetriableError(
-      `Could not retrieve organisation with organisationId=${data.organisationId}`
-    );
+    throw new Error(`Could not retrieve organisation with organisationId=${data.organisationId}`);
   }
 
   if (data.metadata.type === 'message') {

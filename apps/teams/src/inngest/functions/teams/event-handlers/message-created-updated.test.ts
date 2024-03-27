@@ -17,6 +17,7 @@ const setup = createInngestFunctionMock(
 
 const token = 'token';
 const encryptedToken = await encrypt(token);
+const repliesSkipToken = 'MSwwLDE3MTE0NDI3MTE1MTI';
 
 const organisation = {
   id: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
@@ -42,12 +43,17 @@ const message: MicrosoftMessage = {
     user: {
       id: 'user-id',
     },
+    application: {
+      id: 'application-id',
+    },
   },
   messageType: 'message',
   type: 'message',
   body: {
     content: 'content',
   },
+  replies: [],
+  'replies@odata.nextLink': `https://graph.microsoft-api-test-url.com/v1.0/teams('team-id')/channels('channel-id')/messages('message-id')/replies?$skipToken=${repliesSkipToken}`,
 };
 
 const invalidMessage: MicrosoftMessage = {
@@ -60,12 +66,36 @@ const invalidMessage: MicrosoftMessage = {
     user: {
       id: 'user-id',
     },
+    application: {
+      id: 'application-id',
+    },
   },
   messageType: 'systemEventMessage',
   type: 'message',
   body: {
     content: 'invalid content content',
   },
+  replies: [
+    {
+      id: `reply-id`,
+      webUrl: `http://wb.uk.com`,
+      etag: `122123213`,
+      createdDateTime: '2023-03-28T21:11:12.395Z',
+      lastEditedDateTime: '2024-02-28T21:11:12.395Z',
+      messageType: 'message',
+      body: {
+        content: `content`,
+      },
+      from: {
+        user: {
+          id: `user-id`,
+        },
+        application: null,
+      },
+      type: 'reply',
+    },
+  ],
+  'replies@odata.nextLink': `https://graph.microsoft-api-test-url.com/v1.0/teams('team-id')/replies?$skipToken=${repliesSkipToken}`,
 };
 
 const formatObject = {

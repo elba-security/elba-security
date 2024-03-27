@@ -2,6 +2,7 @@ import { addDays } from 'date-fns';
 import { z } from 'zod';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/env';
+import { MicrosoftError } from '@/connectors/microsoft/commons/error';
 
 const subscriptionSchema = z.object({
   id: z.string(),
@@ -34,6 +35,11 @@ export const createSubscription = async ({
       expirationDateTime: addDays(new Date(), Number(env.SUBSCRIBE_EXPIRATION_DAYS)).toISOString(),
     }),
   });
+
+  if (!response.ok) {
+    throw new MicrosoftError(`Could not subscribe to resource=${resource}`, { response });
+  }
+
   const data = (await response.json()) as object;
   const result = subscriptionSchema.safeParse(data);
 
@@ -47,7 +53,7 @@ export const createSubscription = async ({
 export const refreshSubscription = async (encryptToken: string, subscriptionId: string) => {
   const token = await decrypt(encryptToken);
 
-  await fetch(`${env.MICROSOFT_API_URL}/subscriptions/${subscriptionId}`, {
+  const response = await fetch(`${env.MICROSOFT_API_URL}/subscriptions/${subscriptionId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -57,16 +63,29 @@ export const refreshSubscription = async (encryptToken: string, subscriptionId: 
       expirationDateTime: addDays(new Date(), Number(env.SUBSCRIBE_EXPIRATION_DAYS)).toISOString(),
     }),
   });
+
+  if (!response.ok) {
+    throw new MicrosoftError(`Could not refresh subscription subscriptionId=${subscriptionId}`, {
+      response,
+    });
+  }
+  return { message: 'subscription has been updated' };
 };
 
 export const deleteSubscription = async (encryptToken: string, subscriptionId: string) => {
   const token = await decrypt(encryptToken);
 
-  await fetch(`${env.MICROSOFT_API_URL}/subscriptions/${subscriptionId}`, {
+  const response = await fetch(`${env.MICROSOFT_API_URL}/subscriptions/${subscriptionId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
   });
+
+  if (!response.ok) {
+    throw new MicrosoftError(`Could not delete to resource=${subscriptionId}`, { response });
+  }
+
+  return { message: 'subscription has been deleted' };
 };

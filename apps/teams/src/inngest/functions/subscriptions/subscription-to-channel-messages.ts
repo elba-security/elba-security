@@ -59,7 +59,7 @@ export const subscribeToChannelMessage = inngest.createFunction(
     });
 
     if (!subscription) {
-      return null;
+      throw new NonRetriableError('Could not retrieve subscription');
     }
 
     await db.insert(subscriptionsTable).values({ ...subscription, organisationId });

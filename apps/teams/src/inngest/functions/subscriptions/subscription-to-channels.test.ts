@@ -61,7 +61,7 @@ describe('subscription-to-channels', () => {
 
     const [result] = setup(data);
 
-    await expect(result).resolves.toBeNull();
+    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(createSubscription).toBeCalledWith({
       encryptToken: organisation.token,

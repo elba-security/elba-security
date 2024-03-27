@@ -11,6 +11,7 @@ export const POST = async (request: NextRequest) => {
   if (!result.success) {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
   }
+
   await startDataProtectionSync(result.data.organisationId);
 
   return new NextResponse();

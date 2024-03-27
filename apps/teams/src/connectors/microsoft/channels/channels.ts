@@ -6,7 +6,7 @@ import { type MicrosoftPaginatedResponse } from '../commons/pagination';
 const channelSchema = z.object({
   id: z.string(),
   membershipType: z.enum(['standard', 'private', 'unknownFutureValue', 'shared']),
-  webUrl: z.string().url().optional(),
+  webUrl: z.string().url(),
   displayName: z.string(),
 });
 
@@ -20,8 +20,6 @@ type GetChannelsParams = {
 type GetChannelParams = GetChannelsParams & {
   channelId: string;
 };
-
-export type GetChannelResponse = Omit<MicrosoftChannel, 'webUrl'>;
 
 export const getChannels = async ({ token, teamId }: GetChannelsParams) => {
   const url = new URL(`${env.MICROSOFT_API_URL}/teams/${teamId}/channels`);
@@ -58,7 +56,7 @@ export const getChannels = async ({ token, teamId }: GetChannelsParams) => {
 
 export const getChannel = async ({ token, teamId, channelId }: GetChannelParams) => {
   const url = new URL(`${env.MICROSOFT_API_URL}/teams/${teamId}/channels/${channelId}`);
-  url.searchParams.append('$select', 'id,membershipType,displayName');
+  url.searchParams.append('$select', 'id,membershipType,webUrl,displayName');
 
   const response = await fetch(url, {
     headers: {

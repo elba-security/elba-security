@@ -4,10 +4,7 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
-import type {
-  GetChannelResponse,
-  MicrosoftChannel,
-} from '@/connectors/microsoft/channels/channels';
+import type { MicrosoftChannel } from '@/connectors/microsoft/channels/channels';
 import { getChannel, getChannels } from '@/connectors/microsoft/channels/channels';
 import { server } from '../../../../vitest/setup-msw-handlers';
 import { MicrosoftError } from '../commons/error';
@@ -33,7 +30,7 @@ function createValidChannelsArray() {
     const obj: MicrosoftChannel = {
       id: `channel-id-${i}`,
       membershipType: `shared`,
-      webUrl: `https://test.com-${i}`,
+      webUrl: `https://web-url-${i}.com`,
       displayName: `name-${i}`,
     };
     objectsArray.push(obj);
@@ -44,10 +41,11 @@ function createValidChannelsArray() {
 
 const validChannels: MicrosoftChannel[] = createValidChannelsArray();
 
-const channelResponse: GetChannelResponse = {
+const channelResponse: MicrosoftChannel = {
   id: 'channel-id',
   membershipType: 'shared',
   displayName: 'name',
+  webUrl: 'https://web-url.com',
 };
 
 const channels = [...validChannels, ...invalidChannels];

@@ -1,4 +1,3 @@
-import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
@@ -16,39 +15,25 @@ export const fetchDataProtectionContent = async (data: ElbaPayload) => {
     .where(eq(organisationsTable.id, data.organisationId));
 
   if (!organisation) {
-    throw new NonRetriableError(
-      `Could not retrieve organisation with organisationId=${data.organisationId}`
-    );
+    throw new Error(`Could not retrieve organisation with organisationId=${data.organisationId}`);
   }
 
   if (data.metadata.type === 'message') {
-    const message = await getMessage({
+    return getMessage({
       token: await decrypt(organisation.token),
       teamId: data.metadata.teamId,
       channelId: data.metadata.channelId,
       messageId: data.metadata.messageId,
     });
-
-    if (!message || message.messageType !== 'message') {
-      return;
-    }
-
-    return message;
   }
 
   if (data.metadata.replyId) {
-    const reply = await getReply({
+    return getReply({
       token: await decrypt(organisation.token),
       teamId: data.metadata.teamId,
       channelId: data.metadata.channelId,
       messageId: data.metadata.messageId,
       replyId: data.metadata.replyId,
     });
-
-    if (!reply || reply.messageType !== 'message') {
-      return;
-    }
-
-    return reply;
   }
 };

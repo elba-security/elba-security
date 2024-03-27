@@ -18,6 +18,7 @@ const invalidDataToken = 'invalid-data-token';
 const startSkipToken = 'start-skip-token';
 const endSkipToken = 'end-skip-token';
 const nextSkipToken = 'next-skip-token';
+const repliesSkipToken = 'MSwwLDE3MTE0NDI3MTE1MTI';
 
 const invalidMessages = [
   {
@@ -59,6 +60,27 @@ function createValidMessagesArray() {
       body: {
         content: `content-${i}`,
       },
+      'replies@odata.nextLink': `https://graph.microsoft-api-test-url.com/v1.0/teams('team-id-${i}')/channels('channel-id-${i}')/messages('message-id-${i}')/replies?$skipToken=${repliesSkipToken}`,
+      replies: [
+        {
+          id: `reply-id-${i}`,
+          webUrl: `http://wb.uk-${i}.com`,
+          etag: `122123213`,
+          createdDateTime: '2023-03-28T21:11:12.395Z',
+          lastEditedDateTime: '2024-02-28T21:11:12.395Z',
+          messageType: 'message',
+          body: {
+            content: `content-${i}`,
+          },
+          from: {
+            user: {
+              id: `user-id-${i}`,
+            },
+            application: null,
+          },
+          type: 'reply',
+        },
+      ],
     };
     objectsArray.push(obj);
   }
@@ -70,7 +92,7 @@ const validMessages = createValidMessagesArray();
 
 const messages = [...validMessages, ...invalidMessages];
 
-const message = {
+const message: MicrosoftMessage = {
   id: 'some-id',
   webUrl: 'http://wb.uk.com',
   etag: `122123213`,
@@ -87,6 +109,27 @@ const message = {
   body: {
     content: 'content',
   },
+  'replies@odata.nextLink': `https://graph.microsoft-api-test-url.com/v1.0/teams('team-id')/channels('channel-id')/messages('message-id')/replies?$skipToken=${repliesSkipToken}`,
+  replies: [
+    {
+      id: `reply-id`,
+      webUrl: `http://wb.uk.com`,
+      etag: `122123213`,
+      createdDateTime: '2023-03-28T21:11:12.395Z',
+      lastEditedDateTime: '2024-02-28T21:11:12.395Z',
+      messageType: 'message',
+      body: {
+        content: `content`,
+      },
+      from: {
+        user: {
+          id: `user-id`,
+        },
+        application: null,
+      },
+      type: 'reply',
+    },
+  ],
 };
 
 describe('messages connector', () => {

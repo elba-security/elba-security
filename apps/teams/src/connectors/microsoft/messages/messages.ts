@@ -1,6 +1,6 @@
 import { env } from '@/env';
 import { messageSchema } from '@/connectors/microsoft/schemes';
-import type { MicrosoftMessage } from '@/connectors/microsoft/types';
+import type { MicrosoftMessage, MicrosoftReply } from '@/connectors/microsoft/types';
 import { MicrosoftError } from '../commons/error';
 import {
   getNextSkipTokenFromNextLink,
@@ -21,6 +21,7 @@ export type GetMessageParams = Omit<GetMessagesParams, 'skipToken'> & {
 export const getMessages = async ({ token, teamId, skipToken, channelId }: GetMessagesParams) => {
   const url = new URL(`${env.MICROSOFT_API_URL}/teams/${teamId}/channels/${channelId}/messages`);
   url.searchParams.append('$top', String(env.MESSAGES_SYNC_BATCH_SIZE));
+  url.searchParams.append('$expand', 'replies');
 
   if (skipToken) {
     url.searchParams.append('$skiptoken', skipToken);
@@ -43,7 +44,15 @@ export const getMessages = async ({ token, teamId, skipToken, channelId }: GetMe
   const invalidMessages: unknown[] = [];
 
   for (const message of data.value) {
-    const result = messageSchema.safeParse({ ...message, type: 'message' });
+    const result = messageSchema.safeParse({
+      ...message,
+      replies:
+        'replies' in message && Array.isArray(message.replies)
+          ? message.replies.map((reply: MicrosoftReply) => ({ ...reply, type: 'reply' }))
+          : [],
+      type: 'message',
+    });
+
     if (result.success) {
       validMessages.push(result.data);
     } else {

@@ -8,7 +8,7 @@ import { decrypt, encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { channelsTable, organisationsTable } from '@/database/schema';
 import * as replyConnector from '@/connectors/microsoft/replies/replies';
-import type { MicrosoftMessage } from '@/connectors/microsoft/types';
+import type { MicrosoftReply } from '@/connectors/microsoft/types';
 
 const setup = createInngestFunctionMock(
   handleTeamsWebhookEvent,
@@ -32,7 +32,7 @@ const channel = {
   organisationId: organisation.id,
 };
 
-const reply: MicrosoftMessage = {
+const reply: MicrosoftReply = {
   id: 'reply-id',
   webUrl: 'http://wb.uk.com',
   etag: '122123213',
@@ -42,6 +42,9 @@ const reply: MicrosoftMessage = {
     user: {
       id: 'user-id',
     },
+    application: {
+      id: 'application-id',
+    },
   },
   messageType: 'message',
   type: 'reply',
@@ -50,7 +53,7 @@ const reply: MicrosoftMessage = {
   },
 };
 
-const invalidReply: MicrosoftMessage = {
+const invalidReply: MicrosoftReply = {
   id: 'invalid-message-id',
   webUrl: 'http://wb.uk.com',
   etag: '22222222',
@@ -59,6 +62,9 @@ const invalidReply: MicrosoftMessage = {
   from: {
     user: {
       id: 'user-id',
+    },
+    application: {
+      id: 'application-id',
     },
   },
   messageType: 'systemEventMessage',
@@ -69,7 +75,7 @@ const invalidReply: MicrosoftMessage = {
 };
 
 const formatObject = {
-  id: 'message-id',
+  id: 'reply-id',
   name: '#channel-name - 2023-03-28',
   metadata: {
     teamId: 'team-id',

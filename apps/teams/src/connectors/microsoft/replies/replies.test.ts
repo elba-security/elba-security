@@ -5,7 +5,7 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { env } from '@/env';
 import { deleteReply, getReplies, getReply } from '@/connectors/microsoft/replies/replies';
-import type { MicrosoftMessage } from '@/connectors/microsoft/types';
+import type { MicrosoftReply } from '@/connectors/microsoft/types';
 import { server } from '../../../../vitest/setup-msw-handlers';
 import { MicrosoftError } from '../commons/error';
 
@@ -35,7 +35,7 @@ const invalidReplies = [
   },
 ];
 
-const reply = {
+const reply: MicrosoftReply = {
   id: 'some-id',
   webUrl: 'http://wb.uk.com',
   etag: `122123213`,
@@ -55,10 +55,10 @@ const reply = {
 };
 
 function createValidArray() {
-  const objectsArray: MicrosoftMessage[] = [];
+  const objectsArray: MicrosoftReply[] = [];
 
   for (let i = 0; i < Number(env.REPLIES_SYNC_BATCH_SIZE) - invalidReplies.length; i++) {
-    const obj: MicrosoftMessage = {
+    const obj: MicrosoftReply = {
       id: `some-id-${i}`,
       webUrl: `http://wb.uk-${i}`,
       etag: `122123213`,

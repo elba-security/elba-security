@@ -1,6 +1,6 @@
 import { env } from '@/env';
-import { messageSchema } from '@/connectors/microsoft/schemes';
-import type { MicrosoftMessage } from '@/connectors/microsoft/types';
+import { commonMessageSchema } from '@/connectors/microsoft/schemes';
+import type { MicrosoftReply } from '@/connectors/microsoft/types';
 import { MicrosoftError } from '../commons/error';
 import {
   getNextSkipTokenFromNextLink,
@@ -48,11 +48,11 @@ export const getReplies = async ({
 
   const data = (await response.json()) as MicrosoftPaginatedResponse<object>;
 
-  const validReplies: MicrosoftMessage[] = [];
+  const validReplies: MicrosoftReply[] = [];
   const invalidReplies: unknown[] = [];
 
   for (const reply of data.value) {
-    const result = messageSchema.safeParse({ ...reply, type: 'reply' });
+    const result = commonMessageSchema.safeParse({ ...reply, type: 'reply' });
 
     if (result.success) {
       validReplies.push(result.data);
@@ -90,7 +90,7 @@ export const getReply = async ({
 
   const data = (await response.json()) as object;
 
-  const result = messageSchema.safeParse({
+  const result = commonMessageSchema.safeParse({
     ...data,
     type: 'reply',
   });

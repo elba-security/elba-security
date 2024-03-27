@@ -7,14 +7,15 @@ import * as channelConnector from '@/connectors/microsoft/channels/channels';
 import { db } from '@/database/client';
 import { channelsTable, organisationsTable } from '@/database/schema';
 import { encrypt, decrypt } from '@/common/crypto';
-import type { GetChannelResponse } from '@/connectors/microsoft/channels/channels';
 import { inngest } from '@/inngest/client';
 import { EventType } from '@/app/api/webhooks/microsoft/event-handler/service';
+import type { MicrosoftChannel } from '@/connectors/microsoft/channels/channels';
 
-const privateChannel: GetChannelResponse = {
+const privateChannel: MicrosoftChannel = {
   id: 'private-channel-id',
   membershipType: 'private',
   displayName: 'private',
+  webUrl: 'web-url',
 };
 
 const token = 'token';
@@ -123,6 +124,7 @@ describe('channel-created', () => {
       id: 'channel-id',
       displayName: 'channel',
       membershipType: 'standard',
+      webUrl: 'web-url',
     });
 
     await expect(result).resolves.toStrictEqual({ message: 'Channel created' });
