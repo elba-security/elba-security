@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { channelsTable, organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
@@ -11,12 +11,20 @@ import { getChannels } from '@/connectors/microsoft/channels/channels';
 export const syncChannels = inngest.createFunction(
   {
     id: 'sync-channels',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
+    },
+    onFailure: async ({ event, step }) => {
+      const { organisationId, teamId } = event.data.event.data;
+
+      await step.sendEvent('channels-sync-complete', {
+        name: 'teams/channels.sync.completed',
+        data: {
+          teamId,
+          organisationId,
+        },
+      });
     },
     cancelOn: [
       {
@@ -43,25 +51,48 @@ export const syncChannels = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const { validChannels } = await step.run('paginate', async () => {
-      const result = await getChannels({
+    const { validChannels: channels } = await step.run('paginate', async () => {
+      const { validChannels, invalidChannels } = await getChannels({
         token: await decrypt(organisation.token),
         teamId,
       });
 
-      if (result.invalidChannels.length > 0) {
+      if (invalidChannels.length > 0) {
         logger.warn('Retrieved channels contains invalid data', {
           organisationId,
           tenantId: organisation.tenantId,
-          invalidChannels: result.invalidChannels,
+          invalidChannels,
         });
       }
 
-      return result;
+      return { validChannels };
     });
 
-    if (validChannels.length) {
-      const eventsWait = validChannels.map(async ({ id }) => {
+    await step.run('insert-channels-to-db', async () => {
+      const channelsToInsert = channels.map((channel) => ({
+        organisationId,
+        id: channel.id,
+        membershipType: channel.membershipType,
+        displayName: channel.displayName,
+      }));
+
+      await db.insert(channelsTable).values(channelsToInsert).onConflictDoNothing();
+    });
+
+    if (channels.length) {
+      await step.sendEvent(
+        'subscribe-to-channel-messages',
+        channels.map((channel) => ({
+          name: 'teams/channel.subscription.triggered',
+          data: {
+            organisationId,
+            channelId: channel.id,
+            teamId,
+          },
+        }))
+      );
+
+      const eventsWait = channels.map(async ({ id }) => {
         return step.waitForEvent(`wait-for-messages-complete-${id}`, {
           event: 'teams/messages.sync.completed',
           timeout: '1d',
@@ -71,7 +102,7 @@ export const syncChannels = inngest.createFunction(
 
       await step.sendEvent(
         'start-messages-sync',
-        validChannels.map((channel) => ({
+        channels.map((channel) => ({
           name: 'teams/messages.sync.triggered',
           data: {
             channelId: channel.id,

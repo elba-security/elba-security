@@ -74,13 +74,7 @@ describe('setupOrganisation', () => {
           skipToken: null,
         },
       },
-      {
-        name: 'teams/teams.sync.triggered',
-        data: {
-          organisationId: organisation.id,
-          skipToken: null,
-        },
-      },
+
       {
         name: 'teams/token.refresh.triggered',
         data: {
@@ -134,13 +128,6 @@ describe('setupOrganisation', () => {
           organisationId: organisation.id,
           isFirstSync: true,
           syncStartedAt: now.getTime(),
-          skipToken: null,
-        },
-      },
-      {
-        name: 'teams/teams.sync.triggered',
-        data: {
-          organisationId: organisation.id,
           skipToken: null,
         },
       },

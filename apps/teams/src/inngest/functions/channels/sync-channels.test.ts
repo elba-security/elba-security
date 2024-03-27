@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
 import * as channelsConnector from '@/connectors/microsoft/channels/channels';
 import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { channelsTable, organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { syncChannels } from '@/inngest/functions/channels/sync-channels';
 import type { MicrosoftChannel } from '@/connectors/microsoft/channels/channels';
@@ -51,7 +51,7 @@ function createValidChannelsArray() {
 const validChannels: MicrosoftChannel[] = createValidChannelsArray();
 
 describe('sync-channels', () => {
-  test('should abort sync when organisation is not registered', async () => {
+  test('should abort sync when the organisation is not registered', async () => {
     const getTeams = vi.spyOn(channelsConnector, 'getChannels').mockResolvedValue({
       validChannels,
       invalidChannels,
@@ -65,13 +65,22 @@ describe('sync-channels', () => {
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should finalize the sync when there is a no next page', async () => {
+  test('should finalize the sync when there is no next page', async () => {
     await db.insert(organisationsTable).values(organisation);
 
     const getChannels = vi.spyOn(channelsConnector, 'getChannels').mockResolvedValue({
       invalidChannels,
       validChannels,
     });
+
+    const channelsToInsert = validChannels.map((channel) => ({
+      organisationId: organisation.id,
+      id: channel.id,
+      membershipType: channel.membershipType,
+      displayName: channel.displayName,
+    }));
+
+    await db.insert(channelsTable).values(channelsToInsert);
 
     const [result, { step }] = setup(data);
 
@@ -102,7 +111,7 @@ describe('sync-channels', () => {
       timeout: '1d',
     });
 
-    expect(step.sendEvent).toBeCalledTimes(2);
+    expect(step.sendEvent).toBeCalledTimes(3);
     expect(step.sendEvent).toBeCalledWith('start-messages-sync', [
       {
         data: {

@@ -113,7 +113,7 @@ describe('sync-users', () => {
     });
   });
 
-  test('should finalize the sync when there is a no next page', async () => {
+  test('should finalize the sync when there is no next page', async () => {
     const nextSkipToken = null;
     const skipToken = 'skip-token';
     const elba = spyOnElba();

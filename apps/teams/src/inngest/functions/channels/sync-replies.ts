@@ -1,8 +1,8 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { channelsTable, organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
@@ -13,12 +13,20 @@ import { formatDataProtectionObject } from '@/connectors/elba/data-protection/ob
 export const syncReplies = inngest.createFunction(
   {
     id: 'sync-replies',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
+    },
+    onFailure: async ({ event, step }) => {
+      const { organisationId, messageId } = event.data.event.data;
+
+      await step.sendEvent('replies-sync-complete', {
+        name: 'teams/replies.sync.completed',
+        data: {
+          messageId,
+          organisationId,
+        },
+      });
     },
     cancelOn: [
       {
@@ -46,8 +54,8 @@ export const syncReplies = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const { nextSkipToken, validReplies: replies } = await step.run('paginate', async () => {
-      const result = await getReplies({
+    const { nextSkipToken, validReplies } = await step.run('paginate', async () => {
+      const replies = await getReplies({
         token: await decrypt(organisation.token),
         teamId,
         skipToken,
@@ -55,24 +63,27 @@ export const syncReplies = inngest.createFunction(
         messageId,
       });
 
-      if (result.invalidReplies.length > 0) {
+      if (replies.invalidReplies.length > 0) {
         logger.warn('Retrieved replies contains invalid data', {
           organisationId,
           tenantId: organisation.tenantId,
-          invalidReplies: result.invalidReplies,
+          invalidReplies: replies.invalidReplies,
         });
       }
-      return result;
+
+      const filterReplies = replies.validReplies.filter((reply) => reply.messageType === 'message');
+
+      return { ...replies, validReplies: filterReplies };
     });
 
-    const elbaClient = createElbaClient(organisationId, organisation.region);
-
     await step.run('elba-data-sync', async () => {
-      if (!replies.length) {
+      const elbaClient = createElbaClient(organisationId, organisation.region);
+
+      if (!validReplies.length) {
         return;
       }
 
-      const objects = replies.map((reply) => {
+      const objects = validReplies.map((reply) => {
         return formatDataProtectionObject({
           teamId,
           messageId,
@@ -80,11 +91,28 @@ export const syncReplies = inngest.createFunction(
           channelName,
           organisationId,
           membershipType,
+          replyId: reply.id,
           message: reply,
         });
       });
 
       await elbaClient.dataProtection.updateObjects({ objects });
+    });
+
+    await step.run('add-replies-to-db', async () => {
+      if (validReplies.length) {
+        const repliesIds = validReplies.map((reply) => reply.id);
+
+        await db
+          .update(channelsTable)
+          .set({
+            messages: sql`array_cat(
+                ${channelsTable.messages},
+                ${`{${repliesIds.join(', ')}}`}
+                )`,
+          })
+          .where(eq(channelsTable.id, channelId));
+      }
     });
 
     if (nextSkipToken) {

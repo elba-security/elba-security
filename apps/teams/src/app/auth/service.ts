@@ -53,13 +53,6 @@ export const setupOrganisation = async ({
       },
     },
     {
-      name: 'teams/teams.sync.triggered',
-      data: {
-        organisationId,
-        skipToken: null,
-      },
-    },
-    {
       name: 'teams/token.refresh.triggered',
       data: {
         organisationId,
