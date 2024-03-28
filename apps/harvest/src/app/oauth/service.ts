@@ -1,7 +1,7 @@
+import { addSeconds } from 'date-fns';
 import { getHarvestId } from '@/connectors/accounts';
-import { getAccessToken, refreshAccessToken } from '@/connectors/auth';
-import { deleteUser, getUsers } from '@/connectors/users';
-// import { db, Organisation } from '@/database';
+import { getAccessToken } from '@/connectors/auth';
+import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
 
 type SetupOrganisationParams = {
@@ -20,44 +20,43 @@ export const setupOrganisation = async ({
   if (!harvestId) {
     throw new Error('Could not retrieve harvest account id');
   }
-  // await db
-  //   .insert(Organisation)
-  //   .values({
-  //     id: organisationId,
-  //     accessToken,
-  //     refreshToken,
-  //     teamId,
-  //     region,
-  //   })
-  //   .onConflictDoUpdate({
-  //     target: [Organisation.id],
-  //     set: {
-  //       id: organisationId,
-  //       accessToken,
-  //       refreshToken,
-  //       teamId,
-  //       region,
-  //     },
-  //   })
-  //   .returning();
+  await db
+    .insert(Organisation)
+    .values({
+      id: organisationId,
+      accessToken,
+      refreshToken,
+      harvestId: String(harvestId),
+      region,
+    })
+    .onConflictDoUpdate({
+      target: [Organisation.id],
+      set: {
+        id: organisationId,
+        accessToken,
+        refreshToken,
+        harvestId: String(harvestId),
+        region,
+      },
+    });
 
-  // await inngest.send([
-  //   {
-  //     name: 'heroku/token.refresh.requested',
-  //     data: {
-  //       organisationId,
-  //       expiresAt: addSeconds(new Date(), expiresIn).getTime(),
-  //     },
-  //   },
-  //   {
-  //     name: 'heroku/users.page_sync.requested',
-  //     data: {
-  //       isFirstSync: true,
-  //       organisationId,
-  //       region,
-  //       syncStartedAt: Date.now(),
-  //       range: null,
-  //     },
-  //   },
-  // ]);
+  await inngest.send([
+    {
+      name: 'harvest/token.refresh.requested',
+      data: {
+        organisationId,
+        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
+      },
+    },
+    {
+      name: 'harvest/users.page_sync.requested',
+      data: {
+        isFirstSync: true,
+        organisationId,
+        region,
+        syncStartedAt: Date.now(),
+        page: null,
+      },
+    },
+  ]);
 };
