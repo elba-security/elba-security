@@ -1,25 +1,48 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation.
- * When requesting against API endpoint we might prefer to valid the response
- * data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { env } from '@/env';
+import { type GetTokenResponseData } from './types';
+import { HarvestError } from './commons/error';
 
-import { MySaasError } from './commons/error';
-
-type GetTokenResponseData = { token: string };
-
-export const getToken = async (code: string) => {
-  const response = await fetch('https://mysaas.com/api/v1/token', {
-    method: 'POST',
-    body: JSON.stringify({ code }),
-  });
-
+export const getAccessToken = async (code: string) => {
+  const response = await fetch(
+    `https://id.getharvest.com/api/v2/oauth2/token?grant_type=authorization_code&client_id=${env.HARVEST_CLIENT_ID}&client_secret=${env.HARVEST_CLIENT_SECRET}&code=${code}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve token', { response });
+    throw new HarvestError('Failed to fetch', { response });
   }
   const data = (await response.json()) as GetTokenResponseData;
-  return data.token;
+  const tokenResponse = {
+    accessToken: data.access_token,
+    refreshToken: data.refresh_token,
+    expiresIn: data.expires_in,
+  };
+  return tokenResponse;
+};
+
+export const refreshAccessToken = async (refreshToken: string) => {
+  const response = await fetch(
+    `https://id.getharvest.com/api/v2/oauth2/token?grant_type=refresh_token&client_id=${env.HARVEST_CLIENT_ID}&client_secret=${env.HARVEST_CLIENT_SECRET}&refresh_token=${refreshToken}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new HarvestError('Failed to refresh token', { response });
+  }
+  const data = (await response.json()) as GetTokenResponseData;
+  const tokenResponse = {
+    accessToken: data.access_token,
+    refreshToken: data.refresh_token,
+    expiresIn: data.expires_in,
+  };
+  return tokenResponse;
 };

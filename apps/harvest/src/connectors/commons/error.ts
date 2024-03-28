@@ -1,10 +1,12 @@
-type MySaasErrorOptions = { response?: Response };
+type HarvestErrorOptions = { response?: Response; request?: Request };
 
-export class MySaasError extends Error {
+export class HarvestError extends Error {
   response?: Response;
+  request?: Request;
 
-  constructor(message: string, { response }: MySaasErrorOptions = {}) {
+  constructor(message: string, { response, request }: HarvestErrorOptions = {}) {
     super(message);
     this.response = response;
+    this.request = request;
   }
 }

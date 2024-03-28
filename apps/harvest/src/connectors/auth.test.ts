@@ -1,44 +1,97 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `auth` connectors function.
- * Theses tests exists because the services & inngest functions using this connector mock it.
- * If you are using an SDK we suggest you to mock it not to implements calls using msw.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
-
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getToken } from './auth';
-import { MySaasError } from './commons/error';
+import { getAccessToken, refreshAccessToken } from './auth';
+import { HarvestError } from './commons/error';
 
-const validCode = '1234';
-const token = 'token-1234';
+const validAuthCode = 'valid-code';
+const validRefreshToken = 'valid-refresh-token';
+const accessToken = 'access-token';
+const refreshToken = 'refresh-token';
+const expiresIn = 'expiry-time';
 
-describe('auth connector', () => {
-  describe('getToken', () => {
-    // mock token API endpoint using msw
-    beforeEach(() => {
-      server.use(
-        http.post('https://mysaas.com/api/v1/token', async ({ request }) => {
-          // briefly implement API endpoint behaviour
-          const data = (await request.json()) as { code: string };
-          if (!data.code || data.code !== validCode) {
-            return new Response(undefined, { status: 401 });
-          }
-          return Response.json({ token });
-        })
+describe('getAccessToken', () => {
+  beforeEach(() => {
+    server.use(
+      http.post('https://id.getharvest.com/api/v2/oauth2/token', ({ request }) => {
+        const url = new URL(request.url);
+        const code = url.searchParams.get('code');
+        if (code !== validAuthCode) {
+          return new Response(undefined, { status: 401 });
+        }
+        return new Response(
+          JSON.stringify({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            expires_in: expiresIn,
+          }),
+          { status: 200 }
+        );
+      })
+    );
+  });
+
+  test('should not throw when authorization code is valid', async () => {
+    try {
+      await expect(getAccessToken(validAuthCode)).resolves.toStrictEqual({
+        accessToken,
+        refreshToken,
+        expiresIn,
+      });
+    } catch (error) {
+      expect(error).toBeNull();
+    }
+  });
+
+  test('should throw an error when authorization code is invalid', async () => {
+    try {
+      await expect(getAccessToken('invalid-auth-code')).rejects.toBeInstanceOf(HarvestError);
+    } catch (error) {
+      expect((error as HarvestError).message).toBe('Failed to fetch');
+    }
+  });
+});
+
+describe('refreshAccessToken', () => {
+  beforeEach(() => {
+    server.use(
+      http.post('https://id.getharvest.com/api/v2/oauth2/token', ({ request }) => {
+        const url = new URL(request.url);
+        const refreshTokenParam = url.searchParams.get('refresh_token');
+        if (refreshTokenParam !== validRefreshToken) {
+          return new Response(undefined, { status: 401 });
+        }
+        return new Response(
+          JSON.stringify({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            expires_in: expiresIn,
+          }),
+          { status: 200 }
+        );
+      })
+    );
+  });
+
+  test('should not throw when refresh token is valid', async () => {
+    try {
+      await expect(refreshAccessToken(validRefreshToken)).resolves.toStrictEqual({
+        accessToken,
+        refreshToken,
+        expiresIn,
+      });
+    } catch (error) {
+      expect(error).toBeNull();
+    }
+  });
+
+  test('should throw an error when refresh token is invalid', async () => {
+    try {
+      await expect(refreshAccessToken('invalid-refresh-token')).rejects.toBeInstanceOf(
+        HarvestError
       );
-    });
-
-    test('should return the token when the code is valid', async () => {
-      await expect(getToken(validCode)).resolves.toBe(token);
-    });
-
-    test('should throw when the code is invalid', async () => {
-      await expect(getToken('wrong-code')).rejects.toBeInstanceOf(MySaasError);
-    });
+    } catch (error) {
+      expect((error as HarvestError).message).toBe('Failed to refresh token');
+    }
   });
 });
