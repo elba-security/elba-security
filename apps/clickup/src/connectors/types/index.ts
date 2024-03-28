@@ -21,5 +21,8 @@ export type ClickUpUser = {
 
 
 export type GetUsersResponseData = {
- users: ClickUpUser[];
+ teams:{
+    members:{
+    users: ClickUpUser[];
+    }}
 };
