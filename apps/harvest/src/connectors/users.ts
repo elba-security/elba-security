@@ -1,27 +1,42 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation. When requesting against API endpoint we might prefer
- * to valid the response data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { env } from '@/env';
+import { HarvestError } from './commons/error';
+import { type GetUsersResponseData } from './types';
 
-import { MySaasError } from './commons/error';
-
-export type MySaasUser = {
-  id: string;
-  username: string;
-  email: string;
+export type Pagination = {
+  nextRange: string | null;
 };
 
-type GetUsersResponseData = { users: MySaasUser[]; nextPage: number | null };
-
-export const getUsers = async (token: string, page: number | null) => {
-  const response = await fetch(`https://mysaas.com/api/v1/users?page=${page}`, {
-    headers: { Authorization: `Bearer ${token}` },
+export const getUsers = async (token: string, harvestId: number, page: number | null) => {
+  const url = new URL('https://api.harvestapp.com/v2/users');
+  url.searchParams.append('per_page', String(env.USERS_SYNC_BATCH_SIZE));
+  if (page) {
+    url.searchParams.append('page', String(page));
+  }
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    'Harvest-Account-Id': String(harvestId),
+  };
+  const response = await fetch(url, {
+    headers,
   });
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve users', { response });
+    throw new HarvestError('Could not retrieve harvest users', { response });
   }
-  return response.json() as Promise<GetUsersResponseData>;
+  const data = (await response.json()) as GetUsersResponseData;
+  return data;
+};
+
+export const deleteUser = async (token: string, harvestId: number, userId: number) => {
+  const response = await fetch(`https://api.harvestapp.com/v2/users/${userId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Harvest-Account-Id': String(harvestId),
+    },
+  });
+
+  if (!response.ok) {
+    throw new HarvestError(`Could not delete user with Id: ${userId}`, { response });
+  }
 };
