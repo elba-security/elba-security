@@ -1,10 +1,10 @@
 import { describe, expect, test, beforeEach } from 'vitest';
 import { http } from 'msw';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getUsers, deleteUser, type LivestormUser, type Pagination } from './users';
-import { LivestormError } from './commons/error';
+import { getUsers, deleteUser, type LivestormUser, } from './users';
+import type { LivestormError } from './commons/error';
 
-const users: LivestormUser[] = [
+const data: LivestormUser[] = [
   {
     id: 'user-id',
     attributes: {
@@ -16,18 +16,8 @@ const users: LivestormUser[] = [
   },
 ];
 
-const pagination: Pagination = {
-  current_page: 1,
-  previous_page: null,
-  next_page: null,
-  record_count: 1,
-  page_count: 1,
-  items_per_page: 10,
-};
-
 const validToken = 'test-token';
 const userId = 'test-id';
-const maxPage = 2;
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
@@ -37,10 +27,15 @@ describe('getUsers', () => {
           return new Response(undefined, { status: 401 });
         }
         const page = parseInt(url.searchParams.get('page[number]') || '0');
+        const lastPage= 2;
+        const nextPage=1;
         const response = {
-          users: page > pagination.page_count ? [] : users,
-          pagination: { ...pagination, current_page: page },
+          data,
+          meta: {
+            next_page: page === lastPage ? null : nextPage, 
+          },
         };
+
         return new Response(JSON.stringify(response), {
           status: 200,
         });
@@ -52,26 +47,25 @@ describe('getUsers', () => {
     try {
       await getUsers('invalidToken', 0);
     } catch (error) {
-      expect(error instanceof LivestormError).toBeTruthy();
-      expect(error.message).toEqual('Could not retrieve Livestorm users');
+      expect((error as LivestormError) .message).toEqual('Could not retrieve Livestorm users');
     }
   });
   test('should fetch users when token is valid', async () => {
     const result = await getUsers(validToken, 0);
-    expect(result.users).toEqual(users);
+    expect(result.data).toEqual(data);
   });
 
-  test('should return users when there is another page', async () => {
+  test('should return next Page when there is another page', async () => {
     await expect(getUsers(validToken, 0)).resolves.toStrictEqual({
-      users,
-      pagination: { ...pagination, current_page: 0 },
+      data,
+      meta: { next_page: 1 },
     });
   });
 
-  test('should return no users when there is no other page', async () => {
-    await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
-      users: [],
-      pagination: { ...pagination, current_page: maxPage },
+  test('should return no next Page when the end of list is reached', async () => {
+    await expect(getUsers(validToken, 2)).resolves.toStrictEqual({
+      data,
+      meta: { next_page: null },
     });
   });
 });
@@ -95,8 +89,7 @@ describe('deleteUser', () => {
     try {
       await deleteUser('invalidToken', userId);
     } catch (error) {
-      expect(error instanceof LivestormError).toBe(true);
-      expect(error.message).toEqual('Could not delete Livestorm user');
+      expect((error as LivestormError).message).toEqual('Could not delete Livestorm user');
     }
   });
 });

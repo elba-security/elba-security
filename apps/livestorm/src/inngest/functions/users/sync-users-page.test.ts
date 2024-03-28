@@ -5,7 +5,7 @@ import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { syncUsersPage } from './sync-users-page';
-import { users } from './__mocks__/integration';
+import { users} from './__mocks__/integration';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
@@ -41,15 +41,10 @@ describe('sync-users', () => {
 
     // Mock the getUsers function that returns Livestorm users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      pagination: {
-        current_page: 0,
-        previous_page: null,
+      meta: {
         next_page: 1,
-        record_count: 20,
-        page_count: 2,
-        items_per_page: 10,
       },
-      users,
+      data:users,
     });
 
     const [result, { step }] = setup({
@@ -81,15 +76,10 @@ describe('sync-users', () => {
 
     // Mock the getUsers function that returns Livestorm users page without a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      pagination: {
-        current_page: 0,
-        previous_page: null,
+      meta: {
         next_page: null,
-        record_count: 10,
-        page_count: 1,
-        items_per_page: 10,
       },
-      users,
+      data:users,
     });
 
     const [result, { step }] = setup({

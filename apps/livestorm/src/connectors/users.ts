@@ -12,15 +12,10 @@ export type LivestormUser = {
 };
 
 export type Pagination = {
-  current_page: number;
-  previous_page: number | null;
   next_page: number | null;
-  record_count: number;
-  page_count: number;
-  items_per_page: number;
 };
 
-type GetUsersResponseData = { users: LivestormUser[]; pagination: Pagination };
+type GetUsersResponseData = { data: LivestormUser[]; meta: Pagination };
 
 export const getUsers = async (token: string, page: number | null) => {
   const response = await fetch(
