@@ -4,10 +4,9 @@ import type { ClickUpError } from '@/connectors/commons/error';
 import { server } from '../../vitest/setup-msw-handlers';
 import { getTeamId } from './team';
 
-
 const validToken = 'valid-token';
 const teamId = 'team-id';
-const teams= 'test-team';
+const teams = 'test-team';
 
 describe('getTeamId', () => {
   beforeEach(() => {
