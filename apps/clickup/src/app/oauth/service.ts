@@ -1,4 +1,5 @@
 import { getAccessToken } from '@/connectors/auth';
+import { getTeamId } from '@/connectors/team';
 import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
 
@@ -16,4 +17,6 @@ export const setupOrganisation = async ({
  region,
 }: SetupOrganisationParams) => {
  const accessToken = await getAccessToken(code);
+ const result= await getTeamId(accessToken);
+ console.log("team is ", result)
 };

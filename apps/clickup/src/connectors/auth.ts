@@ -1,5 +1,6 @@
 import { env } from '@/env';
 import { ClickUpError } from './commons/error';
+import { GetTokenResponseData } from './types';
 
 
 export const getAccessToken = async (code: string) => {
@@ -15,6 +16,6 @@ export const getAccessToken = async (code: string) => {
  if (!response.ok) {
    throw new ClickUpError('Failed to fetch', { response });
  }
- const data = (await response.json());
+ const data = (await response.json()) as GetTokenResponseData;
  return data.access_token;
 };
