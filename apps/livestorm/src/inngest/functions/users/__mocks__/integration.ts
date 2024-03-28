@@ -3,7 +3,7 @@ export const organisations = Array.from({ length: 5 }, (_, i) => ({
   token: `token-${i}`,
   region: 'us',
 }));
-export const users = Array.from({ length: 10 }, (_, i) => ({
+export const data = Array.from({ length: 10 }, (_, i) => ({
   id: `user-${i}`,
   attributes: {
     role: `host${i}`,

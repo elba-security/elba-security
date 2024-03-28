@@ -60,13 +60,13 @@ export const syncUsersPage = inngest.createFunction(
       // retrieve this users page
       const result = await getUsers(token, page);
       // format each Livestorm user to Elba users
-      const users = result.users.map(formatElbaUser);
+      const users = result.data.map(formatElbaUser);
       // send the batch of users to Elba
       logger.debug('Sending batch of users to Elba: ', { organisationId, users });
       await elba.users.update({ users });
 
-      if (result.pagination.page_count > 1) {
-        return result.pagination.current_page + 1;
+      if (result.meta.next_page !== null ) {
+        return result.meta.next_page;
       }
       return null;
     });
