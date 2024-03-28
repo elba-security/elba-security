@@ -5,7 +5,7 @@ import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { syncUsersPage } from './sync-users-page';
-import { data} from './__mocks__/integration';
+import { users} from './__mocks__/integration';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
@@ -44,7 +44,7 @@ describe('sync-users', () => {
       meta: {
         next_page: 1,
       },
-      data,
+      data:users,
     });
 
     const [result, { step }] = setup({
@@ -79,7 +79,7 @@ describe('sync-users', () => {
       meta: {
         next_page: null,
       },
-      data,
+      data:users,
     });
 
     const [result, { step }] = setup({

@@ -1,8 +1,8 @@
 import { describe, expect, test, beforeEach } from 'vitest';
 import { http } from 'msw';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getUsers, deleteUser, type LivestormUser, type Pagination } from './users';
-import { LivestormError } from './commons/error';
+import { getUsers, deleteUser, type LivestormUser, } from './users';
+import type { LivestormError } from './commons/error';
 
 const data: LivestormUser[] = [
   {
@@ -16,13 +16,8 @@ const data: LivestormUser[] = [
   },
 ];
 
-const meta: Pagination = {
-  next_page: null,
-};
-
 const validToken = 'test-token';
 const userId = 'test-id';
-const maxPage=2;
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
@@ -33,10 +28,11 @@ describe('getUsers', () => {
         }
         const page = parseInt(url.searchParams.get('page[number]') || '0');
         const lastPage= 2;
+        const nextPage=1;
         const response = {
           data,
           meta: {
-            next_page: page === lastPage ? null : page + 1, 
+            next_page: page === lastPage ? null : nextPage, 
           },
         };
 
@@ -51,8 +47,7 @@ describe('getUsers', () => {
     try {
       await getUsers('invalidToken', 0);
     } catch (error) {
-      expect(error instanceof LivestormError).toBeTruthy();
-      expect(error.message).toEqual('Could not retrieve Livestorm users');
+      expect((error as LivestormError) .message).toEqual('Could not retrieve Livestorm users');
     }
   });
   test('should fetch users when token is valid', async () => {
@@ -68,7 +63,7 @@ describe('getUsers', () => {
   });
 
   test('should return no next Page when the end of list is reached', async () => {
-    await expect(getUsers(validToken, maxPage)).resolves.toStrictEqual({
+    await expect(getUsers(validToken, 2)).resolves.toStrictEqual({
       data,
       meta: { next_page: null },
     });
@@ -94,8 +89,7 @@ describe('deleteUser', () => {
     try {
       await deleteUser('invalidToken', userId);
     } catch (error) {
-      expect(error instanceof LivestormError).toBe(true);
-      expect(error.message).toEqual('Could not delete Livestorm user');
+      expect((error as LivestormError).message).toEqual('Could not delete Livestorm user');
     }
   });
 });
