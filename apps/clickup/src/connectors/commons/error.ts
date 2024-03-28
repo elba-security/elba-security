@@ -1,9 +1,9 @@
-type MySaasErrorOptions = { response?: Response };
+type ClickUpErrorOptions = { response?: Response };
 
-export class MySaasError extends Error {
+export class ClickUpError extends Error {
   response?: Response;
 
-  constructor(message: string, { response }: MySaasErrorOptions = {}) {
+  constructor(message: string, { response }: ClickUpErrorOptions = {}) {
     super(message);
     this.response = response;
   }
