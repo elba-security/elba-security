@@ -14,4 +14,16 @@ export type HarvestAccount = {
   product: string;
 };
 
-export type HarvestUser = null;
+export type GetUsersResponseData = {
+  users: HarvestUser[];
+  next_page: number;
+};
+export type HarvestUser = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  access_roles: AccessRole[];
+};
+
+type AccessRole = 'member' | 'manager' | 'administrator';

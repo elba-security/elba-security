@@ -1,5 +1,6 @@
 import { getHarvestId } from '@/connectors/accounts';
 import { getAccessToken, refreshAccessToken } from '@/connectors/auth';
+import { deleteUser, getUsers } from '@/connectors/users';
 // import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
 
