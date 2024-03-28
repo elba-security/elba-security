@@ -25,6 +25,7 @@ export const env = z
     USERS_SYNC_MAX_RETRY: zEnvRetry(),
     REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
     USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().default(200),
+    HARVEST_TOKEN_REFRESH_RETRIES: zEnvRetry().default(5),
     HARVEST_CLIENT_ID: z.string(),
     HARVEST_CLIENT_SECRET: z.string(),
     HARVEST_REDIRECT_URI: z.string().url(),

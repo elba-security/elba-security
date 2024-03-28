@@ -16,7 +16,7 @@ export type HarvestAccount = {
 
 export type GetUsersResponseData = {
   users: HarvestUser[];
-  next_page: number;
+  next_page: number | null;
 };
 export type HarvestUser = {
   id: number;
