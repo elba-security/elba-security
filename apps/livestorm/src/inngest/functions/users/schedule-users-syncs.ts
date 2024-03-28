@@ -4,7 +4,7 @@ import { Organisation } from '@/database/schema';
 import { inngest } from '../../client';
 
 export const scheduleUsersSyncs = inngest.createFunction(
-  { id: 'apollo-schedule-users-syncs' },
+  { id: 'livestorm-schedule-users-syncs' },
   { cron: env.USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
