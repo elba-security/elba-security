@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- needed for efficient type extraction */
-import { vi, type VitestUtils } from 'vitest';
+import type { Mock } from 'vitest';
+import { vi } from 'vitest';
 import type { InngestFunction, EventsFromOpts } from 'inngest';
 // import type { AnyInngestFunction } from 'inngest/components/InngestFunction';
 
@@ -27,10 +28,11 @@ type MockSetupReturns<
       data: EventName extends undefined ? never : ExtractEvents<F>[EventName & string]['data'];
     };
     step: {
-      run: VitestUtils['fn'];
-      sendEvent: VitestUtils['fn'];
-      waitForEvent: VitestUtils['fn'];
-      sleepUntil: VitestUtils['fn'];
+      run: Mock<unknown[], unknown>;
+      sendEvent: Mock<unknown[], unknown>;
+      waitForEvent: Mock<unknown[], unknown>;
+      sleepUntil: Mock<unknown[], unknown>;
+      invoke: Mock<unknown[], unknown>;
     };
   },
 ];
@@ -60,6 +62,15 @@ export const createInngestFunctionMock =
       sendEvent: vi.fn().mockResolvedValue(undefined),
       waitForEvent: vi.fn().mockResolvedValue(undefined),
       sleepUntil: vi.fn().mockResolvedValue(undefined),
+      invoke: vi
+        .fn()
+        .mockImplementation(
+          (name: string, fn: { function: AnyInngestFunction; data: Record<string, unknown> }) => {
+            const setup = createInngestFunctionMock(fn.function, fn.function.trigger);
+            const [result] = setup(fn.data);
+            return result;
+          }
+        ),
     };
     const ts = Date.now();
     const context = {
