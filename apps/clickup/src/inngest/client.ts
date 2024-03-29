@@ -4,18 +4,28 @@ import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 
 export const inngest = new Inngest({
-  id: '{SaaS}',
+  id: 'clickup',
   schemas: new EventSchemas().fromRecord<{
-    '{SaaS}/users.page_sync.requested': {
+    'clickup/users.page_sync.requested': {
       data: {
         organisationId: string;
         region: string;
         isFirstSync: boolean;
         syncStartedAt: number;
-        page: number | null;
+      };
+    };
+    'clickup/elba_app.uninstalled': {
+      data: {
+        organisationId: string;
+      };
+    };
+    'clickup/users.delete.requested': {
+      data: {
+        id: string;
+        organisationId: string;
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware, sentryMiddleware],
+  middleware: [sentryMiddleware, rateLimitMiddleware],
   logger,
 });

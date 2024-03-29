@@ -2,31 +2,25 @@ import type { User } from '@elba-security/sdk';
 import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { type MySaasUser, getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/users';
+import { type ClickUpUser } from '@/connectors/types';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
-import { decrypt } from '@/common/crypto';
 
-const formatElbaUser = (user: MySaasUser): User => ({
+const formatElbaUser = (user: ClickUpUser): User => ({
   id: user.id,
   displayName: user.username,
   email: user.email,
+  role: user.role,
+  authMethod: undefined,
   additionalEmails: [],
 });
 
-/**
- * DISCLAIMER:
- * This function, `syncUsersPage`, is provided as an illustrative example and is not a working implementation.
- * It is intended to demonstrate a conceptual approach for syncing users in a SaaS integration context.
- * Developers should note that each SaaS integration may require a unique implementation, tailored to its specific requirements and API interactions.
- * This example should not be used as-is in production environments and should not be taken for granted as a one-size-fits-all solution.
- * It's essential to adapt and modify this logic to fit the specific needs and constraints of the SaaS platform you are integrating with.
- */
 export const syncUsersPage = inngest.createFunction(
   {
-    id: '{SaaS}-sync-users-page',
+    id: 'clickup-sync-users-page',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -34,11 +28,17 @@ export const syncUsersPage = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
-    retries: 3,
+    retries: env.USERS_SYNC_MAX_RETRY,
+    cancelOn: [
+      {
+        event: 'clickup/elba_app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
   },
-  { event: '{SaaS}/users.page_sync.requested' },
-  async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page, region } = event.data;
+  { event: 'clickup/users.page_sync.requested' },
+  async ({ event, step, logger }) => {
+    const { organisationId, syncStartedAt, region } = event.data;
 
     const elba = new Elba({
       organisationId,
@@ -47,43 +47,33 @@ export const syncUsersPage = inngest.createFunction(
       region,
     });
 
-    // retrieve the SaaS organisation token
-    const token = await step.run('get-token', async () => {
-      const [organisation] = await db
-        .select({ token: Organisation.token })
+    // retrieve the ClickUp Organisation
+    const organisation = await step.run('get-organisation', async () => {
+      const [result] = await db
+        .select({
+          accessToken: Organisation.accessToken,
+          teamId: Organisation.teamId,
+        })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
-      if (!organisation) {
+      if (!result) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      return organisation.token;
+      return result;
     });
 
-    const nextPage = await step.run('list-users', async () => {
+    await step.run('list-users', async () => {
       // retrieve this users page
-      const result = await getUsers(await decrypt(token), page);
-      // format each SaaS users to elba users
-      const users = result.users.map(formatElbaUser);
+      const result = await getUsers(organisation.accessToken, organisation.teamId);
+      // format each clickup User to elba user
+      const users = result.teams.members.users.map(formatElbaUser);
       // send the batch of users to elba
-      await elba.users.update({ users });
-
-      return result.nextPage;
-    });
-
-    // if there is a next page enqueue a new sync user event
-    if (nextPage) {
-      await step.sendEvent('sync-users-page', {
-        name: '{SaaS}/users.page_sync.requested',
-        data: {
-          ...event.data,
-          page: nextPage,
-        },
+      logger.debug('Sending batch of users to elba: ', {
+        organisationId,
+        users,
       });
-      return {
-        status: 'ongoing',
-      };
-    }
-
+      await elba.users.update({ users });
+    });
     // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })

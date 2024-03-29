@@ -12,10 +12,10 @@ const userId = 'test-user-id';
 
 const users: ClickUpUser[] = [
   {
-    id: 123,
+    id: 'test-id',
     username: 'test-username',
     email: 'test-user-@foo.bar',
-    role: 1,
+    role: 'test-role',
   },
 ];
 
