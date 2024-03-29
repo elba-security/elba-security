@@ -36,7 +36,7 @@ export const deleteHarvestUser = inngest.createFunction(
     });
 
     await step.run('delete-user', async () => {
-      await deleteUser(organisation.accessToken, parseInt(organisation.harvestId), parseInt(id));
+      await deleteUser(organisation.accessToken, organisation.harvestId, id);
     });
   }
 );

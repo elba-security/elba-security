@@ -14,7 +14,7 @@ const organisation = {
   region: 'us',
 };
 
-const userId = 'user-id';
+const userId = '12345';
 
 const setup = createInngestFunctionMock(deleteHarvestUser, 'harvest/users.delete.requested');
 
@@ -49,8 +49,8 @@ describe('delete-user-request', () => {
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     expect(usersConnector.deleteUser).toBeCalledWith(
       organisation.accessToken,
-      parseInt(organisation.harvestId),
-      parseInt(userId)
+      organisation.harvestId,
+      userId
     );
   });
 });

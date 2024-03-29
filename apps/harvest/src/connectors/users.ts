@@ -2,11 +2,7 @@ import { env } from '@/env';
 import { HarvestError } from './commons/error';
 import { type GetUsersResponseData } from './types';
 
-export type Pagination = {
-  nextRange: string | null;
-};
-
-export const getUsers = async (token: string, harvestId: number, page: number | null) => {
+export const getUsers = async (token: string, harvestId: string, page: number | null) => {
   const url = new URL('https://api.harvestapp.com/v2/users');
   url.searchParams.append('per_page', String(env.USERS_SYNC_BATCH_SIZE));
   if (page) {
@@ -14,7 +10,7 @@ export const getUsers = async (token: string, harvestId: number, page: number | 
   }
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
-    'Harvest-Account-Id': String(harvestId),
+    'Harvest-Account-Id': harvestId,
   };
   const response = await fetch(url, {
     headers,
@@ -26,13 +22,13 @@ export const getUsers = async (token: string, harvestId: number, page: number | 
   return data;
 };
 
-export const deleteUser = async (token: string, harvestId: number, userId: number) => {
-  const response = await fetch(`https://api.harvestapp.com/v2/users/${userId}`, {
+export const deleteUser = async (token: string, harvestId: string, userId: string) => {
+  const response = await fetch(`https://api.harvestapp.com/v2/users/${parseInt(userId)}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
-      'Harvest-Account-Id': String(harvestId),
+      'Harvest-Account-Id': harvestId,
     },
   });
 

@@ -10,7 +10,7 @@ import { syncUsersPage } from './sync-users-page';
 const region = 'us';
 const accessToken = 'access-token';
 const refreshToken = 'refresh-token';
-const harvestId = 'harvest-id';
+const harvestId = '12345';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
