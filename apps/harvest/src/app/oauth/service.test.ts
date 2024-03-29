@@ -5,7 +5,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as auth from '@/connectors/auth';
-import * as team from '@/connectors/accounts';
+import * as accounts from '@/connectors/accounts';
 import { setupOrganisation } from './service';
 
 const code = 'code';
@@ -13,13 +13,13 @@ const region = 'us';
 const now = new Date();
 const accessToken = 'access-token';
 const refreshToken = 'refresh-token';
-const teamId = 'team-id';
+const harvestId = '12345';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accessToken,
   refreshToken,
-  teamId,
+  harvestId,
   region,
 };
 
@@ -39,7 +39,7 @@ describe('setupOrganisation', () => {
       expiresIn: 7200,
     });
 
-    const getTeamId = vi.spyOn(team, 'getTeamId').mockResolvedValue(teamId);
+    const getHarvestId = vi.spyOn(accounts, 'getHarvestId').mockResolvedValue(parseInt(harvestId));
 
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
@@ -57,7 +57,7 @@ describe('setupOrganisation', () => {
       {
         accessToken,
         refreshToken,
-        teamId,
+        harvestId,
         region,
       },
     ]);
@@ -65,26 +65,26 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'heroku/token.refresh.requested',
+        name: 'harvest/token.refresh.requested',
         data: {
           organisationId: organisation.id,
           expiresAt: addSeconds(new Date(), 7200).getTime(),
         },
       },
       {
-        name: 'heroku/users.page_sync.requested',
+        name: 'harvest/users.page_sync.requested',
         data: {
           isFirstSync: true,
           organisationId: organisation.id,
           region,
           syncStartedAt: Date.now(),
-          range: null,
+          page: null,
         },
       },
     ]);
 
     expect(getAccessToken).toBeCalledWith(code);
-    expect(getTeamId).toBeCalledWith(accessToken);
+    expect(getHarvestId).toBeCalledWith(accessToken);
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
@@ -117,20 +117,20 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'heroku/token.refresh.requested',
+        name: 'harvest/token.refresh.requested',
         data: {
           organisationId: organisation.id,
           expiresAt: addSeconds(new Date(), 7200).getTime(),
         },
       },
       {
-        name: 'heroku/users.page_sync.requested',
+        name: 'harvest/users.page_sync.requested',
         data: {
           isFirstSync: true,
           organisationId: organisation.id,
           region,
           syncStartedAt: Date.now(),
-          range: null,
+          page: null,
         },
       },
     ]);

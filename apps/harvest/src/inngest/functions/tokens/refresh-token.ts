@@ -50,7 +50,7 @@ const handler: FunctionHandler = async ({
 
 export const refreshToken = inngest.createFunction(
   {
-    id: 'heroku-refresh-token',
+    id: 'harvest-refresh-token',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,

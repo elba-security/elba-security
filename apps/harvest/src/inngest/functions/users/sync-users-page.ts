@@ -64,11 +64,7 @@ export const syncUsersPage = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       // retrieve this users page
-      const result = await getUsers(
-        organisation.accessToken,
-        parseInt(organisation.harvestId),
-        page
-      );
+      const result = await getUsers(organisation.accessToken, organisation.harvestId, page);
       // format each Harvest User to elba user
       const users = result.users.map(formatElbaUser);
       // send the batch of users to elba
@@ -84,7 +80,7 @@ export const syncUsersPage = inngest.createFunction(
       return null;
     });
 
-    // if there is a next range enqueue a new sync user event
+    // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
         name: 'harvest/users.page_sync.requested',

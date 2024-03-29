@@ -6,8 +6,8 @@ import type { HarvestError } from './commons/error';
 import { users } from './__mocks__/fetch-users';
 
 const validToken = 'valid-access-token';
-const harvestId = 22222;
-const userId = 12345;
+const harvestId = '22222';
+const userId = '12345';
 const lastPage = 2; //mock value
 const nextPage = 1;
 const firstPage = 0;
