@@ -2,10 +2,10 @@ import { ClickUpError } from './commons/error';
 import type { GetUsersResponseData } from './types';
 
 export type ClickUpUser = {
-  id: number;
+  id: string;
   username: string;
   email: string;
-  role: number;
+  role: string;
 };
 
 export const getUsers = async (token: string, teamId: string) => {

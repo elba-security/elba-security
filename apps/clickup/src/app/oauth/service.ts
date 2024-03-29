@@ -1,6 +1,5 @@
 import { getAccessToken } from '@/connectors/auth';
 import { getTeamId } from '@/connectors/team';
-import { getUsers } from '@/connectors/users';
 import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
 
@@ -17,6 +16,34 @@ export const setupOrganisation = async ({
 }: SetupOrganisationParams) => {
   const accessToken = await getAccessToken(code);
   const teamId = await getTeamId(accessToken);
-  const result = await getUsers(accessToken, teamId);
-  console.log('team is ', result);
+  if (!teamId) {
+    throw new Error('Could not retrieve site id');
+  }
+  await db
+    .insert(Organisation)
+    .values({
+      id: organisationId,
+      accessToken,
+      teamId,
+      region,
+    })
+    .onConflictDoUpdate({
+      target: [Organisation.id],
+      set: {
+        id: organisationId,
+        accessToken,
+        teamId,
+        region,
+      },
+    });
+
+  await inngest.send({
+    name: 'clickup/users.page_sync.requested',
+    data: {
+      isFirstSync: true,
+      organisationId,
+      region,
+      syncStartedAt: Date.now(),
+    },
+  });
 };
