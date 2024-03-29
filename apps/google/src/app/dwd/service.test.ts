@@ -73,15 +73,21 @@ describe('isInstallationCompleted', () => {
     ]);
 
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      data: {
-        isFirstSync: true,
-        organisationId: '00000000-0000-0000-0000-000000000000',
-        pageToken: null,
-        syncStartedAt: '2024-01-01T00:00:00.000Z',
+    expect(send).toBeCalledWith([
+      {
+        data: { organisationId: '00000000-0000-0000-0000-000000000000' },
+        name: 'google/common.organisation.inserted',
       },
-      name: 'google/users.sync.requested',
-    });
+      {
+        data: {
+          isFirstSync: true,
+          organisationId: '00000000-0000-0000-0000-000000000000',
+          pageToken: null,
+          syncStartedAt: '2024-01-01T00:00:00.000Z',
+        },
+        name: 'google/users.sync.requested',
+      },
+    ]);
   });
 
   it('Should not handle Google installation when domain wide delegation is not completed', async () => {

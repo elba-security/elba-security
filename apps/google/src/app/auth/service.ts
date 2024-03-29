@@ -18,7 +18,6 @@ export const getGoogleInfo = async (code: string) => {
 
   authClient.setCredentials({ access_token: accessToken });
 
-  let customerId: string;
   try {
     const user = await getGoogleUser({
       auth: authClient,
@@ -33,8 +32,7 @@ export const getGoogleInfo = async (code: string) => {
       throw new Error('Missing Google customer id');
     }
 
-    customerId = user.customerId;
-
+    return { email, customerId: user.customerId };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- error handling
   } catch (error: any) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- error handling
@@ -44,6 +42,4 @@ export const getGoogleInfo = async (code: string) => {
 
     throw error;
   }
-
-  return { email, customerId };
 };

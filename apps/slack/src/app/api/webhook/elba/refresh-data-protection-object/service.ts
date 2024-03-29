@@ -17,7 +17,7 @@ export const refreshDataProtectionObject = async ({
   metadata,
 }: {
   organisationId: string;
-  metadata: any; // eslint-disable-line -- metadata type is any
+  metadata: unknown;
 }) => {
   const messageMetadataResult = messageMetadataSchema.safeParse(metadata);
   if (!messageMetadataResult.success) {

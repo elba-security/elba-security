@@ -39,6 +39,10 @@ export const syncDataProtectionSharedDrives = inngest.createFunction(
     },
     cancelOn: [
       {
+        event: 'google/common.organisation.inserted',
+        match: 'data.organisationId',
+      },
+      {
         event: 'google/common.remove_organisation.requested',
         match: 'data.organisationId',
       },

@@ -5,8 +5,7 @@ import { getGoogleServiceAccountClient } from '@/connectors/google/clients';
 import { db } from '@/database/client';
 import { usersTable } from '@/database/schema';
 import { getGoogleFile } from '@/connectors/google/files';
-import type { GoogleFileNonInheritedPermission } from '@/connectors/google/permissions';
-import { listGoogleFileNonInheritedPermissions } from '@/connectors/google/permissions';
+import { listAllGoogleFileNonInheritedPermissions } from '@/connectors/google/permissions';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection';
 import { getElbaClient } from '@/connectors/elba/client';
 
@@ -30,6 +29,10 @@ export const refreshDataProtectionObject = inngest.createFunction(
       limit: 1,
     },
     cancelOn: [
+      {
+        event: 'google/common.organisation.inserted',
+        match: 'data.organisationId',
+      },
       {
         event: 'google/common.remove_organisation.requested',
         match: 'data.organisationId',
@@ -73,26 +76,12 @@ export const refreshDataProtectionObject = inngest.createFunction(
           fileId: objectId,
         });
       });
-      let permissions: GoogleFileNonInheritedPermission[] = [];
-      let pageToken: string | undefined;
-      do {
-        // eslint-disable-next-line no-await-in-loop -- we need to await to get next page
-        const { permissions: googlePermissions, nextPageToken } = await step.run(
-          `get-permissions-${pageToken}`,
-          // eslint-disable-next-line @typescript-eslint/no-loop-func -- we iterate through pageToken
-          async () => {
-            return listGoogleFileNonInheritedPermissions({
-              auth: authClient,
-              fileId: objectId,
-              pageToken,
-              pageSize: 100,
-            });
-          }
-        );
-
-        permissions = [...permissions, ...googlePermissions];
-        pageToken = nextPageToken ?? undefined;
-      } while (pageToken);
+      const permissions = await step.run('list-permissions', async () => {
+        return listAllGoogleFileNonInheritedPermissions({
+          auth: authClient,
+          fileId: objectId,
+        });
+      });
 
       const object = formatDataProtectionObject({ file, owner: ownerId, permissions });
 

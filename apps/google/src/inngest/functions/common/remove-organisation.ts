@@ -18,6 +18,12 @@ export const removeOrganisation = inngest.createFunction(
   {
     id: 'google-remove-organisation',
     retries: 3,
+    cancelOn: [
+      {
+        event: 'google/common.organisation.inserted',
+        match: 'data.organisationId',
+      },
+    ],
   },
   { event: 'google/common.remove_organisation.requested' },
   async ({

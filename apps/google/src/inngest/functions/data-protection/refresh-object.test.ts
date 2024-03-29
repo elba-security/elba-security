@@ -26,25 +26,17 @@ describe('refresh-data-protection-object', () => {
       });
     });
 
-    vi.spyOn(googlePermissions, 'listGoogleFileNonInheritedPermissions').mockImplementation(
-      ({ pageToken }) => {
-        return Promise.resolve({
-          permissions: [
-            pageToken
-              ? {
-                  id: 'anyone',
-                  type: 'anyone',
-                }
-              : {
-                  id: 'user',
-                  type: 'user',
-                  emailAddress: 'user@org.local',
-                },
-          ],
-          nextPageToken: pageToken ? null : 'next-page-token',
-        });
-      }
-    );
+    vi.spyOn(googlePermissions, 'listAllGoogleFileNonInheritedPermissions').mockResolvedValue([
+      {
+        id: 'user',
+        type: 'user',
+        emailAddress: 'user@org.local',
+      },
+      {
+        id: 'anyone',
+        type: 'anyone',
+      },
+    ]);
 
     await db.insert(organisationsTable).values({
       googleAdminEmail: 'admin@org.local',
@@ -69,7 +61,7 @@ describe('refresh-data-protection-object', () => {
       status: 'updated',
     });
 
-    expect(step.run).toBeCalledTimes(4);
+    expect(step.run).toBeCalledTimes(3);
     expect(step.run).toBeCalledWith('get-user', expect.any(Function));
 
     expect(serviceAccountClientSpy).toBeCalledTimes(1);
@@ -95,21 +87,12 @@ describe('refresh-data-protection-object', () => {
       fileId: 'object-id',
     });
 
-    expect(step.run).toBeCalledWith('get-permissions-undefined', expect.any(Function));
-    expect(step.run).toBeCalledWith('get-permissions-next-page-token', expect.any(Function));
+    expect(step.run).toBeCalledWith('list-permissions', expect.any(Function));
 
-    expect(googlePermissions.listGoogleFileNonInheritedPermissions).toBeCalledTimes(2);
-    expect(googlePermissions.listGoogleFileNonInheritedPermissions).toBeCalledWith({
+    expect(googlePermissions.listAllGoogleFileNonInheritedPermissions).toBeCalledTimes(1);
+    expect(googlePermissions.listAllGoogleFileNonInheritedPermissions).toBeCalledWith({
       auth: authClient,
       fileId: 'object-id',
-      pageSize: 100,
-      pageToken: undefined,
-    });
-    expect(googlePermissions.listGoogleFileNonInheritedPermissions).toBeCalledWith({
-      auth: authClient,
-      fileId: 'object-id',
-      pageSize: 100,
-      pageToken: 'next-page-token',
     });
 
     expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
@@ -157,7 +140,7 @@ describe('refresh-data-protection-object', () => {
       });
     });
 
-    vi.spyOn(googlePermissions, 'listGoogleFileNonInheritedPermissions');
+    vi.spyOn(googlePermissions, 'listAllGoogleFileNonInheritedPermissions');
 
     await db.insert(organisationsTable).values({
       googleAdminEmail: 'admin@org.local',
@@ -208,10 +191,9 @@ describe('refresh-data-protection-object', () => {
       fileId: 'object-id',
     });
 
-    expect(step.run).not.toBeCalledWith('get-permissions-undefined', expect.any(Function));
-    expect(step.run).not.toBeCalledWith('get-permissions-next-page-token', expect.any(Function));
+    expect(step.run).not.toBeCalledWith('list-permissions', expect.any(Function));
 
-    expect(googlePermissions.listGoogleFileNonInheritedPermissions).not.toBeCalled();
+    expect(googlePermissions.listAllGoogleFileNonInheritedPermissions).not.toBeCalled();
 
     expect(elbaInstance?.dataProtection.updateObjects).not.toBeCalled();
     expect(elbaInstance?.dataProtection.deleteObjects).toBeCalledTimes(1);

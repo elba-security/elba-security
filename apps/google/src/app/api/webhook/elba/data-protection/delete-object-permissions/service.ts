@@ -10,12 +10,12 @@ export const deleteDataProtectionObjectPermissions = async ({
 }: {
   organisationId: string;
   objectId: string;
-  metadata: any; // eslint-disable-line -- metadata type is any
+  metadata: unknown;
   permissionIds: string[];
 }) => {
   const result = fileMetadataSchema.safeParse(metadata);
   if (!result.success) {
-    logger.error('Invalid file metadata', { organisationId, objectId, metadata }); // eslint-disable-line -- metadata type is any
+    logger.error('Invalid file metadata', { organisationId, objectId, metadata });
     return;
   }
 

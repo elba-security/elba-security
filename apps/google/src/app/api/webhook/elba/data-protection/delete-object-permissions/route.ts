@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { parseWebhookEventData } from '@elba-security/sdk';
-import { refreshDataProtectionObject } from './service';
+import { deleteDataProtectionObjectPermissions } from './service';
 
 export async function POST(request: Request) {
   const data: unknown = await request.json();
@@ -8,13 +8,15 @@ export async function POST(request: Request) {
   const {
     organisationId,
     id: objectId,
-    metadata, // eslint-disable-line -- metadata type is any
-  } = parseWebhookEventData('data_protection.refresh_object_requested', data);
+    metadata,
+    permissions,
+  } = parseWebhookEventData('data_protection.delete_object_permissions_requested', data);
 
-  await refreshDataProtectionObject({
+  await deleteDataProtectionObjectPermissions({
     organisationId,
     objectId,
-    metadata, // eslint-disable-line -- metadata type is any
+    metadata,
+    permissionIds: permissions.map(({ id }) => id),
   });
 
   return new NextResponse();

@@ -33,15 +33,21 @@ export const isInstallationCompleted = async ({
       },
     });
 
-  await inngest.send({
-    name: 'google/users.sync.requested',
-    data: {
-      isFirstSync: true,
-      organisationId,
-      syncStartedAt: new Date().toISOString(),
-      pageToken: null,
+  await inngest.send([
+    {
+      name: 'google/common.organisation.inserted',
+      data: { organisationId },
     },
-  });
+    {
+      name: 'google/users.sync.requested',
+      data: {
+        isFirstSync: true,
+        organisationId,
+        syncStartedAt: new Date().toISOString(),
+        pageToken: null,
+      },
+    },
+  ]);
 
   return true;
 };

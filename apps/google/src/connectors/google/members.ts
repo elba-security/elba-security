@@ -41,7 +41,7 @@ export const listAllGoogleMembers = async (
   let pageToken: string | undefined;
   const members: GoogleMember[] = [];
   do {
-    // eslint-disable-next-line no-await-in-loop -- we loop through every permissions
+    // eslint-disable-next-line no-await-in-loop -- we loop through every members
     const { members: pageMembers, nextPageToken } = await listGoogleMembers({
       ...listMembersParams,
       pageToken,
