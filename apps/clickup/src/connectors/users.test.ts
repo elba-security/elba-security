@@ -1,21 +1,20 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '../../vitest/setup-msw-handlers';
-import { type ClickUpUser, getUsers, deleteUser } from './users';
+import { getUsers, deleteUser } from './users';
 import type { ClickUpError } from './commons/error';
+// import type { ClickUpUser } from './types';
 
 const validToken = 'token-1234';
 const teamId = 'test-team-id';
 const userId = 'test-user-id';
 
-const users: ClickUpUser[] = [
+const users = [
   {
     id: 'test-id',
     username: 'test-username',
     email: 'test-user-@foo.bar',
-    role: 'test-role',
+    role: 1,
   },
 ];
 
@@ -28,10 +27,16 @@ describe('getUsers', () => {
         }
         return new Response(
           JSON.stringify({
-            teams: {
-              members: {
-                users,
-              },
+            users,
+            team: {
+              roles: [
+                { id: 1, name: 'admin' },
+                { id: 2, name: 'member' },
+              ],
+              members: users.map((user) => ({
+                ...user,
+                user: { ...user.user, role: 2 },
+              })),
             },
           }),
           { status: 200 }
@@ -42,7 +47,7 @@ describe('getUsers', () => {
 
   test('should fetch users when token is valid', async () => {
     const result = await getUsers(validToken, teamId);
-    expect(result.teams.members.users).toEqual(users);
+    expect(result.users).toEqual(users.map((user) => ({ ...user, role: 'member' })));
   });
 
   test('should throw ClickUpError when token is invalid', async () => {

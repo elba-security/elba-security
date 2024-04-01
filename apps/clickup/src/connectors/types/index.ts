@@ -10,16 +10,20 @@ export type GetTeamResponseData = {
 };
 
 export type ClickUpUser = {
-  id: string;
-  email: string;
-  username: string;
-  role: string;
+  user: {
+    id: string;
+    email: string;
+    username: string;
+    role: number;
+  };
 };
 
 export type GetUsersResponseData = {
-  teams: {
-    members: {
-      users: ClickUpUser[];
-    };
+  team: {
+    members: ClickUpUser[];
+    roles: {
+      id: number;
+      name: string;
+    }[];
   };
 };

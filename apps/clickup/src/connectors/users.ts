@@ -1,12 +1,5 @@
 import { ClickUpError } from './commons/error';
-import type { GetUsersResponseData } from './types';
-
-export type ClickUpUser = {
-  id: string;
-  username: string;
-  email: string;
-  role: string;
-};
+import type { GetUsersResponseData, ClickUpUser } from './types';
 
 export const getUsers = async (token: string, teamId: string) => {
   const response = await fetch(`https://api.clickup.com/api/v2/team/${teamId}`, {
@@ -16,7 +9,18 @@ export const getUsers = async (token: string, teamId: string) => {
     throw new ClickUpError('Could not retrieve users', { response });
   }
   const data = (await response.json()) as GetUsersResponseData;
-  return data;
+  const roles = data.team.roles;
+
+  const users = data.team.members.map((user: ClickUpUser) => {
+    const userRole = roles.find((role) => role.id === user.user.role);
+    return {
+      username: user.user.username,
+      email: user.user.email,
+      id: user.user.id,
+      role: userRole?.name,
+    };
+  });
+  return { users };
 };
 export const deleteUser = async (token: string, teamId: string, userId: string) => {
   const response = await fetch(`https://api.clickup.com/api/v2/team/${teamId}/user/${userId}`, {

@@ -66,7 +66,7 @@ export const syncUsersPage = inngest.createFunction(
       // retrieve this users page
       const result = await getUsers(organisation.accessToken, organisation.teamId);
       // format each clickup User to elba user
-      const users = result.teams.members.users.map(formatElbaUser);
+      const users = result.users.map(formatElbaUser);
       // send the batch of users to elba
       logger.debug('Sending batch of users to elba: ', {
         organisationId,
