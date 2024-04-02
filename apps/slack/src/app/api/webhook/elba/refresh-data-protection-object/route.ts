@@ -10,16 +10,12 @@ export const dynamic = 'force-dynamic';
 export const POST = async (request: NextRequest) => {
   const data: unknown = await request.json();
 
-  // eslint-disable-next-line -- metadata type is any
   const { organisationId, metadata } = parseWebhookEventData(
     'data_protection.refresh_object_requested',
     data
   );
 
-  await refreshDataProtectionObject({
-    organisationId,
-    metadata, // eslint-disable-line -- metadata type is any,
-  });
+  await refreshDataProtectionObject({ organisationId, metadata });
 
   return new NextResponse();
 };
