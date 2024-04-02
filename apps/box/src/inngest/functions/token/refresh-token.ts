@@ -32,7 +32,7 @@ export const refreshToken = inngest.createFunction(
   async ({ event, step }) => {
     const { organisationId, expiresAt } = event.data;
 
-    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 15));
+    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 5));
 
     const nextExpiresAt = await step.run('refresh-token', async () => {
       const [organisation] = await db
@@ -51,7 +51,7 @@ export const refreshToken = inngest.createFunction(
         refreshToken: newRefreshToken,
         expiresIn,
       } = await getRefreshToken(organisation.refreshToken);
-      
+
       const encodedNewAccessToken = await encrypt(newAccessToken);
       const encodedNewRefreshToken = await encrypt(newRefreshToken);
       await db

@@ -24,7 +24,12 @@ export const setupOrganisation = async ({
 
   await db
     .insert(Organisation)
-    .values({ id: organisationId, accessToken: encodedAccessToken, refreshToken: encodedRefreshToken, region })
+    .values({
+      id: organisationId,
+      accessToken: encodedAccessToken,
+      refreshToken: encodedRefreshToken,
+      region,
+    })
     .onConflictDoUpdate({
       target: Organisation.id,
       set: {

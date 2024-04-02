@@ -8,7 +8,7 @@
  * It is crucial to expand upon these tests, adapting them to the actual logic and behaviors of your specific SaaS integration.
  */
 import { expect, test, describe, vi } from 'vitest';
-import { createInngestFunctionMock } from '@elba-security/test-utils';
+import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
@@ -23,17 +23,19 @@ const organisation = {
   region: 'us',
 };
 const syncStartedAt = Date.now();
+const syncedBefore = Date.now();
 const nextPage = '1';
-const users: usersConnector.BoxUser[] = Array.from({ length: 5 }, (_, i) => ({
+const users: usersConnector.BoxUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
   name: `name-${i}`,
-  role: 'admin',
-  email: `user-${i}@foo.bar`,
+  status: 'active',
+  login: `user-${i}@foo.bar`,
 }));
 
 const setup = createInngestFunctionMock(synchronizeUsers, 'box/users.sync.requested');
 
 describe('synchronize-users', () => {
+
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -58,6 +60,7 @@ describe('synchronize-users', () => {
   });
 
   test('should continue the sync when there is a next page', async () => {
+    const elba = spyOnElba();
     // setup the test with an organisation
     await db.insert(Organisation).values(organisation);
     // mock the getUser function that returns SaaS users page
@@ -76,6 +79,7 @@ describe('synchronize-users', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
+    const elbaInstance = elba.mock.results[0]?.value;
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
@@ -87,9 +91,29 @@ describe('synchronize-users', () => {
         page: (parseInt(nextPage) + 1).toString(),
       },
     });
+
+    expect(elbaInstance?.users.update).toBeCalledTimes(1);
+    expect(elbaInstance?.users.update).toBeCalledWith({
+      users: [
+        {
+          additionalEmails: [],
+          displayName: 'name-0',
+          email: 'user-0@foo.bar',
+          id: 'id-0',
+        },
+        {
+          additionalEmails: [],
+          displayName: 'name-1',
+          email: 'user-1@foo.bar',
+          id: 'id-1',
+        },
+      ],
+    });
+    expect(elbaInstance?.users.delete).not.toBeCalled();
   });
 
   test('should finalize the sync when there is a no next page', async () => {
+    const elba = spyOnElba();
     await db.insert(Organisation).values(organisation);
     // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
@@ -106,7 +130,27 @@ describe('synchronize-users', () => {
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
-
+    const elbaInstance = elba.mock.results[0]?.value;
+    expect(elbaInstance?.users.update).toBeCalledTimes(1);
+    expect(elbaInstance?.users.update).toBeCalledWith({
+      users: [
+        {
+          additionalEmails: [],
+          displayName: 'name-0',
+          email: 'user-0@foo.bar',
+          id: 'id-0',
+        },
+        {
+          additionalEmails: [],
+          displayName: 'name-1',
+          email: 'user-1@foo.bar',
+          id: 'id-1',
+        },
+      ],
+    });
+    const syncBeforeAtISO = new Date(syncedBefore).toISOString();
+    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
+    expect(elbaInstance?.users.delete).toBeCalledWith({ syncedBefore: syncBeforeAtISO });
     // the function should not send another event that continue the pagination
     expect(step.sendEvent).toBeCalledTimes(0);
   });

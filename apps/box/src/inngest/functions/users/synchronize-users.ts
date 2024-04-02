@@ -1,15 +1,14 @@
 import type { User } from '@elba-security/sdk';
-import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { NonRetriableError } from 'inngest';
+import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { env } from '@/env';
-import { inngest } from '@/inngest/client';
-import { type BoxUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
+import { type BoxUser } from '@/connectors/users';
+import { getElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUser = (user: BoxUser): User => ({
   id: user.id,
@@ -45,12 +44,7 @@ export const synchronizeUsers = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const elba = new Elba({
-      organisationId,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-      region: organisation.region,
-    });
+    const elba = getElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.token);
 
     const nextPage = await step.run('list-users', async () => {
@@ -60,15 +54,15 @@ export const synchronizeUsers = inngest.createFunction(
         .filter((user) => user.status === 'active')
         .map(formatElbaUser);
 
-      console.log('users', users);
-
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
           organisationId,
           invalidUsers: result.invalidUsers,
         });
       }
-      await elba.users.update({ users });
+
+      if(users.length > 0)
+        await elba.users.update({ users });
 
       return result.nextPage;
     });

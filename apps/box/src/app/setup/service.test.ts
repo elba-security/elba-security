@@ -13,8 +13,8 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
-import { BoxError } from '@/connectors/commons/error';
 import { setupOrganisation } from './service';
+import { BoxError } from '@/connectors/commons/error';
 
 const code = 'some-code';
 const accessToken = 'some token';

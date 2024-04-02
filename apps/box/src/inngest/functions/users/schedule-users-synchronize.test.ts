@@ -35,11 +35,11 @@ describe('schedule-users-syncs', () => {
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- convenience
       organisations: organisations.map(
-        ({ ...organisation }) => organisation
+        ({ accessToken, refreshToken, ...organisation }) => organisation
       ),
     });
-
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
       'synchronize-users',
