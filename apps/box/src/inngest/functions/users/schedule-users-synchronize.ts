@@ -11,6 +11,8 @@ export const scheduleUsersSynchronize = inngest.createFunction(
       .select({
         id: Organisation.id,
         region: Organisation.region,
+        accessToken: Organisation.accessToken,
+        refreshToken: Organisation.refreshToken,
       })
       .from(Organisation);
 
