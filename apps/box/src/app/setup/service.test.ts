@@ -88,7 +88,7 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'box/box.elba_app.installed',
+        name: 'box/app.installed',
         data: {
           organisationId: organisation.id,
           region,
@@ -150,7 +150,7 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'box/box.elba_app.installed',
+        name: 'box/app.installed',
         data: {
           organisationId: organisation.id,
           region,

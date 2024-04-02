@@ -22,7 +22,7 @@ export const refreshToken = inngest.createFunction(
         match: 'data.organisationId',
       },
       {
-        event: 'box/box.elba_app.installed',
+        event: 'box/app.installed',
         match: 'data.organisationId',
       },
     ],
@@ -32,7 +32,7 @@ export const refreshToken = inngest.createFunction(
   async ({ event, step }) => {
     const { organisationId, expiresAt } = event.data;
 
-    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 5));
+    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 15));
 
     const nextExpiresAt = await step.run('refresh-token', async () => {
       const [organisation] = await db

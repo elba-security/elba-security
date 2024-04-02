@@ -1,5 +1,6 @@
 import { RedirectType, redirect } from 'next/navigation';
 import type { NextRequest } from 'next/server';
+import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
 
@@ -18,7 +19,12 @@ export async function GET(request: NextRequest) {
   const region = request.cookies.get('region')?.value;
 
   if (!organisationId || !code || !region) {
-    redirect(`${env.ELBA_REDIRECT_URL}?error=true`, RedirectType.replace);
+    return new ElbaInstallRedirectResponse({
+      region,
+      sourceId: env.ELBA_SOURCE_ID,
+      baseUrl: env.ELBA_REDIRECT_URL,
+      error: 'unauthorized',
+    });
   }
 
   await setupOrganisation({ organisationId, code, region });
