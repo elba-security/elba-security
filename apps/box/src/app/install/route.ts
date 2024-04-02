@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type NextRequest } from 'next/server';
+import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { env } from '@/env';
 
 // Remove the next line if your integration does not works with edge runtime
@@ -14,7 +15,12 @@ export function GET(request: NextRequest) {
   const region = request.nextUrl.searchParams.get('region');
 
   if (!organisationId || !region) {
-    redirect(`${env.ELBA_REDIRECT_URL}?error=true`);
+    return new ElbaInstallRedirectResponse({
+      region,
+      sourceId: env.ELBA_SOURCE_ID,
+      baseUrl: env.ELBA_REDIRECT_URL,
+      error: 'unauthorized',
+    });
   }
 
   const state = crypto.randomUUID();
