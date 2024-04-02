@@ -14,7 +14,7 @@ export const inngest = new Inngest({
         page: string | null;
       };
     };
-    'box/box.elba_app.installed': {
+    'box/app.installed': {
       data: {
         organisationId: string;
         region: string;
