@@ -5,7 +5,6 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as authConnector from '@/connectors/auth';
-import * as crypto from '@/common/crypto';
 import { decrypt } from '@/common/crypto';
 import { BoxError } from '@/connectors/commons/error';
 import { refreshToken } from './refresh-token';
