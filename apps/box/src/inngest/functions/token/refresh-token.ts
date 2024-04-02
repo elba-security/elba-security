@@ -22,7 +22,7 @@ export const refreshToken = inngest.createFunction(
         match: 'data.organisationId',
       },
       {
-        event: 'box/box.elba_app.installed',
+        event: 'box/app.installed',
         match: 'data.organisationId',
       },
     ],
