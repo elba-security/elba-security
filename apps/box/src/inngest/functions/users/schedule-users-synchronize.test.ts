@@ -37,7 +37,7 @@ describe('schedule-users-syncs', () => {
     await expect(result).resolves.toStrictEqual({
       // eslint-disable-next-line @typescript-eslint/no-unused-vars -- convenience
       organisations: organisations.map(
-        ({ accessToken, refreshToken, ...organisation }) => organisation
+        ({ ...organisation }) => organisation
       ),
     });
     expect(step.sendEvent).toBeCalledTimes(1);
