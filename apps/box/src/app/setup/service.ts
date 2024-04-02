@@ -46,7 +46,7 @@ export const setupOrganisation = async ({
     },
     // this will cancel scheduled token refresh if it exists
     {
-      name: 'box/box.elba_app.installed',
+      name: 'box/app.installed',
       data: {
         organisationId,
         region,
