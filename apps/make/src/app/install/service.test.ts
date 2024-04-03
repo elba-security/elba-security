@@ -3,12 +3,12 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { env } from '@/env';
 import * as userConnector from '@/connectors/users';
+import { users } from '@/inngest/functions/users/__mocks__/integration';
 import { registerOrganisation } from './service';
 
 const token = 'test-token';
-const teamId= 'test-id';
+const teamId = 'test-id';
 const region = 'us';
 const now = new Date();
 
@@ -32,8 +32,7 @@ describe('registerOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mocked the getUsers function
-    // @ts-expect-error -- this is a mock
-    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
+    vi.spyOn(userConnector, 'getUsers').mockResolvedValue({ users, pagination: { next: 10 } });
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
@@ -60,7 +59,7 @@ describe('registerOrganisation', () => {
         organisationId: organisation.id,
         syncStartedAt: now.getTime(),
         region,
-        page:null,
+        page: null,
       },
     });
   });
@@ -108,7 +107,7 @@ describe('registerOrganisation', () => {
         organisationId: organisation.id,
         syncStartedAt: now.getTime(),
         region,
-        page:null,
+        page: null,
       },
     });
   });

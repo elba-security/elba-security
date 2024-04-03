@@ -16,19 +16,20 @@ export const registerOrganisation = async ({
   teamId,
   region,
 }: SetupOrganisationParams) => {
-  // await getUsers(token, teamId, null);
-  await db
-    .insert(Organisation)
-    .values({ id: organisationId, teamId, region, token })
-    .onConflictDoUpdate({
-      target: Organisation.id,
-      set: {
-        region,
-        token,
-        teamId,
-      },
-    });
-
+  const result = await getUsers(token, teamId, null);
+  console.log('RESULT: ', result);
+  // await db
+  //   .insert(Organisation)
+  //   .values({ id: organisationId, teamId, region, token })
+  //   .onConflictDoUpdate({
+  //     target: Organisation.id,
+  //     set: {
+  //       region,
+  //       token,
+  //       teamId,
+  //     },
+  //   });
+  //
   // await inngest.send({
   //   name: 'vercel/users.page_sync.requested',
   //   data: {

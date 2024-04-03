@@ -1,27 +1,39 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation. When requesting against API endpoint we might prefer
- * to valid the response data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { env } from '@/env';
+import { MakeError } from './commons/error';
 
-import { MySaasError } from './commons/error';
-
-export type MySaasUser = {
+export type MakeUser = {
   id: string;
-  username: string;
+  name: string;
   email: string;
 };
+export type Pagination = {
+  limit: number;
+  offset: number;
+};
+type GetUsersResponseData = { users: MakeUser[]; pg: Pagination };
 
-type GetUsersResponseData = { users: MySaasUser[]; nextPage: number | null };
+export const getUsers = async (token: string, teamId: string, page: number | null) => {
+  const url = new URL(
+    `https://eu2.make.com/api/v2/users?teamId=${teamId}&pg[limit]=${env.USERS_SYNC_BATCH_SIZE}`
+  );
 
-export const getUsers = async (token: string, page: number | null) => {
-  const response = await fetch(`https://mysaas.com/api/v1/users?page=${page}`, {
-    headers: { Authorization: `Bearer ${token}` },
+  if (page !== null) {
+    url.searchParams.append('pg[offset]', String(page));
+  }
+  const response = await fetch(url, {
+    headers: { Authorization: `Token ${token}` },
   });
   if (!response.ok) {
-    throw new MySaasError('Could not retrieve users', { response });
+    throw new MakeError('Could not retrieve users', { response });
   }
-  return response.json() as Promise<GetUsersResponseData>;
+  const data = (await response.json()) as GetUsersResponseData;
+  const users = data.users.map((user: MakeUser) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+  }));
+  const pagination = {
+    next: data.users.length > 0 ? data.pg.offset + data.pg.limit : null,
+  };
+  return { users, pagination };
 };
