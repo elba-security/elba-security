@@ -8,7 +8,7 @@ import { users } from '@/inngest/functions/users/__mocks__/integration';
 import { registerOrganisation } from './service';
 
 const token = 'test-token';
-const teamId = 'test-id';
+const teamId = 'team-id';
 const region = 'us';
 const now = new Date();
 
@@ -53,7 +53,7 @@ describe('registerOrganisation', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'vercel/users.page_sync.requested',
+      name: 'make/users.page_sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
@@ -68,8 +68,7 @@ describe('registerOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mocked the getUsers function
-    // @ts-expect-error -- this is a mock
-    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
+    vi.spyOn(userConnector, 'getUsers').mockResolvedValue({ users, pagination: { next: 10 } });
     // pre-insert an organisation to simulate an existing entry
     await db.insert(Organisation).values(organisation);
 
@@ -101,7 +100,7 @@ describe('registerOrganisation', () => {
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'vercel/users.page_sync.requested',
+      name: 'make/users.page_sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
@@ -116,8 +115,7 @@ describe('registerOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mocked the getUsers function
-    // @ts-expect-error -- this is a mock
-    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
+    vi.spyOn(userConnector, 'getUsers').mockResolvedValue({ users, pagination: { next: 10 } });
 
     const wrongId = 'xfdhg-dsf';
     const error = new Error(`invalid input syntax for type uuid: "${wrongId}"`);
