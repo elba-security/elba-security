@@ -1,9 +1,10 @@
-import { FunctionHandler, inngest } from '@/inngest/client';
-import { getOrganisationAccessDetails } from '../common/data';
-import { DBXPermissions } from '@/connectors';
-import { InputArgWithTrigger } from '@/inngest/types';
-import { decrypt } from '@/common/crypto';
 import { NonRetriableError } from 'inngest';
+import type { FunctionHandler } from '@/inngest/client';
+import { inngest } from '@/inngest/client';
+import { DBXPermissions } from '@/connectors';
+import type { InputArgWithTrigger } from '@/inngest/types';
+import { decrypt } from '@/common/crypto';
+import { getOrganisationAccessDetails } from '../common/data';
 
 const handler: FunctionHandler = async ({
   event,
@@ -27,7 +28,7 @@ const handler: FunctionHandler = async ({
   });
 
   await step.run('delete-permission', async () => {
-    return await dbx.removePermissions(event.data);
+    return dbx.removePermissions(event.data);
   });
 };
 
@@ -39,7 +40,7 @@ export const deleteObjectPermissions = inngest.createFunction(
     },
     retries: 10,
     concurrency: {
-      limit: 10,
+      limit: 5,
       key: 'event.data.organisationId',
     },
   },

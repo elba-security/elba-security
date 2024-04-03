@@ -3,7 +3,7 @@ const { resolve } = require('node:path');
 const project = resolve(__dirname, './tsconfig.json');
 
 module.exports = {
-  extends: ['plugin:@typescript-eslint/recommended'],
+  extends: ['@elba-security/eslint-config-custom/next'],
   parserOptions: {
     project,
   },
@@ -13,5 +13,9 @@ module.exports = {
         project,
       },
     },
+  },
+  rules: {
+    camelcase: 'off',
+    '@typescript-eslint/camelcase': 'off',
   },
 };

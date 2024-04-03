@@ -10,4 +10,5 @@ export const inngestFunctions = [
   users,
   thirdPartyApps,
   dataProtection,
+  //eslint-disable-next-line -- Ignore unsafe return
 ].flatMap((fn) => Object.values(fn));

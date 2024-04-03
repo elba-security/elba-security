@@ -1,16 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 export const mockNextRequest = async ({
   method = 'POST',
   url = 'https://example.com',
   handler,
   body = {},
-  cookies = {},
+  cookies,
 }: {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  handler: (req: NextRequest) => Promise<void | NextResponse<unknown>>;
+  handler: (req: NextRequest) => Promise<NextResponse>;
   url?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   body?: Record<string, unknown>;
   cookies?: Record<string, string>;
 }): Promise<NextResponse> => {
@@ -27,9 +28,9 @@ export const mockNextRequest = async ({
 
   const response = await handler(request);
 
-  if (!response) {
-    return new NextResponse(null, { status: 307 });
-  }
+  // if (!response) {
+  //   return new NextResponse(null, { status: 307 });
+  // }
 
   return response;
 };

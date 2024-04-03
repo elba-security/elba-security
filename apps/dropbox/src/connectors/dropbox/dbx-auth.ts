@@ -1,6 +1,7 @@
-import { DropboxAuth, DropboxAuthOptions } from 'dropbox';
-import { DropboxAuthResult, DropboxAuthResultWithStatus, GetAccessToken } from '../types';
+import type { DropboxAuthOptions } from 'dropbox';
+import { DropboxAuth } from 'dropbox';
 import { env } from '@/env';
+import type { DropboxAuthResult, DropboxAuthResultWithStatus, GetAccessToken } from '../types';
 
 export class DBXAuth {
   private dbxAuth: DropboxAuth;
@@ -8,7 +9,7 @@ export class DBXAuth {
 
   constructor(options?: DropboxAuthOptions) {
     const defaultOptions: DropboxAuthOptions = {
-      fetch: fetch,
+      fetch,
       clientId: env.DROPBOX_CLIENT_ID,
       clientSecret: env.DROPBOX_CLIENT_SECRET,
       ...options,
@@ -20,7 +21,7 @@ export class DBXAuth {
   }
 
   async getAuthUrl({ state }: { state: string }) {
-    return await this.dbxAuth.getAuthenticationUrl(this.redirectUri, state, 'code', 'offline');
+    return this.dbxAuth.getAuthenticationUrl(this.redirectUri, state, 'code', 'offline');
   }
 
   async getAccessToken({ code }: GetAccessToken): Promise<DropboxAuthResultWithStatus> {
@@ -33,10 +34,8 @@ export class DBXAuth {
     };
   }
 
-  async refreshAccessToken(): Promise<{
-    access_token: string;
-    expires_at: Date;
-  }> {
+  async refreshAccessToken() {
+    // eslint-disable-next-line -- Need to wait
     await this.dbxAuth.refreshAccessToken();
 
     return {

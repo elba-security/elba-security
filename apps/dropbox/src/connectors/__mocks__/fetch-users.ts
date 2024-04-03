@@ -1,4 +1,5 @@
-import { team } from 'dropbox/types/dropbox_types';
+import type { team } from 'dropbox/types/dropbox_types';
+
 type SimplifiedTeamMemberInfo = {
   profile: Pick<
     team.TeamMemberInfoV2['profile'],

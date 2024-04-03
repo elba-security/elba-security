@@ -1,5 +1,5 @@
-import { team } from 'dropbox';
-import { ThirdPartyAppsObject } from '@elba-security/sdk';
+import type { team } from 'dropbox';
+import type { ThirdPartyAppsObject } from '@elba-security/sdk';
 
 export const formatThirdPartyObjects = (memberLinkedApps: team.MemberLinkedApps[]) => {
   const thirdPartyApps = new Map<string, ThirdPartyAppsObject>();

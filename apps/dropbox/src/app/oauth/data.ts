@@ -1,7 +1,7 @@
 import { db, organisations } from '@/database';
 
 export const insertOrganisation = async (accessTokenDetails: typeof organisations.$inferInsert) => {
-  return await db
+  return db
     .insert(organisations)
     .values(accessTokenDetails)
     .onConflictDoUpdate({

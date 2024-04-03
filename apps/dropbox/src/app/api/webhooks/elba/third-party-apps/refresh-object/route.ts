@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { refreshThirdPartyAppsObject } from './service';
 import { parseWebhookEventData } from '@elba-security/sdk';
+import { refreshThirdPartyAppsObject } from './service';
 
 export async function POST(request: Request) {
   const data: unknown = await request.json();

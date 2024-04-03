@@ -1,8 +1,8 @@
-import { DBXAccess, DBXAuth } from '@/connectors';
-import { insertOrganisation } from './data';
 import addSeconds from 'date-fns/addSeconds';
+import { DBXAccess, DBXAuth } from '@/connectors';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
+import { insertOrganisation } from './data';
 
 type GenerateAccessToken = {
   code: string;
@@ -23,7 +23,7 @@ export const generateAccessToken = async ({
     throw new Error(`Could not get Dropbox access token`);
   }
 
-  const { access_token: accessToken, refresh_token, expires_in } = result;
+  const { access_token: accessToken, refresh_token: refreshToken, expires_in: expiresIn } = result;
 
   const dbx = new DBXAccess({
     accessToken,
@@ -33,7 +33,11 @@ export const generateAccessToken = async ({
 
   const {
     result: {
-      admin_profile: { status: adminStatus, team_member_id, membership_type },
+      admin_profile: {
+        status: adminStatus,
+        team_member_id: teamMemberId,
+        membership_type: membershipType,
+      },
     },
   } = adminDetails;
 
@@ -41,34 +45,34 @@ export const generateAccessToken = async ({
     throw new Error(`Admin status is ${adminStatus['.tag']}, please activate your account`);
   }
 
-  if (membership_type['.tag'] !== 'full') {
-    throw new Error(`Admin has ${membership_type['.tag']} access, please upgrade to full access`);
+  if (membershipType['.tag'] !== 'full') {
+    throw new Error(`Admin has ${membershipType['.tag']} access, please upgrade to full access`);
   }
 
   dbx.setHeaders({
-    selectAdmin: team_member_id,
+    selectAdmin: teamMemberId,
   });
 
   const currentAccount = await dbx.usersGetCurrentAccount();
 
   const {
-    result: { root_info, team, team_member_id: teamMemberId },
+    result: { root_info: rootInfo, team },
   } = currentAccount;
 
   if (!team || !teamMemberId) {
     throw new Error('The account is not a team account, please use a team account');
   }
 
-  if (!root_info.root_namespace_id) {
+  if (!rootInfo.root_namespace_id) {
     throw new Error('Could not get root namespace id');
   }
 
   await insertOrganisation({
     organisationId,
     accessToken: await encrypt(accessToken),
-    refreshToken: refresh_token,
-    adminTeamMemberId: team_member_id,
-    rootNamespaceId: root_info.root_namespace_id,
+    refreshToken,
+    adminTeamMemberId: teamMemberId,
+    rootNamespaceId: rootInfo.root_namespace_id,
     region,
   });
 
@@ -77,7 +81,7 @@ export const generateAccessToken = async ({
       name: 'dropbox/token.refresh.requested',
       data: {
         organisationId,
-        expiresAt: addSeconds(new Date(), expires_in).getTime(),
+        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
       },
     },
     {

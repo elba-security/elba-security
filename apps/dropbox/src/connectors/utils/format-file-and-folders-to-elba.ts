@@ -1,5 +1,5 @@
-import { FileToAdd, FolderAndFilePermissions } from '@/connectors/types';
-import { DataProtectionPermission } from '@elba-security/schemas';
+import type { DataProtectionPermission } from '@elba-security/schemas';
+import type { FileToAdd, FolderAndFilePermissions } from '@/connectors/types';
 
 const formatPermissionsToAdd = (permission: FolderAndFilePermissions[]) => {
   return permission.map(({ id, type, email, metadata }) => {
@@ -44,7 +44,8 @@ export const formatFilesToAdd = ({
     }
 
     return {
-      id: (isFile ? file.id : file.shared_folder_id) as string,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- We are sure that the folder has an id
+      id: isFile ? file.id : file.shared_folder_id!,
       name: file.name,
       ownerId: teamMemberId,
       url: file.metadata.preview_url,

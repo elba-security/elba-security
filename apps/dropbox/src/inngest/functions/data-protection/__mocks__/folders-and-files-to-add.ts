@@ -1,4 +1,4 @@
-import { DataProtectionObject } from '@elba-security/sdk';
+import type { DataProtectionObject } from '@elba-security/sdk';
 
 export const foldersAndFilesToAdd: DataProtectionObject[] = [
   {

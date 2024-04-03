@@ -1,11 +1,12 @@
-import { getOrganisationRefreshToken, updateDropboxTokens } from './data';
-import { InputArgWithTrigger } from '@/inngest/types';
 import subMinutes from 'date-fns/subMinutes';
-import { FunctionHandler, inngest } from '@/inngest/client';
-import { DBXAuth } from '@/connectors';
 import { NonRetriableError } from 'inngest';
+import type { InputArgWithTrigger } from '@/inngest/types';
+import type { FunctionHandler } from '@/inngest/client';
+import { inngest } from '@/inngest/client';
+import { DBXAuth } from '@/connectors';
 import { encrypt } from '@/common/crypto';
 import { env } from '@/env';
+import { getOrganisationRefreshToken, updateDropboxTokens } from './data';
 
 const handler: FunctionHandler = async ({
   event,
@@ -19,16 +20,17 @@ const handler: FunctionHandler = async ({
     const [organisation] = await getOrganisationRefreshToken(organisationId);
 
     if (!organisation) {
-      new NonRetriableError(
+      throw new NonRetriableError(
         `Not able to get the token details for the organisation with ID: ${organisationId}`
       );
     }
 
     const dbxAuth = new DBXAuth({
-      refreshToken: organisation!.refreshToken,
+      refreshToken: organisation.refreshToken,
     });
 
-    const { access_token: accessToken, expires_at: expiresAt } = await dbxAuth.refreshAccessToken();
+    const { access_token: accessToken, expires_at: newExpiresAt } =
+      await dbxAuth.refreshAccessToken();
 
     const tokenDetails = {
       organisationId,
@@ -37,7 +39,7 @@ const handler: FunctionHandler = async ({
 
     await updateDropboxTokens(tokenDetails);
 
-    return expiresAt;
+    return newExpiresAt;
   });
 
   await step.sendEvent('refresh-token', {

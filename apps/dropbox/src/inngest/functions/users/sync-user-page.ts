@@ -1,12 +1,13 @@
+import { logger } from '@elba-security/logger';
+import { NonRetriableError } from 'inngest';
 import { getElba } from '@/connectors/elba/client';
-import { InputArgWithTrigger } from '@/inngest/types';
-import { getOrganisationAccessDetails } from '../common/data';
-import { FunctionHandler, inngest } from '@/inngest/client';
+import type { InputArgWithTrigger } from '@/inngest/types';
+import type { FunctionHandler } from '@/inngest/client';
+import { inngest } from '@/inngest/client';
 import { DBXUsers } from '@/connectors';
 import { decrypt } from '@/common/crypto';
-import { logger } from '@elba-security/logger';
 import { env } from '@/env';
-import { NonRetriableError } from 'inngest';
+import { getOrganisationAccessDetails } from '../common/data';
 
 const handler: FunctionHandler = async ({
   event,
@@ -45,11 +46,12 @@ const handler: FunctionHandler = async ({
     return rest;
   });
 
-  if (users?.hasMore) {
-    return await step.sendEvent('run-user-sync-job', {
+  if (users.hasMore) {
+    await step.sendEvent('run-user-sync-job', {
       name: 'dropbox/users.sync_page.requested',
       data: { ...event.data, cursor: users.nextCursor },
     });
+    return;
   }
 
   await step.run('user-sync-finalize', async () => {

@@ -1,8 +1,8 @@
 import { expect, test, describe, vi } from 'vitest';
 import { mockNextRequest } from '@/test-utils/mock-app-route';
-import { POST as handler } from './route';
 import { inngest } from '@/inngest/client';
 import { insertOrganisations } from '@/test-utils/token';
+import { POST as handler } from './route';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const userId = 'team-member-id-1';

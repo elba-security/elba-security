@@ -1,18 +1,18 @@
 import { expect, test, describe, vi, beforeAll, beforeEach } from 'vitest';
-import { GET as handler } from './route';
 import { NextResponse } from 'next/server';
 import * as utils from '@/common/utils';
 import { inngest } from '@/inngest/client';
 import { mockNextRequest } from '@/test-utils/mock-app-route';
 import * as crypto from '@/common/crypto';
+import { GET as handler } from './route';
 
 const tokenWillExpiresIn = 14400; // seconds
 const rootNamespaceId = '356986';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const SYNC_STARTED_AT = 1674496756;
 
-vi.mock('dropbox', () => {
-  const actual = vi.importActual('dropbox');
+vi.mock('dropbox', async () => {
+  const actual = await vi.importActual('dropbox');
   return {
     ...actual,
     DropboxAuth: vi.fn(() => {
@@ -34,7 +34,7 @@ vi.mock('dropbox', () => {
     }),
     Dropbox: vi.fn(() => {
       return {
-        setHeaders: vi.fn(() => {}),
+        setHeaders: vi.fn(() => ({})),
         teamTokenGetAuthenticatedAdmin: vi.fn(() => {
           return {
             status: 200,
@@ -86,7 +86,7 @@ describe('Callback dropbox', () => {
     vi.spyOn(utils, 'redirectOnSuccess').mockReturnValueOnce(successRedirectResponse);
   });
 
-  beforeAll(async () => {
+  beforeAll(() => {
     vi.setSystemTime(new Date(SYNC_STARTED_AT));
     vi.clearAllMocks();
   });

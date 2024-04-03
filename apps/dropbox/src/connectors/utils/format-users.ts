@@ -1,9 +1,12 @@
-import { TeamMembers } from '@/inngest/functions/users/types';
-import { User } from '@elba-security/sdk'; 
+import type { User } from '@elba-security/sdk';
+import type { TeamMembers } from '@/inngest/functions/users/types';
+
 export const formatUsers = (members: TeamMembers) => {
   // Invited members are not yet part of the team
   const filteredMembers = members.filter(({ profile }) => {
-    return ['active', 'suspended'].includes(profile.status['.tag']) && !!profile.name.display_name;
+    return (
+      ['active', 'suspended'].includes(profile.status['.tag']) && Boolean(profile.name.display_name)
+    );
   });
 
   return filteredMembers.map<User>(({ profile }) => {
@@ -16,9 +19,9 @@ export const formatUsers = (members: TeamMembers) => {
 
     return {
       id: team_member_id,
-      email: email,
+      email,
       displayName: display_name,
-      additionalEmails: secondary_emails?.map(({ email }) => email) || [],
+      additionalEmails: secondary_emails?.map(({ email: secondEmail }) => secondEmail) || [],
     };
   });
 };

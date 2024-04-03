@@ -1,8 +1,8 @@
 import { expect, test, describe, vi } from 'vitest';
-import { scheduleUserSync } from './schedule-user-sync';
-import { insertOrganisations } from '@/test-utils/token';
-import { scheduledOrganisations } from './__mocks__/organisations';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
+import { insertOrganisations } from '@/test-utils/token';
+import { scheduleUserSync } from './schedule-user-sync';
+import { scheduledOrganisations } from './__mocks__/organisations';
 
 const setup = createInngestFunctionMock(scheduleUserSync);
 
@@ -20,7 +20,7 @@ describe('scheduleUserSync', () => {
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      organisations: expect.arrayContaining([
+      organisations: [
         {
           organisationId: '00000000-0000-0000-0000-000000000001',
         },
@@ -30,7 +30,7 @@ describe('scheduleUserSync', () => {
         {
           organisationId: '00000000-0000-0000-0000-000000000003',
         },
-      ]),
+      ],
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);

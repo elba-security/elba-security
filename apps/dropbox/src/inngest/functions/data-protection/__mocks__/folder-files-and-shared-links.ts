@@ -1,5 +1,5 @@
-import { SharedLinks } from '@/connectors/types';
 import type { files } from 'dropbox';
+import type { SharedLinks } from '@/connectors/types';
 
 // Folder and files
 type FolderType = Pick<
@@ -8,7 +8,14 @@ type FolderType = Pick<
 >;
 type FileType = Pick<
   files.FileMetadataReference,
-  '.tag' | 'id' | 'name' | 'path_lower' | 'path_display' | 'client_modified' | 'server_modified'
+  | '.tag'
+  | 'id'
+  | 'name'
+  | 'path_lower'
+  | 'path_display'
+  | 'client_modified'
+  | 'server_modified'
+  | 'content_hash'
 >;
 
 type FoldersAndFiles = {
@@ -42,6 +49,7 @@ export const foldersAndFiles: (FolderType | FileType)[] = [
     path_display: '/file-1.pdf',
     client_modified: '2021-01-01T00:00:00.000Z',
     server_modified: '2021-01-01T00:00:00.000Z',
+    content_hash: 'content-hash-1',
   },
   {
     '.tag': 'file',
@@ -51,6 +59,7 @@ export const foldersAndFiles: (FolderType | FileType)[] = [
     path_display: '/file-2.png',
     client_modified: '2021-01-01T00:00:00.000Z',
     server_modified: '2021-01-01T00:00:00.000Z',
+    content_hash: 'content-hash-2',
   },
   {
     '.tag': 'folder',
@@ -129,141 +138,3 @@ export const sharedLinks: (SharedLinks & {
     pathLower: '/folder-3',
   },
 ];
-
-// Permissions
-
-type FilesAndFolderPermissions = Map<
-  string,
-  {
-    id: string;
-    email: string;
-    domain: string;
-    team_member_id: string | null;
-    type: string;
-    role: string;
-    is_inherited: boolean;
-  }[]
->;
-
-export const folderPermissions: FilesAndFolderPermissions = new Map(
-  Object.entries({
-    'id:folder-id-1': [
-      {
-        id: 'email-id-1@foo.com',
-        email: 'email-id-1@foo.com',
-        domain: 'foo.com',
-        team_member_id: 'team-member-id-1',
-        type: 'user',
-        role: 'editor',
-        is_inherited: false,
-      },
-      {
-        id: 'email-1d-2@foo.com',
-        email: 'email-1d-2@foo.com',
-        domain: 'foo.com',
-        team_member_id: 'team-member-id-2',
-        type: 'user',
-        role: 'viewer',
-        is_inherited: false,
-      },
-    ],
-    'id:folder-id-2': [
-      {
-        id: 'email-id-3@bar.com',
-        email: 'email-id-3@bar.com',
-        domain: 'bar.com',
-        team_member_id: 'team-member-id-3',
-        type: 'user',
-        role: 'owner',
-        is_inherited: false,
-      },
-    ],
-    'id:folder-id-3': [
-      {
-        id: 'email-id-3@bar.com',
-        email: 'email-id-3@bar.com',
-        domain: 'bar.com',
-        team_member_id: 'team-member-id-3',
-        type: 'user',
-        role: 'owner',
-        is_inherited: false,
-      },
-    ],
-  })
-);
-
-export const filesPermissions: FilesAndFolderPermissions = new Map(
-  Object.entries({
-    'id:file-id-1': [
-      {
-        id: 'external-email-id@external.com',
-        email: 'external-email-id@external.com',
-        domain: 'external.com',
-        team_member_id: null,
-        type: 'user',
-        role: 'viewer',
-        is_inherited: false,
-      },
-    ],
-    'id:file-id-2': [
-      {
-        id: 'external-email-id-2@external.com',
-        email: 'external-email-id-2@external.com',
-        domain: 'external.com',
-        team_member_id: null,
-        type: 'user',
-        role: 'viewer',
-        is_inherited: false,
-      },
-      {
-        id: 'email-id-3@bar.com',
-        email: 'email-id-3@bar.com',
-        domain: 'bar.com',
-        team_member_id: 'team-member-id-3',
-        type: 'user',
-        role: 'owner',
-        is_inherited: false,
-      },
-    ],
-  })
-);
-
-// Folders and files metadata
-
-type FoldersAndFilesMetadata = Map<
-  string,
-  {
-    name: string;
-    preview_url: string;
-  }
->;
-
-export const foldersMetadata: FoldersAndFilesMetadata = new Map(
-  Object.entries({
-    'id:folder-id-1': {
-      name: 'folder-1',
-      preview_url: 'https://www.dropbox.com/s/folder-preview-url-1',
-    },
-    'id:folder-id-2': {
-      name: 'folder-2',
-      preview_url: 'https://www.dropbox.com/s/folder-preview-url-2',
-    },
-    'id:folder-id-3': {
-      name: 'folder-3',
-      preview_url: 'https://www.dropbox.com/s/folder-preview-url-3',
-    },
-  })
-);
-
-export const filesMetadata: FoldersAndFilesMetadata = new Map(
-  Object.entries({
-    'id:file-id-1': {
-      name: 'file-1.pdf',
-      preview_url: 'https://www.dropbox.com/s/file-preview-url-1',
-    },
-    'id:file-id-2': {
-      name: 'file-2.png',
-      preview_url: 'https://www.dropbox.com/s/file-preview-url-2',
-    },
-  })
-);

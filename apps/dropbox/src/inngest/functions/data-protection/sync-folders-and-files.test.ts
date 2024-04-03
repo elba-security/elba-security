@@ -1,21 +1,16 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { DropboxResponseError } from 'dropbox';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { synchronizeFoldersAndFiles } from './sync-folders-and-files';
-
-import {
-  folderAndFilesWithOutPagination,
-  sharedLinks,
-} from './__mocks__/folder-files-and-shared-links';
-import { foldersAndFilesToAdd } from './__mocks__/folders-and-files-to-add';
+import { NonRetriableError } from 'inngest';
 import { insertOrganisations, insertTestSharedLinks } from '@/test-utils/token';
 import * as crypto from '@/common/crypto';
-import { NonRetriableError } from 'inngest';
+import { synchronizeFoldersAndFilesEventHandler } from './sync-folders-and-files';
+import { sharedLinks } from './__mocks__/folder-files-and-shared-links';
 
 const RETRY_AFTER = '300';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const teamMemberId = 'team-member-id-1';
-const syncStartedAt = '2021-01-01T00:00:00.000Z';
+const syncStartedAt = 1609459200000;
 
 const elbaOptions = {
   baseUrl: 'https://api.elba.io',
@@ -25,47 +20,53 @@ const elbaOptions = {
 };
 
 const setup = createInngestFunctionMock(
-  synchronizeFoldersAndFiles,
+  synchronizeFoldersAndFilesEventHandler,
   'dropbox/data_protection.folder_and_files.sync_page.requested'
 );
 
 const mocks = vi.hoisted(() => {
   return {
     fetchFoldersAndFilesMock: vi.fn(),
-    fetchMetadataMembersAndMapDetailsMock: vi.fn(),
+    fetchFilesMetadataMembersAndMapDetailsMock: vi.fn(),
+    fetchFoldersMetadataMembersAndMapDetailsMock: vi.fn(),
   };
 });
 
-vi.mock('@/connectors/dropbox/dbx-files.ts', () => {
-  const dropbox = vi.importActual('dropbox');
+vi.mock('@/connectors/dropbox/dbx-files.ts', async () => {
+  const dropbox = await vi.importActual('dropbox');
   return {
     ...dropbox,
     DBXFiles: vi.fn(() => {
       return {
         fetchFoldersAndFiles: mocks.fetchFoldersAndFilesMock,
-        fetchMetadataMembersAndMapDetails: mocks.fetchMetadataMembersAndMapDetailsMock,
+        fetchFilesMetadataMembersAndMapDetails: mocks.fetchFilesMetadataMembersAndMapDetailsMock,
+        fetchFoldersMetadataMembersAndMapDetails: mocks.fetchFilesMetadataMembersAndMapDetailsMock,
       };
     }),
   };
 });
 
-describe('synchronizeFoldersAndFiles', async () => {
+describe('synchronizeFoldersAndFiles', () => {
   beforeEach(async () => {
     await insertOrganisations();
+    await insertTestSharedLinks(sharedLinks);
     mocks.fetchFoldersAndFilesMock.mockReset();
-    mocks.fetchMetadataMembersAndMapDetailsMock.mockReset();
+    mocks.fetchFilesMetadataMembersAndMapDetailsMock.mockReset();
+    mocks.fetchFoldersMetadataMembersAndMapDetailsMock.mockReset();
     vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
   });
 
-  afterEach(async () => {
+  afterEach(() => {
     vi.clearAllMocks();
   });
 
   test('should abort sync when organisation is not registered', async () => {
     mocks.fetchFoldersAndFilesMock.mockResolvedValue({});
-    const [result, { step }] = await setup({
-      organisationId: '00000000-0000-0000-0000-000000000010',
-      teamMemberId: 'team-member-id',
+    const [result, { step }] = setup({
+      organisationId: '00000000-0000-0000-0000-000000000002',
+      isFirstSync: true,
+      syncStartedAt,
+      teamMemberId,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -75,7 +76,6 @@ describe('synchronizeFoldersAndFiles', async () => {
   });
 
   test('should delay the job when Dropbox rate limit is reached', async () => {
-    const elba = spyOnElba();
     mocks.fetchFoldersAndFilesMock.mockRejectedValue(
       new DropboxResponseError(
         429,
@@ -98,59 +98,128 @@ describe('synchronizeFoldersAndFiles', async () => {
       teamMemberId,
     });
     await expect(result).rejects.toBeInstanceOf(DropboxResponseError);
-
-    expect(elba).toBeCalledTimes(1);
-    expect(elba).toBeCalledWith(elbaOptions);
-
-    const elbaInstance = elba.mock.results[0]?.value;
-
     expect(step.sendEvent).toBeCalledTimes(0);
-    await expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(0);
   });
 
-  test('should list all the folders and files in the first page for the respective team member', async () => {
-    const elba = spyOnElba();
-    await insertTestSharedLinks(sharedLinks);
-
-    mocks.fetchFoldersAndFilesMock.mockImplementation(() => {
-      return folderAndFilesWithOutPagination;
-    });
-
-    mocks.fetchMetadataMembersAndMapDetailsMock.mockImplementation(() => {
-      return foldersAndFilesToAdd;
-    });
-
-    const [result, { step }] = setup({
-      organisationId,
-      isFirstSync: false,
-      syncStartedAt,
-      teamMemberId,
-    });
-
-    await expect(result).resolves.toBeUndefined();
-
-    expect(elba).toBeCalledTimes(1);
-    expect(elba).toBeCalledWith(elbaOptions);
-
-    const elbaInstance = elba.mock.results[0]?.value;
-
-    await expect(step.run).toBeCalledTimes(3);
-    await expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
-  });
-
-  test('should list all the folders and files in the first page for the respective team member & trigger the next page scan', async () => {
+  test('should synchronize folders, files and send event to sync next page', async () => {
     const elba = spyOnElba();
     await insertTestSharedLinks(sharedLinks);
 
     mocks.fetchFoldersAndFilesMock.mockImplementation(() => {
       return {
-        ...folderAndFilesWithOutPagination,
+        foldersAndFiles: [
+          {
+            '.tag': 'folder',
+            id: 'id:folder-id-1',
+            name: 'folder-1',
+            shared_folder_id: 'share-folder-id-1',
+          },
+          {
+            '.tag': 'folder',
+            id: 'id:folder-id-2',
+            name: 'folder-2',
+            shared_folder_id: 'share-folder-id-2',
+          },
+          {
+            '.tag': 'file',
+            id: 'id:file-id-1',
+            name: 'file-1.pdf',
+            content_hash: 'content-hash-1',
+          },
+          {
+            '.tag': 'file',
+            id: 'id:file-id-2',
+            name: 'file-2.png',
+            content_hash: 'content-hash-2',
+          },
+        ],
+        cursor: 'cursor-2',
         hasMore: true,
       };
     });
 
-    mocks.fetchMetadataMembersAndMapDetailsMock.mockImplementation(() => {
-      return foldersAndFilesToAdd;
+    mocks.fetchFoldersMetadataMembersAndMapDetailsMock.mockImplementation(() => {
+      return [
+        {
+          id: 'id:folder-id-1',
+          metadata: {
+            is_personal: true,
+            shared_links: [],
+            type: 'folder',
+          },
+          name: 'folder-1',
+          ownerId: 'dbmid:team-member-id-1',
+          permissions: [
+            {
+              email: 'team-member-email-1@foo.com',
+              id: 'team-member-email-1@foo.com',
+              type: 'user',
+            },
+          ],
+          url: 'https://www.dropbox.com/folder-1',
+        },
+        {
+          id: 'id:folder-id-2',
+          metadata: {
+            is_personal: true,
+            shared_links: [],
+            type: 'folder',
+          },
+          name: 'folder-2',
+          ownerId: 'dbmid:team-member-id-1',
+          permissions: [
+            {
+              email: 'team-member-email-1@foo.com',
+              id: 'team-member-email-1@foo.com',
+              type: 'user',
+            },
+          ],
+          url: 'https://www.dropbox.com/folder-2',
+        },
+      ];
+    });
+
+    mocks.fetchFilesMetadataMembersAndMapDetailsMock.mockImplementation(() => {
+      return [
+        {
+          id: 'id:file-id-1',
+          metadata: {
+            is_personal: true,
+            shared_links: [],
+            type: 'file',
+          },
+          name: 'file-1.pdf',
+          ownerId: 'dbmid:team-member-id-1',
+          permissions: [
+            {
+              email: 'team-member-email-1@foo.com',
+              id: 'team-member-email-1@foo.com',
+              type: 'user',
+            },
+          ],
+          url: 'https://www.dropbox.com/file-1.pdf',
+          contentHash: 'content-hash-1',
+        },
+        {
+          id: 'id:file-id-2',
+          metadata: {
+            is_personal: true,
+            shared_links: [],
+            type: 'file',
+          },
+          name: 'file-2.pdf',
+          ownerId: 'dbmid:team-member-id-1',
+          permissions: [
+            {
+              email: 'team-member-email-1@foo.com',
+              id: 'team-member-email-1@foo.com',
+              type: 'user',
+            },
+          ],
+          url: 'https://www.dropbox.com/file-2.pdf',
+          contentHash: 'content-hash-1',
+        },
+      ];
     });
 
     const [result, { step }] = setup({
@@ -158,31 +227,31 @@ describe('synchronizeFoldersAndFiles', async () => {
       isFirstSync: false,
       syncStartedAt,
       teamMemberId,
+      cursor: 'cursor-1',
     });
 
-    await expect(result).resolves.toBeUndefined();
+    await expect(result).resolves.toStrictEqual({
+      status: 'ongoing',
+    });
 
+    expect(step.run).toBeCalledTimes(4);
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith(elbaOptions);
 
-    const elbaInstance = elba.mock.results[0]?.value;
+    const elbaInstance = elba.mock.results.at(0)?.value;
+    expect(elbaInstance?.dataProtection.deleteObjects).not.toBeCalled();
+    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('synchronize-folders-and-files', {
-      name: 'dropbox/data_protection.folder_and_files.sync_page.requested',
+    expect(step.sendEvent).toBeCalledWith('synchronize-folders-and-files-requested', {
       data: {
-        organisationId,
+        cursor: undefined,
         isFirstSync: false,
+        organisationId,
         syncStartedAt,
         teamMemberId,
-        cursor: 'cursor-1',
       },
-    });
-
-    await expect(step.run).toBeCalledTimes(3);
-    await expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
-    await expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith({
-      objects: foldersAndFilesToAdd,
+      name: 'dropbox/data_protection.folder_and_files.sync_page.requested',
     });
   });
 });

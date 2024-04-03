@@ -1,9 +1,9 @@
 import { beforeEach } from 'node:test';
 import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
-import { unauthorizedMiddleware } from './unauthorized-middleware';
-import { insertOrganisations } from '@/test-utils/token';
 import { DropboxResponseError } from 'dropbox';
+import { insertOrganisations } from '@/test-utils/token';
+import { unauthorizedMiddleware } from './unauthorized-middleware';
 
 const organisationId = '00000000-0000-0000-0000-000000000000';
 const region = 'eu';

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { RetryAfterError } from 'inngest';
-import { rateLimitMiddleware } from './rate-limit-middleware';
 import { DropboxResponseError } from 'dropbox';
+import { rateLimitMiddleware } from './rate-limit-middleware';
 
 const RETRY_AFTER = '300';
 

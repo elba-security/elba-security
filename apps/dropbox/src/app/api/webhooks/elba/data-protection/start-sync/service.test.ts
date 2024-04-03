@@ -8,7 +8,7 @@ const organisationId = '00000000-0000-0000-0000-000000000001';
 const mockDate = '2021-01-01T00:00:00.000Z';
 
 describe('startSync', () => {
-  beforeAll(async () => {
+  beforeAll(() => {
     vi.setSystemTime(mockDate);
   });
 

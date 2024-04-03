@@ -1,8 +1,8 @@
 import { EventSchemas, Inngest } from 'inngest';
-import { InngestEvents } from './types';
+import { logger } from '@elba-security/logger';
 import { unauthorizedMiddleware } from '@/inngest/middlewares/unauthorized-middleware';
 import { rateLimitMiddleware } from '@/inngest/middlewares/rate-limit-middleware';
-import { logger } from '@elba-security/logger';
+import type { InngestEvents } from './types';
 
 export type FunctionHandler = Parameters<typeof inngest.createFunction>[2];
 

@@ -1,5 +1,13 @@
-import { DeleteObjectPermissionsSchema } from '@/inngest/types';
+import type { DeleteObjectPermissionsSchema } from '@/inngest/types';
 import { DBXAccess } from './dbx-access';
+
+const isObject = (obj: unknown): obj is Record<string, unknown> => {
+  return typeof obj === 'object' && obj !== null;
+};
+
+const isArray = (value: unknown): value is unknown[] => {
+  return Array.isArray(value);
+};
 export class DBXPermissions {
   private adminTeamMemberId?: string;
   private dbx: DBXAccess;
@@ -31,16 +39,16 @@ export class DBXPermissions {
       ...(isPersonal ? { selectUser: ownerId } : { selectAdmin: this.adminTeamMemberId }),
     });
 
-    if (metadata?.sharedLinks && metadata?.sharedLinks?.length > 0) {
-      return metadata?.sharedLinks?.map(async (sharedLink: string) => {
-        return await this.dbx.sharingRevokeSharedLink({
+    if (isObject(metadata) && isArray(metadata.sharedLinks)) {
+      return metadata.sharedLinks.map(async (sharedLink: string) => {
+        return this.dbx.sharingRevokeSharedLink({
           url: sharedLink,
         });
       });
     }
 
-    if (type == 'folder') {
-      return await this.dbx.sharingRemoveFolderMember({
+    if (type === 'folder') {
+      return this.dbx.sharingRemoveFolderMember({
         leave_a_copy: false,
         shared_folder_id: idSource,
         member: {
@@ -50,14 +58,12 @@ export class DBXPermissions {
       });
     }
 
-    if (type == 'file') {
-      return await this.dbx.sharingRemoveFileMember2({
-        file: idSource,
-        member: {
-          '.tag': 'email',
-          email: permissionId,
-        },
-      });
-    }
+    return this.dbx.sharingRemoveFileMember2({
+      file: idSource,
+      member: {
+        '.tag': 'email',
+        email: permissionId,
+      },
+    });
   };
 }

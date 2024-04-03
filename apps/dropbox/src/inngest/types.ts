@@ -1,5 +1,28 @@
 import type { GetFunctionInput } from 'inngest';
-import { inngest } from './client';
+import type { infer as zInfer } from 'zod';
+import { z } from 'zod';
+import type { inngest } from './client';
+
+export const fileMetadataSchema = z.object({
+  ownerId: z.string().min(1),
+  type: z.enum(['file', 'folder']),
+  isPersonal: z.boolean(),
+});
+
+export type FileMetadata = zInfer<typeof fileMetadataSchema>;
+
+export const deleteObjectPermissionsSchema = fileMetadataSchema.extend({
+  permissions: z.array(
+    z.object({
+      id: z.string().min(1),
+      metadata: z
+        .object({
+          sharedLinks: z.array(z.string()),
+        })
+        .optional(),
+    })
+  ),
+});
 
 type AppSchema = {
   organisationId: string;
@@ -28,6 +51,7 @@ type RefreshThirdPartyAppsObjectSchema = {
   organisationId: string;
   userId: string;
   appId: string;
+  isFirstSync: boolean;
 };
 
 type DeleteThirdPArtyAppsObject = {
@@ -78,9 +102,7 @@ export type DeleteObjectPermissionsSchema = {
   };
   permission: {
     id: string;
-    metadata: {
-      sharedLinks?: string[];
-    };
+    metadata?: unknown;
   };
 };
 
@@ -100,7 +122,6 @@ export type InngestEvents = {
   'dropbox/token.refresh.requested': { data: RefreshTokensSchema };
   'dropbox/token.refresh.canceled': { data: RefreshTokensSchema };
   'dropbox/users.sync_page.requested': { data: SyncUsersData };
-  'dropbox/users.sync_page.requested.completed': { data: SyncUsersData };
   'dropbox/third_party_apps.sync_page.requested': { data: RunThirdPartyAppsSyncJobsSchema };
   'dropbox/third_party_apps.refresh_objects.requested': { data: RefreshThirdPartyAppsObjectSchema };
   'dropbox/third_party_apps.delete_object.requested': { data: DeleteThirdPArtyAppsObject };
@@ -118,6 +139,12 @@ export type InngestEvents = {
   };
   'dropbox/data_protection.folder_and_files.sync_page.requested': {
     data: SyncFilesAndFoldersSchema;
+  };
+  'dropbox/data_protection.folder_and_files.sync_page.completed': {
+    data: {
+      organisationId: string;
+      teamMemberId: string;
+    };
   };
   'dropbox/data_protection.delete_object_permission.requested': {
     data: DeleteObjectPermissionsSchema;

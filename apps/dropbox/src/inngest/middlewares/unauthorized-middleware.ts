@@ -1,6 +1,7 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
 import { DropboxResponseError } from 'dropbox';
+import { logger } from '@elba-security/logger';
 
 const apiRequiredDataSchema = z.object({
   organisationId: z.string().uuid(),
@@ -29,6 +30,10 @@ export const unauthorizedMiddleware = new InngestMiddleware({
             } = ctx;
 
             if (error instanceof DropboxResponseError && error.status === 401) {
+              logger.error('Unauthorized error from dropbox', {
+                error,
+              });
+
               if (hasApiRequiredDataProperties(data)) {
                 await client.send({
                   name: 'dropbox/elba_app.uninstall.requested',

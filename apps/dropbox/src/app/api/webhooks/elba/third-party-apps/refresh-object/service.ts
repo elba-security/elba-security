@@ -15,7 +15,7 @@ export const refreshThirdPartyAppsObject = async ({
     name: 'dropbox/third_party_apps.refresh_objects.requested',
     data: {
       organisationId,
-      userId: userId,
+      userId,
       appId,
       isFirstSync: true,
     },

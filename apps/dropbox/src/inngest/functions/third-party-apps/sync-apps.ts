@@ -1,11 +1,12 @@
-import { FunctionHandler, inngest } from '@/inngest/client';
-import { getOrganisationAccessDetails } from '../common/data';
-import { InputArgWithTrigger } from '@/inngest/types';
+import { NonRetriableError } from 'inngest';
+import type { FunctionHandler } from '@/inngest/client';
+import { inngest } from '@/inngest/client';
+import type { InputArgWithTrigger } from '@/inngest/types';
 import { DBXApps } from '@/connectors/dropbox/dbx-apps';
 import { getElba } from '@/connectors';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/env';
-import { NonRetriableError } from 'inngest';
+import { getOrganisationAccessDetails } from '../common/data';
 
 const handler: FunctionHandler = async ({
   event,
@@ -36,7 +37,7 @@ const handler: FunctionHandler = async ({
   const result = await step.run('third-party-apps-sync-initialize', async () => {
     const { apps, ...rest } = await dbx.fetchTeamMembersThirdPartyApps(cursor);
 
-    if (!apps?.length) {
+    if (!apps.length) {
       return rest;
     }
 
@@ -47,14 +48,15 @@ const handler: FunctionHandler = async ({
     return rest;
   });
 
-  if (result?.hasMore) {
-    return await step.sendEvent('third-party-apps-run-sync-jobs', {
+  if (result.hasMore) {
+    await step.sendEvent('third-party-apps-run-sync-jobs', {
       name: 'dropbox/third_party_apps.sync_page.requested',
       data: {
         ...event.data,
         cursor: result.nextCursor,
       },
     });
+    return;
   }
 
   await step.run('third-party-apps-sync-finalize', async () => {

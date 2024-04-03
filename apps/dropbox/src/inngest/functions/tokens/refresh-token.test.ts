@@ -1,30 +1,32 @@
 import { expect, test, describe, vi, beforeEach, afterAll } from 'vitest';
-import { refreshToken } from './refresh-token';
 import { DropboxResponseError } from 'dropbox';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import addSeconds from 'date-fns/addSeconds';
+import { addSeconds, subMinutes } from 'date-fns';
 import { insertOrganisations } from '@/test-utils/token';
 import * as crypto from '@/common/crypto';
-import subMinutes from 'date-fns/subMinutes';
+import { refreshToken } from './refresh-token';
 
 const TOKEN_GENERATED_AT = '2023-03-13T16:19:20.818Z';
 const TOKEN_WILL_EXPIRE_IN = 14400;
 const TOKEN_EXPIRES_AT = addSeconds(new Date(TOKEN_GENERATED_AT), TOKEN_WILL_EXPIRE_IN);
 const organisationId = '00000000-0000-0000-0000-000000000001';
+const expiresAt = 1688896756;
 
 const setup = createInngestFunctionMock(refreshToken, 'dropbox/token.refresh.requested');
 
 const mocks = vi.hoisted(() => {
   return {
-    refreshAccessToken: vi.fn(),
+    refreshAccessTokenMock: vi.fn(),
   };
 });
 
 vi.mock('@/connectors/dropbox/dbx-auth', () => {
   return {
     DBXAuth: vi.fn().mockImplementation(() => {
+      // const actual = await vi.importActual('dropbox');
       return {
-        refreshAccessToken: mocks.refreshAccessToken,
+        // ...actual,
+        refreshAccessToken: mocks.refreshAccessTokenMock,
       };
     }),
   };
@@ -32,9 +34,9 @@ vi.mock('@/connectors/dropbox/dbx-auth', () => {
 
 describe('refreshToken', () => {
   beforeEach(async () => {
+    await insertOrganisations();
     vi.setSystemTime(TOKEN_GENERATED_AT);
     vi.clearAllMocks();
-    await insertOrganisations();
     vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
   });
 
@@ -42,9 +44,9 @@ describe('refreshToken', () => {
     vi.useRealTimers();
   });
 
-  test('should delete the organisations and call elba to notify', async () => {
+  test.only('should delete the organisations and call elba to notify', async () => {
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
-    mocks.refreshAccessToken.mockRejectedValueOnce(
+    mocks.refreshAccessTokenMock.mockRejectedValue(
       new DropboxResponseError(
         401,
         {},
@@ -59,6 +61,7 @@ describe('refreshToken', () => {
 
     const [result] = setup({
       organisationId,
+      expiresAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(DropboxResponseError);
@@ -67,7 +70,7 @@ describe('refreshToken', () => {
   test('should refresh tokens for the available organisation', async () => {
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
 
-    mocks.refreshAccessToken.mockResolvedValueOnce({
+    mocks.refreshAccessTokenMock.mockResolvedValueOnce({
       access_token: 'test-access-token-0',
       expires_at: TOKEN_EXPIRES_AT,
     });

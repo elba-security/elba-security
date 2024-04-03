@@ -1,17 +1,18 @@
-import { files as DbxFiles, sharing } from 'dropbox/types/dropbox_types';
-import { DBXAccess } from './dbx-access';
-import {
+import type { files as DbxFiles, sharing } from 'dropbox/types/dropbox_types';
+import type {
   DBXFilesOptions,
   FileOrFolder,
+  FileSelectedTypes,
   FolderFilePermissions,
   GeneralFolderFilePermissions,
   SharedLinks,
 } from '@/connectors/types';
+import { env } from '@/env';
 import { formatPermissions } from '../utils/format-permissions';
 import { formatFilesToAdd } from '../utils/format-file-and-folders-to-elba';
 import { filterSharedLinks } from '../utils/format-shared-links';
-import { env } from '@/env';
 import { chunkArray } from '../utils/helpers';
+import { DBXAccess } from './dbx-access';
 
 export class DBXFiles {
   private adminTeamMemberId?: string;
@@ -64,6 +65,7 @@ export class DBXFiles {
     do {
       const {
         result: { links, has_more, cursor },
+        // eslint-disable-next-line -- Need to wait for the response
       } = await this.dbx.sharingListSharedLinks({
         path,
         cursor: nextCursor,
@@ -109,7 +111,7 @@ export class DBXFiles {
     };
   };
 
-  fetchFilesMetadataBatch = async (files: DbxFiles.FileMetadataReference[]) => {
+  fetchFilesMetadataBatch = async (files: FileSelectedTypes[]) => {
     const sharedFileMetadata = new Map<
       string,
       {
@@ -128,14 +130,14 @@ export class DBXFiles {
           actions: [],
         });
 
-        result.forEach(({ file, result }) => {
-          if (result['.tag'] === 'access_error' || result['.tag'] === 'other') {
+        result.forEach(({ file, result: fileDetails }) => {
+          if (fileDetails['.tag'] === 'access_error' || fileDetails['.tag'] === 'other') {
             return;
           }
 
           sharedFileMetadata.set(file, {
-            name: result.name,
-            preview_url: result.preview_url,
+            name: fileDetails.name,
+            preview_url: fileDetails.preview_url,
           });
         });
       })
@@ -144,38 +146,51 @@ export class DBXFiles {
     return sharedFileMetadata;
   };
 
-  // Fetch files permissions
-  fetchFilesPermissions = async (files: DbxFiles.FileMetadataReference[]) => {
+  // TODO: need to be optimized
+  fetchFilesPermissions = async (files: FileSelectedTypes[]) => {
     const permissions: FolderFilePermissions = new Map();
-    await Promise.all(
-      files.map(async ({ id: fileId }: DbxFiles.FileMetadataReference) => {
-        const filePermissions: GeneralFolderFilePermissions = {
-          users: [],
-          groups: [],
-          invitees: [],
-        };
+    const concurrentLimit = 20;
 
-        let nextCursor: string | undefined;
-        do {
-          const {
-            result: { users, groups, invitees, cursor },
-          } = nextCursor
-            ? await this.dbx.sharingListFileMembersContinue({ cursor: nextCursor })
-            : await this.dbx.sharingListFileMembers({
-                file: fileId,
-                include_inherited: true,
-                limit: env.DROPBOX_LIST_FILE_MEMBERS_LIMIT,
-              });
+    const throttledFetch = async (fileBatch: FileSelectedTypes[]) => {
+      await Promise.all(
+        fileBatch.map(async ({ id: fileId }) => {
+          const filePermissions: GeneralFolderFilePermissions = {
+            users: [],
+            groups: [],
+            invitees: [],
+          };
+          let nextCursor: string | undefined;
+          do {
+            const {
+              result: { users, groups, invitees, cursor },
+            } = nextCursor
+              ? // eslint-disable-next-line -- Need to wait for the response
+                await this.dbx.sharingListFileMembersContinue({ cursor: nextCursor })
+              : // eslint-disable-next-line -- Need to wait for the response
+                await this.dbx.sharingListFileMembers({
+                  file: fileId,
+                  include_inherited: true,
+                  limit: env.DROPBOX_LIST_FILE_MEMBERS_LIMIT,
+                });
 
-          filePermissions.users.push(...users);
-          filePermissions.groups.push(...groups);
-          filePermissions.invitees.push(...invitees);
-          nextCursor = cursor;
-        } while (nextCursor);
+            filePermissions.users.push(...users);
+            filePermissions.groups.push(...groups);
+            filePermissions.invitees.push(...invitees);
+            nextCursor = cursor;
+          } while (nextCursor);
 
-        permissions.set(fileId, filePermissions);
-      })
-    );
+          permissions.set(fileId, filePermissions);
+        })
+      );
+    };
+
+    // Split files array into batches and process each batch sequentially
+    for (let i = 0; i < files.length; i += concurrentLimit) {
+      const fileBatch = files.slice(i, i + concurrentLimit);
+      // eslint-disable-next-line -- Need to wait for the response
+      await throttledFetch(fileBatch);
+    }
+
     return permissions;
   };
 
@@ -195,11 +210,15 @@ export class DBXFiles {
           id: folderId,
           shared_folder_id: shareFolderId,
         }: DbxFiles.FolderMetadataReference) => {
+          if (!shareFolderId) {
+            throw new Error('Missing shared_folder_id');
+          }
+
           const {
             result: { name, preview_url },
           } = await this.dbx.sharingGetFolderMetadata({
             actions: [],
-            shared_folder_id: shareFolderId!,
+            shared_folder_id: shareFolderId,
           });
 
           return {
@@ -210,10 +229,6 @@ export class DBXFiles {
         }
       )
     );
-
-    if (!metadataResult) {
-      throw new Error('No metadata found');
-    }
 
     for (const { folder_id, ...rest } of metadataResult) {
       sharedFolderMetadata.set(folder_id, rest);
@@ -253,6 +268,10 @@ export class DBXFiles {
           id: folderId,
           shared_folder_id: shareFolderId,
         }: DbxFiles.FolderMetadataReference) => {
+          if (!shareFolderId) {
+            throw new Error('Missing shared_folder_id');
+          }
+
           const folderPermissions: GeneralFolderFilePermissions = {
             users: [],
             groups: [],
@@ -262,9 +281,11 @@ export class DBXFiles {
           let nextCursor: string | undefined;
           do {
             const response = nextCursor
-              ? await this.dbx.sharingListFolderMembersContinue({ cursor: nextCursor })
-              : await this.dbx.sharingListFolderMembers({
-                  shared_folder_id: shareFolderId!,
+              ? // eslint-disable-next-line -- Need to wait for the response
+                await this.dbx.sharingListFolderMembersContinue({ cursor: nextCursor })
+              : // eslint-disable-next-line -- Need to wait for the response
+                await this.dbx.sharingListFolderMembers({
+                  shared_folder_id: shareFolderId,
                   limit: env.DROPBOX_LIST_FOLDER_MEMBERS_LIMIT,
                 });
 
@@ -282,57 +303,70 @@ export class DBXFiles {
     return permissions;
   };
 
-  fetchMetadataMembersAndMapDetails = async ({
-    foldersAndFiles,
+  // MapFolders
+  fetchFoldersMetadataMembersAndMapDetails = async ({
+    folders,
     sharedLinks,
   }: {
-    foldersAndFiles: Array<DbxFiles.FolderMetadataReference | DbxFiles.FileMetadataReference>;
+    folders: DbxFiles.FolderMetadataReference[];
     sharedLinks: SharedLinks[];
   }) => {
-    const { folders, files } = foldersAndFiles.reduce<{
-      folders: DbxFiles.FolderMetadataReference[];
-      files: DbxFiles.FileMetadataReference[];
-    }>(
-      (acc, entry) => {
-        if (entry['.tag'] === 'folder' && entry.shared_folder_id) {
-          acc.folders.push(entry);
-          return acc;
-        }
+    const [foldersPermissions, foldersMetadata] = await Promise.all([
+      this.fetchFoldersPermissions(folders),
+      this.fetchFoldersMetadata(folders),
+    ]);
 
-        if (entry['.tag'] === 'file') {
-          acc.files.push(entry);
-          return acc;
-        }
-
-        return acc;
-      },
-      {
-        folders: [],
-        files: [],
-      }
-    );
-
-    const [foldersPermissions, foldersMetadata, filesPermissions, filesMetadata] =
-      await Promise.all([
-        this.fetchFoldersPermissions(folders),
-        this.fetchFoldersMetadata(folders),
-        this.fetchFilesPermissions(files),
-        this.fetchFilesMetadataBatch(files),
-      ]);
-
-    const filteredPermissions = new Map([...foldersPermissions, ...filesPermissions]);
-    const filteredMetadata = new Map([...foldersMetadata, ...filesMetadata]);
-
-    const mappedResult = [...folders, ...files].map((entry) => {
-      const permissions = filteredPermissions.get(entry.id);
-      const metadata = filteredMetadata.get(entry.id);
+    const mappedResult = folders.map((entry) => {
+      const permissions = foldersPermissions.get(entry.id);
+      const metadata = foldersMetadata.get(entry.id);
 
       if (sharedLinks.length > 0 && permissions) {
-        const sharedLinkFileId =
-          entry['.tag'] === 'file' ? entry.id : `ns:${entry.shared_folder_id}`;
+        permissions.anyone = sharedLinks.filter(({ id }) => id === `ns:${entry.shared_folder_id}`);
+      }
 
-        permissions.anyone = sharedLinks.filter(({ id }) => id === sharedLinkFileId);
-        filteredPermissions.set(entry.id, permissions!);
+      if (metadata && permissions) {
+        const formattedPermissions = formatPermissions(permissions);
+
+        return {
+          ...entry,
+          metadata,
+          permissions: formattedPermissions,
+        };
+      }
+
+      // Permissions and metadata should have been assigned, if not throw error
+      throw new Error('Permissions or metadata not found');
+    });
+
+    if (!this.teamMemberId) {
+      throw new Error('Missing teamMemberId');
+    }
+
+    return formatFilesToAdd({
+      teamMemberId: this.teamMemberId,
+      files: mappedResult,
+    });
+  };
+
+  // MapFiles
+  fetchFilesMetadataMembersAndMapDetails = async ({
+    files,
+    sharedLinks,
+  }: {
+    files: FileSelectedTypes[];
+    sharedLinks: SharedLinks[];
+  }) => {
+    const [filesPermissions, filesMetadata] = await Promise.all([
+      this.fetchFilesPermissions(files),
+      this.fetchFilesMetadataBatch(files),
+    ]);
+
+    const mappedResult = files.map((entry) => {
+      const permissions = filesPermissions.get(entry.id);
+      const metadata = filesMetadata.get(entry.id);
+
+      if (sharedLinks.length > 0 && permissions) {
+        permissions.anyone = sharedLinks.filter(({ id }) => id === entry.id);
       }
 
       if (metadata && permissions) {

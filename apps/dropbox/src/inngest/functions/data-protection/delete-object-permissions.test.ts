@@ -1,10 +1,10 @@
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { DropboxResponseError } from 'dropbox';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { deleteObjectPermissions } from './delete-object-permissions';
+import { NonRetriableError } from 'inngest';
 import { insertOrganisations } from '@/test-utils/token';
 import * as crypto from '@/common/crypto';
-import { NonRetriableError } from 'inngest';
+import { deleteObjectPermissions } from './delete-object-permissions';
 
 const RETRY_AFTER = '300';
 const organisationId = '00000000-0000-0000-0000-000000000001';
@@ -22,8 +22,8 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('@/connectors/dropbox/dbx-access.ts', () => {
-  const actual = vi.importActual('dropbox');
+vi.mock('@/connectors/dropbox/dbx-access.ts', async () => {
+  const actual = await vi.importActual('dropbox');
   return {
     ...actual,
     DBXAccess: vi.fn(() => {

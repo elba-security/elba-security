@@ -1,4 +1,4 @@
-import { FolderAndFilePermissions, GeneralFolderFilePermissions } from '../types';
+import type { FolderAndFilePermissions, GeneralFolderFilePermissions } from '../types';
 
 export const formatPermissions = ({ users, invitees, anyone }: GeneralFolderFilePermissions) => {
   const formattedPermissions = new Map<string, FolderAndFilePermissions>();
@@ -19,7 +19,7 @@ export const formatPermissions = ({ users, invitees, anyone }: GeneralFolderFile
   });
 
   invitees.forEach(({ invitee, access_type, is_inherited, user }) => {
-    const hasEmail = invitee['.tag'] === 'email' && !!invitee.email;
+    const hasEmail = invitee['.tag'] === 'email' && Boolean(invitee.email);
 
     if (!hasEmail || (access_type['.tag'] !== 'owner' && is_inherited)) {
       return;
@@ -35,7 +35,7 @@ export const formatPermissions = ({ users, invitees, anyone }: GeneralFolderFile
     });
   });
 
-  if (anyone && anyone?.length > 0) {
+  if (anyone && anyone.length > 0) {
     const links = anyone.map((link) => link.url);
 
     const pickedLink = anyone.find((link) => link.linkAccessLevel === 'editor');

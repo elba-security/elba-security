@@ -1,6 +1,6 @@
-import { SharedLinks } from '@/connectors/types';
-import { db, sharedLinks } from '@/database';
 import { and, eq, inArray } from 'drizzle-orm';
+import type { SharedLinks } from '@/connectors/types';
+import { db, sharedLinks } from '@/database';
 
 type InsertSharedLinks = SharedLinks & {
   teamMemberId: string;
@@ -8,7 +8,7 @@ type InsertSharedLinks = SharedLinks & {
 };
 
 export const insertSharedLinks = async (sharedLinkDetails: InsertSharedLinks[]) => {
-  return await db
+  return db
     .insert(sharedLinks)
     .values(sharedLinkDetails)
     .onConflictDoNothing({
@@ -27,7 +27,7 @@ export const getSharedLinks = async ({
   linkIds: string[];
 }) => {
   if (linkIds.length > 0) {
-    return await db
+    return db
       .select({
         id: sharedLinks.id,
         url: sharedLinks.url,
@@ -39,4 +39,8 @@ export const getSharedLinks = async ({
   }
 
   return [];
+};
+
+export const deleteSharedLinks = async (organisationId: string) => {
+  return db.delete(sharedLinks).where(eq(sharedLinks.organisationId, organisationId));
 };

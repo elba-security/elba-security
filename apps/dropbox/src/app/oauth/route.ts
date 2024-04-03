@@ -1,20 +1,20 @@
-import { NextRequest } from 'next/server';
-import { generateAccessToken } from './service';
-import { redirectOnError, redirectOnSuccess } from '@/common/utils';
+import type { NextRequest } from 'next/server';
 import { logger } from '@elba-security/logger';
 import { DropboxResponseError } from 'dropbox';
+import { redirectOnError, redirectOnSuccess } from '@/common/utils';
+import { generateAccessToken } from './service';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const state = searchParams.get('state');
   const code = searchParams.get('code');
-  const error = searchParams.get('error');
+  const authError = searchParams.get('error');
   const cookieState = request.cookies.get('state')?.value;
   const organisationId = request.cookies.get('organisation_id')?.value;
   const region = request.cookies.get('region')?.value;
 
   try {
-    if (error === 'access_denied') {
+    if (authError === 'access_denied') {
       return redirectOnError(region, 'unauthorized');
     }
 

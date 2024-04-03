@@ -1,5 +1,5 @@
-import { sharing } from 'dropbox';
-import { SharedLinks } from '../types';
+import type { sharing } from 'dropbox';
+import type { SharedLinks } from '../types';
 
 export const filterSharedLinks = (sharedLinks: sharing.ListSharedLinksResult['links']) => {
   return sharedLinks.reduce((acc: SharedLinks[], link) => {
@@ -10,7 +10,7 @@ export const filterSharedLinks = (sharedLinks: sharing.ListSharedLinksResult['li
       link_permissions.resolved_visibility?.['.tag'] ??
       null;
 
-    if (!id || !effectiveAudience) {
+    if (!id || !effectiveAudience || !path_lower) {
       return acc;
     }
 
@@ -22,7 +22,7 @@ export const filterSharedLinks = (sharedLinks: sharing.ListSharedLinksResult['li
       id,
       url,
       linkAccessLevel: link.link_permissions.link_access_level?.['.tag'] ?? 'viewer',
-      pathLower: path_lower!,
+      pathLower: path_lower,
     };
 
     acc.push(linkObject);
