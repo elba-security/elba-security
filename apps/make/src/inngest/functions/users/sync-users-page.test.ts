@@ -38,7 +38,6 @@ describe('sync-users', () => {
   test('should continue the sync when there is a next page', async () => {
     // setup the test with an organisation
     await db.insert(Organisation).values(organisation);
-    // mock the getUsers function that returns Vercel users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       users,
       pagination: { next: 10 },
@@ -69,7 +68,6 @@ describe('sync-users', () => {
 
   test('should finalize the sync when there is a no next page', async () => {
     await db.insert(Organisation).values(organisation);
-    // mock the getUsers function that returns Vercel users page, but this time the response does not indicate that there is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       users,
       pagination: { next: null },

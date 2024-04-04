@@ -62,7 +62,7 @@ export const syncUsersPage = inngest.createFunction(
     const nextPage = await step.run('list-users', async () => {
       // retrieve this users page
       const result = await getUsers(organisation.token, organisation.teamId, page);
-      // format each Vercel user to Elba users
+
       const users = result.users.map(formatElbaUser);
       // send the batch of users to Elba
       logger.debug('Sending batch of users to Elba: ', { organisationId, users });
