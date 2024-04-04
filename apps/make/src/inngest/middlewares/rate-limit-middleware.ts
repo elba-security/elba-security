@@ -27,7 +27,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                 result: {
                   ...result,
                   error: new RetryAfterError(
-                    `Sentry rate limit reached by '${fn.name}'`,
+                    `Make rate limit reached by '${fn.name}'`,
                     retryAfter,
                     { cause: error }
                   ),
