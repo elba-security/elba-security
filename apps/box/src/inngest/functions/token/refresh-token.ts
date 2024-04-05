@@ -7,7 +7,7 @@ import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getRefreshToken } from '@/connectors/auth';
 import { env } from '@/env';
-import { encrypt } from '@/common/crypto';
+import { encrypt, decrypt } from '@/common/crypto';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -28,7 +28,7 @@ export const refreshToken = inngest.createFunction(
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
-  { event: 'box/box.token.refresh.requested' },
+  { event: 'box/token.refresh.requested' },
   async ({ event, step }) => {
     const { organisationId, expiresAt } = event.data;
 
@@ -45,12 +45,13 @@ export const refreshToken = inngest.createFunction(
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
+      const refreshTokenInfo = await decrypt(organisation.refreshToken);
 
       const {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
         expiresIn,
-      } = await getRefreshToken(organisation.refreshToken);
+      } = await getRefreshToken(refreshTokenInfo);
 
       const encodedNewAccessToken = await encrypt(newAccessToken);
       const encodedNewRefreshToken = await encrypt(newRefreshToken);
@@ -66,7 +67,7 @@ export const refreshToken = inngest.createFunction(
     });
 
     await step.sendEvent('next-refresh', {
-      name: 'box/box.token.refresh.requested',
+      name: 'box/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: new Date(nextExpiresAt).getTime(),

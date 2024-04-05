@@ -20,7 +20,7 @@ export const inngest = new Inngest({
         region: string;
       };
     };
-    'box/box.token.refresh.requested': {
+    'box/token.refresh.requested': {
       data: {
         organisationId: string;
         expiresAt: number;

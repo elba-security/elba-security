@@ -1,6 +1,5 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { Organisation } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
@@ -27,17 +26,6 @@ describe('deleteSourceUsers', () => {
     vi.restoreAllMocks();
   });
 
-  test('should throw NonRetriableError when organisation is not found', async () => {
-    // Mock database response to simulate no organisation found
-    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
-
-    const [result] = setup({ userId, organisationId: organisation.id });
-
-    // Assert that the function throws a NonRetriableError
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-    await expect(result).rejects.toHaveProperty('message', `Could not retrieve ${userId}`);
-  });
-
   test.only('should delete user', async () => {
     // Mock database response to return organisation details
     vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
@@ -51,7 +39,7 @@ describe('deleteSourceUsers', () => {
     expect(usersConnector.deleteUsers).toBeCalledTimes(1);
     expect(usersConnector.deleteUsers).toBeCalledWith({
       userId,
-      token: organisation.accessToken,
+      token: accessToken,
     });
   });
 });

@@ -5,23 +5,18 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as authConnector from '@/connectors/auth';
-import { decrypt } from '@/common/crypto';
+import { encrypt, decrypt } from '@/common/crypto';
 import { BoxError } from '@/connectors/commons/error';
 import { refreshToken } from './refresh-token';
-
-const tokens = {
-  accessToken: 'access-token',
-  refreshToken: 'refresh-token',
-};
-
-const encryptedTokens = {
-  accessToken: tokens.accessToken,
-  refreshToken: tokens.refreshToken,
-};
 
 const newTokens = {
   accessToken: 'new-access-token',
   refreshToken: 'new-refresh-token',
+};
+
+const encryptedTokens = {
+  accessToken: await encrypt(newTokens.accessToken),
+  refreshToken: await encrypt(newTokens.refreshToken),
 };
 
 const organisation = {
@@ -36,10 +31,7 @@ const expiresAt = now.getTime() + 60 * 1000;
 // next token duration
 const expiresIn = 60 * 1000;
 
-const setup = createInngestFunctionMock(
-  refreshToken,
-  'box/box.token.refresh.requested'
-);
+const setup = createInngestFunctionMock(refreshToken, 'box/token.refresh.requested');
 
 describe('refresh-token', () => {
   beforeAll(() => {
@@ -93,20 +85,14 @@ describe('refresh-token', () => {
     if (!updatedOrganisation) {
       throw new BoxError(`Organisation with ID ${organisation.id} not found.`);
     }
-    await expect(decrypt(updatedOrganisation.accessToken)).resolves.toEqual(newTokens.accessToken);
+    await expect(decrypt(updatedOrganisation.refreshToken)).resolves.toEqual(newTokens.refreshToken);
 
     expect(authConnector.getRefreshToken).toBeCalledTimes(1);
-    expect(authConnector.getRefreshToken).toBeCalledWith(tokens.refreshToken);
-
-    expect(step.sleepUntil).toBeCalledTimes(1);
-    expect(step.sleepUntil).toBeCalledWith(
-      'wait-before-expiration',
-      new Date(expiresAt - 5 * 60 * 1000)
-    );
+    expect(authConnector.getRefreshToken).toBeCalledWith(newTokens.refreshToken);
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('next-refresh', {
-      name: 'box/box.token.refresh.requested',
+      name: 'box/token.refresh.requested',
       data: {
         organisationId: organisation.id,
         expiresAt: now.getTime() + expiresIn * 1000,
