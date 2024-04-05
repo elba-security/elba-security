@@ -9,8 +9,8 @@ export type CreateElbaMiddlewareOptions = {
 
 export const createElbaMiddleware = ({
   webhookSecret,
-}: CreateElbaMiddlewareOptions): { config: string[]; middleware: NextMiddleware } => ({
-  config: ['/api/webhook/elba/(.*)', '/api/webhooks/elba/(.*)'],
+}: CreateElbaMiddlewareOptions): { config: { matcher: string[] }; middleware: NextMiddleware } => ({
+  config: { matcher: ['/api/webhook/elba/(.*)', '/api/webhooks/elba/(.*)'] },
   middleware: async (request) => {
     try {
       await validateWebhookRequestSignature(request, webhookSecret);

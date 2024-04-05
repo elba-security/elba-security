@@ -17,13 +17,15 @@ const setup = async () => {
 
 describe('createElbaMiddleware', () => {
   test('should return the right config', () => {
-    expect(config).toStrictEqual(['/api/webhook/elba/(.*)', '/api/webhooks/elba/(.*)']);
+    expect(config).toStrictEqual({
+      matcher: ['/api/webhook/elba/(.*)', '/api/webhooks/elba/(.*)'],
+    });
   });
 
   test.each(['/api/webhook/elba/some-path', '/api/webhooks/elba/some-path'])(
     'should match path %s',
     (path) => {
-      expect(config.some((pattern) => new RegExp(pattern).test(path))).toBe(true);
+      expect(config.matcher.some((pattern) => new RegExp(pattern).test(path))).toBe(true);
     }
   );
 
@@ -34,7 +36,7 @@ describe('createElbaMiddleware', () => {
     '/api/test/elba/some-path',
     '/some-path',
   ])('should not match path %s', (path) => {
-    expect(config.some((pattern) => new RegExp(pattern).test(path))).toBe(false);
+    expect(config.matcher.some((pattern) => new RegExp(pattern).test(path))).toBe(false);
   });
 
   test('should returns handler response when the signature is valid', async () => {
