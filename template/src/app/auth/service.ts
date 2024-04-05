@@ -1,6 +1,7 @@
+import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { getToken } from '@/connectors/auth';
+import { organisationsTable } from '@/database/schema';
+import { getToken } from '@/connectors/x-saas/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
@@ -16,27 +17,48 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   // retrieve token from SaaS API using the given code
-  const token = await getToken(code);
-  const encryptedToken = await encrypt(token);
+  const { accessToken, refreshToken, expiresIn } = await getToken(code);
+  const encryptedAccessToken = await encrypt(accessToken);
+  const encryptedRefreshToken = await encrypt(refreshToken);
 
   await db
-    .insert(Organisation)
-    .values({ id: organisationId, token: encryptedToken, region })
+    .insert(organisationsTable)
+    .values({
+      id: organisationId,
+      accessToken: encryptedAccessToken,
+      refreshToken: encryptedRefreshToken,
+      region,
+    })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
-        token: encryptedToken,
+        accessToken: encryptedAccessToken,
+        refreshToken: encryptedRefreshToken,
       },
     });
 
-  await inngest.send({
-    name: '{SaaS}/users.page_sync.requested',
-    data: {
-      isFirstSync: true,
-      organisationId,
-      region,
-      syncStartedAt: Date.now(),
-      page: null,
+  await inngest.send([
+    {
+      name: 'x-saas/users.sync.requested',
+      data: {
+        isFirstSync: true,
+        organisationId,
+        syncStartedAt: Date.now(),
+        page: null,
+      },
     },
-  });
+    {
+      name: 'x-saas/app.installed',
+      data: {
+        organisationId,
+      },
+    },
+    {
+      name: 'x-saas/token.refresh.requested',
+      data: {
+        organisationId,
+        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
+      },
+    },
+  ]);
 };

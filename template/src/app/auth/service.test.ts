@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion -- convenience */
 /**
  * DISCLAIMER:
  * The tests provided in this file are specifically designed for the `setupOrganisation` function.
@@ -8,21 +9,23 @@
  */
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
-import * as authConnector from '@/connectors/auth';
+import * as authConnector from '@/connectors/x-saas/auth';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
+import { organisationsTable } from '@/database/schema';
+import { decrypt, encrypt } from '@/common/crypto';
 import { inngest } from '@/inngest/client';
 import { setupOrganisation } from './service';
 
 const code = 'some-code';
-const token = 'some-token';
+const accessToken = 'access-token';
+const refreshToken = 'refresh-token';
 const region = 'us';
 const now = new Date();
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  token: 'test-token',
+  accessToken: await encrypt(accessToken),
+  refreshToken: await encrypt(refreshToken),
   region,
 };
 
@@ -40,7 +43,11 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mock the getToken function to return a predefined token
-    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(token);
+    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue({
+      accessToken,
+      refreshToken,
+      expiresIn: 60,
+    });
 
     // assert the function resolves without returning a value
     await expect(
@@ -56,25 +63,39 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith(code);
 
     // verify the organisation token is set in the database
-    const [storedOrganisation] = await db
+    const [row] = await db
       .select()
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
-    expect(storedOrganisation.region).toBe(region);
-    await expect(decrypt(storedOrganisation.token)).resolves(token);
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
+    expect(row!.region).toBe(region);
+    await expect(decrypt(row!.accessToken)).resolves.toBe(accessToken);
+    await expect(decrypt(row!.refreshToken)).resolves.toBe(refreshToken);
 
-    // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: '{SaaS}/users.page_sync.requested',
-      data: {
-        isFirstSync: true,
-        organisationId: organisation.id,
-        syncStartedAt: now.getTime(),
-        region,
-        page: null,
+    expect(send).toBeCalledWith([
+      {
+        name: 'x-saas/users.sync.requested',
+        data: {
+          isFirstSync: true,
+          organisationId: organisation.id,
+          syncStartedAt: now.getTime(),
+          page: null,
+        },
       },
-    });
+      {
+        name: 'x-saas/app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+      {
+        name: 'x-saas/token.refresh.requested',
+        data: {
+          organisationId: organisation.id,
+          expiresAt: now.getTime() + 60 * 1000,
+        },
+      },
+    ]);
   });
 
   test('should setup organisation when the code is valid and the organisation is already registered', async () => {
@@ -82,10 +103,14 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // pre-insert an organisation to simulate an existing entry
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
-    // mock getToken as above
-    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(token);
+    // mock the getToken function to return a predefined token
+    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue({
+      accessToken,
+      refreshToken,
+      expiresIn: 60,
+    });
 
     // assert the function resolves without returning a value
     await expect(
@@ -101,24 +126,39 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith(code);
 
     // check if the token in the database is updated
-    const [storedOrganisation] = await db
+    const [row] = await db
       .select()
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
-    await expect(decrypt(storedOrganisation.token)).resolves(token);
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
+    await expect(decrypt(row!.accessToken)).resolves.toBe(accessToken);
+    await expect(decrypt(row!.refreshToken)).resolves.toBe(refreshToken);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: '{SaaS}/users.page_sync.requested',
-      data: {
-        isFirstSync: true,
-        organisationId: organisation.id,
-        syncStartedAt: now.getTime(),
-        region,
-        page: null,
+    expect(send).toBeCalledWith([
+      {
+        name: 'x-saas/users.sync.requested',
+        data: {
+          isFirstSync: true,
+          organisationId: organisation.id,
+          syncStartedAt: now.getTime(),
+          page: null,
+        },
       },
-    });
+      {
+        name: 'x-saas/app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+      {
+        name: 'x-saas/token.refresh.requested',
+        data: {
+          organisationId: organisation.id,
+          expiresAt: now.getTime() + 60 * 1000,
+        },
+      },
+    ]);
   });
 
   test('should not setup the organisation when the code is invalid', async () => {
@@ -144,7 +184,7 @@ describe('setupOrganisation', () => {
 
     // ensure no organisation is added or updated in the database
     await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toHaveLength(0);
 
     // ensure no sync users event is sent

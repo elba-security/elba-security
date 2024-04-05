@@ -63,13 +63,13 @@ You'll be using our custom Next.js template to create a new app. When running th
 Run the following command to create a new Next.js app:
 
 ```bash
-pnpm create next-app {SaaS} -e https://github.com/elba-security/elba-security/tree/staging/template
+node scripts/create.js {SaaS}
 ```
 
-For example, if you're adding an integration for _"Awesome Service"_, you would run:
+For example, if you're adding an integration for _"SoundCloud"_, you would run:
 
 ```bash
-pnpm create next-app awesome-service -e https://github.com/elba-security/elba-security/tree/staging/template
+node scripts/create.js sound-cloud
 ```
 
 > Don't forget to read the `README.md` file generated at the root of your integration folder.

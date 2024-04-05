@@ -1,12 +1,10 @@
-import { RedirectType, redirect } from 'next/navigation';
 import type { NextRequest } from 'next/server';
-import { getRedirectUrl } from '@elba-security/sdk';
-import { env } from '@/env';
+import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
+import { logger } from '@elba-security/logger';
+import { env } from '@/common/env';
 import { setupOrganisation } from './service';
 
-// Remove the next line if your integration does not works with edge runtime
 export const preferredRegion = env.VERCEL_PREFERRED_REGION;
-// Remove the next line if your integration does not works with edge runtime
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
@@ -14,30 +12,34 @@ export const dynamic = 'force-dynamic';
  * This route path can be changed to fit your implementation specificities.
  */
 export async function GET(request: NextRequest) {
-  const code = request.nextUrl.searchParams.get('code');
-  const organisationId = request.cookies.get('organisation_id')?.value;
   const region = request.cookies.get('region')?.value;
+  try {
+    const code = request.nextUrl.searchParams.get('code');
+    const organisationId = request.cookies.get('organisation_id')?.value;
 
-  if (!organisationId || !code || !region) {
-    redirect(
-      getRedirectUrl({
-        region: region ?? 'eu',
-        sourceId: env.ELBA_SOURCE_ID,
-        baseUrl: env.ELBA_REDIRECT_URL,
+    if (!organisationId || !code || !region) {
+      return new ElbaInstallRedirectResponse({
         error: 'unauthorized',
-      }),
-      RedirectType.replace
-    );
+        region,
+        baseUrl: env.ELBA_REDIRECT_URL,
+        sourceId: env.ELBA_SOURCE_ID,
+      });
+    }
+    await setupOrganisation({ organisationId, code, region });
+  } catch (error) {
+    logger.error('Could not register organisation', { error });
+
+    return new ElbaInstallRedirectResponse({
+      error: 'internal_error',
+      region,
+      baseUrl: env.ELBA_REDIRECT_URL,
+      sourceId: env.ELBA_SOURCE_ID,
+    });
   }
 
-  await setupOrganisation({ organisationId, code, region });
-
-  redirect(
-    getRedirectUrl({
-      region,
-      sourceId: env.ELBA_SOURCE_ID,
-      baseUrl: env.ELBA_REDIRECT_URL,
-    }),
-    RedirectType.replace
-  );
+  return new ElbaInstallRedirectResponse({
+    region,
+    baseUrl: env.ELBA_REDIRECT_URL,
+    sourceId: env.ELBA_SOURCE_ID,
+  });
 }

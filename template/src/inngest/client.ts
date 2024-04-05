@@ -4,15 +4,30 @@ import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 
 export const inngest = new Inngest({
-  id: '{SaaS}',
+  id: 'x-saas',
   schemas: new EventSchemas().fromRecord<{
-    '{SaaS}/users.page_sync.requested': {
+    'x-saas/users.sync.requested': {
       data: {
         organisationId: string;
-        region: string;
         isFirstSync: boolean;
         syncStartedAt: number;
         page: number | null;
+      };
+    };
+    'x-saas/app.uninstalled': {
+      data: {
+        organisationId: string;
+      };
+    };
+    'x-saas/app.installed': {
+      data: {
+        organisationId: string;
+      };
+    };
+    'x-saas/token.refresh.requested': {
+      data: {
+        organisationId: string;
+        expiresAt: number;
       };
     };
   }>(),
