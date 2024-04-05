@@ -27,7 +27,7 @@ This helper provide a quick way to create a Next.js middleware that will authent
 import { createElbaMiddleware } from '@elba-security/nextjs';
 import { env } from '@/env';
 
-export const middleware = createElbaMiddleware({
+export const { config, middleware } = createElbaMiddleware({
   webhookSecret: env.ELBA_WEBHOOK_SECRET,
 });
 ```
