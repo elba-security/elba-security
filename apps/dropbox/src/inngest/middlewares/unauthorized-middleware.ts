@@ -1,7 +1,7 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
-import { DropboxResponseError } from 'dropbox';
 import { logger } from '@elba-security/logger';
+import { DBXResponseError } from '@/connectors/dropbox/dbx-error';
 
 const apiRequiredDataSchema = z.object({
   organisationId: z.string().uuid(),
@@ -29,7 +29,7 @@ export const unauthorizedMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (error instanceof DropboxResponseError && error.status === 401) {
+            if (error instanceof DBXResponseError && error.status === 401) {
               logger.error('Unauthorized error from dropbox', {
                 error,
               });

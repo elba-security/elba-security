@@ -4,6 +4,7 @@ import { startSync } from './service';
 
 export const runtime = 'edge';
 export const preferredRegion = 'fra1';
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   const data: unknown = await request.json();

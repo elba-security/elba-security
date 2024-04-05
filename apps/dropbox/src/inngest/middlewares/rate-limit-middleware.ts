@@ -1,5 +1,5 @@
-import { DropboxResponseError } from 'dropbox';
 import { InngestMiddleware, RetryAfterError } from 'inngest';
+import { DBXResponseError } from '@/connectors/dropbox/dbx-error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
@@ -12,7 +12,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
               result: { error, ...result },
               ...context
             } = ctx;
-            if (error instanceof DropboxResponseError && error.status === 429) {
+            if (error instanceof DBXResponseError && error.status === 429) {
               // eslint-disable-next-line -- Dbx error is unknown
               const { error: innerError } = error;
               // eslint-disable-next-line -- Dbx error is unknown
