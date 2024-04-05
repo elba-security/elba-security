@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
-import { GoogleUnauthorizedError } from '@/connectors/google/clients';
+import { GoogleUnauthorizedError } from '@/connectors/google/errors';
 import { googleUnauthorizedMiddleware } from './google-unauthorized-middleware';
 
 describe('google-unauthorized-middleware', () => {
