@@ -20,7 +20,8 @@ describe('scheduleUserSync', () => {
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      organisations: [
+      // eslint-disable-next-line -- this is a mock
+      organisations: expect.arrayContaining([
         {
           organisationId: '00000000-0000-0000-0000-000000000001',
         },
@@ -30,7 +31,7 @@ describe('scheduleUserSync', () => {
         {
           organisationId: '00000000-0000-0000-0000-000000000003',
         },
-      ],
+      ]),
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);

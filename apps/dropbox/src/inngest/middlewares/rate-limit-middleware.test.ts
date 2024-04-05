@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { RetryAfterError } from 'inngest';
-import { DropboxResponseError } from 'dropbox';
+import { DBXResponseError } from '@/connectors/dropbox/dbx-error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
 const RETRY_AFTER = '300';
@@ -19,7 +19,7 @@ describe('rate-limit middleware', () => {
   });
 
   test('should not transform the output when the error is not about Dropbox rate limit', () => {
-    const generalError = new DropboxResponseError(
+    const generalError = new DBXResponseError(
       403,
       {},
       {
@@ -44,7 +44,7 @@ describe('rate-limit middleware', () => {
   });
 
   test('should transform the output error to RetryAfterError when the error is about Dropbox rate limit', () => {
-    const rateLimitError = new DropboxResponseError(
+    const rateLimitError = new DBXResponseError(
       429,
       {},
       {

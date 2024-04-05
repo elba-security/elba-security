@@ -44,7 +44,7 @@ describe('refreshToken', () => {
     vi.useRealTimers();
   });
 
-  test.only('should delete the organisations and call elba to notify', async () => {
+  test('should delete the organisations and call elba to notify', async () => {
     vi.spyOn(crypto, 'encrypt').mockResolvedValue('encrypted-token');
     mocks.refreshAccessTokenMock.mockRejectedValue(
       new DropboxResponseError(

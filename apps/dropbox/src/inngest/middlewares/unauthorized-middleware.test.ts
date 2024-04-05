@@ -1,8 +1,8 @@
 import { beforeEach } from 'node:test';
 import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
-import { DropboxResponseError } from 'dropbox';
 import { insertOrganisations } from '@/test-utils/token';
+import { DBXResponseError } from '@/connectors/dropbox/dbx-error';
 import { unauthorizedMiddleware } from './unauthorized-middleware';
 
 const organisationId = '00000000-0000-0000-0000-000000000000';
@@ -29,7 +29,7 @@ describe('unauthorized middleware', () => {
   });
 
   test('should not transform the output when the error is not about Dropbox authorization', async () => {
-    const generalError = new DropboxResponseError(
+    const generalError = new DBXResponseError(
       403,
       {},
       {
@@ -56,7 +56,7 @@ describe('unauthorized middleware', () => {
   });
 
   test('should transform the output error to NonRetriableError and remove the organisation when the error is about github authorization', async () => {
-    const unauthorizedError = new DropboxResponseError(
+    const unauthorizedError = new DBXResponseError(
       401,
       {},
       {
