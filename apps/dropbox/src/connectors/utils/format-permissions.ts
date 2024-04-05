@@ -3,25 +3,31 @@ import type { FolderAndFilePermissions, GeneralFolderFilePermissions } from '../
 export const formatPermissions = ({ users, invitees, anyone }: GeneralFolderFilePermissions) => {
   const formattedPermissions = new Map<string, FolderAndFilePermissions>();
 
-  users.forEach(({ user: { email, team_member_id, display_name }, access_type, is_inherited }) => {
-    if (access_type['.tag'] !== 'owner' && is_inherited) {
-      return;
+  users.forEach(
+    ({
+      user: { email, team_member_id: teamMemberId, display_name: displayName },
+      access_type: accessType,
+      is_inherited: isInherited,
+    }) => {
+      if (accessType['.tag'] !== 'owner' && isInherited) {
+        return;
+      }
+
+      formattedPermissions.set(email, {
+        id: email,
+        email,
+        ...(teamMemberId && { team_member_id: teamMemberId }),
+        ...(displayName && { display_name: displayName }),
+        type: 'user' as const,
+        role: accessType['.tag'],
+      });
     }
+  );
 
-    formattedPermissions.set(email, {
-      id: email,
-      email,
-      ...(team_member_id && { team_member_id }),
-      ...(display_name && { display_name }),
-      type: 'user' as const,
-      role: access_type['.tag'],
-    });
-  });
-
-  invitees.forEach(({ invitee, access_type, is_inherited, user }) => {
+  invitees.forEach(({ invitee, access_type: accessType, is_inherited: isInherited, user }) => {
     const hasEmail = invitee['.tag'] === 'email' && Boolean(invitee.email);
 
-    if (!hasEmail || (access_type['.tag'] !== 'owner' && is_inherited)) {
+    if (!hasEmail || (accessType['.tag'] !== 'owner' && isInherited)) {
       return;
     }
 
@@ -30,7 +36,7 @@ export const formatPermissions = ({ users, invitees, anyone }: GeneralFolderFile
       email: invitee.email,
       ...(user?.team_member_id && { team_member_id: user.team_member_id }),
       ...(user?.display_name && { team_member_id: user.display_name }),
-      role: access_type['.tag'],
+      role: accessType['.tag'],
       type: 'user' as const,
     });
   });

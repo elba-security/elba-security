@@ -11,17 +11,17 @@ export const formatUsers = (members: TeamMembers) => {
 
   return filteredMembers.map<User>(({ profile }) => {
     const {
-      team_member_id,
+      team_member_id: teamMemberId,
       email,
-      secondary_emails,
-      name: { display_name },
+      secondary_emails: secondaryEmails,
+      name: { display_name: displayName },
     } = profile;
 
     return {
-      id: team_member_id,
+      id: teamMemberId,
       email,
-      displayName: display_name,
-      additionalEmails: secondary_emails?.map(({ email: secondEmail }) => secondEmail) || [],
+      displayName,
+      additionalEmails: secondaryEmails?.map(({ email: secondaryEmail }) => secondaryEmail) || [],
     };
   });
 };

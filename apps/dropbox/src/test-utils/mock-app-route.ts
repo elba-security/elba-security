@@ -28,9 +28,5 @@ export const mockNextRequest = async ({
 
   const response = await handler(request);
 
-  // if (!response) {
-  //   return new NextResponse(null, { status: 307 });
-  // }
-
   return response;
 };

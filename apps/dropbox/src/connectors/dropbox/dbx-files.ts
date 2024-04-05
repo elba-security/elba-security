@@ -60,11 +60,11 @@ export class DBXFiles {
     });
 
     const sharedLinks: sharing.ListSharedLinksResult['links'] = [];
-    let hasMore: boolean;
+    let nextHasMore: boolean;
     let nextCursor: string | undefined;
     do {
       const {
-        result: { links, has_more, cursor },
+        result: { links, has_more: hasMore, cursor },
         // eslint-disable-next-line -- Need to wait for the response
       } = await this.dbx.sharingListSharedLinks({
         path,
@@ -73,8 +73,8 @@ export class DBXFiles {
 
       sharedLinks.push(...links);
       nextCursor = cursor;
-      hasMore = has_more;
-    } while (hasMore);
+      nextHasMore = hasMore;
+    } while (nextHasMore);
 
     return filterSharedLinks(sharedLinks);
   };
@@ -215,7 +215,7 @@ export class DBXFiles {
           }
 
           const {
-            result: { name, preview_url },
+            result: { name, preview_url: previewUrl },
           } = await this.dbx.sharingGetFolderMetadata({
             actions: [],
             shared_folder_id: shareFolderId,
@@ -224,14 +224,14 @@ export class DBXFiles {
           return {
             folder_id: folderId,
             name,
-            preview_url,
+            preview_url: previewUrl,
           };
         }
       )
     );
 
-    for (const { folder_id, ...rest } of metadataResult) {
-      sharedFolderMetadata.set(folder_id, rest);
+    for (const { folder_id: folderId, ...rest } of metadataResult) {
+      sharedFolderMetadata.set(folderId, rest);
     }
 
     return sharedFolderMetadata;
