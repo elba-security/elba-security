@@ -2,8 +2,7 @@ import { JWT, OAuth2Client } from 'google-auth-library';
 import { logger } from '@elba-security/logger';
 import { env } from '@/common/env/server';
 import { GOOGLE_SCOPES } from './constants';
-
-export class GoogleUnauthorizedError extends Error {}
+import { GoogleUnauthorizedError } from './errors';
 
 export const getGoogleServiceAccountClient = async (managerEmail: string, isAdmin = false) => {
   const client = new JWT({
