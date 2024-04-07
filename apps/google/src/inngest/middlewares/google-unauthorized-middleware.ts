@@ -1,5 +1,5 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
-import { GoogleUnauthorizedError } from '@/connectors/google/clients';
+import { GoogleUnauthorizedError } from '@/connectors/google/errors';
 
 export const googleUnauthorizedMiddleware = new InngestMiddleware({
   name: 'google-unauthorized-middleware',
