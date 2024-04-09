@@ -104,7 +104,7 @@ describe('unauthorized middleware', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'dropbox/elba_app.uninstall.requested',
+      name: 'dropbox/app.uninstall.requested',
       data: {
         organisationId,
       },

@@ -10,7 +10,7 @@ import { removeOrganisation } from './remove-organisation';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 
-const setup = createInngestFunctionMock(removeOrganisation, 'dropbox/elba_app.uninstall.requested');
+const setup = createInngestFunctionMock(removeOrganisation, 'dropbox/app.uninstall.requested');
 
 describe('remove-organisation', () => {
   test("should not remove given organisation when it's not registered", async () => {

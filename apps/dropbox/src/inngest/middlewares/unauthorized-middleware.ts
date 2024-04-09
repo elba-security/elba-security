@@ -36,7 +36,7 @@ export const unauthorizedMiddleware = new InngestMiddleware({
 
               if (hasApiRequiredDataProperties(data)) {
                 await client.send({
-                  name: 'dropbox/elba_app.uninstall.requested',
+                  name: 'dropbox/app.uninstall.requested',
                   data: {
                     organisationId: data.organisationId,
                   },
