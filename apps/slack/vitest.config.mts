@@ -1,22 +1,26 @@
 import { resolve } from 'node:path';
-/// <reference types="vitest" />
 import { defineConfig } from 'vitest/config';
 import { config } from 'dotenv';
-import { expand } from 'dotenv-expand'
+import type { BuiltinEnvironment } from 'vitest';
 
-const env = config({ path: '.env.test' });
-const { error } = expand(env)
+const { error } = config({ path: '.env.test' });
 
 if (error) {
   throw new Error(`Could not find environment variables file: .env.test`);
 }
 
+const environment: BuiltinEnvironment = 'edge-runtime';
+
+process.env.VITEST_ENVIRONMENT = environment;
 
 export default defineConfig({
   test: {
-    setupFiles: ['./vitest/setup-database.ts', './vitest/setup-msw-handlers.ts'],
-    env: process.env,
-    environment: 'edge-runtime',
+    globalSetup: '@elba-security/test-utils/vitest/global-setup',
+    setupFiles: [
+      './vitest/setup-database.ts',
+      '@elba-security/test-utils/vitest/setup-msw-handlers',
+    ],
+    environment,
     poolOptions: {
       threads: {
         singleThread: true,
