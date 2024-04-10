@@ -19,20 +19,14 @@ export const deleteCloudflareUser = inngest.createFunction(
     event: 'cloudflare/users.delete.requested',
   },
   async ({ event, step }) => {
-    const { id, organisationId, region } = event.data;
+    const { id, organisationId } = event.data;
 
-    const elba = new Elba({
-      organisationId,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-      region,
-    });
-
-    const organisation = await step.run('get-token', async () => {
+    const organisation = await step.run('get-organisation', async () => {
       const [result] = await db
         .select({
           authEmail: Organisation.authEmail,
           authKey: Organisation.authKey,
+          region: Organisation.region,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -40,6 +34,13 @@ export const deleteCloudflareUser = inngest.createFunction(
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
       return result;
+    });
+
+    const elba = new Elba({
+      organisationId,
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
+      region: organisation.region,
     });
 
     await step.run('delete-user', async () => {

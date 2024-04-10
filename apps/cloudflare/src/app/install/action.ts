@@ -22,7 +22,7 @@ export type FormState = {
   };
 };
 
-export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
+export const install = async (_: FormState, formData: FormData) => {
   const result = formSchema.safeParse({
     authEmail: formData.get('authEmail'),
     authKey: formData.get('authKey'),
@@ -45,12 +45,16 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
   }
 
   try {
-    return registerOrganisation({
+    await registerOrganisation({
       organisationId: result.data.organisationId,
       region: result.data.region,
       authEmail: result.data.authEmail,
       authKey: result.data.authKey,
     });
+
+    return {
+      redirectUrl: `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&success=true`,
+    };
   } catch (error) {
     logger.warn('Could not register organisation', { error });
     if (error instanceof CloudflareError && error.response && error.response.status === 401) {

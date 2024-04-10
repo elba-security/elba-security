@@ -12,7 +12,6 @@ export type InngestEvents = {
     data: {
       id: string;
       organisationId: string;
-      region: string;
     };
   };
 };

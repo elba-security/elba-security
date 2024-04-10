@@ -3,7 +3,6 @@ import { inngest } from '@/inngest/client';
 export const deleteUserRequest = async ({
   id,
   organisationId,
-  region,
 }: {
   id: string;
   organisationId: string;
@@ -14,7 +13,6 @@ export const deleteUserRequest = async ({
     data: {
       id,
       organisationId,
-      region,
     },
   });
 };

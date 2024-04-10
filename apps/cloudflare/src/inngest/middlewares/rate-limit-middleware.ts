@@ -1,4 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
+import { addMinutes } from 'date-fns/addMinutes';
 import { CloudflareError } from '@/connectors/commons/error';
 
 /**
@@ -26,10 +27,8 @@ export const rateLimitMiddleware = new InngestMiddleware({
               result: { error, ...result },
               ...context
             } = ctx;
-            const retryAfter =
-              error instanceof CloudflareError && error.response?.headers.get('Retry-After');
 
-            if (!retryAfter) {
+            if (error instanceof CloudflareError && error.response?.status !== 429) {
               return;
             }
 
@@ -39,7 +38,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                 ...result,
                 error: new RetryAfterError(
                   `Cloudflare rate limit reached by '${fn.name}'`,
-                  retryAfter,
+                  addMinutes(new Date(), 5),
                   {
                     cause: error,
                   }

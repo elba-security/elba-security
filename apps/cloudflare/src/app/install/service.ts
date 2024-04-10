@@ -1,7 +1,6 @@
-import { getRedirectUrl } from '@elba-security/sdk';
-import { redirect, RedirectType } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { encrypt } from '@/common/crypto';
-import { getVarification } from '@/connectors/auth';
+import { getVerification } from '@/connectors/auth';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
@@ -14,12 +13,18 @@ type SetupOrganisationParams = {
   organisationId: string;
 };
 
-export const setupOrganisation = async ({
-  organisationId,
-  authEmail,
-  authKey,
-  region,
-}: SetupOrganisationParams) => {
+export const registerOrganisation = async (params: SetupOrganisationParams) => {
+  const { organisationId, region, authEmail, authKey } = params;
+  if (!authEmail || !authKey) {
+    redirect(`${env.ELBA_REDIRECT_URL}?error=true`);
+  }
+
+  const { success } = await getVerification(authEmail, authKey);
+
+  if (!success) {
+    throw new Error('Invalid auth email and auth key.');
+  }
+
   const encAuthKey = await encrypt(authKey);
   await db
     .insert(Organisation)
@@ -48,36 +53,4 @@ export const setupOrganisation = async ({
       page: 1,
     },
   });
-};
-
-export const registerOrganisation = async (params: SetupOrganisationParams) => {
-  const { organisationId, region, authEmail, authKey } = params;
-  if (!authEmail || !authKey) {
-    redirect(`${env.ELBA_REDIRECT_URL}?error=true`);
-  }
-
-  const { success } = await getVarification(authEmail, authKey);
-
-  if (!authEmail || !authKey || !success) {
-    redirect(
-      getRedirectUrl({
-        region,
-        sourceId: env.ELBA_SOURCE_ID,
-        baseUrl: env.ELBA_REDIRECT_URL,
-        error: 'unauthorized',
-      }),
-      RedirectType.replace
-    );
-  }
-
-  await setupOrganisation({ authEmail, authKey, region, organisationId });
-
-  redirect(
-    getRedirectUrl({
-      region,
-      sourceId: env.ELBA_SOURCE_ID,
-      baseUrl: env.ELBA_REDIRECT_URL,
-    }),
-    RedirectType.replace
-  );
 };

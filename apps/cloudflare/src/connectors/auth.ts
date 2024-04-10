@@ -11,7 +11,7 @@ import { CloudflareError } from './commons/error';
 
 type GetVarificationResponseData = { success: boolean };
 
-export const getVarification = async (authEmail: string, authKey: string) => {
+export const getVerification = async (authEmail: string, authKey: string) => {
   const response = await fetch('https://api.cloudflare.com/client/v4/user', {
     method: 'GET',
     headers: {

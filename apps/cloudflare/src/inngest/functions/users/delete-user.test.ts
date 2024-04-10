@@ -26,7 +26,6 @@ describe('delete-user', () => {
     const [result, { step }] = setup({
       id: userId,
       organisationId: organisation.id,
-      region: 'en',
     });
 
     // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
@@ -45,7 +44,6 @@ describe('delete-user', () => {
     const [result] = setup({
       id: userId,
       organisationId: organisation.id,
-      region: 'en',
     });
 
     await expect(result).resolves.toBeUndefined();

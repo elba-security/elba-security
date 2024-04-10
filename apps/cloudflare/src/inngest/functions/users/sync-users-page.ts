@@ -48,24 +48,22 @@ export const syncUsersPage = inngest.createFunction(
     });
 
     // retrieve the SaaS organisation token
-    const keys = await step.run('get-token', async () => {
-      const [organisation] = await db
+    const organisation = await step.run('get-organisation', async () => {
+      const [row] = await db
         .select({ authEmail: Organisation.authEmail, authKey: Organisation.authKey })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
 
-      if (!organisation) {
+      if (!row) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      return { authEmail: organisation.authEmail, authKey: organisation.authKey };
+      return row;
     });
 
     const nextPage = await step.run('list-users', async () => {
-      const { authEmail, authKey } = keys;
-      const dcrAuthKey = await decrypt(authKey);
-
+      const authKey = await decrypt(organisation.authKey);
       // retrieve this users page
-      const result = await getUsers(dcrAuthKey, authEmail, page);
+      const result = await getUsers(authKey, organisation.authEmail, page);
       // format each SaaS users to elba users
       const users = result.users.map(formatElbaUser);
       // send the batch of users to elba

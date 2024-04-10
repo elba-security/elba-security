@@ -26,7 +26,6 @@ describe('deleteUserRequest', () => {
       data: {
         id: 'user-id-1',
         organisationId,
-        region: 'eu',
       },
     });
   });
