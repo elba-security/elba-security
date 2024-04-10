@@ -4,7 +4,7 @@ import { type NextRequest } from 'next/server';
 import { env } from '@/env';
 
 // Remove the next line if your integration does not works with edge runtime
-export const preferredRegion = env.VERCEL_PREFERRED_REGION;
+export const preferredRegion = 'fra1';
 // Remove the next line if your integration does not works with edge runtime
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';

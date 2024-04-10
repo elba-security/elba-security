@@ -7,16 +7,13 @@
     "dev": "next dev -p 3300",
     "lint": "next lint",
     "start": "next start",
-    "test": "sh ./scripts/run-test.sh",
-    "test:watch": "sh ./scripts/run-test.sh -w",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "big-bang": "sh ./scripts/clean-database.sh",
-    "test:database:up": "docker-compose -p dropbox-test --env-file=.env.test up -d",
-    "test:database:down": "docker-compose -p dropbox-test down --volumes",
-    "test:database:migrate": "node ./scripts/migrate.js .env.test",
-    "database:up": "docker-compose -p dropbox --env-file=.env.local up -d",
+    "database:up": "docker-compose -p dropbox --profile node --env-file=.env.local up -d",
     "database:down": "docker-compose -p dropbox down --volumes",
-    "database:migrate": "node ./scripts/migrate.js .env.local",
-    "database:generate": "drizzle-kit generate:pg --schema=./src/database/schema.ts"
+    "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
+    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
@@ -26,7 +23,7 @@
     "@elba-security/utils": "workspace:*",
     "@sentry/nextjs": "^7.88.0",
     "date-fns": "^2.30.0",
-    "drizzle-orm": "^0.29.1",
+    "drizzle-orm": "^0.29.4",
     "dropbox": "^10.34.0",
     "inngest": "3.14.2",
     "next": "14.0.1",
@@ -49,7 +46,8 @@
     "drizzle-kit": "^0.20.6",
     "eslint": "^8.53.0",
     "msw": "^2.0.1",
+    "testcontainers": "^10.8.1",
     "typescript": "^5.2.2",
-    "vitest": "^1.2.1"
+    "vitest": "1.4.0"
   }
 }
