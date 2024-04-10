@@ -17,6 +17,8 @@ export default defineConfig({
   test: {
     globalSetup: '@elba-security/test-utils/vitest/global-setup',
     setupFiles: [
+      // As slack doesn't have an `organisations` table, we can't use the setup database from `@elba-security/test-utils`
+      // As a consequence we use this specific script instead to delete data from the `teams` table
       './vitest/setup-database.ts',
       '@elba-security/test-utils/vitest/setup-msw-handlers',
     ],

@@ -1,7 +1,11 @@
 import type { Config } from 'drizzle-kit';
 import { config } from 'dotenv';
 
-config({ path: '.env.local' });
+const { error } = config({ path: '.env.local' });
+
+if (error) {
+  throw new Error(`Could not find environment variables file: .env.local`);
+}
 
 export default {
   schema: './src/database/schema*',
