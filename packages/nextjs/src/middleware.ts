@@ -7,16 +7,13 @@ export type CreateElbaMiddlewareOptions = {
   webhookSecret: string;
 };
 
-export const createElbaMiddleware = ({
-  webhookSecret,
-}: CreateElbaMiddlewareOptions): { config: { matcher: string[] }; middleware: NextMiddleware } => ({
-  config: { matcher: ['/api/webhook/elba/(.*)', '/api/webhooks/elba/(.*)'] },
-  middleware: async (request) => {
+export const createElbaMiddleware =
+  ({ webhookSecret }: CreateElbaMiddlewareOptions): NextMiddleware =>
+  async (request) => {
     try {
       await validateWebhookRequestSignature(request, webhookSecret);
     } catch (error) {
       logger.error('Could not validate webhook request signature', { error, request });
       return new NextResponse(null, { status: 401, statusText: 'unauthorized' });
     }
-  },
-});
+  };
