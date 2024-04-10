@@ -56,7 +56,7 @@ describe('registerOrganisation', () => {
     ).resolves.toBeUndefined();
     // check if getUsers was called correctly
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey, after: null });
+    expect(getUsers).toBeCalledWith({ apiKey, after: null, role: 'admin' });
     // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
@@ -76,6 +76,7 @@ describe('registerOrganisation', () => {
           isFirstSync: true,
           organisationId: organisation.id,
           syncStartedAt: now.getTime(),
+          role: 'admin',
           page: null,
         },
       },
@@ -93,8 +94,7 @@ describe('registerOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mocked the getUsers function
-    // @ts-expect-error -- this is a mock
-    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
+    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
     // pre-insert an organisation to simulate an existing entry
     await db.insert(Organisation).values(organisation);
 
@@ -105,6 +105,10 @@ describe('registerOrganisation', () => {
         region,
       })
     ).resolves.toBeUndefined();
+
+    // check if getUsers was called correctly
+    expect(getUsers).toBeCalledTimes(1);
+    expect(getUsers).toBeCalledWith({ apiKey, after: null, role: 'admin' });
 
     // check if the token in the database is updated
     const [storedOrganisation] = await db
@@ -126,6 +130,7 @@ describe('registerOrganisation', () => {
           isFirstSync: true,
           organisationId: organisation.id,
           syncStartedAt: now.getTime(),
+          role: 'admin',
           page: null,
         },
       },

@@ -3,7 +3,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUsers } from '@/connectors/users';
+import { deleteUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
 
 export const deleteSourceUsers = inngest.createFunction(
@@ -24,7 +24,7 @@ export const deleteSourceUsers = inngest.createFunction(
 
     const apiKey = await decrypt(organisation.apiKey);
 
-    await deleteUsers({
+    await deleteUser({
       userId,
       apiKey,
     });

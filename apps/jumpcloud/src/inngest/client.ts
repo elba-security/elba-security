@@ -12,6 +12,7 @@ export const inngest = new Inngest({
         isFirstSync: boolean;
         syncStartedAt: number;
         page: string | null;
+        role: 'admin' | 'member';
       };
     };
     'jumpcloud/jumpcloud.elba_app.installed': {
@@ -29,7 +30,7 @@ export const inngest = new Inngest({
     'jumpcloud/users.delete.requested': {
       data: {
         userId: string;
-        organisationId: string
+        organisationId: string;
       };
     };
   }>(),

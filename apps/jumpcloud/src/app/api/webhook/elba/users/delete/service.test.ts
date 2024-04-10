@@ -20,12 +20,14 @@ describe('jumpcloud/users.delete.requested', () => {
 
     await deleteUsers({ userId, organisationId });
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith([{
-      data: {
-        organisationId,
-        userId,
+    expect(send).toBeCalledWith([
+      {
+        data: {
+          organisationId,
+          userId,
+        },
+        name: 'jumpcloud/users.delete.requested',
       },
-      name: 'jumpcloud/users.delete.requested',
-    }]);
+    ]);
   });
 });

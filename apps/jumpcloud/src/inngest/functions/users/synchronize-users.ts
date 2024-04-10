@@ -11,12 +11,30 @@ import { inngest } from '@/inngest/client';
 import { type JumpcloudUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
 
-const formatElbaUser = (user: JumpcloudUser): User => ({
+const formatElbaUserDisplayName = (user: JumpcloudUser) => {
+  if (user.firstname && user.lastname) {
+    return `${user.firstname} ${user.lastname}`;
+  }
+  return user.username || user.email;
+};
+
+const formatElbaUserAuthMethod = (user: JumpcloudUser) => {
+  if (user.enableMultiFactor) {
+    return 'mfa';
+  }
+  if (user.mfaEnrollment && user.mfaEnrollment.overallStatus !== 'NOT_ENROLLED') {
+    return 'mfa';
+  }
+  return 'password';
+};
+
+const formatElbaUser = (user: JumpcloudUser, role: 'admin' | 'member'): User => ({
   id: user._id,
-  displayName: `${user.firstname} ${user.lastname}`,
+  displayName: formatElbaUserDisplayName(user),
   email: user.email,
-  additionalEmails: [],
-  authMethod: user.enableMultiFactor ? 'mfa' : 'password', // Adding authMethod based on isMfaEnabled
+  additionalEmails: user.alternateEmail ? [user.alternateEmail] : [],
+  role,
+  authMethod: formatElbaUserAuthMethod(user),
 });
 
 export const synchronizeUsers = inngest.createFunction(
@@ -33,7 +51,7 @@ export const synchronizeUsers = inngest.createFunction(
   },
   { event: 'jumpcloud/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, syncStartedAt, page, role } = event.data;
 
     const [organisation] = await db
       .select({
@@ -59,9 +77,12 @@ export const synchronizeUsers = inngest.createFunction(
       const result = await getUsers({
         apiKey,
         after: page,
+        role,
       });
 
-      const users = result.validUsers.filter(({ suspended }) => !suspended).map(formatElbaUser);
+      const users = result.validUsers
+        .filter(({ suspended }) => !suspended)
+        .map((user) => formatElbaUser(user, role));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
@@ -70,18 +91,18 @@ export const synchronizeUsers = inngest.createFunction(
         });
       }
       await elba.users.update({ users });
-      console.log('users:::', users);
 
       return result.nextPage;
     });
 
     // if there is a next page enqueue a new sync user event
-    if (nextPage) {
+    if (nextPage || role === 'admin') {
       await step.sendEvent('synchronize-users', {
         name: 'jumpcloud/users.sync.requested',
         data: {
           ...event.data,
-          page: nextPage,
+          page: nextPage || null,
+          role: nextPage ? role : 'member',
         },
       });
       return {

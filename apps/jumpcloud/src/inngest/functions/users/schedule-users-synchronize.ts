@@ -25,6 +25,7 @@ export const scheduleUsersSynchronize = inngest.createFunction(
             organisationId: id,
             syncStartedAt: Date.now(),
             page: null,
+            role: 'admin',
           },
         }))
       );

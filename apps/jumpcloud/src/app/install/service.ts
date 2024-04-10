@@ -17,7 +17,7 @@ export const registerOrganisation = async ({
 }: SetupOrganisationParams) => {
   const encodedApiKey = await encrypt(apiKey);
 
-  await getUsers({ apiKey, after: null });
+  await getUsers({ apiKey, after: null, role: 'admin' });
 
   await db
     .insert(Organisation)
@@ -37,6 +37,7 @@ export const registerOrganisation = async ({
         organisationId,
         isFirstSync: true,
         syncStartedAt: Date.now(),
+        role: 'admin',
         page: null,
       },
     },
