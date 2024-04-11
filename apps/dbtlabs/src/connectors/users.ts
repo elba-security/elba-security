@@ -1,7 +1,5 @@
 import { z } from 'zod';
-import { env } from '@/env';
 import { getDbtlabsApiClient } from '@/common/apiclient';
-import { DbtlabsError } from './commons/error';
 
 const dbtlabsUserSchema = z.object({
   id: z.number(),
@@ -29,49 +27,21 @@ const dbtlabsResponseSchema = z.object({
 });
 
 export type GetUsersParams = {
-  personalToken: string;
+  serviceToken: string;
   accountId: string;
-  dbtRegion: string;
+  accessUrl: string;
   afterToken?: string | null;
 };
 
-export type DeleteUsersParams = {
-  userId: string;
-  personalToken: string;
-  dbtRegion: string;
-};
-
-export type GetAccountsParams = {
-  personalToken: string;
-  dbtRegion: string;
-};
-
-type AccountInfo = {
-  id: number;
-  name: string;
-  plan: string;
-  pending_cancel: boolean;
-};
-
-type GetAccountIdResponseData = { data: AccountInfo[] };
-
-export const getUsers = async ({
-  personalToken,
-  accountId,
-  afterToken,
-  dbtRegion,
-}: GetUsersParams) => {
-  const endpoint =
-    dbtRegion === 'us'
-      ? new URL(`${env.DBTLABS_API_US_BASE_URL}accounts/${accountId}/users`)
-      : new URL(`${env.DBTLABS_API_EU_BASE_URL}accounts/${accountId}/users`);
+export const getUsers = async ({ serviceToken, accountId, afterToken, accessUrl }: GetUsersParams) => {
+  const endpoint = new URL(`${accessUrl}/api/v2/accounts/${accountId}/users`)
   if (afterToken) {
     endpoint.searchParams.append('offset', String(afterToken));
   }
 
   const dbtlabsApiClient = getDbtlabsApiClient();
 
-  const resData: unknown = await dbtlabsApiClient.get(endpoint.toString(), personalToken);
+  const resData: unknown = await dbtlabsApiClient.get(endpoint.toString(), serviceToken);
 
   const { data, extra } = dbtlabsResponseSchema.parse(resData);
 
@@ -106,21 +76,3 @@ export const getUsers = async ({
   };
 };
 
-export const getAccountId = async ({ personalToken, dbtRegion }: GetAccountsParams) => {
-  const dbtlabsApiClient = getDbtlabsApiClient();
-  const endpoint = dbtRegion === 'us' ? `${env.DBTLABS_API_US_BASE_URL}accounts` : `${env.DBTLABS_API_EU_BASE_URL}accounts`;
-
-  const { data: accounts } = (await dbtlabsApiClient.get(
-    endpoint,
-    personalToken
-  )) as GetAccountIdResponseData;
-
-  if (!accounts[0]) {
-    throw new DbtlabsError('Could not retrieve account id');
-  }
-  const { id: accountId } = accounts[0];
-
-  return {
-    accountId: accountId.toString(),
-  };
-};

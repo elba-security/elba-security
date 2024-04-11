@@ -10,7 +10,7 @@ import { synchronizeUsers } from './synchronize-users';
 const nextPage = '1';
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  personalToken: await encrypt('test-personal-token'),
+  serviceToken: await encrypt('test-personal-token'),
   accountId: '00000',
   dbtRegion: 'US',
   region: 'us',

@@ -12,8 +12,8 @@ export const scheduleUsersSynchronize = inngest.createFunction(
         id: Organisation.id,
         accountId: Organisation.accountId,
         region: Organisation.region,
-        personalToken: Organisation.personalToken,
-        dbtRegion: Organisation.dbtRegion,
+        serviceToken: Organisation.serviceToken,
+        accessUrl: Organisation.accessUrl,
       })
       .from(Organisation);
 

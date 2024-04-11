@@ -4,29 +4,31 @@ import { z } from 'zod';
 import { DbtlabsError } from '@/connectors/commons/error';
 import { env } from '@/env';
 import { registerOrganisation } from './service';
-import { dbtRegions } from './consts';
 
 const formSchema = z.object({
   organisationId: z.string().uuid(),
-  personalToken: z.string().min(1),
-  dbtRegion: z.enum(dbtRegions),
   region: z.string().min(1),
+  serviceToken: z.string().min(1),
+  accountId: z.string().min(1),
+  accessUrl: z.string().min(1),
 });
 
 export type FormState = {
   redirectUrl?: string;
   errors?: {
-    personalToken?: string[] | undefined;
-    dbtRegion?: string[] | undefined;
+    serviceToken?: string[] | undefined;
+    accountId?: string[] | undefined;
+    accessUrl?: string[] | undefined;
   };
 };
 
 export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
   const result = formSchema.safeParse({
-    personalToken: formData.get('personalToken'),
-    dbtRegion: formData.get('dbtRegion'),
     organisationId: formData.get('organisationId'),
     region: formData.get('region'),
+    serviceToken: formData.get('serviceToken'),
+    accountId: formData.get('accountId'),
+    accessUrl: formData.get('accessUrl'),
   });
 
   if (!result.success) {

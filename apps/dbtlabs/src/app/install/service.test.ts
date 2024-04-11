@@ -8,7 +8,7 @@ import { decrypt } from '@/common/crypto';
 import { DbtlabsError } from '@/connectors/commons/error';
 import { registerOrganisation } from './service';
 
-const personalToken = 'test-personal-token';
+const serviceToken = 'test-personal-token';
 const accountId = '10000';
 const dbtRegion = 'US';
 const region = 'us';
@@ -20,7 +20,7 @@ const getUsersData = {
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accountId,
-  personalToken,
+  serviceToken,
   dbtRegion,
   region,
 };
@@ -42,7 +42,7 @@ describe('registerOrganisation', () => {
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
-        personalToken,
+        serviceToken,
         dbtRegion,
         region,
       })
@@ -50,7 +50,7 @@ describe('registerOrganisation', () => {
 
     // check if getUsers was called correctly
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ personalToken, dbtRegion });
+    expect(getUsers).toBeCalledWith({ serviceToken, dbtRegion });
     // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
@@ -60,7 +60,7 @@ describe('registerOrganisation', () => {
       throw new DbtlabsError(`Organisation with ID ${organisation.id} not found.`);
     }
     expect(storedOrganisation.region).toBe(region);
-    await expect(decrypt(storedOrganisation.personalToken)).resolves.toEqual(personalToken);
+    await expect(decrypt(storedOrganisation.serviceToken)).resolves.toEqual(serviceToken);
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
@@ -95,7 +95,7 @@ describe('registerOrganisation', () => {
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
-        personalToken,
+        serviceToken,
         dbtRegion,
         region,
       })
@@ -111,7 +111,7 @@ describe('registerOrganisation', () => {
       throw new DbtlabsError(`Organisation with ID ${organisation.id} not found.`);
     }
     expect(storedOrganisation.region).toBe(region);
-    await expect(decrypt(storedOrganisation.personalToken)).resolves.toEqual(personalToken);
+    await expect(decrypt(storedOrganisation.serviceToken)).resolves.toEqual(serviceToken);
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([

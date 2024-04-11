@@ -35,9 +35,9 @@ export const synchronizeUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        personalToken: Organisation.personalToken,
+        serviceToken: Organisation.serviceToken,
         accountId: Organisation.accountId,
-        dbtRegion: Organisation.dbtRegion,
+        accessUrl: Organisation.accessUrl,
         region: Organisation.region,
       })
       .from(Organisation)
@@ -48,15 +48,15 @@ export const synchronizeUsers = inngest.createFunction(
 
     const elba = getElbaClient({ organisationId, region: organisation.region });
 
-    const personalToken = await decrypt(organisation.personalToken);
+    const serviceToken = await decrypt(organisation.serviceToken);
     const accountId = organisation.accountId;
-    const dbtRegion = organisation.dbtRegion;
+    const accessUrl = organisation.accessUrl;
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({
-        personalToken,
+        serviceToken,
         accountId,
-        dbtRegion,
+        accessUrl,
         afterToken: page,
       });
 

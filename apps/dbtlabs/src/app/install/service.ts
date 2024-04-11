@@ -2,41 +2,42 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
-import { getAccountId } from '@/connectors/users';
+import { getUsers } from '@/connectors/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
-  personalToken: string;
-  dbtRegion: string;
   region: string;
+  serviceToken: string;
+  accountId: string;
+  accessUrl: string;
 };
 
 export const registerOrganisation = async ({
   organisationId,
-  personalToken,
-  dbtRegion,
   region,
+  serviceToken,
+  accountId,
+  accessUrl,
 }: SetupOrganisationParams) => {
-  const encodedpersonalToken = await encrypt(personalToken);
+  const encodedserviceToken = await encrypt(serviceToken);
 
-  const { accountId } = await getAccountId({ personalToken, dbtRegion });
-
+  await getUsers({serviceToken, accountId, accessUrl})
+  
   await db
     .insert(Organisation)
     .values({
       id: organisationId,
-      accountId,
       region,
-      personalToken: encodedpersonalToken,
-      dbtRegion,
+      accountId,
+      serviceToken: encodedserviceToken,
+      accessUrl,
     })
     .onConflictDoUpdate({
       target: Organisation.id,
       set: {
         accountId,
         region,
-        personalToken: encodedpersonalToken,
-        dbtRegion,
+        serviceToken: encodedserviceToken,
       },
     });
 

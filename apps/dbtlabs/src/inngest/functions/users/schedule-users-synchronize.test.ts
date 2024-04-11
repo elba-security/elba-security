@@ -14,7 +14,7 @@ const encodedPersonalToken = await encrypt('test-personal-token');
 export const organisations = Array.from({ length: 2 }, (_, i) => ({
   id: `b91f113b-bcf9-4a28-98c7-5b13fb671c1${i}`,
   region: 'us',
-  personalToken: encodedPersonalToken,
+  serviceToken: encodedPersonalToken,
   accountId: `${i}`,
   dbtRegion: 'US',
 }));

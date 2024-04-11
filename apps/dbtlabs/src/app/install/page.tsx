@@ -6,7 +6,6 @@ import { useSearchParams } from 'next/navigation';
 import styles from '../styles.module.css';
 import { install } from './action';
 import type { FormState } from './action';
-import { dbtRegions } from './consts';
 
 function Step({
   number,
@@ -60,10 +59,7 @@ function InstructionItems({
             {index === 0 && active === '1' ? (
               <span>
                 In this{' '}
-                <a
-                  href="https://cloud.getdbt.com/#/profile/api/"
-                  rel="noopener noreferrer"
-                  target="_blank">
+                <a href="https://us1.dbt.com/" rel="noopener noreferrer" target="_blank">
                   link
                 </a>
                 {item}.
@@ -102,7 +98,7 @@ function InstructionsModal() {
             onClick={() => {
               setActive('1');
             }}
-            text="Generate API Key"
+            text="Generate Service Token"
           />
           <div className={styles.timeline} />
           <div className={styles.timeline} />
@@ -118,12 +114,13 @@ function InstructionsModal() {
         {active === '1' && (
           <InstructionItems
             active="1"
-            heading="Create API Key"
+            heading="Create Service Token"
             instructions={[
-              ', click the setting icon in the left-nav and open the Account setting page.',
-              'In the API tokens/Personal tokens section, click + Create personal access token.',
+              ', click the setting icon in the right-nav and open the Account setting page.',
+              'In the Account section, copy Account Id and Access URLs',
+              'In the API tokens/Service tokens section, click + Create service token.',
               'The Create Access token window appears.',
-              'Enter a name for the access token in the Name field.',
+              'Enter a name for the service token in the Name field and Add an Account Admin permission.',
             ]}
           />
         )}
@@ -132,33 +129,49 @@ function InstructionsModal() {
             <InstructionItems
               active="2"
               heading="Link Application"
-              instructions={['Paste your Personal Token from your application below:']}
+              instructions={['Paste your Service Token from your application below:']}
             />
             <form action={formAction} className={styles.formContainer}>
               <div className={styles.inputFields}>
                 <div role="group">
-                  <label htmlFor="token">Personal Token</label>
+                  <label htmlFor="token">Service Token</label>
                   <input
-                    id="personalToken"
+                    id="serviceToken"
                     minLength={1}
-                    name="personalToken"
-                    placeholder="Paste Your Personal Token"
+                    name="serviceToken"
+                    placeholder="Paste Your Service Token"
                     type="text"
                   />
-                  {state.errors?.personalToken?.at(0) ? (
-                    <span>{state.errors.personalToken.at(0)}</span>
+                  {state.errors?.serviceToken?.at(0) ? (
+                    <span>{state.errors.serviceToken.at(0)}</span>
                   ) : null}
                 </div>
-                
+
                 <div role="group">
-                  <label htmlFor="dbtRegion">Deployment Region</label>
-                  <select id="dbtRegion" name="dbtRegion">
-                    {dbtRegions.map((dbtRegion) => (
-                      <option key={dbtRegion} value={dbtRegion}>
-                        {dbtRegion.toUpperCase()}
-                      </option>
-                    ))}
-                  </select>
+                  <label htmlFor="token">Account ID</label>
+                  <input
+                    id="accountId"
+                    minLength={1}
+                    name="accountId"
+                    placeholder="Paste Your Account ID"
+                    type="text"
+                  />
+                  {state.errors?.accountId?.at(0) ? (
+                    <span>{state.errors.accountId.at(0)}</span>
+                  ) : null}
+                </div>
+                <div role="group">
+                  <label htmlFor="token">Access URL</label>
+                  <input
+                    id="accessUrl"
+                    minLength={1}
+                    name="accessUrl"
+                    placeholder="https://example.us1.dbt.com"
+                    type="text"
+                  />
+                  {state.errors?.accessUrl?.at(0) ? (
+                    <span>{state.errors.accessUrl.at(0)}</span>
+                  ) : null}
                 </div>
               </div>
 
