@@ -100,7 +100,7 @@ export const getAccountId = async ({ apiKey }: GetAccountsParams) => {
   };
 };
 
-export const deleteUsers = async ({ userIds, accountId, apiKey }: DeleteUsersParams) => {
+export const deleteUser = async ({ userId, accountId, apiKey }: DeleteUsersParams) => {
   const url = `${env.ELASTIC_API_BASE_URL}organizations/${accountId}/members/${userIds}`;
 
   const response = await fetch(url, {
