@@ -16,7 +16,7 @@ export const organisations = Array.from({ length: 2 }, (_, i) => ({
   region: 'us',
   serviceToken: encodedPersonalToken,
   accountId: `${i}`,
-  dbtRegion: 'US',
+  accessUrl: 'https://example.us1.dbt.com',
 }));
 
 describe('schedule-users-syncs', () => {

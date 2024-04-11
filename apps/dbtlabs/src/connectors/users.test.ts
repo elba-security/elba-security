@@ -12,7 +12,7 @@ const limit = 100;
 const offset = 1;
 const serviceToken = 'test-personal-token';
 const accountId = '277209';
-const dbtRegion = 'us';
+const accessUrl = 'https://example.us1.dbt.com';
 const validUsers: DbtlabsUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: i,
   first_name: `first_name-${i}`,
@@ -28,7 +28,7 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       server.use(
-        http.get(`https://cloud.getdbt.com/api/v2/accounts/${accountId}/users`, ({ request }) => {
+        http.get(`${accessUrl}/api/v2/accounts/${accountId}/users`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${serviceToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -72,7 +72,7 @@ describe('users connector', () => {
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
       await expect(
-        getUsers({ serviceToken, accountId, dbtRegion, afterToken: nextCursor })
+        getUsers({ serviceToken, accountId, accessUrl, afterToken: nextCursor })
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
@@ -82,7 +82,7 @@ describe('users connector', () => {
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
       await expect(
-        getUsers({ serviceToken, accountId, dbtRegion, afterToken: null })
+        getUsers({ serviceToken, accountId, accessUrl, afterToken: null })
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
@@ -95,7 +95,7 @@ describe('users connector', () => {
         getUsers({
           serviceToken: 'foo-id',
           accountId,
-          dbtRegion,
+          accessUrl,
           afterToken: nextCursor,
         })
       ).rejects.toBeInstanceOf(DbtlabsError);

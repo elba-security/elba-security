@@ -12,7 +12,7 @@ const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   serviceToken: await encrypt('test-personal-token'),
   accountId: '00000',
-  dbtRegion: 'US',
+  accessUrl: 'https://example.us1.dbt.com',
   region: 'us',
 };
 
