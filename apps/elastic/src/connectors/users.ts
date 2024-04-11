@@ -110,8 +110,21 @@ export const deleteUsers = async ({ userIds, accountId, apiKey }: DeleteUsersPar
       Authorization: `ApiKey ${apiKey}`,
     },
   });
+const elasticErrorDataSchema = z.object({
+  errors: z.array(z.object({
+    code: z.string().nullish(),
+    message: z.string().nullish()
+  }))
+})
+// ...
+  if (response.status === 400) {
+    const errorDataResult = elasticErrorDataSchema.safeParse(await response.json())
+    if (errorDataResult.success && errorDataResult.data.errors.at(0)?.code === 'organization.membership_not_found') {
+      return;
+    }
+  }
 
-  if (!response.ok && response.status !== 400) {
-    throw new ElasticError(`Could not delete user with Id: ${userIds}`, { response });
+  if (!response.ok) {
+    throw new ElasticError(`Could not delete user with Id: ${userId}`, { response });
   }
 };
