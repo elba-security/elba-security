@@ -14,7 +14,7 @@ You can generate a random 32 bytes hex key following this command:
 openssl rand -hex 32
 ```
 
-- (Optional) If you need an IV, you could generate a 16 bytes IV in hex
+- (Optional) If you need to generate consistent encrypted values you will need to specify an IV. It will need to be a 16 bytes IV formatted in hex.
 
 You can generate a random 16 bytes hex key following this command:
 
