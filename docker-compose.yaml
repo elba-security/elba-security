@@ -1,18 +1,16 @@
-version: '3.8'
-
 services:
   postgres:
+    profiles: ['edge', 'node']
     image: postgres:15
-    container_name: 'postgres-${COMPOSE_PROJECT_NAME}'
     environment:
-      POSTGRES_DB: ${DATABASE_DATABASE}
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_DATABASE:-postgres}
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
     ports:
       - '${DATABASE_PORT}:5432'
   pg_proxy:
+    profiles: ['edge']
     image: ghcr.io/neondatabase/wsproxy:latest
-    container_name: 'pg_proxy-${COMPOSE_PROJECT_NAME}'
     environment:
       APPEND_PORT: postgres:5432
       ALLOW_ADDR_REGEX: '.*'
