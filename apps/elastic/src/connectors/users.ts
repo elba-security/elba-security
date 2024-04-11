@@ -4,28 +4,26 @@ import { getElasticApiClient } from '@/common/apiclient';
 import { ElasticError } from './commons/error';
 
 const elasticUserSchema = z.object({
-  id: z.number(),
-  first_name: z.string(),
-  last_name: z.string(),
-  fullname: z.string(),
+  user_id: z.string(),
+  name: z.string().optional(),
   email: z.string(),
-  is_active: z.boolean(),
+  role_assignments: z.object({
+    organization: z
+      .array(
+        z.object({
+          role_id: z.string(),
+        })
+      )
+      .optional(),
+    deployment: z.array(z.unknown()).optional(),
+  }),
 });
 
 export type ElasticUser = z.infer<typeof elasticUserSchema>;
 
 const elasticResponseSchema = z.object({
-  data: z.array(z.unknown()),
-  extra: z.object({
-    filters: z.object({
-      limit: z.number().nullable(),
-      offset: z.number().nullable(),
-    }),
-    pagination: z.object({
-      count: z.number().nullable(),
-      total_count: z.number().nullable(),
-    }),
-  }),
+  members: z.array(z.unknown()),
+  from: z.number().optional(),
 });
 
 export type GetUsersParams = {
@@ -35,7 +33,8 @@ export type GetUsersParams = {
 };
 
 export type DeleteUsersParams = {
-  userId: string;
+  userIds: string;
+  accountId: string;
   apiKey: string;
 };
 
@@ -61,12 +60,12 @@ export const getUsers = async ({ apiKey, accountId, afterToken }: GetUsersParams
 
   const resData: unknown = await elasticApiClient.get(endpoint.toString(), apiKey);
 
-  const { data, extra } = elasticResponseSchema.parse(resData);
+  const { members, from } = elasticResponseSchema.parse(resData);
 
   const validUsers: ElasticUser[] = [];
   const invalidUsers: unknown[] = [];
 
-  for (const node of data) {
+  for (const node of members) {
     const result = elasticUserSchema.safeParse(node);
     if (result.success) {
       validUsers.push(result.data);
@@ -75,22 +74,10 @@ export const getUsers = async ({ apiKey, accountId, afterToken }: GetUsersParams
     }
   }
 
-  let nextPage: string | null = null;
-  const { limit, offset } = extra.filters;
-  const { total_count: totalCount } = extra.pagination;
-
-  // Calculate if there is a next page based on the current offset, limit, and total count
-  if (limit && offset && totalCount) {
-    const nextOffset = offset + limit;
-    if (nextOffset < totalCount) {
-      nextPage = nextOffset.toString();
-    }
-  }
-
   return {
     validUsers,
     invalidUsers,
-    nextPage,
+    nextPage: from ? (from + 1).toString() : null,
   };
 };
 
@@ -111,4 +98,20 @@ export const getAccountId = async ({ apiKey }: GetAccountsParams) => {
   return {
     accountId: accountId.toString(),
   };
+};
+
+export const deleteUsers = async ({ userIds, accountId, apiKey }: DeleteUsersParams) => {
+  const url = `${env.ELASTIC_API_BASE_URL}organizations/${accountId}/members/${userIds}`;
+
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `ApiKey ${apiKey}`,
+    },
+  });
+
+  if (!response.ok && response.status !== 400) {
+    throw new ElasticError(`Could not delete user with Id: ${userIds}`, { response });
+  }
 };

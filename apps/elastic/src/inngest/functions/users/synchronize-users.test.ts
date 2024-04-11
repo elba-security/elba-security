@@ -16,11 +16,13 @@ const organisation = {
 };
 
 const users: usersConnector.ElasticUser[] = Array.from({ length: 2 }, (_, i) => ({
-  id: i,
-  first_name: `firstName-${i}`,
-  last_name: `lastName-${i}`,
-  fullname: `fullname-${i}`,
-  is_active: true,
+  user_id: `${i}`,
+  name: `name-${i}`,
+  role_assignments: {
+    organization: [{
+      role_id: 'organization-admin'
+    }]
+  },
   email: `user-${i}@foo.bar`,
 }));
 
@@ -72,15 +74,17 @@ describe('sync-users', () => {
       users: [
         {
           additionalEmails: [],
-          displayName: 'fullname-0',
+          displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: '0',
+          role: 'organization-admin'
         },
         {
           additionalEmails: [],
-          displayName: 'fullname-1',
+          displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: '1',
+          role: 'organization-admin'
         },
       ],
     });

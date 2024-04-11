@@ -28,7 +28,7 @@ export const inngest = new Inngest({
     };
     'elastic/users.delete.requested': {
       data: {
-        userId: string;
+        userIds: string;
         organisationId: string;
       };
     };

@@ -11,9 +11,10 @@ import { decrypt } from '@/common/crypto';
 import { getElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUser = (user: ElasticUser): User => ({
-  id: user.id.toString(),
-  displayName: `${user.fullname}`,
+  id: user.user_id,
+  displayName: user.name ? `${user.name}` : `${user.email}`,
   email: user.email,
+  role: user.role_assignments.organization && user.role_assignments.organization.length > 0 ? "organization-admin" : "deployment-admin",
   additionalEmails: [],
 });
 
@@ -57,7 +58,7 @@ export const synchronizeUsers = inngest.createFunction(
         afterToken: page,
       });
 
-      const users = result.validUsers.filter(({ is_active: active }) => active).map(formatElbaUser);
+      const users = result.validUsers.map(formatElbaUser);
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
