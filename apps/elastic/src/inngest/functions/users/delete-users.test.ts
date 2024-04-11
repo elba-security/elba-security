@@ -7,7 +7,6 @@ import { db } from '@/database/client';
 import { deleteSourceUsers } from './delete-users';
 
 const userId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
-const userIds = 'test-id-1,test-id-2';
 const apiKey = 'test-access-token';
 const accountId = 'test-account-id';
 
@@ -29,17 +28,17 @@ describe('deleteSourceUsers', () => {
 
   test.only('should delete user', async () => {
     // Mock database response to return organisation details
-    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
+    vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
     await db.insert(Organisation).values(organisation);
 
-    const [result] = setup({ userIds, organisationId: organisation.id });
+    const [result] = setup({ userId, organisationId: organisation.id });
 
     // Assert the function resolves successfully
     await expect(result).resolves.toStrictEqual(undefined);
 
-    expect(usersConnector.deleteUsers).toBeCalledTimes(1);
-    expect(usersConnector.deleteUsers).toBeCalledWith({
-      userIds,
+    expect(usersConnector.deleteUser).toBeCalledTimes(1);
+    expect(usersConnector.deleteUser).toBeCalledWith({
+      userId,
       apiKey,
       accountId,
     });

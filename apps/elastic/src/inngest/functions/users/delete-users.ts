@@ -3,7 +3,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUsers } from '@/connectors/users';
+import { deleteUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
 
 export const deleteSourceUsers = inngest.createFunction(
@@ -17,7 +17,7 @@ export const deleteSourceUsers = inngest.createFunction(
   },
   { event: 'elastic/users.delete.requested' },
   async ({ event }) => {
-    const { userIds, organisationId } = event.data;
+    const { userId, organisationId } = event.data;
 
     const [organisation] = await db
       .select({
@@ -28,13 +28,13 @@ export const deleteSourceUsers = inngest.createFunction(
       .where(eq(Organisation.id, organisationId));
 
     if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve ${userIds}`);
+      throw new NonRetriableError(`Could not retrieve ${userId}`);
     }
     const apiKey = await decrypt(organisation.apiKey);
     const accountId = organisation.accountId;
 
-    await deleteUsers({
-      userIds,
+    await deleteUser({
+      userId,
       accountId,
       apiKey,
     });

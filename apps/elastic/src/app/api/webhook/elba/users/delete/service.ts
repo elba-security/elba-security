@@ -1,10 +1,10 @@
 import { inngest } from '@/inngest/client';
 
-export const deleteUsers = async ({
-  userIds,
+export const deleteUser = async ({
+  userId,
   organisationId,
 }: {
-  userIds: string;
+  userId: string;
   organisationId: string;
 }) => {
   await inngest.send([
@@ -12,7 +12,7 @@ export const deleteUsers = async ({
       name: 'elastic/users.delete.requested',
       data: {
         organisationId,
-        userIds,
+        userId,
       },
     },
   ]);

@@ -33,7 +33,7 @@ export type GetUsersParams = {
 };
 
 export type DeleteUsersParams = {
-  userIds: string;
+  userId: string;
   accountId: string;
   apiKey: string;
 };
@@ -101,7 +101,7 @@ export const getAccountId = async ({ apiKey }: GetAccountsParams) => {
 };
 
 export const deleteUser = async ({ userId, accountId, apiKey }: DeleteUsersParams) => {
-  const url = `${env.ELASTIC_API_BASE_URL}organizations/${accountId}/members/${userIds}`;
+  const url = `${env.ELASTIC_API_BASE_URL}organizations/${accountId}/members/${userId}`;
 
   const response = await fetch(url, {
     method: 'DELETE',
@@ -110,16 +110,20 @@ export const deleteUser = async ({ userId, accountId, apiKey }: DeleteUsersParam
       Authorization: `ApiKey ${apiKey}`,
     },
   });
-const elasticErrorDataSchema = z.object({
-  errors: z.array(z.object({
-    code: z.string().nullish(),
-    message: z.string().nullish()
-  }))
-})
-// ...
+  const elasticErrorDataSchema = z.object({
+    errors: z.array(
+      z.object({
+        code: z.string().nullish(),
+        message: z.string().nullish(),
+      })
+    ),
+  });
   if (response.status === 400) {
-    const errorDataResult = elasticErrorDataSchema.safeParse(await response.json())
-    if (errorDataResult.success && errorDataResult.data.errors.at(0)?.code === 'organization.membership_not_found') {
+    const errorDataResult = elasticErrorDataSchema.safeParse(await response.json());
+    if (
+      errorDataResult.success &&
+      errorDataResult.data.errors.at(0)?.code === 'organization.membership_not_found'
+    ) {
       return;
     }
   }
