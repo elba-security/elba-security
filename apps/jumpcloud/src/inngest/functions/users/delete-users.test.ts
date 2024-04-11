@@ -27,7 +27,7 @@ describe('deleteSourceUsers', () => {
 
   test('should throw NonRetriableError when userid is not found', async () => {
     // Mock database response to simulate no organisation found
-    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
+    vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
 
     const [result] = setup({ userId, organisationId: organisation.id });
 
@@ -36,9 +36,9 @@ describe('deleteSourceUsers', () => {
     await expect(result).rejects.toHaveProperty('message', `Could not retrieve organisation`);
   });
 
-  test('should call deleteUsers with correct parameters', async () => {
+  test('should call deleteUser with correct parameters', async () => {
     // Mock database response to return organisation details
-    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
+    vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
     await db.insert(Organisation).values(organisation);
 
     const [result] = setup({ userId, organisationId: organisation.id });
@@ -46,8 +46,8 @@ describe('deleteSourceUsers', () => {
     // Assert the function resolves successfully
     await expect(result).resolves.toStrictEqual(undefined);
 
-    expect(usersConnector.deleteUsers).toBeCalledTimes(1);
-    expect(usersConnector.deleteUsers).toBeCalledWith({
+    expect(usersConnector.deleteUser).toBeCalledTimes(1);
+    expect(usersConnector.deleteUser).toBeCalledWith({
       userId,
       apiKey,
     });
@@ -55,17 +55,17 @@ describe('deleteSourceUsers', () => {
 
   test('should not throw when user exists', async () => {
     // Mock deleteUser to simulate successful deletion
-    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
+    vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
 
     await expect(
-      usersConnector.deleteUsers({
+      usersConnector.deleteUser({
         userId,
         apiKey,
       })
     ).resolves.not.toThrow();
 
     // Verify deleteUser was called correctly
-    expect(usersConnector.deleteUsers).toBeCalledWith({
+    expect(usersConnector.deleteUser).toBeCalledWith({
       userId,
       apiKey,
     });
@@ -73,17 +73,17 @@ describe('deleteSourceUsers', () => {
 
   test('should not throw when user does not exist (in case of 404)', async () => {
     // Mock deleteUser to simulate a 404 response
-    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce(); // Assuming your implementation already handles 404 internally
+    vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce(); // Assuming your implementation already handles 404 internally
 
     await expect(
-      usersConnector.deleteUsers({
+      usersConnector.deleteUser({
         userId,
         apiKey,
       })
     ).resolves.not.toThrow();
 
     // Verify deleteUser was called correctly
-    expect(usersConnector.deleteUsers).toBeCalledWith({
+    expect(usersConnector.deleteUser).toBeCalledWith({
       userId,
       apiKey,
     });
@@ -92,17 +92,17 @@ describe('deleteSourceUsers', () => {
   test('should throw when access token is invalid', async () => {
     // Mock deleteUser to simulate an error due to invalid token
     const errorMessage = 'Invalid access token';
-    vi.spyOn(usersConnector, 'deleteUsers').mockRejectedValueOnce(new Error(errorMessage));
+    vi.spyOn(usersConnector, 'deleteUser').mockRejectedValueOnce(new Error(errorMessage));
 
     await expect(
-      usersConnector.deleteUsers({
+      usersConnector.deleteUser({
         userId,
         apiKey: 'invalid-id',
       })
     ).rejects.toThrow(errorMessage);
 
     // Verify deleteUser was called with the invalid token
-    expect(usersConnector.deleteUsers).toBeCalledWith({
+    expect(usersConnector.deleteUser).toBeCalledWith({
       userId,
       apiKey: 'invalid-id',
     });

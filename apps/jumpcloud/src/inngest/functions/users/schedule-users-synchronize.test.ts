@@ -6,7 +6,7 @@ import { encrypt } from '@/common/crypto';
 import { scheduleUsersSynchronize } from './schedule-users-synchronize';
 
 const now = Date.now();
-
+const role = 'admin';
 const setup = createInngestFunctionMock(scheduleUsersSynchronize);
 
 const encodedApiKey = await encrypt('test-api-key');
@@ -49,6 +49,7 @@ describe('schedule-users-syncs', () => {
           syncStartedAt: now,
           isFirstSync: false,
           page: null,
+          role,
         },
       }))
     );
