@@ -9,7 +9,7 @@ import { type ElasticUser, getUsers, getAccountId, deleteUser } from './users';
 import { ElasticError } from './commons/error';
 
 const nextCursor = '1';
-const userId = 'test-id-1,test-id-2';
+const userId = 'test-id';
 const from = 1;
 const apiKey = 'test-api-key';
 const accountId = '2370721950';
