@@ -18,7 +18,7 @@ export const refreshToken = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'box/box.elba_app.uninstalled',
+        event: 'box/app.uninstalled',
         match: 'data.organisationId',
       },
       {

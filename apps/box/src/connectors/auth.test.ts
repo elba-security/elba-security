@@ -1,12 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `auth` connectors function.
- * Theses tests exists because the services & inngest functions using this connector mock it.
- * If you are using an SDK we suggest you to mock it not to implements calls using msw.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+/* eslint-disable @typescript-eslint/no-unsafe-call -- test convenient */
+/* eslint-disable @typescript-eslint/no-unsafe-return -- test convenient */
 
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
@@ -23,11 +16,9 @@ const expiresIn = '1234';
 
 describe('auth connector', () => {
   describe('getToken', () => {
-    // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
         http.post(`${env.BOX_API_BASE_URL}oauth2/token`, async ({ request }) => {
-          // briefly implement API endpoint behaviour
           const body = await request.text();
           const searchParams = new URLSearchParams(body);
 
@@ -60,11 +51,9 @@ describe('auth connector', () => {
   });
 
   describe('getRefreshToken', () => {
-    // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
         http.post(`${env.BOX_API_BASE_URL}oauth2/token`, async ({ request }) => {
-          // briefly implement API endpoint behaviour
           const body = await request.text();
           const searchParams = new URLSearchParams(body);
 
@@ -83,7 +72,7 @@ describe('auth connector', () => {
       );
     });
 
-    test('should return the refreshToken when the refreshtoken is valid', async () => {
+    test('should return the refreshToken when the refreshToken is valid', async () => {
       await expect(getRefreshToken(validRefreshToken)).resolves.toStrictEqual({
         accessToken,
         refreshToken,
@@ -91,7 +80,7 @@ describe('auth connector', () => {
       });
     });
 
-    test('should throw when the refreshtoken is invalid', async () => {
+    test('should throw when the refreshToken is invalid', async () => {
       await expect(getToken('wrong-refreshtoken')).rejects.toBeInstanceOf(BoxError);
     });
   });

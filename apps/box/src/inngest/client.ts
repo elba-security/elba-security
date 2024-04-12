@@ -4,7 +4,7 @@ import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 
 export const inngest = new Inngest({
-  id: 'slack',
+  id: 'box',
   schemas: new EventSchemas().fromRecord<{
     'box/users.sync.requested': {
       data: {
@@ -26,7 +26,7 @@ export const inngest = new Inngest({
         expiresAt: number;
       };
     };
-    'box/box.elba_app.uninstalled': {
+    'box/app.uninstalled': {
       data: {
         organisationId: string;
         region: string;

@@ -16,7 +16,6 @@ export const setupOrganisation = async ({
   code,
   region,
 }: SetupOrganisationParams) => {
-  // retrieve token from SaaS API using the given code
   const { accessToken, refreshToken, expiresIn } = await getToken(code);
 
   const encodedAccessToken = await encrypt(accessToken);

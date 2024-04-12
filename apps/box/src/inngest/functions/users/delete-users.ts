@@ -8,7 +8,7 @@ import { decrypt } from '@/common/crypto';
 
 export const deleteSourceUsers = inngest.createFunction(
   {
-    id: 'delete-users',
+    id: 'box-delete-users',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,

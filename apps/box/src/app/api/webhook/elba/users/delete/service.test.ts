@@ -20,12 +20,14 @@ describe('box/users.delete.requested', () => {
 
     await deleteUsers({ userId, organisationId });
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith([{
-      data: {
-        organisationId,
-        userId,
+    expect(send).toBeCalledWith([
+      {
+        data: {
+          organisationId,
+          userId,
+        },
+        name: 'box/users.delete.requested',
       },
-      name: 'box/users.delete.requested',
-    }]);
+    ]);
   });
 });
