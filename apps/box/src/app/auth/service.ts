@@ -1,6 +1,6 @@
 import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
@@ -22,7 +22,7 @@ export const setupOrganisation = async ({
   const encodedRefreshToken = await encrypt(refreshToken);
 
   await db
-    .insert(Organisation)
+    .insert(organisationsTable)
     .values({
       id: organisationId,
       accessToken: encodedAccessToken,
@@ -30,7 +30,7 @@ export const setupOrganisation = async ({
       region,
     })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
         accessToken: encodedAccessToken,
         refreshToken: encodedRefreshToken,

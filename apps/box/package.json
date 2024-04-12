@@ -9,15 +9,12 @@
     "start": "next start",
     "lint": "next lint",
     "open:pg": "drizzle-kit studio --port 4300",
-    "test": "sh ./scripts/run-test.sh",
-    "test:watch": "sh ./scripts/run-test.sh -w",
-    "test:database:up": "docker-compose -p integration-test --env-file=.env.test up -d",
-    "test:database:down": "docker-compose -p integration-test down",
-    "test:database:migrate": "node ./scripts/migrate.js .env.test",
-    "database:up": "docker-compose -p integration --env-file=.env.local up -d",
-    "database:down": "docker-compose -p integration down",
-    "database:migrate": "node ./scripts/migrate.js .env.local",
-    "database:generate": "drizzle-kit generate:pg --schema=./src/database/schema.ts"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "database:up": "docker-compose -p box --profile node --env-file=.env.local up -d",
+    "database:down": "docker-compose -p box down --volumes",
+    "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
+    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
@@ -36,6 +33,7 @@
     "pg": "^8.11.5",
     "react": "^18",
     "react-dom": "^18",
+    "testcontainers": "^10.8.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -54,6 +52,6 @@
     "msw": "^2.0.1",
     "postgres": "^3.4.3",
     "typescript": "^5",
-    "vitest": "1.1.1"
+    "vitest": "1.4.0"
   }
 }

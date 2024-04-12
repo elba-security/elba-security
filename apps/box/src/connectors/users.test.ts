@@ -2,8 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
+import { server } from '@elba-security/test-utils';
 import { env } from '@/env';
-import { server } from '../../vitest/setup-msw-handlers';
 import type { BoxUser } from './users';
 import { getUsers, deleteUsers } from './users';
 import { BoxError } from './commons/error';
@@ -62,7 +62,7 @@ describe('users connector', () => {
       await expect(getUsers({ token: validToken, nextPage })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage: limit+ 1,
+        nextPage: limit + 1,
       });
     });
 

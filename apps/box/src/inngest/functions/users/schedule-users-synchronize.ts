@@ -1,6 +1,6 @@
 import { env } from '@/env';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
 export const scheduleUsersSynchronize = inngest.createFunction(
@@ -9,12 +9,12 @@ export const scheduleUsersSynchronize = inngest.createFunction(
   async ({ step }) => {
     const organisations = await db
       .select({
-        id: Organisation.id,
-        region: Organisation.region,
-        accessToken: Organisation.accessToken,
-        refreshToken: Organisation.refreshToken,
+        id: organisationsTable.id,
+        region: organisationsTable.region,
+        accessToken: organisationsTable.accessToken,
+        refreshToken: organisationsTable.refreshToken,
       })
-      .from(Organisation);
+      .from(organisationsTable);
 
     if (organisations.length > 0) {
       await step.sendEvent(

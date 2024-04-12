@@ -3,7 +3,7 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { synchronizeUsers } from './synchronize-users';
 
@@ -52,7 +52,7 @@ describe('synchronize-users', () => {
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
     // setup the test with an organisation
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     // mock the getUser function that returns SaaS users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -104,7 +104,7 @@ describe('synchronize-users', () => {
 
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,

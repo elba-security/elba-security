@@ -3,7 +3,7 @@ import { addSeconds } from 'date-fns/addSeconds';
 import { and, eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getRefreshToken } from '@/connectors/auth';
 import { env } from '@/env';
@@ -37,10 +37,10 @@ export const refreshToken = inngest.createFunction(
     const nextExpiresAt = await step.run('refresh-token', async () => {
       const [organisation] = await db
         .select({
-          refreshToken: Organisation.refreshToken,
+          refreshToken: organisationsTable.refreshToken,
         })
-        .from(Organisation)
-        .where(and(eq(Organisation.id, organisationId)));
+        .from(organisationsTable)
+        .where(and(eq(organisationsTable.id, organisationId)));
 
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
@@ -56,12 +56,12 @@ export const refreshToken = inngest.createFunction(
       const encodedNewAccessToken = await encrypt(newAccessToken);
       const encodedNewRefreshToken = await encrypt(newRefreshToken);
       await db
-        .update(Organisation)
+        .update(organisationsTable)
         .set({
           accessToken: encodedNewAccessToken,
           refreshToken: encodedNewRefreshToken,
         })
-        .where(eq(Organisation.id, organisationId));
+        .where(eq(organisationsTable.id, organisationId));
 
       return addSeconds(new Date(), expiresIn);
     });

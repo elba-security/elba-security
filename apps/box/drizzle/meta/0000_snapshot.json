@@ -1,11 +1,11 @@
 {
-  "id": "f6fc5b58-5be7-4a24-9630-103bc8e6bd8a",
+  "id": "9a5d32b9-6616-4452-932f-1eccfb3ba38e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "organisation": {
-      "name": "organisation",
+    "organisations": {
+      "name": "organisations",
       "schema": "",
       "columns": {
         "id": {

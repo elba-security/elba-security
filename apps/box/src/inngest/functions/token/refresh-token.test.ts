@@ -3,7 +3,7 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import * as authConnector from '@/connectors/auth';
 import { encrypt, decrypt } from '@/common/crypto';
 import { BoxError } from '@/connectors/commons/error';
@@ -61,7 +61,7 @@ describe('refresh-token', () => {
   });
 
   test('should update encrypted tokens and schedule the next refresh', async () => {
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     vi.spyOn(authConnector, 'getRefreshToken').mockResolvedValue({
       ...newTokens,
@@ -77,15 +77,17 @@ describe('refresh-token', () => {
 
     const [updatedOrganisation] = await db
       .select({
-        accessToken: Organisation.accessToken,
-        refreshToken: Organisation.refreshToken,
+        accessToken: organisationsTable.accessToken,
+        refreshToken: organisationsTable.refreshToken,
       })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
     if (!updatedOrganisation) {
       throw new BoxError(`Organisation with ID ${organisation.id} not found.`);
     }
-    await expect(decrypt(updatedOrganisation.refreshToken)).resolves.toEqual(newTokens.refreshToken);
+    await expect(decrypt(updatedOrganisation.refreshToken)).resolves.toEqual(
+      newTokens.refreshToken
+    );
 
     expect(authConnector.getRefreshToken).toBeCalledTimes(1);
     expect(authConnector.getRefreshToken).toBeCalledWith(newTokens.refreshToken);

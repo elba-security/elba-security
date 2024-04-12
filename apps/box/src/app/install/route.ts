@@ -4,7 +4,7 @@ import { type NextRequest } from 'next/server';
 import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { env } from '@/env';
 
-export const preferredRegion = env.VERCEL_PREFERRED_REGION;
+export const preferredRegion = 'fra1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
