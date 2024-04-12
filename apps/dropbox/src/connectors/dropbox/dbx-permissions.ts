@@ -1,13 +1,13 @@
+import { z } from 'zod';
 import type { DeleteObjectPermissionsSchema } from '@/inngest/types';
 import { DBXAccess } from './dbx-access';
 
-const isObject = (obj: unknown): obj is Record<string, unknown> => {
-  return typeof obj === 'object' && obj !== null;
-};
+const permissionMetadataSchema = z.object({
+  sharedLinks: z.array(z.string()),
+});
 
-const isArray = (value: unknown): value is unknown[] => {
-  return Array.isArray(value);
-};
+type PermissionMetadata = z.infer<typeof permissionMetadataSchema>;
+
 export class DBXPermissions {
   private adminTeamMemberId?: string;
   private dbx: DBXAccess;
@@ -39,8 +39,10 @@ export class DBXPermissions {
       ...(isPersonal ? { selectUser: ownerId } : { selectAdmin: this.adminTeamMemberId }),
     });
 
-    if (isObject(metadata) && isArray(metadata.sharedLinks)) {
-      return metadata.sharedLinks.map(async (sharedLink: string) => {
+    const parseMetadata = permissionMetadataSchema.safeParse(metadata);
+
+    if (parseMetadata.success) {
+      return (metadata as PermissionMetadata).sharedLinks.map(async (sharedLink: string) => {
         return this.dbx.sharingRevokeSharedLink({
           url: sharedLink,
         });

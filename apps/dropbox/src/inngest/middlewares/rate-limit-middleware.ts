@@ -13,12 +13,8 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
             if (error instanceof DBXResponseError && error.status === 429) {
-              // eslint-disable-next-line -- Dbx error is unknown
-              const { error: innerError } = error;
-              // eslint-disable-next-line -- Dbx error is unknown
-              const {
-                error: { retry_after: retryAfter },
-              } = innerError;
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- safe to assume that the error object has the retry_after property
+              const retryAfter: unknown = error.error?.error?.retry_after;
 
               return {
                 ...context,
@@ -28,7 +24,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                     `Dropbox rate limit reached by '${fn.name}', it will be retried after ${Number(
                       retryAfter
                     )} seconds.`,
-                    Number(retryAfter) * 1000,
+                    Number(!retryAfter ? 60 : retryAfter) * 1000,
                     {
                       cause: error,
                     }

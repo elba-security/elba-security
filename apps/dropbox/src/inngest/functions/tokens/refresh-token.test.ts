@@ -23,9 +23,7 @@ const mocks = vi.hoisted(() => {
 vi.mock('@/connectors/dropbox/dbx-auth', () => {
   return {
     DBXAuth: vi.fn().mockImplementation(() => {
-      // const actual = await vi.importActual('dropbox');
       return {
-        // ...actual,
         refreshAccessToken: mocks.refreshAccessTokenMock,
       };
     }),

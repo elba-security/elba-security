@@ -35,7 +35,7 @@ export class DBXAuth {
   }
 
   async refreshAccessToken() {
-    // eslint-disable-next-line -- Need to wait
+    // eslint-disable-next-line -- Type is incorrect, it returns a promise
     await this.dbxAuth.refreshAccessToken();
 
     return {

@@ -13,7 +13,8 @@
     "database:up": "docker-compose -p dropbox --profile node --env-file=.env.local up -d",
     "database:down": "docker-compose -p dropbox down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
-    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
+    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts",
+    "database:open:pg": "drizzle-kit studio"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",

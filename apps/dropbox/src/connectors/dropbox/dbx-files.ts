@@ -65,7 +65,7 @@ export class DBXFiles {
     do {
       const {
         result: { links, has_more: hasMore, cursor },
-        // eslint-disable-next-line -- Need to wait for the response
+        // eslint-disable-next-line no-await-in-loop -- Need to wait for the response
       } = await this.dbx.sharingListSharedLinks({
         path,
         cursor: nextCursor,
@@ -164,9 +164,9 @@ export class DBXFiles {
             const {
               result: { users, groups, invitees, cursor },
             } = nextCursor
-              ? // eslint-disable-next-line -- Need to wait for the response
+              ? // eslint-disable-next-line no-await-in-loop -- Need to wait for the response
                 await this.dbx.sharingListFileMembersContinue({ cursor: nextCursor })
-              : // eslint-disable-next-line -- Need to wait for the response
+              : // eslint-disable-next-line no-await-in-loop -- Need to wait for the response
                 await this.dbx.sharingListFileMembers({
                   file: fileId,
                   include_inherited: true,
@@ -187,7 +187,7 @@ export class DBXFiles {
     // Split files array into batches and process each batch sequentially
     for (let i = 0; i < files.length; i += concurrentLimit) {
       const fileBatch = files.slice(i, i + concurrentLimit);
-      // eslint-disable-next-line -- Need to wait for the response
+      // eslint-disable-next-line no-await-in-loop -- Need to wait for the response
       await throttledFetch(fileBatch);
     }
 
@@ -281,9 +281,9 @@ export class DBXFiles {
           let nextCursor: string | undefined;
           do {
             const response = nextCursor
-              ? // eslint-disable-next-line -- Need to wait for the response
+              ? // eslint-disable-next-line no-await-in-loop -- Need to wait for the response
                 await this.dbx.sharingListFolderMembersContinue({ cursor: nextCursor })
-              : // eslint-disable-next-line -- Need to wait for the response
+              : // eslint-disable-next-line no-await-in-loop -- Need to wait for the response
                 await this.dbx.sharingListFolderMembers({
                   shared_folder_id: shareFolderId,
                   limit: env.DROPBOX_LIST_FOLDER_MEMBERS_LIMIT,

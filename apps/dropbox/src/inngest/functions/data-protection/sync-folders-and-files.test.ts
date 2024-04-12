@@ -4,7 +4,7 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { NonRetriableError } from 'inngest';
 import { insertOrganisations, insertTestSharedLinks } from '@/test-utils/token';
 import * as crypto from '@/common/crypto';
-import { synchronizeFoldersAndFilesEventHandler } from './sync-folders-and-files';
+import { synchronizeFoldersAndFiles } from './sync-folders-and-files';
 import { sharedLinks } from './__mocks__/folder-files-and-shared-links';
 
 const RETRY_AFTER = '300';
@@ -20,7 +20,7 @@ const elbaOptions = {
 };
 
 const setup = createInngestFunctionMock(
-  synchronizeFoldersAndFilesEventHandler,
+  synchronizeFoldersAndFiles,
   'dropbox/data_protection.folder_and_files.sync_page.requested'
 );
 

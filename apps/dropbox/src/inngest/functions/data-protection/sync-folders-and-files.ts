@@ -122,7 +122,7 @@ const handler: FunctionHandler = async ({
   });
 };
 
-export const synchronizeFoldersAndFilesEventHandler = inngest.createFunction(
+export const synchronizeFoldersAndFiles = inngest.createFunction(
   {
     id: 'dropbox-synchronize-folders-and-files',
     retries: 5,

@@ -11,18 +11,18 @@ export const fileMetadataSchema = z.object({
 
 export type FileMetadata = zInfer<typeof fileMetadataSchema>;
 
-export const deleteObjectPermissionsSchema = fileMetadataSchema.extend({
-  permissions: z.array(
-    z.object({
-      id: z.string().min(1),
-      metadata: z
-        .object({
-          sharedLinks: z.array(z.string()),
-        })
-        .optional(),
-    })
-  ),
-});
+export const filePermissionsSchema = z.array(
+  z.object({
+    id: z.string().min(1),
+    metadata: z
+      .object({
+        sharedLinks: z.array(z.string()),
+      })
+      .optional(),
+  })
+);
+
+export type FilePermission = zInfer<typeof filePermissionsSchema>;
 
 type AppSchema = {
   organisationId: string;
