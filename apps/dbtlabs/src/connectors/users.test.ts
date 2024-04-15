@@ -35,36 +35,19 @@ describe('users connector', () => {
 
           const url = new URL(request.url);
           const after = url.searchParams.get('offset');
-          let returnData;
-          if (after) {
-            returnData = {
-              data: validUsers,
-              extra: {
-                filters: {
-                  limit,
-                  offset,
-                },
-                pagination: {
-                  count: 1,
-                  total_count: 200,
-                },
+          const returnData = {
+            data: validUsers,
+            extra: {
+              filters: {
+                limit,
+                offset,
               },
-            };
-          } else {
-            returnData = {
-              data: validUsers,
-              extra: {
-                filters: {
-                  limit,
-                  offset,
-                },
-                pagination: {
-                  count: 1,
-                  total_count: 2,
-                },
+              pagination: {
+                count: 1,
+                total_count: after ? 200 : 2,
               },
-            };
-          }
+            },
+          };
           return Response.json(returnData);
         })
       );

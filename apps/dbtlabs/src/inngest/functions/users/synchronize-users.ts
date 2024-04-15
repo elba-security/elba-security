@@ -46,11 +46,10 @@ export const synchronizeUsers = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const elba = getElbaClient({ organisationId, region: organisation.region });
+    const { accountId, accessUrl, region } = organisation;
 
+    const elba = getElbaClient({ organisationId, region });
     const serviceToken = await decrypt(organisation.serviceToken);
-    const accountId = organisation.accountId;
-    const accessUrl = organisation.accessUrl;
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({

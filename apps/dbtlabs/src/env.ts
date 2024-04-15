@@ -8,8 +8,6 @@ export const env = z
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     ENCRYPTION_KEY: z.string().min(1),
-    DBTLABS_API_US_BASE_URL: z.string().min(1),
-    DBTLABS_API_EU_BASE_URL: z.string().min(1),
     DATABASE_URL: z.string().min(1),
     DATABASE_HOST: z.string().min(1),
     DATABASE_PORT: z.coerce.number().int().positive(),

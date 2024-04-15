@@ -52,8 +52,6 @@ function InstructionItems({
       <h1>{heading}</h1>
       {instructions.map((item, index) => (
         <div className={styles.instruction} key={item}>
-          {' '}
-          {/* Changed key to index for uniqueness */}
           <span className={styles.instructionNumber}>{index + 1}</span>
           <span className={styles.instructionText}>
             {index === 0 && active === '1' ? (
