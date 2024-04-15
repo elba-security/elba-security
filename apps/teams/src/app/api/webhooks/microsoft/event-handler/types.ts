@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type { subscriptionSchema } from '@/app/api/webhooks/microsoft/event-handler/route';
+import type { subscriptionSchema } from '@/app/api/webhooks/microsoft/event-handler/schema';
 
 export type SubscriptionPayload = z.infer<typeof subscriptionSchema>;
 

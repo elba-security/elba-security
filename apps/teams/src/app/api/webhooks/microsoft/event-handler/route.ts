@@ -1,22 +1,15 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 import { handleWebhook } from '@/app/api/webhooks/microsoft/event-handler/service';
 import type {
   SubscriptionPayload,
   WebhookResponse,
 } from '@/app/api/webhooks/microsoft/event-handler/types';
+import { subscriptionSchema } from '@/app/api/webhooks/microsoft/event-handler/schema';
 
 export const preferredRegion = 'fra1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
-
-export const subscriptionSchema = z.object({
-  subscriptionId: z.string(),
-  changeType: z.enum(['created', 'updated', 'deleted']),
-  resource: z.string(),
-  tenantId: z.string(),
-});
 
 export async function POST(req: NextRequest) {
   if (req.nextUrl.searchParams.get('validationToken')) {

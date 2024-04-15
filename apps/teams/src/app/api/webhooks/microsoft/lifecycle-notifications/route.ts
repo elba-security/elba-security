@@ -1,21 +1,13 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 import { handleSubscriptionEvent } from '@/app/api/webhooks/microsoft/lifecycle-notifications/service';
 import type { MicrosoftSubscriptionEvent } from '@/app/api/webhooks/microsoft/lifecycle-notifications/types';
 import type { WebhookResponse } from '@/app/api/webhooks/microsoft/event-handler/types';
+import { lifecycleEventSchema } from '@/app/api/webhooks/microsoft/lifecycle-notifications/schema';
 
 export const preferredRegion = 'fra1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
-
-export const lifecycleEventSchema = z.object({
-  subscriptionId: z.string(),
-  lifecycleEvent: z.enum(['reauthorizationRequired', 'subscriptionRemoved']),
-  resource: z.string(),
-  organisationId: z.string(),
-  subscriptionExpirationDateTime: z.string(),
-});
 
 export async function POST(req: NextRequest) {
   if (req.nextUrl.searchParams.get('validationToken')) {
