@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { env } from '@/env';
-import { getFivetranApiClient } from '@/common/apiclient';
 import { FivetranError } from './commons/error';
 
 const fivetranUserSchema = z.object({
@@ -41,9 +40,19 @@ export const getUsers = async ({ apiKey, apiSecret, afterToken }: GetUsersParams
     endpoint.searchParams.append('cursor', String(afterToken));
   }
 
-  const fivetranApiClient = getFivetranApiClient();
+  const response = await fetch(endpoint.toString(), {
+    method: 'GET',
+    headers: {
+      Authorization: `Basic ${encodedKey}`,
+      'Content-Type': 'application/json',
+    },
+  });
 
-  const resData: unknown = await fivetranApiClient.get(endpoint.toString(), encodedKey);
+  if (!response.ok) {
+    throw new FivetranError('API request failed', { response });
+  }
+
+  const resData: unknown = await response.json();
 
   const { data } = fivetranResponseSchema.parse(resData);
 
