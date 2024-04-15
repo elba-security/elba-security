@@ -1,5 +1,5 @@
 {
-  "name": "next-elba-template",
+  "name": "@elba-security/dbtlabs",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,15 +8,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "sh ./scripts/run-test.sh",
-    "test:watch": "sh ./scripts/run-test.sh -w",
-    "test:database:up": "docker-compose -p integration-test --env-file=.env.test up -d",
-    "test:database:down": "docker-compose -p integration-test down",
-    "test:database:migrate": "node ./scripts/migrate.js .env.test",
-    "database:up": "docker-compose -p integration --env-file=.env.local up -d",
-    "database:down": "docker-compose -p integration down",
-    "database:migrate": "node ./scripts/migrate.js .env.local",
-    "database:generate": "drizzle-kit generate:pg --schema=./src/database/schema.ts"
+    "pg:studio": "drizzle-kit studio --port 4300",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "database:up": "docker-compose -p dbtlabs --profile edge --env-file=.env.local up -d",
+    "database:down": "docker-compose -p dbtlabs down --volumes",
+    "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
+    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts",
+    "database:init": "pnpm database:up && pnpm database:generate && pnpm database:migrate"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
@@ -33,6 +32,7 @@
     "next": "14.0.1",
     "react": "^18",
     "react-dom": "^18",
+    "testcontainers": "^10.8.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -45,12 +45,13 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "dotenv": "^16.3.1",
-    "drizzle-kit": "^0.20.6",
+    "drizzle-kit": "^0.20.14",
     "eslint": "^8",
     "inngest-cli": "^0.25.2",
     "msw": "^2.0.1",
+    "pg": "^8.11.5",
     "postgres": "^3.4.3",
     "typescript": "^5",
-    "vitest": "1.1.1"
+    "vitest": "1.4.0"
   }
 }

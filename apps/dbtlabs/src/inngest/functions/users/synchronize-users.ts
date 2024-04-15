@@ -4,7 +4,7 @@ import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { type DbtlabsUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
@@ -35,13 +35,13 @@ export const synchronizeUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        serviceToken: Organisation.serviceToken,
-        accountId: Organisation.accountId,
-        accessUrl: Organisation.accessUrl,
-        region: Organisation.region,
+        serviceToken: organisationsTable.serviceToken,
+        accountId: organisationsTable.accountId,
+        accessUrl: organisationsTable.accessUrl,
+        region: organisationsTable.region,
       })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisationId));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }

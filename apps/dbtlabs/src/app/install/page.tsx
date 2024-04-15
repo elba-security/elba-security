@@ -56,9 +56,7 @@ function InstructionItems({
           <span className={styles.instructionText}>
             {index === 0 && active === '1' ? (
               <span>
-                In this{' '}
-                <a href="https://us1.dbt.com/" rel="noopener noreferrer" target="_blank">
-                  link
+                In this <a href="https://us1.dbt.com/" rel="noopener noreferrer" target="_blank"> link
                 </a>
                 {item}.
               </span>

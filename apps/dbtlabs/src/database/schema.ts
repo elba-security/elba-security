@@ -1,6 +1,6 @@
 import { uuid, text, pgTable } from 'drizzle-orm/pg-core';
 
-export const Organisation = pgTable('organisation', {
+export const organisationsTable = pgTable('organisations', {
   id: uuid('id').primaryKey(),
   accountId: text('accountId').notNull(),
   serviceToken: text('serviceToken').notNull(),

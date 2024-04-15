@@ -9,13 +9,7 @@ export const env = z
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     ENCRYPTION_KEY: z.string().min(1),
     DATABASE_URL: z.string().min(1),
-    DATABASE_HOST: z.string().min(1),
-    DATABASE_PORT: z.coerce.number().int().positive(),
-    DATABASE_USER: z.string().min(1),
-    DATABASE_PASSWORD: z.string().min(1),
-    DATABASE_DATABASE: z.string().min(1),
     DATABASE_PROXY_PORT: z.coerce.number().int().positive(),
-    VERCEL_PREFERRED_REGION: z.string().min(1),
     VERCEL_ENV: z.string().min(1).optional(),
     USERS_SYNC_CRON: z.string(),
   })

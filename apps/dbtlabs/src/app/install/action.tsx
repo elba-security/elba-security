@@ -59,5 +59,9 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
     return {
       redirectUrl: `${env.ELBA_REDIRECT_URL}?source_id=${env.ELBA_SOURCE_ID}&error=internal_error`,
     };
+
+    return {
+      redirectUrl: '/',
+    };
   }
 };

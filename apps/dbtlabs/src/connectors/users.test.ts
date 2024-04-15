@@ -3,7 +3,7 @@
 
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
-import { server } from '../../vitest/setup-msw-handlers';
+import { server } from '@elba-security/test-utils';
 import { type DbtlabsUser, getUsers } from './users';
 import { DbtlabsError } from './commons/error';
 
