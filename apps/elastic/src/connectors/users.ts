@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { env } from '@/env';
-import { getElasticApiClient } from '@/common/apiclient';
 import { ElasticError } from './commons/error';
 
 const elasticUserSchema = z.object({
@@ -56,9 +55,19 @@ export const getUsers = async ({ apiKey, accountId, afterToken }: GetUsersParams
     endpoint.searchParams.append('from', String(afterToken));
   }
 
-  const elasticApiClient = getElasticApiClient();
+  const response = await fetch(endpoint.toString(), {
+    method: 'GET',
+    headers: {
+      Authorization: `ApiKey ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+  });
 
-  const resData: unknown = await elasticApiClient.get(endpoint.toString(), apiKey);
+  if (!response.ok) {
+    throw new ElasticError('API request failed', { response });
+  }
+
+  const resData: unknown = await response.json();
 
   const { members, from } = elasticResponseSchema.parse(resData);
 
@@ -82,13 +91,21 @@ export const getUsers = async ({ apiKey, accountId, afterToken }: GetUsersParams
 };
 
 export const getAccountId = async ({ apiKey }: GetAccountsParams) => {
-  const elasticApiClient = getElasticApiClient();
   const endpoint = `${env.ELASTIC_API_BASE_URL}organizations`;
 
-  const { organizations: accounts } = (await elasticApiClient.get(
-    endpoint,
-    apiKey
-  )) as GetAccountIdResponseData;
+  const response = await fetch(endpoint.toString(), {
+    method: 'GET',
+    headers: {
+      Authorization: `ApiKey ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new ElasticError('API request failed', { response });
+  }
+
+  const { organizations: accounts } = (await response.json()) as GetAccountIdResponseData;
 
   if (!accounts[0]) {
     throw new ElasticError('Could not retrieve account id');
