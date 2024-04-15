@@ -3,15 +3,17 @@ import type { NeonDatabase } from 'drizzle-orm/neon-serverless';
 import { drizzle as drizzleNeonServerless } from 'drizzle-orm/neon-serverless';
 import { drizzle as drizzleNeonHttp } from 'drizzle-orm/neon-http';
 import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { env } from '@/env';
+import type { InferSelectModel } from 'drizzle-orm';
+import { env } from '../env';
 
 export const organisationsTable = pgTable('organisations', {
   id: uuid('id').primaryKey(),
   region: text('region').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  tenantId: text('tenant_id').notNull(),
   token: text('token').notNull(),
 });
+
+export type Organisation = InferSelectModel<typeof organisationsTable>;
 
 const schema = { organisationsTable };
 
