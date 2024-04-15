@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { logger } from '@elba-security/logger';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { env } from '@/env';
@@ -9,16 +8,25 @@ import { decrypt } from '@/common/crypto';
 import { getMessages } from '@/connectors/microsoft/messages/messages';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
+import { chunkObjects } from '@/common/utils';
 
 export const syncMessages = inngest.createFunction(
   {
     id: 'sync-messages',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
+    },
+    onFailure: async ({ event, step }) => {
+      const { organisationId, channelId } = event.data.event.data;
+
+      await step.sendEvent('messages-sync-complete', {
+        name: 'teams/messages.sync.completed',
+        data: {
+          channelId,
+          organisationId,
+        },
+      });
     },
     cancelOn: [
       {
@@ -29,7 +37,7 @@ export const syncMessages = inngest.createFunction(
     retries: env.MESSAGES_SYNC_MAX_RETRY,
   },
   { event: 'teams/messages.sync.triggered' },
-  async ({ event, step }) => {
+  async ({ event, step, logger }) => {
     const { organisationId, teamId, skipToken, channelId, channelName, membershipType } =
       event.data;
 
@@ -46,71 +54,100 @@ export const syncMessages = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const { nextSkipToken, validMessages: messages } = await step.run('paginate', async () => {
-      const result = await getMessages({
+    const { nextSkipToken, syncedMessages } = await step.run('paginate', async () => {
+      const messages = await getMessages({
         token: await decrypt(organisation.token),
         teamId,
         skipToken,
         channelId,
       });
 
-      if (result.invalidMessages.length > 0) {
+      if (messages.invalidMessages.length > 0) {
         logger.warn('Retrieved messages contains invalid data', {
           organisationId,
           tenantId: organisation.tenantId,
-          invalidMessages: result.invalidMessages,
+          invalidMessages: messages.invalidMessages,
         });
       }
 
-      return result;
-    });
+      const filterMessages = messages.validMessages.filter(
+        (message) => message.messageType === 'message'
+      );
 
-    const elbaClient = createElbaClient(organisationId, organisation.region);
+      const elbaClient = createElbaClient(organisationId, organisation.region);
 
-    await step.run('elba-data-sync', async () => {
-      if (!messages.length) {
-        return;
+      if (filterMessages.length) {
+        const formatObjects = filterMessages
+          .flatMap((message) => [
+            { ...message, messageId: message.id },
+            ...message.replies.map((reply) => ({
+              ...reply,
+              replyId: reply.id,
+              messageId: message.id,
+            })),
+          ])
+          .map((message) => {
+            return formatDataProtectionObject({
+              teamId,
+              messageId: message.messageId,
+              channelId,
+              channelName,
+              organisationId,
+              membershipType,
+              replyId: 'replyId' in message ? message.replyId : undefined,
+              message,
+            });
+          });
+
+        const chunkedArray = chunkObjects(formatObjects, 1000);
+
+        await Promise.all(
+          chunkedArray.map((objects) => elbaClient.dataProtection.updateObjects({ objects }))
+        );
       }
 
-      const objects = messages.map((message) => {
-        return formatDataProtectionObject({
-          teamId,
-          messageId: message.id,
-          channelId,
-          channelName,
-          organisationId,
-          membershipType,
-          message,
-        });
-      });
+      const selectedMessagesFields = filterMessages.map((message) => ({
+        id: message.id,
+        'replies@odata.nextLink': message['replies@odata.nextLink'],
+      }));
 
-      await elbaClient.dataProtection.updateObjects({ objects });
+      return { nextSkipToken: messages.nextSkipToken, syncedMessages: selectedMessagesFields };
     });
 
-    if (messages.length) {
-      const eventsWait = messages.map(async ({ id }) => {
+    if (syncedMessages.length) {
+      const messagesToSyncReplies = syncedMessages.filter((message) =>
+        Boolean(message['replies@odata.nextLink'])
+      );
+
+      const eventsWait = messagesToSyncReplies.map(async ({ id }) => {
         return step.waitForEvent(`wait-for-replies-complete-${id}`, {
           event: 'teams/replies.sync.completed',
           timeout: '1d',
-
           if: `async.data.organisationId == '${organisationId}' && async.data.messageId == '${id}'`,
         });
       });
 
-      await step.sendEvent(
-        'start-replies-sync',
-        messages.map(({ id }) => ({
-          name: 'teams/replies.sync.triggered',
-          data: {
-            messageId: id,
-            channelId,
-            organisationId,
-            teamId,
-            channelName,
-            membershipType,
-          },
-        }))
-      );
+      if (messagesToSyncReplies.length) {
+        await step.sendEvent(
+          'start-replies-sync',
+          messagesToSyncReplies.map((message) => {
+            const urlParams = new URLSearchParams(message['replies@odata.nextLink']?.split('$')[1]);
+
+            return {
+              name: 'teams/replies.sync.triggered',
+              data: {
+                messageId: message.id,
+                channelId,
+                organisationId,
+                teamId,
+                channelName,
+                membershipType,
+                skipToken: urlParams.get('skipToken'),
+              },
+            };
+          })
+        );
+      }
 
       await Promise.all(eventsWait);
     }
@@ -128,6 +165,7 @@ export const syncMessages = inngest.createFunction(
         status: 'ongoing',
       };
     }
+
     await step.sendEvent('messages-sync-complete', {
       name: 'teams/messages.sync.completed',
       data: {

@@ -3,7 +3,7 @@ import { afterAll, afterEach, describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
 import * as messageConnector from '@/connectors/microsoft/messages/messages';
 import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { channelsTable, organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import type { MicrosoftMessage } from '@/connectors/microsoft/types';
 import type { MessageMetadata } from '@/connectors/elba/data-protection/metadata';
@@ -13,6 +13,7 @@ import { convertISOToDate } from '@/connectors/elba/data-protection/object';
 const token = 'token';
 const startSkipToken = 'start-skip-token';
 const nextSkipToken = 'next-skip-token';
+const repliesSkipToken = 'MSwwLDE3MTE0NDI3MTE1MTI';
 const encryptedToken = await encrypt(token);
 const membershipType = Math.random() > 0.5 ? 'standard' : 'shared';
 
@@ -51,9 +52,31 @@ function createValidMessagesArray() {
         user: {
           id: `user-id-${i}`,
         },
+        application: null,
       },
       messageType: 'message',
       type: 'message',
+      'replies@odata.nextLink': `https://graph.microsoft-api-test-url.com/v1.0/teams('team-id-${i}')/channels('channel-id-${i}')/messages('message-id-${i}')/replies?$skipToken=${repliesSkipToken}`,
+      replies: [
+        {
+          id: `reply-id-${i}`,
+          webUrl: `http://wb.uk-${i}.com`,
+          etag: `122123213`,
+          createdDateTime: '2023-03-28T21:11:12.395Z',
+          lastEditedDateTime: '2024-02-28T21:11:12.395Z',
+          messageType: 'message',
+          body: {
+            content: `content-${i}`,
+          },
+          from: {
+            user: {
+              id: `user-id-${i}`,
+            },
+            application: null,
+          },
+          type: 'reply',
+        },
+      ],
     };
     objectsArray.push(obj);
   }
@@ -73,6 +96,147 @@ const invalidMessages = [
   },
 ];
 
+const objects = {
+  objects: [
+    {
+      id: `${data.organisationId}:message-id-0`,
+      name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
+      metadata: {
+        teamId: data.teamId,
+        organisationId: data.organisationId,
+        channelId: data.channelId,
+        messageId: 'message-id-0',
+        replyId: undefined,
+        type: 'message',
+      } satisfies MessageMetadata,
+      updatedAt: '2024-02-28T21:11:12.395Z',
+      ownerId: 'user-id-0',
+      permissions: [
+        membershipType === 'shared'
+          ? {
+              type: 'anyone',
+              id: 'anyone',
+            }
+          : {
+              type: 'domain',
+              id: 'domain',
+            },
+      ],
+      url: 'http://wb.uk-0.com',
+      contentHash: '122123213',
+    },
+    {
+      id: `${data.organisationId}:reply-id-0`,
+      name: '#channel-name - 2023-03-28',
+      metadata: {
+        teamId: 'team-id-123',
+        organisationId: data.organisationId,
+        channelId: 'channel-id-234',
+        messageId: 'message-id-0',
+        type: 'reply',
+        replyId: 'reply-id-0',
+      },
+      updatedAt: '2024-02-28T21:11:12.395Z',
+      ownerId: 'user-id-0',
+      permissions: [
+        membershipType === 'shared'
+          ? {
+              type: 'anyone',
+              id: 'anyone',
+            }
+          : {
+              type: 'domain',
+              id: 'domain',
+            },
+      ],
+      url: 'http://wb.uk-0.com',
+      contentHash: '122123213',
+    },
+    {
+      id: `${data.organisationId}:message-id-1`,
+      name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
+      metadata: {
+        teamId: data.teamId,
+        organisationId: data.organisationId,
+        channelId: data.channelId,
+        messageId: 'message-id-1',
+        replyId: undefined,
+        type: 'message',
+      } satisfies MessageMetadata,
+      updatedAt: '2024-02-28T21:11:12.395Z',
+      ownerId: 'user-id-1',
+      permissions: [
+        membershipType === 'shared'
+          ? {
+              type: 'anyone',
+              id: 'anyone',
+            }
+          : {
+              type: 'domain',
+              id: 'domain',
+            },
+      ],
+      url: 'http://wb.uk-1.com',
+      contentHash: '122123213',
+    },
+
+    {
+      id: `${data.organisationId}:reply-id-1`,
+      name: '#channel-name - 2023-03-28',
+      metadata: {
+        teamId: 'team-id-123',
+        organisationId: data.organisationId,
+        channelId: 'channel-id-234',
+        messageId: 'message-id-1',
+        type: 'reply',
+        replyId: 'reply-id-1',
+      },
+      updatedAt: '2024-02-28T21:11:12.395Z',
+      ownerId: 'user-id-1',
+      permissions: [
+        membershipType === 'shared'
+          ? {
+              type: 'anyone',
+              id: 'anyone',
+            }
+          : {
+              type: 'domain',
+              id: 'domain',
+            },
+      ],
+      url: 'http://wb.uk-1.com',
+      contentHash: '122123213',
+    },
+  ],
+};
+
+const repliesSyncData = [
+  {
+    data: {
+      messageId: 'message-id-0',
+      organisationId: organisation.id,
+      channelId: data.channelId,
+      teamId: data.teamId,
+      channelName: data.channelName,
+      membershipType,
+      skipToken: repliesSkipToken,
+    },
+    name: 'teams/replies.sync.triggered',
+  },
+  {
+    data: {
+      messageId: 'message-id-1',
+      organisationId: organisation.id,
+      channelId: data.channelId,
+      teamId: data.teamId,
+      channelName: data.channelName,
+      membershipType,
+      skipToken: repliesSkipToken,
+    },
+    name: 'teams/replies.sync.triggered',
+  },
+];
+
 describe('sync-messages', () => {
   afterEach(() => {
     vi.resetAllMocks();
@@ -82,7 +246,7 @@ describe('sync-messages', () => {
     vi.resetModules();
   });
 
-  test('should abort sync when organisation is not registered', async () => {
+  test('should abort the sync when the organisation is not registered', async () => {
     const getMessages = vi.spyOn(messageConnector, 'getMessages').mockResolvedValue({
       nextSkipToken,
       validMessages,
@@ -99,6 +263,13 @@ describe('sync-messages', () => {
 
   test('should continue the sync when there is a next page', async () => {
     await db.insert(organisationsTable).values(organisation);
+    await db.insert(channelsTable).values({
+      id: `${organisation.id}:${data.channelId}`,
+      membershipType: 'standard',
+      displayName: 'channel',
+      organisationId: organisation.id,
+      channelId: data.channelId,
+    });
 
     const elba = spyOnElba();
 
@@ -116,62 +287,7 @@ describe('sync-messages', () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
-    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith({
-      objects: [
-        {
-          id: 'message-id-0',
-          name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
-          metadata: {
-            teamId: data.teamId,
-            organisationId: data.organisationId,
-            channelId: data.channelId,
-            messageId: 'message-id-0',
-            type: 'message',
-          } satisfies MessageMetadata,
-          updatedAt: '2024-02-28T21:11:12.395Z',
-          ownerId: 'user-id-0',
-          permissions: [
-            membershipType === 'shared'
-              ? {
-                  type: 'anyone',
-                  id: 'anyone',
-                }
-              : {
-                  type: 'domain',
-                  id: 'domain',
-                },
-          ],
-          url: 'http://wb.uk-0.com',
-          contentHash: '122123213',
-        },
-        {
-          id: 'message-id-1',
-          name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
-          metadata: {
-            teamId: data.teamId,
-            organisationId: data.organisationId,
-            channelId: data.channelId,
-            messageId: 'message-id-1',
-            type: 'message',
-          } satisfies MessageMetadata,
-          updatedAt: '2024-02-28T21:11:12.395Z',
-          ownerId: 'user-id-1',
-          permissions: [
-            membershipType === 'shared'
-              ? {
-                  type: 'anyone',
-                  id: 'anyone',
-                }
-              : {
-                  type: 'domain',
-                  id: 'domain',
-                },
-          ],
-          url: 'http://wb.uk-1.com',
-          contentHash: '122123213',
-        },
-      ],
-    });
+    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith(objects);
 
     expect(getMessages).toBeCalledTimes(1);
     expect(getMessages).toBeCalledWith({
@@ -195,38 +311,23 @@ describe('sync-messages', () => {
     });
 
     expect(step.sendEvent).toBeCalledTimes(2);
-    expect(step.sendEvent).toBeCalledWith('start-replies-sync', [
-      {
-        data: {
-          messageId: 'message-id-0',
-          organisationId: organisation.id,
-          channelId: data.channelId,
-          teamId: data.teamId,
-          channelName: data.channelName,
-          membershipType,
-        },
-        name: 'teams/replies.sync.triggered',
-      },
-      {
-        data: {
-          messageId: 'message-id-1',
-          organisationId: organisation.id,
-          channelId: data.channelId,
-          teamId: data.teamId,
-          channelName: data.channelName,
-          membershipType,
-        },
-        name: 'teams/replies.sync.triggered',
-      },
-    ]);
+    expect(step.sendEvent).toBeCalledWith('start-replies-sync', repliesSyncData);
     expect(step.sendEvent).toBeCalledWith('sync-next-messages-page', {
       name: 'teams/messages.sync.triggered',
       data: { ...data, skipToken: nextSkipToken },
     });
   });
 
-  test('should finalize the sync when there is a no next page', async () => {
+  test('should finalize the sync when there is no next page', async () => {
     await db.insert(organisationsTable).values(organisation);
+    await db.insert(channelsTable).values({
+      id: `${organisation.id}:${data.channelId}`,
+      membershipType: 'standard',
+      displayName: 'channel',
+      organisationId: organisation.id,
+      channelId: data.channelId,
+    });
+
     const elba = spyOnElba();
     const getMessages = vi.spyOn(messageConnector, 'getMessages').mockResolvedValue({
       nextSkipToken: null,
@@ -241,62 +342,7 @@ describe('sync-messages', () => {
     const elbaInstance = elba.mock.results.at(0)?.value;
 
     expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
-    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith({
-      objects: [
-        {
-          id: 'message-id-0',
-          name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
-          metadata: {
-            teamId: data.teamId,
-            organisationId: data.organisationId,
-            channelId: data.channelId,
-            messageId: 'message-id-0',
-            type: 'message',
-          } satisfies MessageMetadata,
-          updatedAt: '2024-02-28T21:11:12.395Z',
-          ownerId: 'user-id-0',
-          permissions: [
-            membershipType === 'shared'
-              ? {
-                  type: 'anyone',
-                  id: 'anyone',
-                }
-              : {
-                  type: 'domain',
-                  id: 'domain',
-                },
-          ],
-          url: 'http://wb.uk-0.com',
-          contentHash: '122123213',
-        },
-        {
-          id: 'message-id-1',
-          name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
-          metadata: {
-            teamId: data.teamId,
-            organisationId: data.organisationId,
-            channelId: data.channelId,
-            messageId: 'message-id-1',
-            type: 'message',
-          } satisfies MessageMetadata,
-          updatedAt: '2024-02-28T21:11:12.395Z',
-          ownerId: 'user-id-1',
-          permissions: [
-            membershipType === 'shared'
-              ? {
-                  type: 'anyone',
-                  id: 'anyone',
-                }
-              : {
-                  type: 'domain',
-                  id: 'domain',
-                },
-          ],
-          url: 'http://wb.uk-1.com',
-          contentHash: '122123213',
-        },
-      ],
-    });
+    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith(objects);
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
     expect(getMessages).toBeCalledTimes(1);
@@ -321,30 +367,7 @@ describe('sync-messages', () => {
     });
 
     expect(step.sendEvent).toBeCalledTimes(2);
-    expect(step.sendEvent).toBeCalledWith('start-replies-sync', [
-      {
-        data: {
-          messageId: 'message-id-0',
-          organisationId: organisation.id,
-          channelId: data.channelId,
-          teamId: data.teamId,
-          channelName: data.channelName,
-          membershipType,
-        },
-        name: 'teams/replies.sync.triggered',
-      },
-      {
-        data: {
-          messageId: 'message-id-1',
-          organisationId: organisation.id,
-          channelId: data.channelId,
-          teamId: data.teamId,
-          channelName: data.channelName,
-          membershipType,
-        },
-        name: 'teams/replies.sync.triggered',
-      },
-    ]);
+    expect(step.sendEvent).toBeCalledWith('start-replies-sync', repliesSyncData);
 
     expect(step.sendEvent).toBeCalledWith('messages-sync-complete', {
       name: 'teams/messages.sync.completed',

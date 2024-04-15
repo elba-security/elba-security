@@ -1,12 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
-
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
+import { server } from '@elba-security/test-utils';
 import { env } from '@/env';
 import type { MicrosoftTeam } from '@/connectors/microsoft/teams/teams';
 import { getTeams } from '@/connectors/microsoft/teams/teams';
-import { server } from '../../../../vitest/setup-msw-handlers';
 import { MicrosoftError } from '../commons/error';
 
 const validToken = 'token-1234';
@@ -60,16 +57,18 @@ describe('getTeams', () => {
         const nextPageUrl = new URL(url);
         nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
 
-        return Response.json({
-          '@odata.nextLink':
-            skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
-          value: formatedTeams.slice(0, top ? Number(top) : 0),
-        });
+        return new Response(
+          JSON.stringify({
+            '@odata.nextLink':
+              skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
+            value: formatedTeams.slice(0, top ? Number(top) : 0),
+          })
+        );
       })
     );
   });
 
-  test('should return teams and nextSkipToken when the token is valid and their is another page', async () => {
+  test('should return teams and nextSkipToken when the token is valid and there is another page', async () => {
     await expect(getTeams({ token: validToken, skipToken: startSkipToken })).resolves.toStrictEqual(
       {
         nextSkipToken,
@@ -79,7 +78,7 @@ describe('getTeams', () => {
     );
   });
 
-  test('should return teams and no nextSkipToken when the token is valid and their is no other page', async () => {
+  test('should return teams and no nextSkipToken when the token is valid and there is no other page', async () => {
     await expect(getTeams({ token: validToken, skipToken: endSkipToken })).resolves.toStrictEqual({
       validTeams,
       invalidTeams,
@@ -87,7 +86,7 @@ describe('getTeams', () => {
     });
   });
 
-  test('should throws when the token is invalid', async () => {
+  test('should throw when the token is invalid', async () => {
     await expect(
       getTeams({ token: 'invalid-token', skipToken: endSkipToken })
     ).rejects.toBeInstanceOf(MicrosoftError);

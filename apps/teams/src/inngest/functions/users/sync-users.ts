@@ -1,7 +1,6 @@
 import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { logger } from '@elba-security/logger';
 import type { MicrosoftUser } from '@/connectors/microsoft/user/users';
 import { getUsers } from '@/connectors/microsoft/user/users';
 import { db } from '@/database/client';
@@ -37,7 +36,7 @@ export const syncUsers = inngest.createFunction(
     retries: env.USERS_SYNC_MAX_RETRY,
   },
   { event: 'teams/users.sync.triggered' },
-  async ({ event, step }) => {
+  async ({ event, step, logger }) => {
     const { organisationId, syncStartedAt, skipToken } = event.data;
 
     const [organisation] = await db

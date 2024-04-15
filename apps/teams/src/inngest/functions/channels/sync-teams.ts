@@ -1,12 +1,12 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { logger } from '@elba-security/logger';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { getTeams } from '@/connectors/microsoft/teams/teams';
+import { createElbaClient } from '@/connectors/elba/client';
 
 export const syncTeams = inngest.createFunction(
   {
@@ -27,8 +27,8 @@ export const syncTeams = inngest.createFunction(
     retries: env.TEAMS_SYNC_MAX_RETRY,
   },
   { event: 'teams/teams.sync.triggered' },
-  async ({ event, step }) => {
-    const { organisationId, skipToken } = event.data;
+  async ({ event, step, logger }) => {
+    const { organisationId, skipToken, syncStartedAt } = event.data;
 
     const [organisation] = await db
       .select({
@@ -43,25 +43,25 @@ export const syncTeams = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const { validTeams: teams, nextSkipToken } = await step.run('paginate', async () => {
-      const result = await getTeams({
+    const { validTeams, nextSkipToken } = await step.run('paginate', async () => {
+      const teams = await getTeams({
         token: await decrypt(organisation.token),
         skipToken,
       });
 
-      if (result.invalidTeams.length > 0) {
+      if (teams.invalidTeams.length > 0) {
         logger.warn('Retrieved teams contains invalid data', {
           organisationId,
           tenantId: organisation.tenantId,
-          invalidTeams: result.invalidTeams,
+          invalidTeams: teams.invalidTeams,
         });
       }
 
-      return result;
+      return teams;
     });
 
-    if (teams.length) {
-      const eventsWait = teams.map(async ({ id }) => {
+    if (validTeams.length) {
+      const eventsWait = validTeams.map(async ({ id }) => {
         return step.waitForEvent(`wait-for-channels-complete-${id}`, {
           event: 'teams/channels.sync.completed',
           timeout: '1d',
@@ -71,7 +71,7 @@ export const syncTeams = inngest.createFunction(
 
       await step.sendEvent(
         'start-channels-sync',
-        teams.map(({ id }) => ({
+        validTeams.map(({ id }) => ({
           name: 'teams/channels.sync.triggered',
           data: {
             teamId: id,
@@ -96,6 +96,9 @@ export const syncTeams = inngest.createFunction(
         status: 'ongoing',
       };
     }
+
+    const elbaClient = createElbaClient(organisationId, organisation.region);
+    await elbaClient.dataProtection.deleteObjects({ syncedBefore: syncStartedAt });
 
     return {
       status: 'completed',

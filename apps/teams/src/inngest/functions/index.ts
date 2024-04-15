@@ -4,6 +4,12 @@ import { syncUsers } from '@/inngest/functions/users/sync-users';
 import { syncChannels } from '@/inngest/functions/channels/sync-channels';
 import { syncMessages } from '@/inngest/functions/channels/sync-messages';
 import { syncReplies } from '@/inngest/functions/channels/sync-replies';
+import { subscribeToChannels } from '@/inngest/functions/subscriptions/subscription-to-channels';
+import { handleTeamsWebhookEvent } from '@/inngest/functions/teams/handle-team-webhook-event';
+import { subscribeToChannelMessage } from '@/inngest/functions/subscriptions/subscription-to-channel-messages';
+import { subscriptionRefresh } from '@/inngest/functions/subscriptions/subscription-refresh';
+import { refreshDataProtection } from '@/inngest/functions/data-protections/refresh-data-protection';
+import { syncTeamsSchedule } from '@/inngest/functions/channels/start-sync-schedule';
 import { refreshToken } from './tokens/refresh-token';
 
 export const inngestFunctions = [
@@ -14,4 +20,10 @@ export const inngestFunctions = [
   syncChannels,
   syncMessages,
   syncReplies,
+  subscribeToChannels,
+  subscriptionRefresh,
+  subscribeToChannelMessage,
+  handleTeamsWebhookEvent,
+  refreshDataProtection,
+  syncTeamsSchedule,
 ];

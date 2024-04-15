@@ -1,7 +1,16 @@
-import { EventSchemas, Inngest } from 'inngest';
+import { EventSchemas, type GetEvents, type GetFunctionInput, Inngest } from 'inngest';
 import { sentryMiddleware } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
+import type { WebhookPayload } from '@/app/api/webhooks/microsoft/event-handler/service';
+import type { MessageMetadata } from '@/connectors/elba/data-protection/metadata';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+
+type InngestClient = typeof inngest;
+
+export type GetInngestFunctionInput<T extends keyof GetEvents<InngestClient>> = GetFunctionInput<
+  InngestClient,
+  T
+>;
 
 export const inngest = new Inngest({
   id: 'teams',
@@ -14,7 +23,7 @@ export const inngest = new Inngest({
     'teams/token.refresh.triggered': {
       data: {
         organisationId: string;
-        expiresIn: number;
+        expiresAt: number;
       };
     };
     'teams/users.sync.triggered': {
@@ -29,6 +38,8 @@ export const inngest = new Inngest({
       data: {
         organisationId: string;
         skipToken: string | null;
+        syncStartedAt: string;
+        isFirstSync: boolean;
       };
     };
     'teams/channels.sync.triggered': {
@@ -74,6 +85,42 @@ export const inngest = new Inngest({
       data: {
         organisationId: string;
         messageId: string;
+      };
+    };
+    'teams/channels.subscription.triggered': {
+      data: {
+        organisationId: string;
+      };
+    };
+    'teams/channel.subscription.triggered': {
+      data: {
+        teamId: string;
+        channelId: string;
+        organisationId: string;
+        uniqueChannelInOrganisationId: string;
+      };
+    };
+    'teams/teams.webhook.event.received': {
+      data: {
+        payload: WebhookPayload;
+      };
+    };
+    'teams/subscription.refresh.triggered': {
+      data: {
+        subscriptionId: string;
+        organisationId: string;
+      };
+    };
+    'teams/data.protection.refresh.triggered': {
+      data: {
+        organisationId: string;
+        metadata: MessageMetadata;
+      };
+    };
+    'teams/data.protection.delete.triggered': {
+      data: {
+        organisationId: string;
+        metadata: MessageMetadata;
       };
     };
   }>(),

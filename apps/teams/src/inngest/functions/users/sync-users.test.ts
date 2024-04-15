@@ -24,7 +24,7 @@ const users: MicrosoftUser[] = Array.from({ length: 5 }, (_, i) => ({
   mail: `user-${i}@foo.bar`,
   userPrincipalName: `user-${i}`,
   displayName: `user ${i}`,
-  userType: 'Member',
+  userType: 'member',
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'teams/users.sync.triggered');
@@ -113,7 +113,7 @@ describe('sync-users', () => {
     });
   });
 
-  test('should finalize the sync when there is a no next page', async () => {
+  test('should finalize the sync when there is no next page', async () => {
     const nextSkipToken = null;
     const skipToken = 'skip-token';
     const elba = spyOnElba();

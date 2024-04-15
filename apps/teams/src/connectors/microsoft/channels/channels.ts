@@ -12,9 +12,13 @@ const channelSchema = z.object({
 
 export type MicrosoftChannel = z.infer<typeof channelSchema>;
 
-export type GetChannelsParams = {
+type GetChannelsParams = {
   token: string;
   teamId: string;
+};
+
+type GetChannelParams = GetChannelsParams & {
+  channelId: string;
 };
 
 export const getChannels = async ({ token, teamId }: GetChannelsParams) => {
@@ -30,10 +34,10 @@ export const getChannels = async ({ token, teamId }: GetChannelsParams) => {
   });
 
   if (!response.ok) {
-    throw new MicrosoftError('Could not retrieve channel', { response });
+    throw new MicrosoftError('Could not retrieve channels', { response });
   }
 
-  const data = (await response.json()) as MicrosoftPaginatedResponse<unknown>;
+  const data = (await response.json()) as MicrosoftPaginatedResponse<object>;
 
   const validChannels: MicrosoftChannel[] = [];
   const invalidChannels: unknown[] = [];
@@ -48,4 +52,30 @@ export const getChannels = async ({ token, teamId }: GetChannelsParams) => {
   }
 
   return { validChannels, invalidChannels };
+};
+
+export const getChannel = async ({ token, teamId, channelId }: GetChannelParams) => {
+  const url = new URL(`${env.MICROSOFT_API_URL}/teams/${teamId}/channels/${channelId}`);
+  url.searchParams.append('$select', 'id,membershipType,webUrl,displayName');
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Prefer: 'include-unknown-enum-members',
+    },
+  });
+
+  if (!response.ok) {
+    throw new MicrosoftError('Could not retrieve channel', { response });
+  }
+
+  const data = (await response.json()) as object;
+
+  const result = channelSchema.safeParse(data);
+
+  if (!result.success) {
+    return null;
+  }
+
+  return result.data;
 };

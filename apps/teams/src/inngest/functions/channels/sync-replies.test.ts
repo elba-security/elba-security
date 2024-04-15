@@ -6,7 +6,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { syncReplies } from '@/inngest/functions/channels/sync-replies';
-import type { MicrosoftMessage } from '@/connectors/microsoft/types';
+import type { MicrosoftReply } from '@/connectors/microsoft/types';
 import type { MessageMetadata } from '@/connectors/elba/data-protection/metadata';
 import { convertISOToDate } from '@/connectors/elba/data-protection/object';
 
@@ -36,11 +36,11 @@ const data = {
 };
 
 function createValidRepliesArray() {
-  const objectsArray: MicrosoftMessage[] = [];
+  const objectsArray: MicrosoftReply[] = [];
 
   for (let i = 0; i < 2; i++) {
-    const obj: MicrosoftMessage = {
-      id: `message-id-${i}`,
+    const obj: MicrosoftReply = {
+      id: `reply-id-${i}`,
       webUrl: `http://wb.uk-${i}.com`,
       etag: `122123213`,
       createdDateTime: '2023-03-28T21:11:12.395Z',
@@ -53,6 +53,7 @@ function createValidRepliesArray() {
         user: {
           id: `user-id-${i}`,
         },
+        application: null,
       },
       type: 'reply',
     };
@@ -75,8 +76,67 @@ const invalidReplies = [
   },
 ];
 
+const objects = {
+  objects: [
+    {
+      id: `${data.organisationId}:reply-id-0`,
+      name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
+      metadata: {
+        teamId: data.teamId,
+        organisationId: data.organisationId,
+        channelId: data.channelId,
+        messageId: data.messageId,
+        replyId: 'reply-id-0',
+        type: 'reply',
+      } satisfies MessageMetadata,
+      updatedAt: '2024-02-28T21:11:12.395Z',
+      ownerId: 'user-id-0',
+      permissions: [
+        membershipType === 'shared'
+          ? {
+              type: 'anyone',
+              id: 'anyone',
+            }
+          : {
+              type: 'domain',
+              id: 'domain',
+            },
+      ],
+      url: 'http://wb.uk-0.com',
+      contentHash: '122123213',
+    },
+    {
+      id: `${data.organisationId}:reply-id-1`,
+      name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
+      metadata: {
+        teamId: data.teamId,
+        organisationId: data.organisationId,
+        channelId: data.channelId,
+        messageId: data.messageId,
+        replyId: 'reply-id-1',
+        type: 'reply',
+      } satisfies MessageMetadata,
+      updatedAt: '2024-02-28T21:11:12.395Z',
+      ownerId: 'user-id-1',
+      permissions: [
+        membershipType === 'shared'
+          ? {
+              type: 'anyone',
+              id: 'anyone',
+            }
+          : {
+              type: 'domain',
+              id: 'domain',
+            },
+      ],
+      url: 'http://wb.uk-1.com',
+      contentHash: '122123213',
+    },
+  ],
+};
+
 describe('sync-channels', () => {
-  test('should abort sync when organisation is not registered', async () => {
+  test('should abort the sync when the organisation is not registered', async () => {
     const getReplies = vi.spyOn(replyConnector, 'getReplies').mockResolvedValue({
       nextSkipToken,
       validReplies,
@@ -110,62 +170,7 @@ describe('sync-channels', () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
-    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith({
-      objects: [
-        {
-          id: data.messageId,
-          name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
-          metadata: {
-            teamId: data.teamId,
-            organisationId: data.organisationId,
-            channelId: data.channelId,
-            messageId: data.messageId,
-            type: 'reply',
-          } satisfies MessageMetadata,
-          updatedAt: '2024-02-28T21:11:12.395Z',
-          ownerId: 'user-id-0',
-          permissions: [
-            membershipType === 'shared'
-              ? {
-                  type: 'anyone',
-                  id: 'anyone',
-                }
-              : {
-                  type: 'domain',
-                  id: 'domain',
-                },
-          ],
-          url: 'http://wb.uk-0.com',
-          contentHash: '122123213',
-        },
-        {
-          id: data.messageId,
-          name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
-          metadata: {
-            teamId: data.teamId,
-            organisationId: data.organisationId,
-            channelId: data.channelId,
-            messageId: data.messageId,
-            type: 'reply',
-          } satisfies MessageMetadata,
-          updatedAt: '2024-02-28T21:11:12.395Z',
-          ownerId: 'user-id-1',
-          permissions: [
-            membershipType === 'shared'
-              ? {
-                  type: 'anyone',
-                  id: 'anyone',
-                }
-              : {
-                  type: 'domain',
-                  id: 'domain',
-                },
-          ],
-          url: 'http://wb.uk-1.com',
-          contentHash: '122123213',
-        },
-      ],
-    });
+    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith(objects);
 
     expect(getReplies).toBeCalledTimes(1);
     expect(getReplies).toBeCalledWith({
@@ -183,7 +188,7 @@ describe('sync-channels', () => {
     });
   });
 
-  test('should finalize the sync when there is a no next page', async () => {
+  test('should finalize the sync when there is no next page', async () => {
     await db.insert(organisationsTable).values(organisation);
 
     const elba = spyOnElba();
@@ -201,62 +206,7 @@ describe('sync-channels', () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
-    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith({
-      objects: [
-        {
-          id: data.messageId,
-          name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
-          metadata: {
-            teamId: data.teamId,
-            organisationId: data.organisationId,
-            channelId: data.channelId,
-            messageId: data.messageId,
-            type: 'reply',
-          } satisfies MessageMetadata,
-          updatedAt: '2024-02-28T21:11:12.395Z',
-          ownerId: 'user-id-0',
-          permissions: [
-            membershipType === 'shared'
-              ? {
-                  type: 'anyone',
-                  id: 'anyone',
-                }
-              : {
-                  type: 'domain',
-                  id: 'domain',
-                },
-          ],
-          url: 'http://wb.uk-0.com',
-          contentHash: '122123213',
-        },
-        {
-          id: data.messageId,
-          name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
-          metadata: {
-            teamId: data.teamId,
-            organisationId: data.organisationId,
-            channelId: data.channelId,
-            messageId: data.messageId,
-            type: 'reply',
-          } satisfies MessageMetadata,
-          updatedAt: '2024-02-28T21:11:12.395Z',
-          ownerId: 'user-id-1',
-          permissions: [
-            membershipType === 'shared'
-              ? {
-                  type: 'anyone',
-                  id: 'anyone',
-                }
-              : {
-                  type: 'domain',
-                  id: 'domain',
-                },
-          ],
-          url: 'http://wb.uk-1.com',
-          contentHash: '122123213',
-        },
-      ],
-    });
+    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith(objects);
 
     expect(getReplies).toBeCalledTimes(1);
     expect(getReplies).toBeCalledWith({

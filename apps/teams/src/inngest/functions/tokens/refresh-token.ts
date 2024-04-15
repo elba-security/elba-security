@@ -5,9 +5,9 @@ import { subMinutes } from 'date-fns/subMinutes';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getToken } from '@/connectors/microsoft/auth/auth';
 import { env } from '@/env';
 import { encrypt } from '@/common/crypto';
+import { getToken } from '@/connectors/microsoft/auth/auth';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -26,35 +26,39 @@ export const refreshToken = inngest.createFunction(
   },
   { event: 'teams/token.refresh.triggered' },
   async ({ event, step }) => {
-    const { organisationId, expiresIn } = event.data;
+    const { organisationId, expiresAt } = event.data;
 
-    await step.sleepUntil('wait', subMinutes(addSeconds(new Date(), expiresIn), 5));
+    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 30));
 
-    const [organisation] = await db
-      .select({
-        tenantId: organisationsTable.tenantId,
-      })
-      .from(organisationsTable)
-      .where(and(eq(organisationsTable.id, organisationId)));
+    const nextExpiresAt = await step.run('refresh-token', async () => {
+      const [organisation] = await db
+        .select({
+          tenantId: organisationsTable.tenantId,
+        })
+        .from(organisationsTable)
+        .where(and(eq(organisationsTable.id, organisationId)));
 
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
+      if (!organisation) {
+        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+      }
 
-    const { token } = await getToken(organisation.tenantId);
+      const { token, expiresIn } = await getToken(organisation.tenantId);
 
-    const encodedToken = await encrypt(token);
+      const encodedToken = await encrypt(token);
 
-    await db
-      .update(organisationsTable)
-      .set({ token: encodedToken })
-      .where(eq(organisationsTable.id, organisationId));
+      await db
+        .update(organisationsTable)
+        .set({ token: encodedToken })
+        .where(eq(organisationsTable.id, organisationId));
+
+      return addSeconds(new Date(), expiresIn).getTime();
+    });
 
     await step.sendEvent('schedule-token-refresh', {
       name: 'teams/token.refresh.triggered',
       data: {
         organisationId,
-        expiresIn,
+        expiresAt: new Date(nextExpiresAt).getTime(),
       },
     });
   }
