@@ -1,10 +1,10 @@
 import { expect, test, describe, vi } from 'vitest';
-import { createInngestFunctionMock } from '@elba-security/test-utils';
+import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { deleteLivestormUser } from './delete.user';
+import { deleteLivestormUser } from './delete-user';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
@@ -21,6 +21,7 @@ describe('delete-user-request', () => {
     const [result, { step }] = setup({
       id: userId,
       organisationId: organisation.id,
+      region: organisation.region,
     });
     // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -31,13 +32,22 @@ describe('delete-user-request', () => {
 
   test('should continue the request when the organization is registered', async () => {
     // setup the test with an organisation
+    const elba = spyOnElba();
     await db.insert(Organisation).values(organisation);
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     const [result] = setup({
       id: userId,
       organisationId: organisation.id,
+      region: organisation.region,
     });
     await expect(result).resolves.toBeUndefined();
+    expect(elba).toBeCalledTimes(1);
+    expect(elba).toBeCalledWith({
+      apiKey: 'elba-api-key',
+      baseUrl: 'https://elba.local/api',
+      organisationId: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+      region: 'us',
+    });
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     expect(usersConnector.deleteUser).toBeCalledWith(organisation.token, userId);
   });

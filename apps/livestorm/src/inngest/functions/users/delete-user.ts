@@ -19,12 +19,15 @@ export const deleteLivestormUser = inngest.createFunction(
     event: 'livestorm/users.delete.requested',
   },
   async ({ event, step }) => {
-    const { id, organisationId } = event.data;
+    const { id, organisationId, region } = event.data as {
+      id: string;
+      organisationId: string;
+      region: string;
+    };
     const organisation = await step.run('get-organisation', async () => {
       const [row] = await db
         .select({
           token: Organisation.token,
-          region: Organisation.region,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -38,7 +41,7 @@ export const deleteLivestormUser = inngest.createFunction(
       organisationId,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
-      region: organisation.region,
+      region,
     });
     await step.run('delete-user', async () => {
       await deleteUser(organisation.token, id);

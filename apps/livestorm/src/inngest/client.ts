@@ -15,15 +15,17 @@ export const inngest = new Inngest({
         page: number | null;
       };
     };
-    'livestorm/elba_app.uninstalled': {
+    'livestorm/app.uninstalled': {
       data: {
         organisationId: string;
+        region: string;
       };
     };
     'livestorm/users.delete.requested': {
       data: {
         id: string;
         organisationId: string;
+        region: string;
       };
     };
   }>(),

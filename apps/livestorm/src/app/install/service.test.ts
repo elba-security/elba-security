@@ -4,6 +4,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as userConnector from '@/connectors/users';
+import * as crypto from '@/common/crypto';
 import { registerOrganisation } from './service';
 
 const token = 'test-token';
@@ -51,6 +52,7 @@ describe('registerOrganisation', () => {
     // mocked the getUsers function
     // @ts-expect-error -- this is a mock
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(mockUserData);
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue(token);
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
@@ -77,6 +79,7 @@ describe('registerOrganisation', () => {
         page: null,
       },
     });
+    expect(crypto.encrypt).toBeCalledTimes(1);
     expect(getUsers).toBeCalledWith(token, null);
   });
 

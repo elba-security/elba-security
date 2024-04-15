@@ -1,11 +1,11 @@
 import { expect, test, describe, vi } from 'vitest';
-import { createInngestFunctionMock } from '@elba-security/test-utils';
+import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { syncUsersPage } from './sync-users-page';
-import { users} from './__mocks__/integration';
+import { users } from './__mocks__/integration';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
@@ -44,7 +44,7 @@ describe('sync-users', () => {
       meta: {
         next_page: 1,
       },
-      data:users,
+      data: users,
     });
 
     const [result, { step }] = setup({
@@ -72,6 +72,7 @@ describe('sync-users', () => {
   });
 
   test('should finalize the sync when there is no next page', async () => {
+    const elba = spyOnElba();
     await db.insert(Organisation).values(organisation);
 
     // Mock the getUsers function that returns Livestorm users page without a next page
@@ -79,7 +80,7 @@ describe('sync-users', () => {
       meta: {
         next_page: null,
       },
-      data:users,
+      data: users,
     });
 
     const [result, { step }] = setup({
@@ -91,6 +92,13 @@ describe('sync-users', () => {
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
+    expect(elba).toBeCalledTimes(1);
+    expect(elba).toBeCalledWith({
+      apiKey: 'elba-api-key',
+      baseUrl: 'https://elba.local/api',
+      organisationId: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+      region: 'us',
+    });
 
     // Ensure the function does not send another event to continue pagination
     expect(step.sendEvent).toBeCalledTimes(0);

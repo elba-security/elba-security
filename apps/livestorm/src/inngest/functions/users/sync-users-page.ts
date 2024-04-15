@@ -29,7 +29,7 @@ export const syncUsersPage = inngest.createFunction(
     retries: env.USERS_SYNC_MAX_RETRY,
     cancelOn: [
       {
-        event: 'livestorm/elba_app.uninstalled',
+        event: 'livestorm/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
@@ -65,7 +65,7 @@ export const syncUsersPage = inngest.createFunction(
       logger.debug('Sending batch of users to Elba: ', { organisationId, users });
       await elba.users.update({ users });
 
-      if (result.meta.next_page ) {
+      if (result.meta.next_page) {
         return result.meta.next_page;
       }
       return null;

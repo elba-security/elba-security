@@ -15,10 +15,10 @@ export const removeOrganisation = inngest.createFunction(
     retries: env.REMOVE_ORGANISATION_MAX_RETRY,
   },
   {
-    event: 'livestorm/elba_app.uninstalled',
+    event: 'livestorm/app.uninstalled',
   },
   async ({ event }) => {
-    const { organisationId } = event.data as { organisationId: string };
+    const { organisationId, region } = event.data as { organisationId: string; region: string };
     const [organisation] = await db
       .select({
         region: Organisation.region,
@@ -30,9 +30,9 @@ export const removeOrganisation = inngest.createFunction(
     }
     const elba = new Elba({
       organisationId,
-      region: organisation.region,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
+      region,
     });
     await elba.connectionStatus.update({ hasError: true });
 
