@@ -12,4 +12,5 @@ beforeEach(async () => {
   const pg = postgres(process.env.DATABASE_URL);
   const db = drizzle(pg);
   await db.execute(sql`DELETE FROM organisations`);
+  await pg.end();
 });
