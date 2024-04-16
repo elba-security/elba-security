@@ -8,10 +8,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "open:pg": "drizzle-kit studio --port 4300",
+    "pg:studio": "drizzle-kit studio --port 4300",
     "test": "vitest run",
     "test:watch": "vitest",
-    "database:up": "docker-compose -p box --profile node --env-file=.env.local up -d",
+    "database:up": "docker-compose -p box --profile edge --env-file=.env.local up -d",
     "database:down": "docker-compose -p box down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
     "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
