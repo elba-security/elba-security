@@ -29,7 +29,7 @@ export const GET = async (request: NextRequest) => {
 
   try {
     const cookies = cookiesSchema.parse({
-      organisationId: request.cookies.get('organisationId')?.value,
+      organisationId: request.cookies.get('organisation_id')?.value,
       region,
     });
 
