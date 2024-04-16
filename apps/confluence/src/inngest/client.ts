@@ -89,11 +89,6 @@ export const inngest = new Inngest({
         groupId: string;
       };
     };
-    'confluence/users.sync.failed': {
-      data: {
-        organisationId: string;
-      };
-    };
     'confluence/app.installed': {
       data: {
         organisationId: string;
