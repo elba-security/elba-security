@@ -14,7 +14,6 @@ const organisation = {
   clientSecret: 'test-client-secret',
   domain: 'test-domain',
   audience: 'test-audience',
-  sourceOrganizationId: 'test-org-id',
   region: 'us',
 };
 
@@ -60,11 +59,6 @@ describe('delete-user-request', () => {
     await expect(result).resolves.toBeUndefined();
     expect(authConnector.getToken).toBeCalledTimes(1);
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
-    expect(usersConnector.deleteUser).toBeCalledWith(
-      accessToken,
-      organisation.domain,
-      organisation.sourceOrganizationId,
-      userId
-    );
+    expect(usersConnector.deleteUser).toBeCalledWith(accessToken, organisation.domain, userId);
   });
 });

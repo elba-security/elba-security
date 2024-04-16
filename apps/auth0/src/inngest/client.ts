@@ -12,7 +12,7 @@ export const inngest = new Inngest({
         region: string;
         isFirstSync: boolean;
         syncStartedAt: number;
-        page?: string;
+        page: number | null;
       };
     };
     'auth0/users.delete.requested': {

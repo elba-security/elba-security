@@ -115,7 +115,6 @@ function InstructionsModal() {
               'Copy these fields: Domain, Client ID and Client Secret.',
               'Now navigate to the APIs option under the Applications on the left navigation bar.',
               'Select Auth0 Management API and copy the identifier as the Audience.',
-              'Finally, navigate to the Organizations tab on the left navigation bar and Copy the identifier of the organization you want to use.',
             ]}
           />
         )}
@@ -175,19 +174,6 @@ function InstructionsModal() {
                   />
                   {state.errors?.audience?.at(0) ? (
                     <span>{state.errors.audience.at(0)}</span>
-                  ) : null}
-                </div>
-                <div role="group">
-                  <label htmlFor="sourceOrganizationId">Organization ID</label>
-                  <input
-                    id="sourceOrganizationId"
-                    minLength={1}
-                    name="sourceOrganizationId"
-                    placeholder="Paste Your Organization ID"
-                    type="text"
-                  />
-                  {state.errors?.sourceOrganisationId?.at(0) ? (
-                    <span>{state.errors.sourceOrganisationId.at(0)}</span>
                   ) : null}
                 </div>
               </div>

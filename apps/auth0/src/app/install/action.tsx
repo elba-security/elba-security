@@ -11,7 +11,6 @@ const formSchema = z.object({
   clientSecret: z.string().min(1),
   domain: z.string().min(1),
   audience: z.string().min(1),
-  sourceOrganizationId: z.string().min(1),
   region: z.string().min(1),
 });
 
@@ -22,7 +21,6 @@ export type FormState = {
     clientSecret?: string[] | undefined;
     domain?: string[] | undefined;
     audience?: string[] | undefined;
-    sourceOrganisationId?: string[] | undefined;
     // we are not handling organisationId and region errors in the client as fields are hidden
   };
 };
@@ -34,7 +32,6 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
     clientSecret: formData.get('clientSecret'),
     domain: formData.get('domain'),
     audience: formData.get('audience'),
-    sourceOrganizationId: formData.get('sourceOrganizationId'),
     region: formData.get('region'),
   });
 

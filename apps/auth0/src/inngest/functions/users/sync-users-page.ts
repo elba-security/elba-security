@@ -55,7 +55,6 @@ export const syncUsersPage = inngest.createFunction(
           clientSecret: Organisation.clientSecret,
           domain: Organisation.domain,
           audience: Organisation.audience,
-          sourceOrganizationId: Organisation.sourceOrganizationId,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -78,14 +77,9 @@ export const syncUsersPage = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       // retrieve this users page
-      const result = await getUsers(
-        accessToken,
-        organisation.domain,
-        organisation.sourceOrganizationId,
-        page
-      );
+      const result = await getUsers(accessToken, organisation.domain, page);
       // format each Auth0 User to elba user
-      const users = result.members.map(formatElbaUser);
+      const users = result.users.map(formatElbaUser);
       // send the batch of users to elba
       logger.debug('Sending batch of users to elba: ', {
         organisationId,
@@ -93,8 +87,8 @@ export const syncUsersPage = inngest.createFunction(
       });
       await elba.users.update({ users });
 
-      if (result.next) {
-        return result.next;
+      if (result.pagination.nextPage) {
+        return result.pagination.nextPage;
       }
     });
 
