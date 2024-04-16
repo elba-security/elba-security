@@ -98,7 +98,6 @@ export const handleWebhook = async (data: SubscriptionPayload[]) => {
 
   await inngest.send(
     webhookPayloads.map((payload) => ({
-      id: `team-event-${payload.subscriptionId}`,
       name: 'teams/teams.webhook.event.received',
       data: {
         payload,

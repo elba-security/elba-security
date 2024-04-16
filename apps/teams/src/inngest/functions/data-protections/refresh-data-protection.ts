@@ -11,7 +11,7 @@ import { getReply } from '@/connectors/microsoft/replies/replies';
 
 export const refreshDataProtection = inngest.createFunction(
   {
-    id: 'refresh-data-protection',
+    id: 'teams/refresh-data-protection',
     retries: env.REFRESH_DATA_PROTECTION_MAX_RETRY,
   },
   { event: 'teams/data.protection.refresh.triggered' },

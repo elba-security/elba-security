@@ -8,7 +8,7 @@ import { createSubscription } from '@/connectors/microsoft/subscriptions/subscri
 
 export const subscribeToChannels = inngest.createFunction(
   {
-    id: 'subscribe-to-channels',
+    id: 'teams/create-subscription-to-channels',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,

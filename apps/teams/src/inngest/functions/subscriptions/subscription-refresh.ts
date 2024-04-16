@@ -8,7 +8,7 @@ import { refreshSubscription } from '@/connectors/microsoft/subscriptions/subscr
 
 export const subscriptionRefresh = inngest.createFunction(
   {
-    id: 'subscribe-refresh-expire',
+    id: 'teams/refresh-subscription',
     cancelOn: [
       {
         event: 'teams/teams.elba_app.installed',

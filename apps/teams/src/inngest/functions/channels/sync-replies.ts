@@ -11,7 +11,7 @@ import { formatDataProtectionObject } from '@/connectors/elba/data-protection/ob
 
 export const syncReplies = inngest.createFunction(
   {
-    id: 'sync-replies',
+    id: 'teams/sync-replies',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,

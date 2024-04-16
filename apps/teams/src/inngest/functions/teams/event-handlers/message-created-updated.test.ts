@@ -113,7 +113,7 @@ const formatObject = {
   ownerId: 'user-id',
   permissions: [{ type: 'domain', id: 'domain' }],
   url: 'http://wb.uk.com',
-  contentHash: '122123213',
+  //contentHash: '122123213',
 };
 
 describe('message-created-updated', () => {

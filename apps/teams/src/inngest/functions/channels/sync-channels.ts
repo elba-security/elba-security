@@ -9,7 +9,7 @@ import { getChannels } from '@/connectors/microsoft/channels/channels';
 
 export const syncChannels = inngest.createFunction(
   {
-    id: 'sync-channels',
+    id: 'teams/sync-channels',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,

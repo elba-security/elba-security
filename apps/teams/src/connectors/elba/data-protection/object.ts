@@ -51,6 +51,8 @@ export const formatDataProtectionObject = ({
           },
     ],
     url: message.webUrl,
-    contentHash: message.etag,
+    // There a bug on Elba side, so the contentHash should be different from object id,
+    // which is not the case for Teams as initially they identical there
+    //contentHash: message.etag,
   };
 };

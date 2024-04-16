@@ -11,7 +11,7 @@ import { getToken } from '@/connectors/microsoft/auth/auth';
 
 export const refreshToken = inngest.createFunction(
   {
-    id: 'teams-refresh-token',
+    id: 'teams/refresh-token',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,

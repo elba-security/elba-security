@@ -29,7 +29,6 @@ describe('handleSubscribeEvent', () => {
 
     expect(send).toBeCalledWith(
       data.map(({ subscriptionId, organisationId }) => ({
-        id: `subscribe-event-${subscriptionId}`,
         name: 'teams/subscription.refresh.triggered',
         data: {
           organisationId,

@@ -9,7 +9,7 @@ import { deleteReply } from '@/connectors/microsoft/replies/replies';
 
 export const deleteDataProtection = inngest.createFunction(
   {
-    id: 'delete-data-protection',
+    id: 'teams/delete-data-protection',
     retries: env.DELETE_DATA_PROTECTION_MAX_RETRY,
   },
   { event: 'teams/data.protection.delete.triggered' },

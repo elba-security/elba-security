@@ -134,7 +134,6 @@ describe('handleWebhook', () => {
 
     expect(send).toBeCalledWith(
       channelsPayload.map((payload) => ({
-        id: `team-event-${payload.subscriptionId}`,
         name: 'teams/teams.webhook.event.received',
         data: {
           payload,
@@ -152,7 +151,6 @@ describe('handleWebhook', () => {
 
     expect(send).toBeCalledWith(
       messagePayload.map((payload) => ({
-        id: `team-event-${payload.subscriptionId}`,
         name: 'teams/teams.webhook.event.received',
         data: {
           payload,
@@ -170,7 +168,6 @@ describe('handleWebhook', () => {
 
     expect(send).toBeCalledWith(
       replyPayload.map((payload) => ({
-        id: `team-event-${payload.subscriptionId}`,
         name: 'teams/teams.webhook.event.received',
         data: {
           payload,

@@ -12,7 +12,7 @@ import { chunkObjects } from '@/common/utils';
 
 export const syncMessages = inngest.createFunction(
   {
-    id: 'sync-messages',
+    id: 'teams/sync-messages',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,

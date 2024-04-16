@@ -10,7 +10,7 @@ import { createElbaClient } from '@/connectors/elba/client';
 
 export const syncTeams = inngest.createFunction(
   {
-    id: 'sync-teams',
+    id: 'teams/sync-teams',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
