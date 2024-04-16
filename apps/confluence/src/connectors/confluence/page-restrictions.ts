@@ -80,16 +80,13 @@ export const deletePageUserOperationRestriction = async ({
   userId,
 }: DeletePageUserOperationRestrictionParams) => {
   const response = await fetch(
-    `https://api.atlassian.com/ex/confluence/${instanceId}/wiki/rest/api/content/${pageId}/restriction/byOperation/${operationKey}/user`,
+    `https://api.atlassian.com/ex/confluence/${instanceId}/wiki/rest/api/content/${pageId}/restriction/byOperation/${operationKey}/user?accountId=${userId}`,
     {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        accountId: userId,
-      }),
     }
   );
 

@@ -109,11 +109,11 @@ describe('page-restrictions connector', () => {
         http.delete<{
           instanceId: string;
           pageId: string;
-          userId: string;
           operationKey: 'read' | 'update';
         }>(
           'https://api.atlassian.com/ex/confluence/:instanceId/wiki/rest/api/content/:pageId/restriction/byOperation/:operationKey/user',
           ({ request, params }) => {
+            const url = new URL(request.url);
             if (
               params.instanceId !== instanceId ||
               request.headers.get('Authorization') !== `Bearer ${accessToken}`
@@ -121,10 +121,15 @@ describe('page-restrictions connector', () => {
               return new Response(undefined, { status: 401 });
             }
 
+            const accountId = url.searchParams.get('accountId');
+            if (!accountId) {
+              return new Response(undefined, { status: 400 });
+            }
+
             const restrictions = pageUserRestrictions[params.pageId];
             const restrictionsOperationUserIds = restrictions?.[params.operationKey];
 
-            if (!restrictions || !restrictionsOperationUserIds?.includes(params.userId)) {
+            if (!restrictions || !restrictionsOperationUserIds?.includes(accountId)) {
               return new Response(undefined, { status: 404 });
             }
 
