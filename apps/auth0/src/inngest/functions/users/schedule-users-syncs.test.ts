@@ -11,7 +11,6 @@ const organisations = [
     clientSecret: 'test-client-secret',
     domain: 'test-domain',
     audience: 'test-audience',
-    sourceOrganizationId: 'test-org-id',
     region: 'us',
   },
 ];
@@ -51,6 +50,7 @@ describe('schedule-users-syncs', () => {
           region,
           syncStartedAt: now,
           isFirstSync: false,
+          page: 0,
         },
       }))
     );

@@ -4,26 +4,18 @@ import { Auth0Error } from './commons/error';
 export type Auth0User = {
   user_id: string;
   email: string;
-  picture: string;
   name: string;
 };
 
 export type Pagination = {
-  nextRange: string | null;
+  nextPage: number | null;
 };
 
-type GetUsersResponseData = { members: Auth0User[]; next: string | undefined };
-
-export const getUsers = async (
-  token: string,
-  domain: string,
-  organizationId: string,
-  page?: string
-) => {
-  const url = new URL(`https://${domain}/api/v2/organizations/${organizationId}/members`);
-  url.searchParams.append('take', String(env.USERS_SYNC_BATCH_SIZE));
+export const getUsers = async (token: string, domain: string, page: number | null) => {
+  const url = new URL(`https://${domain}/api/v2/users`);
+  url.searchParams.append('per_page', String(env.USERS_SYNC_BATCH_SIZE));
   if (page) {
-    url.searchParams.append('from', page);
+    url.searchParams.append('page', String(page));
   }
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
@@ -31,27 +23,21 @@ export const getUsers = async (
   if (!response.ok) {
     throw new Auth0Error('Could not retrieve auth0 users', { response });
   }
-  const data = (await response.json()) as GetUsersResponseData;
-
-  return data;
+  const data = (await response.json()) as Auth0User[];
+  const pagination: Pagination = {
+    nextPage:
+      data.length < env.USERS_SYNC_BATCH_SIZE ? null : env.USERS_SYNC_BATCH_SIZE + (page || 0),
+  };
+  return { users: data, pagination };
 };
 
-export const deleteUser = async (
-  token: string,
-  domain: string,
-  organizationId: string,
-  userId: string
-) => {
-  const body = JSON.stringify({
-    members: [userId],
-  });
-  const response = await fetch(`https://${domain}/api/v2/organizations/${organizationId}/members`, {
+export const deleteUser = async (token: string, domain: string, userId: string) => {
+  const response = await fetch(`https://${domain}/api/v2/users/${userId}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
-    body,
   });
 
   if (!response.ok) {

@@ -9,7 +9,6 @@ type SetupOrganisationParams = {
   clientSecret: string;
   domain: string;
   audience: string;
-  sourceOrganizationId: string;
   region: string;
 };
 
@@ -19,7 +18,6 @@ export const registerOrganisation = async ({
   clientSecret,
   domain,
   audience,
-  sourceOrganizationId,
   region,
 }: SetupOrganisationParams) => {
   await getToken(clientId, clientSecret, audience, domain);
@@ -32,7 +30,6 @@ export const registerOrganisation = async ({
       clientSecret,
       audience,
       domain,
-      sourceOrganizationId,
     })
     .onConflictDoUpdate({
       target: Organisation.id,
@@ -42,7 +39,6 @@ export const registerOrganisation = async ({
         clientSecret,
         domain,
         audience,
-        sourceOrganizationId,
       },
     });
   await inngest.send({
@@ -52,6 +48,7 @@ export const registerOrganisation = async ({
       organisationId,
       region,
       syncStartedAt: Date.now(),
+      page: 0,
     },
   });
 };

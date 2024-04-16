@@ -14,7 +14,6 @@ export const scheduleUsersSyncs = inngest.createFunction(
         clientSecret: Organisation.clientSecret,
         domain: Organisation.domain,
         audience: Organisation.audience,
-        sourceOrganizationId: Organisation.sourceOrganizationId,
         region: Organisation.region,
       })
       .from(Organisation);
@@ -29,6 +28,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
             region,
             syncStartedAt: Date.now(),
             isFirstSync: false,
+            page: 0,
           },
         }))
       );

@@ -12,14 +12,12 @@ const clientId = 'test-client-id';
 const clientSecret = 'test-client-secret';
 const domain = 'test-domain';
 const audience = 'test-audience';
-const sourceOrganizationId = 'test-org-id';
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   clientId,
   clientSecret,
   domain,
   audience,
-  sourceOrganizationId,
   region,
 };
 
@@ -49,7 +47,6 @@ describe('registerOrganisation', () => {
         clientSecret: organisation.clientSecret,
         audience: organisation.audience,
         domain: organisation.domain,
-        sourceOrganizationId: organisation.sourceOrganizationId,
         region,
       })
     ).resolves.toBeUndefined();
@@ -62,7 +59,6 @@ describe('registerOrganisation', () => {
         clientSecret,
         audience,
         domain,
-        sourceOrganizationId,
         region,
       },
     ]);
@@ -75,6 +71,7 @@ describe('registerOrganisation', () => {
         organisationId: organisation.id,
         region,
         syncStartedAt: Date.now(),
+        page: 0,
       },
     });
 
@@ -94,7 +91,6 @@ describe('registerOrganisation', () => {
         clientSecret: organisation.clientSecret,
         audience: organisation.audience,
         domain: organisation.domain,
-        sourceOrganizationId: organisation.sourceOrganizationId,
         region,
       })
     ).resolves.toBeUndefined();
@@ -107,7 +103,6 @@ describe('registerOrganisation', () => {
           clientSecret: Organisation.clientSecret,
           audience: Organisation.audience,
           domain: Organisation.domain,
-          sourceOrganizationId: Organisation.sourceOrganizationId,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisation.id))
@@ -117,7 +112,6 @@ describe('registerOrganisation', () => {
         clientSecret,
         audience,
         domain,
-        sourceOrganizationId,
       },
     ]);
 
@@ -130,6 +124,7 @@ describe('registerOrganisation', () => {
         organisationId: organisation.id,
         region,
         syncStartedAt: Date.now(),
+        page: 0,
       },
     });
   });
@@ -148,7 +143,6 @@ describe('registerOrganisation', () => {
         clientSecret: organisation.clientSecret,
         audience: organisation.audience,
         domain: organisation.domain,
-        sourceOrganizationId: organisation.sourceOrganizationId,
         region,
       })
     ).rejects.toThrowError(error);

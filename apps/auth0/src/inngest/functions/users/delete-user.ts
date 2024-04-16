@@ -29,7 +29,6 @@ export const deleteAuth0User = inngest.createFunction(
           clientSecret: Organisation.clientSecret,
           domain: Organisation.domain,
           audience: Organisation.audience,
-          sourceOrganizationId: Organisation.sourceOrganizationId,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -51,7 +50,7 @@ export const deleteAuth0User = inngest.createFunction(
     });
 
     await step.run('delete-user', async () => {
-      await deleteUser(accessToken, organisation.domain, organisation.sourceOrganizationId, id);
+      await deleteUser(accessToken, organisation.domain, id);
     });
   }
 );

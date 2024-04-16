@@ -13,7 +13,6 @@ const clientId = 'test-client-id';
 const clientSecret = 'test-client-secret';
 const domain = 'test-domain';
 const audience = 'test-audience';
-const sourceOrganizationId = 'test-org-id';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
@@ -21,7 +20,6 @@ const organisation = {
   clientSecret,
   domain,
   audience,
-  sourceOrganizationId,
   region,
 };
 const syncStartedAt = Date.now();
@@ -36,6 +34,7 @@ describe('sync-users', () => {
       isFirstSync: false,
       syncStartedAt: Date.now(),
       region: 'us',
+      page: 0,
     });
 
     // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
@@ -57,14 +56,15 @@ describe('sync-users', () => {
     });
     // mock the getUsers function that returns auth0 users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      members: users,
-      next: 'next-page',
+      users,
+      pagination: { nextPage: 10 },
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
       region: organisation.region,
+      page: 0,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -78,7 +78,7 @@ describe('sync-users', () => {
         isFirstSync: false,
         syncStartedAt,
         region: organisation.region,
-        page: 'next-page',
+        page: 10,
       },
     });
   });
@@ -94,14 +94,15 @@ describe('sync-users', () => {
     });
     // mock the getUsers function that returns auth0 users page, but this time the response does not indicate that their is a next range
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      members: users,
-      next: undefined,
+      users,
+      pagination: { nextPage: null },
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
       region: 'us',
+      page: 0,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
