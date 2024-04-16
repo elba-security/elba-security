@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   await refreshDataProtectionObject({
     organisationId: eventData.organisationId,
     id: eventData.id,
-    metadata: eventData.metadata as unknown,
+    metadata: eventData.metadata ,
   });
 
   return new NextResponse();
