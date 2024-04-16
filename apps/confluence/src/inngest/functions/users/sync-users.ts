@@ -9,7 +9,7 @@ import { syncGroupUsers } from './sync-group-users';
 
 export const syncUsers = inngest.createFunction(
   {
-    id: 'confluence-sync-groups',
+    id: 'confluence-sync-users',
     cancelOn: [
       {
         event: 'confluence/app.uninstalled',

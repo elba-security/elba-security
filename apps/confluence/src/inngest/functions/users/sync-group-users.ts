@@ -20,10 +20,6 @@ export const syncGroupUsers = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
-    concurrency: {
-      key: 'event.data.organisationId',
-      limit: env.USERS_SYNC_GROUPS_BATCH_SIZE,
-    },
     retries: env.USERS_SYNC_GROUP_USERS_MAX_RETRY,
   },
   { event: 'confluence/users.group_users.sync.requested' },
