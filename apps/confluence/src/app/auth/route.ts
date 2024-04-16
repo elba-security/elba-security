@@ -5,7 +5,7 @@ import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { handleInstallation, searchParamsSchema } from './service';
 
-export const preferredRegion = env.VERCEL_PREFERRED_REGION;
+export const preferredRegion = 'iad1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 

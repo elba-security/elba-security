@@ -83,12 +83,6 @@ export const inngest = new Inngest({
         cursor: number | null;
       };
     };
-    'confluence/group.users.sync.completed': {
-      data: {
-        organisationId: string;
-        groupId: string;
-      };
-    };
     'confluence/app.installed': {
       data: {
         organisationId: string;

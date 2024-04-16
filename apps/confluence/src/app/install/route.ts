@@ -5,7 +5,7 @@ import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { cookies } from 'next/headers';
 import { env } from '@/common/env';
 
-export const preferredRegion = env.VERCEL_PREFERRED_REGION;
+export const preferredRegion = 'iad1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
