@@ -1,5 +1,5 @@
 import { ClickUpError } from './commons/error';
-import type { GetUsersResponseData, ClickUpUser } from './types';
+import type { GetUsersResponseData, UserResponseData } from './types';
 
 export const getUsers = async (token: string, teamId: string) => {
   const response = await fetch(`https://api.clickup.com/api/v2/team/${teamId}`, {
@@ -11,7 +11,7 @@ export const getUsers = async (token: string, teamId: string) => {
   const data = (await response.json()) as GetUsersResponseData;
   const roles = data.team.roles;
 
-  const users = data.team.members.map((user: ClickUpUser) => {
+  const users = data.team.members.map((user: UserResponseData) => {
     const userRole = roles.find((role) => role.id === user.user.role);
     return {
       username: user.user.username,

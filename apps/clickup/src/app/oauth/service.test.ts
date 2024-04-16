@@ -5,6 +5,7 @@ import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as auth from '@/connectors/auth';
 import * as teams from '@/connectors/team';
+import * as crypto from '@/common/crypto';
 import { setupOrganisation } from './service';
 
 const code = 'code';
@@ -36,6 +37,7 @@ describe('setupOrganisation', () => {
 
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue(accessToken);
     await expect(
       setupOrganisation({
         organisationId: organisation.id,
@@ -64,7 +66,7 @@ describe('setupOrganisation', () => {
         syncStartedAt: Date.now(),
       },
     });
-
+    expect(crypto.encrypt).toBeCalledTimes(1);
     expect(getAccessToken).toBeCalledWith(code);
     expect(getTeamId).toBeCalledWith(accessToken);
   });
@@ -73,6 +75,7 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // pre-insert an organisation to simulate an existing entry
+
     await db.insert(Organisation).values(organisation);
 
     await expect(

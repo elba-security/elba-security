@@ -2,6 +2,7 @@ import { getAccessToken } from '@/connectors/auth';
 import { getTeamId } from '@/connectors/team';
 import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
+import { encrypt } from '../../common/crypto';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -15,6 +16,7 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const accessToken = await getAccessToken(code);
+  const encodedToken = await encrypt(accessToken);
   const teamId = await getTeamId(accessToken);
   if (!teamId) {
     throw new Error('Could not retrieve site id');
@@ -23,7 +25,7 @@ export const setupOrganisation = async ({
     .insert(Organisation)
     .values({
       id: organisationId,
-      accessToken,
+      accessToken: encodedToken,
       teamId,
       region,
     })
@@ -31,7 +33,7 @@ export const setupOrganisation = async ({
       target: [Organisation.id],
       set: {
         id: organisationId,
-        accessToken,
+        accessToken: encodedToken,
         teamId,
         region,
       },

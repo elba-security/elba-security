@@ -9,7 +9,7 @@ export type GetTeamResponseData = {
   teams: ClickUpTeam[];
 };
 
-export type ClickUpUser = {
+export type UserResponseData = {
   user: {
     id: string;
     email: string;
@@ -20,10 +20,16 @@ export type ClickUpUser = {
 
 export type GetUsersResponseData = {
   team: {
-    members: ClickUpUser[];
+    members: UserResponseData[];
     roles: {
       id: number;
       name: string;
     }[];
   };
+};
+export type ClickUpUser = {
+  id: string;
+  email: string;
+  username: string;
+  role: string;
 };

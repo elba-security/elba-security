@@ -11,10 +11,30 @@ const userId = 'test-user-id';
 
 const users = [
   {
-    id: 'test-id',
-    username: 'test-username',
-    email: 'test-user-@foo.bar',
-    role: 1,
+    user: {
+      id: 'test-id',
+      username: 'test-username',
+      email: 'test-user-@foo.bar',
+      role: 1,
+    },
+  },
+];
+const roles = [
+  {
+    id: 1,
+    name: 'owner',
+  },
+  {
+    id: 2,
+    name: 'admin',
+  },
+  {
+    id: 3,
+    name: 'member',
+  },
+  {
+    id: 4,
+    name: 'guest',
   },
 ];
 
@@ -27,16 +47,9 @@ describe('getUsers', () => {
         }
         return new Response(
           JSON.stringify({
-            users,
             team: {
-              roles: [
-                { id: 1, name: 'admin' },
-                { id: 2, name: 'member' },
-              ],
-              members: users.map((user) => ({
-                ...user,
-                user: { ...user.user, role: 2 },
-              })),
+              members: users,
+              roles,
             },
           }),
           { status: 200 }
@@ -47,7 +60,14 @@ describe('getUsers', () => {
 
   test('should fetch users when token is valid', async () => {
     const result = await getUsers(validToken, teamId);
-    expect(result.users).toEqual(users.map((user) => ({ ...user, role: 'member' })));
+    expect(result.users).toEqual([
+      {
+        id: 'test-id',
+        username: 'test-username',
+        email: 'test-user-@foo.bar',
+        role: 'owner',
+      },
+    ]);
   });
 
   test('should throw ClickUpError when token is invalid', async () => {

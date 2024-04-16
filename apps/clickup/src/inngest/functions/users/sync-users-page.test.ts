@@ -5,6 +5,7 @@ import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { syncUsersPage } from './sync-users-page';
+import { ClickUpUser } from '@/connectors/types';
 
 const region = 'us';
 const accessToken = 'access-token';
@@ -16,7 +17,7 @@ const organisation = {
   teamId,
   region,
 };
-const users: usersConnector.ClickUpUser[] = [
+const users: ClickUpUser[] = [
   {
     id: 'test-id',
     username: 'test-username',
@@ -50,11 +51,7 @@ describe('sync-users', () => {
     await db.insert(Organisation).values(organisation);
     // mock the getUsers function that returns clickup users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      teams: {
-        members: {
-          users: users,
-        },
-      },
+      users,
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,
