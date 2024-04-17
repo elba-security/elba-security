@@ -6,9 +6,9 @@ type PrefixRecord<T extends Record<string, unknown>, I extends string> = {
   [K in keyof T as `${I}/${K & string}`]: T[K];
 };
 
-export type ElbaInngest<Id extends string> = ReturnType<typeof createClient<Id>>;
+export type ElbaInngest<Id extends string> = ReturnType<typeof createInngest<Id>>;
 
-export const createClient = <Id extends string, ExtraEvents extends StandardEventSchemas = {}>(
+export const createInngest = <Id extends string, ExtraEvents extends StandardEventSchemas = {}>(
   id: Id
 ) => {
   type ElbaSchemas = PrefixRecord<

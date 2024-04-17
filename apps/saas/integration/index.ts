@@ -1,10 +1,8 @@
-import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import init from '../core/init';
-import { IntegrationError } from '../core/utils/error';
-import { createClient } from '../core/inngest/client';
-import type { AuthRouteConfig } from '../core/config';
-import { db, organisationsTable, type Organisation } from './database';
+import { createInngest } from '../core/inngest/client';
+import type { AuthRouteConfig, UsersFeatureConfig } from '../core/config';
+import { databaseClient, organisations } from './database';
 
 const searchParamsSchema = z.object({
   code: z.string(),
@@ -12,33 +10,61 @@ const searchParamsSchema = z.object({
 
 // type A = typeof searchParamsSchema extends z.ZodSchema<SeachParamsSchemaOutput>
 
-const authRouteConfig: AuthRouteConfig<typeof organisationsTable, typeof searchParamsSchema> = {
+const authRouteConfig: AuthRouteConfig<typeof organisations, typeof searchParamsSchema> = {
   searchParamsSchema,
+  withState: true,
   handle: ({ code }) => ({
-    id: 'toast',
-    token: '',
+    organisation: {
+      id: 'toast',
+      token: '',
+    },
+    tokenExpiresIn: 3600,
   }),
 };
 
-const integration = await init({
-  id: 'toast',
-  db: {
-    organisations: organisationsTable,
+const usersFeature: UsersFeatureConfig<typeof organisations> = {
+  getUsers: (organisation, cursor) => {
+    return {
+      users: [],
+      nextCursor: null,
+    };
   },
-  routes: {
-    auth: authRouteConfig,
-  },
-  features: {
-    users: {
-      getUsers: (organisation, cursor) => {
-        return {
-          users: [],
-        };
-      },
+};
+
+const inngest = createInngest<
+  'toast',
+  {
+    'foo/bar': {
+      data: {
+        baz: boolean;
+      };
+    };
+  }
+>('toast');
+
+const integration = await init(
+  {
+    id: 'toast',
+    db: {
+      client: databaseClient,
+      organisations,
+    },
+    routes: {
+      auth: authRouteConfig,
+    },
+    features: {
+      users: usersFeature,
     },
   },
-});
+  inngest
+);
 
+await inngest.send({
+  name: 'foo/bar',
+  data: {
+    baz: true,
+  },
+});
 await integration.inngest.send({
   name: 'toast/users.sync.requested',
   data: {
