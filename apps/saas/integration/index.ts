@@ -2,89 +2,49 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import init from '../core/init';
 import { IntegrationError } from '../core/utils/error';
+import { createClient } from '../core/inngest/client';
+import type { AuthRouteConfig } from '../core/config';
 import { db, organisationsTable, type Organisation } from './database';
 
 const searchParamsSchema = z.object({
   code: z.string(),
 });
 
-export default init<Organisation, typeof searchParamsSchema>({
-  id: 'saas',
-  sourceId: 'blablab',
-  elbaRedirectUrl: 'https://elba.ninja',
-  inngestFunctions: [],
+// type A = typeof searchParamsSchema extends z.ZodSchema<SeachParamsSchemaOutput>
+
+const authRouteConfig: AuthRouteConfig<typeof organisationsTable, typeof searchParamsSchema> = {
+  searchParamsSchema,
+  handle: ({ code }) => ({
+    id: 'toast',
+    token: '',
+  }),
+};
+
+const integration = await init({
+  id: 'toast',
+  db: {
+    organisations: organisationsTable,
+  },
   routes: {
-    auth: {
-      type: 'oauth',
-      withState: true,
-      searchParamsSchema,
-      authenticate: async ({ code }) => {
-        const token: string = await new Promise((resolve) => {
-          resolve(`token-${code}`);
-        });
+    auth: authRouteConfig,
+  },
+  features: {
+    users: {
+      getUsers: (organisation, cursor) => {
         return {
-          organisation: { token },
-          expiresIn: 3600,
+          users: [],
         };
       },
     },
-    install: {
-      redirectUrl: 'https://foo.bar',
-    },
   },
-  database: {
-    organisations: {
-      getOne: async (organisationId) => {
-        const [organisation] = await db
-          .select()
-          .from(organisationsTable)
-          .where(eq(organisationsTable.id, organisationId));
-        return organisation;
-      },
-      insertOne: async (organisation) => {
-        await db
-          .insert(organisationsTable)
-          .values(organisation)
-          .onConflictDoUpdate({
-            target: organisationsTable.id,
-            set: {
-              token: organisation.token,
-            },
-          });
-      },
-      updateOne: async (organisationId, set) => {
-        await db
-          .update(organisationsTable)
-          .set(set)
-          .where(eq(organisationsTable.id, organisationId));
-      },
-      getAll: () => db.select().from(organisationsTable),
-      encryptedKeys: ['token'],
-    },
-  },
-  users: {
-    getUsers: async (organisation, cursor) => {
-      const response = await fetch(`http://foo.bar/users?page=${cursor ?? 0}`);
-      if (!response.ok) {
-        throw new IntegrationError('Could not retrieve users', { response });
-      }
-      const data = await response.json();
+});
 
-      return {
-        users: data.users,
-        nextCursor: data.next,
-      };
-    },
-    deleteUser: () => void 0, // todo
-  },
-  token: {
-    refreshToken: async (organisation) => {
-      return {
-        expiresIn: 0,
-        organisation: {
-          token: 'bla',
-        },
-      };
-    },
+await integration.inngest.send({
+  name: 'toast/users.sync.requested',
+  data: {
+    organisationId: 'string',
+    cursor: null,
+    syncStartedAt: 0,
+    isFirstSync: false,
   },
 });

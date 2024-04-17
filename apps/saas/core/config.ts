@@ -1,11 +1,10 @@
 import type { User } from '@elba-security/sdk';
 import type { z } from 'zod';
+import type { InferInsertModel, InferModel, InferSelectModel } from 'drizzle-orm';
+import type { PgInsertValue } from 'drizzle-orm/pg-core';
+import type { ElbaOrganisationsTableBaseKeys, organisationsTable } from './database';
 
-export type BaseElbaOrganisation = {
-  id: string;
-  region: string;
-  createdAt: Date;
-};
+export type BaseElbaOrganisation = Record<string, unknown>;
 
 export type SetOrganisation<Organisation extends BaseElbaOrganisation> = Partial<
   Omit<Organisation, keyof BaseElbaOrganisation>
@@ -16,62 +15,34 @@ export type InsertOrganisation<Organisation extends BaseElbaOrganisation> = Omit
   keyof BaseElbaOrganisation
 >;
 
-export type Config<
-  Organisation extends BaseElbaOrganisation,
-  AuthSearchParamsSchema extends z.AnyZodObject,
+export type AuthRouteConfig<
+  OrganisationsTable extends typeof organisationsTable,
+  SearchParamsSchema extends z.ZodSchema,
+  SearchParams = z.infer<SearchParamsSchema>,
 > = {
-  id: string;
-  sourceId: string;
-  elbaRedirectUrl: string;
-  database: {
-    organisations: {
-      getOne: (organisationId: string) => Promise<Organisation | undefined>;
-      updateOne: (
-        organisationId: string,
-        set: Partial<Omit<Organisation, keyof BaseElbaOrganisation>>
-      ) => Promise<void>;
-      insertOne: (
-        organisation: Omit<BaseElbaOrganisation, 'createdAt'> & InsertOrganisation<Organisation>
-      ) => Promise<void>;
-      getAll: () => Promise<Organisation[]>;
-      encryptedKeys: Exclude<keyof Organisation, keyof BaseElbaOrganisation>[];
-    };
+  searchParamsSchema: SearchParamsSchema;
+  handle: (
+    params: SearchParams
+  ) => Omit<PgInsertValue<OrganisationsTable>, ElbaOrganisationsTableBaseKeys>;
+};
+
+export type UsersFeaturesConfig<ElbaOrganisation extends BaseElbaOrganisation> = {
+  getUsers: (
+    organisation: ElbaOrganisation,
+    cursor
+  ) => {
+    users: User[];
+    cursor?: string | null;
   };
+};
+
+export type Config<Id extends string, OrganisationsTable extends typeof organisationsTable> = {
+  id: Id;
+  db: { organisations: OrganisationsTable };
   routes?: {
-    install?: {
-      redirectUrl: string;
-    };
-    auth?: {
-      type: 'oauth';
-      withState: boolean;
-      searchParamsSchema: AuthSearchParamsSchema;
-      authenticate: (params: z.infer<AuthSearchParamsSchema>) => Promise<{
-        organisation: InsertOrganisation<Organisation>;
-        expiresIn?: number;
-      }>;
-    };
+    auth: AuthRouteConfig<OrganisationsTable, z.ZodSchema<Record<string, unknown>>>;
   };
-  token?: {
-    refreshToken: (organisation: Organisation) => Promise<{
-      organisation: SetOrganisation<Organisation>;
-      expiresIn: number;
-    }>;
-  };
-  users?: {
-    enabled?: boolean;
-    getUsers: (
-      organisation: Organisation,
-      cursor: string | null
-    ) => Promise<{
-      nextCursor: string | null;
-      users: User[];
-    }>;
-    deleteUser?: (organisation: Organisation, userId: string) => Promise<void>;
-  };
-  dataProtection?: {
-    enabled?: boolean;
-  };
-  thirdPartyApps?: {
-    enabled?: boolean;
+  features?: {
+    users: UsersFeaturesConfig<InferSelectModel<OrganisationsTable>>;
   };
 };

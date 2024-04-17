@@ -9,6 +9,9 @@ import type { ElbaInngest } from './inngest/client';
 import { createClient } from './inngest/client';
 import { createInstallRoute } from './routes/install';
 import { createOauthRoute } from './routes/oauth';
+import { InferSelectModel, sql } from 'drizzle-orm';
+import { PgInsertValue, TableConfig } from 'drizzle-orm/pg-core';
+import { ElbaOrganisationsTableBaseKeys, createDb, organisationsTable } from './database';
 
 type MakeServeParams<Organisation extends BaseElbaOrganisation> = {
   inngest: ElbaInngest;
@@ -53,18 +56,41 @@ const makeServe =
     };
   };
 
-export default function init<
-  Organisation extends BaseElbaOrganisation,
-  AuthSearchParamsSchema extends z.AnyZodObject = z.AnyZodObject,
->(config: Config<Organisation, AuthSearchParamsSchema>) {
-  const inngest = createClient(config.id);
+export default async function init<
+  Id extends string,
+  OrganisationsTable extends typeof organisationsTable,
+>(config: Config<Id, OrganisationsTable>, inngest: ElbaInngest<Id> = createClient(config.id)) {
+  const db = createDb(config.db.organisations)
+  if (config.routes?.auth) {
+    const { searchParamsSchema, handle } = config.routes.auth
+    const params = searchParamsSchema.parse({ foo: 'bar' })
+    const partialOrganisation = handle(params)
+
+    const organisation: PgInsertValue<OrganisationsTable> = {
+      id: 'org-id',
+      region: 'eu',
+      ...partialOrganisation,
+    }
+
+    await db
+      .insert(config.db.organisations)
+      .values(organisation)
+      .onConflictDoUpdate({
+        target: config.db.organisations.id,
+        set: organisation
+      })
+
+    await config.db.organisations
+  }
+
+  if (config.features?.users) {
+    const { getUsers } = config.features.users
+    const [row]= await db.select().from(config.db.organisations)
+    if (row)
+  }
 
   return {
+    config,
     inngest,
-    serve: makeServe<Organisation>({
-      inngest,
-      inngestFunctions: getInngestFunctions({ inngest, config }),
-      config,
-    }),
   };
 }
