@@ -4,6 +4,7 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
+import * as crypto from '@/common/crypto';
 import { deleteLivestormUser } from './delete-user';
 
 const organisation = {
@@ -33,6 +34,7 @@ describe('delete-user-request', () => {
   test('should continue the request when the organization is registered', async () => {
     // setup the test with an organisation
     await db.insert(Organisation).values(organisation);
+    vi.spyOn(crypto, 'decrypt').mockResolvedValue(organisation.token);
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     const [result] = setup({
       id: userId,
@@ -40,6 +42,9 @@ describe('delete-user-request', () => {
       region: organisation.region,
     });
     await expect(result).resolves.toBeUndefined();
+
+    expect(crypto.decrypt).toBeCalledTimes(1);
+    expect(crypto.decrypt).toBeCalledWith(organisation.token);
 
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     expect(usersConnector.deleteUser).toBeCalledWith(organisation.token, userId);

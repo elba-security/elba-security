@@ -4,6 +4,7 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
+import * as crypto from '@/common/crypto';
 import { syncUsersPage } from './sync-users-page';
 import { elbaUsers, users } from './__mocks__/integration';
 
@@ -38,6 +39,8 @@ describe('sync-users', () => {
   test('should continue the sync when there is a next page', async () => {
     // Setup the test with an organisation
     await db.insert(Organisation).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
 
     // Mock the getUsers function that returns Livestorm users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
@@ -57,6 +60,9 @@ describe('sync-users', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
+    expect(crypto.decrypt).toBeCalledTimes(1);
+    expect(crypto.decrypt).toBeCalledWith(organisation.token);
+
     // Ensure the function continues the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users-page', {
@@ -74,6 +80,8 @@ describe('sync-users', () => {
   test('should finalize the sync when there is no next page', async () => {
     const elba = spyOnElba();
     await db.insert(Organisation).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
 
     // Mock the getUsers function that returns Livestorm users page without a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
@@ -99,6 +107,9 @@ describe('sync-users', () => {
       organisationId: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
       region: 'us',
     });
+
+    expect(crypto.decrypt).toBeCalledTimes(1);
+    expect(crypto.decrypt).toBeCalledWith(organisation.token);
 
     const elbaInstance = elba.mock.results[0]?.value;
     expect(elbaInstance?.users.update).toBeCalledTimes(1);

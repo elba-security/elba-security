@@ -4,8 +4,8 @@ import { db } from '@/database/client';
 import { env } from '@/env';
 import { Organisation } from '@/database/schema';
 import { deleteUser } from '@/connectors/users';
-import { inngest } from '../../client';
 import { decrypt } from '@/common/crypto';
+import { inngest } from '../../client';
 
 export const deleteLivestormUser = inngest.createFunction(
   {
