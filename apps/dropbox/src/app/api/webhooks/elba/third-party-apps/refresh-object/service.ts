@@ -1,5 +1,4 @@
 import { inngest } from '@/inngest/client';
-import { getOrganisationAccessDetails } from '@/inngest/functions/common/data';
 
 type RefreshThirdPartyAppsObject = {
   organisationId: string;
@@ -12,12 +11,6 @@ export const refreshThirdPartyAppsObject = async ({
   userId,
   appId,
 }: RefreshThirdPartyAppsObject) => {
-  const [organisation] = await getOrganisationAccessDetails(organisationId);
-
-  if (!organisation) {
-    throw new Error(`Organisation not found with id=${organisationId}`);
-  }
-
   await inngest.send({
     name: 'dropbox/third_party_apps.refresh_objects.requested',
     data: {
@@ -27,8 +20,4 @@ export const refreshThirdPartyAppsObject = async ({
       isFirstSync: true,
     },
   });
-
-  return {
-    status: 'completed',
-  };
 };

@@ -22,3 +22,4 @@ else
     # Run vitest normally
     vitest run
 fi
+

@@ -32,5 +32,8 @@ export const env = z
     DROPBOX_TPA_SYNC_RETRIES: zEnvRetry().default(5),
     DROPBOX_TPA_SYNC_CONCURRENCY: zEnvInt().default(5),
     DROPBOX_REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry().default(5),
+    DROPBOX_LIST_FILE_MEMBERS_LIMIT: zEnvInt().default(300), // UInt32(min=1, max=300)
+    DROPBOX_LIST_FOLDER_MEMBERS_LIMIT: zEnvInt().default(1000), // UInt32(min=1, max=1000)
+    DROPBOX_LIST_FOLDER_BATCH_SIZE: zEnvInt().default(500), // UInt32(min=1, max=1000)
   })
   .parse(process.env);

@@ -9,13 +9,10 @@ import { inngest } from '../../client';
 export const removeOrganisation = inngest.createFunction(
   {
     id: 'microsoft-remove-organisation',
-    priority: {
-      run: '600',
-    },
     retries: env.REMOVE_ORGANISATION_MAX_RETRY,
   },
   {
-    event: 'microsoft/microsoft.elba_app.uninstalled',
+    event: 'microsoft/app.uninstalled',
   },
   async ({ event }) => {
     const { organisationId } = event.data;

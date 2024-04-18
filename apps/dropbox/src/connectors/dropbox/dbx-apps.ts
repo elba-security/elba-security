@@ -1,6 +1,6 @@
 import { DBXAccess } from './dbx-access';
-import { DBXAppsOption } from '../types';
 import { formatThirdPartyObjects } from '../utils/format-apps';
+import { DBXAppsOption } from '../types';
 
 export class DBXApps {
   private teamMemberId?: string;
