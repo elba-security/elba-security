@@ -60,17 +60,13 @@ export const syncUsersPage = inngest.createFunction(
     });
 
     const nextPage = await step.run('list-users', async () => {
-      // retrieve this users page
       const result = await getUsers(organisation.token, organisation.organizationSlug, cursor);
-      // format each Sentry user to Elba users
       const users = result.members.map(formatElbaUser);
-      // send the batch of users to Elba
       logger.debug('Sending batch of users to Elba: ', { organisationId, users });
       await elba.users.update({ users });
       return result.pagination.nextCursor;
     });
 
-    // if there is a next page, enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
         name: 'sentry/users.page_sync.requested',

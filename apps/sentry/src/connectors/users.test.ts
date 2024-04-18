@@ -1,11 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import { describe, test, expect, beforeEach } from 'vitest';
 import { http } from 'msw';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getUsers, type SentryUser, deleteUser } from './users';
+import { getUsers, type SentryUser, deleteUser, SENTRY_API_BASE_URL } from './users';
 import { SentryError } from './commons/error';
 
 const validToken = 'test-token';
@@ -27,25 +23,22 @@ const sentryUsers: SentryUser[] = [
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get(
-        `https://sentry.io/api/0/organizations/${organizationSlug}/members/`,
-        ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-          const url = new URL(request.url);
-          const lastCursor = 'last-cursor';
-          const nextCursor = 'next-cursor';
-          const requestCursor = url.searchParams.get('cursor');
-          return new Response(JSON.stringify(sentryUsers), {
-            headers:
-              requestCursor !== lastCursor
-                ? { Link: `<https://example.com?cursor=${nextCursor}>; rel="next"` }
-                : undefined,
-            status: 200,
-          });
+      http.get(`${SENTRY_API_BASE_URL}${organizationSlug}/members/`, ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
         }
-      )
+        const url = new URL(request.url);
+        const lastCursor = 'last-cursor';
+        const nextCursor = 'next-cursor';
+        const requestCursor = url.searchParams.get('cursor');
+        return new Response(JSON.stringify(sentryUsers), {
+          headers:
+            requestCursor !== lastCursor
+              ? { Link: `<https://example.com?cursor=${nextCursor}>; rel="next"` }
+              : undefined,
+          status: 200,
+        });
+      })
     );
   });
 
@@ -78,7 +71,7 @@ describe('deleteUser', () => {
   beforeEach(() => {
     server.use(
       http.delete(
-        `https://api.sentry.io/api/0/organizations/${organizationSlug}/members/${memberId}`,
+        `${SENTRY_API_BASE_URL}${organizationSlug}/members/${memberId}`,
         ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
@@ -94,11 +87,8 @@ describe('deleteUser', () => {
   });
 
   test('should throw SentryError when token is invalid', async () => {
-    try {
-      await deleteUser('invalidToken', organizationSlug, memberId);
-    } catch (error) {
-      expect(error instanceof SentryError).toBe(true);
-      expect(error.message).toEqual('Could not delete Sentry user');
-    }
+    await expect(deleteUser('invalidToken', organizationSlug, memberId)).rejects.toThrow(
+      SentryError
+    );
   });
 });

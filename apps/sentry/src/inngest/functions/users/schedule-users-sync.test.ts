@@ -2,7 +2,7 @@ import { expect, test, describe, beforeAll, vi, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { scheduleUsersSyncs } from './schedule-users-syncs';
+import { scheduleUsersSyncs } from './schedule-users-sync';
 import { organisations } from './__mocks__/integration';
 
 const now = Date.now();

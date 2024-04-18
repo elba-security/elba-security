@@ -1,11 +1,11 @@
 import { expect, test, describe, vi } from 'vitest';
-import { createInngestFunctionMock } from '@elba-security/test-utils';
+import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { syncUsersPage } from './sync-users-page';
-import { users } from './__mocks__/integration';
+import { elbaUsers, users } from './__mocks__/integration';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
@@ -29,7 +29,6 @@ describe('sync-users', () => {
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    // check that the function is not sending other event
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
@@ -68,6 +67,7 @@ describe('sync-users', () => {
   });
 
   test('should finalize the sync when there is a no next page', async () => {
+    const elba = spyOnElba();
     await db.insert(Organisation).values(organisation);
     // mock the getUsers function that returns Sentry users page, but this time the response does not indicate that there is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
@@ -85,6 +85,15 @@ describe('sync-users', () => {
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
+
+    const elbaInstance = elba.mock.results[0]?.value;
+    expect(elbaInstance?.users.update).toBeCalledTimes(1);
+    expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
+
+    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
+    expect(elbaInstance?.users.delete).toBeCalledWith({
+      syncedBefore: new Date(syncStartedAt).toISOString(),
+    });
 
     // the function should not send another event that continue the pagination
     expect(step.sendEvent).toBeCalledTimes(0);

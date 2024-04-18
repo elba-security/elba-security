@@ -13,18 +13,18 @@ const organisation = {
   organizationSlug: 'test-id',
   region: 'us',
 };
-const setup = createInngestFunctionMock(removeOrganisation, 'sentry/elba_app.uninstalled');
+const setup = createInngestFunctionMock(removeOrganisation, 'sentry/app.uninstalled');
 describe('remove-organisation', () => {
   test("should not remove given organisation when it's not registered", async () => {
     const elba = spyOnElba();
-    const [result] = setup({ organisationId: organisation.id });
+    const [result] = setup({ organisationId: organisation.id, region: organisation.region });
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
     expect(elba).toBeCalledTimes(0);
   });
   test("should remove given organisation when it's registered", async () => {
     const elba = spyOnElba();
     await db.insert(Organisation).values(organisation);
-    const [result] = setup({ organisationId: organisation.id });
+    const [result] = setup({ organisationId: organisation.id, region: organisation.region });
     await expect(result).resolves.toBeUndefined();
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({

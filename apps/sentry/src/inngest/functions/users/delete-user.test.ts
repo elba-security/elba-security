@@ -17,21 +17,17 @@ const userId = 'user-id';
 const setup = createInngestFunctionMock(deleteSentryUser, 'sentry/users.delete.requested');
 describe('delete-user-request', () => {
   test('should abort request when organisation is not registered', async () => {
-    // setup the test without organisation entries in the database, the function cannot retrieve a token
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     const [result, { step }] = setup({
       id: userId,
       organisationId: organisation.id,
       region: organisation.region,
     });
-    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
     expect(usersConnector.deleteUser).toBeCalledTimes(0);
-    // check that the function is not sending other event
     expect(step.sendEvent).toBeCalledTimes(0);
   });
   test('should continue the request when the organization is registered', async () => {
-    // setup the test with an organisation
     await db.insert(Organisation).values(organisation);
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     const [result] = setup({
