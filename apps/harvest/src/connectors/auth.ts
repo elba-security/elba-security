@@ -4,7 +4,7 @@ import { HarvestError } from './commons/error';
 
 export const getAccessToken = async (code: string) => {
   const response = await fetch(
-    `https://id.getharvest.com/api/v2/oauth2/token?grant_type=authorization_code&client_id=${env.HARVEST_CLIENT_ID}&client_secret=${env.HARVEST_CLIENT_SECRET}&code=${code}`,
+    `${env.HARVEST_AUTH_BASE_URL}/oauth2/token?grant_type=authorization_code&client_id=${env.HARVEST_CLIENT_ID}&client_secret=${env.HARVEST_CLIENT_SECRET}&code=${code}`,
     {
       method: 'POST',
       headers: {
@@ -26,7 +26,7 @@ export const getAccessToken = async (code: string) => {
 
 export const refreshAccessToken = async (refreshToken: string) => {
   const response = await fetch(
-    `https://id.getharvest.com/api/v2/oauth2/token?grant_type=refresh_token&client_id=${env.HARVEST_CLIENT_ID}&client_secret=${env.HARVEST_CLIENT_SECRET}&refresh_token=${refreshToken}`,
+    `${env.HARVEST_AUTH_BASE_URL}/oauth2/token?grant_type=refresh_token&client_id=${env.HARVEST_CLIENT_ID}&client_secret=${env.HARVEST_CLIENT_SECRET}&refresh_token=${refreshToken}`,
     {
       method: 'POST',
       headers: {

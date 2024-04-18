@@ -1,8 +1,9 @@
 import { HarvestError } from '@/connectors/commons/error';
+import { env } from '@/env';
 import { type GetAccountResponseData } from './types';
 
 export const getHarvestId = async (token: string) => {
-  const response = await fetch(`https://id.getharvest.com/api/v2/accounts`, {
+  const response = await fetch(`${env.HARVEST_AUTH_BASE_URL}/accounts`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 

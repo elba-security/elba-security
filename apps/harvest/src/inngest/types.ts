@@ -23,7 +23,7 @@ export type InngestEvents = {
       organisationId: string;
     };
   };
-  'harvest/app.uninstall.requested': { data: { organisationId: string } };
+  'harvest/app.uninstall.requested': { data: { organisationId: string; region: string } };
 };
 
 export type InputArgWithTrigger<T extends keyof InngestEvents> = GetFunctionInput<

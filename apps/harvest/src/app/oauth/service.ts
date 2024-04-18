@@ -3,6 +3,7 @@ import { getHarvestId } from '@/connectors/accounts';
 import { getAccessToken } from '@/connectors/auth';
 import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
+import { encrypt } from '@/common/crypto';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -20,6 +21,7 @@ export const setupOrganisation = async ({
   if (!harvestId) {
     throw new Error('Could not retrieve harvest account id');
   }
+  const encryptedToken = await encrypt(accessToken);
   await db
     .insert(Organisation)
     .values({

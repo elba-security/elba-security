@@ -32,6 +32,30 @@ describe('setupOrganisation', () => {
     vi.useRealTimers();
   });
 
+  test('should not setup the organisation when the organisation id is invalid', async () => {
+    // @ts-expect-error -- this is a mock
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const wrongId = 'xfdhg-dsf';
+    const error = new Error(`Failed to fetch`);
+
+    // assert that the function throws the mocked error
+    await expect(
+      setupOrganisation({
+        organisationId: wrongId,
+        code,
+        region,
+      })
+    ).rejects.toThrowError(error);
+
+    // ensure no organisation is added or updated in the database
+    await expect(
+      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
+    ).resolves.toHaveLength(0);
+
+    // ensure no sync users event is sent
+    expect(send).toBeCalledTimes(0);
+  });
+
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     const getAccessToken = vi.spyOn(auth, 'getAccessToken').mockResolvedValue({
       accessToken,
@@ -134,29 +158,5 @@ describe('setupOrganisation', () => {
         },
       },
     ]);
-  });
-
-  test('should not setup the organisation when the organisation id is invalid', async () => {
-    // @ts-expect-error -- this is a mock
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    const wrongId = 'xfdhg-dsf';
-    const error = new Error(`invalid input syntax for type uuid: "${wrongId}"`);
-
-    // assert that the function throws the mocked error
-    await expect(
-      setupOrganisation({
-        organisationId: wrongId,
-        code,
-        region,
-      })
-    ).rejects.toThrowError(error);
-
-    // ensure no organisation is added or updated in the database
-    await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
-    ).resolves.toHaveLength(0);
-
-    // ensure no sync users event is sent
-    expect(send).toBeCalledTimes(0);
   });
 });

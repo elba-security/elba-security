@@ -4,7 +4,8 @@ import { env } from '@/env';
 import { type FunctionHandler, inngest } from '@/inngest/client';
 import { refreshAccessToken } from '@/connectors/auth';
 import { type InputArgWithTrigger } from '@/inngest/types';
-import { getOrganisationRefreshToken, updateOrganisationTokens } from './utils';
+import { encrypt } from '@/common/crypto';
+import { getOrganisationRefreshToken, updateOrganisationTokens } from '../common/data';
 
 const handler: FunctionHandler = async ({
   event,
@@ -25,9 +26,11 @@ const handler: FunctionHandler = async ({
 
     const { accessToken, expiresIn } = await refreshAccessToken(organisation.refreshToken);
 
+    const encryptedToken = await encrypt(accessToken);
+
     const tokenDetails = {
       organisationId,
-      accessToken,
+      accessToken: encryptedToken,
     };
 
     await updateOrganisationTokens(tokenDetails);

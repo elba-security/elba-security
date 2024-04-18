@@ -8,6 +8,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
+import { decrypt } from '@/common/crypto';
 
 const formatElbaUser = (user: HarvestUser): User => ({
   id: String(user.id),
@@ -47,27 +48,27 @@ export const syncUsersPage = inngest.createFunction(
       region,
     });
 
-    // retrieve the Harvest organisation
     const organisation = await step.run('get-organisation', async () => {
-      const [row] = await db
+      const [organisationRecord] = await db
         .select({
           accessToken: Organisation.accessToken,
           harvestId: Organisation.harvestId,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
-      if (!row) {
+      if (!organisationRecord) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      return row;
+      return organisationRecord;
     });
 
     const nextPage = await step.run('list-users', async () => {
-      // retrieve this users page
-      const result = await getUsers(organisation.accessToken, organisation.harvestId, page);
-      // format each Harvest User to elba user
+      const decryptedToken = await decrypt(organisation.accessToken);
+
+      const result = await getUsers(decryptedToken, organisation.harvestId, page);
+
       const users = result.users.map(formatElbaUser);
-      // send the batch of users to elba
+
       logger.debug('Sending batch of users to elba: ', {
         organisationId,
         users,
@@ -80,7 +81,6 @@ export const syncUsersPage = inngest.createFunction(
       return null;
     });
 
-    // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
         name: 'harvest/users.page_sync.requested',
@@ -94,7 +94,6 @@ export const syncUsersPage = inngest.createFunction(
       };
     }
 
-    // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

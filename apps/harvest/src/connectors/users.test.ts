@@ -1,9 +1,20 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
+import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
 import { getUsers, deleteUser } from './users';
-import type { HarvestError } from './commons/error';
-import { users } from './__mocks__/fetch-users';
+import { HarvestError } from './commons/error';
+import { type HarvestUser } from './types';
+
+const users: HarvestUser[] = [
+  {
+    id: 1234567,
+    first_name: 'firstname',
+    last_name: 'lastname',
+    email: 'user@gmail.com',
+    access_roles: ['administrator'],
+  },
+];
 
 const validToken = 'valid-access-token';
 const harvestId = '22222';
@@ -15,7 +26,7 @@ const firstPage = 0;
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get(`https://api.harvestapp.com/v2/users`, ({ request }) => {
+      http.get(`${env.HARVEST_USERS_BASE_URL}`, ({ request }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
@@ -39,11 +50,7 @@ describe('getUsers', () => {
   });
 
   test('should throw HarvestError when token is invalid', async () => {
-    try {
-      await getUsers('invalidToken', harvestId, null);
-    } catch (error) {
-      expect((error as HarvestError).message).toEqual('Could not retrieve harvest users');
-    }
+    await expect(getUsers('invalidToken', harvestId, null)).rejects.toThrowError(HarvestError);
   });
 
   test('should return next page as null when end of list is reached', async () => {
@@ -60,15 +67,12 @@ describe('getUsers', () => {
 describe('deleteUser', () => {
   beforeEach(() => {
     server.use(
-      http.delete<{ userId: string }>(
-        `https://api.harvestapp.com/v2/users/:userId`,
-        ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-          return new Response(undefined, { status: 200 });
+      http.delete<{ userId: string }>(`${env.HARVEST_USERS_BASE_URL}/:userId`, ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
         }
-      )
+        return new Response(undefined, { status: 200 });
+      })
     );
   });
 
@@ -77,10 +81,6 @@ describe('deleteUser', () => {
   });
 
   test('should throw HarvestError when token is invalid', async () => {
-    try {
-      await deleteUser('invalidToken', harvestId, userId);
-    } catch (error) {
-      expect((error as HarvestError).message).toEqual(`Could not delete user with Id: ${userId}`);
-    }
+    await expect(deleteUser('invalidToken', harvestId, userId)).rejects.toThrowError(HarvestError);
   });
 });
