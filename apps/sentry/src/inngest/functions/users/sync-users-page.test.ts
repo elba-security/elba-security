@@ -7,6 +7,7 @@ import { Organisation } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { syncUsersPage } from './sync-users-page';
 import { elbaUsers, users } from './__mocks__/integration';
+import { env } from '@/env';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
@@ -93,6 +94,14 @@ describe('sync-users', () => {
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
+    expect(elba).toBeCalledTimes(1);
+    expect(elba).toBeCalledWith({
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
+      organisationId: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+      region: 'us',
+    });
+
     expect(crypto.decrypt).toBeCalledTimes(1);
     expect(crypto.decrypt).toBeCalledWith(organisation.token);
 
