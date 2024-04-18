@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { refreshDataProtection } from '@/inngest/functions/data-protections/refresh-data-protection';
+import { refreshDataProtectionObject } from '@/inngest/functions/data-protection/refresh-data-protection-object';
 import { decrypt, encrypt } from '@/common/crypto';
 import type { MessageMetadata } from '@/connectors/elba/data-protection/metadata';
 import type { MicrosoftMessage, MicrosoftReply } from '@/connectors/microsoft/types';
@@ -10,8 +10,8 @@ import * as messageConnector from '@/connectors/microsoft/messages/messages';
 import * as replyConnector from '@/connectors/microsoft/replies/replies';
 
 const setup = createInngestFunctionMock(
-  refreshDataProtection,
-  'teams/data.protection.refresh.triggered'
+  refreshDataProtectionObject,
+  'teams/data_protection.refresh_object.requested'
 );
 
 const token = 'token';
@@ -125,7 +125,7 @@ const formatReplyObject = {
   //contentHash: '122123213',
 };
 
-describe('refreshDataProtection', () => {
+describe('refresh-data-protection-object', () => {
   test('should throw if the organisation is not found', async () => {
     // @ts-expect-error this is a mock
     const [result] = setup(null);

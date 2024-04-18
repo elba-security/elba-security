@@ -49,5 +49,7 @@ export const env = z
     REFRESH_DATA_PROTECTION_MAX_RETRY: zEnvRetry(),
     DELETE_DATA_PROTECTION_MAX_RETRY: zEnvRetry(),
     TEAMS_SYNC_CRON: z.string(),
+    MICROSOFT_WEBHOOK_SECRET_KEY: z.string(),
+    REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
   })
   .parse(process.env);

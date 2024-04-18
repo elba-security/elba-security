@@ -33,7 +33,7 @@ export const handleSubscriptionEvent = async (
 
   await inngest.send(
     subscriptionEvents.map(({ subscriptionId, organisationId }) => ({
-      name: 'teams/subscription.refresh.triggered',
+      name: 'teams/subscription.refresh.requested',
       data: {
         organisationId,
         subscriptionId,

@@ -42,7 +42,7 @@ export const channelDeletedHandler: TeamsEventHandler = async ({
   await deleteSubscription(organisation.token, subscriptionId);
 
   await inngest.send({
-    name: 'teams/teams.sync.triggered',
+    name: 'teams/teams.sync.requested',
     data: {
       organisationId: organisation.id,
       syncStartedAt: new Date().toISOString(),

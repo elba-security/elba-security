@@ -12,7 +12,7 @@ import { chunkObjects } from '@/common/utils';
 
 export const syncMessages = inngest.createFunction(
   {
-    id: 'teams/sync-messages',
+    id: 'teams-sync-messages',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
@@ -30,13 +30,13 @@ export const syncMessages = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'teams/teams.elba_app.installed',
+        event: 'teams/app.installed',
         match: 'data.organisationId',
       },
     ],
     retries: env.MESSAGES_SYNC_MAX_RETRY,
   },
-  { event: 'teams/messages.sync.triggered' },
+  { event: 'teams/messages.sync.requested' },
   async ({ event, step, logger }) => {
     const { organisationId, teamId, skipToken, channelId, channelName, membershipType } =
       event.data;
@@ -134,7 +134,7 @@ export const syncMessages = inngest.createFunction(
             const urlParams = new URLSearchParams(message['replies@odata.nextLink']?.split('$')[1]);
 
             return {
-              name: 'teams/replies.sync.triggered',
+              name: 'teams/replies.sync.requested',
               data: {
                 messageId: message.id,
                 channelId,
@@ -154,7 +154,7 @@ export const syncMessages = inngest.createFunction(
 
     if (nextSkipToken) {
       await step.sendEvent('sync-next-messages-page', {
-        name: 'teams/messages.sync.triggered',
+        name: 'teams/messages.sync.requested',
         data: {
           ...event.data,
           skipToken: nextSkipToken,

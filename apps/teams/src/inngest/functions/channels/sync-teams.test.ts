@@ -20,7 +20,7 @@ const organisation = {
   token: encryptedToken,
 };
 
-const setup = createInngestFunctionMock(syncTeams, 'teams/teams.sync.triggered');
+const setup = createInngestFunctionMock(syncTeams, 'teams/teams.sync.requested');
 
 const data = {
   organisationId: organisation.id,
@@ -101,26 +101,26 @@ describe('sync-teams', () => {
           teamId: 'team-id-1',
           organisationId: organisation.id,
         },
-        name: 'teams/channels.sync.triggered',
+        name: 'teams/channels.sync.requested',
       },
       {
         data: {
           teamId: 'team-id-2',
           organisationId: organisation.id,
         },
-        name: 'teams/channels.sync.triggered',
+        name: 'teams/channels.sync.requested',
       },
       {
         data: {
           teamId: 'team-id-3',
           organisationId: organisation.id,
         },
-        name: 'teams/channels.sync.triggered',
+        name: 'teams/channels.sync.requested',
       },
     ]);
 
     expect(step.sendEvent).toBeCalledWith('sync-next-teams-page', {
-      name: 'teams/teams.sync.triggered',
+      name: 'teams/teams.sync.requested',
       data: { ...data, skipToken: nextSkipToken },
     });
   });
@@ -173,21 +173,21 @@ describe('sync-teams', () => {
           teamId: 'team-id-1',
           organisationId: organisation.id,
         },
-        name: 'teams/channels.sync.triggered',
+        name: 'teams/channels.sync.requested',
       },
       {
         data: {
           teamId: 'team-id-2',
           organisationId: organisation.id,
         },
-        name: 'teams/channels.sync.triggered',
+        name: 'teams/channels.sync.requested',
       },
       {
         data: {
           teamId: 'team-id-3',
           organisationId: organisation.id,
         },
-        name: 'teams/channels.sync.triggered',
+        name: 'teams/channels.sync.requested',
       },
     ]);
 

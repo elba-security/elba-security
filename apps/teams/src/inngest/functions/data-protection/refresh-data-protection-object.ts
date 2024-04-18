@@ -9,12 +9,12 @@ import { decrypt } from '@/common/crypto';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
 import { getReply } from '@/connectors/microsoft/replies/replies';
 
-export const refreshDataProtection = inngest.createFunction(
+export const refreshDataProtectionObject = inngest.createFunction(
   {
-    id: 'teams/refresh-data-protection',
+    id: 'teams-refresh-data-protection-object',
     retries: env.REFRESH_DATA_PROTECTION_MAX_RETRY,
   },
-  { event: 'teams/data.protection.refresh.triggered' },
+  { event: 'teams/data_protection.refresh_object.requested' },
   async ({ event }) => {
     const { organisationId, metadata } = event.data;
 

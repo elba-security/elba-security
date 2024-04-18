@@ -5,7 +5,7 @@ import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import * as subscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
-import { subscribeToChannels } from '@/inngest/functions/subscriptions/subscription-to-channels';
+import { createSubscriptionToChannels } from '@/inngest/functions/subscriptions/create-subscription-to-channels';
 
 const token = 'token';
 const encryptedToken = await encrypt(token);
@@ -30,11 +30,11 @@ const data = {
 };
 
 const setup = createInngestFunctionMock(
-  subscribeToChannels,
-  'teams/channels.subscription.triggered'
+  createSubscriptionToChannels,
+  'teams/channels.subscription.requested'
 );
 
-describe('subscription-to-channels', () => {
+describe('create-subscription-to-channels', () => {
   test('should abort the subscription when the organisation is not registered', async () => {
     const [result] = setup(data);
 

@@ -68,13 +68,13 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'teams/teams.elba_app.installed',
+        name: 'teams/app.installed',
         data: {
           organisationId: organisation.id,
         },
       },
       {
-        name: 'teams/users.sync.triggered',
+        name: 'teams/users.sync.requested',
         data: {
           organisationId: organisation.id,
           isFirstSync: true,
@@ -84,7 +84,7 @@ describe('setupOrganisation', () => {
       },
 
       {
-        name: 'teams/token.refresh.triggered',
+        name: 'teams/token.refresh.requested',
         data: {
           organisationId: organisation.id,
           expiresAt: now.getTime() + expiresIn * 1000,
@@ -130,13 +130,13 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'teams/teams.elba_app.installed',
+        name: 'teams/app.installed',
         data: {
           organisationId: organisation.id,
         },
       },
       {
-        name: 'teams/users.sync.triggered',
+        name: 'teams/users.sync.requested',
         data: {
           organisationId: organisation.id,
           isFirstSync: true,
@@ -145,7 +145,7 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'teams/token.refresh.triggered',
+        name: 'teams/token.refresh.requested',
         data: {
           organisationId: organisation.id,
           expiresAt: now.getTime() + expiresIn * 1000,

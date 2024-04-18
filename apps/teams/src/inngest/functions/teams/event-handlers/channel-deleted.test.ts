@@ -124,7 +124,7 @@ describe('channel-deleted', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'teams/teams.sync.triggered',
+      name: 'teams/teams.sync.requested',
       data: {
         organisationId: organisation.id,
         syncStartedAt: now,

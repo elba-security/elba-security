@@ -3,8 +3,8 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
-export const syncTeamsSchedule = inngest.createFunction(
-  { id: 'teams/schedule-syncs' },
+export const scheduleTeamsSync = inngest.createFunction(
+  { id: 'teams-schedule-teams-sync' },
   { cron: env.TEAMS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
@@ -17,7 +17,7 @@ export const syncTeamsSchedule = inngest.createFunction(
       await step.sendEvent(
         'sync-schedule-teams',
         organisations.map((organisation) => ({
-          name: 'teams/teams.sync.triggered',
+          name: 'teams/teams.sync.requested',
           data: {
             organisationId: organisation.id,
             syncStartedAt: new Date().toISOString(),

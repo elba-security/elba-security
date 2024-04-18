@@ -15,7 +15,7 @@ export const refreshDataProtectionObject = async ({
   }
 
   await inngest.send({
-    name: 'teams/data.protection.refresh.triggered',
+    name: 'teams/data_protection.refresh_object.requested',
     data: {
       organisationId,
       metadata: messageMetadataResult.data,

@@ -53,7 +53,7 @@ export const channelCreatedHandler: TeamsEventHandler = async ({ channelId, team
     .onConflictDoNothing();
 
   await inngest.send({
-    name: 'teams/channel.subscription.triggered',
+    name: 'teams/channel.subscription.requested',
     data: {
       uniqueChannelInOrganisationId: `${organisation.id}:${channel.id}`,
       organisationId: organisation.id,

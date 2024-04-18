@@ -3,7 +3,7 @@ import { inngest } from '@/inngest/client';
 export const startDataProtectionSync = async (organisationId: string) => {
   await inngest.send([
     {
-      name: 'teams/teams.sync.triggered',
+      name: 'teams/teams.sync.requested',
       data: {
         organisationId,
         syncStartedAt: new Date().toISOString(),
@@ -12,7 +12,7 @@ export const startDataProtectionSync = async (organisationId: string) => {
       },
     },
     {
-      name: 'teams/channels.subscription.triggered',
+      name: 'teams/channels.subscription.requested',
       data: {
         organisationId,
       },

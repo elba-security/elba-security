@@ -1,29 +1,32 @@
-import { NonRetriableError } from 'inngest';
 import { and, eq } from 'drizzle-orm';
+import { NonRetriableError } from 'inngest';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { createSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
 
-export const subscribeToChannelMessage = inngest.createFunction(
+export const createSubscriptionToChannels = inngest.createFunction(
   {
-    id: 'teams/create-subscription-to-channel-messages',
-    concurrency: { key: 'event.data.uniqueChannelInOrganisationId', limit: 1 },
+    id: 'teams-create-subscription-to-channels',
+    concurrency: {
+      key: 'event.data.organisationId',
+      limit: 1,
+    },
     cancelOn: [
       {
-        event: 'teams/teams.elba_app.installed',
+        event: 'teams/app.installed',
         match: 'data.organisationId',
       },
     ],
     retries: env.SUBSCRIBE_SYNC_MAX_RETRY,
   },
-  { event: 'teams/channel.subscription.triggered' },
+  { event: 'teams/channels.subscription.requested' },
   async ({ event }) => {
-    const { teamId, channelId, organisationId } = event.data;
+    const { organisationId } = event.data;
 
-    const changeType = 'created,updated,deleted';
-    const resource = `teams/${teamId}/channels/${channelId}/messages`;
+    const changeType = 'created,deleted';
+    const resource = 'teams/getAllChannels';
 
     const [organisation] = await db
       .select({

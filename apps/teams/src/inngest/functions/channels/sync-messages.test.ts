@@ -24,7 +24,7 @@ const organisation = {
   token: encryptedToken,
 };
 
-const setup = createInngestFunctionMock(syncMessages, 'teams/messages.sync.triggered');
+const setup = createInngestFunctionMock(syncMessages, 'teams/messages.sync.requested');
 
 const data = {
   organisationId: organisation.id,
@@ -221,7 +221,7 @@ const repliesSyncData = [
       membershipType,
       skipToken: repliesSkipToken,
     },
-    name: 'teams/replies.sync.triggered',
+    name: 'teams/replies.sync.requested',
   },
   {
     data: {
@@ -233,7 +233,7 @@ const repliesSyncData = [
       membershipType,
       skipToken: repliesSkipToken,
     },
-    name: 'teams/replies.sync.triggered',
+    name: 'teams/replies.sync.requested',
   },
 ];
 
@@ -313,7 +313,7 @@ describe('sync-messages', () => {
     expect(step.sendEvent).toBeCalledTimes(2);
     expect(step.sendEvent).toBeCalledWith('start-replies-sync', repliesSyncData);
     expect(step.sendEvent).toBeCalledWith('sync-next-messages-page', {
-      name: 'teams/messages.sync.triggered',
+      name: 'teams/messages.sync.requested',
       data: { ...data, skipToken: nextSkipToken },
     });
   });

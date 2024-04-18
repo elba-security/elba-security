@@ -4,20 +4,20 @@ import { inngest } from '@/inngest/client';
 import { env } from '@/env';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { refreshSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
+import * as subscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
 
-export const subscriptionRefresh = inngest.createFunction(
+export const refreshSubscription = inngest.createFunction(
   {
-    id: 'teams/refresh-subscription',
+    id: 'teams-refresh-subscription',
     cancelOn: [
       {
-        event: 'teams/teams.elba_app.installed',
+        event: 'teams/app.installed',
         match: 'data.organisationId',
       },
     ],
     retries: env.SUBSCRIBE_SYNC_MAX_RETRY,
   },
-  { event: 'teams/subscription.refresh.triggered' },
+  { event: 'teams/subscription.refresh.requested' },
   async ({ event }) => {
     const { subscriptionId, organisationId } = event.data;
 
@@ -34,6 +34,6 @@ export const subscriptionRefresh = inngest.createFunction(
       );
     }
 
-    await refreshSubscription(organisation.token, subscriptionId);
+    await subscriptionConnector.refreshSubscription(organisation.token, subscriptionId);
   }
 );

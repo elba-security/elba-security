@@ -11,20 +11,20 @@ import { getToken } from '@/connectors/microsoft/auth/auth';
 
 export const refreshToken = inngest.createFunction(
   {
-    id: 'teams/refresh-token',
+    id: 'teams-refresh-token',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
     },
     cancelOn: [
       {
-        event: 'teams/teams.elba_app.installed',
+        event: 'teams/app.installed',
         match: 'data.organisationId',
       },
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
-  { event: 'teams/token.refresh.triggered' },
+  { event: 'teams/token.refresh.requested' },
   async ({ event, step }) => {
     const { organisationId, expiresAt } = event.data;
 
@@ -55,7 +55,7 @@ export const refreshToken = inngest.createFunction(
     });
 
     await step.sendEvent('schedule-token-refresh', {
-      name: 'teams/token.refresh.triggered',
+      name: 'teams/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: new Date(nextExpiresAt).getTime(),

@@ -9,7 +9,7 @@ import { getChannels } from '@/connectors/microsoft/channels/channels';
 
 export const syncChannels = inngest.createFunction(
   {
-    id: 'teams/sync-channels',
+    id: 'teams-sync-channels',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
@@ -27,13 +27,13 @@ export const syncChannels = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'teams/teams.elba_app.installed',
+        event: 'teams/app.installed',
         match: 'data.organisationId',
       },
     ],
     retries: env.CHANNELS_SYNC_MAX_RETRY,
   },
-  { event: 'teams/channels.sync.triggered' },
+  { event: 'teams/channels.sync.requested' },
   async ({ event, step, logger }) => {
     const { organisationId, teamId } = event.data;
 
@@ -91,7 +91,7 @@ export const syncChannels = inngest.createFunction(
       await step.sendEvent(
         'subscribe-to-channel-messages',
         channels.map((channel) => ({
-          name: 'teams/channel.subscription.triggered',
+          name: 'teams/channel.subscription.requested',
           data: {
             uniqueChannelInOrganisationId: `${organisationId}:${channel.id}`,
             organisationId,
@@ -112,7 +112,7 @@ export const syncChannels = inngest.createFunction(
       await step.sendEvent(
         'start-messages-sync',
         channels.map((channel) => ({
-          name: 'teams/messages.sync.triggered',
+          name: 'teams/messages.sync.requested',
           data: {
             channelId: channel.id,
             organisationId,

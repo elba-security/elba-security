@@ -11,7 +11,7 @@ import { formatDataProtectionObject } from '@/connectors/elba/data-protection/ob
 
 export const syncReplies = inngest.createFunction(
   {
-    id: 'teams/sync-replies',
+    id: 'teams-sync-replies',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
@@ -29,13 +29,13 @@ export const syncReplies = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'teams/teams.elba_app.installed',
+        event: 'teams/app.installed',
         match: 'data.organisationId',
       },
     ],
     retries: env.REPLIES_SYNC_MAX_RETRY,
   },
-  { event: 'teams/replies.sync.triggered' },
+  { event: 'teams/replies.sync.requested' },
   async ({ event, step, logger }) => {
     const { organisationId, teamId, skipToken, channelId, messageId, membershipType, channelName } =
       event.data;
@@ -100,7 +100,7 @@ export const syncReplies = inngest.createFunction(
 
     if (nextSkipToken) {
       await step.sendEvent('sync-next-replies-page', {
-        name: 'teams/replies.sync.triggered',
+        name: 'teams/replies.sync.requested',
         data: {
           ...event.data,
           skipToken: nextSkipToken,

@@ -19,7 +19,7 @@ const formatElbaUser = (user: MicrosoftUser): User => ({
 
 export const syncUsers = inngest.createFunction(
   {
-    id: 'teams/sync-users',
+    id: 'teams-sync-users',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -29,13 +29,13 @@ export const syncUsers = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'teams/teams.elba_app.installed',
+        event: 'teams/app.installed',
         match: 'data.organisationId',
       },
     ],
     retries: env.USERS_SYNC_MAX_RETRY,
   },
-  { event: 'teams/users.sync.triggered' },
+  { event: 'teams/users.sync.requested' },
   async ({ event, step, logger }) => {
     const { organisationId, syncStartedAt, skipToken } = event.data;
 
@@ -78,7 +78,7 @@ export const syncUsers = inngest.createFunction(
 
     if (nextSkipToken) {
       await step.sendEvent('sync-next-users-page', {
-        name: 'teams/users.sync.triggered',
+        name: 'teams/users.sync.requested',
         data: {
           ...event.data,
           skipToken: nextSkipToken,

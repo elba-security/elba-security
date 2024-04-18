@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { encrypt } from '@/common/crypto';
-import { subscriptionRefresh } from '@/inngest/functions/subscriptions/subscription-refresh';
+import { refreshSubscription } from '@/inngest/functions/subscriptions/refresh-subscription';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as subscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
@@ -22,11 +22,11 @@ const data = {
 };
 
 const setup = createInngestFunctionMock(
-  subscriptionRefresh,
-  'teams/subscription.refresh.triggered'
+  refreshSubscription,
+  'teams/subscription.refresh.requested'
 );
 
-describe('subscription-refresh', () => {
+describe('refresh-subscription', () => {
   test('should abort refresh when the organisation is not registered', async () => {
     const [result] = setup(data);
 
@@ -35,7 +35,7 @@ describe('subscription-refresh', () => {
 
   test('should refresh subscription when the organisation is registered', async () => {
     await db.insert(organisationsTable).values(organisation);
-    const refreshSubscription = vi
+    const refreshSubscriptionMock = vi
       .spyOn(subscriptionConnector, 'refreshSubscription')
       // @ts-expect-error -- this is a mock
       .mockResolvedValue(undefined);
@@ -43,7 +43,7 @@ describe('subscription-refresh', () => {
 
     await expect(result).resolves.toBeUndefined();
 
-    expect(refreshSubscription).toBeCalledWith(organisation.token, data.subscriptionId);
-    expect(refreshSubscription).toBeCalledTimes(1);
+    expect(refreshSubscriptionMock).toBeCalledWith(organisation.token, data.subscriptionId);
+    expect(refreshSubscriptionMock).toBeCalledTimes(1);
   });
 });

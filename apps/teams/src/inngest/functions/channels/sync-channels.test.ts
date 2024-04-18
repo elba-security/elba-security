@@ -19,7 +19,7 @@ const organisation = {
   token: encryptedToken,
 };
 
-const setup = createInngestFunctionMock(syncChannels, 'teams/channels.sync.triggered');
+const setup = createInngestFunctionMock(syncChannels, 'teams/channels.sync.requested');
 
 const data = {
   organisationId: organisation.id,
@@ -131,7 +131,7 @@ describe('sync-channels', () => {
           channelName: 'name-0',
           membershipType: `shared`,
         },
-        name: 'teams/messages.sync.triggered',
+        name: 'teams/messages.sync.requested',
       },
       {
         data: {
@@ -141,7 +141,7 @@ describe('sync-channels', () => {
           channelName: 'name-1',
           membershipType: `shared`,
         },
-        name: 'teams/messages.sync.triggered',
+        name: 'teams/messages.sync.requested',
       },
       {
         data: {
@@ -151,7 +151,7 @@ describe('sync-channels', () => {
           channelName: 'name-2',
           membershipType: `shared`,
         },
-        name: 'teams/messages.sync.triggered',
+        name: 'teams/messages.sync.requested',
       },
     ]);
     expect(step.sendEvent).toBeCalledWith('channels-sync-complete', {

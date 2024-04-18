@@ -10,7 +10,7 @@ import { createElbaClient } from '@/connectors/elba/client';
 
 export const syncTeams = inngest.createFunction(
   {
-    id: 'teams/sync-teams',
+    id: 'teams-sync-teams',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -20,13 +20,13 @@ export const syncTeams = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'teams/teams.elba_app.installed',
+        event: 'teams/app.installed',
         match: 'data.organisationId',
       },
     ],
     retries: env.TEAMS_SYNC_MAX_RETRY,
   },
-  { event: 'teams/teams.sync.triggered' },
+  { event: 'teams/teams.sync.requested' },
   async ({ event, step, logger }) => {
     const { organisationId, skipToken, syncStartedAt } = event.data;
 
@@ -72,7 +72,7 @@ export const syncTeams = inngest.createFunction(
       await step.sendEvent(
         'start-channels-sync',
         validTeams.map(({ id }) => ({
-          name: 'teams/channels.sync.triggered',
+          name: 'teams/channels.sync.requested',
           data: {
             teamId: id,
             organisationId,
@@ -85,7 +85,7 @@ export const syncTeams = inngest.createFunction(
 
     if (nextSkipToken) {
       await step.sendEvent('sync-next-teams-page', {
-        name: 'teams/teams.sync.triggered',
+        name: 'teams/teams.sync.requested',
         data: {
           ...event.data,
           skipToken: nextSkipToken,

@@ -4,6 +4,7 @@ import { logger } from '@elba-security/logger';
 import type { WebhookPayload } from '@/app/api/webhooks/microsoft/event-handler/service';
 import type { MessageMetadata } from '@/connectors/elba/data-protection/metadata';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { unauthorizedMiddleware } from './middlewares/unauthorized-middleware';
 
 type InngestClient = typeof inngest;
 
@@ -15,18 +16,18 @@ export type GetInngestFunctionInput<T extends keyof GetEvents<InngestClient>> = 
 export const inngest = new Inngest({
   id: 'teams',
   schemas: new EventSchemas().fromRecord<{
-    'teams/teams.elba_app.installed': {
+    'teams/app.installed': {
       data: {
         organisationId: string;
       };
     };
-    'teams/token.refresh.triggered': {
+    'teams/token.refresh.requested': {
       data: {
         organisationId: string;
         expiresAt: number;
       };
     };
-    'teams/users.sync.triggered': {
+    'teams/users.sync.requested': {
       data: {
         organisationId: string;
         isFirstSync: boolean;
@@ -34,7 +35,7 @@ export const inngest = new Inngest({
         skipToken: string | null;
       };
     };
-    'teams/teams.sync.triggered': {
+    'teams/teams.sync.requested': {
       data: {
         organisationId: string;
         skipToken: string | null;
@@ -42,7 +43,7 @@ export const inngest = new Inngest({
         isFirstSync: boolean;
       };
     };
-    'teams/channels.sync.triggered': {
+    'teams/channels.sync.requested': {
       data: {
         organisationId: string;
         teamId: string;
@@ -54,7 +55,7 @@ export const inngest = new Inngest({
         teamId: string;
       };
     };
-    'teams/messages.sync.triggered': {
+    'teams/messages.sync.requested': {
       data: {
         organisationId: string;
         skipToken?: string | null;
@@ -70,7 +71,7 @@ export const inngest = new Inngest({
         channelId: string;
       };
     };
-    'teams/replies.sync.triggered': {
+    'teams/replies.sync.requested': {
       data: {
         organisationId: string;
         skipToken?: string | null;
@@ -87,12 +88,12 @@ export const inngest = new Inngest({
         messageId: string;
       };
     };
-    'teams/channels.subscription.triggered': {
+    'teams/channels.subscription.requested': {
       data: {
         organisationId: string;
       };
     };
-    'teams/channel.subscription.triggered': {
+    'teams/channel.subscription.requested': {
       data: {
         teamId: string;
         channelId: string;
@@ -105,25 +106,24 @@ export const inngest = new Inngest({
         payload: WebhookPayload;
       };
     };
-    'teams/subscription.refresh.triggered': {
+    'teams/subscription.refresh.requested': {
       data: {
         subscriptionId: string;
         organisationId: string;
       };
     };
-    'teams/data.protection.refresh.triggered': {
+    'teams/data_protection.refresh_object.requested': {
       data: {
         organisationId: string;
         metadata: MessageMetadata;
       };
     };
-    'teams/data.protection.delete.triggered': {
+    'teams/app.uninstalled': {
       data: {
         organisationId: string;
-        metadata: MessageMetadata;
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware, sentryMiddleware],
+  middleware: [rateLimitMiddleware, unauthorizedMiddleware, sentryMiddleware],
   logger,
 });

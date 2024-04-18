@@ -27,7 +27,7 @@ const users: MicrosoftUser[] = Array.from({ length: 5 }, (_, i) => ({
   userType: 'member',
 }));
 
-const setup = createInngestFunctionMock(syncUsers, 'teams/users.sync.triggered');
+const setup = createInngestFunctionMock(syncUsers, 'teams/users.sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
@@ -103,7 +103,7 @@ describe('sync-users', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-next-users-page', {
-      name: 'teams/users.sync.triggered',
+      name: 'teams/users.sync.requested',
       data: {
         organisationId: organisation.id,
         isFirstSync: false,

@@ -2,11 +2,11 @@ import { expect, test, describe, beforeAll, vi, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { syncUsersSchedule } from './sync-users-schedule';
+import { scheduleTeamsSync } from '@/inngest/functions/channels/schedule-teams-sync';
 
 const now = Date.now();
 
-const setup = createInngestFunctionMock(syncUsersSchedule);
+const setup = createInngestFunctionMock(scheduleTeamsSync);
 
 export const organisations = Array.from({ length: 5 }, (_, i) => ({
   id: `45a76301-f1dd-4a77-b12f-9d7d3fca3c9${i}`,
@@ -15,7 +15,11 @@ export const organisations = Array.from({ length: 5 }, (_, i) => ({
   region: 'us',
 }));
 
-describe('schedule-users-syncs', () => {
+const selectOrganisations = Array.from({ length: 5 }, (_, i) => ({
+  id: `45a76301-f1dd-4a77-b12f-9d7d3fca3c9${i}`,
+}));
+
+describe('schedule-teams-sync', () => {
   beforeAll(() => {
     vi.setSystemTime(now);
   });
@@ -24,32 +28,30 @@ describe('schedule-users-syncs', () => {
     vi.useRealTimers();
   });
 
-  test('should not schedule any jobs when there are no organisations', async () => {
+  test('should not schedule do nothing when there are no organisations', async () => {
     const [result, { step }] = setup();
     await expect(result).resolves.toStrictEqual({ organisations: [] });
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should schedule jobs when there are organisations', async () => {
+  test('should schedule start sync when there are organisations', async () => {
     await db.insert(organisationsTable).values(organisations);
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- convenience
-      organisations: organisations.map(({ token, ...organisation }) => organisation),
+      organisations: selectOrganisations,
     });
+
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'sync-organisations-users',
-      organisations.map(({ id, tenantId, region }) => ({
-        name: 'teams/users.sync.triggered',
+      'sync-schedule-teams',
+      organisations.map((organisation) => ({
+        name: 'teams/teams.sync.requested',
         data: {
-          tenantId,
-          organisationId: id,
-          region,
+          organisationId: organisation.id,
+          syncStartedAt: new Date().toISOString(),
           skipToken: null,
-          syncStartedAt: now,
-          isFirstSync: false,
+          isFirstSync: true,
         },
       }))
     );

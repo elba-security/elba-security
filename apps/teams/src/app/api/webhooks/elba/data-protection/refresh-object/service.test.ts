@@ -31,7 +31,7 @@ describe('refreshDataProtectionObject', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'teams/data.protection.refresh.triggered',
+      name: 'teams/data_protection.refresh_object.requested',
       data: {
         organisationId,
         metadata,

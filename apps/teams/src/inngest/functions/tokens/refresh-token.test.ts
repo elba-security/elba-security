@@ -23,7 +23,7 @@ const now = new Date();
 const expiresAt = now.getTime() + 60 * 1000;
 const expiresIn = 60;
 
-const setup = createInngestFunctionMock(refreshToken, 'teams/token.refresh.triggered');
+const setup = createInngestFunctionMock(refreshToken, 'teams/token.refresh.requested');
 
 describe('refresh-token', () => {
   beforeAll(() => {
@@ -83,7 +83,7 @@ describe('refresh-token', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('schedule-token-refresh', {
-      name: 'teams/token.refresh.triggered',
+      name: 'teams/token.refresh.requested',
       data: {
         organisationId: organisation.id,
         expiresAt: now.getTime() + expiresIn * 1000,

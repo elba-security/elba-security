@@ -46,13 +46,13 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
-      name: 'teams/teams.elba_app.installed',
+      name: 'teams/app.installed',
       data: {
         organisationId,
       },
     },
     {
-      name: 'teams/users.sync.triggered',
+      name: 'teams/users.sync.requested',
       data: {
         organisationId,
         isFirstSync: true,
@@ -61,7 +61,7 @@ export const setupOrganisation = async ({
       },
     },
     {
-      name: 'teams/token.refresh.triggered',
+      name: 'teams/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: addSeconds(new Date(), expiresIn).getTime(),

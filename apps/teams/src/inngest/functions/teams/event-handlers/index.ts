@@ -22,7 +22,7 @@ const teamsEventHandlers: Record<EventType, TeamsEventHandler> = {
   [EventType.ReplyCreated]: replyCreatedOrUpdatedHandler,
   [EventType.ReplyUpdated]: replyCreatedOrUpdatedHandler,
   [EventType.ReplyDeleted]: replyDeletedHandler,
-}; //
+};
 export const teamsEventHandler = async (context: TeamsWebhookHandlerContext) => {
   const payload = context.event.data.payload;
   const type = payload.event;

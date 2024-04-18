@@ -5,7 +5,7 @@ import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import * as subscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
-import { subscribeToChannelMessage } from '@/inngest/functions/subscriptions/subscription-to-channel-messages';
+import { createSubscriptionToChannelMessages } from '@/inngest/functions/subscriptions/create-subscription-to-channel-messages';
 
 const token = 'token';
 const encryptedToken = await encrypt(token);
@@ -33,8 +33,8 @@ const data = {
 };
 
 const setup = createInngestFunctionMock(
-  subscribeToChannelMessage,
-  'teams/channel.subscription.triggered'
+  createSubscriptionToChannelMessages,
+  'teams/channel.subscription.requested'
 );
 
 describe('subscription-to-channel-message', () => {

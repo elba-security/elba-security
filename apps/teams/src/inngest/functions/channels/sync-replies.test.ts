@@ -23,7 +23,7 @@ const organisation = {
   token: encryptedToken,
 };
 
-const setup = createInngestFunctionMock(syncReplies, 'teams/replies.sync.triggered');
+const setup = createInngestFunctionMock(syncReplies, 'teams/replies.sync.requested');
 
 const data = {
   organisationId: organisation.id,
@@ -135,7 +135,7 @@ const objects = {
   ],
 };
 
-describe('sync-channels', () => {
+describe('sync-replies', () => {
   test('should abort the sync when the organisation is not registered', async () => {
     const getReplies = vi.spyOn(replyConnector, 'getReplies').mockResolvedValue({
       nextSkipToken,
@@ -183,7 +183,7 @@ describe('sync-channels', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-next-replies-page', {
-      name: 'teams/replies.sync.triggered',
+      name: 'teams/replies.sync.requested',
       data: { ...data, skipToken: nextSkipToken },
     });
   });

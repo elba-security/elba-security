@@ -138,7 +138,7 @@ describe('channel-created', () => {
     expect(getChannel).toBeCalledTimes(1);
 
     expect(send).toBeCalledWith({
-      name: 'teams/channel.subscription.triggered',
+      name: 'teams/channel.subscription.requested',
       data: {
         uniqueChannelInOrganisationId: `${organisation.id}:channel-id`,
         organisationId: organisation.id,
