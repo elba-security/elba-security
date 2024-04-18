@@ -6,9 +6,18 @@ export const organisations = Array.from({ length: 5 }, (_, i) => ({
 export const users = Array.from({ length: 10 }, (_, i) => ({
   id: `user-${i}`,
   attributes: {
-    role: `host${i}`,
+    role: `member-${i}`,
     first_name: `User${i}FirstName`,
     last_name: `User${i}LastName`,
     email: `user${i}@example.com`,
   },
+}));
+
+export const elbaUsers = Array.from({ length: 10 }, (_, i) => ({
+  id: `user-${i}`,
+  additionalEmails: [],
+  authMethod: undefined,
+  displayName: `User${i}FirstName`,
+  email: `user${i}@example.com`,
+  role: `member-${i}`,
 }));

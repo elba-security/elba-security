@@ -2,8 +2,8 @@ import { expect, test, describe, beforeAll, vi, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { scheduleUsersSyncs } from './schedule-users-syncs';
 import { organisations } from './__mocks__/integration';
+import { scheduleUsersSyncs } from './schedule-users-sync';
 
 const now = Date.now();
 const setup = createInngestFunctionMock(scheduleUsersSyncs);

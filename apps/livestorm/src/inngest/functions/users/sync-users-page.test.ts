@@ -5,7 +5,7 @@ import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { syncUsersPage } from './sync-users-page';
-import { users } from './__mocks__/integration';
+import { elbaUsers, users } from './__mocks__/integration';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
@@ -98,6 +98,15 @@ describe('sync-users', () => {
       baseUrl: 'https://elba.local/api',
       organisationId: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
       region: 'us',
+    });
+
+    const elbaInstance = elba.mock.results[0]?.value;
+    expect(elbaInstance?.users.update).toBeCalledTimes(1);
+    expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
+
+    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
+    expect(elbaInstance?.users.delete).toBeCalledWith({
+      syncedBefore: new Date(syncStartedAt).toISOString(),
     });
 
     // Ensure the function does not send another event to continue pagination
