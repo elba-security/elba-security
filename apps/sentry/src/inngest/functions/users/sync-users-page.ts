@@ -29,7 +29,7 @@ export const syncUsersPage = inngest.createFunction(
     retries: env.USERS_SYNC_MAX_RETRY,
     cancelOn: [
       {
-        event: 'sentry/elba_app.uninstalled',
+        event: 'sentry/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
@@ -67,11 +67,7 @@ export const syncUsersPage = inngest.createFunction(
       // send the batch of users to Elba
       logger.debug('Sending batch of users to Elba: ', { organisationId, users });
       await elba.users.update({ users });
-
-      if (result.pagination.nextCursor) {
-        return result.pagination.nextCursor;
-      }
-      return null;
+      return result.pagination.nextCursor;
     });
 
     // if there is a next page, enqueue a new sync user event

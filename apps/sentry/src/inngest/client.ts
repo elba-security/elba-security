@@ -15,15 +15,17 @@ export const inngest = new Inngest({
         cursor: string | null;
       };
     };
-    'sentry/elba_app.uninstalled': {
+    'sentry/app.uninstalled': {
       data: {
         organisationId: string;
+        region: string;
       };
     };
     'sentry/users.delete.requested': {
       data: {
         id: string;
         organisationId: string;
+        region: string;
       };
     };
   }>(),

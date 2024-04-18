@@ -10,7 +10,7 @@ import { inngest } from '../../client';
 export const deleteSentryUser = inngest.createFunction(
   {
     id: 'sentry-delete-user',
-    priority: { 
+    priority: {
       run: '600',
     },
     retries: env.REMOVE_ORGANISATION_MAX_RETRY,
@@ -19,14 +19,17 @@ export const deleteSentryUser = inngest.createFunction(
     event: 'sentry/users.delete.requested',
   },
   async ({ event, step }) => {
-    const { id, organisationId } = event.data;
+    const { id, organisationId, region } = event.data as {
+      id: string;
+      organisationId: string;
+      region: string;
+    };
 
     // retrieve the Sentry organisation token
     const organisation = await step.run('get-organisation', async () => {
       const [row] = await db
         .select({
           token: Organisation.token,
-          region: Organisation.region,
           organizationSlug: Organisation.organizationSlug,
         })
         .from(Organisation)
@@ -36,12 +39,12 @@ export const deleteSentryUser = inngest.createFunction(
       }
       return row;
     });
-    
-     const elba = new Elba({
+
+    const elba = new Elba({
       organisationId,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
-      region: organisation.region,
+      region,
     });
 
     await step.run('delete-user', async () => {

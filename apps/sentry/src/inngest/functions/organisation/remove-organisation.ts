@@ -15,7 +15,7 @@ export const removeOrganisation = inngest.createFunction(
     retries: env.REMOVE_ORGANISATION_MAX_RETRY,
   },
   {
-    event: 'sentry/elba_app.uninstalled',
+    event: 'sentry/app.uninstalled',
   },
   async ({ event }) => {
     const { organisationId } = event.data as { organisationId: string };

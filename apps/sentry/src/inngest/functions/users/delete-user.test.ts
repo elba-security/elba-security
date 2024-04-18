@@ -4,7 +4,7 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { deleteSentryUser } from './delete.user';
+import { deleteSentryUser } from './delete-user';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',

@@ -1,3 +1,4 @@
+import { encrypt } from '@/common/crypto';
 import { getUsers } from '../../connectors/users';
 import { db } from '../../database/client';
 import { Organisation } from '../../database/schema';
@@ -16,15 +17,16 @@ export const registerOrganisation = async ({
   organizationSlug,
   region,
 }: SetupOrganisationParams) => {
-  await getUsers(token, organizationSlug, null);
+  const encryptedToken = await encrypt(token);
+
   await db
     .insert(Organisation)
-    .values({ id: organisationId, region, token, organizationSlug })
+    .values({ id: organisationId, region, token: encryptedToken, organizationSlug })
     .onConflictDoUpdate({
       target: Organisation.id,
       set: {
         region,
-        token,
+        token: encryptedToken,
         organizationSlug,
       },
     });
