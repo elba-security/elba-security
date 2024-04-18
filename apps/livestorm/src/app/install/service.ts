@@ -14,8 +14,8 @@ export const registerOrganisation = async ({
   token,
   region,
 }: SetupOrganisationParams) => {
+  await getUsers(token, null);
   const encodedtoken = await encrypt(token);
-  await getUsers(encodedtoken, null);
 
   await db
     .insert(Organisation)

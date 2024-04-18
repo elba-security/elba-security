@@ -6,6 +6,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
+import { decrypt } from '@/common/crypto';
 
 const formatElbaUser = (user: LivestormUser): User => ({
   id: user.id,
@@ -57,8 +58,9 @@ export const syncUsersPage = inngest.createFunction(
       return result.token;
     });
     const nextPage = await step.run('list-users', async () => {
+      const decryptedToken = await decrypt(token);
       // retrieve this users page
-      const result = await getUsers(token, page);
+      const result = await getUsers(decryptedToken, page);
       // format each Livestorm user to Elba users
       const users = result.data.map(formatElbaUser);
       // send the batch of users to Elba

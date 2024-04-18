@@ -5,6 +5,7 @@ import { env } from '@/env';
 import { Organisation } from '@/database/schema';
 import { deleteUser } from '@/connectors/users';
 import { inngest } from '../../client';
+import { decrypt } from '@/common/crypto';
 
 export const deleteLivestormUser = inngest.createFunction(
   {
@@ -33,7 +34,8 @@ export const deleteLivestormUser = inngest.createFunction(
     });
 
     await step.run('delete-user', async () => {
-      await deleteUser(organisation.token, id);
+      const decryptedToken = await decrypt(organisation.token);
+      await deleteUser(decryptedToken, id);
     });
   }
 );
