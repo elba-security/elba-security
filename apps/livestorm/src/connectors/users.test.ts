@@ -1,8 +1,9 @@
 import { describe, expect, test, beforeEach } from 'vitest';
 import { http } from 'msw';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getUsers, deleteUser, type LivestormUser, } from './users';
+import { getUsers, deleteUser, type LivestormUser } from './users';
 import type { LivestormError } from './commons/error';
+import { env } from '@/env';
 
 const data: LivestormUser[] = [
   {
@@ -21,18 +22,18 @@ const userId = 'test-id';
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get('https://api.livestorm.co/v1/users', ({ request }) => {
+      http.get(`${env.LIVESTORM_API_BASE_URL}/users`, ({ request }) => {
         const url = new URL(request.url);
         if (request.headers.get('Authorization') !== validToken) {
           return new Response(undefined, { status: 401 });
         }
         const page = parseInt(url.searchParams.get('page[number]') || '0');
-        const lastPage= 2;
-        const nextPage=1;
+        const lastPage = 2;
+        const nextPage = 1;
         const response = {
           data,
           meta: {
-            next_page: page === lastPage ? null : nextPage, 
+            next_page: page === lastPage ? null : nextPage,
           },
         };
 
@@ -47,7 +48,7 @@ describe('getUsers', () => {
     try {
       await getUsers('invalidToken', 0);
     } catch (error) {
-      expect((error as LivestormError) .message).toEqual('Could not retrieve Livestorm users');
+      expect((error as LivestormError).message).toEqual('Could not retrieve Livestorm users');
     }
   });
   test('should fetch users when token is valid', async () => {
@@ -72,7 +73,7 @@ describe('getUsers', () => {
 describe('deleteUser', () => {
   beforeEach(() => {
     server.use(
-      http.delete(`https://api.livestorm.co/v1/users/${userId}`, ({ request }) => {
+      http.delete(`${env.LIVESTORM_API_BASE_URL}/users/${userId}`, ({ request }) => {
         if (request.headers.get('Authorization') !== validToken) {
           return new Response(undefined, { status: 401 });
         }

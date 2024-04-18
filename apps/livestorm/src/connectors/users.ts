@@ -19,7 +19,7 @@ type GetUsersResponseData = { data: LivestormUser[]; meta: Pagination };
 
 export const getUsers = async (token: string, page: number | null) => {
   const response = await fetch(
-    `https://api.livestorm.co/v1/users?page[size]=${env.USERS_SYNC_BATCH_SIZE}&page[number]=${page}`,
+    `${env.LIVESTORM_API_BASE_URL}/users?page[size]=${env.USERS_SYNC_BATCH_SIZE}&page[number]=${page}`,
     {
       headers: { Authorization: token },
     }
@@ -31,7 +31,7 @@ export const getUsers = async (token: string, page: number | null) => {
   return data;
 };
 export const deleteUser = async (token: string, userId: string) => {
-  const url = `https://api.livestorm.co/v1/users/${userId}`;
+  const url = `${env.LIVESTORM_API_BASE_URL}/users/${userId}`;
   const response = await fetch(url, {
     method: 'DELETE',
     headers: { Authorization: token },
