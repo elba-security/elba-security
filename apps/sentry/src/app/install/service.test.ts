@@ -48,8 +48,7 @@ describe('registerOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mocked the getUsers function
-    // @ts-expect-error -- this is a mock
-    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersMockData);
+    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersMockData);
     vi.spyOn(crypto, 'encrypt').mockResolvedValue(token);
     await expect(
       registerOrganisation({
@@ -86,9 +85,8 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
-    // @ts-expect-error -- this is a mock
-    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersMockData);
+
+    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersMockData);
     // pre-insert an organisation to simulate an existing entry
     await db.insert(Organisation).values(organisation);
     await expect(
@@ -129,8 +127,7 @@ describe('registerOrganisation', () => {
   test('should not setup the organisation when the organisation id is invalid', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
-    // @ts-expect-error -- this is a mock
+
     vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersMockData);
     const wrongId = 'xfdhg-dsf';
     const error = new Error(`invalid input syntax for type uuid: "${wrongId}"`);

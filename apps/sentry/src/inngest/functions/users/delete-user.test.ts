@@ -5,6 +5,7 @@ import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { deleteSentryUser } from './delete-user';
+import * as crypto from '@/common/crypto';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
@@ -24,11 +25,14 @@ describe('delete-user-request', () => {
       region: organisation.region,
     });
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
+
     expect(usersConnector.deleteUser).toBeCalledTimes(0);
     expect(step.sendEvent).toBeCalledTimes(0);
   });
   test('should continue the request when the organization is registered', async () => {
     await db.insert(Organisation).values(organisation);
+    vi.spyOn(crypto, 'decrypt').mockResolvedValue(organisation.token);
+
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     const [result] = setup({
       id: userId,
@@ -36,6 +40,10 @@ describe('delete-user-request', () => {
       region: organisation.region,
     });
     await expect(result).resolves.toBeUndefined();
+
+    expect(crypto.decrypt).toBeCalledTimes(1);
+    expect(crypto.decrypt).toBeCalledWith(organisation.token);
+
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     expect(usersConnector.deleteUser).toBeCalledWith(
       organisation.token,

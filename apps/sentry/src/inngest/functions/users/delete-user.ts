@@ -5,6 +5,7 @@ import { env } from '@/env';
 import { Organisation } from '@/database/schema';
 import { deleteUser } from '@/connectors/users';
 import { inngest } from '../../client';
+import { decrypt } from '@/common/crypto';
 
 export const deleteSentryUser = inngest.createFunction(
   {
@@ -32,7 +33,8 @@ export const deleteSentryUser = inngest.createFunction(
     });
 
     await step.run('delete-user', async () => {
-      await deleteUser(organisation.token, organisation.organizationSlug, id);
+      const decryptedToken = await decrypt(organisation.token);
+      await deleteUser(decryptedToken, organisation.organizationSlug, id);
     });
   }
 );

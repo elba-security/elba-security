@@ -1,5 +1,4 @@
 import { encrypt } from '@/common/crypto';
-import { getUsers } from '../../connectors/users';
 import { db } from '../../database/client';
 import { Organisation } from '../../database/schema';
 import { inngest } from '../../inngest/client';

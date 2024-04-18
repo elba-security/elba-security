@@ -4,12 +4,13 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
+import * as crypto from '@/common/crypto';
 import { syncUsersPage } from './sync-users-page';
 import { elbaUsers, users } from './__mocks__/integration';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  token: 'test-token',
+  token: 'token',
   organizationSlug: 'test-Organization-id',
   region: 'us',
 };
@@ -35,7 +36,9 @@ describe('sync-users', () => {
   test('should continue the sync when there is a next page', async () => {
     // setup the test with an organisation
     await db.insert(Organisation).values(organisation);
-    // mock the getUsers function that returns Vercel users page
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       pagination: {
         nextCursor: 'next-value',
@@ -51,6 +54,9 @@ describe('sync-users', () => {
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
+
+    expect(crypto.decrypt).toBeCalledTimes(1);
+    expect(crypto.decrypt).toBeCalledWith(organisation.token);
 
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
@@ -69,7 +75,9 @@ describe('sync-users', () => {
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
     await db.insert(Organisation).values(organisation);
-    // mock the getUsers function that returns Sentry users page, but this time the response does not indicate that there is a next page
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       pagination: {
         nextCursor: null,
@@ -85,6 +93,8 @@ describe('sync-users', () => {
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
+    expect(crypto.decrypt).toBeCalledTimes(1);
+    expect(crypto.decrypt).toBeCalledWith(organisation.token);
 
     const elbaInstance = elba.mock.results[0]?.value;
     expect(elbaInstance?.users.update).toBeCalledTimes(1);

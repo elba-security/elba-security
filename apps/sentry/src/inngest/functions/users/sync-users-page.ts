@@ -6,6 +6,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
+import { decrypt } from '@/common/crypto';
 
 const formatElbaUser = (user: SentryUser): User => ({
   id: user.user.id,
@@ -60,7 +61,8 @@ export const syncUsersPage = inngest.createFunction(
     });
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers(organisation.token, organisation.organizationSlug, cursor);
+      const decryptedToken = await decrypt(organisation.token);
+      const result = await getUsers(decryptedToken, organisation.organizationSlug, cursor);
       const users = result.members.map(formatElbaUser);
       logger.debug('Sending batch of users to Elba: ', { organisationId, users });
       await elba.users.update({ users });
