@@ -52,5 +52,6 @@ export const env = z
     USERS_SYNC_MAX_RETRY: zEnvRetry(),
     REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
     USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().default(200),
+    SENTRY_API_BASE_URL: z.string().url(),
   })
   .parse(process.env);

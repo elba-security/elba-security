@@ -1,7 +1,8 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import { http } from 'msw';
+import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
-import { getUsers, type SentryUser, deleteUser, SENTRY_API_BASE_URL } from './users';
+import { getUsers, type SentryUser, deleteUser } from './users';
 import { SentryError } from './commons/error';
 
 const validToken = 'test-token';
@@ -23,22 +24,25 @@ const sentryUsers: SentryUser[] = [
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get(`${SENTRY_API_BASE_URL}${organizationSlug}/members/`, ({ request }) => {
-        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-          return new Response(undefined, { status: 401 });
+      http.get(
+        `${env.SENTRY_API_BASE_URL}/organizations/${organizationSlug}/members/`,
+        ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+          const url = new URL(request.url);
+          const lastCursor = 'last-cursor';
+          const nextCursor = 'next-cursor';
+          const requestCursor = url.searchParams.get('cursor');
+          return new Response(JSON.stringify(sentryUsers), {
+            headers:
+              requestCursor !== lastCursor
+                ? { Link: `<https://example.com?cursor=${nextCursor}>; rel="next"` }
+                : undefined,
+            status: 200,
+          });
         }
-        const url = new URL(request.url);
-        const lastCursor = 'last-cursor';
-        const nextCursor = 'next-cursor';
-        const requestCursor = url.searchParams.get('cursor');
-        return new Response(JSON.stringify(sentryUsers), {
-          headers:
-            requestCursor !== lastCursor
-              ? { Link: `<https://example.com?cursor=${nextCursor}>; rel="next"` }
-              : undefined,
-          status: 200,
-        });
-      })
+      )
     );
   });
 
@@ -71,7 +75,7 @@ describe('deleteUser', () => {
   beforeEach(() => {
     server.use(
       http.delete(
-        `${SENTRY_API_BASE_URL}${organizationSlug}/members/${memberId}`,
+        `${env.SENTRY_API_BASE_URL}/organizations/${organizationSlug}/members/${memberId}`,
         ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
