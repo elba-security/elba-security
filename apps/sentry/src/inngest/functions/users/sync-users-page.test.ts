@@ -19,7 +19,6 @@ const setup = createInngestFunctionMock(syncUsersPage, 'sentry/users.page_sync.r
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
-    // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
@@ -28,7 +27,6 @@ describe('sync-users', () => {
       cursor: null,
     });
 
-    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     // check that the function is not sending other event

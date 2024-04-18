@@ -20,7 +20,8 @@ export const getUsers = async (token: string, organizationSlug: string, cursor: 
     Authorization: `Bearer ${token}`,
   };
 
-  const url = `https://sentry.io/api/0/organizations/${organizationSlug}/members/?per_page=${
+  const SENTRY_BASE_URL = 'https://sentry.io/api/0/';
+  const url = `${SENTRY_BASE_URL}organizations/${organizationSlug}/members/?per_page=${
     env.USERS_SYNC_BATCH_SIZE
   }${cursor ? `&cursor=${cursor}` : ''}`;
 
