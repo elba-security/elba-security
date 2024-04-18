@@ -5,9 +5,9 @@ import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUser } from '@/connectors/users';
 
-export const deleteSourceUsers = inngest.createFunction(
+export const deleteSourceUser = inngest.createFunction(
   {
-    id: 'delete-users',
+    id: 'fivetran-delete-users',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
@@ -27,7 +27,9 @@ export const deleteSourceUsers = inngest.createFunction(
       .where(eq(Organisation.id, organisationId));
 
     if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve ${userId}`);
+      throw new NonRetriableError(
+        `API key & Secret not found for organisation with ID: ${organisationId} for the user id ${userId}`
+      );
     }
 
     await deleteUser({

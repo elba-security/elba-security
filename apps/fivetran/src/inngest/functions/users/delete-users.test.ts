@@ -3,7 +3,7 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/users';
 import { Organisation } from '@/database/schema';
 import { db } from '@/database/client';
-import { deleteSourceUsers } from './delete-users';
+import { deleteSourceUser } from './delete-users';
 
 const userId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
 const apiKey = 'test-api-key';
@@ -18,9 +18,9 @@ const organisation = {
 };
 
 // Setup function mock for Inngest
-const setup = createInngestFunctionMock(deleteSourceUsers, 'fivetran/users.delete.requested');
+const setup = createInngestFunctionMock(deleteSourceUser, 'fivetran/users.delete.requested');
 
-describe('deleteSourceUsers', () => {
+describe('deleteSourceUser', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });

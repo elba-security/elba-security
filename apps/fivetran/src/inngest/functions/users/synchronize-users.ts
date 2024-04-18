@@ -26,7 +26,7 @@ const formatElbaUser = (user: FivetranUser): User => ({
 
 export const synchronizeUsers = inngest.createFunction(
   {
-    id: 'synchronize-users',
+    id: 'fivetran-synchronize-users',
     priority: {
       run: 'event.data.isFirstSync ? 600 : -600',
     },
