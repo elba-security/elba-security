@@ -31,14 +31,13 @@ describe('rate-limit middleware', () => {
   });
 
   test('should transform the output error to RetryAfterError when the error is about Livestorm rate limit', () => {
-    const rateLimitReset = '1700137003';
+    const retryAfter = '1841055';
 
     const rateLimitError = new LivestormError('foo bar', {
       response: {
         // @ts-expect-error -- this is a mock
-        headers: { 'RateLimit-Monthly-Remaining': '0', 'RateLimit-Reset': rateLimitReset },
+        headers: { 'RateLimit-Remaining': '0', 'Retry-After': retryAfter },
       },
-      // @ts-expect-error -- this is a mock
       request: { method: 'GET', url: 'http://foo.bar', headers: {} },
     });
 
@@ -59,9 +58,7 @@ describe('rate-limit middleware', () => {
       .onFunctionRun({ fn: { name: 'foo' } })
       .transformOutput(context);
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect(result?.result.error.retryAfter).toStrictEqual(
-      new Date(Number(rateLimitReset) * 1000).toISOString()
-    );
+    expect(result?.result.error.retryAfter).toStrictEqual(retryAfter);
     expect(result).toMatchObject({
       foo: 'bar',
       baz: {

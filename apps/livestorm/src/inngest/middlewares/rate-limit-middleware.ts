@@ -15,10 +15,10 @@ export const rateLimitMiddleware = new InngestMiddleware({
 
             if (
               error instanceof LivestormError &&
-              error.response?.headers['RateLimit-Monthly-Remaining'] === '0' &&
-              error.response.headers['RateLimit-Reset']
+              error.response?.headers['RateLimit-Remaining'] === '0' &&
+              error.response.headers['Retry-After']
             ) {
-              const retryAfter = new Date(Number(error.response.headers['RateLimit-Reset']) * 1000);
+              const retryAfter = Number(error.response.headers['Retry-After']);
 
               return {
                 ...context,
@@ -26,7 +26,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                   ...result,
                   error: new RetryAfterError(
                     `Livestorm rate limit reached by '${fn.name}'`,
-                    retryAfter,
+                    retryAfter * 1000,
                     { cause: error }
                   ),
                 },
