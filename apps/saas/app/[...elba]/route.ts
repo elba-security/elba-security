@@ -1,4 +1,4 @@
-import integration from '../../integration';
+import { integration } from '../../integration';
 
 export const preferredRegion = 'fra1';
 export const runtime = 'edge';

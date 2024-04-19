@@ -1,12 +1,12 @@
 import type { DataProtectionObject, User } from '@elba-security/sdk';
 import type { z } from 'zod';
 import type { InferSelectModel } from 'drizzle-orm';
-import type { PgUpdateSetSource } from 'drizzle-orm/pg-core';
+import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
 import type { NeonDatabase } from 'drizzle-orm/neon-serverless';
-import type { InngestFunction } from 'inngest';
-import type { organisationsTable } from './database';
+import type { Inngest, InngestFunction } from 'inngest';
+import type { organisationsTable } from './database/client';
 
-export type BaseElbaOrganisation = Record<string, unknown>;
+export type BaseElbaOrganisation = InferSelectModel<typeof organisationsTable>;
 
 export type SetOrganisation<Organisation extends BaseElbaOrganisation> = Partial<
   Omit<Organisation, keyof BaseElbaOrganisation>
@@ -20,23 +20,40 @@ export type InsertOrganisation<Organisation extends BaseElbaOrganisation> = Omit
 export type AuthRouteConfig<
   OrganisationsTable extends typeof organisationsTable,
   SearchParamsSchema extends z.ZodSchema,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- convenience
+  T extends Inngest<any> = Inngest<any>,
 > = {
   searchParamsSchema: SearchParamsSchema;
   withState?: boolean;
-  handle: (params: z.infer<SearchParamsSchema>) => {
-    organisation: PgUpdateSetSource<OrganisationsTable>;
+  handle: (params: z.infer<SearchParamsSchema>) => Promise<{
+    organisation: Omit<PgInsertValue<OrganisationsTable>, 'id' | 'region'>;
     tokenExpiresIn?: number;
-  };
+  }>;
+  experimental_emitEvents?: (
+    organisation: PgInsertValue<OrganisationsTable>
+  ) => Parameters<T['send']>[0];
+};
+
+export type InstallRouteConfig = {
+  redirectUrl: string;
+  withState?: boolean;
+};
+
+export type TokenFeatureConfig<OrganisationsTable extends typeof organisationsTable> = {
+  refreshToken?: (organisation: InferSelectModel<OrganisationsTable>) => Promise<{
+    organisation: PgUpdateSetSource<OrganisationsTable>;
+    expiresIn: number;
+  }>;
 };
 
 export type UsersFeatureConfig<OrganisationsTable extends typeof organisationsTable> = {
-  getUsers: (
+  getUsers?: (
     organisation: InferSelectModel<OrganisationsTable>,
-    cursor
-  ) => {
+    cursor: string | null
+  ) => Promise<{
     users: User[];
     nextCursor?: string | null;
-  };
+  }>;
   deleteUser?: (
     organisation: InferSelectModel<OrganisationsTable>,
     userId: string
@@ -68,17 +85,30 @@ export type DataProtectionFeatureConfig<
   ) => Promise<string | undefined | null>;
 };
 
-export type Config<Id extends string> = {
+export type DatabaseEncryptionConfig = {
+  key: string;
+  encryptedKeys: string[];
+};
+
+export type Config<Id extends string = string> = {
   id: Id;
+  elba: {
+    apiKey: string;
+    redirectUrl: string;
+    sourceId: string;
+  };
   inngestFunctions?: InngestFunction.Any[];
-  db: {
-    client: NeonDatabase<{ organisations: typeof organisationsTable }>;
-    organisations: typeof organisationsTable;
+  database: {
+    db: NeonDatabase<{ organisations: typeof organisationsTable }>;
+    organisationsTable: typeof organisationsTable;
+    encryption?: DatabaseEncryptionConfig;
   };
   routes?: {
-    auth: AuthRouteConfig<typeof organisationsTable, z.ZodSchema<Record<string, unknown>>>;
+    install?: InstallRouteConfig;
+    auth?: AuthRouteConfig<typeof organisationsTable, z.ZodSchema<Record<string, unknown>>>;
   };
   features?: {
-    users: UsersFeatureConfig<typeof organisationsTable>;
+    token?: TokenFeatureConfig<typeof organisationsTable>;
+    users?: UsersFeatureConfig<typeof organisationsTable>;
   };
 };

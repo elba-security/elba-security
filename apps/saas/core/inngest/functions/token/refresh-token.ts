@@ -1,11 +1,12 @@
 import { subMinutes } from 'date-fns/subMinutes';
 import { addSeconds } from 'date-fns/addSeconds';
 import { NonRetriableError } from 'inngest';
+import { eq } from 'drizzle-orm';
 import type { MakeInngestFunctionParams } from '../types';
-import type { BaseElbaOrganisation } from '../../../config';
 import { decryptOrganisation, encryptOrganisation } from '../../../utils/encryption';
+import { filterFields } from '../../../database/utils';
 
-export const createRefreshToken = <T extends BaseElbaOrganisation>({
+export const createRefreshToken = <T extends string>({
   inngest,
   config,
 }: MakeInngestFunctionParams<T>) =>
@@ -17,28 +18,35 @@ export const createRefreshToken = <T extends BaseElbaOrganisation>({
         limit: 1,
       },
     },
-    { event: `${inngest.id}/token.refresh.requested` },
+    { event: `${config.id}/token.refresh.requested` },
     async ({ event, step }) => {
       const { organisationId, expiresAt } = event.data;
+      const { db, organisationsTable, encryption } = config.database;
 
-      await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 30));
+      await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 5));
 
       const nextExpiresAt = await step.run('refresh-token', async () => {
-        const organisation = await config.database.organisations.getOne(organisationId);
+        const [organisation] = await db
+          .select()
+          .from(organisationsTable)
+          .where(eq(organisationsTable.id, organisationId));
 
         if (!organisation) {
           throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
         }
 
-        const decryptedOrganisation = await decryptOrganisation(organisation, config);
+        const decryptedOrganisation = await decryptOrganisation(organisation, encryption);
 
         const { expiresIn, organisation: updatedOrganisation } =
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- convenience
-          await config.token!.refreshToken(decryptedOrganisation);
+          await config.features!.token!.refreshToken!(decryptedOrganisation);
 
-        const encryptedOrganisation = await encryptOrganisation(updatedOrganisation, config);
+        const encryptedOrganisation = await encryptOrganisation(updatedOrganisation, encryption);
 
-        await config.database.organisations.updateOne(organisationId, encryptedOrganisation);
+        await db
+          .update(organisationsTable)
+          .set(filterFields(encryptedOrganisation, organisationsTable))
+          .where(eq(organisationsTable.id, organisationId));
 
         return addSeconds(new Date(), expiresIn);
       });

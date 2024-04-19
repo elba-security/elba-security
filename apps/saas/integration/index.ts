@@ -2,34 +2,13 @@ import { z } from 'zod';
 import init from '../core/init';
 import { createInngest } from '../core/inngest/client';
 import type { AuthRouteConfig, UsersFeatureConfig } from '../core/config';
-import { databaseClient, organisations } from './database';
+import { databaseClient, organisationsTable } from './database';
 
 const searchParamsSchema = z.object({
   code: z.string(),
 });
 
 // type A = typeof searchParamsSchema extends z.ZodSchema<SeachParamsSchemaOutput>
-
-const authRouteConfig: AuthRouteConfig<typeof organisations, typeof searchParamsSchema> = {
-  searchParamsSchema,
-  withState: true,
-  handle: ({ code }) => ({
-    organisation: {
-      id: 'toast',
-      token: '',
-    },
-    tokenExpiresIn: 3600,
-  }),
-};
-
-const usersFeature: UsersFeatureConfig<typeof organisations> = {
-  getUsers: (organisation, cursor) => {
-    return {
-      users: [],
-      nextCursor: null,
-    };
-  },
-};
 
 const inngest = createInngest<
   'toast',
@@ -42,12 +21,52 @@ const inngest = createInngest<
   }
 >('toast');
 
-const integration = await init(
+const authRouteConfig: AuthRouteConfig<
+  typeof organisationsTable,
+  typeof searchParamsSchema,
+  typeof inngest
+> = {
+  searchParamsSchema,
+  withState: true,
+  handle: async ({ code }) => ({
+    organisation: {
+      token: '',
+    },
+    tokenExpiresIn: 3600,
+  }),
+  experimental_emitEvents: (organisation) => ({
+    name: 'foo/bar',
+    data: {
+      baz: true,
+      id: organisation.token,
+    },
+  }),
+};
+
+const usersFeature: UsersFeatureConfig<typeof organisationsTable> = {
+  getUsers: async (organisation, cursor) => {
+    return {
+      users: [],
+      nextCursor: null,
+    };
+  },
+};
+
+export const integration = init(
   {
     id: 'toast',
-    db: {
-      client: databaseClient,
-      organisations,
+    elba: {
+      apiKey: 'api-key',
+      redirectUrl: 'https://foo.bar',
+      sourceId: 'some-client-id',
+    },
+    database: {
+      db: databaseClient,
+      organisationsTable,
+      encryption: {
+        key: 'FOO_BAR',
+        encryptedKeys: ['accessToken'],
+      },
     },
     routes: {
       auth: authRouteConfig,
