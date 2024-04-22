@@ -3,8 +3,8 @@
 import type { ResponseResolver } from 'msw';
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
+import { server } from '@elba-security/test-utils';
 import { env } from '@/env';
-import { server } from '../../vitest/setup-msw-handlers';
 import { type DopplerUser, getUsers } from './users';
 import { DopplerError } from './commons/error';
 

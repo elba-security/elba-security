@@ -1,5 +1,5 @@
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 import { getUsers } from '@/connectors/users';
@@ -20,14 +20,14 @@ export const registerOrganisation = async ({
   await getUsers({ apiKey });
 
   await db
-    .insert(Organisation)
+    .insert(organisationsTable)
     .values({
       id: organisationId,
       region,
       apiKey: encodedapiKey,
     })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
         region,
         apiKey: encodedapiKey,

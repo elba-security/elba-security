@@ -1,6 +1,6 @@
 import { env } from '@/env';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
 export const scheduleUsersSynchronize = inngest.createFunction(
@@ -9,15 +9,15 @@ export const scheduleUsersSynchronize = inngest.createFunction(
   async ({ step }) => {
     const organisations = await db
       .select({
-        id: Organisation.id,
-        region: Organisation.region,
-        apiKey: Organisation.apiKey,
+        id: organisationsTable.id,
+        region: organisationsTable.region,
+        apiKey: organisationsTable.apiKey,
       })
-      .from(Organisation);
+      .from(organisationsTable);
 
     if (organisations.length > 0) {
       await step.sendEvent(
-        'synchronize-users',
+        'doppler-synchronize-users',
         organisations.map(({ id }) => ({
           name: 'doppler/users.sync.requested',
           data: {

@@ -4,11 +4,12 @@ import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { type DopplerUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
 import { getElbaClient } from '@/connectors/elba/client';
+import { env } from '@/env';
 
 const formatElbaUser = (user: DopplerUser): User => ({
   id: user.id,
@@ -26,9 +27,9 @@ export const synchronizeUsers = inngest.createFunction(
     },
     concurrency: {
       key: 'event.data.organisationId',
-      limit: 1,
+      limit: env.USERS_SYNC_CONCURRENCY,
     },
-    retries: 5,
+    retries: env.USERS_SYNC_RETRIES,
   },
   { event: 'doppler/users.sync.requested' },
   async ({ event, step }) => {
@@ -36,11 +37,11 @@ export const synchronizeUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        apiKey: Organisation.apiKey,
-        region: Organisation.region,
+        apiKey: organisationsTable.apiKey,
+        region: organisationsTable.region,
       })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisationId));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }

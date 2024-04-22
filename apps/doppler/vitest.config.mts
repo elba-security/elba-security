@@ -9,7 +9,7 @@ if (error) {
   throw new Error(`Could not find environment variables file: .env.test`);
 }
 
-const environment: BuiltinEnvironment = 'node';
+const environment: BuiltinEnvironment = 'edge-runtime';
 
 process.env.VITEST_ENVIRONMENT = environment;
 
