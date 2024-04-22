@@ -58,7 +58,7 @@ export const getRefreshedToken = async (refreshToken: string) => {
   });
 
   if (!response.ok) {
-    throw new ConfluenceError('Could not retrieve token', { response });
+    throw new ConfluenceError('Could not refresh token', { response });
   }
 
   const data = (await response.json()) as GetTokenResponseData;
