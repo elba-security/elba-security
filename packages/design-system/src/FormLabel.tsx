@@ -1,3 +1,5 @@
+'use client';
+
 import type { ComponentProps } from 'react';
 import { useContext } from 'react';
 import { cx } from 'class-variance-authority';
@@ -7,6 +9,7 @@ export type FormLabelProps = ComponentProps<'label'>;
 
 export function FormLabel({ className, ...props }: FormLabelProps) {
   const formField = useContext(formFieldContext);
+
   return (
     <label
       className={cx(

@@ -1,13 +1,11 @@
 {
   "name": "@elba-security/design-system",
+  "private": true,
+  "main": "src/index.ts",
   "scripts": {
-    "dev": "tailwindcss -i ./components/styles.css -o ./dist/styles.css --watch",
-    "build": "tailwindcss -i ./components/styles.css -o ./dist/styles.css",
+    "dev": "tailwindcss -i ./src/styles.css -o ./dist/styles.css --watch",
+    "build": "tailwindcss -i ./src/styles.css -o ./dist/styles.css && prettier ./dist/styles.css --write",
     "prepare": "pnpm build"
-  },
-  "exports": {
-    "./styles.css": "./dist/styles.css",
-    "./*": "./components/*.tsx"
   },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",

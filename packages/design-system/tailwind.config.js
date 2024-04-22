@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./components/**/*.tsx'],
+  content: ['./src/**/*.tsx'],
   theme: {
     fontFamily: {
       title: ['TTHoves-Medium', 'sans-serif'],

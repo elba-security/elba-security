@@ -1,5 +1,5 @@
 {
   "extends": "@elba-security/tsconfig/react-library.json",
-  "include": ["components/*.tsx", "./global.d.ts"],
+  "include": ["src", "./global.d.ts"],
   "exclude": ["node_modules"]
 }

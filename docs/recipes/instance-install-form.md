@@ -13,13 +13,15 @@ When an admin is redirected from elba to an integration he land on the install p
 ```tsx
 // /app/(setup)/install/page.ts
 'use client';
-import { Form } from '@elba-security/design-system/Form';
-import { FormField } from '@elba-security/design-system/FormField';
-import { FormLabel } from '@elba-security/design-system/FormLabel';
-import { FormErrorMessage } from '@elba-security/design-system/FormErrorMessage';
-import { Input } from '@elba-security/design-system/Input';
-import { InstructionsStep } from '@elba-security/design-system/InstructionsStep';
-import { InstructionsSteps } from '@elba-security/design-system/InstructionsSteps';
+import {
+  Form,
+  FormField,
+  FormLabel,
+  FormErrorMessage,
+  Input,
+  InstructionsStep,
+  InstructionsSteps,
+} from '@elba-security/design-system';
 import { useFormState } from 'react-dom';
 import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -72,25 +74,30 @@ export default function InstallPage() {
                 placeholder="https://mycompany.{SaaS}.com"
                 type="text"
               />
-              {state.errors?.domain?.at(0)
-                ? <FormErrorMessage>{state.errors.domain.at(0)}</FormErrorMessage>
-                : null}
+              {state.errors?.domain?.at(0) ? (
+                <FormErrorMessage>{state.errors.domain.at(0)}</FormErrorMessage>
+              ) : null}
             </FormField>
 
             <FormField>
               <FormLabel>Client id</FormLabel>
               <Input minLength={1} name="clientId" placeholder="1234abds.xecr123" type="text" />
-              {state.errors?.clientId?.at(0)
-                ? <FormErrorMessage>{state.errors.clientId.at(0)}</FormErrorMessage>
-                : null}
+              {state.errors?.clientId?.at(0) ? (
+                <FormErrorMessage>{state.errors.clientId.at(0)}</FormErrorMessage>
+              ) : null}
             </FormField>
 
             <FormField>
               <FormLabel>Client secret</FormLabel>
-              <Input minLength={1} name="clientSecret" placeholder="1234abdefcghi56789" type="text" />
-              {state.errors?.clientSecret?.at(0)
-                ? <FormErrorMessage>{state.errors.clientSecret.at(0)}</FormErrorMessage>
-                : null}
+              <Input
+                minLength={1}
+                name="clientSecret"
+                placeholder="1234abdefcghi56789"
+                type="text"
+              />
+              {state.errors?.clientSecret?.at(0) ? (
+                <FormErrorMessage>{state.errors.clientSecret.at(0)}</FormErrorMessage>
+              ) : null}
             </FormField>
 
             {organisationId !== null && (
@@ -99,8 +106,8 @@ export default function InstallPage() {
             {region !== null && <input name="region" type="hidden" value={region} />}
 
             <SubmitButton>Install</SubmitButton>
-          </InstructionsStep>
-        </Form>
+          </Form>
+        </InstructionsStep>
       </InstructionsSteps>
     </>
   );

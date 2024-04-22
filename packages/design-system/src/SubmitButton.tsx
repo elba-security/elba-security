@@ -1,3 +1,5 @@
+'use client';
+
 import type { ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
 import { cx } from 'class-variance-authority';

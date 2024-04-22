@@ -1,3 +1,5 @@
+'use client';
+
 import type { ComponentProps } from 'react';
 import { createContext, useId } from 'react';
 import { cx } from 'class-variance-authority';
