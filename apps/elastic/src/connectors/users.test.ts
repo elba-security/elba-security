@@ -3,8 +3,8 @@
 import type { ResponseResolver } from 'msw';
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
+import { server } from '@elba-security/test-utils';
 import { env } from '@/env';
-import { server } from '../../vitest/setup-msw-handlers';
 import { type ElasticUser, getUsers, getAccountId, deleteUser } from './users';
 import { ElasticError } from './commons/error';
 
@@ -125,11 +125,14 @@ describe('users connector', () => {
             }
             if (params.userId !== userId) {
               // Return a JSON response with an appropriate error structure
-              return new Response(JSON.stringify({
-                errors: [
-                  { code: 'organization.membership_not_found', message: 'Membership not found' }
-                ]
-              }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+              return new Response(
+                JSON.stringify({
+                  errors: [
+                    { code: 'organization.membership_not_found', message: 'Membership not found' },
+                  ],
+                }),
+                { status: 400, headers: { 'Content-Type': 'application/json' } }
+              );
             }
             return new Response(undefined, { status: 200 });
           }

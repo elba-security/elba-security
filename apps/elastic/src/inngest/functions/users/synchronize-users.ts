@@ -4,7 +4,7 @@ import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { type ElasticUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
@@ -14,7 +14,10 @@ const formatElbaUser = (user: ElasticUser): User => ({
   id: user.user_id,
   displayName: user.name ? `${user.name}` : `${user.email}`,
   email: user.email,
-  role: user.role_assignments.organization && user.role_assignments.organization.length > 0 ? "organization-admin" : "deployment-admin",
+  role:
+    user.role_assignments.organization && user.role_assignments.organization.length > 0
+      ? 'organization-admin'
+      : 'deployment-admin',
   additionalEmails: [],
 });
 
@@ -36,12 +39,12 @@ export const synchronizeUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        apiKey: Organisation.apiKey,
-        accountId: Organisation.accountId,
-        region: Organisation.region,
+        apiKey: organisationsTable.apiKey,
+        accountId: organisationsTable.accountId,
+        region: organisationsTable.region,
       })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisationId));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }

@@ -1,7 +1,7 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/users';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { deleteSourceUsers } from './delete-users';
@@ -29,7 +29,7 @@ describe('deleteSourceUsers', () => {
   test.only('should delete user', async () => {
     // Mock database response to return organisation details
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     const [result] = setup({ userId, organisationId: organisation.id });
 

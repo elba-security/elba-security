@@ -1,7 +1,7 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as userConnector from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
@@ -35,7 +35,9 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    const getAccountId = vi.spyOn(userConnector, 'getAccountId').mockResolvedValue(getAccountIdData);
+    const getAccountId = vi
+      .spyOn(userConnector, 'getAccountId')
+      .mockResolvedValue(getAccountIdData);
 
     await expect(
       registerOrganisation({
@@ -51,8 +53,8 @@ describe('registerOrganisation', () => {
     // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
     if (!storedOrganisation) {
       throw new ElasticError(`Organisation with ID ${organisation.id} not found.`);
     }
@@ -86,9 +88,11 @@ describe('registerOrganisation', () => {
     // mocked the getUsers function
     // @ts-expect-error -- this is a mock
     vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
-    const getAccountId = vi.spyOn(userConnector, 'getAccountId').mockResolvedValue(getAccountIdData);
+    const getAccountId = vi
+      .spyOn(userConnector, 'getAccountId')
+      .mockResolvedValue(getAccountIdData);
     // pre-insert an organisation to simulate an existing entry
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     await expect(
       registerOrganisation({
@@ -104,8 +108,8 @@ describe('registerOrganisation', () => {
     // check if the apiKey in the database is updated
     const [storedOrganisation] = await db
       .select()
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
 
     if (!storedOrganisation) {
       throw new ElasticError(`Organisation with ID ${organisation.id} not found.`);

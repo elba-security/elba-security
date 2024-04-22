@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
@@ -21,14 +21,14 @@ export const deleteSourceUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        apiKey: Organisation.apiKey,
-        accountId: Organisation.accountId,
+        apiKey: organisationsTable.apiKey,
+        accountId: organisationsTable.accountId,
       })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisationId));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
 
     if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+      throw new NonRetriableError(`Could not retrieve ${userId}`);
     }
     const apiKey = await decrypt(organisation.apiKey);
     const accountId = organisation.accountId;
