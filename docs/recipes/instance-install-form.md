@@ -64,7 +64,7 @@ export default function InstallPage() {
             Copy the <strong>Client Id</strong> and the <strong>Client Secret</strong>.
           </p>
         </InstructionsStep>
-        <InstructionsStep index={2}>
+        <InstructionsStep index={3}>
           <Form action={formAction}>
             <FormField>
               <FormLabel>Domain</FormLabel>
