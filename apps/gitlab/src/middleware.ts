@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { validateWebhookRequestSignature } from '@elba-security/sdk';
-import { env } from '@/common/env';
+import { env } from '@/env';
 
 export async function middleware(request: NextRequest) {
   try {
@@ -13,5 +13,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/webhook/elba/:path*',
+  matcher: '/webhooks/elba/:path*',
 };

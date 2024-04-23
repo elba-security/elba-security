@@ -5,9 +5,8 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getRefreshToken } from '@/connectors/gitlab/auth';
-import { env } from '@/common/env';
-import { decrypt, encrypt } from '@/common/crypto';
+import { getRefreshToken } from '@/connectors/auth';
+import { encrypt, decrypt } from '@/common/crypto';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -18,21 +17,17 @@ export const refreshToken = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'gitlab/app.uninstalled',
-        match: 'data.organisationId',
-      },
-      {
         event: 'gitlab/app.installed',
         match: 'data.organisationId',
       },
     ],
-    retries: env.TOKEN_REFRESH_MAX_RETRY,
+    retries: 5,
   },
   { event: 'gitlab/token.refresh.requested' },
   async ({ event, step }) => {
     const { organisationId, expiresAt } = event.data;
 
-    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 5));
+    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 30));
 
     const nextExpiresAt = await step.run('refresh-token', async () => {
       const [organisation] = await db
@@ -45,18 +40,22 @@ export const refreshToken = inngest.createFunction(
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
+      const refreshTokenInfo = await decrypt(organisation.refreshToken);
 
       const {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
         expiresIn,
-      } = await getRefreshToken(await decrypt(organisation.refreshToken));
+      } = await getRefreshToken(refreshTokenInfo);
+
+      const encodedNewAccessToken = await encrypt(newAccessToken);
+      const encodedNewRefreshToken = await encrypt(newRefreshToken);
 
       await db
         .update(organisationsTable)
         .set({
-          accessToken: await encrypt(newAccessToken),
-          refreshToken: await encrypt(newRefreshToken),
+          accessToken: encodedNewAccessToken,
+          refreshToken: encodedNewRefreshToken,
         })
         .where(eq(organisationsTable.id, organisationId));
 

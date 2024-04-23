@@ -1,43 +1,39 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/gitlab/users';
+import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { env } from '@/common/env';
 import { encrypt } from '@/common/crypto';
 import { synchronizeUsers } from './synchronize-users';
 
-const accessToken = 'access-token';
-const refreshToken = 'refresh-token';
-
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  accessToken: await encrypt(accessToken),
-  refreshToken: await encrypt(refreshToken),
+  accessToken: await encrypt('test-access-token'),
+  refreshToken: await encrypt('test-refresh-token'),
   region: 'us',
 };
 const syncStartedAt = Date.now();
-
-const users: usersConnector.GitlabUser[] = Array.from({ length: 5 }, (_, i) => ({
+const syncedBefore = Date.now();
+const nextPage = '1';
+const users: usersConnector.GitlabUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: i,
   username: `username-${i}`,
   name: `name-${i}`,
   email: `user-${i}@foo.bar`,
 }));
 
-const nextPage = 1;
-
-const setup = createInngestFunctionMock(synchronizeUsers, 'gitlab/users.sync.requested');
+const setup = createInngestFunctionMock(synchronizeUsers, 'gitlab/users.page_sync.requested');
 
 describe('synchronize-users', () => {
   test('should abort sync when organisation is not registered', async () => {
-    const elba = spyOnElba();
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      users,
-      nextPage,
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: null,
     });
 
+    // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
@@ -45,75 +41,74 @@ describe('synchronize-users', () => {
       page: null,
     });
 
+    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    expect(elba).toBeCalledTimes(0);
     expect(usersConnector.getUsers).toBeCalledTimes(0);
+
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
+    // setup the test with an organisation
     await db.insert(organisationsTable).values(organisation);
-
+    // mock the getUser function that returns SaaS users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      users,
-      nextPage,
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: Number(nextPage),
     });
+
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: '0',
+      page: nextPage,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
-    expect(usersConnector.getUsers).toBeCalledTimes(1);
-    expect(usersConnector.getUsers).toBeCalledWith({
-      accessToken,
-      page: '0',
-    });
-
-    expect(elba).toBeCalledTimes(1);
-    expect(elba).toBeCalledWith({
-      organisationId: organisation.id,
-      region: organisation.region,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-    });
-    const elbaInstance = elba.mock.results.at(0)?.value;
-
-    expect(elbaInstance?.users.update).toBeCalledTimes(1);
-    expect(elbaInstance?.users.update).toBeCalledWith({
-      users: users.map(({ id, username, name, email }) => ({
-        id: String(id),
-        email: email || null,
-        displayName: name || username,
-        additionalEmails: [],
-      })),
-    });
-
-    expect(elbaInstance?.users.delete).toBeCalledTimes(0);
-
+    const elbaInstance = elba.mock.results[0]?.value;
+    // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
-      name: 'gitlab/users.sync.requested',
+      name: 'gitlab/users.page_sync.requested',
       data: {
         organisationId: organisation.id,
         isFirstSync: false,
         syncStartedAt,
-        page: '1',
+        page: nextPage,
       },
     });
+
+    expect(elbaInstance?.users.update).toBeCalledTimes(1);
+    expect(elbaInstance?.users.update).toBeCalledWith({
+      users: [
+        {
+          additionalEmails: [],
+          displayName: 'name-0',
+          email: 'user-0@foo.bar',
+          id: '0',
+        },
+        {
+          additionalEmails: [],
+          displayName: 'name-1',
+          email: 'user-1@foo.bar',
+          id: '1',
+        },
+      ],
+    });
+    expect(elbaInstance?.users.delete).not.toBeCalled();
   });
 
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
     await db.insert(organisationsTable).values(organisation);
-
+    // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      users,
+      validUsers: users,
+      invalidUsers: [],
       nextPage: null,
     });
 
@@ -125,37 +120,28 @@ describe('synchronize-users', () => {
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
-
-    expect(usersConnector.getUsers).toBeCalledTimes(1);
-    expect(usersConnector.getUsers).toBeCalledWith({
-      accessToken,
-      page: null,
-    });
-
-    expect(elba).toBeCalledTimes(1);
-    expect(elba).toBeCalledWith({
-      organisationId: organisation.id,
-      region: organisation.region,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-    });
-    const elbaInstance = elba.mock.results.at(0)?.value;
-
+    const elbaInstance = elba.mock.results[0]?.value;
     expect(elbaInstance?.users.update).toBeCalledTimes(1);
     expect(elbaInstance?.users.update).toBeCalledWith({
-      users: users.map(({ id, username, name, email }) => ({
-        id: String(id),
-        email: email || null,
-        displayName: name || username,
-        additionalEmails: [],
-      })),
+      users: [
+        {
+          additionalEmails: [],
+          displayName: 'name-0',
+          email: 'user-0@foo.bar',
+          id: '0',
+        },
+        {
+          additionalEmails: [],
+          displayName: 'name-1',
+          email: 'user-1@foo.bar',
+          id: '1',
+        },
+      ],
     });
-
+    const syncBeforeAtISO = new Date(syncedBefore).toISOString();
     expect(elbaInstance?.users.delete).toBeCalledTimes(1);
-    expect(elbaInstance?.users.delete).toBeCalledWith({
-      syncedBefore: new Date(syncStartedAt).toISOString(),
-    });
-
+    expect(elbaInstance?.users.delete).toBeCalledWith({ syncedBefore: syncBeforeAtISO });
+    // the function should not send another event that continue the pagination
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 });

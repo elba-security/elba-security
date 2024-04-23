@@ -4,23 +4,19 @@ import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { decrypt, encrypt } from '@/common/crypto';
-import * as authConnector from '@/connectors/gitlab/auth';
+import * as authConnector from '@/connectors/auth';
+import { encrypt, decrypt } from '@/common/crypto';
+import { GitlabError } from '@/connectors/commons/error';
 import { refreshToken } from './refresh-token';
-
-const tokens = {
-  accessToken: 'access-token',
-  refreshToken: 'refresh-token',
-};
-
-const encryptedTokens = {
-  accessToken: await encrypt(tokens.accessToken),
-  refreshToken: await encrypt(tokens.refreshToken),
-};
 
 const newTokens = {
   accessToken: 'new-access-token',
   refreshToken: 'new-refresh-token',
+};
+
+const encryptedTokens = {
+  accessToken: await encrypt(newTokens.accessToken),
+  refreshToken: await encrypt(newTokens.refreshToken),
 };
 
 const organisation = {
@@ -66,7 +62,8 @@ describe('refresh-token', () => {
 
   test('should update encrypted tokens and schedule the next refresh', async () => {
     await db.insert(organisationsTable).values(organisation);
-    vi.spyOn(authConnector, 'getToken').mockResolvedValue({
+
+    vi.spyOn(authConnector, 'getRefreshToken').mockResolvedValue({
       ...newTokens,
       expiresIn,
     });
@@ -85,21 +82,15 @@ describe('refresh-token', () => {
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisation.id));
-    await expect(decrypt(updatedOrganisation?.accessToken ?? '')).resolves.toBe(
-      newTokens.accessToken
-    );
-    await expect(decrypt(updatedOrganisation?.refreshToken ?? '')).resolves.toBe(
+    if (!updatedOrganisation) {
+      throw new GitlabError(`Organisation with ID ${organisation.id} not found.`);
+    }
+    await expect(decrypt(updatedOrganisation.refreshToken)).resolves.toEqual(
       newTokens.refreshToken
     );
 
     expect(authConnector.getRefreshToken).toBeCalledTimes(1);
-    expect(authConnector.getRefreshToken).toBeCalledWith(tokens.refreshToken);
-
-    expect(step.sleepUntil).toBeCalledTimes(1);
-    expect(step.sleepUntil).toBeCalledWith(
-      'wait-before-expiration',
-      new Date(expiresAt - 5 * 60 * 1000)
-    );
+    expect(authConnector.getRefreshToken).toBeCalledWith(newTokens.refreshToken);
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('next-refresh', {

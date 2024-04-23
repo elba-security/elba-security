@@ -91,7 +91,7 @@ export const refreshSaaSToken = inngest.createFunction(
 
     // send an event that will refresh the organisation access token
     await step.sendEvent('next-refresh', {
-      name: '{SaaS}/{Saas}.token.refresh.triggered',
+      name: '{SaaS}/{Saas}.token.refresh.requested',
       data: {
         organisationId,
         expiresAt: nextExpiresAt,
@@ -147,7 +147,7 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
-      name: '{SaaS}/users.sync.triggered',
+      name: '{SaaS}/users.sync.requested',
       data: {
         organisationId,
         isFirstSync: true,
@@ -164,7 +164,7 @@ export const setupOrganisation = async ({
     },
     // schedule a new token refresh loop
     {
-      name: '{SaaS}/token.refresh.triggered',
+      name: '{SaaS}/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: addSeconds(new Date(), expiresIn).getTime(),

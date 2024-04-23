@@ -12,7 +12,11 @@ These integrations are designed to collect and manage data, including details ab
 
 ### Integration Actions and Webhooks
 
-Elba uses webhooks to manage certain actions within these integrations. These actions include a variety of tasks such as altering user permissions and accessing files, ensuring smooth and effective interactions between elba interface and software services.
+elba uses webhooks to manage certain actions within these integrations. These actions include a variety of tasks such as altering user permissions and accessing files, ensuring smooth and effective interactions between elba interface and software services.
+
+### License
+
+[Elastic License 2.0 (ELv2)](./LICENSE)
 
 ## Getting Started
 

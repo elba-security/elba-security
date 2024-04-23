@@ -6,21 +6,31 @@
   "scripts": {
     "lint": "eslint src"
   },
+  "exports": {
+    ".": "./src/index.ts",
+    "./vitest/global-setup": "./src/vitest/global-setup.ts",
+    "./vitest/setup-database": "./src/vitest/setup-database.ts",
+    "./vitest/setup-msw-handlers": "./src/vitest/setup-msw-handlers.ts"
+  },
   "dependencies": {
     "@elba-security/api-client": "workspace:*",
     "typescript": "^5",
     "zod": "^3.22.4"
   },
   "peerDependencies": {
-    "msw": ">=2.0.0",
-    "inngest": ">=3.12.0",
     "@elba-security/sdk": "workspace:*",
+    "drizzle-orm": ">=0.29.0",
+    "inngest": ">=3.12.0",
+    "msw": ">=2.0.0",
+    "postgres": ">=3.4.0",
+    "testcontainers": ">=10.8.0",
     "vitest": ">=1.0.0"
   },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
+    "eslint": "^8",
     "inngest": "3.14.2",
-    "eslint": "^8"
+    "testcontainers": "^10.8.1"
   }
 }

@@ -1,43 +1,38 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation. When requesting against API endpoint we might prefer
- * to valid the response data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
-
+import { z } from 'zod';
 import { env } from '@/env';
 import { GitlabError } from './commons/error';
 import { getNextPageFromLink } from './commons/pagination';
 
-export type GitlabUser = {
-  id: string;
-  username: string;
-  name: string;
-  email: string | undefined;
-};
+const gitlabUserSchema = z.object({
+  id: z.number(),
+  username: z.string(),
+  name: z.string().optional(),
+  email: z.string().optional(),
+});
 
-type GitlabResponse = GitlabUser[];
+export type GitlabUser = z.infer<typeof gitlabUserSchema>;
 
-export type GitlabPaginatedResponse<T> = {
-  'next'?: string;
-  data: T[];
-};
+const gitlabResponseSchema = z.array(z.unknown());
 
 export type GetUsersParams = {
-  token: string;
-  page: string | null;
+  accessToken: string;
+  page?: string | null;
 };
-export const getUsers = async ({ token, page }: GetUsersParams) => {
 
+export type DeleteUsersParams = {
+  userId: string;
+  accessToken: string;
+};
+
+export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   const url = new URL(`${env.GITLAB_API_BASE_URL}api/v4/users`);
   url.searchParams.append('pagination', 'keyset');
-  url.searchParams.append('per_page', env.USERS_SYNC_BATCH_SIZE);
+  url.searchParams.append('per_page', String(env.USERS_SYNC_BATCH_SIZE));
   url.searchParams.append('order_by', 'id');
   url.searchParams.append('sort', 'asc');
   url.searchParams.append('active', 'true');
-  url.searchParams.append('without_project_bots', 'true')
-  
+  url.searchParams.append('without_project_bots', 'true');
+
   if (page) {
     url.searchParams.append('id_after', page);
   }
@@ -46,18 +41,51 @@ export const getUsers = async ({ token, page }: GetUsersParams) => {
     method: 'GET',
     headers: {
       Accept: 'application/json',
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
-  
+
   if (!response.ok) {
     throw new GitlabError('Could not retrieve users', { response });
   }
-
-  const data = (await response.json()) as GitlabResponse;
+  const resData: unknown = await response.json();
 
   const linkHeader = response.headers.get('Link');
-  const paging = getNextPageFromLink(linkHeader);
+  const nextPage = getNextPageFromLink(linkHeader);
 
-  return {data, paging};
+  const data = gitlabResponseSchema.parse(resData);
+
+  const validUsers: GitlabUser[] = [];
+  const invalidUsers: unknown[] = [];
+
+  for (const node of data) {
+    const result = gitlabUserSchema.safeParse(node);
+    if (result.success) {
+      validUsers.push(result.data);
+    } else {
+      invalidUsers.push(node);
+    }
+  }
+
+  return {
+    validUsers,
+    invalidUsers,
+    nextPage,
+  };
+};
+
+export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => {
+  const url = `${env.GITLAB_API_BASE_URL}api/v4/users/${userId}`;
+
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new GitlabError(`Could not delete user with Id: ${userId}`, { response });
+  }
 };

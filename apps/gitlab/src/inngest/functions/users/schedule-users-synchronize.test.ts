@@ -9,10 +9,10 @@ const now = Date.now();
 const setup = createInngestFunctionMock(scheduleUsersSynchronize);
 
 export const organisations = Array.from({ length: 5 }, (_, i) => ({
-  id: `b91f113b-bcf9-4a28-98c7-5b13fb671c1${i}`,
-  region: 'us',
-  accessToken: `some access-token${i}`,
-  refreshToken: `some refresh-token${i}`,
+  id: `45a76301-f1dd-4a77-b12f-9d7d3fca3c9${i}`,
+  accessToken: `test-access-token${i}`,
+  refreshToken: `test-refresh-token${i}`,
+  region: `us`,
 }));
 
 describe('schedule-users-syncs', () => {
@@ -35,13 +35,13 @@ describe('schedule-users-syncs', () => {
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      organisations: organisations.map(({ id }) => ({ id })),
+      organisations: organisations.map(({ ...organisation }) => organisation),
     });
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
       'synchronize-users',
       organisations.map(({ id }) => ({
-        name: 'gitlab/users.sync.requested',
+        name: 'gitlab/users.page_sync.requested',
         data: {
           organisationId: id,
           syncStartedAt: now,
