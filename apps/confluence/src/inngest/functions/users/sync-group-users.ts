@@ -36,16 +36,16 @@ export const syncGroupUsers = inngest.createFunction(
         groupId,
         cursor,
       });
-      const altassianMembers = result.members.filter((user) => user.accountType === 'atlassian');
+      const atlassianMembers = result.members.filter((user) => user.accountType === 'atlassian');
 
-      if (altassianMembers.length > 0) {
+      if (atlassianMembers.length > 0) {
         await updateUsers({
-          users: altassianMembers,
+          users: atlassianMembers,
           organisationId,
           syncStartedAt,
         });
         await elba.users.update({
-          users: altassianMembers.map(formatElbaUser),
+          users: atlassianMembers.map(formatElbaUser),
         });
       }
 

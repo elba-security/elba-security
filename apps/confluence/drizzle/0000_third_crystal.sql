@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"public_name" text NOT NULL,
 	"display_name" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "users_organisation_id_id_last_sync_at_unique" UNIQUE("organisation_id","id","last_sync_at")
+	CONSTRAINT "users_organisation_id_id_unique" UNIQUE("organisation_id","id")
 );
 --> statement-breakpoint
 DO $$ BEGIN

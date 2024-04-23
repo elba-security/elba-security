@@ -1,5 +1,5 @@
 {
-  "id": "583bd929-6751-4559-8ce5-859cd163476f",
+  "id": "40521ff4-66a0-4742-ac19-58c3768a401b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -106,26 +106,18 @@
           "tableFrom": "users",
           "tableTo": "organisations",
           "schemaTo": "public",
-          "columnsFrom": [
-            "organisation_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organisation_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_organisation_id_id_last_sync_at_unique": {
-          "name": "users_organisation_id_id_last_sync_at_unique",
+        "users_organisation_id_id_unique": {
+          "name": "users_organisation_id_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "organisation_id",
-            "id",
-            "last_sync_at"
-          ]
+          "columns": ["organisation_id", "id"]
         }
       }
     }

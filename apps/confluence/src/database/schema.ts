@@ -23,7 +23,6 @@ export const usersTable = pgTable(
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
   (t) => ({
-    // using lastSyncAt allows duplicate data during updates
-    unq: unique().on(t.organisationId, t.id, t.lastSyncAt),
+    unq: unique().on(t.organisationId, t.id),
   })
 );

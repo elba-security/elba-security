@@ -127,9 +127,7 @@ describe('sync-group-users', () => {
       },
     });
 
-    await expect(db.select().from(usersTable)).resolves.toHaveLength(
-      users.length + atlassianMembers.length
-    );
+    await expect(db.select().from(usersTable)).resolves.toHaveLength(users.length);
   });
 
   test('should finalize the sync when their is no more page', async () => {
@@ -176,8 +174,6 @@ describe('sync-group-users', () => {
 
     expect(step.invoke).toBeCalledTimes(0);
 
-    await expect(db.select().from(usersTable)).resolves.toHaveLength(
-      users.length + atlassianMembers.length
-    );
+    await expect(db.select().from(usersTable)).resolves.toHaveLength(users.length);
   });
 });
