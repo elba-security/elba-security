@@ -1,34 +1,9 @@
 import { z } from 'zod';
 
-const zEnvRetry = (defaultValue = '3') =>
-  z
-    .string()
-    .transform(Number)
-    .pipe(z.number().int().min(0).max(20))
-    .default(defaultValue) as unknown as z.ZodUnion<
-    [
-      z.ZodLiteral<0>,
-      z.ZodLiteral<1>,
-      z.ZodLiteral<2>,
-      z.ZodLiteral<3>,
-      z.ZodLiteral<4>,
-      z.ZodLiteral<5>,
-      z.ZodLiteral<6>,
-      z.ZodLiteral<7>,
-      z.ZodLiteral<8>,
-      z.ZodLiteral<9>,
-      z.ZodLiteral<10>,
-      z.ZodLiteral<11>,
-      z.ZodLiteral<12>,
-      z.ZodLiteral<13>,
-      z.ZodLiteral<14>,
-      z.ZodLiteral<15>,
-      z.ZodLiteral<16>,
-      z.ZodLiteral<17>,
-      z.ZodLiteral<18>,
-      z.ZodLiteral<19>,
-      z.ZodLiteral<20>,
-    ]
+const zEnvInt = () => z.coerce.number().int().positive();
+const zEnvRetry = () =>
+  z.coerce.number().int().min(0).max(20).optional().default(3) as unknown as z.ZodLiteral<
+    0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20
   >;
 
 export const env = z
@@ -45,10 +20,14 @@ export const env = z
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     ENCRYPTION_KEY: z.string().min(1),
     DATABASE_URL: z.string().min(1),
-    DATABASE_PROXY_PORT: z.coerce.number().int().positive().optional(),
+    DATABASE_PROXY_PORT: zEnvInt().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
     TOKEN_REFRESH_MAX_RETRY: zEnvRetry(),
-    USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().default(2),
+    BOX_USERS_SYNC_CRON: z.string().default('0 0 * * 1-5'),
+    BOX_USERS_SYNC_RETRIES: zEnvRetry().default(5),
+    BOX_USERS_SYNC_CONCURRENCY: zEnvInt().default(1),
+    BOX_USERS_SYNC_BATCH_SIZE: zEnvInt().default(500),
+    BOX_USER_DELETE_CONCURRENCY: zEnvInt().default(5),
+    BOX_USER_DELETE_RETRIES: zEnvRetry().default(5),
   })
   .parse(process.env);

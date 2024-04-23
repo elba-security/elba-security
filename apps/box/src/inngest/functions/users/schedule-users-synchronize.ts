@@ -5,14 +5,11 @@ import { inngest } from '../../client';
 
 export const scheduleUsersSynchronize = inngest.createFunction(
   { id: 'box-schedule-users-syncs' },
-  { cron: env.USERS_SYNC_CRON },
+  { cron: env.BOX_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({
         id: organisationsTable.id,
-        region: organisationsTable.region,
-        accessToken: organisationsTable.accessToken,
-        refreshToken: organisationsTable.refreshToken,
       })
       .from(organisationsTable);
 

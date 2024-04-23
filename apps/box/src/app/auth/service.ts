@@ -34,7 +34,6 @@ export const setupOrganisation = async ({
       set: {
         accessToken: encodedAccessToken,
         refreshToken: encodedRefreshToken,
-        region,
       },
     });
 

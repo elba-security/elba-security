@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { env } from '@/env';
-import { getBoxApiClient } from '@/common/apiclient';
 import { BoxError } from './commons/error';
 
 const boxUserSchema = z.object({
@@ -29,10 +28,9 @@ export type DeleteUsersParams = {
   token: string;
 };
 
-const count = env.USERS_SYNC_BATCH_SIZE;
+const count = env.BOX_USERS_SYNC_BATCH_SIZE;
 
 export const getUsers = async ({ token, nextPage }: GetUsersParams) => {
-  const boxApiClient = getBoxApiClient();
   const url = new URL(`${env.BOX_API_BASE_URL}2.0/users`);
   url.searchParams.append('limit', String(count));
 
@@ -40,7 +38,20 @@ export const getUsers = async ({ token, nextPage }: GetUsersParams) => {
     url.searchParams.append('offset', String(nextPage));
   }
 
-  const data: unknown = await boxApiClient.get(url.toString(), token);
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new BoxError('Could not retrieve users', { response });
+  }
+
+  const data: unknown = await response.json();
+
   const { entries, offset, limit, total_count: totalCount } = boxResponseSchema.parse(data);
 
   const validUsers: BoxUser[] = [];

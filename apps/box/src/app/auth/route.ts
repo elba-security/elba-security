@@ -1,6 +1,7 @@
 import { RedirectType, redirect } from 'next/navigation';
 import type { NextRequest } from 'next/server';
 import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
+import { getRedirectUrl } from '@elba-security/sdk';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
 
@@ -24,5 +25,12 @@ export async function GET(request: NextRequest) {
 
   await setupOrganisation({ organisationId, code, region });
 
-  redirect(env.ELBA_REDIRECT_URL, RedirectType.replace);
+  redirect(
+    getRedirectUrl({
+      region,
+      sourceId: env.ELBA_SOURCE_ID,
+      baseUrl: env.ELBA_REDIRECT_URL,
+    }),
+    RedirectType.replace
+  );
 }

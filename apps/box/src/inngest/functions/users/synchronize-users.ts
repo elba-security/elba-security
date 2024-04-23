@@ -9,6 +9,7 @@ import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { type BoxUser } from '@/connectors/users';
 import { getElbaClient } from '@/connectors/elba/client';
+import { env } from '@/env';
 
 const formatElbaUser = (user: BoxUser): User => ({
   id: user.id,
@@ -25,9 +26,19 @@ export const synchronizeUsers = inngest.createFunction(
     },
     concurrency: {
       key: 'event.data.organisationId',
-      limit: 1,
+      limit: env.BOX_USERS_SYNC_CONCURRENCY,
     },
-    retries: 3,
+    cancelOn: [
+      {
+        event: 'box/app.uninstalled',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'box/app.installed',
+        match: 'data.organisationId',
+      },
+    ],
+    retries: env.BOX_USERS_SYNC_RETRIES,
   },
   { event: 'box/users.sync.requested' },
   async ({ event, step }) => {

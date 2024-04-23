@@ -9,7 +9,7 @@ const now = Date.now();
 const setup = createInngestFunctionMock(scheduleUsersSynchronize);
 
 export const organisations = Array.from({ length: 5 }, (_, i) => ({
-  id: `45a76301-f1dd-4a77-b12f-9d7d3fca3c9${i}`,
+  id: `00000000-0000-0000-0000-00000000000${i}`,
   accessToken: `test-access-token${i}`,
   refreshToken: `test-refresh-token${i}`,
   region: `us`,
@@ -35,7 +35,9 @@ describe('schedule-users-syncs', () => {
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      organisations: organisations.map(({ ...organisation }) => organisation),
+      organisations: organisations.map(({ id }) => ({
+        id,
+      })),
     });
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
