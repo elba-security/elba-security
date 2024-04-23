@@ -1,6 +1,6 @@
-import { uuid, text, timestamp, pgTable, boolean } from 'drizzle-orm/pg-core';
+import { uuid, text, timestamp, pgTable } from 'drizzle-orm/pg-core';
 
-export const Organisation = pgTable('organisation', {
+export const organisationsTable = pgTable('organisations', {
   id: uuid('id').primaryKey(),
   region: text('region').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
