@@ -47,6 +47,7 @@
     "inngest-cli": "^0.25.2",
     "msw": "^2.0.1",
     "postgres": "^3.4.3",
+    "testcontainers": "^10.8.1",
     "typescript": "^5",
     "vitest": "1.4.0"
   }
