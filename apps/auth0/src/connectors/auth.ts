@@ -13,15 +13,17 @@ export const getToken = async (
   audience: string,
   domain: string
 ) => {
+  const body = new URLSearchParams({
+    client_id: clientId,
+    client_secret: clientSecret,
+    audience,
+    grant_type: 'client_credentials',
+  });
+
   const response = await fetch(`https://${domain}/oauth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: JSON.stringify({
-      grant_type: 'client_credentials',
-      client_id: clientId,
-      client_secret: clientSecret,
-      audience,
-    }),
+    body: body.toString(),
   });
 
   if (!response.ok) {
