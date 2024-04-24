@@ -7,7 +7,7 @@ import { deleteUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/env';
 
-export const deleteSourceUsers = inngest.createFunction(
+export const deleteSourceUser = inngest.createFunction(
   {
     id: 'zoom-delete-users',
     concurrency: {

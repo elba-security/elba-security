@@ -4,7 +4,7 @@ import * as usersConnector from '@/connectors/users';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
-import { deleteSourceUsers } from './delete-users';
+import { deleteSourceUser } from './delete-users';
 
 const userId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
 const accessToken = 'test-access-token';
@@ -19,9 +19,9 @@ const organisation = {
 };
 
 // Setup function mock for Inngest
-const setup = createInngestFunctionMock(deleteSourceUsers, 'zoom/users.delete.requested');
+const setup = createInngestFunctionMock(deleteSourceUser, 'zoom/users.delete.requested');
 
-describe('deleteSourceUsers', () => {
+describe('deleteSourceUser', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });

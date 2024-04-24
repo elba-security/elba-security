@@ -1,6 +1,6 @@
-import { RedirectType, redirect } from 'next/navigation';
 import type { NextRequest } from 'next/server';
 import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
+import { logger } from '@elba-security/logger';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   try {
     await setupOrganisation({ organisationId, code, region });
   } catch (error) {
-    // log it
+    logger.error('Could not setup organisation', { error, organisationId });
     return new ElbaInstallRedirectResponse({
       region,
       sourceId: env.ELBA_SOURCE_ID,
@@ -32,5 +32,10 @@ export async function GET(request: NextRequest) {
       error: 'internal_error',
     });
   }
-  redirect(env.ELBA_REDIRECT_URL, RedirectType.replace);
+
+  return new ElbaInstallRedirectResponse({
+    region,
+    sourceId: env.ELBA_SOURCE_ID,
+    baseUrl: env.ELBA_REDIRECT_URL,
+  });
 }

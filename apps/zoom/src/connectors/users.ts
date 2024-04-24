@@ -80,7 +80,7 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
     },
   });
 
-  if (!response.ok) {
+  if (!response.ok && response.status !== 404) {
     throw new ZoomError(`Could not delete user with Id: ${userId}`, { response });
   }
 };

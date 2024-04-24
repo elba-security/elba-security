@@ -19,7 +19,7 @@ const formatElbaUser = (user: ZoomUser): User => ({
 
 export const synchronizeUsers = inngest.createFunction(
   {
-    id: 'zoom-sync-users-page',
+    id: 'zoom-sync-users',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },

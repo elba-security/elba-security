@@ -3,7 +3,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
-export const scheduleUsersSynchronize = inngest.createFunction(
+export const scheduleUsersSyncs = inngest.createFunction(
   {
     id: 'zoom-schedule-users-syncs',
     cancelOn: [

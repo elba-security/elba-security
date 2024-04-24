@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 export const env = z
   .object({
-    ZOOM_APP_INSTALL_URL: z.string().url(),
-    ZOOM_API_BASE_URL: z.string().url(),
+    ZOOM_APP_INSTALL_URL: z.string().url().default('https://zoom.us/oauth/'),
+    ZOOM_API_BASE_URL: z.string().url().default('https://api.zoom.us/v2/'),
     ZOOM_CLIENT_ID: z.string().min(1),
     ZOOM_CLIENT_SECRET: z.string().min(1),
     ZOOM_REDIRECT_URI: z.string().url(),
