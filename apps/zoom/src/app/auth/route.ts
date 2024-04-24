@@ -32,5 +32,9 @@ export async function GET(request: NextRequest) {
       error: 'internal_error',
     });
   }
-  redirect(env.ELBA_REDIRECT_URL, RedirectType.replace);
+    return new ElbaInstallRedirectResponse({
+      region,
+      sourceId: env.ELBA_SOURCE_ID,
+      baseUrl: env.ELBA_REDIRECT_URL,
+    });
 }
