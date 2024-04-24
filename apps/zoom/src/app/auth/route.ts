@@ -4,7 +4,6 @@ import { logger } from '@elba-security/logger';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
 
-export const preferredRegion = env.VERCEL_PREFERRED_REGION;
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 

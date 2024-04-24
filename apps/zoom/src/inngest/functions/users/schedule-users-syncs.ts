@@ -14,7 +14,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
     ],
     retries: 5,
   },
-  { cron: env.USERS_SYNC_CRON },
+  { cron: env.ZOOM_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({

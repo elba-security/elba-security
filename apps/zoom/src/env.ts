@@ -17,7 +17,7 @@ export const env = z
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: z.coerce.number().int().positive().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
-    USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().default(2),
+    ZOOM_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
+    ZOOM_USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().default(2),
   })
   .parse(process.env);

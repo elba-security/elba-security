@@ -29,7 +29,7 @@ export type DeleteUsersParams = {
 
 export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   const url = new URL(`${env.ZOOM_API_BASE_URL}users`);
-  url.searchParams.append('page_size', String(env.USERS_SYNC_BATCH_SIZE));
+  url.searchParams.append('page_size', String(env.ZOOM_USERS_SYNC_BATCH_SIZE));
 
   if (page) {
     url.searchParams.append('next_page_token', page);
