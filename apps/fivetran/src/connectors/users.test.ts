@@ -3,8 +3,8 @@
 import type { ResponseResolver } from 'msw';
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
+import { server } from '@elba-security/test-utils';
 import { env } from '@/env';
-import { server } from '../../vitest/setup-msw-handlers';
 import { type FivetranUser, getUsers, deleteUser } from './users';
 import { FivetranError } from './commons/error';
 
@@ -34,29 +34,26 @@ describe('users connector', () => {
         }
 
         const url = new URL(request.url);
-        const after = url.searchParams.get('cursor');
-        let returnData;
-        if (after) {
-          returnData = {
-            data: {
-              items: validUsers,
-              next_cursor: nextCursor,
-            },
-          };
-        } else {
-          returnData = {
-            data: {
-              items: validUsers,
-            },
-          };
-        }
+        const cursor = url.searchParams.get('cursor');
+        const returnData = cursor
+          ? {
+              data: {
+                items: validUsers,
+                next_cursor: nextCursor,
+              },
+            }
+          : {
+              data: {
+                items: validUsers,
+              },
+            };
         return Response.json(returnData);
       };
       server.use(http.get(`${env.FIVETRAN_API_BASE_URL}users`, resolver));
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(getUsers({ apiKey, apiSecret, afterToken: nextCursor })).resolves.toStrictEqual({
+      await expect(getUsers({ apiKey, apiSecret, cursor: nextCursor })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
         nextPage: nextCursor,
@@ -64,7 +61,7 @@ describe('users connector', () => {
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(getUsers({ apiKey, apiSecret, afterToken: null })).resolves.toStrictEqual({
+      await expect(getUsers({ apiKey, apiSecret, cursor: null })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
         nextPage: null,
@@ -76,7 +73,7 @@ describe('users connector', () => {
         getUsers({
           apiKey: 'foo-id',
           apiSecret: 'foo-id',
-          afterToken: nextCursor,
+          cursor: nextCursor,
         })
       ).rejects.toBeInstanceOf(FivetranError);
     });

@@ -1,38 +1,43 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/users';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
+import * as crypto from '@/common/crypto';
 import { deleteSourceUser } from './delete-users';
 
-const userId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const userId = 'user-id-1';
 const apiKey = 'test-api-key';
 const apiSecret = 'test-api-secret';
 
-// Mock data for organisation and user
 const organisation = {
-  id: userId,
+  id: organisationId,
   apiKey,
   apiSecret,
   region: 'us',
 };
 
-// Setup function mock for Inngest
 const setup = createInngestFunctionMock(deleteSourceUser, 'fivetran/users.delete.requested');
 
 describe('deleteSourceUser', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  test.only('should delete user', async () => {
-    // Mock database response to return organisation details
+  test('should delete user', async () => {
+    vi.spyOn(crypto, 'decrypt')
+      .mockResolvedValueOnce('test-api-key')
+      .mockResolvedValueOnce('test-api-secret');
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     const [result] = setup({ userId, organisationId: organisation.id });
 
-    // Assert the function resolves successfully
     await expect(result).resolves.toStrictEqual(undefined);
 
     expect(usersConnector.deleteUser).toBeCalledTimes(1);

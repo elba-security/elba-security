@@ -1,7 +1,8 @@
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/users';
+import { encrypt } from '@/common/crypto';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -16,23 +17,22 @@ export const registerOrganisation = async ({
   apiSecret,
   region,
 }: SetupOrganisationParams) => {
-  
   await getUsers({ apiKey, apiSecret });
-
+  const encryptedApiKey = await encrypt(apiKey);
+  const encryptedApiSecret = await encrypt(apiSecret);
   await db
-    .insert(Organisation)
+    .insert(organisationsTable)
     .values({
       id: organisationId,
+      apiKey: encryptedApiKey,
+      apiSecret: encryptedApiSecret,
       region,
-      apiKey,
-      apiSecret,
     })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
-        region,
-        apiKey,
-        apiSecret,
+        apiKey: encryptedApiKey,
+        apiSecret: encryptedApiSecret,
       },
     });
 

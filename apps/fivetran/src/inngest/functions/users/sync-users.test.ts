@@ -1,10 +1,11 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { synchronizeUsers } from './synchronize-users';
+import { organisationsTable } from '@/database/schema';
+import * as crypto from '@/common/crypto';
+import { synchronizeUsers } from './sync-users';
 
 const nextPage = '1';
 const organisation = {
@@ -28,8 +29,14 @@ const syncStartedAt = Date.now();
 const setup = createInngestFunctionMock(synchronizeUsers, 'fivetran/users.sync.requested');
 
 describe('sync-users', () => {
+  beforeEach(() => {
+    vi.spyOn(crypto, 'decrypt')
+      .mockResolvedValueOnce('test-api-key')
+      .mockResolvedValueOnce('test-api-secret');
+    vi.clearAllMocks;
+  });
+
   test('should abort sync when organisation is not registered', async () => {
-    // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
@@ -37,20 +44,14 @@ describe('sync-users', () => {
       page: null,
     });
 
-    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    // check that the function is not sending other event
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
   test('should continue the sync when the organization is registered', async () => {
     const elba = spyOnElba();
+    await db.insert(organisationsTable).values(organisation);
 
-    // setup the test with an organisation
-    await db.insert(Organisation).values(organisation);
-
-    // mock the getUser function that returns SaaS users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -74,14 +75,14 @@ describe('sync-users', () => {
           displayName: 'given_name-0 family_name-0',
           email: 'user-0@foo.bar',
           id: '0',
-          role: 'admin',
+          role: 'Account Administrator',
         },
         {
           additionalEmails: [],
           displayName: 'given_name-1 family_name-1',
           email: 'user-1@foo.bar',
           id: '1',
-          role: 'admin',
+          role: 'Account Administrator',
         },
       ],
     });
@@ -99,8 +100,9 @@ describe('sync-users', () => {
   });
 
   test('should finalize the sync when there is a no next page', async () => {
-    await db.insert(Organisation).values(organisation);
-    // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
+    const elba = spyOnElba();
+    await db.insert(organisationsTable).values(organisation);
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -116,7 +118,32 @@ describe('sync-users', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
-    // the function should not send another event that continue the pagination
+    const elbaInstance = elba.mock.results[0]?.value;
+    expect(elbaInstance?.users.update).toBeCalledTimes(1);
+    expect(elbaInstance?.users.update).toBeCalledWith({
+      users: [
+        {
+          additionalEmails: [],
+          displayName: 'given_name-0 family_name-0',
+          email: 'user-0@foo.bar',
+          id: '0',
+          role: 'Account Administrator',
+        },
+        {
+          additionalEmails: [],
+          displayName: 'given_name-1 family_name-1',
+          email: 'user-1@foo.bar',
+          id: '1',
+          role: 'Account Administrator',
+        },
+      ],
+    });
+
+    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
+    expect(elbaInstance?.users.delete).toBeCalledWith({
+      syncedBefore: new Date(syncStartedAt).toISOString(),
+    });
+
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 });

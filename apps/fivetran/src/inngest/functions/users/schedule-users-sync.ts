@@ -1,20 +1,17 @@
 import { env } from '@/env';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
 export const scheduleUsersSynchronize = inngest.createFunction(
   { id: 'fivetran-schedule-users-syncs' },
-  { cron: env.USERS_SYNC_CRON },
+  { cron: env.FIVETRAN_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({
-        id: Organisation.id,
-        region: Organisation.region,
-        apiKey: Organisation.apiKey,
-        apiSecret: Organisation.apiSecret,
+        id: organisationsTable.id,
       })
-      .from(Organisation);
+      .from(organisationsTable);
 
     if (organisations.length > 0) {
       await step.sendEvent(

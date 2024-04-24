@@ -4,15 +4,17 @@ import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { type FivetranUser } from '@/connectors/users';
 import { getElbaClient } from '@/connectors/elba/client';
+import { decrypt } from '@/common/crypto';
 
 const formatElbaUserDisplayName = (user: FivetranUser) => {
-  if (user.given_name && user.family_name) {
-    return `${user.given_name} ${user.family_name}`;
+  if (user.given_name || user.family_name) {
+    return `${user.given_name || ''} ${user.family_name || ''}`.trim();
   }
+
   return user.email;
 };
 
@@ -20,7 +22,7 @@ const formatElbaUser = (user: FivetranUser): User => ({
   id: user.id,
   displayName: formatElbaUserDisplayName(user),
   email: user.email,
-  role: user.role === 'Account Administrator' ? 'admin' : 'member',
+  role: user.role,
   additionalEmails: [],
 });
 
@@ -34,6 +36,16 @@ export const synchronizeUsers = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
+    cancelOn: [
+      {
+        event: 'fivetran/app.uninstalled',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'fivetran/app.installed',
+        match: 'data.organisationId',
+      },
+    ],
     retries: 3,
   },
   { event: 'fivetran/users.sync.requested' },
@@ -42,23 +54,27 @@ export const synchronizeUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        apiKey: Organisation.apiKey,
-        apiSecret: Organisation.apiSecret,
-        region: Organisation.region,
+        apiKey: organisationsTable.apiKey,
+        apiSecret: organisationsTable.apiSecret,
+        region: organisationsTable.region,
       })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisationId));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
+
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
+
+    const decryptedApiKey = await decrypt(organisation.apiKey);
+    const decryptedApiSecret = await decrypt(organisation.apiSecret);
 
     const elba = getElbaClient({ organisationId, region: organisation.region });
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({
-        apiKey: organisation.apiKey,
-        apiSecret: organisation.apiSecret,
-        afterToken: page,
+        apiKey: decryptedApiKey,
+        apiSecret: decryptedApiSecret,
+        cursor: page,
       });
 
       const users = result.validUsers.filter(({ active }) => active).map(formatElbaUser);
@@ -69,12 +85,12 @@ export const synchronizeUsers = inngest.createFunction(
           invalidUsers: result.invalidUsers,
         });
       }
+
       await elba.users.update({ users });
 
       return result.nextPage;
     });
 
-    // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('synchronize-users', {
         name: 'fivetran/users.sync.requested',

@@ -1,10 +1,10 @@
 import { inngest } from '@/inngest/client';
 
 export const deleteUsers = async ({
-  userIds,
+  userId,
   organisationId,
 }: {
-  userIds: string;
+  userId: string;
   organisationId: string;
 }) => {
   await inngest.send([
@@ -12,7 +12,7 @@ export const deleteUsers = async ({
       name: 'fivetran/users.delete.requested',
       data: {
         organisationId,
-        userIds,
+        userId,
       },
     },
   ]);

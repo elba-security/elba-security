@@ -1,8 +1,12 @@
-import { uuid, text, pgTable } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { uuid, text, pgTable, timestamp } from 'drizzle-orm/pg-core';
 
-export const Organisation = pgTable('organisation', {
+export const organisationsTable = pgTable('organisations', {
   id: uuid('id').primaryKey(),
+  apiKey: text('api_key').notNull(),
+  apiSecret: text('api_secret').notNull(),
   region: text('region').notNull(),
-  apiKey: text('apiKey').notNull(),
-  apiSecret: text('apiSecret').notNull(),
+  createdAt: timestamp('created_at')
+    .default(sql`now()`)
+    .notNull(),
 });

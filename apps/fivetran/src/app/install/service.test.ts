@@ -1,11 +1,12 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as userConnector from '@/connectors/users';
 import type { FivetranUser } from '@/connectors/users';
 import { FivetranError } from '@/connectors/commons/error';
+import { decrypt } from '@/common/crypto';
 import { registerOrganisation } from './service';
 
 const apiKey = 'test-api-key';
@@ -65,14 +66,14 @@ describe('registerOrganisation', () => {
     // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
     if (!storedOrganisation) {
       throw new FivetranError(`Organisation with ID ${organisation.id} not found.`);
     }
     expect(storedOrganisation.region).toBe(region);
-    expect(storedOrganisation.apiKey).toBe(apiKey);
-    expect(storedOrganisation.apiSecret).toBe(apiSecret);
+    await expect(decrypt(storedOrganisation.apiKey)).resolves.toEqual(apiKey);
+    await expect(decrypt(storedOrganisation.apiSecret)).resolves.toEqual(apiSecret);
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
@@ -103,7 +104,7 @@ describe('registerOrganisation', () => {
     vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
     // pre-insert an organisation to simulate an existing entry
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     await expect(
       registerOrganisation({
@@ -120,15 +121,15 @@ describe('registerOrganisation', () => {
     // check if the apiKey in the database is updated
     const [storedOrganisation] = await db
       .select()
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
 
     if (!storedOrganisation) {
       throw new FivetranError(`Organisation with ID ${organisation.id} not found.`);
     }
     expect(storedOrganisation.region).toBe(region);
-    expect(storedOrganisation.apiKey).toBe(apiKey);
-    expect(storedOrganisation.apiSecret).toBe(apiSecret);
+    await expect(decrypt(storedOrganisation.apiKey)).resolves.toEqual(apiKey);
+    await expect(decrypt(storedOrganisation.apiSecret)).resolves.toEqual(apiSecret);
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([

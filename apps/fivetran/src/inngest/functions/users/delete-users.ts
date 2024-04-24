@@ -1,16 +1,18 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUser } from '@/connectors/users';
+import { env } from '@/env';
+import { decrypt } from '@/common/crypto';
 
 export const deleteSourceUser = inngest.createFunction(
   {
     id: 'fivetran-delete-users',
     concurrency: {
       key: 'event.data.organisationId',
-      limit: 1,
+      limit: env.FIVETRAN_USERS_DELETE_CONCURRENCY,
     },
     retries: 5,
   },
@@ -20,11 +22,11 @@ export const deleteSourceUser = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        apiKey: Organisation.apiKey,
-        apiSecret: Organisation.apiSecret,
+        apiKey: organisationsTable.apiKey,
+        apiSecret: organisationsTable.apiSecret,
       })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisationId));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
 
     if (!organisation) {
       throw new NonRetriableError(
@@ -32,10 +34,13 @@ export const deleteSourceUser = inngest.createFunction(
       );
     }
 
+    const decryptedApiKey = await decrypt(organisation.apiKey);
+    const decryptedApiSecret = await decrypt(organisation.apiSecret);
+
     await deleteUser({
       userId,
-      apiKey: organisation.apiKey,
-      apiSecret: organisation.apiSecret,
+      apiKey: decryptedApiKey,
+      apiSecret: decryptedApiSecret,
     });
   }
 );
