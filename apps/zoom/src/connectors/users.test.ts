@@ -14,9 +14,10 @@ const nextPage = '1';
 const userId = 'test-id';
 
 const validUsers: ZoomUser[] = Array.from({ length: 5 }, (_, i) => ({
-  id: i,
-  username: `username-${i}`,
-  name: `name-${i}`,
+  id: `id-${i}`,
+  first_name: `first_name-${i}`,
+  last_name: `last_name-${i}`,
+  display_name: `display_name-${i}`,
   email: `user-${i}@foo.bar`,
 }));
 
@@ -27,22 +28,19 @@ describe('users connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${env.ZOOM_API_BASE_URL}api/v4/users`, ({ request }) => {
+        http.get(`${env.ZOOM_API_BASE_URL}users`, ({ request }) => {
           // briefly implement API endpoint behaviour
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
 
           const url = new URL(request.url);
-          const after = url.searchParams.get('id_after');
-          return Response.json(validUsers, {
-            headers: {
-              Link:
-                after === endPage
-                  ? ''
-                  : `<https://zoom.example.com/api/v4/projects?pagination=keyset&per_page=50&order_by=id&sort=asc&page=${nextPage}>; rel="next"`,
-            },
-          });
+          const after = url.searchParams.get('next_page_token');
+          return Response.json(
+            after === endPage
+              ? { users: validUsers, next_page_token: null }
+              : { users: validUsers, next_page_token: after }
+          );
         })
       );
     });
@@ -51,7 +49,7 @@ describe('users connector', () => {
       await expect(getUsers({ accessToken: validToken, page: nextPage })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage: Number(nextPage),
+        nextPage,
       });
     });
 
@@ -72,7 +70,7 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.delete<{ userId: string }>(
-          `${env.ZOOM_API_BASE_URL}api/v4/users/${userId}`,
+          `${env.ZOOM_API_BASE_URL}users/${userId}`,
           ({ request }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(undefined, { status: 401 });

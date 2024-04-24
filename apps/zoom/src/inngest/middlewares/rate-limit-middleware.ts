@@ -14,7 +14,6 @@ export const rateLimitMiddleware = new InngestMiddleware({
             } = ctx;
 
             if (!(error instanceof ZoomError)) {
-              // Adjust based on actual error handling
               return;
             }
 
@@ -31,7 +30,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                   ...result,
                   error: new RetryAfterError(
                     `API rate limit reached by '${fn.name}', retry after ${retryAfter} seconds.`,
-                    retryAfter.toString(),
+                    retryAfter * 1000,
                     {
                       cause: error,
                     }

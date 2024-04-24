@@ -18,7 +18,7 @@ describe('auth connector', () => {
   describe('getToken', () => {
     beforeEach(() => {
       server.use(
-        http.post(`${env.ZOOM_API_BASE_URL}oauth/token`, async ({ request }) => {
+        http.post(`${env.ZOOM_APP_INSTALL_URL}token`, async ({ request }) => {
           const body = await request.text();
           const searchParams = new URLSearchParams(body);
 
@@ -53,7 +53,7 @@ describe('auth connector', () => {
   describe('getRefreshToken', () => {
     beforeEach(() => {
       server.use(
-        http.post(`${env.ZOOM_API_BASE_URL}oauth/token`, async ({ request }) => {
+        http.post(`${env.ZOOM_APP_INSTALL_URL}token`, async ({ request }) => {
           const body = await request.text();
           const searchParams = new URLSearchParams(body);
 

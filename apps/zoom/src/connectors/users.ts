@@ -43,7 +43,6 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
     },
   });
 
-
   if (!response.ok) {
     throw new ZoomError('Could not retrieve users', { response });
   }
