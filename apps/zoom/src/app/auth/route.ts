@@ -32,7 +32,6 @@ export async function GET(request: NextRequest) {
       error: 'internal_error',
     });
   }
-
   return new ElbaInstallRedirectResponse({
     region,
     sourceId: env.ELBA_SOURCE_ID,
