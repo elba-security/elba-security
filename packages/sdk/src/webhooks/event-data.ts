@@ -8,6 +8,7 @@ import {
   thirdPartyAppsStartSyncRequestedWebhookDataSchema,
   thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
   thirdPartyAppsDeleteObjectRequestedWebhookDataSchema,
+  usersDeleteUserRequestedWebhookDataSchema,
 } from '@elba-security/schemas';
 import { ElbaError } from '../error';
 
@@ -22,6 +23,7 @@ const eventDataSchema = {
   'data_protection.refresh_object_requested': dataProtectionRefreshObjectRequestedWebhookDataSchema,
   'data_protection.delete_object_permissions_requested':
     dataProtectionDeleteObjectPermissionsRequestedDataSchema,
+  'users.delete_user_requested': usersDeleteUserRequestedWebhookDataSchema,
 } as const satisfies Record<string, ZodSchema>;
 
 export type WebhookEvent = keyof typeof eventDataSchema;

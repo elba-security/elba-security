@@ -12,13 +12,20 @@ export const inngest = new Inngest({
         region: string;
         isFirstSync: boolean;
         syncStartedAt: number;
-        page: number | null;
+        page: string | null;
       };
     };
     'zoom/zoom.token.refresh.requested': {
       data: {
         organisationId: string;
         refreshToken: string;
+      };
+    };
+    'zoom/users.delete.requested': {
+      data: {
+        id: string;
+        organisationId: string;
+        region: string;
       };
     };
   }>(),

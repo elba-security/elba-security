@@ -50,3 +50,17 @@ export const getUsers = async (token: string, page: string | null) => {
 
   return data;
 };
+
+export const deleteUser = async (token: string, userId: string) => {
+  const response = await fetch(`${env.ZOOM_API_URL}/users/${userId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new ZoomError(`Could not delete user with Id: ${userId}`, { response });
+  }
+};

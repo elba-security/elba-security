@@ -12,7 +12,7 @@ const formatElbaUser = (user: ZoomUser): User => ({
   id: user.id,
   displayName: user.display_name,
   email: user.email,
-  additionalEmails: [],
+  additionalEmails: [user.email],
 });
 
 /**
@@ -48,6 +48,7 @@ export const syncUsersPage = inngest.createFunction(
       baseUrl: env.ELBA_API_BASE_URL,
       region,
     });
+
     const token = await step.run('get-token', async () => {
       const [organisation] = await db
         .select({ token: Organisation.accessToken })

@@ -28,7 +28,7 @@ describe('refresh-token', () => {
     // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      region: organisation.region,
+      refreshToken: organisation.refreshToken,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'success' });

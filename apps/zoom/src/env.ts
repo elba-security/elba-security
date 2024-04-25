@@ -24,5 +24,6 @@ export const env = z
     ZOOM_API_URL: z.string().min(1),
     USERS_SYNC_CRON: z.string().min(1),
     TOKEN_REFRESH_CRON: z.string().min(1),
+    ENCRYPTION_KEY: z.string().min(1),
   })
   .parse(process.env);

@@ -12,5 +12,5 @@ export const { GET, POST, PUT } = serve({
   client: inngest,
   functions: inngestFunctions,
   // Remove the next line if your integration does not works with edge runtime
-  streaming: 'allow',
+  // streaming: 'allow',
 });

@@ -18,6 +18,7 @@ export const setupOrganisation = async ({
   const token = await getToken(code);
 
   const expiresAt = new Date(Date.now() + token.expires_in * 1000);
+
   await db
     .insert(Organisation)
     .values({
@@ -36,13 +37,12 @@ export const setupOrganisation = async ({
         region,
       },
     });
-
   await inngest.send({
     name: 'zoom/users.page_sync.requested',
     data: {
-      isFirstSync: true,
       organisationId,
       region,
+      isFirstSync: true,
       syncStartedAt: Date.now(),
       page: null,
     },

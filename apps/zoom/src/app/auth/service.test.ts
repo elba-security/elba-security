@@ -135,7 +135,7 @@ describe('setupOrganisation', () => {
 
   test('should not setup the organisation when the code is invalid', async () => {
     // mock inngest client
-    // @ts-expect-error -- this is a mock
+    // @ts-expect-error-- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const error = new Error('invalid code');
     // mock getToken to reject with a dumb error for an invalid code

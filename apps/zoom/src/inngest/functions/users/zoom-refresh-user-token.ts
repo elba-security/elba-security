@@ -17,7 +17,6 @@ export const refreshZoomToken = inngest.createFunction(
 
   { event: 'zoom/zoom.token.refresh.requested' },
   async ({ event }) => {
-    /* eslint-disable -- no type here */
     const { organisationId, refreshToken: orgRefreshToken } = event.data;
 
     // fetch new accessToken & refreshToken using the SaaS endpoint
