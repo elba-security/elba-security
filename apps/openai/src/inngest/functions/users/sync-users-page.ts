@@ -37,6 +37,10 @@ export const syncUsers = inngest.createFunction(
         event: 'openai/app.installed',
         match: 'data.organisationId',
       },
+      {
+        event: 'openai/app.uninstalled',
+        match: 'data.organisationId',
+      },
     ],
   },
   { event: 'openai/users.sync.requested' },

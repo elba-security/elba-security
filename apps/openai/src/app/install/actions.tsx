@@ -20,7 +20,6 @@ const formSchema = z.object({
 });
 
 export type FormState = {
-  redirectUrl?: string;
   errors?: {
     apiKey?: string[];
     sourceOrganizationId?: string[];

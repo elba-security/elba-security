@@ -57,8 +57,8 @@ export default function InstallPage() {
 
           <Form action={formAction}>
             <FormField>
-              <FormLabel>Token</FormLabel>
-              <Input minLength={1} name="apiKey" placeholder="Paste your token" type="text" />
+              <FormLabel>API Key</FormLabel>
+              <Input minLength={1} name="apiKey" placeholder="Paste your API Key" type="text" />
               {state.errors?.apiKey?.at(0) ? (
                 <FormErrorMessage>{state.errors.apiKey.at(0)}</FormErrorMessage>
               ) : null}

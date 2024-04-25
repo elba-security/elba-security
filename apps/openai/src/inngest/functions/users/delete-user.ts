@@ -19,6 +19,10 @@ export const deleteUser = inngest.createFunction(
         event: 'openai/app.installed',
         match: 'data.organisationId',
       },
+      {
+        event: 'openai/app.uninstalled',
+        match: 'data.organisationId',
+      },
     ],
   },
   {

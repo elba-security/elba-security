@@ -3,7 +3,7 @@ import { inngest } from '@/inngest/client';
 import { deleteUser } from './service';
 
 const mockedDate = '2023-01-01T00:00:00.000Z';
-const userId = 'test-user1-id,test-user2-id';
+const userId = 'test-user1-id';
 const organisationId = '00000000-0000-0000-0000-000000000002';
 
 describe('elastic/users.delete.requested', () => {
