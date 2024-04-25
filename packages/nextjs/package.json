@@ -22,7 +22,7 @@
     "next": "14.0.1",
     "react": "^18",
     "react-dom": "^18",
-    "vitest": "1.1.1"
+    "vitest": "1.4.0"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

@@ -11,6 +11,7 @@ import { formatPermissions } from '../utils/format-permissions';
 import { formatFilesToAdd } from '../utils/format-file-and-folders-to-elba';
 import { filterSharedLinks } from '../utils/format-shared-links';
 import { env } from '@/env';
+import { chunkArray } from '../utils/helpers';
 
 export class DBXFiles {
   private adminTeamMemberId?: string;
@@ -108,9 +109,8 @@ export class DBXFiles {
     };
   };
 
-  // fetch files meta data
-  fetchFilesMetadata = async (files: DbxFiles.FileMetadataReference[]) => {
-    const sharedFolderMetadata = new Map<
+  fetchFilesMetadataBatch = async (files: DbxFiles.FileMetadataReference[]) => {
+    const sharedFileMetadata = new Map<
       string,
       {
         name: string;
@@ -118,32 +118,30 @@ export class DBXFiles {
       }
     >();
 
-    const metadataResult = await Promise.all(
-      files.map(async ({ id: fileId }: DbxFiles.FileMetadataReference) => {
-        const {
-          result: { name, preview_url },
-        } = await this.dbx.sharingGetFileMetadata({
+    const fileIds = files.map((file) => file.id);
+    const fileChunks = chunkArray(fileIds, 80);
+
+    await Promise.all(
+      fileChunks.map(async (fileChunk) => {
+        const { result } = await this.dbx.sharingGetFileMetadataBatch({
+          files: fileChunk,
           actions: [],
-          file: fileId,
         });
 
-        return {
-          file_id: fileId,
-          name,
-          preview_url,
-        };
+        result.forEach(({ file, result }) => {
+          if (result['.tag'] === 'access_error' || result['.tag'] === 'other') {
+            return;
+          }
+
+          sharedFileMetadata.set(file, {
+            name: result.name,
+            preview_url: result.preview_url,
+          });
+        });
       })
     );
 
-    if (!metadataResult) {
-      throw new Error('No metadata found for files');
-    }
-
-    for (const { file_id, ...rest } of metadataResult) {
-      sharedFolderMetadata.set(file_id, rest);
-    }
-
-    return sharedFolderMetadata;
+    return sharedFileMetadata;
   };
 
   // Fetch files permissions
@@ -319,8 +317,9 @@ export class DBXFiles {
         this.fetchFoldersPermissions(folders),
         this.fetchFoldersMetadata(folders),
         this.fetchFilesPermissions(files),
-        this.fetchFilesMetadata(files),
+        this.fetchFilesMetadataBatch(files),
       ]);
+
     const filteredPermissions = new Map([...foldersPermissions, ...filesPermissions]);
     const filteredMetadata = new Map([...foldersMetadata, ...filesMetadata]);
 
