@@ -5,7 +5,7 @@ import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
-import { synchronizeUsers } from './synchronize-users';
+import { synchronizeUsers } from './sync-users';
 
 const nextPage = '1';
 const organisation = {

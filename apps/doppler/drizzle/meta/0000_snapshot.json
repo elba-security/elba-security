@@ -1,5 +1,5 @@
 {
-  "id": "5de418c2-26ef-42c4-a79f-56fcb4b42448",
+  "id": "f7ba6a4d-76be-462a-9a76-442d7ffabd03",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -14,17 +14,24 @@
           "primaryKey": true,
           "notNull": true
         },
+        "api_key": {
+          "name": "api_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "region": {
           "name": "region",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "apiKey": {
-          "name": "apiKey",
-          "type": "text",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},

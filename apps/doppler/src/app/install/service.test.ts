@@ -56,11 +56,9 @@ describe('registerOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    // check if getUsers was called correctly
     expect(getUsers).toBeCalledTimes(1);
     expect(getUsers).toBeCalledWith({ apiKey });
 
-    // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)

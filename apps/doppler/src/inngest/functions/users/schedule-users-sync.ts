@@ -10,8 +10,6 @@ export const scheduleUsersSynchronize = inngest.createFunction(
     const organisations = await db
       .select({
         id: organisationsTable.id,
-        region: organisationsTable.region,
-        apiKey: organisationsTable.apiKey,
       })
       .from(organisationsTable);
 

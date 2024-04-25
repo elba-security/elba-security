@@ -37,7 +37,9 @@ describe('doppler-schedule-users-sync', () => {
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      organisations: organisations.map(({ ...organisation }) => organisation),
+      organisations: organisations.map(({ id }) => ({
+        id,
+      })),
     });
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
