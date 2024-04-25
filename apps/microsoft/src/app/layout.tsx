@@ -1,8 +1,5 @@
-/**
- * This file is required by nextjs and has no purpose for now in the integration.
- * It should not be edited or removed.
- */
 import type { Metadata } from 'next';
+import '@elba-security/design-system/dist/styles.css';
 
 export const metadata: Metadata = {
   title: 'Elba x SaaS',
