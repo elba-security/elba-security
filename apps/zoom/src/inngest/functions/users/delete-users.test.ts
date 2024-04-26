@@ -26,7 +26,7 @@ describe('deleteSourceUser', () => {
     vi.restoreAllMocks();
   });
 
-  test.only('should delete user', async () => {
+  test('should delete user', async () => {
     // Mock database response to return organisation details
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
     await db.insert(organisationsTable).values(organisation);
