@@ -453,6 +453,9 @@ importers:
       '@elba-security/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@elba-security/design-system':
+        specifier: workspace:*
+        version: link:../../packages/design-system
       '@elba-security/inngest':
         specifier: workspace:*
         version: link:../../packages/inngest
