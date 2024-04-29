@@ -3,20 +3,21 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
-import { syncUsersPage } from './sync-users-page';
+import { syncUsersPage } from './sync-users';
 import { elbaUsers, users } from './__mocks__/integration';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
   token: 'test-token',
   teamId: 'test-team-id',
   region: 'us',
 };
+
 const syncStartedAt = Date.now();
 
-const setup = createInngestFunctionMock(syncUsersPage, 'livestorm/users.page_sync.requested');
+const setup = createInngestFunctionMock(syncUsersPage, 'livestorm/users.sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
@@ -25,36 +26,30 @@ describe('sync-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt: Date.now(),
-      region: organisation.region,
       page: null,
     });
 
-    // Assert that the function throws a NonRetriableError
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    // Ensure the function does not send any other event
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
   test('should continue the sync when there is a next page', async () => {
-    // Setup the test with an organisation
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     // @ts-expect-error -- this is a mock
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
 
-    // Mock the getUsers function that returns Livestorm users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      meta: {
-        next_page: 1,
-      },
-      data: users,
+      invalidUsers: [],
+      invitedUsers: [],
+      validUsers: users,
+      nextPage: 1,
     });
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      region: organisation.region,
       page: null,
     });
 
@@ -66,12 +61,11 @@ describe('sync-users', () => {
     // Ensure the function continues the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users-page', {
-      name: 'livestorm/users.page_sync.requested',
+      name: 'livestorm/users.sync.requested',
       data: {
         organisationId: organisation.id,
         isFirstSync: false,
         syncStartedAt,
-        region: organisation.region,
         page: 1,
       },
     });
@@ -79,23 +73,21 @@ describe('sync-users', () => {
 
   test('should finalize the sync when there is no next page', async () => {
     const elba = spyOnElba();
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     // @ts-expect-error -- this is a mock
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
 
-    // Mock the getUsers function that returns Livestorm users page without a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      meta: {
-        next_page: null,
-      },
-      data: users,
+      invalidUsers: [],
+      invitedUsers: [],
+      validUsers: users,
+      nextPage: null,
     });
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      region: organisation.region,
       page: null,
     });
 
@@ -104,7 +96,7 @@ describe('sync-users', () => {
     expect(elba).toBeCalledWith({
       apiKey: 'elba-api-key',
       baseUrl: 'https://elba.local/api',
-      organisationId: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+      organisationId: '00000000-0000-0000-0000-000000000001',
       region: 'us',
     });
 

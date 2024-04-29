@@ -1,9 +1,9 @@
 import { describe, expect, test, beforeEach } from 'vitest';
 import { http } from 'msw';
-import { server } from '../../vitest/setup-msw-handlers';
+import { server } from '@elba-security/test-utils';
+import { env } from '@/common/env';
 import { getUsers, deleteUser, type LivestormUser } from './users';
 import type { LivestormError } from './commons/error';
-import { env } from '@/env';
 
 const data: LivestormUser[] = [
   {
@@ -13,11 +13,13 @@ const data: LivestormUser[] = [
       first_name: 'John',
       last_name: 'Doe',
       email: 'john@example.com',
+      pending_invite: false,
     },
   },
 ];
 
 const validToken = 'test-token';
+
 const userId = 'test-id';
 describe('getUsers', () => {
   beforeEach(() => {
@@ -51,25 +53,49 @@ describe('getUsers', () => {
       expect((error as LivestormError).message).toEqual('Could not retrieve Livestorm users');
     }
   });
+
   test('should fetch users when token is valid', async () => {
     const result = await getUsers(validToken, 0);
-    expect(result.data).toEqual(data);
-  });
-
-  test('should return next Page when there is another page', async () => {
-    await expect(getUsers(validToken, 0)).resolves.toStrictEqual({
-      data,
-      meta: { next_page: 1 },
+    expect(result).toEqual({
+      validUsers: [
+        {
+          attributes: {
+            email: 'john@example.com',
+            first_name: 'John',
+            last_name: 'Doe',
+            pending_invite: false,
+            role: 'participant',
+          },
+          id: 'user-id',
+        },
+      ],
+      invalidUsers: [],
+      invitedUsers: [],
+      nextPage: 1,
     });
   });
 
   test('should return no next Page when the end of list is reached', async () => {
     await expect(getUsers(validToken, 2)).resolves.toStrictEqual({
-      data,
-      meta: { next_page: null },
+      validUsers: [
+        {
+          attributes: {
+            email: 'john@example.com',
+            first_name: 'John',
+            last_name: 'Doe',
+            pending_invite: false,
+            role: 'participant',
+          },
+          id: 'user-id',
+        },
+      ],
+      invalidUsers: [],
+      invitedUsers: [],
+      nextPage: null,
     });
   });
 });
+
 describe('deleteUser', () => {
   beforeEach(() => {
     server.use(

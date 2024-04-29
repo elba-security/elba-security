@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { env } from '@/env';
-import { Organisation } from '@/database/schema';
+import { env } from '@/common/env';
+import { organisationsTable } from '@/database/schema';
 import { deleteUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
 import { inngest } from '../../client';
@@ -10,32 +10,33 @@ import { inngest } from '../../client';
 export const deleteLivestormUser = inngest.createFunction(
   {
     id: 'livestorm-delete-user',
-    retries: env.REMOVE_ORGANISATION_MAX_RETRY,
+    retries: 5,
+    concurrency: {
+      key: 'data.organisationId',
+      limit: env.LIVESTORM_DELETE_USER_CONCURRENCY,
+    },
   },
   {
     event: 'livestorm/users.delete.requested',
   },
   async ({ event, step }) => {
-    const { id, organisationId } = event.data as {
-      id: string;
-      organisationId: string;
-    };
-    const organisation = await step.run('get-organisation', async () => {
-      const [row] = await db
+    const { id: userId, organisationId } = event.data;
+    const { token } = await step.run('get-organisation', async () => {
+      const [organisation] = await db
         .select({
-          token: Organisation.token,
+          token: organisationsTable.token,
         })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisationId));
-      if (!row) {
+        .from(organisationsTable)
+        .where(eq(organisationsTable.id, organisationId));
+      if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
-      return row;
+      return organisation;
     });
 
     await step.run('delete-user', async () => {
-      const decryptedToken = await decrypt(organisation.token);
-      await deleteUser(decryptedToken, id);
+      const decryptedToken = await decrypt(token);
+      await deleteUser(decryptedToken, userId);
     });
   }
 );

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { parseWebhookEventData } from '@elba-security/sdk';
 import { deleteUserRequest } from './service';
 
-export async function DELETE(request: Request) {
+export async function POST(request: Request) {
   const data: unknown = await request.json();
 
   const { id, organisationId } = parseWebhookEventData('users.delete_user_requested', data);

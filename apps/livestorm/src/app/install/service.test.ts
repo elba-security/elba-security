@@ -1,7 +1,7 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as userConnector from '@/connectors/users';
 import * as crypto from '@/common/crypto';
@@ -16,6 +16,7 @@ const organisation = {
   token,
   region,
 };
+
 const mockUserData = {
   users: [
     {
@@ -61,7 +62,7 @@ describe('registerOrganisation', () => {
       })
     ).resolves.toBeUndefined();
     await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toMatchObject([
       {
         token,
@@ -70,7 +71,7 @@ describe('registerOrganisation', () => {
     ]);
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'livestorm/users.page_sync.requested',
+      name: 'livestorm/users.sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
@@ -90,7 +91,7 @@ describe('registerOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(mockUserData);
     // pre-insert an organisation to simulate an existing entry
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
@@ -102,10 +103,10 @@ describe('registerOrganisation', () => {
     await expect(
       db
         .select({
-          token: Organisation.token,
+          token: organisationsTable.token,
         })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisation.id))
+        .from(organisationsTable)
+        .where(eq(organisationsTable.id, organisation.id))
     ).resolves.toMatchObject([
       {
         token,
@@ -114,7 +115,7 @@ describe('registerOrganisation', () => {
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'livestorm/users.page_sync.requested',
+      name: 'livestorm/users.sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
@@ -146,7 +147,7 @@ describe('registerOrganisation', () => {
 
     // ensure no organisation is added or updated in the database
     await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toHaveLength(0);
     // ensure no sync users event is sent
     expect(send).toBeCalledTimes(0);

@@ -1,7 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { inngest } from '@/inngest/client';
 import { mockNextRequest } from '@/test-utilis/mock-app-route';
-import { DELETE as handler } from './route';
+import { POST as handler } from './route';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 

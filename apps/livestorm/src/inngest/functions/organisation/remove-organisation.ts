@@ -1,9 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { env } from '@/env';
-import { Organisation } from '@/database/schema';
-import { getElbaClient } from '@/connectors/client';
+import { organisationsTable } from '@/database/schema';
+import { createElbaClient } from '@/connectors/elba/client';
 import { inngest } from '../../client';
 
 export const removeOrganisation = inngest.createFunction(
@@ -12,25 +11,32 @@ export const removeOrganisation = inngest.createFunction(
     priority: {
       run: '600',
     },
-    retries: env.REMOVE_ORGANISATION_MAX_RETRY,
+    retries: 5,
   },
   {
     event: 'livestorm/app.uninstalled',
   },
   async ({ event }) => {
-    const { organisationId, region } = event.data as { organisationId: string; region: string };
+    const { organisationId } = event.data;
+
     const [organisation] = await db
       .select({
-        region: Organisation.region,
+        region: organisationsTable.region,
       })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisationId));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
+
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
-    const elba = getElbaClient({ organisationId, region });
+
+    const elba = createElbaClient({
+      organisationId,
+      region: organisation.region,
+    });
+
     await elba.connectionStatus.update({ hasError: true });
 
-    await db.delete(Organisation).where(eq(Organisation.id, organisationId));
+    await db.delete(organisationsTable).where(eq(organisationsTable.id, organisationId));
   }
 );

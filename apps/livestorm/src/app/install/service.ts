@@ -1,7 +1,7 @@
 import { encrypt } from '@/common/crypto';
 import { getUsers } from '../../connectors/users';
 import { db } from '../../database/client';
-import { Organisation } from '../../database/schema';
+import { organisationsTable } from '../../database/schema';
 import { inngest } from '../../inngest/client';
 
 type SetupOrganisationParams = {
@@ -15,20 +15,22 @@ export const registerOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   await getUsers(token, null);
+
   const encodedtoken = await encrypt(token);
 
   await db
-    .insert(Organisation)
+    .insert(organisationsTable)
     .values({ id: organisationId, region, token: encodedtoken })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
         region,
         token: encodedtoken,
       },
     });
+
   await inngest.send({
-    name: 'livestorm/users.page_sync.requested',
+    name: 'livestorm/users.sync.requested',
     data: {
       isFirstSync: true,
       organisationId,

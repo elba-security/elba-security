@@ -1,27 +1,24 @@
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
-export const scheduleUsersSyncs = inngest.createFunction(
+export const scheduleUsersSync = inngest.createFunction(
   { id: 'livestorm-schedule-users-sync' },
-  { cron: env.USERS_SYNC_CRON },
+  { cron: env.LIVESTORM_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({
-        id: Organisation.id,
-        token: Organisation.token,
-        region: Organisation.region,
+        id: organisationsTable.id,
       })
-      .from(Organisation);
+      .from(organisationsTable);
     if (organisations.length > 0) {
       await step.sendEvent(
         'sync-organisations-users',
-        organisations.map(({ id, region }) => ({
-          name: 'livestorm/users.page_sync.requested',
+        organisations.map(({ id }) => ({
+          name: 'livestorm/users.sync.requested',
           data: {
             organisationId: id,
-            region,
             syncStartedAt: Date.now(),
             isFirstSync: false,
             page: null,

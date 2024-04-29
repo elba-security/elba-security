@@ -3,7 +3,7 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { deleteLivestormUser } from './delete-user';
 
@@ -22,7 +22,6 @@ describe('delete-user-request', () => {
     const [result, { step }] = setup({
       id: userId,
       organisationId: organisation.id,
-      region: organisation.region,
     });
     // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -33,13 +32,12 @@ describe('delete-user-request', () => {
 
   test('should continue the request when the organization is registered', async () => {
     // setup the test with an organisation
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(organisation.token);
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     const [result] = setup({
       id: userId,
       organisationId: organisation.id,
-      region: organisation.region,
     });
     await expect(result).resolves.toBeUndefined();
 
