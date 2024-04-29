@@ -1,5 +1,5 @@
-import { env } from '@/env';
-import { BoxError } from './commons/error';
+import { env } from '@/common/env';
+import { BoxError } from './common/error';
 
 type GetTokenResponseData = { access_token: string; refresh_token: string; expires_in: number };
 type RefreshTokenResponseData = { access_token: string; refresh_token: string; expires_in: number };

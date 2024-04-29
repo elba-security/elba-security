@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { env } from '@/env';
-import { BoxError } from './commons/error';
+import { env } from '@/common/env';
+import { BoxError } from './common/error';
 
 const boxUserSchema = z.object({
   id: z.string(),

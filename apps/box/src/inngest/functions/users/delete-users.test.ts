@@ -6,7 +6,7 @@ import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { deleteSourceUsers } from './delete-users';
 
-const userId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
+const userId = 'user-id-1';
 const accessToken = 'test-access-token';
 const refreshToken = 'test-refresh-token';
 

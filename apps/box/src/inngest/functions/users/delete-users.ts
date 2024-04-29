@@ -5,16 +5,16 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUsers } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
-import { env } from '@/env';
+import { env } from '@/common/env';
 
 export const deleteSourceUsers = inngest.createFunction(
   {
     id: 'box-delete-users',
     concurrency: {
       key: 'event.data.organisationId',
-      limit: env.BOX_USER_DELETE_CONCURRENCY,
+      limit: env.BOX_DELETE_USER_CONCURRENCY,
     },
-    retries: env.BOX_USER_DELETE_RETRIES,
+    retries: 5,
   },
   { event: 'box/users.delete.requested' },
   async ({ event }) => {

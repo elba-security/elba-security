@@ -23,11 +23,9 @@ export const env = z
     DATABASE_PROXY_PORT: zEnvInt().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
     TOKEN_REFRESH_MAX_RETRY: zEnvRetry(),
-    BOX_USERS_SYNC_CRON: z.string().default('0 0 * * 1-5'),
-    BOX_USERS_SYNC_RETRIES: zEnvRetry().default(5),
+    BOX_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     BOX_USERS_SYNC_CONCURRENCY: zEnvInt().default(1),
     BOX_USERS_SYNC_BATCH_SIZE: zEnvInt().default(500),
-    BOX_USER_DELETE_CONCURRENCY: zEnvInt().default(5),
-    BOX_USER_DELETE_RETRIES: zEnvRetry().default(5),
+    BOX_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
   })
   .parse(process.env);

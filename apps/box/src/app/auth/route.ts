@@ -2,7 +2,7 @@ import { RedirectType, redirect } from 'next/navigation';
 import type { NextRequest } from 'next/server';
 import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { getRedirectUrl } from '@elba-security/sdk';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { setupOrganisation } from './service';
 
 export const preferredRegion = 'fra1';

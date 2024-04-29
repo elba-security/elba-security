@@ -17,19 +17,17 @@ export const inngest = new Inngest({
     'box/app.installed': {
       data: {
         organisationId: string;
-        region: string;
+      };
+    };
+    'box/app.uninstalled': {
+      data: {
+        organisationId: string;
       };
     };
     'box/token.refresh.requested': {
       data: {
         organisationId: string;
         expiresAt: number;
-      };
-    };
-    'box/app.uninstalled': {
-      data: {
-        organisationId: string;
-        region: string;
       };
     };
     'box/users.delete.requested': {

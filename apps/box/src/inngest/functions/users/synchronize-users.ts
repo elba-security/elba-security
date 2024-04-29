@@ -8,8 +8,8 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { type BoxUser } from '@/connectors/users';
-import { getElbaClient } from '@/connectors/elba/client';
-import { env } from '@/env';
+import { createElbaClient } from '@/connectors/elba/client';
+import { env } from '@/common/env';
 
 const formatElbaUser = (user: BoxUser): User => ({
   id: user.id,
@@ -38,7 +38,7 @@ export const synchronizeUsers = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
-    retries: env.BOX_USERS_SYNC_RETRIES,
+    retries: 5,
   },
   { event: 'box/users.sync.requested' },
   async ({ event, step }) => {
@@ -55,7 +55,7 @@ export const synchronizeUsers = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const elba = getElbaClient({ organisationId, region: organisation.region });
+    const elba = createElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.token);
 
     const nextPage = await step.run('list-users', async () => {
