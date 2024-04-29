@@ -24,5 +24,6 @@ export const subscriptionsTable = pgTable('subscriptions', {
     .references(() => organisationsTable.id, { onDelete: 'cascade', onUpdate: 'restrict' })
     .notNull(),
   resource: text('resource').notNull(),
+  changeType: text('change-type').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

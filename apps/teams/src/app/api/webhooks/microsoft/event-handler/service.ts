@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { inngest } from '@/inngest/client';
-import type { SubscriptionPayload } from '@/app/api/webhooks/microsoft/event-handler/types';
+import type { MicrosoftEventHandlerPayload } from '@/app/api/webhooks/microsoft/event-handler/types';
 
 export enum EventType {
   ChannelCreated = 'channel_created',
@@ -53,7 +53,7 @@ const getResources = (str: string): object => {
   }, {});
 };
 
-const groupResources = (data: SubscriptionPayload[]) => {
+const groupResources = (data: MicrosoftEventHandlerPayload['value']) => {
   return data.reduce((acum, event) => {
     const resources = getResources(event.resource);
     const resultResourcesParse = resourceIdsSchema.safeParse(resources);
@@ -73,7 +73,7 @@ const groupResources = (data: SubscriptionPayload[]) => {
   }, []);
 };
 
-export const handleWebhook = async (data: SubscriptionPayload[]) => {
+export const handleWebhook = async (data: MicrosoftEventHandlerPayload['value']) => {
   if (!data.length) {
     return;
   }

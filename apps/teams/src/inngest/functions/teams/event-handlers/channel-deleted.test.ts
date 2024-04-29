@@ -37,6 +37,7 @@ const subscription = {
   id: 'subscription-id',
   resource: "teams('team-id')/channels('channel-id')",
   organisationId: organisation.id,
+  changeType: 'create',
 };
 
 const now = new Date().toISOString();

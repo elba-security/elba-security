@@ -4,7 +4,6 @@ import { logger } from '@elba-security/logger';
 import type { WebhookPayload } from '@/app/api/webhooks/microsoft/event-handler/service';
 import type { MessageMetadata } from '@/connectors/elba/data-protection/metadata';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
-import { unauthorizedMiddleware } from './middlewares/unauthorized-middleware';
 
 type InngestClient = typeof inngest;
 
@@ -123,7 +122,15 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
+    'teams/subscriptions.start-recreate.requested': {
+      data: Record<string, never>;
+    };
+    'teams/subscriptions.recreate.requested': {
+      data: {
+        organisationId: string;
+      };
+    };
   }>(),
-  middleware: [rateLimitMiddleware, unauthorizedMiddleware, sentryMiddleware],
+  middleware: [rateLimitMiddleware, sentryMiddleware],
   logger,
 });

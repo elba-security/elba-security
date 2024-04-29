@@ -23,6 +23,7 @@ const organisation = {
 const subscription = {
   id: 'subscription-id',
   resource: 'teams/team-id/channels/channel-id/messages',
+  changeType: 'created,updated,deleted',
 };
 
 const data = {

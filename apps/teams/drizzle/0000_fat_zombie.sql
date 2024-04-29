@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS "subscriptions" (
 	"id" text PRIMARY KEY NOT NULL,
 	"organisation_id" uuid NOT NULL,
 	"resource" text NOT NULL,
+	"change-type" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint

@@ -2,9 +2,9 @@ import { describe, expect, test, vi } from 'vitest';
 import { inngest } from '@/inngest/client';
 import type { WebhookPayload } from '@/app/api/webhooks/microsoft/event-handler/service';
 import { EventType, handleWebhook } from '@/app/api/webhooks/microsoft/event-handler/service';
-import type { SubscriptionPayload } from '@/app/api/webhooks/microsoft/event-handler/types';
+import type { MicrosoftEventHandlerPayload } from '@/app/api/webhooks/microsoft/event-handler/types';
 
-const channelData: SubscriptionPayload[] = [
+const channelData: MicrosoftEventHandlerPayload['value'] = [
   {
     subscriptionId: 'subscription-id-0',
     changeType: 'created',
@@ -18,7 +18,7 @@ const channelData: SubscriptionPayload[] = [
     tenantId: 'tenant-id-1',
   },
 ];
-const invalidData: SubscriptionPayload[] = [
+const invalidData: MicrosoftEventHandlerPayload['value'] = [
   {
     subscriptionId: 'subscription-id-0',
     changeType: 'created',
@@ -33,7 +33,7 @@ const invalidData: SubscriptionPayload[] = [
   },
 ];
 
-const messageData: SubscriptionPayload[] = [
+const messageData: MicrosoftEventHandlerPayload['value'] = [
   {
     subscriptionId: 'subscription-id-0',
     changeType: 'created',
@@ -48,7 +48,7 @@ const messageData: SubscriptionPayload[] = [
   },
 ];
 
-const replyData: SubscriptionPayload[] = [
+const replyData: MicrosoftEventHandlerPayload['value'] = [
   {
     subscriptionId: 'subscription-id-0',
     changeType: 'created',

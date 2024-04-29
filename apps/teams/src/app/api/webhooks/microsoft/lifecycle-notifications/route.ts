@@ -1,9 +1,9 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { handleSubscriptionEvent } from '@/app/api/webhooks/microsoft/lifecycle-notifications/service';
-import type { MicrosoftSubscriptionEvent } from '@/app/api/webhooks/microsoft/lifecycle-notifications/types';
-import type { WebhookResponse } from '@/app/api/webhooks/microsoft/event-handler/types';
 import { lifecycleEventSchema } from '@/app/api/webhooks/microsoft/lifecycle-notifications/schema';
+import type { MicrosoftToken } from '@/common/validate-tokens';
+import { validateTokens } from '@/common/validate-tokens';
 
 export const preferredRegion = 'fra1';
 export const runtime = 'edge';
@@ -19,23 +19,34 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const data = (await req.json()) as WebhookResponse<object>;
+  const data = (await req.json()) as unknown;
 
-  const subscriptionsToUpdate = data.value.reduce<MicrosoftSubscriptionEvent[]>(
-    (acum, subscription) => {
-      const result = lifecycleEventSchema.safeParse(subscription);
+  const validationResult = lifecycleEventSchema.safeParse(data);
 
-      if (result.success) {
-        if (result.data.lifecycleEvent === 'reauthorizationRequired') {
-          return [...acum, result.data];
-        }
-      }
-      return acum;
-    },
+  if (!validationResult.success) {
+    return NextResponse.json({ message: 'Invalid data' }, { status: 404 });
+  }
+
+  const { validationTokens, value } = validationResult.data;
+
+  const tokensToValidate = validationTokens.reduce<MicrosoftToken[]>(
+    (acc, v, i) => [
+      ...acc,
+      {
+        token: v,
+        tenantId: value[i]?.organizationId || '',
+      },
+    ],
     []
   );
 
-  await handleSubscriptionEvent(subscriptionsToUpdate);
+  const isTokensValid = await validateTokens(tokensToValidate);
+
+  if (!isTokensValid) {
+    return NextResponse.json({ message: 'Invalid data' }, { status: 404 });
+  }
+
+  await handleSubscriptionEvent(value);
 
   return NextResponse.json({}, { status: 202 });
 }

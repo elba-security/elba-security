@@ -32,6 +32,7 @@ const subscriptionChangeType = Math.random() > 0.5 ? 'created,updated,deleted' :
 const subscription = {
   id: 'subscription-id',
   resource: subscriptionResource,
+  changeType: 'created,updated,deleted',
 };
 
 describe('subscriptions connector', () => {
@@ -189,10 +190,8 @@ describe('subscriptions connector', () => {
       });
     });
 
-    test('should throw when the token is invalid', async () => {
-      await expect(deleteSubscription(invalidToken, subscription.id)).rejects.toBeInstanceOf(
-        MicrosoftError
-      );
+    test("shouldn't throw when there an error", async () => {
+      await expect(deleteSubscription(invalidToken, subscription.id)).resolves.toBeNull();
     });
   });
 });

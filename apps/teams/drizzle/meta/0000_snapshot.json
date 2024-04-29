@@ -1,5 +1,5 @@
 {
-  "id": "2fe5526b-2739-43f1-835a-d6b3feaa3425",
+  "id": "b116a363-9f98-45a3-87aa-3bf34f9bafd0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -114,6 +114,12 @@
         },
         "resource": {
           "name": "resource",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "change-type": {
+          "name": "change-type",
           "type": "text",
           "primaryKey": false,
           "notNull": true

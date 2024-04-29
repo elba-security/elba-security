@@ -1,11 +1,9 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { handleWebhook } from '@/app/api/webhooks/microsoft/event-handler/service';
-import type {
-  SubscriptionPayload,
-  WebhookResponse,
-} from '@/app/api/webhooks/microsoft/event-handler/types';
 import { subscriptionSchema } from '@/app/api/webhooks/microsoft/event-handler/schema';
+import type { MicrosoftToken } from '@/common/validate-tokens';
+import { validateTokens } from '@/common/validate-tokens';
 
 export const preferredRegion = 'fra1';
 export const runtime = 'edge';
@@ -21,18 +19,34 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const data = (await req.json()) as WebhookResponse<object>;
+  const data = (await req.json()) as unknown;
 
-  const subscriptions = data.value.reduce<SubscriptionPayload[]>((acum, subscription) => {
-    const result = subscriptionSchema.safeParse(subscription);
+  const validationResult = subscriptionSchema.safeParse(data);
 
-    if (result.success) {
-      return [...acum, result.data];
-    }
-    return acum;
-  }, []);
+  if (!validationResult.success) {
+    return NextResponse.json({ message: 'Invalid data' }, { status: 404 });
+  }
 
-  await handleWebhook(subscriptions);
+  const { validationTokens, value } = validationResult.data;
+
+  const tokensToValidate = validationTokens.reduce<MicrosoftToken[]>(
+    (acc, v, i) => [
+      ...acc,
+      {
+        token: v,
+        tenantId: value[i]?.tenantId || '',
+      },
+    ],
+    []
+  );
+
+  const isTokensValid = await validateTokens(tokensToValidate);
+
+  if (!isTokensValid) {
+    return NextResponse.json({ message: 'Invalid data' }, { status: 404 });
+  }
+
+  await handleWebhook(value);
 
   return NextResponse.json({}, { status: 202 });
 }

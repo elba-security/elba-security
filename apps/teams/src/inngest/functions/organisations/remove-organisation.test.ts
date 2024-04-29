@@ -23,6 +23,7 @@ const subscriptionsArray = Array.from({ length: 5 }, (_, i) => ({
   id: `subscription-id-${i}`,
   organisationId: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
   resource: `teams/team-id-${i}/channels/channel-id-${i}`,
+  changeType: 'created,updated,deleted',
 }));
 
 const selectSubscriptions = Array.from({ length: 5 }, (_, i) => ({
