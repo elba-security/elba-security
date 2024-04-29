@@ -4,7 +4,7 @@ import { getRedirectUrl } from '@elba-security/sdk';
 import { isRedirectError } from 'next/dist/client/components/redirect';
 import { RedirectType, redirect } from 'next/navigation';
 import { z } from 'zod';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { FivetranError } from '@/connectors/commons/error';
 import { registerOrganisation } from './service';
 

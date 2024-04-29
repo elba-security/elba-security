@@ -1,9 +1,9 @@
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
-export const scheduleUsersSynchronize = inngest.createFunction(
+export const scheduleUsersSync = inngest.createFunction(
   { id: 'fivetran-schedule-users-syncs' },
   { cron: env.FIVETRAN_USERS_SYNC_CRON },
   async ({ step }) => {

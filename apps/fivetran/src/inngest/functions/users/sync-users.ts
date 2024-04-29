@@ -7,7 +7,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { type FivetranUser } from '@/connectors/users';
-import { getElbaClient } from '@/connectors/elba/client';
+import { createElbaClient } from '@/connectors/elba/client';
 import { decrypt } from '@/common/crypto';
 
 const formatElbaUserDisplayName = (user: FivetranUser) => {
@@ -22,7 +22,7 @@ const formatElbaUser = (user: FivetranUser): User => ({
   id: user.id,
   displayName: formatElbaUserDisplayName(user),
   email: user.email,
-  role: user.role,
+  role: user.role || undefined,
   additionalEmails: [],
 });
 
@@ -68,7 +68,7 @@ export const synchronizeUsers = inngest.createFunction(
     const decryptedApiKey = await decrypt(organisation.apiKey);
     const decryptedApiSecret = await decrypt(organisation.apiSecret);
 
-    const elba = getElbaClient({ organisationId, region: organisation.region });
+    const elba = createElbaClient({ organisationId, region: organisation.region });
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({
@@ -86,7 +86,9 @@ export const synchronizeUsers = inngest.createFunction(
         });
       }
 
-      await elba.users.update({ users });
+      if (users.length > 0) {
+        await elba.users.update({ users });
+      }
 
       return result.nextPage;
     });

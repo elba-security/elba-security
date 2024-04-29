@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { FivetranError } from './commons/error';
 
 const fivetranUserSchema = z.object({

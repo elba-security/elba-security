@@ -13,10 +13,8 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            // Check if the error is a rate limit error (HTTP Status 429)
             if (error instanceof FivetranError && error.response?.status === 429) {
-              // This is a simplified approach; adjust logic based on actual rate limit policy details
-              const retryAfter = error.response.headers['Retry-After'] as string; // Retry after the interval if no remaining calls
+              const retryAfter = error.response.headers.get('Retry-After') || 60;
 
               return {
                 ...context,
@@ -24,7 +22,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                   ...result,
                   error: new RetryAfterError(
                     `Rate limit exceeded for '${fn.name}'. Retry after ${retryAfter} seconds.`,
-                    retryAfter,
+                    `${retryAfter}s`,
                     {
                       cause: error,
                     }

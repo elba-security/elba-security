@@ -4,15 +4,15 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUser } from '@/connectors/users';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { decrypt } from '@/common/crypto';
 
 export const deleteSourceUser = inngest.createFunction(
   {
-    id: 'fivetran-delete-users',
+    id: 'fivetran-delete-user',
     concurrency: {
       key: 'event.data.organisationId',
-      limit: env.FIVETRAN_USERS_DELETE_CONCURRENCY,
+      limit: env.FIVETRAN_DELETE_USER_CONCURRENCY,
     },
     retries: 5,
   },
@@ -29,9 +29,7 @@ export const deleteSourceUser = inngest.createFunction(
       .where(eq(organisationsTable.id, organisationId));
 
     if (!organisation) {
-      throw new NonRetriableError(
-        `API key & Secret not found for organisation with ID: ${organisationId} for the user id ${userId}`
-      );
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
     const decryptedApiKey = await decrypt(organisation.apiKey);

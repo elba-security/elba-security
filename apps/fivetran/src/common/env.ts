@@ -15,6 +15,6 @@ export const env = z
     DATABASE_PROXY_PORT: zEnvInt(),
     VERCEL_ENV: z.string().min(1).optional(),
     FIVETRAN_USERS_SYNC_CRON: z.string(),
-    FIVETRAN_USERS_DELETE_CONCURRENCY: zEnvInt().default(5),
+    FIVETRAN_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
   })
   .parse(process.env);
