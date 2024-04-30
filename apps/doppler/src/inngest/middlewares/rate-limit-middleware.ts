@@ -13,7 +13,6 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            // Check if the error is a rate limit error (HTTP Status 429)
             if (error instanceof DopplerError && error.response?.status === 429) {
               const retryAfter = error.response.headers.get('Retry-After') || 60;
 
@@ -23,7 +22,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                   ...result,
                   error: new RetryAfterError(
                     `Rate limit exceeded for '${fn.name}'. Retry after ${retryAfter} seconds.`,
-                    Number(retryAfter) * 1000,
+                    `${retryAfter}s`,
                     {
                       cause: error,
                     }

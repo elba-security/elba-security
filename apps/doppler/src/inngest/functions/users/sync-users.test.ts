@@ -5,12 +5,12 @@ import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
-import { synchronizeUsers } from './sync-users';
+import { syncUsers } from './sync-users';
 
 const nextPage = '1';
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  apiKey: await encrypt('test-personal-token'),
+  id: '00000000-0000-0000-0000-000000000001',
+  apiToken: await encrypt('test-personal-token'),
   accountId: '00000',
   region: 'us',
 };
@@ -27,7 +27,7 @@ const users: usersConnector.DopplerUser[] = Array.from({ length: 2 }, (_, i) => 
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 
-const setup = createInngestFunctionMock(synchronizeUsers, 'doppler/users.sync.requested');
+const setup = createInngestFunctionMock(syncUsers, 'doppler/users.sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {

@@ -4,13 +4,13 @@ import type { ResponseResolver } from 'msw';
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { type DopplerUser, getUsers } from './users';
 import { DopplerError } from './commons/error';
 
 const nextCursor = '1';
 const page = 1;
-const apiKey = 'test-api-key';
+const apiToken = 'test-api-token';
 const validUsers: DopplerUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `${i}`,
   access: `owner`,
@@ -26,7 +26,7 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       const resolver: ResponseResolver = ({ request }) => {
-        if (request.headers.get('Authorization') !== `Bearer ${apiKey}`) {
+        if (request.headers.get('Authorization') !== `Bearer ${apiToken}`) {
           return new Response(undefined, { status: 401 });
         }
 
@@ -44,7 +44,7 @@ describe('users connector', () => {
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(getUsers({ apiKey, page: nextCursor })).resolves.toStrictEqual({
+      await expect(getUsers({ apiToken, page: nextCursor })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
         nextPage: (page + 1).toString(),
@@ -52,7 +52,7 @@ describe('users connector', () => {
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(getUsers({ apiKey, page: null })).resolves.toStrictEqual({
+      await expect(getUsers({ apiToken, page: null })).resolves.toStrictEqual({
         validUsers: [],
         invalidUsers,
         nextPage: null,
@@ -62,7 +62,7 @@ describe('users connector', () => {
     test('should throws when the token is invalid', async () => {
       await expect(
         getUsers({
-          apiKey: 'foo-id',
+          apiToken: 'foo-id',
           page: nextCursor,
         })
       ).rejects.toBeInstanceOf(DopplerError);

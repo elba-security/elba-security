@@ -14,6 +14,10 @@ export const removeOrganisation = inngest.createFunction(
         event: 'doppler/app.installed',
         match: 'data.organisationId',
       },
+      {
+        event: 'doppler/app.uninstalled',
+        match: 'data.organisationId',
+      },
     ],
   },
   {

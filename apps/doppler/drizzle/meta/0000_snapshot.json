@@ -1,5 +1,5 @@
 {
-  "id": "f7ba6a4d-76be-462a-9a76-442d7ffabd03",
+  "id": "37b61cb7-df96-4aa0-90fa-a54eb52da1f0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -14,8 +14,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "api_key": {
-          "name": "api_key",
+        "api_token": {
+          "name": "api_token",
           "type": "text",
           "primaryKey": false,
           "notNull": true

@@ -9,7 +9,7 @@ import type { DopplerUser } from '@/connectors/users';
 import { DopplerError } from '@/connectors/commons/error';
 import { registerOrganisation } from './service';
 
-const apiKey = 'test-api-key';
+const apiToken = 'test-api-token';
 const region = 'us';
 const now = new Date();
 const validUsers: DopplerUser[] = Array.from({ length: 2 }, (_, i) => ({
@@ -29,8 +29,8 @@ const getUsersData = {
 };
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
-  apiKey,
+  id: '00000000-0000-0000-0000-000000000001',
+  apiToken,
   region,
 };
 
@@ -51,13 +51,13 @@ describe('registerOrganisation', () => {
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
-        apiKey,
+        apiToken,
         region,
       })
     ).resolves.toBeUndefined();
 
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey });
+    expect(getUsers).toBeCalledWith({ apiToken });
 
     const [storedOrganisation] = await db
       .select()
@@ -67,7 +67,7 @@ describe('registerOrganisation', () => {
       throw new DopplerError(`Organisation with ID ${organisation.id} not found.`);
     }
     expect(storedOrganisation.region).toBe(region);
-    await expect(decrypt(storedOrganisation.apiKey)).resolves.toEqual(apiKey);
+    await expect(decrypt(storedOrganisation.apiToken)).resolves.toEqual(apiToken);
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
@@ -84,7 +84,6 @@ describe('registerOrganisation', () => {
         name: 'doppler/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
     ]);
@@ -103,15 +102,15 @@ describe('registerOrganisation', () => {
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
-        apiKey,
+        apiToken,
         region,
       })
     ).resolves.toBeUndefined();
 
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey });
+    expect(getUsers).toBeCalledWith({ apiToken });
 
-    // check if the apiKey in the database is updated
+    // check if the apiToken in the database is updated
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)
@@ -121,7 +120,7 @@ describe('registerOrganisation', () => {
       throw new DopplerError(`Organisation with ID ${organisation.id} not found.`);
     }
     expect(storedOrganisation.region).toBe(region);
-    await expect(decrypt(storedOrganisation.apiKey)).resolves.toEqual(apiKey);
+    await expect(decrypt(storedOrganisation.apiToken)).resolves.toEqual(apiToken);
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
@@ -138,7 +137,6 @@ describe('registerOrganisation', () => {
         name: 'doppler/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
     ]);

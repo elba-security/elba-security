@@ -27,93 +27,43 @@ export default function InstallPage() {
       <h1>Setup Doppler integration</h1>
       <InstructionsSteps>
         <InstructionsStep index={1}>
-          <h3>How to Generate an API Key</h3>
+          <h3>Create a service account</h3>
           <ol>
-            <li>
-              <strong>1. Log in to Your Account</strong>
-              <p>Access the platform by entering your credentials to log in.</p>
-            </li>
-            <li>
-              <strong>2. Navigate to Tokens</strong>
-              <p>
-                Click on the <strong>Tokens</strong> menu located in the side navigation bar.
-              </p>
-            </li>
-            <li>
-              <strong>3. Access the Service Tab</strong>
-              <p>
-                Within the Tokens menu, select the <strong>Service</strong> tab.
-              </p>
-            </li>
-            <li>
-              <strong>4. Manage Service Accounts</strong>
-              <p>
-                Click on <strong>Manage Service Accounts</strong> to view and manage existing
-                accounts.
-              </p>
-            </li>
-            <li>
-              <strong>5. Create a New Service Account</strong>
-              <p>
-                Click on <strong>Create Service Account</strong>.
-              </p>
-              <ul>
-                <li>Enter a name for the new service account.</li>
-                <li>
-                  Click <strong>Create Service Account</strong> to proceed.
-                </li>
-              </ul>
-            </li>
-            <li>
-              <strong>6. Assign Roles</strong>
-              <p>
-                Initially, the role will be set to <strong>None</strong>. To change this, proceed to
-                the next steps.
-              </p>
-            </li>
-            <li>
-              <strong>7. Configure Workplace Role</strong>
-              <p>
-                Locate the <strong>Workplace Role</strong> section.
-              </p>
-              <ul>
-                <li>
-                  Change the role to <strong>Admin</strong> and then click <strong>Save</strong>.
-                </li>
-              </ul>
-            </li>
-            <li>
-              <strong>8. Set Project Access</strong>
-              <p>
-                Under <strong>Project Access</strong>, select the projects to which you want the
-                service account to have access.
-              </p>
-              <ul>
-                <li>
-                  9. Click <strong>Save</strong> to confirm the selections.
-                </li>
-              </ul>
-            </li>
-            <li>
-              <strong>10. Generate API Token</strong>
-              <p>
-                Navigate to <strong>Create Service Account API Tokens</strong>.
-              </p>
-              <ul>
-                <li>Provide a name for the token.</li>
-                <li>Ensure you do not set an expiration date for the token.</li>
-              </ul>
-            </li>
+            <p>1. On your Doppler account, Navigate to Tokens page</p>
+            <p>
+              2. In service tab click <strong>Manage service accounts</strong>
+            </p>
+            <p>
+              3. Click on <strong>+</strong> to create a new service account.
+            </p>
           </ol>
         </InstructionsStep>
         <InstructionsStep index={2}>
+          <h3>Generate an API Token</h3>
+          <ol>
+            <p>
+              1. Change the <strong>Workplace Role</strong> from <strong>None</strong> to{' '}
+              <strong>Admin</strong> & Save
+            </p>
+            <p>
+              2. In the service account API token section, click on <strong>+</strong> to create a
+              new token.
+            </p>
+            <p>
+              3. We encourage to leave the <strong>Expire Token</strong> checkbox unchecked as the
+              integration will be disconnected after token expiration.
+            </p>
+            <p>4. Copy the created token to the form bellow</p>
+          </ol>
+        </InstructionsStep>
+        <InstructionsStep index={3}>
           <h3>Connect Doppler</h3>
           <Form action={formAction}>
-            <FormField isInvalid={Boolean(state.errors?.apiKey?.at(0))}>
-              <FormLabel>API Key</FormLabel>
-              <Input minLength={1} name="apiKey" placeholder="Paste Your API Key" type="text" />
-              {state.errors?.apiKey?.at(0) ? (
-                <FormErrorMessage>{state.errors.apiKey.at(0)}</FormErrorMessage>
+            <FormField isInvalid={Boolean(state.errors?.apiToken?.at(0))}>
+              <FormLabel>API Token</FormLabel>
+              <Input minLength={1} name="apiToken" placeholder="Paste Your API Key" type="text" />
+              {state.errors?.apiToken?.at(0) ? (
+                <FormErrorMessage>{state.errors.apiToken.at(0)}</FormErrorMessage>
               ) : null}
             </FormField>
 

@@ -18,7 +18,6 @@ export const inngest = new Inngest({
     'doppler/app.installed': {
       data: {
         organisationId: string;
-        region: string;
       };
     };
     'doppler/app.uninstalled': {

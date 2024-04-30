@@ -5,18 +5,18 @@ import { RedirectType, redirect } from 'next/navigation';
 import { getRedirectUrl } from '@elba-security/sdk';
 import { isRedirectError } from 'next/dist/client/components/redirect';
 import { DopplerError } from '@/connectors/commons/error';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { registerOrganisation } from './service';
 
 const formSchema = z.object({
   organisationId: z.string().uuid(),
-  apiKey: z.string().min(1),
+  apiToken: z.string().min(1, { message: 'API key is required' }),
   region: z.string().min(1),
 });
 
 export type FormState = {
   errors?: {
-    apiKey?: string[] | undefined;
+    apiToken?: string[] | undefined;
   };
 };
 
@@ -24,7 +24,7 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
   const region = formData.get('region');
   try {
     const result = formSchema.safeParse({
-      apiKey: formData.get('apiKey'),
+      apiToken: formData.get('apiToken'),
       organisationId: formData.get('organisationId'),
       region: formData.get('region'),
     });
@@ -67,7 +67,7 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
     if (error instanceof DopplerError && error.response?.status === 401) {
       return {
         errors: {
-          apiKey: ['The given API key seems to be invalid'],
+          apiToken: ['The given API token seems to be invalid'],
         },
       };
     }

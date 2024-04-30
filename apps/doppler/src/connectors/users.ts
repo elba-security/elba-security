@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { DopplerError } from './commons/error';
 
 const dopplerUserSchema = z.object({
@@ -19,11 +19,11 @@ const dopplerResponseSchema = z.object({
 });
 
 export type GetUsersParams = {
-  apiKey: string;
+  apiToken: string;
   page?: string | null;
 };
 
-export const getUsers = async ({ apiKey, page }: GetUsersParams) => {
+export const getUsers = async ({ apiToken, page }: GetUsersParams) => {
   const endpoint = new URL(`${env.DOPPLER_API_BASE_URL}workplace/users`);
 
   if (page) {
@@ -33,7 +33,7 @@ export const getUsers = async ({ apiKey, page }: GetUsersParams) => {
   const response = await fetch(endpoint.toString(), {
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiToken}`,
       'Content-Type': 'application/json',
     },
   });

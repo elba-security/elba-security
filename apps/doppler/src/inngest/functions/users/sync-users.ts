@@ -9,7 +9,7 @@ import { inngest } from '@/inngest/client';
 import { type DopplerUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
 import { getElbaClient } from '@/connectors/elba/client';
-import { env } from '@/env';
+import { env } from '@/common/env';
 
 const formatElbaUser = (user: DopplerUser): User => ({
   id: user.id,
@@ -19,17 +19,27 @@ const formatElbaUser = (user: DopplerUser): User => ({
   additionalEmails: [],
 });
 
-export const synchronizeUsers = inngest.createFunction(
+export const syncUsers = inngest.createFunction(
   {
-    id: 'doppler-synchronize-users',
+    id: 'doppler-sync-users',
     priority: {
-      run: 'event.data.isFirstSync ? 600 : -600',
+      run: 'event.data.isFirstSync ? 600 : 0',
     },
     concurrency: {
       key: 'event.data.organisationId',
-      limit: env.USERS_SYNC_CONCURRENCY,
+      limit: env.DOPPLER_USERS_SYNC_CONCURRENCY,
     },
-    retries: env.USERS_SYNC_RETRIES,
+    cancelOn: [
+      {
+        event: 'doppler/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'doppler/app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
+    retries: 5,
   },
   { event: 'doppler/users.sync.requested' },
   async ({ event, step }) => {
@@ -37,7 +47,7 @@ export const synchronizeUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        apiKey: organisationsTable.apiKey,
+        apiToken: organisationsTable.apiToken,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -48,11 +58,11 @@ export const synchronizeUsers = inngest.createFunction(
 
     const elba = getElbaClient({ organisationId, region: organisation.region });
 
-    const apiKey = await decrypt(organisation.apiKey);
+    const apiToken = await decrypt(organisation.apiToken);
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({
-        apiKey,
+        apiToken,
         page,
       });
 
@@ -64,7 +74,10 @@ export const synchronizeUsers = inngest.createFunction(
           invalidUsers: result.invalidUsers,
         });
       }
-      await elba.users.update({ users });
+
+      if (users.length > 0) {
+        await elba.users.update({ users });
+      }
 
       return result.nextPage;
     });
@@ -83,7 +96,6 @@ export const synchronizeUsers = inngest.createFunction(
       };
     }
 
-    // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

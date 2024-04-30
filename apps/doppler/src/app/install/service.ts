@@ -6,31 +6,31 @@ import { getUsers } from '@/connectors/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
-  apiKey: string;
+  apiToken: string;
   region: string;
 };
 
 export const registerOrganisation = async ({
   organisationId,
-  apiKey,
+  apiToken,
   region,
 }: SetupOrganisationParams) => {
-  const encodedapiKey = await encrypt(apiKey);
+  const encodedApiToken = await encrypt(apiToken);
 
-  await getUsers({ apiKey });
+  await getUsers({ apiToken });
 
   await db
     .insert(organisationsTable)
     .values({
       id: organisationId,
       region,
-      apiKey: encodedapiKey,
+      apiToken: encodedApiToken,
     })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
         region,
-        apiKey: encodedapiKey,
+        apiToken: encodedApiToken,
       },
     });
 
@@ -49,7 +49,6 @@ export const registerOrganisation = async ({
       name: 'doppler/app.installed',
       data: {
         organisationId,
-        region,
       },
     },
   ]);

@@ -8,7 +8,7 @@ import { unauthorizedMiddleware } from './unauthorized-middleware';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  apiKey: 'api-key',
+  apiToken: 'api-token',
   region: 'fra1',
 };
 

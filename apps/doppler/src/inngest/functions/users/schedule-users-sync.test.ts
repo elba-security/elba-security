@@ -3,18 +3,18 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
-import { scheduleUsersSynchronize } from './schedule-users-sync';
+import { scheduleUsersSync } from './schedule-users-sync';
 
 const now = Date.now();
 
-const setup = createInngestFunctionMock(scheduleUsersSynchronize);
+const setup = createInngestFunctionMock(scheduleUsersSync);
 
 const encodedPersonalToken = await encrypt('test-personal-token');
 
 export const organisations = Array.from({ length: 2 }, (_, i) => ({
   id: `b91f113b-bcf9-4a28-98c7-5b13fb671c1${i}`,
   region: 'us',
-  apiKey: encodedPersonalToken,
+  apiToken: encodedPersonalToken,
 }));
 
 describe('doppler-schedule-users-sync', () => {
