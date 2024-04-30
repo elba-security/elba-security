@@ -12,7 +12,7 @@ export const env = z
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt(),
     VERCEL_ENV: z.string().min(1).optional(),
-    ENCRYPTION_KEY: z.string().length(64),
+    ENCRYPTION_KEY: z.string().min(1),
     LIVESTORM_API_BASE_URL: z.string().url(),
     LIVESTORM_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     LIVESTORM_USERS_SYNC_BATCH_SIZE: zEnvInt().default(200),

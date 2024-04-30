@@ -29,12 +29,15 @@ export default function InstallPage() {
         <InstructionsStep index={1}>
           <h3>How to Generate Token</h3>
           <p>1. In the Livestorm Dashboard, use the left navigation bar.</p>
-          <p>2. Navigate to the Settings.</p>
-          <p>3. Navigate to the Public API Section.</p>
-          <p>4. Navigate to the Token Management Section.</p>
-          <p>5. Click on new Token.</p>
-          <p>6. Give your API Token a name.</p>
-          <p>7. Select the desired scopes (permissions) for the token.</p>
+          <p>
+            2. Navigate to{' '}
+            <b>
+              Account {'>'} Account Settings {'>'} Public API {'>'} Token Management
+            </b>
+          </p>
+          <p>3. Click on new Token.</p>
+          <p>4. Give your API Token a name.</p>
+          <p>5.Select Admin write permission fro the token</p>
           <p>
             8. Click Generate a Token (The token maybe blocked in default, you should demand the
             Livestorm to unblock it)

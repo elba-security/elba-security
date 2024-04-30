@@ -1,6 +1,6 @@
 import { removeOrganisation } from './organisation/remove-organisation';
 import { deleteUser } from './users/delete-user';
 import { scheduleUsersSync } from './users/schedule-users-sync';
-import { syncUsersPage } from './users/sync-users';
+import { syncUsers } from './users/sync-users';
 
-export const inngestFunctions = [syncUsersPage, scheduleUsersSync, deleteUser, removeOrganisation];
+export const inngestFunctions = [syncUsers, scheduleUsersSync, deleteUser, removeOrganisation];

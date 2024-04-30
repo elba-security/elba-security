@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import * as userConnector from '@/connectors/users';
+import * as userConnector from '@/connectors/livestorm/users';
 import * as crypto from '@/common/crypto';
 import { registerOrganisation } from './service';
 
@@ -12,7 +12,7 @@ const region = 'us';
 const now = new Date();
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+  id: '00000000-0000-0000-0000-000000000001',
   token,
   region,
 };
@@ -50,7 +50,6 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
     // @ts-expect-error -- this is a mock
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(mockUserData);
     vi.spyOn(crypto, 'encrypt').mockResolvedValue(token);
@@ -70,16 +69,23 @@ describe('registerOrganisation', () => {
       },
     ]);
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: 'livestorm/users.sync.requested',
-      data: {
-        isFirstSync: true,
-        organisationId: organisation.id,
-        syncStartedAt: now.getTime(),
-        region,
-        page: null,
+    expect(send).toBeCalledWith([
+      {
+        name: 'livestorm/users.sync.requested',
+        data: {
+          isFirstSync: true,
+          organisationId: organisation.id,
+          syncStartedAt: now.getTime(),
+          page: null,
+        },
       },
-    });
+      {
+        name: 'livestorm/app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+    ]);
     expect(crypto.encrypt).toBeCalledTimes(1);
     expect(getUsers).toBeCalledWith(token, null);
   });
@@ -90,7 +96,6 @@ describe('registerOrganisation', () => {
     // mocked the getUsers function
     // @ts-expect-error -- this is a mock
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(mockUserData);
-    // pre-insert an organisation to simulate an existing entry
     await db.insert(organisationsTable).values(organisation);
     await expect(
       registerOrganisation({
@@ -114,23 +119,29 @@ describe('registerOrganisation', () => {
     ]);
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: 'livestorm/users.sync.requested',
-      data: {
-        isFirstSync: true,
-        organisationId: organisation.id,
-        syncStartedAt: now.getTime(),
-        region,
-        page: null,
+    expect(send).toBeCalledWith([
+      {
+        name: 'livestorm/users.sync.requested',
+        data: {
+          isFirstSync: true,
+          organisationId: organisation.id,
+          syncStartedAt: now.getTime(),
+          page: null,
+        },
       },
-    });
+      {
+        name: 'livestorm/app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+    ]);
     expect(getUsers).toBeCalledWith(token, null);
   });
 
   test('should not setup the organisation when the organisation id is invalid', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
     // @ts-expect-error -- this is a mock
     vi.spyOn(userConnector, 'getUsers').mockResolvedValue(mockUserData);
     const wrongId = 'xfdhg-dsf';

@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { LivestormError } from '@/connectors/commons/error';
+import { LivestormError } from '@/connectors/common/error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
@@ -13,8 +13,12 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (error instanceof LivestormError && error.response?.status === 429) {
-              const retryAfter = error.response.headers.get('Retry-After') || 60;
+            if (!(error instanceof LivestormError)) {
+              return;
+            }
+
+            if (error.response?.status === 429) {
+              const retryAfter = error.response.headers.get('retry-after') || 60;
 
               return {
                 ...context,

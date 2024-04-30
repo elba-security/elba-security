@@ -1,14 +1,14 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/livestorm/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { deleteUser } from './delete-user';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
   token: 'test-token',
   region: 'us',
 };
@@ -20,10 +20,9 @@ describe('delete-user-request', () => {
     // setup the test without organisation entries in the database, the function cannot retrieve a token
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     const [result, { step }] = setup({
-      id: userId,
+      userId,
       organisationId: organisation.id,
     });
-    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
     expect(usersConnector.deleteUser).toBeCalledTimes(0);
     // check that the function is not sending other event
@@ -36,7 +35,7 @@ describe('delete-user-request', () => {
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(organisation.token);
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     const [result] = setup({
-      id: userId,
+      userId,
       organisationId: organisation.id,
     });
     await expect(result).resolves.toBeUndefined();
@@ -45,6 +44,9 @@ describe('delete-user-request', () => {
     expect(crypto.decrypt).toBeCalledWith(organisation.token);
 
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
-    expect(usersConnector.deleteUser).toBeCalledWith(organisation.token, userId);
+    expect(usersConnector.deleteUser).toBeCalledWith({
+      token: 'test-token',
+      userId: 'user-id',
+    });
   });
 });

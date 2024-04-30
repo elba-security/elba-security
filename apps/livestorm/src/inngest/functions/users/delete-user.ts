@@ -1,42 +1,51 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { env } from '@/common/env';
 import { organisationsTable } from '@/database/schema';
-import { deleteUser } from '@/connectors/users';
+import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
-import { inngest } from '../../client';
+import { env } from '@/common/env';
+import { deleteUser as deleteLivestormUser } from '@/connectors/livestorm/users';
 
 export const deleteUser = inngest.createFunction(
   {
-    id: 'livestorm-delete-user',
-    retries: 5,
+    id: 'livestorm-delete-users',
     concurrency: {
-      key: 'data.organisationId',
+      key: 'event.data.organisationId',
       limit: env.LIVESTORM_DELETE_USER_CONCURRENCY,
     },
+    cancelOn: [
+      {
+        event: 'livestorm/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'livestorm/app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
+    retries: 5,
   },
-  {
-    event: 'livestorm/users.delete.requested',
-  },
-  async ({ event, step }) => {
-    const { id: userId, organisationId } = event.data;
-    const { token } = await step.run('get-organisation', async () => {
-      const [organisation] = await db
-        .select({
-          token: organisationsTable.token,
-        })
-        .from(organisationsTable)
-        .where(eq(organisationsTable.id, organisationId));
-      if (!organisation) {
-        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-      }
-      return organisation;
-    });
+  { event: 'livestorm/users.delete.requested' },
+  async ({ event }) => {
+    const { userId, organisationId } = event.data;
 
-    await step.run('delete-user', async () => {
-      const decryptedToken = await decrypt(token);
-      await deleteUser(decryptedToken, userId);
+    const [organisation] = await db
+      .select({
+        token: organisationsTable.token,
+      })
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
+
+    if (!organisation) {
+      throw new NonRetriableError(`Could not retrieve ${userId}`);
+    }
+
+    const token = await decrypt(organisation.token);
+
+    await deleteLivestormUser({
+      token,
+      userId,
     });
   }
 );

@@ -1,5 +1,5 @@
 import { encrypt } from '@/common/crypto';
-import { getUsers } from '../../connectors/users';
+import { getUsers } from '../../connectors/livestorm/users';
 import { db } from '../../database/client';
 import { organisationsTable } from '../../database/schema';
 import { inngest } from '../../inngest/client';
@@ -29,14 +29,21 @@ export const registerOrganisation = async ({
       },
     });
 
-  await inngest.send({
-    name: 'livestorm/users.sync.requested',
-    data: {
-      isFirstSync: true,
-      organisationId,
-      region,
-      syncStartedAt: Date.now(),
-      page: null,
+  await inngest.send([
+    {
+      name: 'livestorm/users.sync.requested',
+      data: {
+        isFirstSync: true,
+        organisationId,
+        syncStartedAt: Date.now(),
+        page: null,
+      },
     },
-  });
+    {
+      name: 'livestorm/app.installed',
+      data: {
+        organisationId,
+      },
+    },
+  ]);
 };

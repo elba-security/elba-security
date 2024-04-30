@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { RedirectType, redirect } from 'next/navigation';
 import { getRedirectUrl } from '@elba-security/sdk';
 import { isRedirectError } from 'next/dist/client/components/redirect';
-import { LivestormError } from '@/connectors/commons/error';
+import { LivestormError } from '@/connectors/common/error';
 import { env } from '@/common/env';
 import { registerOrganisation } from './service';
 

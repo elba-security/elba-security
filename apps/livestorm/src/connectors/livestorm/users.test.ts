@@ -2,12 +2,13 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { http } from 'msw';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
+import type { LivestormError } from '../common/error';
 import { getUsers, deleteUser, type LivestormUser } from './users';
-import type { LivestormError } from './commons/error';
 
 const data: LivestormUser[] = [
   {
     id: 'user-id',
+    type: 'users',
     attributes: {
       role: 'participant',
       first_name: 'John',
@@ -59,6 +60,8 @@ describe('getUsers', () => {
     expect(result).toEqual({
       validUsers: [
         {
+          id: 'user-id',
+          type: 'users',
           attributes: {
             email: 'john@example.com',
             first_name: 'John',
@@ -66,11 +69,9 @@ describe('getUsers', () => {
             pending_invite: false,
             role: 'participant',
           },
-          id: 'user-id',
         },
       ],
       invalidUsers: [],
-      invitedUsers: [],
       nextPage: 1,
     });
   });
@@ -79,6 +80,8 @@ describe('getUsers', () => {
     await expect(getUsers(validToken, 2)).resolves.toStrictEqual({
       validUsers: [
         {
+          id: 'user-id',
+          type: 'users',
           attributes: {
             email: 'john@example.com',
             first_name: 'John',
@@ -86,11 +89,9 @@ describe('getUsers', () => {
             pending_invite: false,
             role: 'participant',
           },
-          id: 'user-id',
         },
       ],
       invalidUsers: [],
-      invitedUsers: [],
       nextPage: null,
     });
   });
@@ -109,12 +110,20 @@ describe('deleteUser', () => {
   });
 
   test('should delete user successfully when token is valid', async () => {
-    await expect(deleteUser(validToken, userId)).resolves.not.toThrow();
+    await expect(
+      deleteUser({
+        token: validToken,
+        userId,
+      })
+    ).resolves.not.toThrow();
   });
 
   test('should throw LivestormError when token is invalid', async () => {
     try {
-      await deleteUser('invalidToken', userId);
+      await deleteUser({
+        token: 'invalid-token',
+        userId,
+      });
     } catch (error) {
       expect((error as LivestormError).message).toEqual('Could not delete Livestorm user');
     }

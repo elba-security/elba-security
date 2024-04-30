@@ -27,7 +27,7 @@ export const inngest = new Inngest({
     };
     'livestorm/users.delete.requested': {
       data: {
-        id: string;
+        userId: string;
         organisationId: string;
       };
     };

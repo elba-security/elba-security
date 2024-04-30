@@ -2,7 +2,7 @@ import { type User } from '@elba-security/sdk';
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
-import { type LivestormUser, getUsers } from '@/connectors/users';
+import { type LivestormUser, getUsers } from '@/connectors/livestorm/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { env } from '@/common/env';
@@ -23,11 +23,10 @@ const formatElbaUser = ({ id, attributes }: LivestormUser): User => ({
   displayName: formatElbaUserDisplayName(attributes),
   role: attributes.role,
   email: attributes.email,
-  authMethod: undefined,
   additionalEmails: [],
 });
 
-export const syncUsersPage = inngest.createFunction(
+export const syncUsers = inngest.createFunction(
   {
     id: 'livestorm-sync-users',
     priority: {
@@ -77,11 +76,10 @@ export const syncUsersPage = inngest.createFunction(
 
       const users = result.validUsers.map(formatElbaUser);
 
-      if (result.invalidUsers.length > 0 || result.invitedUsers.length > 0) {
+      if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid or invited users', {
           organisationId,
           invalidUsers: result.invalidUsers,
-          invitedUsers: result.invitedUsers,
         });
       }
 

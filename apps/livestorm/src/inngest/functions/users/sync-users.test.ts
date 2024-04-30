@@ -1,11 +1,11 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/livestorm/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
-import { syncUsersPage } from './sync-users';
+import { syncUsers } from './sync-users';
 import { elbaUsers, users } from './__mocks__/integration';
 
 const organisation = {
@@ -17,7 +17,7 @@ const organisation = {
 
 const syncStartedAt = Date.now();
 
-const setup = createInngestFunctionMock(syncUsersPage, 'livestorm/users.sync.requested');
+const setup = createInngestFunctionMock(syncUsers, 'livestorm/users.sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
@@ -41,7 +41,6 @@ describe('sync-users', () => {
 
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       invalidUsers: [],
-      invitedUsers: [],
       validUsers: users,
       nextPage: 1,
     });
@@ -79,7 +78,6 @@ describe('sync-users', () => {
 
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       invalidUsers: [],
-      invitedUsers: [],
       validUsers: users,
       nextPage: null,
     });

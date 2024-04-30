@@ -1,9 +1,10 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { LivestormError } from './commons/error';
+import { LivestormError } from '../common/error';
 
 const livestormUserSchema = z.object({
   id: z.string(),
+  type: z.literal('users'), // it should be always 'users'
   attributes: z.object({
     role: z.string(),
     first_name: z.string().nullable(),
@@ -23,17 +24,19 @@ const livestormResponseSchema = z.object({
 });
 
 export const getUsers = async (token: string, page: number | null) => {
-  const baseUrl = `${env.LIVESTORM_API_BASE_URL}/users`;
-  let queryString = `?page[size]=${env.LIVESTORM_USERS_SYNC_BATCH_SIZE}`;
+  const url = new URL(`${env.LIVESTORM_API_BASE_URL}/users`);
+
+  url.searchParams.append('page[size]', String(env.LIVESTORM_USERS_SYNC_BATCH_SIZE));
 
   if (page) {
-    queryString += `&page[number]=${page}`;
+    url.searchParams.append('page[number]', String(page));
   }
 
-  const endpointUrl = new URL(baseUrl + queryString);
-
-  const response = await fetch(endpointUrl, {
-    headers: { Authorization: token },
+  const response = await fetch(url.toString(), {
+    headers: {
+      Accept: 'application/json',
+      Authorization: token,
+    },
   });
 
   if (!response.ok) {
@@ -43,7 +46,6 @@ export const getUsers = async (token: string, page: number | null) => {
   const resData: unknown = await response.json();
   const validUsers: LivestormUser[] = [];
   const invalidUsers: unknown[] = [];
-  const invitedUsers: LivestormUser[] = [];
 
   const { data, meta } = livestormResponseSchema.parse(resData);
 
@@ -52,8 +54,8 @@ export const getUsers = async (token: string, page: number | null) => {
 
     if (result.success) {
       // Only add users that are not pending invite, we collect this data only for logging purposes
+      // It can be filtered in the request by filter[pending_invite], for some reason it is not working, so we filter it here
       if (result.data.attributes.pending_invite) {
-        invitedUsers.push(result.data);
         continue;
       }
 
@@ -66,19 +68,18 @@ export const getUsers = async (token: string, page: number | null) => {
   return {
     validUsers,
     invalidUsers,
-    invitedUsers,
     nextPage: meta.next_page ? meta.next_page : null,
   };
 };
 
-export const deleteUser = async (token: string, userId: string) => {
+export const deleteUser = async ({ token, userId }: { token: string; userId: string }) => {
   const url = new URL(`${env.LIVESTORM_API_BASE_URL}/users/${userId}`);
   const response = await fetch(url, {
     method: 'DELETE',
     headers: { Authorization: token },
   });
 
-  if (!response.ok) {
+  if (!response.ok && response.status !== 404) {
     throw new LivestormError('Could not delete Livestorm user', { response });
   }
 };
