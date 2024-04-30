@@ -17,13 +17,11 @@ export const inngest = new Inngest({
     'dbtlabs/app.installed': {
       data: {
         organisationId: string;
-        region: string;
       };
     };
     'dbtlabs/app.uninstalled': {
       data: {
         organisationId: string;
-        region: string;
       };
     };
     'dbtlabs/users.delete.requested': {

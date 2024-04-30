@@ -56,7 +56,6 @@ export const registerOrganisation = async ({
       name: 'dbtlabs/app.installed',
       data: {
         organisationId,
-        region,
       },
     },
   ]);

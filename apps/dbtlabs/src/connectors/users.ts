@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getDbtlabsApiClient } from '@/common/apiclient';
+import { DbtlabsError } from './commons/error';
 
 const dbtlabsUserSchema = z.object({
   id: z.number(),
@@ -33,15 +33,31 @@ export type GetUsersParams = {
   afterToken?: string | null;
 };
 
-export const getUsers = async ({ serviceToken, accountId, afterToken, accessUrl }: GetUsersParams) => {
-  const endpoint = new URL(`${accessUrl}/api/v2/accounts/${accountId}/users`)
+export const getUsers = async ({
+  serviceToken,
+  accountId,
+  afterToken,
+  accessUrl,
+}: GetUsersParams) => {
+  const endpoint = new URL(`${accessUrl}/api/v2/accounts/${accountId}/users`);
+
   if (afterToken) {
     endpoint.searchParams.append('offset', String(afterToken));
   }
 
-  const dbtlabsApiClient = getDbtlabsApiClient();
+  const response = await fetch(endpoint.toString(), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${serviceToken}`,
+    },
+  });
 
-  const resData: unknown = await dbtlabsApiClient.get(endpoint.toString(), serviceToken);
+  if (!response.ok) {
+    throw new DbtlabsError('API request failed', { response });
+  }
+
+  const resData: unknown = await response.json();
 
   const { data, extra } = dbtlabsResponseSchema.parse(resData);
 
@@ -75,4 +91,3 @@ export const getUsers = async ({ serviceToken, accountId, afterToken, accessUrl 
     nextPage,
   };
 };
-

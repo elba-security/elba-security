@@ -3,11 +3,11 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
-import { scheduleUsersSynchronize } from './schedule-users-synchronize';
+import { scheduleUsersSync } from './schedule-users-sync';
 
 const now = Date.now();
 
-const setup = createInngestFunctionMock(scheduleUsersSynchronize);
+const setup = createInngestFunctionMock(scheduleUsersSync);
 
 const encodedPersonalToken = await encrypt('test-personal-token');
 
@@ -39,7 +39,9 @@ describe('schedule-users-syncs', () => {
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      organisations: organisations.map(({ ...organisation }) => organisation),
+      organisations: organisations.map(({ id }) => ({
+        id,
+      })),
     });
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(

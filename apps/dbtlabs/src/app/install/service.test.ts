@@ -29,7 +29,7 @@ const getUsersData = {
 };
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+  id: '00000000-0000-0000-0000-000000000001',
   accountId,
   serviceToken,
   accessUrl,
@@ -46,7 +46,6 @@ describe('registerOrganisation', () => {
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
-    // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
 
@@ -89,7 +88,6 @@ describe('registerOrganisation', () => {
         name: 'dbtlabs/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
     ]);
@@ -125,7 +123,6 @@ describe('registerOrganisation', () => {
     }
     expect(storedOrganisation.region).toBe(region);
     await expect(decrypt(storedOrganisation.serviceToken)).resolves.toEqual(serviceToken);
-    // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
@@ -141,7 +138,6 @@ describe('registerOrganisation', () => {
         name: 'dbtlabs/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
     ]);

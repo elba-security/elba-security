@@ -5,7 +5,7 @@ import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
-import { synchronizeUsers } from './synchronize-users';
+import { syncUsers } from './sync-users';
 
 const nextPage = '1';
 const organisation = {
@@ -28,7 +28,7 @@ const users: usersConnector.DbtlabsUser[] = Array.from({ length: 2 }, (_, i) => 
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 
-const setup = createInngestFunctionMock(synchronizeUsers, 'dbtlabs/users.sync.requested');
+const setup = createInngestFunctionMock(syncUsers, 'dbtlabs/users.sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {

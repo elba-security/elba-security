@@ -1,6 +1,6 @@
 {
   "name": "@elba-security/dbtlabs",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 4000",
@@ -8,17 +8,17 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "pg:studio": "drizzle-kit studio --port 4300",
     "test": "vitest run",
     "test:watch": "vitest",
     "database:up": "docker-compose -p dbtlabs --profile edge --env-file=.env.local up -d",
     "database:down": "docker-compose -p dbtlabs down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
     "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts",
-    "database:init": "pnpm database:up && pnpm database:generate && pnpm database:migrate"
+    "database:open:pg": "drizzle-kit studio --config ../../drizzle.config.ts"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
+    "@elba-security/design-system": "workspace:*",
     "@elba-security/inngest": "workspace:*",
     "@elba-security/logger": "workspace:*",
     "@elba-security/nextjs": "workspace:*",
@@ -29,10 +29,9 @@
     "drizzle-orm": "^0.29.4",
     "inngest": "3.14.2",
     "msw": "^2.0.1",
-    "next": "14.0.1",
-    "react": "^18",
-    "react-dom": "^18",
-    "testcontainers": "^10.8.1",
+    "next": "14.0.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -42,15 +41,16 @@
     "@elba-security/tsconfig": "workspace:*",
     "@next/eslint-plugin-next": "^14.0.2",
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "18.2.46",
+    "@types/react-dom": "18.2.18",
     "dotenv": "^16.3.1",
-    "drizzle-kit": "^0.20.14",
+    "drizzle-kit": "^0.20.17",
     "eslint": "^8",
     "inngest-cli": "^0.25.2",
     "msw": "^2.0.1",
     "pg": "^8.11.5",
     "postgres": "^3.4.3",
+    "testcontainers": "^10.8.1",
     "typescript": "^5",
     "vitest": "1.4.0"
   }

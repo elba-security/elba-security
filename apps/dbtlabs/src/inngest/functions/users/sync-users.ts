@@ -17,7 +17,7 @@ const formatElbaUser = (user: DbtlabsUser): User => ({
   additionalEmails: [],
 });
 
-export const synchronizeUsers = inngest.createFunction(
+export const syncUsers = inngest.createFunction(
   {
     id: 'synchronize-users',
     priority: {
@@ -67,12 +67,14 @@ export const synchronizeUsers = inngest.createFunction(
           invalidUsers: result.invalidUsers,
         });
       }
-      await elba.users.update({ users });
+
+      if (users.length > 0) {
+        await elba.users.update({ users });
+      }
 
       return result.nextPage;
     });
 
-    // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('synchronize-users', {
         name: 'dbtlabs/users.sync.requested',
@@ -86,7 +88,6 @@ export const synchronizeUsers = inngest.createFunction(
       };
     }
 
-    // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

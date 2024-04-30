@@ -1,4 +1,4 @@
-import { synchronizeUsers } from './users/synchronize-users';
-import { scheduleUsersSynchronize } from './users/schedule-sync';
+import { syncUsers } from './users/sync-users';
+import { scheduleUsersSync } from './users/schedule-users-sync';
 
-export const inngestFunctions = [synchronizeUsers, scheduleUsersSynchronize];
+export const inngestFunctions = [syncUsers, scheduleUsersSync];
