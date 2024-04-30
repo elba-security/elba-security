@@ -7,7 +7,7 @@ import { deleteUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
 import { inngest } from '../../client';
 
-export const deleteLivestormUser = inngest.createFunction(
+export const deleteUser = inngest.createFunction(
   {
     id: 'livestorm-delete-user',
     retries: 5,

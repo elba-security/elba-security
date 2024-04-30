@@ -13,7 +13,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (error instanceof LivestormError && error.response?.headers.get('Retry-After')) {
+            if (error instanceof LivestormError && error.response?.status === 429) {
               const retryAfter = error.response.headers.get('Retry-After') || 60;
 
               return {

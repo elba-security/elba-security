@@ -5,7 +5,7 @@ import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
-import { deleteLivestormUser } from './delete-user';
+import { deleteUser } from './delete-user';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
@@ -13,7 +13,7 @@ const organisation = {
   region: 'us',
 };
 const userId = 'user-id';
-const setup = createInngestFunctionMock(deleteLivestormUser, 'livestorm/users.delete.requested');
+const setup = createInngestFunctionMock(deleteUser, 'livestorm/users.delete.requested');
 
 describe('delete-user-request', () => {
   test('should abort request when organisation is not registered', async () => {
