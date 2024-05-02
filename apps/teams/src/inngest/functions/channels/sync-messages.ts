@@ -15,7 +15,7 @@ export const syncMessages = inngest.createFunction(
     id: 'teams-sync-messages',
     concurrency: {
       key: 'event.data.organisationId',
-      limit: 1,
+      limit: env.TEAMS_MESSAGES_SYNC_CONCURRENCY,
     },
     onFailure: async ({ event, step }) => {
       const { organisationId, channelId } = event.data.event.data;

@@ -12,7 +12,7 @@ export const syncChannels = inngest.createFunction(
     id: 'teams-sync-channels',
     concurrency: {
       key: 'event.data.organisationId',
-      limit: 1,
+      limit: env.TEAMS_CHANNELS_SYNC_CONCURRENCY,
     },
     onFailure: async ({ event, step }) => {
       const { organisationId, teamId } = event.data.event.data;

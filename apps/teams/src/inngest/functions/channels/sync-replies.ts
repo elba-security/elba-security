@@ -15,7 +15,7 @@ export const syncReplies = inngest.createFunction(
     id: 'teams-sync-replies',
     concurrency: {
       key: 'event.data.organisationId',
-      limit: 1,
+      limit: env.TEAMS_REPLIES_SYNC_CONCURRENCY,
     },
     onFailure: async ({ event, step }) => {
       const { organisationId, messageId } = event.data.event.data;
