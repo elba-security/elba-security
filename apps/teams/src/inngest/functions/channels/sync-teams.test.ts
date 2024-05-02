@@ -30,9 +30,9 @@ const data = {
 };
 
 const validTeams: MicrosoftTeam[] = [
-  { id: 'team-id-1', visibility: 'public' },
-  { id: 'team-id-2', visibility: 'public' },
-  { id: 'team-id-3', visibility: 'private' },
+  { id: 'team-id-1', visibility: 'public', displayName: 'name-1' },
+  { id: 'team-id-2', visibility: 'public', displayName: 'name-2' },
+  { id: 'team-id-3', visibility: 'private', displayName: 'name-3' },
 ];
 
 const invalidTeams = [
@@ -99,6 +99,7 @@ describe('sync-teams', () => {
       {
         data: {
           teamId: 'team-id-1',
+          teamName: 'name-1',
           organisationId: organisation.id,
         },
         name: 'teams/channels.sync.requested',
@@ -106,6 +107,7 @@ describe('sync-teams', () => {
       {
         data: {
           teamId: 'team-id-2',
+          teamName: 'name-2',
           organisationId: organisation.id,
         },
         name: 'teams/channels.sync.requested',
@@ -113,6 +115,7 @@ describe('sync-teams', () => {
       {
         data: {
           teamId: 'team-id-3',
+          teamName: 'name-3',
           organisationId: organisation.id,
         },
         name: 'teams/channels.sync.requested',
@@ -171,6 +174,7 @@ describe('sync-teams', () => {
       {
         data: {
           teamId: 'team-id-1',
+          teamName: 'name-1',
           organisationId: organisation.id,
         },
         name: 'teams/channels.sync.requested',
@@ -178,6 +182,7 @@ describe('sync-teams', () => {
       {
         data: {
           teamId: 'team-id-2',
+          teamName: 'name-2',
           organisationId: organisation.id,
         },
         name: 'teams/channels.sync.requested',
@@ -185,6 +190,7 @@ describe('sync-teams', () => {
       {
         data: {
           teamId: 'team-id-3',
+          teamName: 'name-3',
           organisationId: organisation.id,
         },
         name: 'teams/channels.sync.requested',

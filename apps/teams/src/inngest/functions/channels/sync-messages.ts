@@ -8,7 +8,7 @@ import { decrypt } from '@/common/crypto';
 import { getMessages } from '@/connectors/microsoft/messages/messages';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
-import { chunkObjects } from '@/common/utils';
+import { chunkObjects, mapInvalidMessageData } from '@/common/utils';
 
 export const syncMessages = inngest.createFunction(
   {
@@ -38,7 +38,7 @@ export const syncMessages = inngest.createFunction(
   },
   { event: 'teams/messages.sync.requested' },
   async ({ event, step, logger }) => {
-    const { organisationId, teamId, skipToken, channelId, channelName, membershipType } =
+    const { organisationId, teamId, teamName, skipToken, channelId, channelName, membershipType } =
       event.data;
 
     const [organisation] = await db
@@ -66,7 +66,7 @@ export const syncMessages = inngest.createFunction(
         logger.warn('Retrieved messages contains invalid data', {
           organisationId,
           tenantId: organisation.tenantId,
-          invalidMessages: messages.invalidMessages,
+          invalidMessages: mapInvalidMessageData(messages.invalidMessages),
         });
       }
 
@@ -89,6 +89,7 @@ export const syncMessages = inngest.createFunction(
           .map((message) => {
             return formatDataProtectionObject({
               teamId,
+              teamName,
               messageId: message.messageId,
               channelId,
               channelName,
@@ -137,6 +138,7 @@ export const syncMessages = inngest.createFunction(
               name: 'teams/replies.sync.requested',
               data: {
                 messageId: message.id,
+                teamName,
                 channelId,
                 organisationId,
                 teamId,

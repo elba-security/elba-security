@@ -8,6 +8,8 @@ import { db } from '@/database/client';
 import { channelsTable, organisationsTable } from '@/database/schema';
 import * as messageConnector from '@/connectors/microsoft/messages/messages';
 import * as replyConnector from '@/connectors/microsoft/replies/replies';
+import type { MicrosoftTeam } from '@/connectors/microsoft/teams/teams';
+import * as teamConnector from '@/connectors/microsoft/teams/teams';
 
 const setup = createInngestFunctionMock(
   refreshDataProtectionObject,
@@ -31,6 +33,8 @@ const channel = {
   displayName: 'channel-name',
   organisationId: organisation.id,
 };
+
+const team: MicrosoftTeam = { id: 'team-id', displayName: 'team-name', visibility: 'public' };
 
 const messageMetadata: MessageMetadata = {
   teamId: 'team-id',
@@ -91,7 +95,7 @@ const reply: MicrosoftReply = {
 
 const formatMessageObject = {
   id: `${organisation.id}:some-id`,
-  name: '#channel-name - 2023-03-28',
+  name: 'team-name - #channel-name - 2023-03-28',
   metadata: {
     teamId: 'team-id',
     organisationId: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
@@ -109,7 +113,7 @@ const formatMessageObject = {
 
 const formatReplyObject = {
   id: `${organisation.id}:reply-id`,
-  name: '#channel-name - 2023-03-28',
+  name: 'team-name - #channel-name - 2023-03-28',
   metadata: {
     teamId: 'team-id',
     organisationId: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
@@ -189,7 +193,11 @@ describe('refresh-data-protection-object', () => {
     const [result] = setup({ organisationId: organisation.id, metadata: messageMetadata });
 
     const getMessage = vi.spyOn(messageConnector, 'getMessage').mockResolvedValue(message);
+    const getTeam = vi.spyOn(teamConnector, 'getTeam').mockResolvedValue(team);
     await expect(result).resolves.toBeUndefined();
+
+    expect(getTeam).toBeCalledWith(organisation.token, messageMetadata.teamId);
+    expect(getTeam).toBeCalledTimes(1);
 
     expect(getMessage).toBeCalledWith({
       token: await decrypt(organisation.token),
@@ -268,8 +276,11 @@ describe('refresh-data-protection-object', () => {
     const [result] = setup({ organisationId: organisation.id, metadata: replyMetadata });
 
     const getReply = vi.spyOn(replyConnector, 'getReply').mockResolvedValue(reply);
+    const getTeam = vi.spyOn(teamConnector, 'getTeam').mockResolvedValue(team);
     await expect(result).resolves.toBeUndefined();
 
+    expect(getTeam).toBeCalledWith(organisation.token, messageMetadata.teamId);
+    expect(getTeam).toBeCalledTimes(1);
     expect(getReply).toBeCalledWith({
       token: await decrypt(organisation.token),
       teamId: replyMetadata.teamId,

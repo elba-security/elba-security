@@ -8,6 +8,7 @@ export const convertISOToDate = (isoDate: string) => {
 export const formatDataProtectionObject = ({
   teamId,
   messageId,
+  teamName,
   message,
   organisationId,
   membershipType,
@@ -16,6 +17,7 @@ export const formatDataProtectionObject = ({
   replyId,
 }: {
   teamId: string;
+  teamName: string;
   channelId: string;
   organisationId: string;
   messageId: string;
@@ -28,7 +30,7 @@ export const formatDataProtectionObject = ({
 
   return {
     id: `${organisationId}:${message.id}`,
-    name: `#${channelName} - ${creationDate}`,
+    name: `${teamName} - #${channelName} - ${creationDate}`,
     metadata: {
       teamId,
       organisationId,

@@ -7,6 +7,7 @@ import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
 import { getReply } from '@/connectors/microsoft/replies/replies';
+import { getTeam } from '@/connectors/microsoft/teams/teams';
 
 export const replyCreatedOrUpdatedHandler: TeamsEventHandler = async ({
   channelId,
@@ -47,6 +48,12 @@ export const replyCreatedOrUpdatedHandler: TeamsEventHandler = async ({
     );
   }
 
+  const team = await getTeam(organisation.token, teamId);
+
+  if (!team) {
+    return;
+  }
+
   const reply = await getReply({
     token: await decrypt(organisation.token),
     teamId,
@@ -63,6 +70,7 @@ export const replyCreatedOrUpdatedHandler: TeamsEventHandler = async ({
 
   const object = formatDataProtectionObject({
     teamId,
+    teamName: team.displayName,
     channelId,
     messageId,
     replyId: reply.id,

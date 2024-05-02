@@ -7,3 +7,10 @@ export function chunkObjects(array: DataProtectionObject[], chunkSize: number) {
   }
   return chunks;
 }
+
+export function mapInvalidMessageData(data: unknown) {
+  if (Array.isArray(data)) {
+    return data.map((message: object) => ({ ...message, body: '***' }));
+  }
+  return data;
+}

@@ -28,6 +28,7 @@ const setup = createInngestFunctionMock(syncMessages, 'teams/messages.sync.reque
 
 const data = {
   organisationId: organisation.id,
+  teamName: 'team-name',
   skipToken: startSkipToken,
   teamId: 'team-id-123',
   channelId: 'channel-id-234',
@@ -100,7 +101,7 @@ const objects = {
   objects: [
     {
       id: `${data.organisationId}:message-id-0`,
-      name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
+      name: `team-name - #channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
       metadata: {
         teamId: data.teamId,
         organisationId: data.organisationId,
@@ -127,7 +128,7 @@ const objects = {
     },
     {
       id: `${data.organisationId}:reply-id-0`,
-      name: '#channel-name - 2023-03-28',
+      name: 'team-name - #channel-name - 2023-03-28',
       metadata: {
         teamId: 'team-id-123',
         organisationId: data.organisationId,
@@ -150,11 +151,10 @@ const objects = {
             },
       ],
       url: 'http://wb.uk-0.com',
-      //contentHash: '122123213',
     },
     {
       id: `${data.organisationId}:message-id-1`,
-      name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
+      name: `team-name - #channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
       metadata: {
         teamId: data.teamId,
         organisationId: data.organisationId,
@@ -177,12 +177,11 @@ const objects = {
             },
       ],
       url: 'http://wb.uk-1.com',
-      //contentHash: '122123213',
     },
 
     {
       id: `${data.organisationId}:reply-id-1`,
-      name: '#channel-name - 2023-03-28',
+      name: 'team-name - #channel-name - 2023-03-28',
       metadata: {
         teamId: 'team-id-123',
         organisationId: data.organisationId,
@@ -205,7 +204,6 @@ const objects = {
             },
       ],
       url: 'http://wb.uk-1.com',
-      //contentHash: '122123213',
     },
   ],
 };
@@ -213,6 +211,7 @@ const objects = {
 const repliesSyncData = [
   {
     data: {
+      teamName: 'team-name',
       messageId: 'message-id-0',
       organisationId: organisation.id,
       channelId: data.channelId,
@@ -225,6 +224,7 @@ const repliesSyncData = [
   },
   {
     data: {
+      teamName: 'team-name',
       messageId: 'message-id-1',
       organisationId: organisation.id,
       channelId: data.channelId,

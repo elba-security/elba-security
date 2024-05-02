@@ -8,7 +8,9 @@ import { decrypt, encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { channelsTable, organisationsTable } from '@/database/schema';
 import * as replyConnector from '@/connectors/microsoft/replies/replies';
+import * as teamConnector from '@/connectors/microsoft/teams/teams';
 import type { MicrosoftReply } from '@/connectors/microsoft/types';
+import type { MicrosoftTeam } from '@/connectors/microsoft/teams/teams';
 
 const setup = createInngestFunctionMock(
   handleTeamsWebhookEvent,
@@ -32,6 +34,8 @@ const channel = {
   displayName: 'channel-name',
   organisationId: organisation.id,
 };
+
+const team: MicrosoftTeam = { id: 'team-id', displayName: 'team-name', visibility: 'public' };
 
 const reply: MicrosoftReply = {
   id: 'reply-id',
@@ -77,7 +81,7 @@ const invalidReply: MicrosoftReply = {
 
 const formatObject = {
   id: `${organisation.id}:reply-id`,
-  name: '#channel-name - 2023-03-28',
+  name: 'team-name - #channel-name - 2023-03-28',
   metadata: {
     teamId: 'team-id',
     organisationId: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
@@ -90,7 +94,6 @@ const formatObject = {
   ownerId: 'user-id',
   permissions: [{ type: 'domain', id: 'domain' }],
   url: 'http://wb.uk.com',
-  //contentHash: '122123213',
 };
 
 describe('reply-created-updated', () => {
@@ -149,6 +152,30 @@ describe('reply-created-updated', () => {
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
   });
 
+  test('should exit if the team is not received', async () => {
+    await db.insert(organisationsTable).values(organisation);
+    await db.insert(channelsTable).values(channel);
+
+    const getTeam = vi.spyOn(teamConnector, 'getTeam').mockResolvedValue(null);
+
+    const [result] = setup({
+      payload: {
+        subscriptionId: 'subscription-id',
+        teamId: 'team-id',
+        channelId: 'channel-id',
+        tenantId: 'tenant-id',
+        messageId: 'invalid-message-id',
+        replyId: 'reply-id',
+        event: EventType.ReplyCreated,
+      },
+    });
+
+    await expect(result).resolves.toBeUndefined();
+
+    expect(getTeam).toBeCalledWith(organisation.token, 'team-id');
+    expect(getTeam).toBeCalledTimes(1);
+  });
+
   test('should exit when the reply is not received or the messageType is not "message"', async () => {
     await db.insert(organisationsTable).values(organisation);
     await db.insert(channelsTable).values(channel);
@@ -165,6 +192,8 @@ describe('reply-created-updated', () => {
       },
     });
 
+    const getTeam = vi.spyOn(teamConnector, 'getTeam').mockResolvedValue(team);
+
     const getReply = vi.spyOn(replyConnector, 'getReply').mockResolvedValue(invalidReply);
 
     await expect(result).resolves.toBeUndefined();
@@ -176,6 +205,8 @@ describe('reply-created-updated', () => {
       messageId: 'invalid-message-id',
       replyId: 'reply-id',
     });
+    expect(getTeam).toBeCalledWith(organisation.token, 'team-id');
+    expect(getTeam).toBeCalledTimes(1);
     expect(getReply).toBeCalledTimes(1);
   });
 

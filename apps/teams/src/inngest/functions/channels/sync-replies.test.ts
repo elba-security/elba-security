@@ -32,6 +32,7 @@ const data = {
   channelId: 'channel-id-234',
   messageId: 'message-id-345',
   channelName: 'channel-name',
+  teamName: 'team-name',
   membershipType,
 };
 
@@ -80,7 +81,7 @@ const objects = {
   objects: [
     {
       id: `${data.organisationId}:reply-id-0`,
-      name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
+      name: `team-name - #channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
       metadata: {
         teamId: data.teamId,
         organisationId: data.organisationId,
@@ -103,11 +104,10 @@ const objects = {
             },
       ],
       url: 'http://wb.uk-0.com',
-      //contentHash: '122123213',
     },
     {
       id: `${data.organisationId}:reply-id-1`,
-      name: `#channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
+      name: `team-name - #channel-name - ${convertISOToDate('2023-03-28T21:11:12.395Z')}`,
       metadata: {
         teamId: data.teamId,
         organisationId: data.organisationId,
@@ -130,7 +130,6 @@ const objects = {
             },
       ],
       url: 'http://wb.uk-1.com',
-      //contentHash: '122123213',
     },
   ],
 };

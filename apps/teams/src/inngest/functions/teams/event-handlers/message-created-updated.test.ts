@@ -8,7 +8,9 @@ import { db } from '@/database/client';
 import { channelsTable, organisationsTable } from '@/database/schema';
 import { decrypt, encrypt } from '@/common/crypto';
 import * as messageConnector from '@/connectors/microsoft/messages/messages';
+import * as teamConnector from '@/connectors/microsoft/teams/teams';
 import type { MicrosoftMessage } from '@/connectors/microsoft/types';
+import type { MicrosoftTeam } from '@/connectors/microsoft/teams/teams';
 
 const setup = createInngestFunctionMock(
   handleTeamsWebhookEvent,
@@ -33,6 +35,8 @@ const channel = {
   displayName: 'channel-name',
   organisationId: organisation.id,
 };
+
+const team: MicrosoftTeam = { id: 'team-id', displayName: 'team-name', visibility: 'public' };
 
 const message: MicrosoftMessage = {
   id: 'message-id',
@@ -101,7 +105,7 @@ const invalidMessage: MicrosoftMessage = {
 
 const formatObject = {
   id: `${organisation.id}:message-id`,
-  name: '#channel-name - 2023-03-28',
+  name: 'team-name - #channel-name - 2023-03-28',
   metadata: {
     teamId: 'team-id',
     organisationId: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
@@ -113,7 +117,6 @@ const formatObject = {
   ownerId: 'user-id',
   permissions: [{ type: 'domain', id: 'domain' }],
   url: 'http://wb.uk.com',
-  //contentHash: '122123213',
 };
 
 describe('message-created-updated', () => {
@@ -185,7 +188,31 @@ describe('message-created-updated', () => {
       },
     });
 
+    const getTeam = vi.spyOn(teamConnector, 'getTeam').mockResolvedValue(null);
+
+    await expect(result).resolves.toBeUndefined();
+
+    expect(getTeam).toBeCalledWith(organisation.token, 'team-id');
+    expect(getTeam).toBeCalledTimes(1);
+  });
+
+  test('should exit when the message is not received or the messageType is not "message"', async () => {
+    await db.insert(organisationsTable).values(organisation);
+    await db.insert(channelsTable).values(channel);
+
+    const [result] = setup({
+      payload: {
+        subscriptionId: 'subscription-id',
+        teamId: 'team-id',
+        channelId: 'channel-id',
+        tenantId: 'tenant-id',
+        messageId: 'invalid-message-id',
+        event: EventType.MessageCreated,
+      },
+    });
+
     const getMessage = vi.spyOn(messageConnector, 'getMessage').mockResolvedValue(invalidMessage);
+    const getTeam = vi.spyOn(teamConnector, 'getTeam').mockResolvedValue(team);
 
     await expect(result).resolves.toBeUndefined();
 
@@ -196,6 +223,9 @@ describe('message-created-updated', () => {
       messageId: 'invalid-message-id',
     });
     expect(getMessage).toBeCalledTimes(1);
+
+    expect(getTeam).toBeCalledWith(organisation.token, 'team-id');
+    expect(getTeam).toBeCalledTimes(1);
   });
 
   test('should insert the messageId into the db and send it to Elba ', async () => {

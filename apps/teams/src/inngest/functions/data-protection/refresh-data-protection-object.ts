@@ -8,6 +8,7 @@ import { getMessage } from '@/connectors/microsoft/messages/messages';
 import { decrypt } from '@/common/crypto';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
 import { getReply } from '@/connectors/microsoft/replies/replies';
+import { getTeam } from '@/connectors/microsoft/teams/teams';
 
 export const refreshDataProtectionObject = inngest.createFunction(
   {
@@ -62,8 +63,15 @@ export const refreshDataProtectionObject = inngest.createFunction(
         throw new Error(`Could not retrieve channel with id=${organisationId}:${channelId}`);
       }
 
+      const team = await getTeam(organisation.token, teamId);
+
+      if (!team) {
+        throw new Error(`Could not retrieve team with id=${teamId}`);
+      }
+
       const object = formatDataProtectionObject({
         teamId,
+        teamName: team.displayName,
         messageId,
         channelId,
         organisationId,
@@ -105,8 +113,15 @@ export const refreshDataProtectionObject = inngest.createFunction(
         throw new Error(`Could not retrieve channel with id=${organisationId}:${channelId}`);
       }
 
+      const team = await getTeam(organisation.token, teamId);
+
+      if (!team) {
+        throw new Error(`Could not retrieve team with id=${teamId}`);
+      }
+
       const object = formatDataProtectionObject({
         teamId,
+        teamName: team.displayName,
         messageId,
         channelId,
         replyId: reply.id,

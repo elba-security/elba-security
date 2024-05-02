@@ -35,7 +35,7 @@ export const syncChannels = inngest.createFunction(
   },
   { event: 'teams/channels.sync.requested' },
   async ({ event, step, logger }) => {
-    const { organisationId, teamId } = event.data;
+    const { organisationId, teamId, teamName } = event.data;
 
     const [organisation] = await db
       .select({
@@ -117,6 +117,7 @@ export const syncChannels = inngest.createFunction(
             channelId: channel.id,
             organisationId,
             teamId,
+            teamName,
             channelName: channel.displayName,
             membershipType: channel.membershipType,
           },

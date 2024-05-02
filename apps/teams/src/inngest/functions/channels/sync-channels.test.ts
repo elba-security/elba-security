@@ -24,6 +24,7 @@ const setup = createInngestFunctionMock(syncChannels, 'teams/channels.sync.reque
 const data = {
   organisationId: organisation.id,
   teamId: 'team-id-1732',
+  teamName: 'team-name',
 };
 
 const invalidChannels = [
@@ -130,6 +131,7 @@ describe('sync-channels', () => {
           channelId: 'channel-id-0',
           channelName: 'name-0',
           membershipType: `shared`,
+          teamName: 'team-name',
         },
         name: 'teams/messages.sync.requested',
       },
@@ -140,6 +142,7 @@ describe('sync-channels', () => {
           channelId: 'channel-id-1',
           channelName: 'name-1',
           membershipType: `shared`,
+          teamName: 'team-name',
         },
         name: 'teams/messages.sync.requested',
       },
@@ -150,6 +153,7 @@ describe('sync-channels', () => {
           channelId: 'channel-id-2',
           channelName: 'name-2',
           membershipType: `shared`,
+          teamName: 'team-name',
         },
         name: 'teams/messages.sync.requested',
       },

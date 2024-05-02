@@ -9,13 +9,13 @@ const token = 'token';
 const encryptedToken = await encrypt(token);
 const organisations = [
   {
-    id: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
+    id: '12449650-9738-4a9c-8db0-1e4ef5a6a9e8',
     tenantId: 'tenant-id',
     region: 'us',
     token: encryptedToken,
   },
   {
-    id: '12449650-9738-4a9c-8db0-1e4ef5a6a9e8',
+    id: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
     tenantId: 'tenant-id',
     region: 'eu',
     token: encryptedToken,

@@ -71,10 +71,11 @@ export const syncTeams = inngest.createFunction(
 
       await step.sendEvent(
         'start-channels-sync',
-        validTeams.map(({ id }) => ({
+        validTeams.map(({ id, displayName }) => ({
           name: 'teams/channels.sync.requested',
           data: {
             teamId: id,
+            teamName: displayName,
             organisationId,
           },
         }))

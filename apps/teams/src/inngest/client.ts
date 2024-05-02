@@ -46,6 +46,7 @@ export const inngest = new Inngest({
       data: {
         organisationId: string;
         teamId: string;
+        teamName: string;
       };
     };
     'teams/channels.sync.completed': {
@@ -59,6 +60,7 @@ export const inngest = new Inngest({
         organisationId: string;
         skipToken?: string | null;
         teamId: string;
+        teamName: string;
         channelId: string;
         channelName: string;
         membershipType: string;
@@ -75,6 +77,7 @@ export const inngest = new Inngest({
         organisationId: string;
         skipToken?: string | null;
         teamId: string;
+        teamName: string;
         channelId: string;
         messageId: string;
         channelName: string;
