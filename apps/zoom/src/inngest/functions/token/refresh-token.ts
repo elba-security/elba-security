@@ -20,6 +20,10 @@ export const refreshToken = inngest.createFunction(
         event: 'zoom/app.installed',
         match: 'data.organisationId',
       },
+      {
+        event: 'zoom/app.uninstalled',
+        match: 'data.organisationId',
+      },
     ],
     retries: 5,
   },
@@ -40,6 +44,7 @@ export const refreshToken = inngest.createFunction(
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
+
       const refreshTokenInfo = await decrypt(organisation.refreshToken);
 
       const {
@@ -48,14 +53,14 @@ export const refreshToken = inngest.createFunction(
         expiresIn,
       } = await getRefreshToken(refreshTokenInfo);
 
-      const encodedNewAccessToken = await encrypt(newAccessToken);
-      const encodedNewRefreshToken = await encrypt(newRefreshToken);
+      const encryptedAccessToken = await encrypt(newAccessToken);
+      const encryptedRefreshToken = await encrypt(newRefreshToken);
 
       await db
         .update(organisationsTable)
         .set({
-          accessToken: encodedNewAccessToken,
-          refreshToken: encodedNewRefreshToken,
+          accessToken: encryptedAccessToken,
+          refreshToken: encryptedRefreshToken,
         })
         .where(eq(organisationsTable.id, organisationId));
 

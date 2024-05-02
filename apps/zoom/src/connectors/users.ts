@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { env } from '@/env';
-import { ZoomError } from './commons/error';
+import { env } from '@/common/env';
+import { ZoomError } from './common/error';
 
 const zoomUserSchema = z.object({
   id: z.string(),
@@ -29,6 +29,7 @@ export type DeleteUsersParams = {
 
 export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   const url = new URL(`${env.ZOOM_API_BASE_URL}users`);
+
   url.searchParams.append('page_size', String(env.ZOOM_USERS_SYNC_BATCH_SIZE));
 
   if (page) {
@@ -46,6 +47,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   if (!response.ok) {
     throw new ZoomError('Could not retrieve users', { response });
   }
+
   const resData: unknown = await response.json();
 
   const { users, next_page_token: nextPage } = zoomResponseSchema.parse(resData);
@@ -53,12 +55,12 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   const validUsers: ZoomUser[] = [];
   const invalidUsers: unknown[] = [];
 
-  for (const node of users) {
-    const result = zoomUserSchema.safeParse(node);
+  for (const user of users) {
+    const result = zoomUserSchema.safeParse(user);
     if (result.success) {
       validUsers.push(result.data);
     } else {
-      invalidUsers.push(node);
+      invalidUsers.push(user);
     }
   }
 

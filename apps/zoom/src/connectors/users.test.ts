@@ -3,10 +3,10 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import type { ZoomUser } from './users';
 import { getUsers, deleteUser } from './users';
-import { ZoomError } from './commons/error';
+import { ZoomError } from './common/error';
 
 const validToken = 'token-1234';
 const endPage = '2';
@@ -29,18 +29,16 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.get(`${env.ZOOM_API_BASE_URL}users`, ({ request }) => {
-          // briefly implement API endpoint behaviour
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
 
           const url = new URL(request.url);
           const after = url.searchParams.get('next_page_token');
-          return Response.json(
-            after === endPage
-              ? { users: validUsers, next_page_token: null }
-              : { users: validUsers, next_page_token: after }
-          );
+          return Response.json({
+            users: validUsers,
+            next_page_token: after === endPage ? null : after,
+          });
         })
       );
     });

@@ -1,14 +1,18 @@
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { inngest } from '../../client';
+import { inngest } from '@/inngest/client';
 
-export const scheduleUsersSyncs = inngest.createFunction(
+export const scheduleUsersSync = inngest.createFunction(
   {
     id: 'zoom-schedule-users-syncs',
     cancelOn: [
       {
         event: 'zoom/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'zoom/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
@@ -19,9 +23,6 @@ export const scheduleUsersSyncs = inngest.createFunction(
     const organisations = await db
       .select({
         id: organisationsTable.id,
-        region: organisationsTable.region,
-        accessToken: organisationsTable.accessToken,
-        refreshToken: organisationsTable.refreshToken,
       })
       .from(organisationsTable);
 

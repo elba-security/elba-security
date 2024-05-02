@@ -8,16 +8,16 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { type ZoomUser } from '@/connectors/users';
-import { getElbaClient } from '@/connectors/elba/client';
+import { createElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUser = (user: ZoomUser): User => ({
   id: String(user.id),
   displayName: user.display_name,
-  email: user.email || '',
+  email: user.email,
   additionalEmails: [],
 });
 
-export const synchronizeUsers = inngest.createFunction(
+export const syncUsers = inngest.createFunction(
   {
     id: 'zoom-sync-users',
     priority: {
@@ -30,6 +30,10 @@ export const synchronizeUsers = inngest.createFunction(
     cancelOn: [
       {
         event: 'zoom/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'zoom/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
@@ -50,7 +54,7 @@ export const synchronizeUsers = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const elba = getElbaClient({ organisationId, region: organisation.region });
+    const elba = createElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.token);
 
     const nextPage = await step.run('list-users', async () => {
@@ -65,12 +69,13 @@ export const synchronizeUsers = inngest.createFunction(
         });
       }
 
-      if (users.length > 0) await elba.users.update({ users });
+      if (users.length > 0) {
+        await elba.users.update({ users });
+      }
 
       return result.nextPage;
     });
 
-    // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('synchronize-users', {
         name: 'zoom/users.sync.requested',
@@ -84,7 +89,6 @@ export const synchronizeUsers = inngest.createFunction(
       };
     }
 
-    // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

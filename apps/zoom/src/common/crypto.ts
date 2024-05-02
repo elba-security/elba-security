@@ -1,5 +1,5 @@
 import { decryptText, encryptText } from '@elba-security/utils';
-import { env } from '@/env';
+import { env } from '@/common/env';
 
 export const encrypt = (data: string) => encryptText({ data, key: env.ENCRYPTION_KEY });
 

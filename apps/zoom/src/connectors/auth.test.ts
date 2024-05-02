@@ -4,15 +4,15 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { getRefreshToken, getToken } from './auth';
-import { ZoomError } from './commons/error';
+import { ZoomError } from './common/error';
 
 const validCode = '1234';
 const validRefreshToken = 'valid-refresh-token';
 const accessToken = 'access-token-1234';
 const refreshToken = 'refresh-token-1234';
-const expiresIn = '1234';
+const expiresIn = 1234;
 
 describe('auth connector', () => {
   describe('getToken', () => {
@@ -28,6 +28,7 @@ describe('auth connector', () => {
           if (grantType !== 'authorization_code' || code !== validCode) {
             return new Response(undefined, { status: 401 });
           }
+
           return Response.json({
             access_token: accessToken,
             refresh_token: refreshToken,

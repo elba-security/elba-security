@@ -6,7 +6,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as authConnector from '@/connectors/auth';
 import { encrypt, decrypt } from '@/common/crypto';
-import { ZoomError } from '@/connectors/commons/error';
+import { ZoomError } from '@/connectors/common/error';
 import { refreshToken } from './refresh-token';
 
 const newTokens = {

@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { ZoomError } from '@/connectors/commons/error';
+import { ZoomError } from '@/connectors/common/error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
@@ -18,11 +18,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
             }
 
             if (error.response?.status === 429) {
-              let retryAfter = 60;
-              const retryAfterHeader = error.response.headers.get('retry-after');
-              if (retryAfterHeader) {
-                retryAfter = parseInt(retryAfterHeader, 10);
-              }
+              const retryAfter = error.response.headers.get('retry-after') || 60;
 
               return {
                 ...context,
@@ -30,7 +26,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                   ...result,
                   error: new RetryAfterError(
                     `API rate limit reached by '${fn.name}', retry after ${retryAfter} seconds.`,
-                    retryAfter * 1000,
+                    `${retryAfter}s`,
                     {
                       cause: error,
                     }

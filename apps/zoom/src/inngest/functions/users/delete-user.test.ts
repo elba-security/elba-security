@@ -4,36 +4,34 @@ import * as usersConnector from '@/connectors/users';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
-import { deleteSourceUser } from './delete-users';
+import { deleteUser } from './delete-user';
 
-const userId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
+const userId = 'user-id';
 const accessToken = 'test-access-token';
 const refreshToken = 'test-refresh-token';
 
 // Mock data for organisation and user
 const organisation = {
-  id: userId,
+  id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt(accessToken),
   refreshToken: await encrypt(refreshToken),
   region: 'us',
 };
 
 // Setup function mock for Inngest
-const setup = createInngestFunctionMock(deleteSourceUser, 'zoom/users.delete.requested');
+const setup = createInngestFunctionMock(deleteUser, 'zoom/users.delete.requested');
 
-describe('deleteSourceUser', () => {
+describe('deleteUser', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
   test('should delete user', async () => {
-    // Mock database response to return organisation details
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
     await db.insert(organisationsTable).values(organisation);
 
     const [result] = setup({ userId, organisationId: organisation.id });
 
-    // Assert the function resolves successfully
     await expect(result).resolves.toStrictEqual(undefined);
 
     expect(usersConnector.deleteUser).toBeCalledTimes(1);

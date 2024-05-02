@@ -4,7 +4,7 @@ import * as authConnector from '@/connectors/auth';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { ZoomError } from '@/connectors/commons/error';
+import { ZoomError } from '@/connectors/common/error';
 import { decrypt } from '@/common/crypto';
 import { setupOrganisation } from './service';
 

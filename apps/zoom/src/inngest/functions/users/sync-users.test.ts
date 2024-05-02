@@ -5,10 +5,10 @@ import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
-import { synchronizeUsers } from './synchronize-users';
+import { syncUsers } from './sync-users';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
   region: 'us',
@@ -24,7 +24,7 @@ const users: usersConnector.ZoomUser[] = Array.from({ length: 2 }, (_, i) => ({
   email: `user-${i}@foo.bar`,
 }));
 
-const setup = createInngestFunctionMock(synchronizeUsers, 'zoom/users.sync.requested');
+const setup = createInngestFunctionMock(syncUsers, 'zoom/users.sync.requested');
 
 describe('synchronize-users', () => {
   test('should abort sync when organisation is not registered', async () => {
@@ -34,7 +34,6 @@ describe('synchronize-users', () => {
       nextPage: null,
     });
 
-    // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
@@ -42,7 +41,6 @@ describe('synchronize-users', () => {
       page: null,
     });
 
-    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(usersConnector.getUsers).toBeCalledTimes(0);
@@ -52,9 +50,8 @@ describe('synchronize-users', () => {
 
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
-    // setup the test with an organisation
+
     await db.insert(organisationsTable).values(organisation);
-    // mock the getUser function that returns SaaS users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -71,7 +68,6 @@ describe('synchronize-users', () => {
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
     const elbaInstance = elba.mock.results[0]?.value;
-    // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
       name: 'zoom/users.sync.requested',
@@ -106,7 +102,6 @@ describe('synchronize-users', () => {
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
     await db.insert(organisationsTable).values(organisation);
-    // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],

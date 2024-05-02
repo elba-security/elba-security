@@ -17,7 +17,11 @@ export const inngest = new Inngest({
     'zoom/app.installed': {
       data: {
         organisationId: string;
-        region: string;
+      };
+    };
+    'zoom/app.uninstalled': {
+      data: {
+        organisationId: string;
       };
     };
     'zoom/token.refresh.requested': {

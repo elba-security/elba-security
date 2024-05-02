@@ -3,7 +3,7 @@ import { inngest } from '@/inngest/client';
 import { deleteUsers } from './service';
 
 const mockedDate = '2023-01-01T00:00:00.000Z';
-const userId = '00000000-0000-0000-0000-000000000001';
+const userId = 'test-user-id';
 const organisationId = '00000000-0000-0000-0000-000000000002';
 
 describe('zoom/users.delete.requested', () => {

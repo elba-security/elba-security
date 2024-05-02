@@ -3,11 +3,11 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUser } from '@/connectors/users';
+import { deleteUser as deleteSourceUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';
-import { env } from '@/env';
+import { env } from '@/common/env';
 
-export const deleteSourceUser = inngest.createFunction(
+export const deleteUser = inngest.createFunction(
   {
     id: 'zoom-delete-users',
     concurrency: {
@@ -17,6 +17,10 @@ export const deleteSourceUser = inngest.createFunction(
     cancelOn: [
       {
         event: 'zoom/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'zoom/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
@@ -36,9 +40,10 @@ export const deleteSourceUser = inngest.createFunction(
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve ${userId}`);
     }
+
     const accessToken = await decrypt(organisation.accessToken);
 
-    await deleteUser({
+    await deleteSourceUser({
       userId,
       accessToken,
     });

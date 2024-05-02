@@ -1,17 +1,13 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation.
- * When requesting against API endpoint we might prefer to valid the response
- * data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
+import { z } from 'zod';
+import { logger } from '@elba-security/logger';
+import { env } from '@/common/env';
+import { ZoomError } from './common/error';
 
-import { env } from '@/env';
-import { ZoomError } from './commons/error';
-
-type GetTokenResponseData = { access_token: string; refresh_token: string; expires_in: number };
-type RefreshTokenResponseData = { access_token: string; refresh_token: string; expires_in: number };
+const tokenResponseSchema = z.object({
+  access_token: z.string(),
+  refresh_token: z.string(),
+  expires_in: z.number(),
+});
 
 export const getToken = async (code: string) => {
   const encodedKey = Buffer.from(`${env.ZOOM_CLIENT_ID}:${env.ZOOM_CLIENT_SECRET}`).toString(
@@ -36,11 +32,20 @@ export const getToken = async (code: string) => {
   if (!response.ok) {
     throw new ZoomError('Could not retrieve token', { response });
   }
-  const data = (await response.json()) as GetTokenResponseData;
+
+  const data: unknown = await response.json();
+
+  const result = tokenResponseSchema.safeParse(data);
+
+  if (!result.success) {
+    logger.error('Invalid Zoom token response', { data });
+    throw new ZoomError('Invalid Zoom token response');
+  }
+
   return {
-    accessToken: data.access_token,
-    refreshToken: data.refresh_token,
-    expiresIn: data.expires_in,
+    accessToken: result.data.access_token,
+    refreshToken: result.data.refresh_token,
+    expiresIn: result.data.expires_in,
   };
 };
 
@@ -67,10 +72,18 @@ export const getRefreshToken = async (refreshTokenInfo: string) => {
     throw new ZoomError('Could not refresh token', { response });
   }
 
-  const data = (await response.json()) as RefreshTokenResponseData;
+  const data: unknown = await response.json();
+
+  const result = tokenResponseSchema.safeParse(data);
+
+  if (!result.success) {
+    logger.error('Invalid Zoom refresh token response', { data });
+    throw new Error('Invalid Zoom token response');
+  }
+
   return {
-    accessToken: data.access_token,
-    refreshToken: data.refresh_token,
-    expiresIn: data.expires_in,
+    accessToken: result.data.access_token,
+    refreshToken: result.data.refresh_token,
+    expiresIn: result.data.expires_in,
   };
 };
