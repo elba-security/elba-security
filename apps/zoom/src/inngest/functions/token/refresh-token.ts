@@ -5,7 +5,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getRefreshToken } from '@/connectors/auth';
+import { getRefreshToken } from '@/connectors/zoom/auth';
 import { encrypt, decrypt } from '@/common/crypto';
 
 export const refreshToken = inngest.createFunction(

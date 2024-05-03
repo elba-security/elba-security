@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
-import { ZoomError } from './common/error';
+import { ZoomError } from '../common/error';
 
 const tokenResponseSchema = z.object({
   access_token: z.string(),
@@ -10,9 +10,7 @@ const tokenResponseSchema = z.object({
 });
 
 export const getToken = async (code: string) => {
-  const encodedKey = Buffer.from(`${env.ZOOM_CLIENT_ID}:${env.ZOOM_CLIENT_SECRET}`).toString(
-    'base64'
-  );
+  const encodedKey = btoa(`${env.ZOOM_CLIENT_ID}:${env.ZOOM_CLIENT_SECRET}`);
 
   const response = await fetch(`${env.ZOOM_APP_INSTALL_URL}token`, {
     method: 'POST',
@@ -50,9 +48,7 @@ export const getToken = async (code: string) => {
 };
 
 export const getRefreshToken = async (refreshTokenInfo: string) => {
-  const encodedKey = Buffer.from(`${env.ZOOM_CLIENT_ID}:${env.ZOOM_CLIENT_SECRET}`).toString(
-    'base64'
-  );
+  const encodedKey = btoa(`${env.ZOOM_CLIENT_ID}:${env.ZOOM_CLIENT_SECRET}`);
 
   const response = await fetch(`${env.ZOOM_APP_INSTALL_URL}token`, {
     method: 'POST',

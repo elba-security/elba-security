@@ -1,7 +1,7 @@
 import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { getToken } from '@/connectors/auth';
+import { getToken } from '@/connectors/zoom/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 

@@ -3,7 +3,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUser as deleteSourceUser } from '@/connectors/users';
+import { deleteUser as deleteSourceUser } from '@/connectors/zoom/users';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 

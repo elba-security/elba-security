@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { ZoomError } from './common/error';
+import { ZoomError } from '../common/error';
 
 const zoomUserSchema = z.object({
   id: z.string(),

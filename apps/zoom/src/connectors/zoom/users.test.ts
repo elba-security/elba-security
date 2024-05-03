@@ -4,9 +4,9 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
+import { ZoomError } from '../common/error';
 import type { ZoomUser } from './users';
 import { getUsers, deleteUser } from './users';
-import { ZoomError } from './common/error';
 
 const validToken = 'token-1234';
 const endPage = '2';
