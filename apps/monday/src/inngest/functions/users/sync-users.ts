@@ -1,26 +1,13 @@
 import type { User } from '@elba-security/sdk';
-import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { type MondayUser, getUsers } from '@/connectors/users';
+import { logger } from '@elba-security/logger';
+import { type MondayUser, getUsers } from '@/connectors/monday/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { env } from '@/env';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-
-export type SynchronizeUsersEvents = {
-  'monday/users.page_sync.requested': SynchronizeUsers;
-};
-
-type SynchronizeUsers = {
-  data: {
-    organisationId: string;
-    region: string;
-    isFirstSync: boolean;
-    syncStartedAt: number;
-    page: number | null;
-  };
-};
+import { createElbaClient } from '@/connectors/elba/client';
+import { decrypt } from '@/common/crypto';
 
 const formatElbaUser = (user: MondayUser): User => ({
   id: user.id,
@@ -29,17 +16,9 @@ const formatElbaUser = (user: MondayUser): User => ({
   additionalEmails: [],
 });
 
-/**
- * DISCLAIMER:
- * This function, `syncUsersPage`, is provided as an illustrative example and is not a working implementation.
- * It is intended to demonstrate a conceptual approach for syncing users in a SaaS integration context.
- * Developers should note that each SaaS integration may require a unique implementation, tailored to its specific requirements and API interactions.
- * This example should not be used as-is in production environments and should not be taken for granted as a one-size-fits-all solution.
- * It's essential to adapt and modify this logic to fit the specific needs and constraints of the SaaS platform you are integrating with.
- */
 export const syncUsers = inngest.createFunction(
   {
-    id: 'sync-users-page',
+    id: 'monday-sync-users',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -47,50 +26,65 @@ export const syncUsers = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
-    retries: 3,
+    cancelOn: [
+      {
+        event: 'monday/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'monday/app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
+    retries: 5,
   },
-  { event: 'monday/users.page_sync.requested' },
+  { event: 'monday/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, page, region } = event.data;
+    const { organisationId, page, syncStartedAt } = event.data;
 
-    const syncStartedAt = new Date(event.data.syncStartedAt);
-    const elba = new Elba({
-      organisationId,
-      sourceId: env.ELBA_SOURCE_ID,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-      region,
-    });
-
-    // retrieve the SaaS organisation token
-    const { token } = await step.run('get-token', async () => {
+    const { token, region } = await step.run('get-token', async () => {
       const [organisation] = await db
-        .select({ token: Organisation.token })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisationId));
+        .select({ token: organisationsTable.token, region: organisationsTable.region })
+        .from(organisationsTable)
+        .where(eq(organisationsTable.id, organisationId));
+
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
+
       return organisation;
     });
 
+    const elba = createElbaClient({
+      organisationId,
+      region,
+    });
+
+    const decryptedToken = await decrypt(token);
+
     const nextPage = await step.run('list-users', async () => {
-      // retrieve this users page
-      const result = await getUsers(token, page);
-      // format each SaaS users to elba users
-      if (result.data.users.length > 0) {
-        const users = result.data.users.map(formatElbaUser);
-        // send the batch of users to elba
+      const result = await getUsers({
+        token: decryptedToken,
+        page,
+      });
+      const users = result.validUsers.map(formatElbaUser);
+      if (result.invalidUsers.length > 0) {
+        logger.warn('Retrieved users contains invalid users', {
+          organisationId,
+          invalidUsers: result.invalidUsers,
+        });
+      }
+
+      if (users.length > 0) {
         await elba.users.update({ users });
       }
 
       return result.nextPage;
     });
 
-    // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
-        name: 'monday/users.page_sync.requested',
+        name: 'monday/users.sync.requested',
         data: {
           ...event.data,
           page: nextPage,
@@ -100,8 +94,6 @@ export const syncUsers = inngest.createFunction(
         status: 'ongoing',
       };
     }
-
-    // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

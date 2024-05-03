@@ -1,31 +1,28 @@
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
-export const scheduleUsersSyncs = inngest.createFunction(
-  { id: 'schedule-users-syncs' },
-  { cron: env.USERS_SYNC_CRON },
+export const scheduleUsersSync = inngest.createFunction(
+  { id: 'monday-schedule-users-sync' },
+  { cron: env.MONDAY_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({
-        id: Organisation.id,
-        token: Organisation.token,
-        region: Organisation.region,
+        id: organisationsTable.id,
       })
-      .from(Organisation);
+      .from(organisationsTable);
 
     if (organisations.length > 0) {
       await step.sendEvent(
         'sync-organisations-users',
-        organisations.map(({ id, region }) => ({
-          name: 'monday/users.page_sync.requested',
+        organisations.map(({ id }) => ({
+          name: 'monday/users.sync.requested',
           data: {
             isFirstSync: false,
             organisationId: id,
-            page: 1,
-            region,
             syncStartedAt: Date.now(),
+            page: 1,
           },
         }))
       );

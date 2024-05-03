@@ -1,11 +1,11 @@
 {
-  "id": "157d37d1-53d1-4784-82d0-0a93318abec3",
+  "id": "3afc6467-4b0f-4fbe-b9c4-f766050d3c83",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "organisation": {
-      "name": "organisation",
+    "organisations": {
+      "name": "organisations",
       "schema": "",
       "columns": {
         "id": {
@@ -20,18 +20,18 @@
           "primaryKey": false,
           "notNull": true
         },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "token": {
-          "name": "token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {},
@@ -43,8 +43,8 @@
   "enums": {},
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   }
 }

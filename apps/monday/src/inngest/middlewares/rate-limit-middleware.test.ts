@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { RetryAfterError } from 'inngest';
-import { MondayError } from '@/connectors/commons/error';
+import { MondayError } from '@/connectors/common/error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
 describe('rate-limit middleware', () => {
@@ -34,7 +34,8 @@ describe('rate-limit middleware', () => {
     const rateLimitError = new MondayError('foo bar', {
       // @ts-expect-error this is a mock
       response: {
-        status: 429
+        status: 429,
+        headers: new Headers({ 'Retry-After': '10' }),
       },
     });
 

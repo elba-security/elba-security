@@ -1,20 +1,6 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { MondayError } from '@/connectors/commons/error';
+import { MondayError } from '@/connectors/common/error';
 
-/**
- * This middleware, `rateLimitMiddleware`, is designed for use with the Inngest serverless framework.
- * It aims to handle rate limiting scenarios encountered when interacting with external SaaS APIs.
- * The middleware checks for specific errors (instances of MySaaSError) that indicate a rate limit has been reached,
- * and it responds by creating a RetryAfterError. This error includes the retry time based on the 'Retry-After' header
- * provided by the SaaS service, enabling the function to delay its next execution attempt accordingly.
- *
- * Key Features:
- * - Intercepts function output to check for rate limit errors.
- * - Handles MySaaSError, specifically looking for a 'Retry-After' header in the error response.
- * - Generates a RetryAfterError to reschedule the function run, preventing immediate retries that could violate the SaaS's rate limits.
- *
- * Note: This is a generic middleware template and might require adjustments to fit specific SaaS APIs' error handling and rate limiting schemes.
- */
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
   init: () => {
@@ -27,15 +13,16 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if(error instanceof MondayError && error.response?.status===429){
-              const retryAfterInSeconds = 60;
+            if (error instanceof MondayError && error.response?.status === 429) {
+              // Still we  are not confirm whether MondayError has headers property or not, so we are using optional chaining operator
+              const retryAfter = error.response.headers.get('Retry-After') || 60;
               return {
                 ...context,
                 result: {
                   ...result,
                   error: new RetryAfterError(
                     `Monday rate limit reached by '${fn.name}'`,
-                    retryAfterInSeconds,
+                    `${retryAfter}s`,
                     {
                       cause: error,
                     }

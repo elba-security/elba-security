@@ -1,7 +1,4 @@
-import { usersFunctions, type UsersEvents } from './users';
+import { organisationFunctions } from './organisations';
+import { usersFunctions } from './users';
 
-export * from './users';
-
-export const inngestFunctions = [...usersFunctions];
-
-export type InngestEvents = UsersEvents;
+export const inngestFunctions = [...usersFunctions, ...organisationFunctions];
