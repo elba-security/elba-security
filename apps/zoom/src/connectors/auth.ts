@@ -17,7 +17,7 @@ export const getToken = async (code: string) => {
   const response = await fetch(`${env.ZOOM_APP_INSTALL_URL}token`, {
     method: 'POST',
     headers: {
-      Authorization: ` Basic ${encodedKey}`,
+      Authorization: `Basic ${encodedKey}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams({
@@ -63,7 +63,7 @@ export const getRefreshToken = async (refreshTokenInfo: string) => {
       refresh_token: refreshTokenInfo,
     }).toString(),
     headers: {
-      Authorization: ` Basic ${encodedKey}`,
+      Authorization: `Basic ${encodedKey}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
   });
