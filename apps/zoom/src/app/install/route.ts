@@ -25,7 +25,7 @@ export function GET(request: NextRequest) {
   cookies().set('region', region);
   cookies().set('state', state);
 
-  const redirectUrl = new URL(`${env.ZOOM_APP_INSTALL_URL}authorize?`);
+  const redirectUrl = new URL('/authorize', env.ZOOM_APP_INSTALL_URL);
   redirectUrl.searchParams.append('client_id', env.ZOOM_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.ZOOM_REDIRECT_URI);
   redirectUrl.searchParams.append('response_type', 'code');

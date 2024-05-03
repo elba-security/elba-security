@@ -28,7 +28,7 @@ export type DeleteUsersParams = {
 };
 
 export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
-  const url = new URL(`${env.ZOOM_API_BASE_URL}users`);
+  const url = new URL('/users', env.ZOOM_API_BASE_URL);
 
   url.searchParams.append('page_size', String(env.ZOOM_USERS_SYNC_BATCH_SIZE));
 
@@ -36,7 +36,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
     url.searchParams.append('next_page_token', page);
   }
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     method: 'GET',
     headers: {
       Accept: 'application/json',
@@ -72,7 +72,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
 };
 
 export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => {
-  const url = `${env.ZOOM_API_BASE_URL}users/${userId}`;
+  const url = new URL(`/users/${userId}`, env.ZOOM_API_BASE_URL);
 
   const response = await fetch(url, {
     method: 'DELETE',
