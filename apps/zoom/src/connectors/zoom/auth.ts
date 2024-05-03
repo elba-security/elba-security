@@ -12,7 +12,7 @@ const tokenResponseSchema = z.object({
 export const getToken = async (code: string) => {
   const encodedKey = btoa(`${env.ZOOM_CLIENT_ID}:${env.ZOOM_CLIENT_SECRET}`);
 
-  const response = await fetch(new URL('token', env.ZOOM_APP_INSTALL_URL), {
+  const response = await fetch(`${env.ZOOM_APP_INSTALL_URL}/token`, {
     method: 'POST',
     headers: {
       Authorization: `Basic ${encodedKey}`,
@@ -50,7 +50,7 @@ export const getToken = async (code: string) => {
 export const getRefreshToken = async (refreshTokenInfo: string) => {
   const encodedKey = btoa(`${env.ZOOM_CLIENT_ID}:${env.ZOOM_CLIENT_SECRET}`);
 
-  const response = await fetch(new URL('token', env.ZOOM_APP_INSTALL_URL), {
+  const response = await fetch(`${env.ZOOM_APP_INSTALL_URL}/token`, {
     method: 'POST',
     body: new URLSearchParams({
       grant_type: 'refresh_token',

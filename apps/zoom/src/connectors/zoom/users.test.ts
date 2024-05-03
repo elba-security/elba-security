@@ -28,7 +28,7 @@ describe('users connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${env.ZOOM_API_BASE_URL}users`, ({ request }) => {
+        http.get(`${env.ZOOM_API_BASE_URL}/users`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -68,7 +68,7 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.delete<{ userId: string }>(
-          `${env.ZOOM_API_BASE_URL}users/${userId}`,
+          `${env.ZOOM_API_BASE_URL}/users/${userId}`,
           ({ request }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(undefined, { status: 401 });
