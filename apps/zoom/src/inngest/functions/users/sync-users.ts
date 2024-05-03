@@ -11,7 +11,7 @@ import { type ZoomUser } from '@/connectors/zoom/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUser = (user: ZoomUser): User => ({
-  id: String(user.id),
+  id: user.id,
   displayName: user.display_name,
   email: user.email,
   additionalEmails: [],
