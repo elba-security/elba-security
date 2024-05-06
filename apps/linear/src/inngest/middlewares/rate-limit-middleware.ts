@@ -18,7 +18,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
             }
 
             if (error.response?.status === 429) {
-              const retryAfter = error.response.headers.get('retry-after') || 60;
+              const retryAfter = error.response.headers.get('Retry-After') || 60;
 
               return {
                 ...context,

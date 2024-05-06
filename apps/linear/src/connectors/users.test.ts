@@ -9,16 +9,16 @@ import { getUsers, deleteUser } from './users';
 import { LinearError } from './common/error';
 
 const validToken = 'token-1234';
-const endPage = '2';
-const nextPage = '1';
+const endCursor = '2';
+const nextCursor = '1';
 const userId = 'test-id';
 
 const validUsers: LinearUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
-  first_name: `first_name-${i}`,
-  last_name: `last_name-${i}`,
-  display_name: `display_name-${i}`,
+  name: `first_name-${i}`,
+  username: `username-${i}`,
   email: `user-${i}@foo.bar`,
+  active: true,
 }));
 
 const invalidUsers = [];
@@ -28,31 +28,45 @@ describe('users connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${env.LINEAR_API_BASE_URL}users`, ({ request }) => {
+        http.post(`${env.LINEAR_API_BASE_URL}graphql`, async ({ request }) => {
+          // briefly implement API endpoint behaviour
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
 
-          const url = new URL(request.url);
-          const after = url.searchParams.get('next_page_token');
+          // @ts-expect-error -- convenience
+          const data: { variables: { afterCursor: string } } = await request.json();
+          const { afterCursor } = data.variables;
+
           return Response.json({
-            users: validUsers,
-            next_page_token: after === endPage ? null : after,
+            data: {
+              users: {
+                nodes: [...validUsers, ...invalidUsers],
+                pageInfo: {
+                  hasNextPage: afterCursor !== endCursor,
+                  endCursor: afterCursor !== endCursor ? nextCursor : null,
+                },
+              },
+            },
           });
         })
       );
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(getUsers({ accessToken: validToken, page: nextPage })).resolves.toStrictEqual({
+      await expect(
+        getUsers({ accessToken: validToken, afterCursor: 'start' })
+      ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage,
+        nextPage: nextCursor,
       });
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(getUsers({ accessToken: validToken, page: endPage })).resolves.toStrictEqual({
+      await expect(
+        getUsers({ accessToken: validToken, afterCursor: endCursor })
+      ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
         nextPage: null,
@@ -67,15 +81,12 @@ describe('users connector', () => {
   describe('deleteUser', () => {
     beforeEach(() => {
       server.use(
-        http.delete<{ userId: string }>(
-          `${env.LINEAR_API_BASE_URL}users/${userId}`,
-          ({ request }) => {
-            if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-              return new Response(undefined, { status: 401 });
-            }
-            return new Response(undefined, { status: 200 });
+        http.post<{ userId: string }>(`${env.LINEAR_API_BASE_URL}graphql`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
           }
-        )
+          return new Response(undefined, { status: 200 });
+        })
       );
     });
 

@@ -10,7 +10,6 @@ import { syncUsers } from './sync-users';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
-  refreshToken: await encrypt('test-refresh-token'),
   region: 'us',
 };
 const syncStartedAt = Date.now();
@@ -18,10 +17,10 @@ const syncedBefore = Date.now();
 const nextPage = '1';
 const users: usersConnector.LinearUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
-  first_name: `first_name-${i}`,
-  last_name: `last_name-${i}`,
-  display_name: `display_name-${i}`,
+  name: `name-${i}`,
+  username: `username-${i}`,
   email: `user-${i}@foo.bar`,
+  active: true,
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'linear/users.sync.requested');
@@ -84,13 +83,13 @@ describe('synchronize-users', () => {
       users: [
         {
           additionalEmails: [],
-          displayName: 'display_name-0',
+          displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
         },
         {
           additionalEmails: [],
-          displayName: 'display_name-1',
+          displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
         },
@@ -122,13 +121,13 @@ describe('synchronize-users', () => {
       users: [
         {
           additionalEmails: [],
-          displayName: 'display_name-0',
+          displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
         },
         {
           additionalEmails: [],
-          displayName: 'display_name-1',
+          displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
         },
