@@ -19,7 +19,7 @@ const organisation = {
 
 const setup = createInngestFunctionMock(deleteUser, 'box/users.delete.requested');
 
-describe('deleteSourceUsers', () => {
+describe('deleteUser', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
