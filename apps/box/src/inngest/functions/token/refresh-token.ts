@@ -5,7 +5,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getRefreshToken } from '@/connectors/auth';
+import { getRefreshToken } from '@/connectors/box/auth';
 import { env } from '@/common/env';
 import { encrypt, decrypt } from '@/common/crypto';
 
@@ -53,13 +53,13 @@ export const refreshToken = inngest.createFunction(
         expiresIn,
       } = await getRefreshToken(refreshTokenInfo);
 
-      const encodedNewAccessToken = await encrypt(newAccessToken);
-      const encodedNewRefreshToken = await encrypt(newRefreshToken);
+      const encryptedNewAccessToken = await encrypt(newAccessToken);
+      const encryptedNewRefreshToken = await encrypt(newRefreshToken);
       await db
         .update(organisationsTable)
         .set({
-          accessToken: encodedNewAccessToken,
-          refreshToken: encodedNewRefreshToken,
+          accessToken: encryptedNewAccessToken,
+          refreshToken: encryptedNewRefreshToken,
         })
         .where(eq(organisationsTable.id, organisationId));
 

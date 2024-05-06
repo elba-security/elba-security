@@ -1,11 +1,11 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
-import * as authConnector from '@/connectors/auth';
+import * as authConnector from '@/connectors/box/auth';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { BoxError } from '@/connectors/commons/error';
 import { decrypt } from '@/common/crypto';
+import { BoxError } from '@/connectors/common/error';
 import { setupOrganisation } from './service';
 
 const code = 'some-code';

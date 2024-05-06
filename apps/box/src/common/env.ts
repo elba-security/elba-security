@@ -8,24 +8,24 @@ const zEnvRetry = () =>
 
 export const env = z
   .object({
-    BOX_APP_INSTALL_URL: z.string().url(),
     BOX_API_BASE_URL: z.string().url(),
+    BOX_APP_INSTALL_URL: z.string().url(),
     BOX_CLIENT_ID: z.string().min(1),
     BOX_CLIENT_SECRET: z.string().min(1),
+    BOX_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
     BOX_REDIRECT_URI: z.string().url(),
-    ELBA_API_KEY: z.string().min(1),
+    BOX_USERS_SYNC_BATCH_SIZE: zEnvInt().default(500),
+    BOX_USERS_SYNC_CONCURRENCY: zEnvInt().default(1),
+    BOX_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
+    DATABASE_PROXY_PORT: zEnvInt().optional(),
+    DATABASE_URL: z.string().min(1),
     ELBA_API_BASE_URL: z.string().url(),
+    ELBA_API_KEY: z.string().min(1),
     ELBA_REDIRECT_URL: z.string().url(),
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     ENCRYPTION_KEY: z.string().min(1),
-    DATABASE_URL: z.string().min(1),
-    DATABASE_PROXY_PORT: zEnvInt().optional(),
-    VERCEL_ENV: z.string().min(1).optional(),
     TOKEN_REFRESH_MAX_RETRY: zEnvRetry(),
-    BOX_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    BOX_USERS_SYNC_CONCURRENCY: zEnvInt().default(1),
-    BOX_USERS_SYNC_BATCH_SIZE: zEnvInt().default(500),
-    BOX_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
+    VERCEL_ENV: z.string().min(1).optional(),
   })
   .parse(process.env);

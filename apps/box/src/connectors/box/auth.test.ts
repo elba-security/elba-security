@@ -5,8 +5,8 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
+import { BoxError } from '../common/error';
 import { getRefreshToken, getToken } from './auth';
-import { BoxError } from './common/error';
 
 const validCode = '1234';
 const validRefreshToken = 'valid-refresh-token';
@@ -18,7 +18,7 @@ describe('auth connector', () => {
   describe('getToken', () => {
     beforeEach(() => {
       server.use(
-        http.post(`${env.BOX_API_BASE_URL}oauth2/token`, async ({ request }) => {
+        http.post(`${env.BOX_API_BASE_URL}/oauth2/token`, async ({ request }) => {
           const body = await request.text();
           const searchParams = new URLSearchParams(body);
 
@@ -53,7 +53,7 @@ describe('auth connector', () => {
   describe('getRefreshToken', () => {
     beforeEach(() => {
       server.use(
-        http.post(`${env.BOX_API_BASE_URL}oauth2/token`, async ({ request }) => {
+        http.post(`${env.BOX_API_BASE_URL}/oauth2/token`, async ({ request }) => {
           const body = await request.text();
           const searchParams = new URLSearchParams(body);
 

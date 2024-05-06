@@ -4,9 +4,9 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
+import { BoxError } from '../common/error';
 import type { BoxUser } from './users';
-import { getUsers, deleteUsers } from './users';
-import { BoxError } from './common/error';
+import { getUsers, deleteUser } from './users';
 
 const validToken = 'token-1234';
 const nextPage = '1';
@@ -29,7 +29,7 @@ describe('users connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${env.BOX_API_BASE_URL}2.0/users`, ({ request }) => {
+        http.get(`${env.BOX_API_BASE_URL}/2.0/users`, ({ request }) => {
           // briefly implement API endpoint behaviour
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
@@ -83,7 +83,7 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.delete<{ userId: string }>(
-          `${env.BOX_API_BASE_URL}2.0/users/${userId}`,
+          `${env.BOX_API_BASE_URL}/2.0/users/${userId}`,
           ({ request, params }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(undefined, { status: 401 });
@@ -98,15 +98,15 @@ describe('users connector', () => {
     });
 
     test('should delete user successfully when token is valid', async () => {
-      await expect(deleteUsers({ token: validToken, userId })).resolves.not.toThrow();
+      await expect(deleteUser({ token: validToken, userId })).resolves.not.toThrow();
     });
 
     test('should not throw when the user is not found', async () => {
-      await expect(deleteUsers({ token: validToken, userId })).resolves.toBeUndefined();
+      await expect(deleteUser({ token: validToken, userId })).resolves.toBeUndefined();
     });
 
     test('should throw BoxError when token is invalid', async () => {
-      await expect(deleteUsers({ token: 'invalidToken', userId })).rejects.toBeInstanceOf(BoxError);
+      await expect(deleteUser({ token: 'invalidToken', userId })).rejects.toBeInstanceOf(BoxError);
     });
   });
 });

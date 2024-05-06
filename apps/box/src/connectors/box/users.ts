@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { BoxError } from './common/error';
+import { BoxError } from '../common/error';
 
 const boxUserSchema = z.object({
   id: z.string(),
@@ -23,7 +23,7 @@ export type GetUsersParams = {
   nextPage?: string | null;
 };
 
-export type DeleteUsersParams = {
+export type DeleteUserParams = {
   userId: string;
   token: string;
 };
@@ -31,7 +31,7 @@ export type DeleteUsersParams = {
 const count = env.BOX_USERS_SYNC_BATCH_SIZE;
 
 export const getUsers = async ({ token, nextPage }: GetUsersParams) => {
-  const url = new URL(`${env.BOX_API_BASE_URL}2.0/users`);
+  const url = new URL(`${env.BOX_API_BASE_URL}/2.0/users`);
   url.searchParams.append('limit', String(count));
 
   if (nextPage) {
@@ -75,8 +75,8 @@ export const getUsers = async ({ token, nextPage }: GetUsersParams) => {
   };
 };
 
-export const deleteUsers = async ({ userId, token }: DeleteUsersParams) => {
-  const url = `${env.BOX_API_BASE_URL}2.0/users/${userId}`;
+export const deleteUser = async ({ userId, token }: DeleteUserParams) => {
+  const url = `${env.BOX_API_BASE_URL}/2.0/users/${userId}`;
 
   const response = await fetch(url, {
     method: 'DELETE',

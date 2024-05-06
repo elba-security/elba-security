@@ -1,11 +1,11 @@
 import { env } from '@/common/env';
-import { BoxError } from './common/error';
+import { BoxError } from '../common/error';
 
 type GetTokenResponseData = { access_token: string; refresh_token: string; expires_in: number };
 type RefreshTokenResponseData = { access_token: string; refresh_token: string; expires_in: number };
 
 export const getToken = async (code: string) => {
-  const response = await fetch(`${env.BOX_API_BASE_URL}oauth2/token`, {
+  const response = await fetch(`${env.BOX_API_BASE_URL}/oauth2/token`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -32,7 +32,7 @@ export const getToken = async (code: string) => {
 };
 
 export const getRefreshToken = async (refreshTokenInfo: string) => {
-  const response = await fetch(`${env.BOX_API_BASE_URL}oauth2/token`, {
+  const response = await fetch(`${env.BOX_API_BASE_URL}/oauth2/token`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
