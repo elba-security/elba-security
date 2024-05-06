@@ -26,7 +26,7 @@ export function GET(request: NextRequest) {
   cookies().set('region', region);
   cookies().set('state', state);
 
-  const redirectUrl = new URL(`${env.BOX_APP_INSTALL_URL}/authorize?`);
+  const redirectUrl = new URL(`${env.BOX_APP_INSTALL_URL}/authorize`);
   redirectUrl.searchParams.append('client_id', env.BOX_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.BOX_REDIRECT_URI);
   redirectUrl.searchParams.append('response_type', 'code');
