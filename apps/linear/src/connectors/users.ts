@@ -33,7 +33,7 @@ export type DeleteUsersParams = {
   userId: string;
   accessToken: string;
 };
-const perPage = env.LINEAR_USERS_SYNC_BATCH_SIZE;
+const perPage = 1; // env.LINEAR_USERS_SYNC_BATCH_SIZE;
 
 export const getUsers = async ({ accessToken, afterCursor }: GetUsersParams) => {
   const query = {
@@ -60,7 +60,7 @@ export const getUsers = async ({ accessToken, afterCursor }: GetUsersParams) => 
     },
   };
 
-  const response = await fetch(`${env.LINEAR_API_BASE_URL}graphql`, {
+  const response = await fetch(`${env.LINEAR_API_BASE_URL}/graphql`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -100,14 +100,14 @@ export const getUsers = async ({ accessToken, afterCursor }: GetUsersParams) => 
 export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => {
   const query = {
     query: `
-    mutation UserSuspend($userSuspendId: String!) { userSuspend(id: $userSuspendId) { success } }
+      mutation UserSuspend($userSuspendId: String!) { userSuspend(id: $userSuspendId) { success } }
     `,
     variables: {
-      userSuspendId: `${userId}`,
+      userSuspendId: String(userId),
     },
   };
 
-  const response = await fetch(`${env.LINEAR_API_BASE_URL}graphql`, {
+  const response = await fetch(`${env.LINEAR_API_BASE_URL}/graphql`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -118,6 +118,6 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
   });
 
   if (!response.ok) {
-    throw new LinearError(`Could not delete user with Id: ${userId}`, { response });
+    throw new LinearError(`Could not suspend user with Id: ${userId}`, { response });
   }
 };

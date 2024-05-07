@@ -8,7 +8,7 @@ const tokenResponseSchema = z.object({
 });
 
 export const getToken = async (code: string) => {
-  const response = await fetch(`${env.LINEAR_API_BASE_URL}oauth/token`, {
+  const response = await fetch(`${env.LINEAR_API_BASE_URL}/oauth/token`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',

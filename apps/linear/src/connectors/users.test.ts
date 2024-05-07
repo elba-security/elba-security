@@ -28,8 +28,7 @@ describe('users connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.post(`${env.LINEAR_API_BASE_URL}graphql`, async ({ request }) => {
-          // briefly implement API endpoint behaviour
+        http.post(`${env.LINEAR_API_BASE_URL}/graphql`, async ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -81,7 +80,7 @@ describe('users connector', () => {
   describe('deleteUser', () => {
     beforeEach(() => {
       server.use(
-        http.post<{ userId: string }>(`${env.LINEAR_API_BASE_URL}graphql`, ({ request }) => {
+        http.post<{ userId: string }>(`${env.LINEAR_API_BASE_URL}/graphql`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }

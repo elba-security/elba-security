@@ -26,7 +26,11 @@ export const unauthorizedMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (error instanceof LinearError && error.response?.status === 401) {
+            if (
+              error instanceof LinearError &&
+              error.response &&
+              [401, 403].includes(error.response.status)
+            ) {
               if (hasRequiredDataProperties(data)) {
                 await client.send({
                   name: 'linear/app.uninstalled',

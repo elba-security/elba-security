@@ -4,7 +4,7 @@ import * as usersConnector from '@/connectors/users';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
-import { deleteUser } from './delete-user';
+import { deleteUser } from './delete-users';
 
 const userId = 'user-id';
 const accessToken = 'test-access-token';

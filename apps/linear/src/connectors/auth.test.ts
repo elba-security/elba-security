@@ -16,7 +16,7 @@ describe('auth connector', () => {
   describe('getToken', () => {
     beforeEach(() => {
       server.use(
-        http.post(`${env.LINEAR_API_BASE_URL}oauth/token`, async ({ request }) => {
+        http.post(`${env.LINEAR_API_BASE_URL}/oauth/token`, async ({ request }) => {
           const body = await request.text();
           const searchParams = new URLSearchParams(body);
 

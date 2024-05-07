@@ -44,7 +44,6 @@ export const setupOrganisation = async ({
         page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
       name: 'linear/app.installed',
       data: {
