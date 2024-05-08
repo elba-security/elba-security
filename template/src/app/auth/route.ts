@@ -1,6 +1,8 @@
 import { RedirectType, redirect } from 'next/navigation';
 import type { NextRequest } from 'next/server';
+import { logger } from '@elba-security/logger';
 import { getRedirectUrl } from '@elba-security/sdk';
+import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { env } from '@/env';
 import { setupOrganisation } from './service';
 
@@ -19,25 +21,29 @@ export async function GET(request: NextRequest) {
   const region = request.cookies.get('region')?.value;
 
   if (!organisationId || !code || !region) {
-    redirect(
-      getRedirectUrl({
-        region: region ?? 'eu',
-        sourceId: env.ELBA_SOURCE_ID,
-        baseUrl: env.ELBA_REDIRECT_URL,
-        error: 'unauthorized',
-      }),
-      RedirectType.replace
-    );
-  }
-
-  await setupOrganisation({ organisationId, code, region });
-
-  redirect(
-    getRedirectUrl({
+    return new ElbaInstallRedirectResponse({
+      error: 'unauthorized',
       region,
       sourceId: env.ELBA_SOURCE_ID,
       baseUrl: env.ELBA_REDIRECT_URL,
-    }),
-    RedirectType.replace
-  );
+    });
+  }
+
+  try {
+    await setupOrganisation({ organisationId, code, region });
+  } catch (error) {
+    logger.error('Could not setup integration', { organisationId, code, region, error });
+    return new ElbaInstallRedirectResponse({
+      error: 'internal_error',
+      region,
+      sourceId: env.ELBA_SOURCE_ID,
+      baseUrl: env.ELBA_REDIRECT_URL,
+    });
+  }
+
+  return new ElbaInstallRedirectResponse({
+    region,
+    sourceId: env.ELBA_SOURCE_ID,
+    baseUrl: env.ELBA_REDIRECT_URL,
+  });
 }

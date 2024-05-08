@@ -15,11 +15,15 @@ export const getGoogleServiceAccountClient = async (managerEmail: string, isAdmi
   if (isAdmin) {
     try {
       await client.authorize();
-    } catch (error) {
-      logger.error('Admin does not have the required privileges', { managerEmail });
-      throw new GoogleUnauthorizedError('Admin does not have the required privileges', {
-        cause: error,
-      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- error handling
+    } catch (error: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- error handling
+      if (error?.status === 401) {
+        logger.error('Admin does not have the required privileges', { managerEmail });
+        throw new GoogleUnauthorizedError('Admin does not have the required privileges', {
+          cause: error,
+        });
+      }
     }
   }
 
