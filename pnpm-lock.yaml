@@ -465,30 +465,30 @@ importers:
       '@elba-security/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@neondatabase/serverless':
+        specifier: 0.9.0
+        version: 0.9.0
       '@sentry/nextjs':
         specifier: ^7.88.0
         version: 7.93.0(next@14.0.1)(react@18.2.0)
-      '@vercel/postgres':
-        specifier: ^0.5.1
-        version: 0.5.1
       date-fns:
-        specifier: ^3.3.1
+        specifier: ^3.2.0
         version: 3.3.1
       drizzle-orm:
-        specifier: ^0.29.1
-        version: 0.29.3(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
+        specifier: ^0.29.4
+        version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
       inngest:
-        specifier: ^3.8.0
+        specifier: 3.14.2
         version: 3.14.2(typescript@5.2.2)
-      js-cookie:
-        specifier: ^3.0.5
-        version: 3.0.5
+      msw:
+        specifier: ^2.0.1
+        version: 2.0.6(typescript@5.2.2)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
-      postgres:
-        specifier: ^3.4.3
-        version: 3.4.3
       react:
         specifier: ^18
         version: 18.2.0
@@ -514,9 +514,6 @@ importers:
       '@next/eslint-plugin-next':
         specifier: ^14.0.2
         version: 14.0.4
-      '@types/js-cookie':
-        specifier: ^3.0.5
-        version: 3.0.6
       '@types/node':
         specifier: ^20
         version: 20.10.3
@@ -536,17 +533,20 @@ importers:
         specifier: ^8
         version: 8.53.0
       inngest-cli:
-        specifier: ^0.23.1
-        version: 0.23.1
-      msw:
-        specifier: ^2.0.1
-        version: 2.0.6(typescript@5.2.2)
+        specifier: ^0.25.2
+        version: 0.25.2
+      postgres:
+        specifier: ^3.4.3
+        version: 3.4.3
+      testcontainers:
+        specifier: ^10.8.1
+        version: 10.8.1
       typescript:
         specifier: ^5
         version: 5.2.2
       vitest:
-        specifier: 1.1.1
-        version: 1.1.1(@edge-runtime/vm@3.1.7)(@types/node@20.10.3)
+        specifier: 1.4.0
+        version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.10.3)
 
   apps/microsoft:
     dependencies:
@@ -6248,20 +6248,6 @@ packages:
 
   /inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
-
-  /inngest-cli@0.23.1:
-    resolution: {integrity: sha512-kwVi4/oL9yUq/K6/JfzJnTCi9EXvo+ERrAnxcOmMaxrMNsSolo/0fqm1Y2maL4k96xypFfX0yumcvYAKjesOzg==}
-    hasBin: true
-    requiresBuild: true
-    dependencies:
-      adm-zip: 0.5.10
-      debug: 4.3.4
-      node-fetch: 2.6.7
-      tar: 6.1.11
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-    dev: true
 
   /inngest-cli@0.25.2:
     resolution: {integrity: sha512-yc5QzwimhactSUCCPGxNf54mTtvX/NqmfK5U0Q8eISVT5s0LZQdq8EARvJiB5Ppv+fHi0FgWkuZsYPPu3eTXmw==}

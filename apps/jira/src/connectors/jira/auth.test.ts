@@ -1,112 +1,88 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
+/* eslint-disable @typescript-eslint/no-unsafe-call -- test convenient */
+/* eslint-disable @typescript-eslint/no-unsafe-return -- test convenient */
+
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
-import { env } from '@/env';
-import { server } from '../../../vitest/setup-msw-handlers';
-import { getAccessToken, getCloudId, refreshAccessToken } from './auth';
-import { JiraError } from './commons/error';
+import { server } from '@elba-security/test-utils';
+import { env } from '@/common/env';
+import { JiraError } from '../common/error';
+import { getRefreshToken, getToken } from './auth';
+
+const validCode = '1234';
+const validRefreshToken = 'valid-refresh-token';
+const accessToken = 'access-token-1234';
+const refreshToken = 'refresh-token-1234';
+const expiresIn = 1234;
 
 describe('auth connector', () => {
-  describe('getAccessToken', () => {
-    const accessToken = 'token-1234';
-    const refreshToken = 'refresh-token-1234';
-    const expiresIn = 60;
-    const accessCode = 'access-code-1234';
-
+  describe('getToken', () => {
     beforeEach(() => {
       server.use(
-        http.post(env.JIRA_TOKEN_URL, async ({ request }) => {
+        http.post(`${env.JIRA_APP_INSTALL_URL}/token`, async ({ request }) => {
           const body = await request.text();
           const searchParams = new URLSearchParams(body);
 
-          if (searchParams.get('code') !== accessCode) {
+          const grantType = searchParams.get('grant_type');
+          const code = searchParams.get('code');
+
+          if (grantType !== 'authorization_code' || code !== validCode) {
             return new Response(undefined, { status: 401 });
           }
 
           return Response.json({
             access_token: accessToken,
-            expires_in: expiresIn,
             refresh_token: refreshToken,
+            expires_in: expiresIn,
           });
         })
       );
     });
 
-    test('should return the token when the accessCode is valid', async () => {
-      await expect(getAccessToken(accessCode)).resolves.toStrictEqual({
+    test('should return the accessToken when the code is valid', async () => {
+      await expect(getToken(validCode)).resolves.toStrictEqual({
         accessToken,
-        expiresIn,
         refreshToken,
+        expiresIn,
       });
     });
 
-    test('should throw when the accessCode is invalid', async () => {
-      await expect(getAccessToken('wrong-code')).rejects.toBeInstanceOf(JiraError);
+    test('should throw when the code is invalid', async () => {
+      await expect(getToken('wrong-code')).rejects.toBeInstanceOf(JiraError);
     });
   });
 
-  describe('refreshAccessToken', () => {
-    const accessToken = 'token-1234';
-    const refreshToken = 'refresh-token-1234';
-    const expiresIn = 60;
-
-    // mock token API endpoint using msw
+  describe('getRefreshToken', () => {
     beforeEach(() => {
       server.use(
-        http.post(env.JIRA_TOKEN_URL, async ({ request }) => {
-          // briefly implement API endpoint behaviour
+        http.post(`${env.JIRA_APP_INSTALL_URL}/token`, async ({ request }) => {
           const body = await request.text();
           const searchParams = new URLSearchParams(body);
 
-          if (searchParams.get('refresh_token') !== refreshToken) {
+          const grantType = searchParams.get('grant_type');
+          const token = searchParams.get('refresh_token');
+
+          if (grantType !== 'refresh_token' || token !== validRefreshToken) {
             return new Response(undefined, { status: 401 });
           }
-
           return Response.json({
             access_token: accessToken,
-            expires_in: expiresIn,
             refresh_token: refreshToken,
+            expires_in: expiresIn,
           });
         })
       );
     });
 
-    test('should return the token when the refreshToken is valid', async () => {
-      await expect(refreshAccessToken(refreshToken)).resolves.toStrictEqual({
+    test('should return the refreshToken when the refreshToken is valid', async () => {
+      await expect(getRefreshToken(validRefreshToken)).resolves.toStrictEqual({
         accessToken,
-        expiresIn,
         refreshToken,
+        expiresIn,
       });
     });
 
     test('should throw when the refreshToken is invalid', async () => {
-      await expect(refreshAccessToken('wrong-token')).rejects.toBeInstanceOf(JiraError);
-    });
-  });
-
-  describe('getCloudId', () => {
-    const accessToken = 'token-1234';
-    const cloudId = 'cloud-id-1234';
-
-    // mock token API endpoint using msw
-    beforeEach(() => {
-      server.use(
-        http.get('https://api.atlassian.com/oauth/token/accessible-resources', ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${accessToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-          return Response.json([{ id: cloudId }]);
-        })
-      );
-    });
-
-    test('should return the cloudId when using correct accessToken', async () => {
-      await expect(getCloudId(accessToken)).resolves.toStrictEqual({ cloudId });
-    });
-
-    test('should throw when not using wrong accessToken', async () => {
-      await expect(getCloudId('wrong-token')).rejects.toBeInstanceOf(JiraError);
+      await expect(getToken('wrong-refreshtoken')).rejects.toBeInstanceOf(JiraError);
     });
   });
 });

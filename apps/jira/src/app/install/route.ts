@@ -1,53 +1,36 @@
-import { randomUUID } from 'node:crypto';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type NextRequest } from 'next/server';
-import { logger } from '@elba-security/logger';
-import { z } from 'zod';
 import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
-import { env } from '@/env';
+import { env } from '@/common/env';
 
+export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-const routeInputSchema = z.object({
-  organisationId: z.string().uuid(),
-  region: z.string().min(1),
-});
-
 export function GET(request: NextRequest) {
-  try {
-    const { organisationId, region } = routeInputSchema.parse({
-      organisationId: request.nextUrl.searchParams.get('organisation_id'),
-      region: request.nextUrl.searchParams.get('region'),
-    });
+  const organisationId = request.nextUrl.searchParams.get('organisation_id');
+  const region = request.nextUrl.searchParams.get('region');
 
-    cookies().set('organisation_id', organisationId);
-    cookies().set('region', region);
-  } catch (error) {
-    logger.error('Could not redirect user to Jira app install url', {
-      error,
-    });
-
+  if (!organisationId || !region) {
     return new ElbaInstallRedirectResponse({
-      region: request.nextUrl.searchParams.get('region'),
+      region,
       sourceId: env.ELBA_SOURCE_ID,
       baseUrl: env.ELBA_REDIRECT_URL,
-      error: 'internal_error',
+      error: 'unauthorized',
     });
   }
 
-  const state = randomUUID();
-  cookies().set('oauth_state', state, { httpOnly: true, secure: true });
+  const state = crypto.randomUUID();
+  cookies().set('organisation_id', organisationId);
+  cookies().set('region', region);
+  cookies().set('state', state);
 
-  const queryParams = new URLSearchParams({
-    response_type: 'code',
-    client_id: env.JIRA_CLIENT_ID,
-    state,
-    scope: 'read:jira-user read:user:jira offline_access',
-    redirect_uri: env.JIRA_CALLBACK_URL,
-  });
-
-  const jiraOAuthUrl = `${env.JIRA_AUTH_URL}?${queryParams.toString()}`;
-
-  redirect(jiraOAuthUrl);
+  const redirectUrl = new URL(`${env.JIRA_APP_INSTALL_URL}/authorize`);
+  redirectUrl.searchParams.append('audience', 'api.atlassian.com');
+  redirectUrl.searchParams.append('client_id', env.JIRA_CLIENT_ID);
+  redirectUrl.searchParams.append('redirect_uri', env.JIRA_REDIRECT_URI);
+  redirectUrl.searchParams.append('response_type', 'code');
+  redirectUrl.searchParams.append('scope', 'read:jira-user read:user:jira offline_access');
+  redirectUrl.searchParams.append('prompt', 'consent');
+  redirect(redirectUrl.toString());
 }

@@ -1,70 +1,70 @@
-import { addSeconds, subMinutes } from 'date-fns';
+import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
+import { getToken, getCloudId } from '@/connectors/jira/auth';
 import { inngest } from '@/inngest/client';
-import { getAccessToken, getCloudId } from '@/connectors/jira/auth';
+import { encrypt } from '@/common/crypto';
 
 type SetupOrganisationParams = {
   organisationId: string;
+  code: string;
   region: string;
-  accessCode: string;
 };
 
 export const setupOrganisation = async ({
   organisationId,
+  code,
   region,
-  accessCode,
 }: SetupOrganisationParams) => {
-  // Exchange the authorization code for an access token
-  const { refreshToken, accessToken, expiresIn } = await getAccessToken(accessCode);
+  const { accessToken, refreshToken, expiresIn } = await getToken(code);
   const { cloudId } = await getCloudId(accessToken);
 
-  // Store the token data in the database
-  const [organisation] = await db
+  const encodedAccessToken = await encrypt(accessToken);
+  const encodedRefreshToken = await encrypt(refreshToken);
+
+  await db
     .insert(organisationsTable)
     .values({
       id: organisationId,
+      accessToken: encodedAccessToken,
+      refreshToken: encodedRefreshToken,
       region,
-      refreshToken,
-      accessToken,
       cloudId,
     })
     .onConflictDoUpdate({
-      target: [organisationsTable.id],
+      target: organisationsTable.id,
       set: {
-        accessToken,
-        refreshToken,
+        accessToken: encodedAccessToken,
+        refreshToken: encodedRefreshToken,
+        region,
+        cloudId,
       },
-    })
-    .returning();
-
-  if (!organisation) {
-    throw new Error(`Could not setup organisation with id=${organisationId}`);
-  }
+    });
 
   await inngest.send([
-    {
-      name: 'jira/jira.elba_app.installed',
-      data: {
-        organisationId,
-      },
-    },
     {
       name: 'jira/users.sync.requested',
       data: {
         organisationId,
         isFirstSync: true,
         syncStartedAt: Date.now(),
-        startAt: null,
+        page: null,
+      },
+    },
+    // this will cancel scheduled token refresh if it exists
+    {
+      name: 'jira/app.installed',
+      data: {
+        organisationId,
+        region,
       },
     },
     {
       name: 'jira/token.refresh.requested',
       data: {
         organisationId,
+        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
       },
-      // we schedule a token refresh 5 minutes before it expires
-      ts: subMinutes(addSeconds(new Date(), expiresIn), 5).getTime(),
     },
   ]);
 };

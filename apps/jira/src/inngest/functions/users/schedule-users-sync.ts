@@ -1,11 +1,24 @@
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 
-export const scheduleUsersSyncs = inngest.createFunction(
-  { id: 'jira-schedule-users-syncs' },
-  { cron: env.USERS_SYNC_CRON },
+export const scheduleUsersSync = inngest.createFunction(
+  {
+    id: 'jira-schedule-users-syncs',
+    cancelOn: [
+      {
+        event: 'jira/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'jira/app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
+    retries: 5,
+  },
+  { cron: env.JIRA_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({
@@ -15,14 +28,14 @@ export const scheduleUsersSyncs = inngest.createFunction(
 
     if (organisations.length > 0) {
       await step.sendEvent(
-        'sync-organisations-users',
+        'synchronize-users',
         organisations.map(({ id }) => ({
           name: 'jira/users.sync.requested',
           data: {
-            organisationId: id,
             isFirstSync: false,
+            organisationId: id,
             syncStartedAt: Date.now(),
-            startAt: null,
+            page: null,
           },
         }))
       );

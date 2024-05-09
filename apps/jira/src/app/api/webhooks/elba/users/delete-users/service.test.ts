@@ -1,30 +1,29 @@
-import { describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { inngest } from '@/inngest/client';
-import { deleteUser } from './service';
+import { deleteUsers } from './service';
 
-const mockedDate = '2023-01-01T00:00:00.000Z';
-const userId = '00000000-0000-0000-0000-000000000001';
+const userId1 = 'test-user-id1';
+const userId2 = 'test-user-id2';
 const organisationId = '00000000-0000-0000-0000-000000000002';
 
 describe('jira/users.delete.requested', () => {
-  beforeAll(() => {
-    vi.setSystemTime(mockedDate);
-  });
-
-  afterAll(() => {
-    vi.useRealTimers();
-  });
-
   it('should send request to delete user', async () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
-    await deleteUser({ userId, organisationId });
+    await deleteUsers({ userIds: [userId1, userId2], organisationId });
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
         data: {
           organisationId,
-          userId,
+          userId: userId1,
+        },
+        name: 'jira/users.delete.requested',
+      },
+      {
+        data: {
+          organisationId,
+          userId: userId2,
         },
         name: 'jira/users.delete.requested',
       },

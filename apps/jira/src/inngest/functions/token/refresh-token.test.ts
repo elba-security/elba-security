@@ -5,22 +5,33 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as authConnector from '@/connectors/jira/auth';
-import { handleRefreshToken } from './refresh-token';
+import { encrypt, decrypt } from '@/common/crypto';
+import { JiraError } from '@/connectors/common/error';
+import { refreshToken } from './refresh-token';
 
-const newToken = 'new-test-access-token';
-const newRefreshToken = 'new-test-refresh-token';
+const newTokens = {
+  accessToken: 'new-access-token',
+  refreshToken: 'new-refresh-token',
+};
+
+const encryptedTokens = {
+  accessToken: await encrypt(newTokens.accessToken),
+  refreshToken: await encrypt(newTokens.refreshToken),
+};
 
 const organisation = {
-  id: '11111111-1111-1111-1111-111111111111',
-  refreshToken: 'refresh-token-123',
-  region: 'us-test-1',
-  accessToken: 'access-token-123',
-  tokenExpiration: 60,
-  cloudId: '00000000-0000-0000-0000-000000000000',
+  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  accessToken: encryptedTokens.accessToken,
+  refreshToken: encryptedTokens.refreshToken,
+  region: 'us',
 };
 const now = new Date();
+// current token expires in an hour
+const expiresAt = now.getTime() + 60 * 1000;
+// next token duration
+const expiresIn = 60 * 1000;
 
-const setup = createInngestFunctionMock(handleRefreshToken, 'jira/token.refresh.requested');
+const setup = createInngestFunctionMock(refreshToken, 'jira/token.refresh.requested');
 
 describe('refresh-token', () => {
   beforeAll(() => {
@@ -32,54 +43,62 @@ describe('refresh-token', () => {
   });
 
   test('should abort sync when organisation is not registered', async () => {
-    const refreshAccessToken = vi.spyOn(authConnector, 'refreshAccessToken').mockResolvedValue({
-      accessToken: newToken,
-      expiresIn: organisation.tokenExpiration,
-      refreshToken: newRefreshToken,
+    vi.spyOn(authConnector, 'getRefreshToken').mockResolvedValue({
+      ...newTokens,
+      expiresIn,
     });
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
+      expiresAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    expect(refreshAccessToken).toBeCalledTimes(0);
+    expect(authConnector.getRefreshToken).toBeCalledTimes(0);
 
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should update token and schedule the next refresh', async () => {
+  test('should update encrypted tokens and schedule the next refresh', async () => {
     await db.insert(organisationsTable).values(organisation);
-    const refreshAccessToken = vi.spyOn(authConnector, 'refreshAccessToken').mockResolvedValue({
-      refreshToken: newRefreshToken,
-      accessToken: newToken,
-      expiresIn: organisation.tokenExpiration,
+
+    vi.spyOn(authConnector, 'getRefreshToken').mockResolvedValue({
+      ...newTokens,
+      expiresIn,
     });
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
+      expiresAt,
     });
 
     await expect(result).resolves.toBe(undefined);
 
     const [updatedOrganisation] = await db
-      .select({ accessToken: organisationsTable.accessToken })
+      .select({
+        accessToken: organisationsTable.accessToken,
+        refreshToken: organisationsTable.refreshToken,
+      })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisation.id));
+    if (!updatedOrganisation) {
+      throw new JiraError(`Organisation with ID ${organisation.id} not found.`);
+    }
+    await expect(decrypt(updatedOrganisation.refreshToken)).resolves.toEqual(
+      newTokens.refreshToken
+    );
 
-    expect(updatedOrganisation?.accessToken).toBe(newToken);
-    expect(refreshAccessToken).toBeCalledTimes(1);
-    expect(refreshAccessToken).toBeCalledWith(organisation.refreshToken);
+    expect(authConnector.getRefreshToken).toBeCalledTimes(1);
+    expect(authConnector.getRefreshToken).toBeCalledWith(newTokens.refreshToken);
 
-    // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('schedule-token-refresh', {
+    expect(step.sendEvent).toBeCalledWith('next-refresh', {
       name: 'jira/token.refresh.requested',
       data: {
         organisationId: organisation.id,
+        expiresAt: now.getTime() + expiresIn * 1000,
       },
-      ts: now.getTime() + organisation.tokenExpiration * 1000 - 5 * 60 * 1000,
     });
   });
 });

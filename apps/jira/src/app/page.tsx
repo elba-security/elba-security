@@ -3,5 +3,5 @@
  * It should not be edited or removed.
  */
 export default function Home() {
-  return <main>Elba x Saas</main>;
+  return <main>Elba x Jira</main>;
 }

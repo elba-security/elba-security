@@ -1,19 +1,19 @@
 import { inngest } from '@/inngest/client';
 
-export const deleteUser = async ({
-  userId,
+export const deleteUsers = async ({
+  userIds,
   organisationId,
 }: {
-  userId: string;
+  userIds: string[];
   organisationId: string;
 }) => {
-  await inngest.send([
-    {
+  await inngest.send(
+    userIds.map((userId) => ({
       name: 'jira/users.delete.requested',
       data: {
         organisationId,
         userId,
       },
-    },
-  ]);
+    }))
+  );
 };

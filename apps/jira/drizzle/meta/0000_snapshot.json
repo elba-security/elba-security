@@ -1,5 +1,5 @@
 {
-  "id": "5d626b57-220f-444c-bf7b-7bb761af1160",
+  "id": "7de64b5c-4b49-45ff-a0ed-bf07e519de4c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -41,7 +41,7 @@
         },
         "cloud_id": {
           "name": "cloud_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         }

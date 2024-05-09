@@ -1,17 +1,22 @@
-import { env } from '@/env';
-import { JiraError } from './commons/error';
+import { z } from 'zod';
+import { logger } from '@elba-security/logger';
+import { env } from '@/common/env';
+import { JiraError } from '../common/error';
 
-type TokenResponseData = {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
-  scope: string;
-};
+const tokenResponseSchema = z.object({
+  access_token: z.string(),
+  refresh_token: z.string(),
+  expires_in: z.number(),
+});
 
-type AccessibilityResource = { id: string };
+const cloudIdResponseSchema = z.array(
+  z.object({
+    id: z.string(),
+  })
+);
 
-export const getAccessToken = async (accessCode: string) => {
-  const response = await fetch(env.JIRA_TOKEN_URL, {
+export const getToken = async (code: string) => {
+  const response = await fetch(`${env.JIRA_APP_INSTALL_URL}oauth/token`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -20,8 +25,8 @@ export const getAccessToken = async (accessCode: string) => {
       client_id: env.JIRA_CLIENT_ID,
       client_secret: env.JIRA_CLIENT_SECRET,
       grant_type: 'authorization_code',
-      redirect_uri: env.JIRA_CALLBACK_URL,
-      code: accessCode,
+      redirect_uri: env.JIRA_REDIRECT_URI,
+      code,
     }),
   });
 
@@ -29,17 +34,24 @@ export const getAccessToken = async (accessCode: string) => {
     throw new JiraError('Could not retrieve token', { response });
   }
 
-  const data = (await response.json()) as TokenResponseData;
+  const data: unknown = await response.json();
+
+  const result = tokenResponseSchema.safeParse(data);
+
+  if (!result.success) {
+    logger.error('Invalid Jira token response', { data });
+    throw new JiraError('Invalid Jira token response');
+  }
 
   return {
-    refreshToken: data.refresh_token,
-    accessToken: data.access_token,
-    expiresIn: data.expires_in,
+    accessToken: result.data.access_token,
+    refreshToken: result.data.refresh_token,
+    expiresIn: result.data.expires_in,
   };
 };
 
-export const refreshAccessToken = async (refreshToken: string) => {
-  const response = await fetch(env.JIRA_TOKEN_URL, {
+export const getRefreshToken = async (refreshTokenInfo: string) => {
+  const response = await fetch(`${env.JIRA_APP_INSTALL_URL}oauth/token`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -48,7 +60,7 @@ export const refreshAccessToken = async (refreshToken: string) => {
       client_id: env.JIRA_CLIENT_ID,
       client_secret: env.JIRA_CLIENT_SECRET,
       grant_type: 'refresh_token',
-      refresh_token: refreshToken,
+      refresh_token: refreshTokenInfo,
     }),
   });
 
@@ -56,36 +68,40 @@ export const refreshAccessToken = async (refreshToken: string) => {
     throw new JiraError('Could not retrieve token', { response });
   }
 
-  const data = (await response.json()) as TokenResponseData;
+  const data: unknown = await response.json();
+
+  const result = tokenResponseSchema.safeParse(data);
+
+  if (!result.success) {
+    logger.error('Invalid Jira refresh token response', { data });
+    throw new Error('Invalid Jira token response');
+  }
 
   return {
-    refreshToken: data.refresh_token,
-    accessToken: data.access_token,
-    expiresIn: data.expires_in,
+    accessToken: result.data.access_token,
+    refreshToken: result.data.refresh_token,
+    expiresIn: result.data.expires_in,
   };
 };
 
 export async function getCloudId(accessToken: string) {
-  try {
-    const response = await fetch('https://api.atlassian.com/oauth/token/accessible-resources', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+  const response = await fetch('https://api.atlassian.com/oauth/token/accessible-resources', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 
-    if (!response.ok) {
-      throw new JiraError(`Bad response when getting cloud id - ${response.statusText}`);
-    }
-
-    const data = (await response.json()) as AccessibilityResource[];
-
-    if (!data.length || !data[0]?.id) {
-      throw new JiraError('Could not retrieve cloud id - No accessible resources');
-    }
-
-    return { cloudId: data[0].id };
-  } catch (error) {
-    const message = error?.toString() || 'Unknown error';
-    throw new JiraError(`Could not retrieve cloud id - ${message}`);
+  if (!response.ok) {
+    throw new JiraError(`Bad response when getting cloud id - ${response.statusText}`);
   }
+
+  const data: unknown = await response.json();
+  const result = cloudIdResponseSchema.safeParse(data);
+
+  if (!result.success || result.data[0] === undefined) {
+    logger.error('Invalid Jira cloudId response', { data });
+    throw new JiraError('Invalid Jira cloudId response');
+  }
+
+  return { cloudId: result.data[0].id };
 }

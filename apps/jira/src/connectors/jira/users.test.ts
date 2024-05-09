@@ -1,67 +1,66 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
+/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
-import { env } from '@/env';
-import { server } from '../../../vitest/setup-msw-handlers';
-import { getUsers, deleteUser } from './users';
+import { server } from '@elba-security/test-utils';
+import { env } from '@/common/env';
+import { JiraError } from '../common/error';
 import type { JiraUser } from './users';
-import { JiraError } from './commons/error';
+import { getUsers, deleteUser } from './users';
 
-const accessToken = 'token-1234';
-const cloudId = 'some-cloud-id';
-const usersSyncBatchSize = env.USERS_SYNC_BATCH_SIZE;
-const startAt = 0;
+const validToken = 'token-1234';
+const endPage = '2';
+const nextPage = '1';
 const userId = 'test-id';
 
-const invalidUsers = [
-  {
-    mail: `user-invalid@foo.bar`,
-    displayName: `user invalid`,
-  },
-];
+const validUsers: JiraUser[] = Array.from({ length: 5 }, (_, i) => ({
+  id: `id-${i}`,
+  first_name: `first_name-${i}`,
+  last_name: `last_name-${i}`,
+  display_name: `display_name-${i}`,
+  email: `user-${i}@foo.bar`,
+}));
 
-const validUsers: JiraUser[] = Array.from(
-  { length: usersSyncBatchSize - invalidUsers.length },
-  (_, i) => ({
-    accountId: `user-id-${i}`,
-    emailAddress: `user-${i}@foo.bar`,
-    displayName: `user ${i}`,
-  })
-);
+const invalidUsers = [];
 
 describe('users connector', () => {
   describe('getUsers', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${env.JIRA_API_BASE_URL}/:cloudId/rest/api/3/users`, ({ request, params }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${accessToken}`) {
+        http.get(`${env.JIRA_API_BASE_URL}/users`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
-          if (params.cloudId !== cloudId) {
-            return new Response(undefined, { status: 404 });
-          }
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
-          return Response.json([...validUsers, ...invalidUsers]);
+          const url = new URL(request.url);
+          const after = url.searchParams.get('next_page_token');
+          return Response.json({
+            users: validUsers,
+            next_page_token: after === endPage ? null : after,
+          });
         })
       );
     });
-    test('should return users and startAtNext when the token is valid and there are more users', async () => {
-      await expect(getUsers({ accessToken, cloudId, startAt })).resolves.toStrictEqual({
-        invalidUsers,
+
+    test('should return users and nextPage when the token is valid and their is another page', async () => {
+      await expect(getUsers({ accessToken: validToken, page: nextPage })).resolves.toStrictEqual({
         validUsers,
-        startAtNext: startAt + usersSyncBatchSize,
+        invalidUsers,
+        nextPage,
       });
     });
-    test('should throw when the token is invalid', async () => {
-      await expect(
-        getUsers({ accessToken: 'invalid-token', cloudId, startAt })
-      ).rejects.toBeInstanceOf(JiraError);
+
+    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
+      await expect(getUsers({ accessToken: validToken, page: endPage })).resolves.toStrictEqual({
+        validUsers,
+        invalidUsers,
+        nextPage: null,
+      });
     });
-    test('should throws when the cloudId is invalid', async () => {
-      await expect(
-        getUsers({ accessToken, cloudId: 'bad-cloud-id', startAt })
-      ).rejects.toBeInstanceOf(JiraError);
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getUsers({ accessToken: 'foo-bar' })).rejects.toBeInstanceOf(JiraError);
     });
   });
 
@@ -69,9 +68,9 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.delete<{ userId: string }>(
-          `${env.JIRA_API_BASE_URL}/${cloudId}/rest/api/3/user?accountId=${userId}`,
+          `${env.JIRA_API_BASE_URL}/users/${userId}`,
           ({ request }) => {
-            if (request.headers.get('Authorization') !== `Bearer ${accessToken}`) {
+            if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(undefined, { status: 401 });
             }
             return new Response(undefined, { status: 200 });
@@ -81,15 +80,15 @@ describe('users connector', () => {
     });
 
     test('should delete user successfully when token is valid', async () => {
-      await expect(deleteUser({ accessToken, userId, cloudId })).resolves.not.toThrow();
+      await expect(deleteUser({ accessToken: validToken, userId })).resolves.not.toThrow();
     });
 
     test('should not throw when the user is not found', async () => {
-      await expect(deleteUser({ accessToken, userId, cloudId })).resolves.toBeUndefined();
+      await expect(deleteUser({ accessToken: validToken, userId })).resolves.toBeUndefined();
     });
 
-    test('should throw GitlabError when token is invalid', async () => {
-      await expect(deleteUser({ accessToken: 'invalidToken', userId, cloudId })).rejects.toBeInstanceOf(
+    test('should throw JiraError when token is invalid', async () => {
+      await expect(deleteUser({ accessToken: 'invalidToken', userId })).rejects.toBeInstanceOf(
         JiraError
       );
     });

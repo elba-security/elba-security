@@ -1,19 +1,19 @@
 import type { User } from '@elba-security/sdk';
-import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { NonRetriableError } from 'inngest';
+import { inngest } from '@/inngest/client';
+import { getUsers } from '@/connectors/jira/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { env } from '@/env';
-import { inngest } from '@/inngest/client';
-import type { JiraUser } from '@/connectors/jira/users';
-import { getUsers } from '@/connectors/jira/users';
+import { decrypt } from '@/common/crypto';
+import { type JiraUser } from '@/connectors/jira/users';
+import { createElbaClient } from '@/connectors/elba/client';
 
-const formatJiraUser = (user: JiraUser): User => ({
+const formatElbaUser = (user: JiraUser): User => ({
   id: user.accountId,
-  email: user.emailAddress,
   displayName: user.displayName,
+  email: user.emailAddress,
   additionalEmails: [],
 });
 
@@ -29,71 +29,71 @@ export const syncUsers = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'jira/jira.elba_app.installed',
+        event: 'jira/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'jira/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
-    retries: env.USERS_SYNC_MAX_RETRY,
+    retries: 5,
   },
   { event: 'jira/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, startAt, syncStartedAt } = event.data;
+    const { organisationId, syncStartedAt, page } = event.data;
 
     const [organisation] = await db
       .select({
-        accessToken: organisationsTable.accessToken,
+        token: organisationsTable.accessToken,
         cloudId: organisationsTable.cloudId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
-
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const elba = new Elba({
-      organisationId,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-      region: organisation.region,
-    });
+    const elba = createElbaClient({ organisationId, region: organisation.region });
+    const token = await decrypt(organisation.token);
+    const cloudId = organisation.cloudId;
 
-    const startAtNext = await step.run('paginate', async () => {
-      const result = await getUsers({
-        accessToken: organisation.accessToken,
-        cloudId: organisation.cloudId,
-        startAt: startAt ?? 0,
-      });
+    const nextPage = await step.run('list-users', async () => {
+      const result = await getUsers({ accessToken: token, cloudId, page });
+
+      const users = result.validUsers.map(formatElbaUser);
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
           organisationId,
-          cloudId: organisation.cloudId,
           invalidUsers: result.invalidUsers,
         });
       }
 
-      await elba.users.update({
-        users: result.validUsers.map(formatJiraUser),
-      });
+      if (users.length > 0) {
+        await elba.users.update({ users });
+      }
 
-      return result.startAtNext;
+      return result.nextPage;
     });
 
-    if (startAtNext !== null) {
-      await step.sendEvent('sync-next-users-page', {
+    if (nextPage) {
+      await step.sendEvent('synchronize-users', {
         name: 'jira/users.sync.requested',
         data: {
           ...event.data,
-          startAt: startAtNext,
+          page: nextPage.toString(),
         },
       });
-
-      return { status: 'ongoing' };
+      return {
+        status: 'ongoing',
+      };
     }
 
-    await elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() });
+    await step.run('finalize', () =>
+      elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
+    );
 
     return {
       status: 'completed',

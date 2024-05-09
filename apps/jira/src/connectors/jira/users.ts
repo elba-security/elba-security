@@ -1,54 +1,44 @@
 import { z } from 'zod';
-import { env } from '@/env';
-import { JiraError } from './commons/error';
+import { env } from '@/common/env';
+import { JiraError } from '../common/error';
 
-const zUserSchema = z.object({
+const jiraUserSchema = z.object({
   accountId: z.string(),
-  accountType: z.enum(['atlassian', 'app', 'customer', 'unknown']).optional(),
-  active: z.boolean().optional(),
   displayName: z.string(),
+  active: z.boolean().optional(),
   emailAddress: z.string().optional(),
-  expand: z.string().optional(),
-  groups: z
-    .object({
-      items: z.array(
-        z.object({
-          groupId: z.string().optional(),
-          name: z.string().optional(),
-          self: z.string().optional(),
-        })
-      ),
-      size: z.number().optional(),
-    })
-    .optional(),
-  locale: z.string().optional(),
-  self: z.string().optional(),
-  timeZone: z.string().optional(),
 });
 
-export type JiraUser = z.infer<typeof zUserSchema>;
+export type JiraUser = z.infer<typeof jiraUserSchema>;
+
+const jiraResponseSchema = z.array(z.unknown());
 
 export type GetUsersParams = {
   accessToken: string;
   cloudId: string;
-  startAt: number;
+  page?: string | null;
 };
 
 export type DeleteUsersParams = {
-  accessToken: string;
-  cloudId: string;
   userId: string;
+  cloudId: string;
+  accessToken: string;
 };
 
-export const getUsers = async ({ accessToken, cloudId, startAt }: GetUsersParams) => {
+export const getUsers = async ({ accessToken, cloudId, page }: GetUsersParams) => {
   const url = new URL(`${env.JIRA_API_BASE_URL}/${cloudId}/rest/api/3/users`);
-  url.searchParams.append('startAt', startAt.toString());
-  url.searchParams.append('maxResults', env.USERS_SYNC_BATCH_SIZE.toString());
+
+  url.searchParams.append('maxResults', String(env.JIRA_USERS_SYNC_BATCH_SIZE));
+
+  if (page) {
+    url.searchParams.append('startAt', String(page));
+  }
 
   const response = await fetch(url, {
+    method: 'GET',
     headers: {
-      Authorization: `Bearer ${accessToken}`,
       Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 
@@ -56,16 +46,19 @@ export const getUsers = async ({ accessToken, cloudId, startAt }: GetUsersParams
     throw new JiraError('Could not retrieve users', { response });
   }
 
-  const data = (await response.json()) as unknown[];
+  const resData: unknown = await response.json();
 
+  const users = jiraResponseSchema.parse(resData);
   const startAtNext =
-    data.length >= env.USERS_SYNC_BATCH_SIZE ? startAt + env.USERS_SYNC_BATCH_SIZE : null;
+    users.length >= env.JIRA_USERS_SYNC_BATCH_SIZE && page
+      ? parseInt(page, 10) + env.JIRA_USERS_SYNC_BATCH_SIZE
+      : null;
 
   const validUsers: JiraUser[] = [];
   const invalidUsers: unknown[] = [];
 
-  for (const user of data) {
-    const result = zUserSchema.safeParse(user);
+  for (const user of users) {
+    const result = jiraUserSchema.safeParse(user);
     if (result.success) {
       validUsers.push(result.data);
     } else {
@@ -73,11 +66,15 @@ export const getUsers = async ({ accessToken, cloudId, startAt }: GetUsersParams
     }
   }
 
-  return { validUsers, invalidUsers, startAtNext };
+  return {
+    validUsers,
+    invalidUsers,
+    nextPage: startAtNext,
+  };
 };
 
-export const deleteUser = async ({ userId, accessToken, cloudId, }: DeleteUsersParams) => {
-  const url = `${env.JIRA_API_BASE_URL}/${cloudId}/rest/api/3/user?accountId=${userId}`;
+export const deleteUser = async ({ userId, cloudId, accessToken }: DeleteUsersParams) => {
+  const url = new URL(`${env.JIRA_API_BASE_URL}/${cloudId}/rest/api/3/user?accountId=${userId}`);
 
   const response = await fetch(url, {
     method: 'DELETE',
@@ -86,8 +83,8 @@ export const deleteUser = async ({ userId, accessToken, cloudId, }: DeleteUsersP
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  
-  if (!response.ok) {
+
+  if (!response.ok && response.status !== 404) {
     throw new JiraError(`Could not delete user with Id: ${userId}`, { response });
   }
 };
