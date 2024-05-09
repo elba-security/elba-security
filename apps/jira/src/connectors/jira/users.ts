@@ -26,7 +26,7 @@ export type DeleteUsersParams = {
 };
 
 export const getUsers = async ({ accessToken, cloudId, page }: GetUsersParams) => {
-  const url = new URL(`${env.JIRA_API_BASE_URL}/${cloudId}/rest/api/3/users`);
+  const url = new URL(`${env.JIRA_API_BASE_URL}ex/jira/${cloudId}/rest/api/3/users`);
 
   url.searchParams.append('maxResults', String(env.JIRA_USERS_SYNC_BATCH_SIZE));
 
@@ -74,7 +74,9 @@ export const getUsers = async ({ accessToken, cloudId, page }: GetUsersParams) =
 };
 
 export const deleteUser = async ({ userId, cloudId, accessToken }: DeleteUsersParams) => {
-  const url = new URL(`${env.JIRA_API_BASE_URL}/${cloudId}/rest/api/3/user?accountId=${userId}`);
+  const url = new URL(
+    `${env.JIRA_API_BASE_URL}ex/jira/${cloudId}/rest/api/3/user?accountId=${userId}`
+  );
 
   const response = await fetch(url, {
     method: 'DELETE',

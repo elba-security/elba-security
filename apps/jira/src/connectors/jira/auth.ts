@@ -85,7 +85,7 @@ export const getRefreshToken = async (refreshTokenInfo: string) => {
 };
 
 export async function getCloudId(accessToken: string) {
-  const response = await fetch('https://api.atlassian.com/oauth/token/accessible-resources', {
+  const response = await fetch(`${env.JIRA_API_BASE_URL}oauth/token/accessible-resources`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

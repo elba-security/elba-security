@@ -74,7 +74,7 @@ describe('synchronize-users', () => {
         organisationId: organisation.id,
         isFirstSync: false,
         syncStartedAt,
-        page: nextPage,
+        page: String(nextPage),
       },
     });
 
@@ -83,13 +83,13 @@ describe('synchronize-users', () => {
       users: [
         {
           additionalEmails: [],
-          displayName: 'display_name-0',
+          displayName: 'displayName-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
         },
         {
           additionalEmails: [],
-          displayName: 'display_name-1',
+          displayName: 'displayName-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
         },
@@ -121,13 +121,13 @@ describe('synchronize-users', () => {
       users: [
         {
           additionalEmails: [],
-          displayName: 'display_name-0',
+          displayName: 'displayName-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
         },
         {
           additionalEmails: [],
-          displayName: 'display_name-1',
+          displayName: 'displayName-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
         },

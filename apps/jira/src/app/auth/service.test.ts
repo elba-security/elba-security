@@ -11,6 +11,7 @@ import { setupOrganisation } from './service';
 const code = 'some-code';
 const accessToken = 'some token';
 const refreshToken = 'some refresh token';
+const cloudId = 'some cloud id';
 const expiresIn = 60;
 const region = 'us';
 const now = new Date();
@@ -19,12 +20,13 @@ const getTokenData = {
   refreshToken,
   expiresIn,
 };
-
+const getCloudIdData = { cloudId };
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   accessToken,
   refreshToken,
   region,
+  cloudId: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
 };
 
 describe('setupOrganisation', () => {
@@ -42,6 +44,7 @@ describe('setupOrganisation', () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mock the getToken function to return a predefined token
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getCloudId = vi.spyOn(authConnector, 'getCloudId').mockResolvedValue(getCloudIdData);
 
     // assert the function resolves without returning a value
     await expect(
@@ -56,6 +59,8 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
+    expect(getCloudId).toBeCalledTimes(1);
+    expect(getCloudId).toBeCalledWith(accessToken);
     // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()

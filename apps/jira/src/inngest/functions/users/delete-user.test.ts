@@ -9,6 +9,7 @@ import { deleteUser } from './delete-user';
 const userId = 'user-id';
 const accessToken = 'test-access-token';
 const refreshToken = 'test-refresh-token';
+const cloudId = '00000000-0000-0000-0000-000000000001';
 
 // Mock data for organisation and user
 const organisation = {
@@ -16,6 +17,7 @@ const organisation = {
   accessToken: await encrypt(accessToken),
   refreshToken: await encrypt(refreshToken),
   region: 'us',
+  cloudId,
 };
 
 // Setup function mock for Inngest
@@ -38,6 +40,7 @@ describe('deleteUser', () => {
     expect(usersConnector.deleteUser).toBeCalledWith({
       userId,
       accessToken,
+      cloudId,
     });
   });
 });

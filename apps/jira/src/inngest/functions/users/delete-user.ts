@@ -33,6 +33,7 @@ export const deleteUser = inngest.createFunction(
     const [organisation] = await db
       .select({
         accessToken: organisationsTable.accessToken,
+        cloudId: organisationsTable.cloudId,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -46,6 +47,7 @@ export const deleteUser = inngest.createFunction(
     await deleteSourceUser({
       userId,
       accessToken,
+      cloudId: organisation.cloudId,
     });
   }
 );

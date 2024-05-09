@@ -12,6 +12,7 @@ const organisation = {
   accessToken: 'access-token',
   refreshToken: 'refresh-token',
   region: 'us',
+  cloudId: '00000000-0000-0000-0000-000000000001',
 };
 
 const setup = createInngestFunctionMock(removeOrganisation, 'jira/app.uninstalled');
