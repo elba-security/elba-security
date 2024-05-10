@@ -1,11 +1,11 @@
 import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/segment/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
-import { synchronizeUsers } from './sync-users';
+import { syncUsers } from './sync-users';
 
 const nextPage = '1';
 const organisation = {
@@ -22,7 +22,7 @@ const users: usersConnector.SegmentUser[] = Array.from({ length: 2 }, (_, i) => 
 
 const syncStartedAt = Date.now();
 
-const setup = createInngestFunctionMock(synchronizeUsers, 'segment/users.sync.requested');
+const setup = createInngestFunctionMock(syncUsers, 'segment/users.sync.requested');
 
 describe('sync-users', () => {
   beforeEach(() => {

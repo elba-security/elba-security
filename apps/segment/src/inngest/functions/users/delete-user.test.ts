@@ -1,10 +1,10 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/segment/users';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import * as crypto from '@/common/crypto';
-import { deleteSourceUser } from './delete-users';
+import { deleteUser } from './delete-user';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const userId = 'user-id-1';
@@ -16,9 +16,9 @@ const organisation = {
   region: 'us',
 };
 
-const setup = createInngestFunctionMock(deleteSourceUser, 'segment/users.delete.requested');
+const setup = createInngestFunctionMock(deleteUser, 'segment/users.delete.requested');
 
-describe('deleteSourceUser', () => {
+describe('deleteUser', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -28,9 +28,7 @@ describe('deleteSourceUser', () => {
   });
 
   test('should delete user', async () => {
-    vi.spyOn(crypto, 'decrypt')
-      .mockResolvedValueOnce('test-api-key')
-      .mockResolvedValueOnce('test-api-secret');
+    vi.spyOn(crypto, 'decrypt').mockResolvedValueOnce('test-api-key');
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
     await db.insert(organisationsTable).values(organisation);
 

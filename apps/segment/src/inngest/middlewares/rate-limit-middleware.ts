@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { SegmentError } from '@/connectors/commons/error';
+import { SegmentError } from '@/connectors/common/error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
@@ -13,10 +13,12 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            // Check if the error is a rate limit error (HTTP Status 429)
-            if (error instanceof SegmentError && error.response?.status === 429) {
-              // This is a simplified approach; adjust logic based on actual rate limit policy details
-              const retryAfter = error.response.headers['Retry-After'] as string; // Retry after the interval if no remaining calls
+            if (!(error instanceof SegmentError) || !error.response) {
+              return;
+            }
+
+            if (error instanceof SegmentError && error.response.status === 429) {
+              const retryAfter = error.response.headers.get('retry-after') || 60;
 
               return {
                 ...context,
@@ -24,7 +26,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                   ...result,
                   error: new RetryAfterError(
                     `Rate limit exceeded for '${fn.name}'. Retry after ${retryAfter} seconds.`,
-                    retryAfter,
+                    `${retryAfter}s`,
                     {
                       cause: error,
                     }

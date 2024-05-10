@@ -4,8 +4,8 @@ import { getRedirectUrl } from '@elba-security/sdk';
 import { isRedirectError } from 'next/dist/client/components/redirect';
 import { RedirectType, redirect } from 'next/navigation';
 import { z } from 'zod';
-import { env } from '@/env';
-import { SegmentError } from '@/connectors/commons/error';
+import { env } from '@/common/env';
+import { SegmentError } from '@/connectors/common/error';
 import { registerOrganisation } from './service';
 
 const formSchema = z.object({

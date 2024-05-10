@@ -1,7 +1,7 @@
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/segment/users';
 import { encrypt } from '@/common/crypto';
 
 type SetupOrganisationParams = {
@@ -41,12 +41,10 @@ export const registerOrganisation = async ({
         page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
       name: 'segment/app.installed',
       data: {
         organisationId,
-        region,
       },
     },
   ]);

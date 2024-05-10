@@ -3,13 +3,13 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUser } from '@/connectors/users';
-import { env } from '@/env';
+import { deleteUser as deleteSegmentUser } from '@/connectors/segment/users';
+import { env } from '@/common/env';
 import { decrypt } from '@/common/crypto';
 
-export const deleteSourceUser = inngest.createFunction(
+export const deleteUser = inngest.createFunction(
   {
-    id: 'segment-delete-users',
+    id: 'segment-delete-user',
     concurrency: {
       key: 'event.data.organisationId',
       limit: env.SEGMENT_USERS_DELETE_CONCURRENCY,
@@ -35,7 +35,7 @@ export const deleteSourceUser = inngest.createFunction(
 
     const decryptedToken = await decrypt(organisation.token);
 
-    await deleteUser({
+    await deleteSegmentUser({
       userId,
       token: decryptedToken,
     });

@@ -17,13 +17,11 @@ export const inngest = new Inngest({
     'segment/app.installed': {
       data: {
         organisationId: string;
-        region: string;
       };
     };
     'segment/app.uninstalled': {
       data: {
         organisationId: string;
-        region: string;
       };
     };
     'segment/users.delete.requested': {

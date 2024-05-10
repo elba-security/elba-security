@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { env } from '@/env';
-import { SegmentError } from './commons/error';
+import { env } from '@/common/env';
+import { SegmentError } from '../common/error';
 
 const segmentUserSchema = z.object({
   id: z.string(),
@@ -32,7 +32,7 @@ export type DeleteUsersParams = {
 const count = env.SEGMENT_USERS_SYNC_BATCH_SIZE;
 
 export const getUsers = async ({ token, cursor }: GetUsersParams) => {
-  const endpoint = new URL(`${env.SEGMENT_API_BASE_URL}users`);
+  const endpoint = new URL(`${env.SEGMENT_API_BASE_URL}/users`);
   endpoint.searchParams.append('pagination.count', String(count));
 
   if (cursor) {
@@ -77,18 +77,12 @@ export const getUsers = async ({ token, cursor }: GetUsersParams) => {
 };
 
 export const deleteUser = async ({ userId, token }: DeleteUsersParams) => {
-  const url = new URL(`${env.SEGMENT_API_BASE_URL}users`);
-  // Create the request payload
-  const payload = {
-    userIds: [userId]
-  };
-  
+  const url = new URL(`${env.SEGMENT_API_BASE_URL}/users?userIds.0=${userId}`);
   const response = await fetch(url, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
-      body: JSON.stringify(payload) 
     },
   });
 

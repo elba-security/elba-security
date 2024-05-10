@@ -3,11 +3,11 @@ import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/segment/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
-import { type SegmentUser } from '@/connectors/users';
+import { type SegmentUser } from '@/connectors/segment/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUser = (user: SegmentUser): User => ({
@@ -17,11 +17,11 @@ const formatElbaUser = (user: SegmentUser): User => ({
   additionalEmails: [],
 });
 
-export const synchronizeUsers = inngest.createFunction(
+export const syncUsers = inngest.createFunction(
   {
-    id: 'segment-synchronize-users',
+    id: 'segment-sync-users',
     priority: {
-      run: 'event.data.isFirstSync ? 600 : -600',
+      run: 'event.data.isFirstSync ? 600 : 0',
     },
     concurrency: {
       key: 'event.data.organisationId',
@@ -90,7 +90,6 @@ export const synchronizeUsers = inngest.createFunction(
       };
     }
 
-    // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

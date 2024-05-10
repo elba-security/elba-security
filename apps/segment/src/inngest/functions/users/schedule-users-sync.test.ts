@@ -2,11 +2,11 @@ import { expect, test, describe, beforeAll, vi, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { scheduleUsersSynchronize } from './schedule-users-sync';
+import { scheduleUsersSync } from './schedule-users-sync';
 
 const now = Date.now();
 
-const setup = createInngestFunctionMock(scheduleUsersSynchronize);
+const setup = createInngestFunctionMock(scheduleUsersSync);
 
 export const organisations = Array.from({ length: 2 }, (_, i) => ({
   id: `00000000-0000-0000-0000-00000000000${i}`,

@@ -1,10 +1,10 @@
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '../../client';
 
-export const scheduleUsersSynchronize = inngest.createFunction(
-  { id: 'segment-schedule-users-syncs' },
+export const scheduleUsersSync = inngest.createFunction(
+  { id: 'segment-schedule-users-sync' },
   { cron: env.SEGMENT_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db

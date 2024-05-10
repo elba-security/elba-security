@@ -3,9 +3,9 @@
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/env';
+import { env } from '@/common/env';
+import { SegmentError } from '../common/error';
 import { type SegmentUser, getUsers, deleteUser } from './users';
-import { SegmentError } from './commons/error';
 
 const nextCursor = 'next-cursor';
 const token = 'test-api-key';
@@ -22,7 +22,7 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       server.use(
-        http.get(`${env.SEGMENT_API_BASE_URL}users`, ({ request }) => {
+        http.get(`${env.SEGMENT_API_BASE_URL}/users`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${token}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -79,7 +79,7 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.delete<{ userId: string; token: string }>(
-          `${env.SEGMENT_API_BASE_URL}users`,
+          `${env.SEGMENT_API_BASE_URL}/users`,
           ({ request, params }) => {
             if (request.headers.get('Authorization') !== `Bearer ${token}`) {
               return new Response(undefined, { status: 401 });
