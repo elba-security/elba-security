@@ -53,10 +53,9 @@ describe('unauthorized middleware', () => {
 
   test('should transform the output error to NonRetriableError and remove the organisation when the error is about Linear authorization', async () => {
     const unauthorizedError = new LinearError('foo bar', {
-      // @ts-expect-error this is a mock
-      response: {
-        status: 401,
-      },
+      response: new Response(
+        '{"errors":[{"message":"Authentication required, not authenticated","extensions":{"code":"AUTHENTICATION_ERROR","type":"authentication error","userError":true,"userPresentableMessage":"You need to authenticate to access this operation.","meta":{}}}]}'
+      ),
     });
 
     const context = {

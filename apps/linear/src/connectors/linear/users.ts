@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { LinearError } from './common/error';
+import { LinearError } from '../common/error';
 
 const linearUserSchema = z.object({
   id: z.string(),

@@ -1,6 +1,6 @@
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { getToken } from '@/connectors/auth';
+import { getToken } from '@/connectors/linear/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
@@ -17,19 +17,19 @@ export const setupOrganisation = async ({
 }: SetupOrganisationParams) => {
   const { accessToken } = await getToken(code);
 
-  const encodedAccessToken = await encrypt(accessToken);
+  const encryptedAccessToken = await encrypt(accessToken);
 
   await db
     .insert(organisationsTable)
     .values({
       id: organisationId,
-      accessToken: encodedAccessToken,
+      accessToken: encryptedAccessToken,
       region,
     })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
-        accessToken: encodedAccessToken,
+        accessToken: encryptedAccessToken,
         region,
       },
     });

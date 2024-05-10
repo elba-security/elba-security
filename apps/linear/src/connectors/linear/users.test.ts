@@ -4,9 +4,9 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
+import { LinearError } from '../common/error';
 import type { LinearUser } from './users';
 import { getUsers, deleteUser } from './users';
-import { LinearError } from './common/error';
 
 const validToken = 'token-1234';
 const endCursor = '2';

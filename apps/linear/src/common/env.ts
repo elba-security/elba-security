@@ -19,7 +19,7 @@ export const env = z
     LINEAR_CLIENT_SECRET: z.string().min(1),
     LINEAR_REDIRECT_URI: z.string().url(),
     LINEAR_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
-    LINEAR_USERS_SYNC_CRON: z.string().default('0 0 * * 0,3'),
+    LINEAR_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     LINEAR_USERS_SYNC_BATCH_SIZE: zEnvInt().default(400),
   })
   .parse(process.env);

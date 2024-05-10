@@ -3,11 +3,11 @@ import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/linear/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
-import { type LinearUser } from '@/connectors/users';
+import { type LinearUser } from '@/connectors/linear/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUser = (user: LinearUser): User => ({
