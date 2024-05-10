@@ -36,7 +36,7 @@ export const getUsers = async ({ token, cursor }: GetUsersParams) => {
   endpoint.searchParams.append('pagination.count', String(count));
 
   if (cursor) {
-    endpoint.searchParams.append('pagination.cursor', String(cursor));
+    endpoint.searchParams.append('pagination.cursor', cursor);
   }
 
   const response = await fetch(endpoint.toString(), {
