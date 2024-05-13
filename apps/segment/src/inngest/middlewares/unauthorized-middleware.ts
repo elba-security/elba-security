@@ -26,7 +26,7 @@ export const unauthorizedMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (error instanceof SegmentError && error.response?.status === 401) {
+            if (error instanceof SegmentError && error.response?.status === 403) {
               if (hasRequiredDataProperties(data)) {
                 await client.send({
                   name: 'segment/app.uninstalled',
