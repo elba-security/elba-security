@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- needed for efficient type extraction */
 import type { Mock } from 'vitest';
 import { vi } from 'vitest';
-import { type InngestFunction, type EventsFromOpts, StepError } from 'inngest';
+import {
+  type InngestFunction,
+  type EventsFromOpts,
+  StepError,
+  NonRetriableError,
+  RetryAfterError,
+} from 'inngest';
 
 type AnyInngestFunction = InngestFunction.Any;
 
@@ -60,7 +66,11 @@ export const createInngestFunctionMock =
           const result = await stepHandler();
           return result;
         } catch (error) {
-          throw new StepError(name, error);
+          if (!(error instanceof NonRetriableError || error instanceof RetryAfterError)) {
+            throw new StepError(name, error);
+          }
+
+          throw error;
         }
       }),
       sendEvent: vi.fn().mockResolvedValue(undefined),
