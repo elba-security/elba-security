@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- needed for efficient type extraction */
 import type { Mock } from 'vitest';
 import { vi } from 'vitest';
-import type { InngestFunction, EventsFromOpts } from 'inngest';
+import { type InngestFunction, type EventsFromOpts, StepError } from 'inngest';
 
 type AnyInngestFunction = InngestFunction.Any;
 
@@ -55,9 +55,14 @@ export const createInngestFunctionMock =
   // @ts-expect-error -- this is a mock
   (data?: ExtractEvents<F>[EventName & string]['data']) => {
     const step = {
-      run: vi
-        .fn()
-        .mockImplementation((name: string, stepHandler: () => Promise<unknown>) => stepHandler()),
+      run: vi.fn().mockImplementation(async (name: string, stepHandler: () => Promise<unknown>) => {
+        try {
+          const result = await stepHandler();
+          return result;
+        } catch (error) {
+          throw new StepError(name, error);
+        }
+      }),
       sendEvent: vi.fn().mockResolvedValue(undefined),
       waitForEvent: vi.fn().mockResolvedValue(undefined),
       sleepUntil: vi.fn().mockResolvedValue(undefined),

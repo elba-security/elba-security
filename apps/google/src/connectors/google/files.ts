@@ -18,18 +18,28 @@ export const getGoogleFile = async ({
   supportsAllDrives = true,
   ...getFileParams
 }: drive.Params$Resource$Files$Get) => {
-  const { data: googleFile } = await new drive.Drive({}).files.get({
-    ...getFileParams,
-    fields,
-    supportsAllDrives,
-  });
+  try {
+    const { data: googleFile } = await new drive.Drive({}).files.get({
+      ...getFileParams,
+      fields,
+      supportsAllDrives,
+    });
 
-  const result = googleFileSchema.safeParse(googleFile);
-  if (!result.success) {
-    throw new Error('Failed to parse Google file');
+    const result = googleFileSchema.safeParse(googleFile);
+    if (!result.success) {
+      throw new Error('Failed to parse Google file');
+    }
+
+    return result.data;
+    /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access -- Start of error handling */
+  } catch (error: any) {
+    if (error?.code === 404) {
+      /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access -- End of error handling */
+      return null;
+    }
+
+    throw error;
   }
-
-  return result.data;
 };
 
 export const listGoogleFiles = async ({
