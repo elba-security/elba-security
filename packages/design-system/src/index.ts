@@ -1,3 +1,5 @@
+/// <reference types="react-dom/canary" />
+
 export * from './Alert';
 export * from './Button';
 export * from './Form';
