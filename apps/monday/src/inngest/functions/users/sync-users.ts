@@ -67,7 +67,9 @@ export const syncUsers = inngest.createFunction(
         token: decryptedToken,
         page,
       });
+
       const users = result.validUsers.map(formatElbaUser);
+
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid users', {
           organisationId,

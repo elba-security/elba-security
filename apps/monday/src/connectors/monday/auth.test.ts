@@ -3,6 +3,7 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
+import { env } from '@/common/env';
 import { MondayError } from '../common/error';
 import type { GetTokenResponseData } from './auth';
 import { getToken } from './auth';
@@ -18,7 +19,7 @@ describe('auth connector', () => {
   describe('getToken', () => {
     beforeEach(() => {
       server.use(
-        http.post('https://auth.monday.com/oauth2/token', async ({ request }) => {
+        http.post(`${env.MONDAY_AUTH_BASE_URL}/oauth2/token`, async ({ request }) => {
           const data = (await request.json()) as { code: string };
 
           if (!data.code || data.code !== validCode) {

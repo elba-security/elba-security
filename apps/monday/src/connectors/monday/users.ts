@@ -65,19 +65,3 @@ export const getUsers = async ({ token, page }: { token: string; page: number | 
     nextPage: users.length > 0 ? prevPage + 1 : null,
   };
 };
-
-export const deleteUser = async ({ userId, token }: { userId: string; token: string }) => {
-  const query = `mutation { delete_user (user_id: ${userId}) { id }}`;
-
-  const response = await fetch(`${env.MONDAY_API_BASE_URL}`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      query,
-    }),
-  });
-
-  if (!response.ok && response.status !== 404) {
-    throw new MondayError(`Could not delete user with Id: ${userId}`, { response });
-  }
-};

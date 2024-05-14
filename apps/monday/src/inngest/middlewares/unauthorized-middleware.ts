@@ -26,6 +26,9 @@ export const unauthorizedMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
+            //TODO: We can confirm that we always only receive 401 when the app is uninstalled
+            // sometimes we may receive 401 when the token is expired Or if the user provided invalid id for deletion of user
+            // Error should be handled properly based on the error message
             if (error instanceof MondayError && error.response?.status === 401) {
               if (hasRequiredDataProperties(data)) {
                 await client.send({

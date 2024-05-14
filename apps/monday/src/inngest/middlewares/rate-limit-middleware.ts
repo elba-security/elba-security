@@ -15,7 +15,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
 
             if (error instanceof MondayError && error.response?.status === 429) {
               // Still we  are not confirm whether MondayError has headers property or not, so we are using optional chaining operator
-              const retryAfter = error.response.headers.get('Retry-After') || 60;
+              const retryAfter = error.response.headers.get('retry-after') || 60;
               return {
                 ...context,
                 result: {

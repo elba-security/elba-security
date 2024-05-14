@@ -13,7 +13,7 @@ export const getToken = async (
 ): Promise<{
   access_token: string;
 }> => {
-  const response = await fetch('https://auth.monday.com/oauth2/token', {
+  const response = await fetch(`${env.MONDAY_AUTH_BASE_URL}/oauth2/token`, {
     method: 'POST',
     headers: new Headers({ 'content-type': 'application/json' }),
     body: JSON.stringify({

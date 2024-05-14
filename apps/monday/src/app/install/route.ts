@@ -17,7 +17,7 @@ export function GET(request: NextRequest) {
   cookies().set('organisation_id', organisationId);
   cookies().set('region', region);
 
-  const redirectUrl = new URL(env.MONDAY_AUTH_URL);
+  const redirectUrl = new URL(`${env.MONDAY_AUTH_BASE_URL}/oauth2/authorize`);
   redirectUrl.searchParams.append('client_id', env.MONDAY_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.MONDAY_REDIRECT_URL);
 
