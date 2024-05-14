@@ -26,16 +26,16 @@ describe('deleteUser', () => {
     vi.restoreAllMocks();
   });
 
-  test('should delete user', async () => {
-    vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
+  test('should deactivate user', async () => {
+    vi.spyOn(usersConnector, 'deactivateUser').mockResolvedValueOnce();
     await db.insert(organisationsTable).values(organisation);
 
     const [result] = setup({ userId, organisationId: organisation.id });
 
     await expect(result).resolves.toStrictEqual(undefined);
 
-    expect(usersConnector.deleteUser).toBeCalledTimes(1);
-    expect(usersConnector.deleteUser).toBeCalledWith({
+    expect(usersConnector.deactivateUser).toBeCalledTimes(1);
+    expect(usersConnector.deactivateUser).toBeCalledWith({
       userId,
       accessToken,
     });

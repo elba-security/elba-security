@@ -6,7 +6,7 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { ZoomError } from '../common/error';
 import type { ZoomUser } from './users';
-import { getUsers, deleteUser } from './users';
+import { getUsers, deactivateUser } from './users';
 
 const validToken = 'token-1234';
 const endPage = '2';
@@ -64,15 +64,20 @@ describe('users connector', () => {
     });
   });
 
-  describe('deleteUser', () => {
+  describe('deactivateUser', () => {
     beforeEach(() => {
       server.use(
-        http.delete<{ userId: string }>(
-          `${env.ZOOM_API_BASE_URL}/users/${userId}`,
-          ({ request }) => {
+        http.put<{ userId: string }>(
+          `${env.ZOOM_API_BASE_URL}/users/:userId/status`,
+          ({ request, params }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(undefined, { status: 401 });
             }
+
+            if (params.userId !== userId) {
+              return new Response(undefined, { status: 404 });
+            }
+
             return new Response(undefined, { status: 200 });
           }
         )
@@ -80,15 +85,17 @@ describe('users connector', () => {
     });
 
     test('should delete user successfully when token is valid', async () => {
-      await expect(deleteUser({ accessToken: validToken, userId })).resolves.not.toThrow();
+      await expect(deactivateUser({ accessToken: validToken, userId })).resolves.not.toThrow();
     });
 
     test('should not throw when the user is not found', async () => {
-      await expect(deleteUser({ accessToken: validToken, userId })).resolves.toBeUndefined();
+      await expect(
+        deactivateUser({ accessToken: validToken, userId: 'invalid' })
+      ).resolves.not.toThrow();
     });
 
     test('should throw ZoomError when token is invalid', async () => {
-      await expect(deleteUser({ accessToken: 'invalidToken', userId })).rejects.toBeInstanceOf(
+      await expect(deactivateUser({ accessToken: 'invalidToken', userId })).rejects.toBeInstanceOf(
         ZoomError
       );
     });

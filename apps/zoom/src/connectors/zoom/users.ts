@@ -71,18 +71,19 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   };
 };
 
-export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => {
-  const url = new URL(`${env.ZOOM_API_BASE_URL}/users/${userId}`);
+export const deactivateUser = async ({ userId, accessToken }: DeleteUsersParams) => {
+  const url = new URL(`${env.ZOOM_API_BASE_URL}/users/${userId}/status`);
 
   const response = await fetch(url, {
-    method: 'DELETE',
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
+    body: JSON.stringify({ action: 'deactivate' }),
   });
 
   if (!response.ok && response.status !== 404) {
-    throw new ZoomError(`Could not delete user with Id: ${userId}`, { response });
+    throw new ZoomError(`Could not deactivate user with Id: ${userId}`, { response });
   }
 };
