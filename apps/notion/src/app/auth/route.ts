@@ -8,11 +8,13 @@ export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  const stateParam = request.nextUrl.searchParams.get('state');
+  const stateCookie = request.cookies.get('state')?.value;
   const code = request.nextUrl.searchParams.get('code');
   const organisationId = request.cookies.get('organisation_id')?.value;
   const region = request.cookies.get('region')?.value;
 
-  if (!organisationId || !code || !region) {
+  if (!organisationId || !code || !region || !stateCookie || stateCookie !== stateParam) {
     return new ElbaInstallRedirectResponse({
       region,
       sourceId: env.ELBA_SOURCE_ID,

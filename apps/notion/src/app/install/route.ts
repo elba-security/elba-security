@@ -30,7 +30,7 @@ export function GET(request: NextRequest) {
   redirectUrl.searchParams.append('response_type', 'code');
   redirectUrl.searchParams.append('owner', 'user');
   redirectUrl.searchParams.append('redirect_uri', env.NOTION_REDIRECT_URI);
-  redirectUrl.searchParams.append('state', organisationId);
+  redirectUrl.searchParams.append('state', state);
 
   redirect(redirectUrl.toString());
 }
