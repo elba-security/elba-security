@@ -49,7 +49,6 @@ export const setupOrganisation = async ({
       name: 'notion/app.installed',
       data: {
         organisationId,
-        region,
       },
     },
   ]);

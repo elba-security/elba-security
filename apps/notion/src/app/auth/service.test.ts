@@ -17,7 +17,7 @@ const getTokenData = {
 };
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
   accessToken,
   region,
 };
@@ -32,7 +32,6 @@ describe('setupOrganisation', () => {
   });
 
   test('should setup organisation when the code is valid and the organisation is not registered', async () => {
-    // mock inngest client, only inngest.send should be used
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mock the getToken function to return a predefined token
@@ -47,11 +46,9 @@ describe('setupOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    // check if getToken was called correctly
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
-    // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)
@@ -59,6 +56,7 @@ describe('setupOrganisation', () => {
     if (!storedOrganisation) {
       throw new NotionError(`Organisation with ID ${organisation.id} not found.`);
     }
+
     expect(storedOrganisation.region).toBe(region);
     await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
 
@@ -78,23 +76,20 @@ describe('setupOrganisation', () => {
         name: 'notion/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
     ]);
   });
 
   test('should setup organisation when the code is valid and the organisation is already registered', async () => {
-    // mock inngest client, only inngest.send should be used
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // pre-insert an organisation to simulate an existing entry
+
     await db.insert(organisationsTable).values(organisation);
 
     // mock getToken as above
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
 
-    // assert the function resolves without returning a value
     await expect(
       setupOrganisation({
         organisationId: organisation.id,
@@ -103,11 +98,9 @@ describe('setupOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    // verify getToken usage
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
-    // check if the token in the database is updated
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)
@@ -133,7 +126,6 @@ describe('setupOrganisation', () => {
         name: 'notion/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
     ]);

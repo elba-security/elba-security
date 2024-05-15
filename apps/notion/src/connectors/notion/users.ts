@@ -73,19 +73,3 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
     nextPage,
   };
 };
-
-export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => {
-  const url = new URL(`${env.NOTION_API_BASE_URL}/users/${userId}`);
-
-  const response = await fetch(url, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
-  if (!response.ok && response.status !== 404) {
-    throw new NotionError(`Could not delete user with Id: ${userId}`, { response });
-  }
-};
