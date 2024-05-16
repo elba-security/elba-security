@@ -14,6 +14,6 @@
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
     "eslint": "^8",
-    "vitest": "^1.0.0"
+    "vitest": "1.4.0"
   }
 }

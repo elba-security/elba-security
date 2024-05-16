@@ -4,19 +4,16 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "database:down": "docker-compose -p slack down",
-    "database:generate": "drizzle-kit generate:pg",
-    "database:migrate": "node ./scripts/migrate.js .env.local",
-    "database:up": "docker-compose -p slack --env-file=.env.local up -d",
+    "database:down": "docker-compose -p slack down --volumes",
+    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts",
+    "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
+    "database:up": "docker-compose -p slack --profile edge --env-file=.env.local up -d",
     "dev:inngest": "inngest-cli dev",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "test:database:down": "docker-compose -p slack-test down",
-    "test:database:migrate": "node ./scripts/migrate.js .env.test",
-    "test:database:up": "docker-compose -p slack-test --env-file=.env.test up -d",
-    "test:watch": "pnpm test -- -w",
-    "test": "./scripts/run-test.sh"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
@@ -50,14 +47,14 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "dotenv": "^16.3.1",
-    "dotenv-expand": "^10.0.0",
     "drizzle-kit": "^0.20.6",
     "eslint": "^8",
     "eslint-plugin-vitest": "^0.3.10",
     "inngest-cli": "^0.25.2",
     "msw": "^2.0.1",
     "postgres": "^3.4.3",
+    "testcontainers": "^10.8.1",
     "typescript": "^5",
-    "vitest": "1.1.1"
+    "vitest": "1.4.0"
   }
 }
