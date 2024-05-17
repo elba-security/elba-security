@@ -33,7 +33,7 @@ export type DeleteUsersParams = {
   userId: string;
   accessToken: string;
 };
-const perPage = 1; // env.LINEAR_USERS_SYNC_BATCH_SIZE;
+const perPage = env.LINEAR_USERS_SYNC_BATCH_SIZE;
 
 export const getUsers = async ({ accessToken, afterCursor }: GetUsersParams) => {
   const query = {
