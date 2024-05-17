@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { AircallError } from '@/connectors/common/error'; // Assuming AircallError is the error class for Aircall API
+import { AircallError } from '@/connectors/common/error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
@@ -18,6 +18,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
             }
 
             const resetHeader = error.response?.headers.get('x-aircallapi-reset'); // it is timestamp in milliseconds
+
             let retryAfter: string | number | Date = 60;
 
             if (resetHeader) {
@@ -30,21 +31,21 @@ export const rateLimitMiddleware = new InngestMiddleware({
               if (retryAfter < 0) {
                 retryAfter = 60; // Default to 60 seconds
               }
-            }
 
-            return {
-              ...context,
-              result: {
-                ...result,
-                error: new RetryAfterError(
-                  `Aircall API rate limit reached by '${fn.name}'`,
-                  `${retryAfter}s`,
-                  {
-                    cause: error,
-                  }
-                ),
-              },
-            };
+              return {
+                ...context,
+                result: {
+                  ...result,
+                  error: new RetryAfterError(
+                    `Aircall API rate limit reached by '${fn.name}'`,
+                    `${retryAfter}s`,
+                    {
+                      cause: error,
+                    }
+                  ),
+                },
+              };
+            }
           },
         };
       },

@@ -31,7 +31,6 @@ describe('synchronize-users', () => {
       nextPage: null,
     });
 
-    // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
@@ -39,7 +38,6 @@ describe('synchronize-users', () => {
       page: null,
     });
 
-    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(usersConnector.getUsers).toBeCalledTimes(0);
@@ -52,14 +50,14 @@ describe('synchronize-users', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: 'some page',
+      nextPage: 'next-page-link',
     });
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: 'some after',
+      page: 'next-page-link',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -72,7 +70,7 @@ describe('synchronize-users', () => {
         organisationId: organisation.id,
         isFirstSync: false,
         syncStartedAt,
-        page: 'some page',
+        page: 'next-page-link',
       },
     });
   });
@@ -82,7 +80,7 @@ describe('synchronize-users', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: '',
+      nextPage: null,
     });
 
     const [result, { step }] = setup({

@@ -29,10 +29,11 @@ export type DeleteUsersParams = {
 };
 
 export const getUsers = async ({ token, nextPageLink }: GetUsersParams) => {
-  const url = new URL(`${env.AIRCALL_API_BASE_URL}/v1/users`);
+  let url = new URL(`${env.AIRCALL_API_BASE_URL}/v1/users`);
+  url.searchParams.append('per_page', String(env.AIRCALL_USERS_SYNC_BATCH_SIZE));
 
   if (nextPageLink) {
-    url.searchParams.append('page_size', String(env.AIRCALL_USERS_SYNC_BATCH_SIZE));
+    url = new URL(nextPageLink);
   }
 
   const response = await fetch(url.toString(), {
