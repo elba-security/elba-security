@@ -1,4 +1,5 @@
 import { NonRetriableError } from 'inngest';
+import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -27,15 +28,17 @@ export const deleteUser = inngest.createFunction(
   },
   { event: 'aircall/users.delete.requested' },
   async ({ event }) => {
-    const { userId } = event.data;
+    const { userId, organisationId } = event.data;
 
     const [organisation] = await db
       .select({
         token: organisationsTable.accessToken,
       })
-      .from(organisationsTable);
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
+
     if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve ${userId}`);
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
     const decryptToken = await decrypt(organisation.token);
