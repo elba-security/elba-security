@@ -107,7 +107,7 @@ describe('users connector', () => {
       ).resolves.not.toThrow();
     });
 
-    test.only('should not throw when the user is not found', async () => {
+    test('should not throw when the user is not found', async () => {
       await expect(
         deleteUser({ apiToken: validApiToken, domain, email, userId: 'invalid-user-id' })
       ).resolves.toBeUndefined();

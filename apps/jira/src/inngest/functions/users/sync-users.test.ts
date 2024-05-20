@@ -25,6 +25,7 @@ const users: usersConnector.JiraUser[] = Array.from({ length: 2 }, (_, i) => ({
   accountId: `id-${i}`,
   displayName: `displayName-${i}`,
   emailAddress: `user-${i}@foo.bar`,
+  accountType: 'atlassian',
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'jira/users.sync.requested');
