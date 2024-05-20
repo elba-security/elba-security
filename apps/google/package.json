@@ -10,6 +10,7 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "type-check": "tsc --noEmit",
     "database:up": "docker-compose -p google --profile node --env-file=.env.local up -d",
     "database:down": "docker-compose -p google down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",

@@ -4,7 +4,8 @@
   "private": true,
   "main": "src/index.ts",
   "scripts": {
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "type-check": "tsc --noEmit"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -31,6 +32,7 @@
     "@elba-security/tsconfig": "workspace:*",
     "eslint": "^8",
     "inngest": "3.14.2",
-    "testcontainers": "^10.8.1"
+    "testcontainers": "^10.8.1",
+    "typescript": "^5"
   }
 }

@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint src/**.ts",
     "test": "vitest run",
-    "test:watch": "vitest -w"
+    "test:watch": "vitest -w",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@elba-security/utils": "workspace:*"
@@ -22,6 +23,7 @@
     "next": "14.0.1",
     "react": "^18",
     "react-dom": "^18",
+    "typescript": "^5",
     "vitest": "1.4.0"
   },
   "peerDependencies": {

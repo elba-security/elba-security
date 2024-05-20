@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "lint": "eslint src",
-    "test": "vitest run"
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "typescript": "^5"
@@ -14,6 +15,7 @@
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
     "eslint": "^8",
+    "typescript": "^5",
     "vitest": "1.4.0"
   }
 }
