@@ -87,7 +87,7 @@ describe('sync-users', () => {
         },
       ],
     });
-    // check that the function deletes users that were synced before
+
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
       name: 'doppler/users.sync.requested',
@@ -104,7 +104,6 @@ describe('sync-users', () => {
     const elba = spyOnElba();
 
     await db.insert(organisationsTable).values(organisation);
-    // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -146,7 +145,6 @@ describe('sync-users', () => {
       syncedBefore: syncBeforeAtISO,
     });
 
-    // the function should not send another event that continue the pagination
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 });

@@ -11,9 +11,9 @@ export const env = z
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     ENCRYPTION_KEY: z.string().min(1),
     DATABASE_URL: z.string().min(1),
-    DATABASE_PROXY_PORT: zEnvInt(),
-    DOPPLER_API_BASE_URL: z.string().min(1),
-    DOPPLER_USERS_SYNC_CRON: z.string(),
+    DATABASE_PROXY_PORT: zEnvInt().optional(),
+    DOPPLER_API_BASE_URL: z.string().min(1).default('https://api.doppler.com'),
+    DOPPLER_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     DOPPLER_USERS_SYNC_CONCURRENCY: zEnvInt().default(1),
     VERCEL_ENV: z.string().min(1).optional(),
   })

@@ -1,7 +1,7 @@
 import { env } from '@/common/env';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { inngest } from '../../client';
+import { inngest } from '@/inngest/client';
 
 export const scheduleUsersSync = inngest.createFunction(
   { id: 'doppler-schedule-users-sync' },

@@ -35,7 +35,7 @@ describe('rate-limit middleware', () => {
       // @ts-expect-error this is a mock
       response: {
         status: 429,
-        headers: new Headers({ 'Retry-After': '10' }),
+        headers: new Headers({ 'retry-after': '10' }),
       },
     });
 

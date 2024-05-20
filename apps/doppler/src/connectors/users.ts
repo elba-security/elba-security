@@ -24,7 +24,7 @@ export type GetUsersParams = {
 };
 
 export const getUsers = async ({ apiToken, page }: GetUsersParams) => {
-  const endpoint = new URL(`${env.DOPPLER_API_BASE_URL}workplace/users`);
+  const endpoint = new URL(`${env.DOPPLER_API_BASE_URL}/v3/workplace/users`);
 
   if (page) {
     endpoint.searchParams.append('page', String(page));

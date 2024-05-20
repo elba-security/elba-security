@@ -28,33 +28,29 @@ export default function InstallPage() {
       <InstructionsSteps>
         <InstructionsStep index={1}>
           <h3>Create a service account</h3>
-          <ol>
-            <p>1. On your Doppler account, Navigate to Tokens page</p>
-            <p>
-              2. In service tab click <strong>Manage service accounts</strong>
-            </p>
-            <p>
-              3. Click on <strong>+</strong> to create a new service account.
-            </p>
-          </ol>
+          <p>1. On your Doppler account, Navigate to Tokens page</p>
+          <p>
+            2. In service tab click <strong>Manage service accounts</strong>
+          </p>
+          <p>
+            3. Click on <strong>+</strong> to create a new service account.
+          </p>
         </InstructionsStep>
         <InstructionsStep index={2}>
           <h3>Generate an API Token</h3>
-          <ol>
-            <p>
-              1. Change the <strong>Workplace Role</strong> from <strong>None</strong> to{' '}
-              <strong>Admin</strong> & Save
-            </p>
-            <p>
-              2. In the service account API token section, click on <strong>+</strong> to create a
-              new token.
-            </p>
-            <p>
-              3. We encourage to leave the <strong>Expire Token</strong> checkbox unchecked as the
-              integration will be disconnected after token expiration.
-            </p>
-            <p>4. Copy the created token to the form bellow</p>
-          </ol>
+          <p>
+            1. Change the <strong>Workplace Role</strong> from <strong>None</strong> to{' '}
+            <strong>Admin</strong> & Save
+          </p>
+          <p>
+            2. In the service account API token section, click on <strong>+</strong> to create a new
+            token.
+          </p>
+          <p>
+            3. We encourage to leave the <strong>Expire Token</strong> checkbox unchecked as the
+            integration will be disconnected after token expiration.
+          </p>
+          <p>4. Copy the created token to the form bellow</p>
         </InstructionsStep>
         <InstructionsStep index={3}>
           <h3>Connect Doppler</h3>

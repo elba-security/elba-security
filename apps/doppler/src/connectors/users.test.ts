@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
 /* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
+
 import type { ResponseResolver } from 'msw';
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
@@ -40,7 +41,7 @@ describe('users connector', () => {
 
         return Response.json(returnData);
       };
-      server.use(http.get(`${env.DOPPLER_API_BASE_URL}workplace/users`, resolver));
+      server.use(http.get(`${env.DOPPLER_API_BASE_URL}/v3/workplace/users`, resolver));
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
