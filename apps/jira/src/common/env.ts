@@ -10,7 +10,7 @@ export const env = z
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     DATABASE_URL: z.string().min(1),
-    DATABASE_PROXY_PORT: zEnvInt(),
+    DATABASE_PROXY_PORT: zEnvInt().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
     ENCRYPTION_KEY: z.string().length(64),
     JIRA_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
