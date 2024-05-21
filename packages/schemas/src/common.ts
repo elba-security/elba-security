@@ -2,7 +2,7 @@ import type { infer as zInfer } from 'zod';
 import { z } from 'zod';
 
 export const jsonSchema = z
-  .any()
+  .unknown()
   .optional()
   .refine(
     (value) => {
@@ -13,7 +13,7 @@ export const jsonSchema = z
         return false;
       }
     },
-    (value) => ({ message: `${value} cannot be converted to JSON` })
+    (value) => ({ message: `${String(value)} cannot be converted to JSON` })
   );
 
 export const baseRequestSchema = z.object({

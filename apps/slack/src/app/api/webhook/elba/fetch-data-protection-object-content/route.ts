@@ -13,16 +13,12 @@ export const POST = async (request: NextRequest) => {
   const data: unknown = await request.json();
 
   logger.info('Parsing body', { scope: LOG_SCOPE });
-  // eslint-disable-next-line -- metadata type is any
   const { organisationId, metadata } = parseWebhookEventData(
     'data_protection.content_requested',
     data
   );
 
-  const content = await fetchDataProtectionObjectContent({
-    organisationId,
-    metadata, // eslint-disable-line -- metadata type is any,
-  });
+  const content = await fetchDataProtectionObjectContent({ organisationId, metadata });
 
   logger.info('Returning message content', { scope: LOG_SCOPE });
   return new NextResponse(content);

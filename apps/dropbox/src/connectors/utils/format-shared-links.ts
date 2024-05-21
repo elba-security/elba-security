@@ -10,7 +10,7 @@ export const filterSharedLinks = (sharedLinks: sharing.ListSharedLinksResult['li
       link_permissions.resolved_visibility?.['.tag'] ??
       null;
 
-    if (!id || !effectiveAudience || !link?.path_lower) {
+    if (!id || !effectiveAudience) {
       return acc;
     }
 

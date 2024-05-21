@@ -14,7 +14,7 @@ export const fetchDataProtectionObjectContent = async ({
   metadata,
 }: {
   organisationId: string;
-  metadata: any; // eslint-disable-line -- metadata type is any
+  metadata: unknown;
 }) => {
   logger.info('Validating metadata', { scope: LOG_SCOPE });
   const messageMetadataResult = messageMetadataSchema.safeParse(metadata);
