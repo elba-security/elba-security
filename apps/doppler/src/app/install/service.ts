@@ -2,7 +2,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
-import { getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/doppler/users';
 
 type SetupOrganisationParams = {
   organisationId: string;

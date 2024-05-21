@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { DopplerError } from './commons/error';
+import { DopplerError } from '../commons/error';
 
 const dopplerUserSchema = z.object({
   id: z.string(),

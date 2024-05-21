@@ -3,9 +3,9 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import * as userConnector from '@/connectors/users';
+import * as userConnector from '@/connectors/doppler/users';
 import { decrypt } from '@/common/crypto';
-import type { DopplerUser } from '@/connectors/users';
+import type { DopplerUser } from '@/connectors/doppler/users';
 import { DopplerError } from '@/connectors/commons/error';
 import { registerOrganisation } from './service';
 
