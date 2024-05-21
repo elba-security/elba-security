@@ -95,12 +95,14 @@ describe('synchronize-users', () => {
           displayName: 'displayName-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          authMethod: 'password',
         },
         {
           additionalEmails: [],
           displayName: 'displayName-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          authMethod: 'password',
         },
       ],
     });
@@ -133,12 +135,14 @@ describe('synchronize-users', () => {
           displayName: 'displayName-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          authMethod: 'password',
         },
         {
           additionalEmails: [],
           displayName: 'displayName-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          authMethod: 'password',
         },
       ],
     });

@@ -86,8 +86,8 @@ export const getUsers = async ({ apiKey, appKey, sourceRegion, afterCursor }: Ge
 export const deleteUser = async ({ apiKey, appKey, sourceRegion, userId }: DeleteUsersParams) => {
   const url = new URL(
     sourceRegion === 'US'
-      ? `${env.DATADOG_US_API_BASE_URL}/api/v2/users`
-      : `${env.DATADOG_EU_API_BASE_URL}/api/v2/users`
+      ? `${env.DATADOG_US_API_BASE_URL}/api/v2/users/${userId}`
+      : `${env.DATADOG_EU_API_BASE_URL}/api/v2/users/${userId}`
   );
 
   const response = await fetch(url.toString(), {

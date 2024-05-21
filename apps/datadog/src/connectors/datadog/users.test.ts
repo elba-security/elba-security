@@ -13,7 +13,7 @@ const validAppKey = 'appKey-1234';
 const endPageCursor = '2';
 const nextPage = '1';
 const after = 'test-after-cursor';
-const userId = 'test-id';
+const testId = 'test-id';
 const appKey = 'test-appKey';
 const sourceRegion = 'EU';
 
@@ -35,14 +35,15 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.get(`${env.DATADOG_EU_API_BASE_URL}/api/v2/users`, ({ request }) => {
-          if (request.headers.get('DD-API-KEY') !== `Bearer ${validApiKey}`) {
+          if (request.headers.get('DD-API-KEY') !== validApiKey) {
             return new Response(undefined, { status: 401 });
           }
-          if (request.headers.get('DD-APPLICATION-KEY') !== `Bearer ${validAppKey}`) {
+          if (request.headers.get('DD-APPLICATION-KEY') !== validAppKey) {
             return new Response(undefined, { status: 401 });
           }
           const url = new URL(request.url);
           const afterCursor = url.searchParams.get('page[cursor]');
+
           const responseData = {
             data: validUsers,
             meta:
@@ -63,17 +64,22 @@ describe('users connector', () => {
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
       await expect(
-        getUsers({ apiKey: validApiKey, appKey, sourceRegion, afterCursor: nextPage })
+        getUsers({ apiKey: validApiKey, appKey: validAppKey, sourceRegion, afterCursor: nextPage })
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage: parseInt(nextPage, 10) + env.DATADOG_USERS_SYNC_BATCH_SIZE,
+        nextPage: after,
       });
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
       await expect(
-        getUsers({ apiKey: validApiKey, appKey, sourceRegion, afterCursor: endPageCursor })
+        getUsers({
+          apiKey: validApiKey,
+          appKey: validAppKey,
+          sourceRegion,
+          afterCursor: endPageCursor,
+        })
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
@@ -81,29 +87,35 @@ describe('users connector', () => {
       });
     });
 
-    test('should throws when the token is invalid', async () => {
-      await expect(getUsers({ apiKey: 'foo-bar', appKey, sourceRegion })).rejects.toBeInstanceOf(
-        DatadogError
-      );
+    test('should throws when the Api Key is invalid', async () => {
+      await expect(
+        getUsers({ apiKey: 'foo-bar', appKey: validAppKey, sourceRegion })
+      ).rejects.toBeInstanceOf(DatadogError);
+    });
+
+    test('should throws when the App Key is invalid', async () => {
+      await expect(
+        getUsers({ apiKey: validApiKey, appKey: 'foo-bar', sourceRegion })
+      ).rejects.toBeInstanceOf(DatadogError);
     });
   });
 
   describe('deleteUser', () => {
     beforeEach(() => {
       server.use(
-        http.delete<{ accountId: string }>(
-          `https://${appKey}.atlassian.net/rest/api/3/user`,
+        http.delete<{ testId: string }>(
+          `${env.DATADOG_EU_API_BASE_URL}/api/v2/users/:userId`,
           ({ request }) => {
-            if (request.headers.get('DD-API-KEY') !== `Bearer ${validApiKey}`) {
-              return new Response(undefined, { status: 401 });
-            }
-            if (request.headers.get('DD-APPLICATION-KEY') !== `Bearer ${validAppKey}`) {
-              return new Response(undefined, { status: 401 });
-            }
-            const url = new URL(request.url);
-            const accountId = url.searchParams.get('accountId');
+            const url = new URL(request.url.toString());
+            const userId = url.pathname.split('/').pop();
 
-            if (accountId !== userId) {
+            if (request.headers.get('DD-API-KEY') !== validApiKey) {
+              return new Response(undefined, { status: 401 });
+            }
+            if (request.headers.get('DD-APPLICATION-KEY') !== validAppKey) {
+              return new Response(undefined, { status: 401 });
+            }
+            if (userId !== testId) {
               return new Response(undefined, { status: 404 });
             }
 
@@ -115,19 +127,24 @@ describe('users connector', () => {
 
     test('should delete user successfully when token is valid', async () => {
       await expect(
-        deleteUser({ apiKey: validApiKey, appKey, sourceRegion, userId })
+        deleteUser({ apiKey: validApiKey, appKey: validAppKey, sourceRegion, userId: testId })
       ).resolves.not.toThrow();
     });
 
-    test.only('should not throw when the user is not found', async () => {
+    test('should not throw when the user is not found', async () => {
       await expect(
-        deleteUser({ apiKey: validApiKey, appKey, sourceRegion, userId: 'invalid-user-id' })
+        deleteUser({
+          apiKey: validApiKey,
+          appKey: validAppKey,
+          sourceRegion,
+          userId: 'invalid-user-id',
+        })
       ).resolves.toBeUndefined();
     });
 
     test('should throw DatadogError when token is invalid', async () => {
       await expect(
-        deleteUser({ apiKey: 'invalidApiKey', appKey, sourceRegion, userId })
+        deleteUser({ apiKey: 'invalidApiKey', appKey, sourceRegion, userId: testId })
       ).rejects.toBeInstanceOf(DatadogError);
     });
   });
