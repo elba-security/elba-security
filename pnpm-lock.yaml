@@ -905,6 +905,9 @@ importers:
       tsx:
         specifier: ^3.12.2
         version: 3.14.0
+      typescript:
+        specifier: ^5
+        version: 5.2.2
 
   packages/config:
     devDependencies:
@@ -954,6 +957,9 @@ importers:
       tailwindcss:
         specifier: ^3.4.3
         version: 3.4.3
+      typescript:
+        specifier: ^5
+        version: 5.2.2
 
   packages/eslint-config-custom:
     devDependencies:
@@ -988,6 +994,9 @@ importers:
       inngest:
         specifier: 3.14.2
         version: 3.14.2(typescript@5.2.2)
+      typescript:
+        specifier: ^5
+        version: 5.2.2
 
   packages/logger:
     devDependencies:
@@ -1003,6 +1012,9 @@ importers:
       eslint:
         specifier: ^8
         version: 8.53.0
+      typescript:
+        specifier: ^5
+        version: 5.2.2
 
   packages/nextjs:
     dependencies:
@@ -1037,6 +1049,9 @@ importers:
       react-dom:
         specifier: ^18
         version: 18.2.0(react@18.2.0)
+      typescript:
+        specifier: ^5
+        version: 5.2.2
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)

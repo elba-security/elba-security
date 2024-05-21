@@ -4,13 +4,15 @@
   "private": true,
   "main": "src/index.ts",
   "scripts": {
-    "lint": "eslint src/**.ts"
+    "lint": "eslint src/**.ts",
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
     "@sentry/nextjs": "^7.88.0",
-    "eslint": "^8"
+    "eslint": "^8",
+    "typescript": "^5"
   },
   "peerDependencies": {
     "@sentry/nextjs": "^7.88.0"

@@ -10,6 +10,7 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "type-check": "tsc --noEmit",
     "database:up": "docker-compose -p teams --profile edge --env-file=.env.local up -d",
     "database:down": "docker-compose -p teams --env-file=.env.local down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",

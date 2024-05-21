@@ -20,21 +20,24 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Lint apps and packages
         run: pnpm lint
+
+      - name: Type-check apps and packages
+        run: pnpm type-check
 
       - name: Run unit tests for apps and packages
         run: pnpm test
