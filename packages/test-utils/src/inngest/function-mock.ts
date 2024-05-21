@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- needed for efficient type extraction */
-import { vi, type VitestUtils } from 'vitest';
-import type { InngestFunction, EventsFromOpts } from 'inngest';
-// import type { AnyInngestFunction } from 'inngest/components/InngestFunction';
+import type { Mock } from 'vitest';
+import { vi } from 'vitest';
+import {
+  type InngestFunction,
+  type EventsFromOpts,
+  StepError,
+  NonRetriableError,
+  RetryAfterError,
+} from 'inngest';
 
 type AnyInngestFunction = InngestFunction.Any;
 
@@ -27,10 +33,11 @@ type MockSetupReturns<
       data: EventName extends undefined ? never : ExtractEvents<F>[EventName & string]['data'];
     };
     step: {
-      run: VitestUtils['fn'];
-      sendEvent: VitestUtils['fn'];
-      waitForEvent: VitestUtils['fn'];
-      sleepUntil: VitestUtils['fn'];
+      run: Mock<unknown[], unknown>;
+      sendEvent: Mock<unknown[], unknown>;
+      waitForEvent: Mock<unknown[], unknown>;
+      sleepUntil: Mock<unknown[], unknown>;
+      invoke: Mock<unknown[], unknown>;
     };
   },
 ];
@@ -54,12 +61,30 @@ export const createInngestFunctionMock =
   // @ts-expect-error -- this is a mock
   (data?: ExtractEvents<F>[EventName & string]['data']) => {
     const step = {
-      run: vi
-        .fn()
-        .mockImplementation((name: string, stepHandler: () => Promise<unknown>) => stepHandler()),
+      run: vi.fn().mockImplementation(async (name: string, stepHandler: () => Promise<unknown>) => {
+        try {
+          const result = await stepHandler();
+          return result;
+        } catch (error) {
+          if (!(error instanceof NonRetriableError || error instanceof RetryAfterError)) {
+            throw new StepError(name, error);
+          }
+
+          throw error;
+        }
+      }),
       sendEvent: vi.fn().mockResolvedValue(undefined),
       waitForEvent: vi.fn().mockResolvedValue(undefined),
       sleepUntil: vi.fn().mockResolvedValue(undefined),
+      invoke: vi
+        .fn()
+        .mockImplementation(
+          (name: string, fn: { function: AnyInngestFunction; data: Record<string, unknown> }) => {
+            const setup = createInngestFunctionMock(fn.function, fn.function.trigger);
+            const [result] = setup(fn.data);
+            return result;
+          }
+        ),
     };
     const ts = Date.now();
     const context = {
