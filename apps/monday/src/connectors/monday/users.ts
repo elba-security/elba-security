@@ -31,16 +31,13 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   const query = `
   query {
     users (
-      limit: ${env.MONDAY_USERS_SYNC_BATCH_SIZE}, 
+      limit: ${env.MONDAY_USERS_SYNC_BATCH_SIZE},
       ${page ? `page: ${page},` : ''}
-      kind: non_pending 
-    ) { 
-      id, 
-      email, 
-      name, 
-      is_admin, 
-      is_guest, 
-      is_pending
+      kind: non_pending
+    ) {
+      id,
+      email,
+      name
     }
   }
 `;

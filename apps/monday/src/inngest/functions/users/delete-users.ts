@@ -43,13 +43,14 @@ export const deleteUsers = inngest.createFunction(
     }
 
     const accessToken = await decrypt(organisation.accessToken);
+
     const workspaceIds = await step.run('get-workspace-ids', async () => {
       return getWorkspaceIds(accessToken);
     });
 
     await Promise.all(
       workspaceIds.map(async (workspaceId) => {
-        await step.run('delete-user-from-workspace', async () => {
+        await step.run('delete-users-from-workspace', async () => {
           return deleteMondayUser({
             userIds,
             workspaceId,

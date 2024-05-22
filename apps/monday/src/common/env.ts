@@ -13,7 +13,7 @@ export const env = z
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
-    MONDAY_APP_INSTALL_URL: z.string().url().default('https://monday.us/oauth/authorize'),
+    MONDAY_APP_INSTALL_URL: z.string().url().default('https://auth.monday.com/oauth2'),
     MONDAY_API_BASE_URL: z.string().url().default('https://api.monday.us/v2'),
     MONDAY_CLIENT_ID: z.string().min(1),
     MONDAY_CLIENT_SECRET: z.string().min(1),

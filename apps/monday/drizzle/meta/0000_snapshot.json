@@ -1,5 +1,5 @@
 {
-  "id": "fa77ea09-5783-4157-9ce5-312016a06c0c",
+  "id": "0d57f933-50e7-4195-a0a9-2c22e07f6d32",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -14,8 +14,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "region": {
-          "name": "region",
+        "access_token": {
+          "name": "access_token",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -27,8 +27,8 @@
           "notNull": true,
           "default": "now()"
         },
-        "access_token": {
-          "name": "access_token",
+        "region": {
+          "name": "region",
           "type": "text",
           "primaryKey": false,
           "notNull": true
