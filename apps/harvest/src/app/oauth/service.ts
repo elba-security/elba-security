@@ -35,7 +35,7 @@ export const setupOrganisation = async ({
       target: [Organisation.id],
       set: {
         id: organisationId,
-        accessToken,
+        accessToken: encryptedToken,
         refreshToken,
         harvestId: String(harvestId),
         region,

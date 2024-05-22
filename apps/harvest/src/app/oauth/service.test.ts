@@ -6,6 +6,7 @@ import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as auth from '@/connectors/auth';
 import * as accounts from '@/connectors/accounts';
+import * as crypto from '../../common/crypto';
 import { setupOrganisation } from './service';
 
 const code = 'code';
@@ -75,6 +76,8 @@ describe('setupOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue(accessToken);
+
     await expect(
       db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
     ).resolves.toMatchObject([
@@ -85,6 +88,8 @@ describe('setupOrganisation', () => {
         region,
       },
     ]);
+
+    expect(crypto.encrypt).toBeCalledTimes(1);
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([

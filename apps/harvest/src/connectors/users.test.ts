@@ -1,7 +1,7 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
-import { env } from '@/env';
 import { server } from '../../vitest/setup-msw-handlers';
+import { env } from '../env';
 import { getUsers, deleteUser } from './users';
 import { HarvestError } from './commons/error';
 import { type HarvestUser } from './types';
