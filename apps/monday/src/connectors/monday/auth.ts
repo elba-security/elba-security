@@ -8,25 +8,26 @@ const tokenResponseSchema = z.object({
 });
 
 const workspaceSchema = z.object({
-  workspace_id: z.string(),
-  workspace: z.object({
-    is_default_workspace: z.boolean(),
-  }),
-});
-
-const boardsSchema = z.object({
   data: z.object({
-    boards: z.array(workspaceSchema),
+    workspaces: z.array(
+      z.object({
+        id: z.string().min(1),
+      })
+    ),
   }),
 });
 
 export const getToken = async (code: string) => {
   const response = await fetch(`${env.MONDAY_APP_INSTALL_URL}/token`, {
     method: 'POST',
-    headers: new Headers({ 'content-type': 'application/json' }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
+      grant_type: 'authorization_code',
       client_id: env.MONDAY_CLIENT_ID,
       client_secret: env.MONDAY_CLIENT_SECRET,
+      redirect_uri: env.MONDAY_REDIRECT_URI,
       code,
     }),
   });
@@ -51,12 +52,9 @@ export const getToken = async (code: string) => {
 
 export const getWorkspaceIds = async (accessToken: string) => {
   const query = `
-    query GetWorkspace{
-      boards {
-        workspace_id
-        workspace {
-          is_default_workspace
-        }
+    query GetWorkspace {
+      workspaces {
+        id
       }
     }
   `;
@@ -78,20 +76,20 @@ export const getWorkspaceIds = async (accessToken: string) => {
 
   const resData: unknown = await response.json();
 
-  const result = boardsSchema.safeParse(resData);
+  const result = workspaceSchema.safeParse(resData);
 
   if (!result.success) {
     throw new MondayError('Could not parse workspace response');
   }
 
-  if (result.data.data.boards.length === 0) {
+  if (result.data.data.workspaces.length === 0) {
     throw new MondayError('No workspace found');
   }
 
-  const workspaceIds = result.data.data.boards.map((board) => board.workspace_id);
+  const workspaceIds = result.data.data.workspaces.map(({ id }) => id);
 
   if (!workspaceIds.length) {
-    throw new MondayError('No Main workspace found');
+    throw new MondayError('No workspace found');
   }
 
   return workspaceIds;

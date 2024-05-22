@@ -11,7 +11,7 @@ const setup = createInngestFunctionMock(scheduleUsersSync);
 export const organisations = Array.from({ length: 5 }, (_, i) => ({
   id: `00000000-0000-0000-0000-00000000000${i}`,
   accessToken: `test-access-token${i}`,
-  region: `us`,
+  region: 'us',
 }));
 
 describe('schedule-users-syncs', () => {
@@ -36,6 +36,7 @@ describe('schedule-users-syncs', () => {
     await expect(result).resolves.toStrictEqual({
       organisations: organisations.map(({ id }) => ({ id })),
     });
+
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
       'synchronize-users',

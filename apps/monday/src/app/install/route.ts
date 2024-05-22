@@ -21,6 +21,7 @@ export function GET(request: NextRequest) {
   }
 
   const state = crypto.randomUUID();
+
   cookies().set('organisation_id', organisationId);
   cookies().set('region', region);
   cookies().set('state', state);
@@ -28,6 +29,7 @@ export function GET(request: NextRequest) {
   const redirectUrl = new URL(`${env.MONDAY_APP_INSTALL_URL}/authorize`);
   redirectUrl.searchParams.append('client_id', env.MONDAY_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.MONDAY_REDIRECT_URI);
+  redirectUrl.searchParams.append('state', state);
 
   redirect(redirectUrl.toString());
 }
