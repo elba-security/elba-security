@@ -18,7 +18,8 @@ const datadogResponseSchema = z.object({
   data: z.array(z.unknown()),
   meta: z.object({
     page: z.object({
-      after: z.string().optional(),
+      total_count: z.number(),
+      total_filtered_count: z.number(),
     }),
   }),
 });
@@ -27,7 +28,7 @@ export type GetUsersParams = {
   apiKey: string;
   appKey: string;
   sourceRegion: string;
-  afterCursor?: string | null;
+  page: number;
 };
 
 export type DeleteUsersParams = {
@@ -37,16 +38,17 @@ export type DeleteUsersParams = {
   apiKey: string;
 };
 
-export const getUsers = async ({ apiKey, appKey, sourceRegion, afterCursor }: GetUsersParams) => {
+const pageSize = env.DATADOG_USERS_SYNC_BATCH_SIZE;
+
+export const getUsers = async ({ apiKey, appKey, sourceRegion, page = 0 }: GetUsersParams) => {
   const url = new URL(
     sourceRegion === 'US'
       ? `${env.DATADOG_US_API_BASE_URL}/api/v2/users`
       : `${env.DATADOG_EU_API_BASE_URL}/api/v2/users`
   );
-
-  if (afterCursor) {
-    url.searchParams.append('page[cursor]', String(afterCursor));
-  }
+  url.searchParams.append('filter[status]', 'Active');
+  url.searchParams.append('page[size]', String(pageSize));
+  url.searchParams.append('page[number]', String(page));
 
   const response = await fetch(url.toString(), {
     method: 'GET',
@@ -75,11 +77,12 @@ export const getUsers = async ({ apiKey, appKey, sourceRegion, afterCursor }: Ge
       invalidUsers.push(user);
     }
   }
+  const totalFilteredCount = meta.page.total_filtered_count;
 
   return {
     validUsers,
     invalidUsers,
-    nextPage: meta.page.after ? meta.page.after : null,
+    nextPage: (page + 1) * pageSize < totalFilteredCount ? page + 1 : null,
   };
 };
 

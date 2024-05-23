@@ -77,7 +77,7 @@ export const syncUsers = inngest.createFunction(
         apiKey: decryptedToken,
         appKey,
         sourceRegion,
-        afterCursor: page,
+        page,
       });
 
       const users = result.validUsers
@@ -103,7 +103,7 @@ export const syncUsers = inngest.createFunction(
         name: 'datadog/users.sync.requested',
         data: {
           ...event.data,
-          page: nextPage.toString(),
+          page: nextPage,
         },
       });
       return {

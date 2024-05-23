@@ -10,12 +10,13 @@ import { getUsers, deleteUser } from './users';
 
 const validApiKey = 'apiKey-1234';
 const validAppKey = 'appKey-1234';
-const endPageCursor = '2';
-const nextPage = '1';
-const after = 'test-after-cursor';
+const endPage = 2;
+const nextPage = 1;
 const testId = 'test-id';
 const appKey = 'test-appKey';
 const sourceRegion = 'EU';
+const totalCount = 20;
+const totalFilteredCount = 41;
 
 const validUsers: DatadogUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
@@ -42,18 +43,22 @@ describe('users connector', () => {
             return new Response(undefined, { status: 401 });
           }
           const url = new URL(request.url);
-          const afterCursor = url.searchParams.get('page[cursor]');
+          const page = url.searchParams.get('page[number]');
 
           const responseData = {
             data: validUsers,
             meta:
-              afterCursor === endPageCursor
+              page === String(endPage)
                 ? {
-                    page: {},
+                    page: {
+                      total_count: totalCount,
+                      total_filtered_count: totalFilteredCount,
+                    },
                   }
                 : {
                     page: {
-                      after,
+                      total_count: totalCount,
+                      total_filtered_count: totalFilteredCount,
                     },
                   },
           };
@@ -64,11 +69,11 @@ describe('users connector', () => {
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
       await expect(
-        getUsers({ apiKey: validApiKey, appKey: validAppKey, sourceRegion, afterCursor: nextPage })
+        getUsers({ apiKey: validApiKey, appKey: validAppKey, sourceRegion, page: nextPage })
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage: after,
+        nextPage,
       });
     });
 
@@ -78,7 +83,7 @@ describe('users connector', () => {
           apiKey: validApiKey,
           appKey: validAppKey,
           sourceRegion,
-          afterCursor: endPageCursor,
+          page: endPage,
         })
       ).resolves.toStrictEqual({
         validUsers,
@@ -95,7 +100,7 @@ describe('users connector', () => {
 
     test('should throws when the App Key is invalid', async () => {
       await expect(
-        getUsers({ apiKey: validApiKey, appKey: 'foo-bar', sourceRegion })
+        getUsers({ apiKey: validApiKey, appKey: 'foo-bar', sourceRegion, page: 0 })
       ).rejects.toBeInstanceOf(DatadogError);
     });
   });
