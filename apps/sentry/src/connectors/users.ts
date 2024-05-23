@@ -39,18 +39,27 @@ export const getUsers = async (token: string, organizationSlug: string, cursor: 
   };
 
   const linkHeader = response.headers.get('Link');
+  let nextCursor: string | null = null;
   if (linkHeader) {
-    const match = /<(?<url>[^>]+)>/.exec(linkHeader);
-    if (match?.groups?.url) {
-      const parsedUrl = new URL(match.groups.url);
-      pagination.nextCursor = parsedUrl.searchParams.get('cursor');
+    const links = linkHeader.split(', ');
+    const nextLink = links.find(link => link.includes('rel="next"'));
+    if (nextLink) {
+      const match = /<(?<url>[^>]+)>/.exec(nextLink);
+      if (match?.groups?.url) {
+        const parsedUrl = new URL(match.groups.url);
+        nextCursor = parsedUrl.searchParams.get('cursor');
+      }
     }
+  }
+  if(data.length === env.USERS_SYNC_BATCH_SIZE){
+    pagination.nextCursor = nextCursor;
   }
 
   return { members: data, pagination };
 };
+
 export const deleteUser = async (token: string, organizationSlug: string, memberId: string) => {
-  const url = `${env.SENTRY_API_BASE_URL}/organizations/${organizationSlug}/members/${memberId}`;
+  const url = `${env.SENTRY_API_BASE_URL}/organizations/${organizationSlug}/members/${memberId}/`;
 
   const response = await fetch(url, {
     method: 'DELETE',
@@ -59,7 +68,7 @@ export const deleteUser = async (token: string, organizationSlug: string, member
       'Content-Type': 'application/json',
     },
   });
-
+  
   if (!response.ok) {
     throw new SentryError('Could not delete Sentry user', { response });
   }
