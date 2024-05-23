@@ -6,7 +6,7 @@ export const organisation = {
   id: `45a76301-f1dd-4a77-b12f-9d7d3fca3c90`,
   region: 'us',
   instanceId: '1234',
-  instanceUrl: 'http://foo.bar/',
+  instanceUrl: 'http://foo.bar',
   accessToken: await encrypt(accessToken),
   refreshToken: 'encrypted-refresh-token',
 };

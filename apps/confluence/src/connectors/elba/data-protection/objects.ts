@@ -48,7 +48,7 @@ export const formatPageObject = (
   id: page.id,
   ownerId: page.ownerId,
   name: page.title,
-  url: `${options.instanceUrl}${page._links.webui}`,
+  url: `${options.instanceUrl}/wiki${page._links.webui}`,
   metadata: {
     objectType: 'page',
   } satisfies PageObjectMetadata,
@@ -107,7 +107,7 @@ export const formatSpaceObject = (
   id: space.id,
   ownerId: space.authorId,
   name: space.name,
-  url: `${options.instanceUrl}${space._links.webui}`,
+  url: `${options.instanceUrl}/wiki${space._links.webui}`,
   metadata: {
     objectType: 'space',
     key: space.key,
