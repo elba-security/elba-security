@@ -1,26 +1,14 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import { http } from 'msw';
+import { server } from '@elba-security/test-utils';
 import { env } from '@/env';
-import { server } from '../../vitest/setup-msw-handlers';
-import { getUsers, type SentryUser, deleteUser } from './users';
+import { users } from '@/inngest/functions/users/__mocks__/integration';
+import { getUsers, deleteUser } from './users';
 import { SentryError } from './commons/error';
 
 const validToken = 'test-token';
 const organizationSlug = 'test-organization';
 const memberId = 'test-member-id';
-
-const sentryUsers: SentryUser[] = [
-  {
-    role: 'admin',
-    user: {
-      id: 'user-id',
-      name: 'Username',
-      email: 'user@gmail.com',
-      has2fa: false,
-    },
-  },
-];
-
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
@@ -34,11 +22,12 @@ describe('getUsers', () => {
           const lastCursor = 'last-cursor';
           const nextCursor = 'next-cursor';
           const requestCursor = url.searchParams.get('cursor');
-          return new Response(JSON.stringify(sentryUsers), {
-            headers:
-              requestCursor !== lastCursor
-                ? { Link: `<https://example.com?cursor=${nextCursor}>; rel="next"` }
-                : undefined,
+          return new Response(JSON.stringify(users), {
+            headers: {
+              Link: `<https://example.com?cursor=${
+                requestCursor === lastCursor ? null : nextCursor
+              }>; rel="next"`,
+            },
             status: 200,
           });
         }
@@ -48,17 +37,13 @@ describe('getUsers', () => {
 
   test('should fetch users when token is valid', async () => {
     const result = await getUsers(validToken, organizationSlug, null);
-    expect(result.members).toEqual(sentryUsers);
+    expect(result.members).toEqual(users);
   });
 
   test('should throw SentryError when token is invalid', async () => {
-    try {
-      await getUsers('invalidToken', organizationSlug, null);
-    } catch (error) {
-      expect((error as SentryError).message).toEqual(
-        'Could not retrieve Sentry organization members'
-      );
-    }
+    await expect(getUsers('invalidToken', organizationSlug, null)).rejects.toThrowError(
+      SentryError
+    );
   });
 
   test('should return nextCursor as null when end of list is reached', async () => {

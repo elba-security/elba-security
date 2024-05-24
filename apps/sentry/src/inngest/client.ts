@@ -23,9 +23,8 @@ export const inngest = new Inngest({
     };
     'sentry/users.delete.requested': {
       data: {
-        id: string;
+        ids: string[];
         organisationId: string;
-        region: string;
       };
     };
   }>(),

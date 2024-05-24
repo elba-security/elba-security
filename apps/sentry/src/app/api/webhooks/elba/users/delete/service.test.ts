@@ -12,7 +12,7 @@ describe('deleteUserRequest', () => {
     const response = await mockNextRequest({
       handler,
       body: {
-        id: 'user-id-1',
+        ids: ['user-id-1'],
         organisationId,
       },
     });
@@ -22,7 +22,7 @@ describe('deleteUserRequest', () => {
     expect(send).toBeCalledWith({
       name: 'sentry/users.delete.requested',
       data: {
-        id: 'user-id-1',
+        ids: ['user-id-1'],
         organisationId,
       },
     });

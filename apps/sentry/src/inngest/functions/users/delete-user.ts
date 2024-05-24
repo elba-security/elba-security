@@ -4,8 +4,8 @@ import { db } from '@/database/client';
 import { env } from '@/env';
 import { Organisation } from '@/database/schema';
 import { deleteUser } from '@/connectors/users';
-import { inngest } from '../../client';
 import { decrypt } from '@/common/crypto';
+import { inngest } from '../../client';
 
 export const deleteSentryUser = inngest.createFunction(
   {
@@ -16,7 +16,7 @@ export const deleteSentryUser = inngest.createFunction(
     event: 'sentry/users.delete.requested',
   },
   async ({ event, step }) => {
-    const { id, organisationId } = event.data;
+    const { ids, organisationId } = event.data;
 
     const organisation = await step.run('get-organisation', async () => {
       const [row] = await db
@@ -34,7 +34,9 @@ export const deleteSentryUser = inngest.createFunction(
 
     await step.run('delete-user', async () => {
       const decryptedToken = await decrypt(organisation.token);
-      await deleteUser(decryptedToken, organisation.organizationSlug, id);
+      await Promise.all(
+        ids.map((id) => deleteUser(decryptedToken, organisation.organizationSlug, id))
+      );
     });
   }
 );

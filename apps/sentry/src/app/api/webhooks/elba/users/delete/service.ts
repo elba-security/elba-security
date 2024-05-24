@@ -1,16 +1,16 @@
 import { inngest } from '@/inngest/client';
 
 export const deleteUserRequest = async ({
-  id,
+  ids,
   organisationId,
 }: {
-  id: string;
+  ids: string[];
   organisationId: string;
 }) => {
   await inngest.send({
     name: 'sentry/users.delete.requested',
     data: {
-      id,
+      ids,
       organisationId,
     },
   });
