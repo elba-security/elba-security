@@ -5,10 +5,10 @@ import { deleteUserRequest } from './service';
 export async function DELETE(request: Request) {
   const data: unknown = await request.json();
 
-  const { id, organisationId } = parseWebhookEventData('users.delete_user_requested', data);
+  const { ids, organisationId } = parseWebhookEventData('users.delete_users_requested', data);
 
   await deleteUserRequest({
-    id,
+    ids,
     organisationId,
   });
 

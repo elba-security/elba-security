@@ -19,7 +19,7 @@ export const deleteClickUpUser = inngest.createFunction(
     event: 'clickup/users.delete.requested',
   },
   async ({ event, step }) => {
-    const { id, organisationId } = event.data;
+    const { ids, organisationId } = event.data;
 
     const organisation = await step.run('get-organisation', async () => {
       const [result] = await db
@@ -37,7 +37,7 @@ export const deleteClickUpUser = inngest.createFunction(
 
     await step.run('delete-user', async () => {
       const decryptedToken = await decrypt(organisation.accessToken);
-      await deleteUser(decryptedToken, organisation.teamId, id);
+      await Promise.all(ids.map((id) => deleteUser(decryptedToken, organisation.teamId, id)));
     });
   }
 );

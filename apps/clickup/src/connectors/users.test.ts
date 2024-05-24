@@ -1,10 +1,9 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
-import { server } from '../../vitest/setup-msw-handlers';
+import { server } from '@elba-security/test-utils';
+import { env } from '@/env';
 import { getUsers, deleteUser } from './users';
 import { ClickUpError } from './commons/error';
-import { env } from '@/env';
-// import type { ClickUpUser } from './types';
 
 const validToken = 'token-1234';
 const teamId = 'test-team-id';
@@ -72,7 +71,7 @@ describe('getUsers', () => {
   });
 
   test('should throw ClickUpError when token is invalid', async () => {
-    await expect(getUsers('invalidToken',teamId)).rejects.toThrowError(ClickUpError);
+    await expect(getUsers('invalidToken', teamId)).rejects.toThrowError(ClickUpError);
   });
 });
 describe('deleteUser', () => {

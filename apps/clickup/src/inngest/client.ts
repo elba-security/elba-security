@@ -17,11 +17,12 @@ export const inngest = new Inngest({
     'clickup/elba_app.uninstalled': {
       data: {
         organisationId: string;
+        region: string;
       };
     };
     'clickup/users.delete.requested': {
       data: {
-        id: string;
+        ids: string[];
         organisationId: string;
       };
     };

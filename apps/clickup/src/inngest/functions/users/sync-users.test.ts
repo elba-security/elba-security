@@ -38,6 +38,7 @@ const elbaUsers = [
     email: 'test-user-@foo.bar',
   },
 ];
+
 const syncStartedAt = Date.now();
 
 const setup = createInngestFunctionMock(syncUsers, 'clickup/users.page_sync.requested');
