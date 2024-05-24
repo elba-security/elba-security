@@ -1,8 +1,9 @@
 import { ClickUpError } from '@/connectors/commons/error';
+import { env } from '@/env';
 import type { GetTeamResponseData } from './types';
 
 export const getTeamId = async (token: string) => {
-  const response = await fetch(`https://api.clickup.com/api/v2/team`, {
+  const response = await fetch(`${env.CLICKUP_API_BASE_URL}/team`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 

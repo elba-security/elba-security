@@ -1,5 +1,4 @@
 import type { User } from '@elba-security/sdk';
-import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { getUsers } from '@/connectors/users';
@@ -8,6 +7,8 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
+import { getElbaClient } from '@/connectors/client';
+import { decrypt } from '@/common/crypto';
 
 const formatElbaUser = (user: ClickUpUser): User => ({
   id: user.id,
@@ -18,7 +19,7 @@ const formatElbaUser = (user: ClickUpUser): User => ({
   additionalEmails: [],
 });
 
-export const syncUsersPage = inngest.createFunction(
+export const syncUsers = inngest.createFunction(
   {
     id: 'clickup-sync-users-page',
     priority: {
@@ -40,14 +41,8 @@ export const syncUsersPage = inngest.createFunction(
   async ({ event, step, logger }) => {
     const { organisationId, syncStartedAt, region } = event.data;
 
-    const elba = new Elba({
-      organisationId,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-      region,
-    });
+    const elba = getElbaClient({organisationId, region})
 
-    // retrieve the ClickUp Organisation
     const organisation = await step.run('get-organisation', async () => {
       const [result] = await db
         .select({
@@ -63,18 +58,16 @@ export const syncUsersPage = inngest.createFunction(
     });
 
     await step.run('list-users', async () => {
-      // retrieve this users page
-      const result = await getUsers(organisation.accessToken, organisation.teamId);
-      // format each clickup User to elba user
+      const decryptedToken = await decrypt(organisation.accessToken);
+      const result = await getUsers(decryptedToken, organisation.teamId);
       const users = result.users.map(formatElbaUser);
-      // send the batch of users to elba
       logger.debug('Sending batch of users to elba: ', {
         organisationId,
         users,
       });
       await elba.users.update({ users });
     });
-    // delete the elba users that has been sent before this sync
+
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

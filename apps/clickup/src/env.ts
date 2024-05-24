@@ -29,5 +29,6 @@ export const env = z
     CLICKUP_CLIENT_SECRET: z.string(),
     CLICKUP_REDIRECT_URI: z.string().url(),
     ENCRYPTION_KEY: z.string().length(64),
+    CLICKUP_API_BASE_URL: z.string().url(),
   })
   .parse(process.env);

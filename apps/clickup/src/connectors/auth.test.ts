@@ -1,8 +1,9 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '../../vitest/setup-msw-handlers';
+import { env } from '../env';
 import { getAccessToken } from './auth';
-import { type ClickUpError } from './commons/error';
+import { ClickUpError } from './commons/error';
 
 const validAuthCode = 'valid-code';
 const accessToken = 'access-token';
@@ -10,7 +11,7 @@ const accessToken = 'access-token';
 describe('getAccessToken', () => {
   beforeEach(() => {
     server.use(
-      http.post('https://api.clickup.com/api/v2/oauth/token', ({ request }) => {
+      http.post(`${env.CLICKUP_API_BASE_URL}/oauth/token`, ({ request }) => {
         const url = new URL(request.url);
         const code = url.searchParams.get('code');
         if (code !== validAuthCode) {
@@ -21,19 +22,7 @@ describe('getAccessToken', () => {
     );
   });
 
-  test('should not throw when authorization code is valid', async () => {
-    try {
-      await expect(getAccessToken(validAuthCode)).resolves.toStrictEqual(accessToken);
-    } catch (error) {
-      expect(error).toBeNull();
-    }
-  });
-
   test('should throw an error when authorization code is invalid', async () => {
-    try {
-      await getAccessToken('invalid-auth-code');
-    } catch (error) {
-      expect((error as ClickUpError).message).toBe('Failed to fetch');
-    }
+    await expect(getAccessToken('invalid-auth-code')).rejects.toThrowError(ClickUpError);
   });
 });

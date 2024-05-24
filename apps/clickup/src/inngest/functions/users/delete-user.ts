@@ -4,6 +4,7 @@ import { db } from '@/database/client';
 import { env } from '@/env';
 import { Organisation } from '@/database/schema';
 import { deleteUser } from '@/connectors/users';
+import { decrypt } from '@/common/crypto';
 import { inngest } from '../../client';
 
 export const deleteClickUpUser = inngest.createFunction(
@@ -20,7 +21,6 @@ export const deleteClickUpUser = inngest.createFunction(
   async ({ event, step }) => {
     const { id, organisationId } = event.data;
 
-    // retrieve the ClickUp organisation access token and team Id
     const organisation = await step.run('get-organisation', async () => {
       const [result] = await db
         .select({
@@ -36,7 +36,8 @@ export const deleteClickUpUser = inngest.createFunction(
     });
 
     await step.run('delete-user', async () => {
-      await deleteUser(organisation.accessToken, organisation.teamId, id);
+      const decryptedToken = await decrypt(organisation.accessToken);
+      await deleteUser(decryptedToken, organisation.teamId, id);
     });
   }
 );

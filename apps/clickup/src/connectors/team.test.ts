@@ -1,17 +1,21 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
-import type { ClickUpError } from '@/connectors/commons/error';
 import { server } from '../../vitest/setup-msw-handlers';
+import { env } from '../env';
 import { getTeamId } from './team';
+import { ClickUpError } from './commons/error';
+import { ClickUpTeam } from './types';
 
 const validToken = 'valid-token';
 const teamId = 'team-id';
-const teams = 'test-team';
+const teams:ClickUpTeam[] = [
+  {id: teamId, name: 'team-name'}
+];
 
 describe('getTeamId', () => {
   beforeEach(() => {
     server.use(
-      http.get('https://api.clickup.com/api/v2/team', ({ request }) => {
+      http.get(`${env.CLICKUP_API_BASE_URL}/team`, ({ request }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
@@ -21,19 +25,11 @@ describe('getTeamId', () => {
   });
 
   test('should not throw when token is valid', async () => {
-    try {
       const result = await getTeamId(validToken);
       expect(result).toEqual(teamId);
-    } catch (error) {
-      expect(error).toBeNull;
-    }
   });
 
   test('should throw an error when token is invalid', async () => {
-    try {
-      await getTeamId('invalid-token');
-    } catch (error) {
-      expect((error as ClickUpError).message).toBe('Failed to fetch');
-    }
+    await expect(getTeamId('invalidToken')).rejects.toThrowError(ClickUpError);
   });
 });

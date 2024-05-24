@@ -117,7 +117,6 @@ describe('setupOrganisation', () => {
     const wrongId = 'xfdhg-dsf';
     const error = new Error(`invalid input syntax for type uuid: "${wrongId}"`);
 
-    // assert that the function throws the mocked error
     await expect(
       setupOrganisation({
         organisationId: wrongId,
@@ -126,12 +125,10 @@ describe('setupOrganisation', () => {
       })
     ).rejects.toThrowError(error);
 
-    // ensure no organisation is added or updated in the database
     await expect(
       db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
     ).resolves.toHaveLength(0);
 
-    // ensure no sync users event is sent
     expect(send).toBeCalledTimes(0);
   });
 });

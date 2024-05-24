@@ -2,7 +2,8 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '../../vitest/setup-msw-handlers';
 import { getUsers, deleteUser } from './users';
-import type { ClickUpError } from './commons/error';
+import { ClickUpError } from './commons/error';
+import { env } from '@/env';
 // import type { ClickUpUser } from './types';
 
 const validToken = 'token-1234';
@@ -41,7 +42,7 @@ const roles = [
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get(`https://api.clickup.com/api/v2/team/${teamId}`, ({ request }) => {
+      http.get(`${env.CLICKUP_API_BASE_URL}/team/${teamId}`, ({ request }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
@@ -71,17 +72,13 @@ describe('getUsers', () => {
   });
 
   test('should throw ClickUpError when token is invalid', async () => {
-    try {
-      await getUsers('invalidToken', teamId);
-    } catch (error) {
-      expect((error as ClickUpError).message).toEqual('Could not retrieve users');
-    }
+    await expect(getUsers('invalidToken',teamId)).rejects.toThrowError(ClickUpError);
   });
 });
 describe('deleteUser', () => {
   beforeEach(() => {
     server.use(
-      http.delete(`https://api.clickup.com/api/v2/team/${teamId}/user/${userId}`, ({ request }) => {
+      http.delete(`${env.CLICKUP_API_BASE_URL}/team/${teamId}/user/${userId}`, ({ request }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
@@ -95,10 +92,6 @@ describe('deleteUser', () => {
   });
 
   test('should throw ClickUpError when token is invalid', async () => {
-    try {
-      await deleteUser('invalidToken', teamId, userId);
-    } catch (error) {
-      expect((error as ClickUpError).message).toEqual(`Could not delete user with Id: ${userId}`);
-    }
+    await expect(deleteUser('invalidToken', teamId, userId)).rejects.toThrowError(ClickUpError);
   });
 });

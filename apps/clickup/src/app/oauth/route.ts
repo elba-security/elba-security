@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code');
   const organisationId = request.cookies.get('organisation_id')?.value;
   const region = request.cookies.get('region')?.value;
+  console.log("CODE: ",code)
 
   try {
     if (typeof code !== 'string' || !organisationId || !region) {

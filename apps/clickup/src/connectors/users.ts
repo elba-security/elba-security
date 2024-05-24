@@ -1,8 +1,9 @@
+import { env } from '@/env';
 import { ClickUpError } from './commons/error';
 import type { GetUsersResponseData, UserResponseData } from './types';
 
 export const getUsers = async (token: string, teamId: string) => {
-  const response = await fetch(`https://api.clickup.com/api/v2/team/${teamId}`, {
+  const response = await fetch(`${env.CLICKUP_API_BASE_URL}/team/${teamId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!response.ok) {
@@ -23,7 +24,7 @@ export const getUsers = async (token: string, teamId: string) => {
   return { users };
 };
 export const deleteUser = async (token: string, teamId: string, userId: string) => {
-  const response = await fetch(`https://api.clickup.com/api/v2/team/${teamId}/user/${userId}`, {
+  const response = await fetch(`${env.CLICKUP_API_BASE_URL}/team/${teamId}/user/${userId}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,

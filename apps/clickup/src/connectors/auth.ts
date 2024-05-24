@@ -4,7 +4,7 @@ import type { GetTokenResponseData } from './types';
 
 export const getAccessToken = async (code: string) => {
   const response = await fetch(
-    `https://api.clickup.com/api/v2/oauth/token?client_id=${env.CLICKUP_CLIENT_ID}&client_secret=${env.CLICKUP_CLIENT_SECRET}&code=${code}`,
+    `${env.CLICKUP_API_BASE_URL}/oauth/token?client_id=${env.CLICKUP_CLIENT_ID}&client_secret=${env.CLICKUP_CLIENT_SECRET}&code=${code}`,
     {
       method: 'POST',
       headers: {
