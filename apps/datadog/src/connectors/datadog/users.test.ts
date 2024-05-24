@@ -73,7 +73,7 @@ describe('users connector', () => {
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage,
+        nextPage: nextPage + 1,
       });
     });
 
@@ -94,7 +94,7 @@ describe('users connector', () => {
 
     test('should throws when the Api Key is invalid', async () => {
       await expect(
-        getUsers({ apiKey: 'foo-bar', appKey: validAppKey, sourceRegion })
+        getUsers({ apiKey: 'foo-bar', appKey: validAppKey, sourceRegion, page: 0 })
       ).rejects.toBeInstanceOf(DatadogError);
     });
 
