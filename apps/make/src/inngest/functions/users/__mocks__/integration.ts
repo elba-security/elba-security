@@ -10,3 +10,13 @@ export const users = Array.from({ length: 10 }, (_, i) => ({
   name: `username-${i}`,
   email: `username-${i}@foo.bar`,
 }));
+
+
+export const elbaUsers = Array.from({ length: 10 }, (_, i) => ({
+  id: `userId-${i}`,
+  additionalEmails: [],
+  authMethod: 'password',
+  displayName: `username-${i}`,
+  email: `username-${i}@foo.bar`,
+  role: 'member',
+}));

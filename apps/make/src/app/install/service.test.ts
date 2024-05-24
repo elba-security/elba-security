@@ -3,8 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import * as userConnector from '@/connectors/users';
-import { users } from '@/inngest/functions/users/__mocks__/integration';
+import * as crypto from '@/common/crypto';
 import { registerOrganisation } from './service';
 
 const token = 'test-token';
@@ -29,10 +28,8 @@ describe('registerOrganisation', () => {
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
-    // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
-    vi.spyOn(userConnector, 'getUsers').mockResolvedValue({ users, pagination: { next: 10 } });
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue(token);
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
@@ -62,16 +59,13 @@ describe('registerOrganisation', () => {
         page: null,
       },
     });
+    expect(crypto.encrypt).toBeCalledTimes(1);
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
-    // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
-    vi.spyOn(userConnector, 'getUsers').mockResolvedValue({ users, pagination: { next: 10 } });
-    // pre-insert an organisation to simulate an existing entry
-    await db.insert(Organisation).values(organisation);
 
+    await db.insert(Organisation).values(organisation);
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
@@ -112,11 +106,7 @@ describe('registerOrganisation', () => {
   });
 
   test('should not setup the organisation when the organisation id is invalid', async () => {
-    // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
-    vi.spyOn(userConnector, 'getUsers').mockResolvedValue({ users, pagination: { next: 10 } });
-
     const wrongId = 'xfdhg-dsf';
     const error = new Error(`invalid input syntax for type uuid: "${wrongId}"`);
 

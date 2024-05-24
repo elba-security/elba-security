@@ -1,7 +1,7 @@
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/users';
+import { encrypt } from '../../common/crypto';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -16,15 +16,15 @@ export const registerOrganisation = async ({
   teamId,
   region,
 }: SetupOrganisationParams) => {
-  await getUsers(token, teamId, null);
+  const encryptedToken = await encrypt(token);
   await db
     .insert(Organisation)
-    .values({ id: organisationId, teamId, region, token })
+    .values({ id: organisationId, teamId, region, token: encryptedToken })
     .onConflictDoUpdate({
       target: Organisation.id,
       set: {
         region,
-        token,
+        token: encryptedToken,
         teamId,
       },
     });

@@ -1,16 +1,10 @@
 import { describe, expect, test, beforeEach } from 'vitest';
 import { http } from 'msw';
-import { server } from '../../vitest/setup-msw-handlers';
+import { server } from '@elba-security/test-utils';
 import { getUsers, type MakeUser } from './users';
-import type { MakeError } from './commons/error';
-
-const users: MakeUser[] = [
-  {
-    id: 'user-id',
-    name: 'username',
-    email: 'user@gmail.com',
-  },
-];
+import { MakeError } from './commons/error';
+import { env } from '../env';
+import { users } from '../inngest/functions/users/__mocks__/integration';
 
 const validToken = 'test-token';
 const teamId = 'team-id';
@@ -20,7 +14,7 @@ const lastOffset = 20;
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get(`https://eu2.make.com/api/v2/users`, ({ request }) => {
+      http.get(`${env.MAKE_API_BASE_URL}/users`, ({ request }) => {
         if (request.headers.get('Authorization') !== `Token ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
@@ -44,11 +38,9 @@ describe('getUsers', () => {
   });
 
   test('should throw MakeError when token is invalid', async () => {
-    try {
-      await getUsers('invalidToken', teamId, null);
-    } catch (error) {
-      expect((error as MakeError).message).toEqual('Could not retrieve users');
-    }
+    await expect(getUsers('invalidToken', teamId, null)).rejects.toThrow(
+      MakeError
+    );
   });
 
   test('should return next offset when there is next offset', async () => {

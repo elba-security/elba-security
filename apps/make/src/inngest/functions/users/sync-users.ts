@@ -1,4 +1,4 @@
-import { Elba, type User } from '@elba-security/sdk';
+import { type User } from '@elba-security/sdk';
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { type MakeUser, getUsers } from '@/connectors/users';
@@ -6,6 +6,8 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
+import { decrypt } from '../../../common/crypto';
+import { getElbaClient } from '../../../connectors/client';
 
 const formatElbaUser = (user: MakeUser): User => ({
   id: user.id,
@@ -16,7 +18,7 @@ const formatElbaUser = (user: MakeUser): User => ({
   additionalEmails: [],
 });
 
-export const syncUsersPage = inngest.createFunction(
+export const syncUsers = inngest.createFunction(
   {
     id: 'make-sync-users-page',
     priority: {
@@ -38,12 +40,7 @@ export const syncUsersPage = inngest.createFunction(
   async ({ event, step, logger }) => {
     const { organisationId, syncStartedAt, region, page } = event.data;
 
-    const elba = new Elba({
-      organisationId,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-      region,
-    });
+    const elba = getElbaClient({ organisationId, region });
 
     const organisation = await step.run('get-organisation', async () => {
       const [row] = await db
@@ -60,11 +57,9 @@ export const syncUsersPage = inngest.createFunction(
     });
 
     const nextPage = await step.run('list-users', async () => {
-      // retrieve this users page
-      const result = await getUsers(organisation.token, organisation.teamId, page);
-
+      const decryptedToken = await decrypt(organisation.token); 
+      const result = await getUsers(decryptedToken, organisation.teamId, page);
       const users = result.users.map(formatElbaUser);
-      // send the batch of users to Elba
       logger.debug('Sending batch of users to Elba: ', { organisationId, users });
       await elba.users.update({ users });
 
@@ -74,7 +69,6 @@ export const syncUsersPage = inngest.createFunction(
       return null;
     });
 
-    // if there is a next page, enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
         name: 'make/users.page_sync.requested',
