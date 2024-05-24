@@ -3,7 +3,7 @@ import { getOrganisationsToSync } from '../common/data';
 
 export const scheduleAppsSync = inngest.createFunction(
   { id: 'dropbox-schedule-apps-syncs' },
-  { cron: '0 0 * * *' },
+  { cron: '0 0 * * 3' },
   async ({ step }) => {
     const organisations = await getOrganisationsToSync();
     const syncStartedAt = Date.now();

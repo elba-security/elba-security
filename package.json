@@ -5,11 +5,14 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
+    "type-check": "turbo run type-check",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "prepare": "husky install"
   },
   "devDependencies": {
     "@elba-security/tsconfig": "workspace:*",
+    "dotenv": "^16.3.1",
+    "drizzle-kit": "^0.20.6",
     "eslint": "^8.53.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.2",
@@ -23,7 +26,7 @@
   "name": "elba-security",
   "packageManager": "pnpm@8.10.2",
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --fix",
+    "!(template/**/*)*.{js,jsx,ts,tsx}": "eslint --fix",
     "*.{js,jsx,ts,tsx,json,css,md}": "prettier --write"
   }
 }

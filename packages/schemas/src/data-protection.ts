@@ -86,3 +86,7 @@ export const dataProtectionDeleteObjectPermissionsRequestedDataSchema = z.object
     })
   ),
 });
+
+export type DataProtectionDeleteObjectPermissionsRequestedData = z.infer<
+  typeof dataProtectionDeleteObjectPermissionsRequestedDataSchema
+>;

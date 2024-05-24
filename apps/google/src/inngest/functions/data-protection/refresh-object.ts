@@ -69,37 +69,30 @@ export const refreshDataProtectionObject = inngest.createFunction(
     const authClient = await getGoogleServiceAccountClient(user.email);
     const elba = getElbaClient({ organisationId, region: user.organisation.region });
 
-    try {
-      const file = await step.run('get-file', async () => {
-        return getGoogleFile({
-          auth: authClient,
-          fileId: objectId,
-        });
+    const file = await step.run('get-file', async () => {
+      return getGoogleFile({
+        auth: authClient,
+        fileId: objectId,
       });
-      const permissions = await step.run('list-permissions', async () => {
-        return listAllGoogleFileNonInheritedPermissions({
-          auth: authClient,
-          fileId: objectId,
-        });
-      });
+    });
 
-      const object = formatDataProtectionObject({ file, owner: ownerId, permissions });
+    if (!file) {
+      await elba.dataProtection.deleteObjects({ ids: [objectId] });
 
-      await elba.dataProtection.updateObjects({ objects: [object] });
-
-      return { status: 'updated' };
-
-      /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access -- Start of error handling */
-    } catch (error: any) {
-      if (error?.code === 404) {
-        /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access -- End of error handling */
-
-        await elba.dataProtection.deleteObjects({ ids: [objectId] });
-
-        return { status: 'deleted' };
-      }
-
-      throw error;
+      return { status: 'deleted' };
     }
+
+    const permissions = await step.run('list-permissions', async () => {
+      return listAllGoogleFileNonInheritedPermissions({
+        auth: authClient,
+        fileId: objectId,
+      });
+    });
+
+    const object = formatDataProtectionObject({ file, owner: ownerId, permissions });
+
+    await elba.dataProtection.updateObjects({ objects: [object] });
+
+    return { status: 'updated' };
   }
 );
