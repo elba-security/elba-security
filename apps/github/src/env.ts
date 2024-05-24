@@ -53,7 +53,6 @@ export const env = z
     THIRD_PARTY_APPS_SYNC_CRON: z.string(),
     THIRD_PARTY_APPS_SYNC_BATCH_SIZE: z.coerce.number().int().positive(),
     THIRD_PARTY_APPS_MAX_RETRY: zEnvRetry(),
-    VERCEL_PREFERRED_REGION: z.string().min(1),
     VERCEL_ENV: z.string().optional(),
   })
   .parse(process.env);

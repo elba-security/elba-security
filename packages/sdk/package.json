@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint src",
     "test": "vitest run",
-    "test:watch": "vitest -w"
+    "test:watch": "vitest -w",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@elba-security/schemas": "workspace:*",
@@ -21,6 +22,6 @@
     "eslint": "^8",
     "msw": "^2.0.1",
     "typescript": "^5",
-    "vitest": "1.1.1"
+    "vitest": "1.4.0"
   }
 }
