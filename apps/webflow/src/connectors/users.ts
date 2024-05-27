@@ -1,4 +1,4 @@
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { WebflowError } from './commons/error';
 import { type GetUsersResponseData } from './types';
 

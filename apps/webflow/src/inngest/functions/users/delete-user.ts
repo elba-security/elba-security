@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { Organisation } from '@/database/schema';
 import { deleteUser } from '@/connectors/users';
 import { inngest } from '../../client';
@@ -9,10 +9,11 @@ import { inngest } from '../../client';
 export const deleteWebflowUser = inngest.createFunction(
   {
     id: 'webflow-delete-user',
-    priority: {
-      run: '600',
+    concurrency: {
+      key: 'event.data.organisationId',
+      limit: env.WEBFLOW_DELETE_USER_CONCURRENCY,
     },
-    retries: env.REMOVE_ORGANISATION_MAX_RETRY,
+    retries: 5,
   },
   {
     event: 'webflow/users.delete.requested',
