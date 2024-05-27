@@ -3,17 +3,27 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUser } from '@/connectors/users';
+import { deleteUser as deleteFivetranUser } from '@/connectors/users';
 import { env } from '@/common/env';
 import { decrypt } from '@/common/crypto';
 
-export const deleteSourceUser = inngest.createFunction(
+export const deleteUser = inngest.createFunction(
   {
     id: 'fivetran-delete-user',
     concurrency: {
       key: 'event.data.organisationId',
       limit: env.FIVETRAN_DELETE_USER_CONCURRENCY,
     },
+    cancelOn: [
+      {
+        event: 'fivetran/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'fivetran/app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
     retries: 5,
   },
   { event: 'fivetran/users.delete.requested' },
@@ -35,7 +45,7 @@ export const deleteSourceUser = inngest.createFunction(
     const decryptedApiKey = await decrypt(organisation.apiKey);
     const decryptedApiSecret = await decrypt(organisation.apiSecret);
 
-    await deleteUser({
+    await deleteFivetranUser({
       userId,
       apiKey: decryptedApiKey,
       apiSecret: decryptedApiSecret,

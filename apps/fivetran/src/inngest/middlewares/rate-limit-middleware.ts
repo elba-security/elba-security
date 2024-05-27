@@ -14,7 +14,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
             } = ctx;
 
             if (error instanceof FivetranError && error.response?.status === 429) {
-              const retryAfter = error.response.headers.get('Retry-After') || 60;
+              const retryAfter = error.response.headers.get('retry-after') || 60;
 
               return {
                 ...context,

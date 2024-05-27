@@ -27,18 +27,20 @@ export default function InstallPage() {
       <h1>Setup Fivetran integration</h1>
       <InstructionsSteps>
         <InstructionsStep index={1}>
-          <h3>Generate API Key & API Secret</h3>
-          <p>In the bottom left corner select Organization</p>
+          <h3>Create an API client in Fivetran to link to Elba</h3>
           <p>
-            you can see the API Key menu, click on it, and then click on the{' '}
-            <strong>Generate new API key</strong>
+            1. In the Fivetran Dashboard, use the menu (top-left) and navigate to{' '}
+            <b>
+              Your Username
+              {' ->'} API key
+            </b>
+            .
           </p>
           <p>
-            You will see Generate API secret window, click on the <strong>Generate </strong> button
+            2. Click on the <b>Generate API Key button</b>
           </p>
           <p>
-            Copy the API Key and API Secret and paste them in the fields below. You will not be able
-            to see the API key and secret again. Make sure to save them in a secure place.
+            3. Copy the API Key and API Secret and paste them below. (You will not see them again)
           </p>
         </InstructionsStep>
         <InstructionsStep index={2}>

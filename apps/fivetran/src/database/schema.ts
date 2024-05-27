@@ -1,4 +1,3 @@
-import { sql } from 'drizzle-orm';
 import { uuid, text, pgTable, timestamp } from 'drizzle-orm/pg-core';
 
 export const organisationsTable = pgTable('organisations', {
@@ -6,7 +5,5 @@ export const organisationsTable = pgTable('organisations', {
   apiKey: text('api_key').notNull(),
   apiSecret: text('api_secret').notNull(),
   region: text('region').notNull(),
-  createdAt: timestamp('created_at')
-    .default(sql`now()`)
-    .notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });

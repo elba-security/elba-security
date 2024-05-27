@@ -9,6 +9,7 @@ const fivetranUserSchema = z.object({
   family_name: z.string(),
   role: z.string().nullable(),
   active: z.boolean(),
+  invited: z.boolean(),
 });
 
 export type FivetranUser = z.infer<typeof fivetranUserSchema>;
@@ -33,8 +34,8 @@ export type DeleteUsersParams = {
 };
 
 export const getUsers = async ({ apiKey, apiSecret, cursor }: GetUsersParams) => {
-  const endpoint = new URL(`${env.FIVETRAN_API_BASE_URL}users`);
-  const encodedKey = Buffer.from(`${apiKey}:${apiSecret}`).toString('base64');
+  const endpoint = new URL(`${env.FIVETRAN_API_BASE_URL}/users`);
+  const encodedKey = btoa(`${apiKey}:${apiSecret}`);
 
   if (cursor) {
     endpoint.searchParams.append('cursor', String(cursor));
@@ -63,6 +64,10 @@ export const getUsers = async ({ apiKey, apiSecret, cursor }: GetUsersParams) =>
     const result = fivetranUserSchema.safeParse(node);
 
     if (result.success) {
+      if (result.data.invited || !result.data.active) {
+        continue;
+      }
+
       validUsers.push(result.data);
     } else {
       invalidUsers.push(node);
@@ -78,8 +83,8 @@ export const getUsers = async ({ apiKey, apiSecret, cursor }: GetUsersParams) =>
 };
 
 export const deleteUser = async ({ userId, apiKey, apiSecret }: DeleteUsersParams) => {
-  const url = new URL(`${env.FIVETRAN_API_BASE_URL}users/${userId}`);
-  const encodedKey = Buffer.from(`${apiKey}:${apiSecret}`).toString('base64');
+  const url = new URL(`${env.FIVETRAN_API_BASE_URL}/users/${userId}`);
+  const encodedKey = btoa(`${apiKey}:${apiSecret}`);
 
   const response = await fetch(url, {
     method: 'DELETE',

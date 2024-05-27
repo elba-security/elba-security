@@ -19,6 +19,7 @@ const validUsers: FivetranUser[] = Array.from({ length: 2 }, (_, i) => ({
   family_name: `family_name-${i}`,
   email: `user-${i}@foo.bar`,
   active: true,
+  invited: false,
 }));
 
 const invalidUsers = [];
@@ -27,7 +28,7 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       const resolver: ResponseResolver = ({ request }) => {
-        const encodedKey = Buffer.from(`${apiKey}:${apiSecret}`).toString('base64');
+        const encodedKey = btoa(`${apiKey}:${apiSecret}`);
 
         if (request.headers.get('Authorization') !== `Basic ${encodedKey}`) {
           return new Response(undefined, { status: 401 });
@@ -35,21 +36,15 @@ describe('users connector', () => {
 
         const url = new URL(request.url);
         const cursor = url.searchParams.get('cursor');
-        const returnData = cursor
-          ? {
-              data: {
-                items: validUsers,
-                next_cursor: nextCursor,
-              },
-            }
-          : {
-              data: {
-                items: validUsers,
-              },
-            };
-        return Response.json(returnData);
+
+        return Response.json({
+          data: {
+            items: validUsers,
+            ...(cursor ? { next_cursor: nextCursor } : {}),
+          },
+        });
       };
-      server.use(http.get(`${env.FIVETRAN_API_BASE_URL}users`, resolver));
+      server.use(http.get(`${env.FIVETRAN_API_BASE_URL}/users`, resolver));
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
@@ -83,9 +78,9 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.delete<{ userId: string; apiKey: string; apiSecret: string }>(
-          `${env.FIVETRAN_API_BASE_URL}users/:userId`,
+          `${env.FIVETRAN_API_BASE_URL}/users/:userId`,
           ({ request, params }) => {
-            const encodedKey = Buffer.from(`${apiKey}:${apiSecret}`).toString('base64');
+            const encodedKey = btoa(`${apiKey}:${apiSecret}`);
 
             if (request.headers.get('Authorization') !== `Basic ${encodedKey}`) {
               return new Response(undefined, { status: 401 });
@@ -94,6 +89,7 @@ describe('users connector', () => {
             if (params.userId !== userId) {
               return new Response(undefined, { status: 404 });
             }
+
             return new Response(undefined, { status: 200 });
           }
         )

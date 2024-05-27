@@ -4,7 +4,7 @@ import * as usersConnector from '@/connectors/users';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import * as crypto from '@/common/crypto';
-import { deleteSourceUser } from './delete-user';
+import { deleteUser } from './delete-user';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const userId = 'user-id-1';
@@ -18,7 +18,7 @@ const organisation = {
   region: 'us',
 };
 
-const setup = createInngestFunctionMock(deleteSourceUser, 'fivetran/users.delete.requested');
+const setup = createInngestFunctionMock(deleteUser, 'fivetran/users.delete.requested');
 
 describe('deleteSourceUser', () => {
   beforeEach(() => {

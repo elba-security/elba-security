@@ -12,7 +12,7 @@ export const env = z
     ENCRYPTION_KEY: z.string().min(1),
     FIVETRAN_API_BASE_URL: z.string().min(1),
     DATABASE_URL: z.string().min(1),
-    DATABASE_PROXY_PORT: zEnvInt(),
+    DATABASE_PROXY_PORT: zEnvInt().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
     FIVETRAN_USERS_SYNC_CRON: z.string(),
     FIVETRAN_DELETE_USER_CONCURRENCY: zEnvInt().default(5),

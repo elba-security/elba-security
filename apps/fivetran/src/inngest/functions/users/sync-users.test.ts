@@ -22,6 +22,7 @@ const users: usersConnector.FivetranUser[] = Array.from({ length: 2 }, (_, i) =>
   family_name: `family_name-${i}`,
   email: `user-${i}@foo.bar`,
   active: true,
+  invited: false,
 }));
 
 const syncStartedAt = Date.now();
