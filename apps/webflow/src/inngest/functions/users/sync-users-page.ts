@@ -6,7 +6,7 @@ import { getUsers } from '@/connectors/users';
 import { type WebflowUser } from '@/connectors/types';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { inngest } from '@/inngest/client';
 
 const formatElbaUser = (user: WebflowUser): User => ({
@@ -28,7 +28,7 @@ export const syncUsersPage = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
-    retries: env.USERS_SYNC_MAX_RETRY,
+    retries: 5,
     cancelOn: [
       {
         event: 'webflow/app.uninstall.requested',
