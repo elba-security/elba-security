@@ -45,9 +45,8 @@ export const getGoogleUser = async ({
 
   const result = googleUserSchema.safeParse(user);
   if (!result.success) {
-    throw new Error('Failed to parse Google user');
-  } else {
     logger.error('Failed to parse Google user', { user });
+    throw new Error('Failed to parse Google user');
   }
 
   return result.data;
