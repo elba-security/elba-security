@@ -55,7 +55,7 @@ describe('registerOrganisation', () => {
       })
     ).resolves.toBeUndefined();
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey, appKey, sourceRegion, afterCursor: null });
+    expect(getUsers).toBeCalledWith({ apiKey, appKey, sourceRegion, page: 0 });
 
     await expect(
       db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
@@ -75,7 +75,7 @@ describe('registerOrganisation', () => {
           isFirstSync: true,
           organisationId: organisation.id,
           syncStartedAt: now.getTime(),
-          page: null,
+          page: 0,
         },
       },
       {
@@ -107,7 +107,7 @@ describe('registerOrganisation', () => {
     ).resolves.toBeUndefined();
 
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey, appKey, sourceRegion, afterCursor: null });
+    expect(getUsers).toBeCalledWith({ apiKey, appKey, sourceRegion, page: 0 });
 
     // check if the apiKey in the database is updated
     await expect(
@@ -131,7 +131,7 @@ describe('registerOrganisation', () => {
           isFirstSync: true,
           organisationId: organisation.id,
           syncStartedAt: now.getTime(),
-          page: null,
+          page: 0,
         },
       },
       {

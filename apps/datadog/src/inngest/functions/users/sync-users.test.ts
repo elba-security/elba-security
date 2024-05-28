@@ -20,7 +20,7 @@ const organisation = {
 };
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
-const nextPage = '1';
+const nextPage = 1;
 const users: usersConnector.DatadogUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
   attributes: {
@@ -46,7 +46,7 @@ describe('synchronize-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt: Date.now(),
-      page: null,
+      page: 0,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -70,7 +70,7 @@ describe('synchronize-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: String(nextPage),
+      page: nextPage,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -83,7 +83,7 @@ describe('synchronize-users', () => {
         organisationId: organisation.id,
         isFirstSync: false,
         syncStartedAt,
-        page: String(nextPage),
+        page: nextPage,
       },
     });
 
@@ -122,7 +122,7 @@ describe('synchronize-users', () => {
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: null,
+      page: 0,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });

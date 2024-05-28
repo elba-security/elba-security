@@ -18,7 +18,7 @@ export const registerOrganisation = async ({
   sourceRegion,
   region,
 }: SetupOrganisationParams) => {
-  await getUsers({ apiKey, appKey, sourceRegion, afterCursor: null });
+  await getUsers({ apiKey, appKey, sourceRegion, page: 0 });
 
   const encodedtoken = await encrypt(apiKey);
 
@@ -42,7 +42,7 @@ export const registerOrganisation = async ({
         isFirstSync: true,
         organisationId,
         syncStartedAt: Date.now(),
-        page: null,
+        page: 0,
       },
     },
     {

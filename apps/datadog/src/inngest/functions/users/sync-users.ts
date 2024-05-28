@@ -15,9 +15,15 @@ const formatElbaUserAuthMethod = (user: DatadogUser) => {
   }
   return 'password';
 };
+const formatElbaUserDisplayName = (user: DatadogUser) => {
+  if (user.attributes.name === '') {
+    return user.attributes.email;
+  }
+  return user.attributes.name;
+};
 const formatElbaUser = (user: DatadogUser): User => ({
   id: user.id,
-  displayName: user.attributes.name,
+  displayName: formatElbaUserDisplayName(user),
   email: user.attributes.email,
   authMethod: formatElbaUserAuthMethod(user),
   additionalEmails: [],
@@ -77,7 +83,7 @@ export const syncUsers = inngest.createFunction(
         apiKey: decryptedToken,
         appKey,
         sourceRegion,
-        afterCursor: page,
+        page,
       });
 
       const users = result.validUsers
@@ -103,7 +109,7 @@ export const syncUsers = inngest.createFunction(
         name: 'datadog/users.sync.requested',
         data: {
           ...event.data,
-          page: nextPage.toString(),
+          page: nextPage,
         },
       });
       return {

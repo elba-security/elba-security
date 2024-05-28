@@ -12,7 +12,7 @@ export const inngest = new Inngest({
         organisationId: string;
         isFirstSync: boolean;
         syncStartedAt: number;
-        page: string | null;
+        page: number;
       };
     };
     'datadog/app.installed': {
