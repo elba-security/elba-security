@@ -1,5 +1,5 @@
 {
-  "id": "cba44568-3315-4ac3-bf37-3818aea68660",
+  "id": "fdcaafc2-8307-42ff-aa5d-f4a46dd55ecc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -20,14 +20,14 @@
           "primaryKey": false,
           "notNull": true
         },
-        "appKey": {
-          "name": "appKey",
+        "app_key": {
+          "name": "app_key",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "sourceRegion": {
-          "name": "sourceRegion",
+        "source_region": {
+          "name": "source_region",
           "type": "text",
           "primaryKey": false,
           "notNull": true

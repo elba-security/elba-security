@@ -11,11 +11,14 @@ import { registerOrganisation } from './service';
 const formSchema = z.object({
   organisationId: z.string().uuid(),
   apiKey: z.string().min(1, { message: 'The api token is required' }).trim(),
-  appKey: z.string().min(1, { message: 'The appKey is required' }).trim(),
+  appKey: z.string().min(1, { message: 'The app key is required' }).trim(),
   sourceRegion: z
     .string()
-    .min(1, { message: 'The sourceRegion is required' })
-    .regex(/^(?:US|EU)$/, { message: 'The sourceRegion must be "US" or "EU"' }),
+    .nullable()
+    .transform((val) => val ?? '')
+    .refine((val) => val !== '', {
+      message: 'Select the region',
+    }),
   region: z.string().min(1),
 });
 
@@ -30,7 +33,7 @@ export type FormState = {
 export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
   const region = formData.get('region');
   try {
-    const result = formSchema.safeParse({
+    const validatedFields = formSchema.safeParse({
       apiKey: formData.get('apiKey'),
       appKey: formData.get('appKey'),
       sourceRegion: formData.get('sourceRegion'),
@@ -38,8 +41,8 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
       region: formData.get('region'),
     });
 
-    if (!result.success) {
-      const { fieldErrors } = result.error.flatten();
+    if (!validatedFields.success) {
+      const { fieldErrors } = validatedFields.error.flatten();
       if (fieldErrors.organisationId || fieldErrors.region) {
         redirect(
           getRedirectUrl({
@@ -56,13 +59,13 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
       };
     }
 
-    await registerOrganisation(result.data);
+    await registerOrganisation(validatedFields.data);
 
     redirect(
       getRedirectUrl({
         sourceId: env.ELBA_SOURCE_ID,
         baseUrl: env.ELBA_REDIRECT_URL,
-        region: result.data.region,
+        region: validatedFields.data.region,
       }),
       RedirectType.replace
     );
@@ -76,9 +79,9 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
     if (error instanceof DatadogError && error.response?.status === 401) {
       return {
         errors: {
-          apiKey: ['The given API token seems to be invalid'],
-          appKey: ['The given API appKey seems to be invalid'],
-          sourceRegion: ['The given sourceRegion seems to be invalid'],
+          apiKey: ['The given API Token seems to be invalid'],
+          appKey: ['The given API App Key seems to be invalid'],
+          sourceRegion: ['The given Source Region seems to be invalid'],
         },
       };
     }

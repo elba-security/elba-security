@@ -3,7 +3,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUser as deleteSourceUser } from '@/connectors/datadog/users';
+import { deleteUser as deleteDatadogUser } from '@/connectors/datadog/users';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 
@@ -45,7 +45,7 @@ export const deleteUser = inngest.createFunction(
 
     const apiKey = await decrypt(organisation.apiKey);
 
-    await deleteSourceUser({
+    await deleteDatadogUser({
       userId,
       apiKey,
       appKey: organisation.appKey,

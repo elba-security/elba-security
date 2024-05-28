@@ -8,6 +8,7 @@ import {
   Input,
   InstructionsStep,
   InstructionsSteps,
+  Select,
   SubmitButton,
 } from '@elba-security/design-system';
 import { useSearchParams } from 'next/navigation';
@@ -19,7 +20,6 @@ export default function InstallPage() {
   const searchParams = useSearchParams();
   const organisationId = searchParams.get('organisation_id');
   const region = searchParams.get('region');
-
   const [state, formAction] = useFormState<FormState, FormData>(install, {});
 
   return (
@@ -27,21 +27,25 @@ export default function InstallPage() {
       <h1>Setup Datadog integration</h1>
       <InstructionsSteps>
         <InstructionsStep index={1}>
-          <h3>How to generate api key?</h3>
-          <p>1. Log in to you account and navigate to API Keys</p>
-          <p>2. Click Create API Key.</p>
-          <p>
-            3. Give your API Key a name. For example, <b>elba-security</b> and create. Make sure to
-            copy the key.
-          </p>
+          <div>
+            <h3>How to obtain your DataDog Application Key and API Key?</h3>
+            <p>
+              1. In Datadog, Navigate to <b>Organization Settings</b>
+            </p>
+            <p>
+              2. For the Application key, create an application key on the Application Keys Page in
+              Datadog and input the key value in Elba. The minimum scope of the key must include:{' '}
+              <b>user_access_read, user_access_manage</b>
+            </p>
+            <p>
+              3. For the API key, create an API key from the API Keys Page in Datadog and input the
+              key value in Elba:
+            </p>
+            <p>4. For Region, choose between EU, US</p>
+          </div>
         </InstructionsStep>
+
         <InstructionsStep index={2}>
-          <h3>How to get your application key?</h3>
-          <p>1. 1. Log in to you account and navigate to Application Keys.</p>
-          <p>2. Click Create Application Key.</p>
-          <p>3. Give your Application Key a name. Make sure to copy the key.</p>
-        </InstructionsStep>
-        <InstructionsStep index={3}>
           <h3>Connect Datadog</h3>
           <Form action={formAction}>
             <FormField isInvalid={Boolean(state.errors?.apiKey?.at(0))}>
@@ -52,7 +56,7 @@ export default function InstallPage() {
               ) : null}
             </FormField>
             <FormField isInvalid={Boolean(state.errors?.appKey?.at(0))}>
-              <FormLabel>Your Application Key</FormLabel>
+              <FormLabel>Application Key</FormLabel>
               <Input
                 minLength={1}
                 name="appKey"
@@ -64,8 +68,13 @@ export default function InstallPage() {
               ) : null}
             </FormField>
             <FormField isInvalid={Boolean(state.errors?.sourceRegion?.at(0))}>
-              <FormLabel>Your Region</FormLabel>
-              <Input minLength={1} name="sourceRegion" placeholder="US or EU" type="text" />
+              <FormLabel>Region</FormLabel>
+
+              <Select name="sourceRegion" placeholder="Select a region">
+                <option value="us">US</option>
+                <option value="eu">EU</option>
+              </Select>
+
               {state.errors?.sourceRegion?.at(0) ? (
                 <FormErrorMessage>{state.errors.sourceRegion.at(0)}</FormErrorMessage>
               ) : null}

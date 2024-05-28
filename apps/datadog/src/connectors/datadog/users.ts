@@ -38,14 +38,14 @@ export type DeleteUsersParams = {
   apiKey: string;
 };
 
+const getRegionBasedUrl = (sourceRegion: string) => {
+  return sourceRegion === 'us' ? env.DATADOG_US_API_BASE_URL : env.DATADOG_EU_API_BASE_URL;
+};
+
 const pageSize = env.DATADOG_USERS_SYNC_BATCH_SIZE;
 
 export const getUsers = async ({ apiKey, appKey, sourceRegion, page = 0 }: GetUsersParams) => {
-  const url = new URL(
-    sourceRegion === 'US'
-      ? `${env.DATADOG_US_API_BASE_URL}/api/v2/users`
-      : `${env.DATADOG_EU_API_BASE_URL}/api/v2/users`
-  );
+  const url = new URL(`${getRegionBasedUrl(sourceRegion)}/api/v2/users`);
   url.searchParams.append('filter[status]', 'Active');
   url.searchParams.append('page[size]', String(pageSize));
   url.searchParams.append('page[number]', String(page));
@@ -87,11 +87,7 @@ export const getUsers = async ({ apiKey, appKey, sourceRegion, page = 0 }: GetUs
 };
 
 export const deleteUser = async ({ apiKey, appKey, sourceRegion, userId }: DeleteUsersParams) => {
-  const url = new URL(
-    sourceRegion === 'US'
-      ? `${env.DATADOG_US_API_BASE_URL}/api/v2/users/${userId}`
-      : `${env.DATADOG_EU_API_BASE_URL}/api/v2/users/${userId}`
-  );
+  const url = new URL(`${getRegionBasedUrl(sourceRegion)}/api/v2/users/${userId}`);
 
   const response = await fetch(url.toString(), {
     method: 'DELETE',
