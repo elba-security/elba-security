@@ -25,6 +25,8 @@ export const getUsers = async ({ token, tenantId, skipToken }: GetUsersParams) =
   const url = new URL(`${env.MICROSOFT_API_URL}/${tenantId}/users`);
   url.searchParams.append('$top', String(env.USERS_SYNC_BATCH_SIZE));
   url.searchParams.append('$select', 'id,mail,userPrincipalName,displayName');
+  url.searchParams.append('$filter', 'accountEnabled eq true');
+
   if (skipToken) {
     url.searchParams.append('$skiptoken', skipToken);
   }
