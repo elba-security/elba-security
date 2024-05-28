@@ -1,5 +1,6 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
+import { env } from '@/common/env';
 import { server } from '../../vitest/setup-msw-handlers';
 import { getAccessToken } from './auth';
 import { type WebflowError } from './commons/error';
@@ -10,7 +11,7 @@ const accessToken = 'access-token';
 describe('getAccessToken', () => {
   beforeEach(() => {
     server.use(
-      http.post('https://api.webflow.com/oauth/access_token', ({ request }) => {
+      http.post(`${env.WEBFLOW_API_BASE_URL}/oauth/access_token`, ({ request }) => {
         const url = new URL(request.url);
         const code = url.searchParams.get('code');
         if (code !== validAuthCode) {

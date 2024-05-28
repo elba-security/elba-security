@@ -24,7 +24,7 @@ export function GET(request: NextRequest) {
   redirectUrl.searchParams.append('response_type', 'code');
   redirectUrl.searchParams.append('client_id', env.WEBFLOW_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.WEBFLOW_REDIRECT_URI);
-  redirectUrl.searchParams.append('scope', 'users:read users:write');
+  redirectUrl.searchParams.append('scope', 'users:read users:write sites:read');
   redirectUrl.searchParams.append('state', state);
 
   redirect(redirectUrl.toString());
