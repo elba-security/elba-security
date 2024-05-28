@@ -14,7 +14,7 @@ const maxUsers = 20;
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get(`https://api.webflow.com/v2/sites/${siteId}/users`, ({ request }) => {
+      http.get(`${env.WEBFLOW_API_BASE_URL}/v2/sites/${siteId}/users`, ({ request }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
@@ -60,12 +60,15 @@ describe('getUsers', () => {
 describe('deleteUser', () => {
   beforeEach(() => {
     server.use(
-      http.delete(`https://api.webflow.com/v2/sites/${siteId}/users/${userId}`, ({ request }) => {
-        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-          return new Response(undefined, { status: 401 });
+      http.delete(
+        `${env.WEBFLOW_API_BASE_URL}/v2/sites/${siteId}/users/${userId}`,
+        ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+          return new Response(undefined, { status: 204 });
         }
-        return new Response(undefined, { status: 204 });
-      })
+      )
     );
   });
 

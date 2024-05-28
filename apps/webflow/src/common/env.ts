@@ -17,6 +17,7 @@ export const env = z
     WEBFLOW_CLIENT_ID: z.string().min(1),
     WEBFLOW_CLIENT_SECRET: z.string().min(1),
     WEBFLOW_REDIRECT_URI: z.string().url().min(1),
+    WEBFLOW_API_BASE_URL: z.string().url().default('https://api.webflow.com'),
     ENCRYPTION_KEY: z.string().length(64),
     WEBFLOW_DELETE_USER_CONCURRENCY: zEnvInt().default(1),
   })
