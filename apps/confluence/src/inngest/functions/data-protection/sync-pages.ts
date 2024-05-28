@@ -29,7 +29,7 @@ export const syncPages = inngest.createFunction(
     event: 'confluence/data_protection.pages.sync.requested',
   },
   async ({ event, step }) => {
-    const { organisationId, cursor, syncStartedAt } = event.data;
+    const { organisationId, cursor, syncStartedAt, isFirstSync } = event.data;
 
     const organisation = await step.run('get-organisation', () => getOrganisation(organisationId));
 
@@ -60,7 +60,9 @@ export const syncPages = inngest.createFunction(
       await step.sendEvent('request-next-pages-sync', {
         name: 'confluence/data_protection.pages.sync.requested',
         data: {
-          ...event.data,
+          organisationId,
+          isFirstSync,
+          syncStartedAt,
           cursor: nextCursor,
         },
       });
