@@ -71,12 +71,13 @@ export const getUsers = async ({ accessToken, accountId, cursor }: GetUsersParam
 
 export const deleteUser = async ({ userId, accountId, accessToken }: DeleteUsersParams) => {
   const response = await fetch(`${env.HARVEST_API_BASE_URL}/users/${parseInt(userId)}`, {
-    method: 'DELETE',
+    method: 'PATCH',
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
       'Harvest-Account-Id': String(accountId),
     },
+    body: JSON.stringify({ is_active: false }),
   });
 
   if (!response.ok) {

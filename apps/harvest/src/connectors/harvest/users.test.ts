@@ -74,7 +74,7 @@ describe('users connector', () => {
   describe('deleteUser', () => {
     beforeEach(() => {
       server.use(
-        http.delete<{ userId: string }>(
+        http.patch<{ userId: string }>(
           `${env.HARVEST_API_BASE_URL}/users/:userId`,
           ({ request }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
