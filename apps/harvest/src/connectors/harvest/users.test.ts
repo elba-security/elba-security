@@ -36,9 +36,7 @@ describe('users connector', () => {
 
           const url = new URL(request.url);
           const cursor = url.searchParams.get('cursor');
-          const responseData = cursor
-            ? { users: validUsers, links: { next: nextCursor } }
-            : { users: validUsers, links: { next: null } };
+          const responseData = { users: validUsers, links: { next: cursor ? nextCursor : null } }
           return Response.json(responseData);
         })
       );
