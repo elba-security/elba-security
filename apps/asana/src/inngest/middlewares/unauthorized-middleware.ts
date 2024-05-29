@@ -1,20 +1,27 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
-import { Elba } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm/sql';
-import { AsanaError } from '@/connectors/commons/error';
-import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { env } from '@/env';
+import { z } from 'zod';
+import { AsanaError } from '@/connectors/common/error';
 
-const hasDataOrganisationId = (data: unknown): data is { organisationId: string } =>
-  typeof data === 'object' &&
-  data !== null &&
-  'organisationId' in data &&
-  typeof data.organisationId === 'string';
+const requiredDataSchema = z.object({
+  organisationId: z.string().uuid(),
+});
+
+const asanaUnauthorizedError = z.object({
+  errors: z.array(
+    z.object({
+      extensions: z.object({
+        code: z.literal('AUTHENTICATION_ERROR'),
+      }),
+    })
+  ),
+});
+
+const hasRequiredDataProperties = (data: unknown): data is z.infer<typeof requiredDataSchema> =>
+  requiredDataSchema.safeParse(data).success;
 
 export const unauthorizedMiddleware = new InngestMiddleware({
-  name: 'rate-limit',
-  init: () => {
+  name: 'unauthorized',
+  init: ({ client }) => {
     return {
       onFunctionRun: ({
         fn,
@@ -29,19 +36,27 @@ export const unauthorizedMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (!(error instanceof AsanaError) || error.response?.status !== 401) {
+            if (!(error instanceof AsanaError) || !error.response) {
               return;
             }
 
-            if (hasDataOrganisationId(data)) {
-              const elba = new Elba({
-                organisationId: data.organisationId,
-                sourceId: env.ELBA_SOURCE_ID,
-                apiKey: env.ELBA_API_KEY,
-                baseUrl: env.ELBA_API_BASE_URL,
+            try {
+              const response: unknown = await error.response.clone().json();
+              const isUnauthorizedError = asanaUnauthorizedError.safeParse(response).success;
+              if (!isUnauthorizedError) {
+                return;
+              }
+            } catch (_error) {
+              return;
+            }
+
+            if (hasRequiredDataProperties(data)) {
+              await client.send({
+                name: 'asana/app.uninstalled',
+                data: {
+                  organisationId: data.organisationId,
+                },
               });
-              await db.delete(Organisation).where(eq(Organisation.id, data.organisationId));
-              await elba.connectionStatus.update({ hasError: true });
             }
 
             return {
@@ -49,7 +64,7 @@ export const unauthorizedMiddleware = new InngestMiddleware({
               result: {
                 ...result,
                 error: new NonRetriableError(
-                  `Asana return an unauthorized status code for '${fn.name}'`,
+                  `Asana returned an unauthorized status code for '${fn.name}'`,
                   {
                     cause: error,
                   }

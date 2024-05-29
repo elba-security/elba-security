@@ -1,12 +1,14 @@
 import type { User } from '@elba-security/sdk';
-import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
+import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
-import { getUsers, type AsanaUser } from '@/connectors/users';
-import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { env } from '@/env';
 import { inngest } from '@/inngest/client';
+import { getUsers } from '@/connectors/asana/users';
+import { db } from '@/database/client';
+import { organisationsTable } from '@/database/schema';
+import { decrypt } from '@/common/crypto';
+import { type AsanaUser } from '@/connectors/asana/users';
+import { createElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUser = (user: AsanaUser): User => ({
   id: user.gid,
@@ -17,7 +19,7 @@ const formatElbaUser = (user: AsanaUser): User => ({
 
 export const syncUsers = inngest.createFunction(
   {
-    id: 'sync-users',
+    id: 'asana-sync-users',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -25,55 +27,61 @@ export const syncUsers = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
-    retries: 3,
+    cancelOn: [
+      {
+        event: 'asana/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'asana/app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
+    retries: 5,
   },
-  { event: 'users/sync' },
+  { event: 'asana/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, offset } = event.data;
+    const { organisationId, syncStartedAt, page } = event.data;
 
-    const elba = new Elba({
-      organisationId,
-      sourceId: env.ELBA_SOURCE_ID,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-    });
+    const [organisation] = await db
+      .select({
+        token: organisationsTable.accessToken,
+        region: organisationsTable.region,
+      })
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
+    if (!organisation) {
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+    }
 
-    const accessToken = await step.run('get-access-token', async () => {
-      const [organisation] = await db
-        .select({ accessToken: Organisation.accessToken })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisationId));
+    const elba = createElbaClient({ organisationId, region: organisation.region });
+    const token = await decrypt(organisation.token);
 
-      if (!organisation) {
-        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+    const nextPage = await step.run('list-users', async () => {
+      const result = await getUsers({ accessToken: token, page });
+
+      const users = result.validUsers.map(formatElbaUser);
+
+      if (result.invalidUsers.length > 0) {
+        logger.warn('Retrieved users contains invalid data', {
+          organisationId,
+          invalidUsers: result.invalidUsers,
+        });
       }
 
-      return organisation.accessToken;
+      if (users.length > 0) {
+        await elba.users.update({ users });
+      }
+
+      return result.nextPage;
     });
 
-    const nextOffset = await step.run('list-users', async () => {
-      // retrieve this users page
-      const result = await getUsers(
-        accessToken,
-        // TODO: retrieve this workspace id from somewhere
-        '1205941523188542',
-        offset
-      );
-      // format each SaaS users to elba users
-      const users = result.users.map(formatElbaUser);
-      // send the batch of users to elba
-      await elba.users.update({ users });
-
-      return result.offset;
-    });
-
-    // if there is a next enqueue a new sync user event
-    if (nextOffset) {
-      await step.sendEvent('sync-users', {
-        name: 'users/sync',
+    if (nextPage) {
+      await step.sendEvent('synchronize-users', {
+        name: 'asana/users.sync.requested',
         data: {
           ...event.data,
-          offset: nextOffset,
+          page: nextPage,
         },
       });
       return {
@@ -81,7 +89,6 @@ export const syncUsers = inngest.createFunction(
       };
     }
 
-    // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

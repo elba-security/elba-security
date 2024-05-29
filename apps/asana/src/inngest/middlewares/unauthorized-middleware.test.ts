@@ -1,37 +1,29 @@
 import { beforeEach } from 'node:test';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
-import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { AsanaError } from '@/connectors/commons/error';
-import { spyOnElbaSdk } from '@/__mocks__/elba-sdk';
+import { organisationsTable } from '@/database/schema';
+import { AsanaError } from '@/connectors/common/error';
 import { unauthorizedMiddleware } from './unauthorized-middleware';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  name: 'foo',
-  email: 'foo@bar.io',
-  accessToken: 'some-access-token',
-  refreshToken: 'some-refresh-token',
-  expiresIn: 12,
-  asanaId: 'some-asana-id',
-  gid: 'some-gid',
-  webhookSecret: 'some-webhook-secret',
-  createdAt: new Date(),
+  id: '00000000-0000-0000-0000-000000000001',
+  accessToken: 'access-token',
+  refreshToken: 'refresh-token',
+  region: 'us',
 };
 
 describe('unauthorized middleware', () => {
   beforeEach(async () => {
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
   });
 
   test('should not transform the output when their is no error', async () => {
-    const elba = spyOnElbaSdk();
-
+    const send = vi.fn().mockResolvedValue(undefined);
     await expect(
       unauthorizedMiddleware
-        .init()
+        // @ts-expect-error -- this is a mock
+        .init({ client: { send } })
         // @ts-expect-error -- this is a mock
         .onFunctionRun({ fn: { name: 'foo' }, ctx: { event: { data: {} } } })
         .transformOutput({
@@ -39,15 +31,15 @@ describe('unauthorized middleware', () => {
         })
     ).resolves.toBeUndefined();
 
-    expect(elba.connectionStatus.update).toBeCalledTimes(0);
+    expect(send).toBeCalledTimes(0);
   });
 
-  test('should not transform the output when the error is not about github authorization', async () => {
-    const elba = spyOnElbaSdk();
-
+  test('should not transform the output when the error is not about Asana authorization', async () => {
+    const send = vi.fn().mockResolvedValue(undefined);
     await expect(
       unauthorizedMiddleware
-        .init()
+        // @ts-expect-error -- this is a mock
+        .init({ client: { send } })
         // @ts-expect-error -- this is a mock
         .onFunctionRun({ fn: { name: 'foo' }, ctx: { event: { data: {} } } })
         .transformOutput({
@@ -57,16 +49,14 @@ describe('unauthorized middleware', () => {
         })
     ).resolves.toBeUndefined();
 
-    expect(elba.connectionStatus.update).toBeCalledTimes(0);
+    expect(send).toBeCalledTimes(0);
   });
 
-  test('should transform the output error to NonRetriableError and remove the organisation when the error is about github authorization', async () => {
-    const elba = spyOnElbaSdk();
+  test('should transform the output error to NonRetriableError and remove the organisation when the error is about Asana authorization', async () => {
     const unauthorizedError = new AsanaError('foo bar', {
-      // @ts-expect-error this is a mock
-      response: {
-        status: 401,
-      },
+      response: new Response(
+        '{"errors":[{"message":"Authentication required, not authenticated","extensions":{"code":"AUTHENTICATION_ERROR","type":"authentication error","userError":true,"userPresentableMessage":"You need to authenticate to access this operation.","meta":{}}}]}'
+      ),
     });
 
     const context = {
@@ -80,13 +70,21 @@ describe('unauthorized middleware', () => {
       },
     };
 
+    const send = vi.fn().mockResolvedValue(undefined);
     const result = await unauthorizedMiddleware
-      .init()
+      // @ts-expect-error -- this is a mock
+      .init({ client: { send } })
       .onFunctionRun({
         // @ts-expect-error -- this is a mock
         fn: { name: 'foo' },
-        // @ts-expect-error -- this is a mock
-        ctx: { event: { data: { organisationId: organisation.id } } },
+        ctx: {
+          // @ts-expect-error -- this is a mock
+          event: {
+            data: {
+              organisationId: organisation.id,
+            },
+          },
+        },
       })
       .transformOutput(context);
     expect(result?.result.error).toBeInstanceOf(NonRetriableError);
@@ -101,12 +99,12 @@ describe('unauthorized middleware', () => {
       },
     });
 
-    expect(elba.connectionStatus.update).toBeCalledTimes(1);
-    expect(elba.connectionStatus.update).toBeCalledWith({
-      hasError: true,
+    expect(send).toBeCalledTimes(1);
+    expect(send).toBeCalledWith({
+      name: 'asana/app.uninstalled',
+      data: {
+        organisationId: organisation.id,
+      },
     });
-    await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
-    ).resolves.toHaveLength(0);
   });
 });

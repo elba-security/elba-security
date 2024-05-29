@@ -1,5 +1,6 @@
+import { removeOrganisation } from './organisations/remove-organisation';
 import { syncUsers } from './users/sync-users';
-import { tokenRefresh } from './users/refresh-token';
-import { scheduleTokenRefresh } from './users/schedule-token-refresh';
+import { scheduleUsersSync } from './users/schedule-users-sync';
+import { deleteUser } from './users/delete-users';
 
-export const inngestFunctions = [syncUsers, scheduleTokenRefresh, tokenRefresh];
+export const inngestFunctions = [removeOrganisation, scheduleUsersSync, syncUsers, deleteUser];

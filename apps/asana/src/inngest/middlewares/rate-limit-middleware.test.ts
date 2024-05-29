@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import { RetryAfterError } from 'inngest';
-import { AsanaError } from '@/connectors/commons/error';
+import { AsanaError } from '@/connectors/common/error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
 describe('rate-limit middleware', () => {
-  test('should not transform the output when their is no error', () => {
-    expect(
+  test('should not transform the output when their is no error', async () => {
+    await expect(
       rateLimitMiddleware
         .init()
         // @ts-expect-error -- this is a mock
@@ -13,11 +13,11 @@ describe('rate-limit middleware', () => {
         .transformOutput({
           result: {},
         })
-    ).toBeUndefined();
+    ).resolves.toBeUndefined();
   });
 
-  test('should not transform the output when the error is not about github rate limit', () => {
-    expect(
+  test('should not transform the output when the error is not about asana rate limit', async () => {
+    await expect(
       rateLimitMiddleware
         .init()
         // @ts-expect-error -- this is a mock
@@ -27,21 +27,17 @@ describe('rate-limit middleware', () => {
             error: new Error('foo bar'),
           },
         })
-    ).toBeUndefined();
+    ).resolves.toBeUndefined();
   });
 
-  test('should transform the output error to RetryAfterError when the error is about github rate limit', () => {
-    const retryAfter = '120';
+  test('should transform the output error to RetryAfterError when the error is about asana rate limit', async () => {
     const rateLimitError = new AsanaError('foo bar', {
-      response: {
-        status: 429,
-        headers: {
-          // @ts-expect-error this is a mock
-          get(name) {
-            if (name === 'Retry-After') return retryAfter;
-          },
-        },
-      },
+      response: new Response(
+        '{"errors":[{"message":"Rate limit exceeded","extensions":{"code":"RATELIMITED"}}]}',
+        {
+          headers: new Headers({ 'Retry-After': '10' }),
+        }
+      ),
     });
 
     const context = {
@@ -55,13 +51,13 @@ describe('rate-limit middleware', () => {
       },
     };
 
-    const result = rateLimitMiddleware
+    const result = await rateLimitMiddleware
       .init()
       // @ts-expect-error -- this is a mock
       .onFunctionRun({ fn: { name: 'foo' } })
       .transformOutput(context);
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect(result?.result.error.retryAfter).toStrictEqual(retryAfter);
+    expect(result?.result.error.retryAfter).toStrictEqual('10');
     expect(result).toMatchObject({
       foo: 'bar',
       baz: {

@@ -1,11 +1,11 @@
 {
-  "id": "6caf75c4-407b-40d2-94df-ee98f241259f",
+  "id": "fe083495-6779-443a-89ad-8ade32752fa8",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "organisation": {
-      "name": "organisation",
+    "organisations": {
+      "name": "organisations",
       "schema": "",
       "columns": {
         "id": {
@@ -14,17 +14,18 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "email": {
-          "name": "email",
+        "region": {
+          "name": "region",
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         },
         "access_token": {
           "name": "access_token",
@@ -37,37 +38,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "asana_id": {
-          "name": "asana_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "gid": {
-          "name": "gid",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "webhook_secret": {
-          "name": "webhook_secret",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {},
@@ -79,8 +49,8 @@
   "enums": {},
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   }
 }

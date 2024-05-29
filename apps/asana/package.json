@@ -1,6 +1,6 @@
 {
   "name": "@elba-security/asana",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 4000",
@@ -10,11 +10,11 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "type-check": "tsc --noEmit",
     "database:up": "docker-compose -p asana --profile edge --env-file=.env.local up -d",
     "database:down": "docker-compose -p asana down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
-    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
+    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts",
+    "database:open:db": "drizzle-kit studio --config ../../drizzle.config.ts"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
@@ -44,10 +44,11 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "dotenv": "^16.3.1",
-    "drizzle-kit": "^0.20.6",
+    "drizzle-kit": "^0.20.18",
     "eslint": "^8",
     "inngest-cli": "^0.25.2",
     "msw": "^2.0.1",
+    "pg": "^8.11.5",
     "postgres": "^3.4.3",
     "testcontainers": "^10.8.1",
     "typescript": "^5",
