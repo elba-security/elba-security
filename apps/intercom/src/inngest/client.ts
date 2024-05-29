@@ -9,29 +9,25 @@ export const inngest = new Inngest({
     'intercom/users.sync.requested': {
       data: {
         organisationId: string;
-        region: string;
         isFirstSync: boolean;
         syncStartedAt: number;
         page: string | null;
       };
     };
-    'intercom/intercom.elba_app.installed': {
+    'intercom/token.refresh.requested': {
       data: {
         organisationId: string;
-        region: string;
+      };
+      ts: number;
+    };
+    'intercom/app.installed': {
+      data: {
+        organisationId: string;
       };
     };
-    'intercom/intercom.token.refresh.requested': {
+    'intercom/app.uninstalled': {
       data: {
         organisationId: string;
-        region: string;
-      };
-      ts: number,
-    };
-    'intercom/intercom.elba_app.uninstalled': {
-      data: {
-        organisationId: string;
-        region: string;
       };
     };
   }>(),

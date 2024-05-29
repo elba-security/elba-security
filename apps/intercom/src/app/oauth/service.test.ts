@@ -1,16 +1,8 @@
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `setupOrganisation` function.
- * These tests illustrate potential scenarios and methodologies relevant for SaaS integration.
- * Developers should create tests tailored to their specific implementation and requirements.
- * Mock data and assertions here are simplified and may not cover all real-world complexities.
- * Expanding upon these tests to fit the actual logic and behaviors of specific integrations is crucial.
- */
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
-import * as authConnector from '@/connectors/auth';
+import * as authConnector from '@/connectors/intercom/auth';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { setupOrganisation } from './service';
 
@@ -19,13 +11,13 @@ const accessToken = 'some token';
 const region = 'us';
 const now = new Date();
 const getTokenData = {
-  id:"45a76301-f1dd-4a77-b12f-9d7d3fca3c90",
+  id: '00000000-0000-0000-0000-000000000001',
   accessToken,
 };
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  accessToken: 'COfmhPjXMRIOSAEAQAAAAAAAAAAAAAEY1Mq5FSDnzpEeKN3rpwEyFKtO02yusybc9RD4E8fAJxGh87KBOjAAAAFHAAAAAAAAQP-AHwAAAIAAAAAAAAAAAAAAAAAAAABgAAAAACAAAAAAAAAQAAJCFG4ji356a7MskwieyoEeQm38d4b2SgNuYTFSAFoA',
+  id: '00000000-0000-0000-0000-000000000001',
+  accessToken: 'some token',
   region,
 };
 
@@ -60,7 +52,7 @@ describe('setupOrganisation', () => {
 
     // verify the organisation token is set in the database
     await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toMatchObject([
       {
         accessToken,
@@ -87,16 +79,16 @@ describe('setupOrganisation', () => {
           organisationId: organisation.id,
           region,
         },
-      }      
+      },
     ]);
   });
-  
+
   test('should setup organisation when the code is valid and the organisation is already registered', async () => {
     // mock inngest client, only inngest.send should be used
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // pre-insert an organisation to simulate an existing entry
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     // mock getToken as above
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
@@ -117,9 +109,9 @@ describe('setupOrganisation', () => {
     // check if the token in the database is updated
     await expect(
       db
-        .select({ accessToken: Organisation.accessToken })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisation.id))
+        .select({ accessToken: organisationsTable.accessToken })
+        .from(organisationsTable)
+        .where(eq(organisationsTable.id, organisation.id))
     ).resolves.toMatchObject([
       {
         accessToken,
@@ -135,7 +127,6 @@ describe('setupOrganisation', () => {
           isFirstSync: true,
           organisationId: organisation.id,
           syncStartedAt: now.getTime(),
-          region,
           page: null,
         },
       },
@@ -143,9 +134,8 @@ describe('setupOrganisation', () => {
         name: 'intercom/intercom.elba_app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
-      }
+      },
     ]);
   });
 
@@ -172,7 +162,7 @@ describe('setupOrganisation', () => {
 
     // ensure no organisation is added or updated in the database
     await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toHaveLength(0);
 
     // ensure no sync users event is sent

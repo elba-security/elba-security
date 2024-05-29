@@ -1,7 +1,8 @@
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { getToken } from '@/connectors/auth';
+import { organisationsTable } from '@/database/schema';
+import { getToken } from '@/connectors/intercom/auth';
 import { inngest } from '@/inngest/client';
+import { decrypt } from '@/common/crypto';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -17,12 +18,12 @@ export const setupOrganisation = async ({
   const { accessToken } = await getToken(code);
 
   await db
-    .insert(Organisation)
+    .insert(organisationsTable)
     .values({ id: organisationId, accessToken, region })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
-        accessToken,
+        accessToken: await decrypt(accessToken),
         region,
       },
     });
@@ -39,7 +40,7 @@ export const setupOrganisation = async ({
       },
     },
     {
-      name: 'intercom/intercom.elba_app.installed',
+      name: 'intercom/app.installed',
       data: {
         organisationId,
         region,

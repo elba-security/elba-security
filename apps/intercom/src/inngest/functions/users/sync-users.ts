@@ -1,14 +1,14 @@
 import type { User } from '@elba-security/sdk';
-import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
-import { getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/intercom/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { env } from '@/env';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { type IntercomUser } from '@/connectors/users';
+import { type IntercomUser } from '@/connectors/intercom/users';
+import { createElbaClient } from '@/connectors/elba/client';
+import { decrypt } from '@/common/crypto';
 
 const formatElbaUser = (user: IntercomUser): User => ({
   id: user.id,
@@ -19,59 +19,61 @@ const formatElbaUser = (user: IntercomUser): User => ({
 
 export const synchronizeUsers = inngest.createFunction(
   {
-    id: 'synchronize-users',
+    id: 'intercom-sync-users',
     priority: {
-      run: 'event.data.isFirstSync ? 600 : -600',
+      run: 'event.data.isFirstSync ? 600 : 0',
     },
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
     },
-    retries: 3,
+    cancelOn: [
+      {
+        event: 'intercom/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'intercom/app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
+    retries: 5,
   },
   { event: 'intercom/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page, region } = event.data;
+    const { organisationId, syncStartedAt, page } = event.data;
 
-    const elba = new Elba({
-      organisationId,
-      // sourceId: env.ELBA_SOURCE_ID,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-      region,
-    });
+    const [organisation] = await db
+      .select({ token: organisationsTable.accessToken, region: organisationsTable.region })
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
 
-    const token = await step.run('get-token', async () => {
-      const [organisation] = await db
-        .select({ token: Organisation.accessToken })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisationId));
-      if (!organisation) {
-        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-      }
-      return organisation.token;
-    });
-    console.log("token:", token)
+    if (!organisation) {
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+    }
+
+    const elba = createElbaClient({ organisationId, region: organisation.region });
+    const token = await decrypt(organisation.token);
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ token, next: page });
+      const result = await getUsers({ accessToken: token, next: page });
 
       const users = result.validUsers.map(formatElbaUser);
 
-      console.log("users:", users)
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
           organisationId,
           invalidUsers: result.invalidUsers,
         });
       }
-      await elba.users.update({ users });
+
+      if (users.length > 0) {
+        await elba.users.update({ users });
+      }
 
       return result.nextPage;
     });
-    console.log("nextPage:", nextPage)
 
-    // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('synchronize-users', {
         name: 'intercom/users.sync.requested',
@@ -85,7 +87,6 @@ export const synchronizeUsers = inngest.createFunction(
       };
     }
 
-    // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

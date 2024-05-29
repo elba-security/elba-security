@@ -1,13 +1,13 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/intercom/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { synchronizeUsers } from './synchronize-users';
+import { organisationsTable } from '@/database/schema';
+import { synchronizeUsers } from './sync-users';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
   accessToken: 'test-access-token',
   region: 'us',
 };
@@ -38,7 +38,6 @@ describe('synchronize-users', () => {
       isFirstSync: false,
       syncStartedAt: Date.now(),
       page: null,
-      region: 'us',
     });
 
     // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
@@ -51,7 +50,7 @@ describe('synchronize-users', () => {
 
   test('should continue the sync when there is a next page', async () => {
     // setup the test with an organisation
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     // mock the getUser function that returns SaaS users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -64,7 +63,6 @@ describe('synchronize-users', () => {
       isFirstSync: false,
       syncStartedAt,
       page: next,
-      region: 'us',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -89,7 +87,7 @@ describe('synchronize-users', () => {
   });
 
   test('should finalize the sync when there is a no next page', async () => {
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -102,7 +100,6 @@ describe('synchronize-users', () => {
       isFirstSync: false,
       syncStartedAt,
       page: null,
-      region: 'us',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });

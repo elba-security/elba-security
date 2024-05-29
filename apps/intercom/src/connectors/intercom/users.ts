@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { IntercomError } from './commons/error';
+import { IntercomError } from '../common/error';
 
 const intercomUserSchema = z.object({
   id: z.string(),

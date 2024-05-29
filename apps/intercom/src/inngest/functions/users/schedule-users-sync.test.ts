@@ -1,15 +1,15 @@
 import { expect, test, describe, beforeAll, vi, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { scheduleUsersSynchronize } from './schedule-users-synchronize';
+import { organisationsTable } from '@/database/schema';
+import { scheduleUsersSynchronize } from './schedule-users-sync';
 
 const now = Date.now();
 
 const setup = createInngestFunctionMock(scheduleUsersSynchronize);
 
 export const organisations = Array.from({ length: 5 }, (_, i) => ({
-  id: `b91f113b-bcf9-4a28-98c7-5b13fb671c1${i}`,
+  id: `00000000-0000-0000-0000-00000000000${i}`,
   region: 'us',
   accessToken: `some access-token${i}`,
 }));
@@ -30,21 +30,19 @@ describe('schedule-users-syncs', () => {
   });
 
   test('should schedule jobs when there are organisations', async () => {
-    await db.insert(Organisation).values(organisations);
+    await db.insert(organisationsTable).values(organisations);
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- convenience
-      organisations: organisations.map(({ accessToken, ...organisation }) => organisation),
+      organisations: organisations.map(({ id }) => ({ id })),
     });
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'synchronize-users',
-      organisations.map(({ id, region }) => ({
+      'intercom-synchronize-users',
+      organisations.map(({ id }) => ({
         name: 'intercom/users.sync.requested',
         data: {
           organisationId: id,
-          region,
           syncStartedAt: now,
           isFirstSync: false,
           page: null,

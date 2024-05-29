@@ -2,11 +2,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
-import { env } from '@/env';
-import { server } from '../../vitest/setup-msw-handlers';
+import { server } from '@elba-security/test-utils';
+import { env } from '@/common/env';
+import { IntercomError } from '../common/error';
 import type { IntercomUser } from './users';
 import { getUsers } from './users';
-import { IntercomError } from './commons/error';
 
 const validToken = 'token-1234';
 const nextCursor = 'next-cursor';

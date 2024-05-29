@@ -7,8 +7,8 @@
  * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
  */
 
-import { env } from '@/env';
-import { IntercomError } from './commons/error';
+import { env } from '@/common/env';
+import { IntercomError } from '../common/error';
 
 type GetTokenResponseData = { access_token: string };
 
