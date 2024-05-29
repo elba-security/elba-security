@@ -21,7 +21,6 @@ const formatElbaUser = (user: HarvestUser): User => ({
   displayName: formatElbaUserDisplayName(user),
   email: user.email,
   role: user.access_roles.includes('administrator') ? 'administrator' : 'member',
-  authMethod: undefined,
   additionalEmails: [],
 });
 

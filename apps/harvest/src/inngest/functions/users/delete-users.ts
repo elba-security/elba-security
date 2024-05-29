@@ -8,7 +8,7 @@ import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 import { getAccountIds } from '@/connectors/harvest/auth';
 
-export const deleteUsers = inngest.createFunction(
+export const deleteUser = inngest.createFunction(
   {
     id: 'harvest-delete-users',
     concurrency: {

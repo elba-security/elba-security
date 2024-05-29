@@ -76,7 +76,7 @@ describe('setupOrganisation', () => {
           isFirstSync: true,
           organisationId: organisation.id,
           syncStartedAt: now.getTime(),
-          page: null,
+          cursor: null,
         },
       },
       {
@@ -84,6 +84,13 @@ describe('setupOrganisation', () => {
         data: {
           organisationId: organisation.id,
           region,
+        },
+      },
+      {
+        name: 'harvest/token.refresh.requested',
+        data: {
+          organisationId: organisation.id,
+          expiresAt: now.getTime() + 60 * 1000,
         },
       },
     ]);
@@ -131,7 +138,7 @@ describe('setupOrganisation', () => {
           isFirstSync: true,
           organisationId: organisation.id,
           syncStartedAt: now.getTime(),
-          page: null,
+          cursor: null,
         },
       },
       {
@@ -139,6 +146,13 @@ describe('setupOrganisation', () => {
         data: {
           organisationId: organisation.id,
           region,
+        },
+      },
+      {
+        name: 'harvest/token.refresh.requested',
+        data: {
+          organisationId: organisation.id,
+          expiresAt: now.getTime() + 60 * 1000,
         },
       },
     ]);

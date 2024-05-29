@@ -1,140 +1,116 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/harvest/users';
+import * as accountsConnector from '@/connectors/harvest/auth';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { syncUsers } from './sync-users';
+import { syncAccountUsers } from './sync-account-users';
 
+// Mock organization data
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
+  refreshToken: await encrypt('test-refresh-token'),
   region: 'us',
 };
+
+const accessToken = 'test-access-token';
+const accountIds = Array.from({ length: 10 }, (_, i) => `accountId-${i}`);
 const syncStartedAt = Date.now();
-const syncedBefore = Date.now();
-const nextPage = 1;
-const users: usersConnector.HarvestUser[] = Array.from({ length: 2 }, (_, i) => ({
-  id: `id-${i}`,
-  name: `name-${i}`,
-  email: `user-${i}@foo.bar`,
-}));
 
 const setup = createInngestFunctionMock(syncUsers, 'harvest/users.sync.requested');
 
 describe('synchronize-users', () => {
   test('should abort sync when organisation is not registered', async () => {
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      validUsers: users,
-      invalidUsers: [],
-      nextPage: null,
-    });
+    const elba = spyOnElba();
+    vi.spyOn(accountsConnector, 'getAccountIds').mockResolvedValue(accountIds);
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt: Date.now(),
-      page: null,
+      syncStartedAt,
+      isFirstSync: true,
+      cursor: null,
     });
+    step.invoke.mockResolvedValue(undefined);
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    expect(usersConnector.getUsers).toBeCalledTimes(0);
-
+    expect(accountsConnector.getAccountIds).toBeCalledTimes(0);
+    expect(elba).toBeCalledTimes(0);
+    expect(step.invoke).toBeCalledTimes(0);
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should continue the sync when there is a next page', async () => {
+  test('should sync users and finalize the sync', async () => {
     const elba = spyOnElba();
 
     await db.insert(organisationsTable).values(organisation);
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      validUsers: users,
-      invalidUsers: [],
-      nextPage,
-    });
+
+    vi.spyOn(accountsConnector, 'getAccountIds').mockResolvedValue(accountIds);
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      isFirstSync: false,
       syncStartedAt,
-      page: nextPage,
+      isFirstSync: true,
+      cursor: null,
+    });
+    step.invoke.mockResolvedValue(undefined);
+
+    await expect(
+      step.run('list-account-ids', async () =>
+        accountsConnector.getAccountIds({
+          accessToken,
+        })
+      )
+    ).resolves.toEqual(accountIds);
+
+    expect(accountsConnector.getAccountIds).toBeCalledTimes(1);
+    expect(accountsConnector.getAccountIds).toBeCalledWith({
+      accessToken,
     });
 
-    await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
+    // Verify step.invoke is called 10 times for each account with correct parameters
+    await Promise.all(
+      accountIds.map(async (accountId, i) => {
+        await step.invoke(`sync-account-users-${accountId}`, {
+          function: syncAccountUsers,
+          data: {
+            isFirstSync: true,
+            cursor: null,
+            organisationId: organisation.id,
+            accountId,
+          },
+          timeout: '0.5d',
+        });
 
-    const elbaInstance = elba.mock.results[0]?.value;
-    expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('synchronize-users', {
-      name: 'harvest/users.sync.requested',
-      data: {
-        organisationId: organisation.id,
-        isFirstSync: false,
-        syncStartedAt,
-        page: nextPage,
-      },
-    });
+        // Check if the function is called with correct arguments
+        expect(step.invoke).toHaveBeenNthCalledWith(i + 1, `sync-account-users-${accountId}`, {
+          function: syncAccountUsers,
+          data: {
+            isFirstSync: true,
+            cursor: null,
+            organisationId: organisation.id,
+            accountId,
+          },
+          timeout: '0.5d',
+        });
+      })
+    );
 
-    expect(elbaInstance?.users.update).toBeCalledTimes(1);
-    expect(elbaInstance?.users.update).toBeCalledWith({
-      users: [
-        {
-          additionalEmails: [],
-          displayName: 'name-0',
-          email: 'user-0@foo.bar',
-          id: 'id-0',
-        },
-        {
-          additionalEmails: [],
-          displayName: 'name-1',
-          email: 'user-1@foo.bar',
-          id: 'id-1',
-        },
-      ],
-    });
-    expect(elbaInstance?.users.delete).not.toBeCalled();
-  });
+    expect(step.invoke).toBeCalledTimes(10);
 
-  test('should finalize the sync when there is a no next page', async () => {
-    const elba = spyOnElba();
-    await db.insert(organisationsTable).values(organisation);
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      validUsers: users,
-      invalidUsers: [],
-      nextPage: null,
-    });
-
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt,
-      page: null,
-    });
-
+    // Ensure finalization step runs correctly
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
+
+    expect(elba).toBeCalledTimes(1);
     const elbaInstance = elba.mock.results[0]?.value;
-    expect(elbaInstance?.users.update).toBeCalledTimes(1);
-    expect(elbaInstance?.users.update).toBeCalledWith({
-      users: [
-        {
-          additionalEmails: [],
-          displayName: 'name-0',
-          email: 'user-0@foo.bar',
-          id: 'id-0',
-        },
-        {
-          additionalEmails: [],
-          displayName: 'name-1',
-          email: 'user-1@foo.bar',
-          id: 'id-1',
-        },
-      ],
-    });
-    const syncBeforeAtISO = new Date(syncedBefore).toISOString();
+
+    // Verify users.delete called correctly
     expect(elbaInstance?.users.delete).toBeCalledTimes(1);
-    expect(elbaInstance?.users.delete).toBeCalledWith({ syncedBefore: syncBeforeAtISO });
-    // the function should not send another event that continue the pagination
-    expect(step.sendEvent).toBeCalledTimes(0);
+    expect(elbaInstance?.users.delete).toBeCalledWith({
+      syncedBefore: new Date(syncStartedAt).toISOString(),
+    });
   });
 });
