@@ -45,6 +45,9 @@ describe('groups connector', () => {
               limit: limitParam,
               size: chunk.length,
               results: chunk,
+              _links: {
+                next: startParam + limitParam <= groups.length ? 'nextLink' : undefined,
+              },
             });
           }
         )
@@ -124,6 +127,7 @@ describe('groups connector', () => {
                 limit,
                 size: 0,
                 results: [],
+                _links: {},
               });
             }
 
@@ -133,6 +137,9 @@ describe('groups connector', () => {
               limit,
               size: chunk.length,
               results: chunk,
+              _links: {
+                next: startParam + limit <= groups.length ? 'nextLink' : undefined,
+              },
             });
           }
         )

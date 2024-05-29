@@ -24,7 +24,7 @@ export const syncGroupUsers = inngest.createFunction(
   },
   { event: 'confluence/users.group_users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, cursor, syncStartedAt, groupId } = event.data;
+    const { organisationId, cursor, syncStartedAt, groupId, isFirstSync } = event.data;
 
     const organisation = await step.run('get-organisation', () => getOrganisation(organisationId));
 
@@ -61,7 +61,10 @@ export const syncGroupUsers = inngest.createFunction(
     await step.invoke('request-next-group-users-sync', {
       function: syncGroupUsers,
       data: {
-        ...event.data,
+        organisationId,
+        syncStartedAt,
+        isFirstSync,
+        groupId,
         cursor: nextCursor,
       },
     });
