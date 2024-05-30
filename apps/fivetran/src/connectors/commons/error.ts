@@ -1,12 +1,10 @@
-type FivetranErrorOptions = { response?: Response; request?: Request };
+type FivetranErrorOptions = { response?: Response };
 
 export class FivetranError extends Error {
   response?: Response;
-  request?: Request;
 
-  constructor(message: string, { response, request }: FivetranErrorOptions = {}) {
+  constructor(message: string, { response }: FivetranErrorOptions = {}) {
     super(message);
     this.response = response;
-    this.request = request;
   }
 }

@@ -20,6 +20,7 @@ const validUsers: FivetranUser[] = Array.from({ length: 2 }, (_, i) => ({
   role: 'Account Administrator',
   active: true,
   email: `user${i}@foo.bar`,
+  invited: false,
 }));
 
 const invalidUsers = [];
