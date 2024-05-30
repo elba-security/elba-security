@@ -5,7 +5,9 @@ import { AsanaError } from '../common/error';
 const asanaUserSchema = z.object({
   gid: z.string(),
   name: z.string(),
-  email: z.string(),
+  email: z.string().email(),
+  is_active: z.literal(true), // We only want active users
+  resource_type: z.literal('user'), // We only want users
 });
 
 export type AsanaUser = z.infer<typeof asanaUserSchema>;
@@ -33,9 +35,9 @@ export type DeleteUsersParams = {
 export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   const url = new URL(`${env.ASANA_API_BASE_URL}/users`);
 
-  const optFields = 'email, name';
-
-  url.searchParams.append('opt_fields', optFields);
+  url.searchParams.append('opt_fields', 'resource_type, email, name, is_active');
+  // In order to define the page 'limit', we need to provide the workspace id,  else it will return an error 400
+  // We don't provide the workspace id here because we list all users from all workspaces together
 
   if (page) {
     url.searchParams.append('offset', String(page));
@@ -58,9 +60,10 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
 
   const validUsers: AsanaUser[] = [];
   const invalidUsers: unknown[] = [];
-  const users = result.data;
 
-  for (const user of users) {
+  // We don't have any ways to eliminate the invited users, we send them all to elba even if they are invalid
+  // However, In Asana dashboard, we can't see the invited users tab
+  for (const user of result.data) {
     const userResult = asanaUserSchema.safeParse(user);
     if (userResult.success) {
       validUsers.push(userResult.data);
@@ -91,6 +94,6 @@ export const deleteUser = async ({ userId, workspaceId, accessToken }: DeleteUse
   });
 
   if (!response.ok) {
-    throw new AsanaError(`Could not remove a user with Id: ${userId}`, { response });
+    throw new AsanaError('Could not delete user', { response });
   }
 };

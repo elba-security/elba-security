@@ -47,20 +47,15 @@ export const refreshToken = inngest.createFunction(
 
       const refreshTokenInfo = await decrypt(organisation.refreshToken);
 
-      const {
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
-        expiresIn,
-      } = await getRefreshToken(refreshTokenInfo);
+      const { accessToken: newAccessToken, expiresIn } = await getRefreshToken(refreshTokenInfo);
 
       const encryptedAccessToken = await encrypt(newAccessToken);
-      const encryptedRefreshToken = await encrypt(newRefreshToken);
 
+      // We don't need to update the refresh token since it lives forever
       await db
         .update(organisationsTable)
         .set({
           accessToken: encryptedAccessToken,
-          refreshToken: encryptedRefreshToken,
         })
         .where(eq(organisationsTable.id, organisationId));
 

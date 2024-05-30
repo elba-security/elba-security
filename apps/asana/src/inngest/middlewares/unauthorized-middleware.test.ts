@@ -55,7 +55,19 @@ describe('unauthorized middleware', () => {
   test('should transform the output error to NonRetriableError and remove the organisation when the error is about Asana authorization', async () => {
     const unauthorizedError = new AsanaError('foo bar', {
       response: new Response(
-        '{"errors":[{"message":"Authentication required, not authenticated","extensions":{"code":"AUTHENTICATION_ERROR","type":"authentication error","userError":true,"userPresentableMessage":"You need to authenticate to access this operation.","meta":{}}}]}'
+        `
+        {
+          "errors": [
+            {
+              "message": "Not Authorized"
+            }
+          ]
+        }
+        `,
+        {
+          status: 401,
+          statusText: 'Unauthorized',
+        }
       ),
     });
 

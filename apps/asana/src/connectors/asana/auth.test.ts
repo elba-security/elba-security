@@ -19,7 +19,7 @@ describe('auth connector', () => {
   describe('getToken', () => {
     beforeEach(() => {
       server.use(
-        http.post(`${env.ASANA_APP_INSTALL_URL}oauth_token`, async ({ request }) => {
+        http.post(`${env.ASANA_APP_INSTALL_URL}/oauth_token`, async ({ request }) => {
           const body = await request.text();
           const searchParams = new URLSearchParams(body);
           const grantType = searchParams.get('grant_type');
@@ -54,7 +54,7 @@ describe('auth connector', () => {
   describe('getRefreshToken', () => {
     beforeEach(() => {
       server.use(
-        http.post(`${env.ASANA_APP_INSTALL_URL}oauth_token`, async ({ request }) => {
+        http.post(`${env.ASANA_APP_INSTALL_URL}/oauth_token`, async ({ request }) => {
           const body = await request.text();
           const searchParams = new URLSearchParams(body);
 
@@ -64,19 +64,18 @@ describe('auth connector', () => {
           if (grantType !== 'refresh_token' || token !== validRefreshToken) {
             return new Response(undefined, { status: 401 });
           }
+
           return Response.json({
             access_token: accessToken,
-            refresh_token: validRefreshToken,
             expires_in: expiresIn,
           });
         })
       );
     });
 
-    test('should return the refreshToken when the refreshToken is valid', async () => {
+    test('should return the new access token when the refreshToken is valid', async () => {
       await expect(getRefreshToken(validRefreshToken)).resolves.toStrictEqual({
         accessToken,
-        refreshToken: validRefreshToken,
         expiresIn,
       });
     });

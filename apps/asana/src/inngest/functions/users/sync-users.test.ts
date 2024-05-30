@@ -20,6 +20,8 @@ const users: usersConnector.AsanaUser[] = Array.from({ length: 2 }, (_, i) => ({
   gid: `id-${i}`,
   name: `name-${i}`,
   email: `user-${i}@foo.bar`,
+  resource_type: 'user',
+  is_active: true,
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'asana/users.sync.requested');

@@ -13,7 +13,7 @@ export const env = z
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
-    ASANA_APP_INSTALL_URL: z.string().url().default('https://asana.us/oauth/authorize'),
+    ASANA_APP_INSTALL_URL: z.string().url().default('https://app.asana.com/-'),
     ASANA_API_BASE_URL: z.string().url().default('https://api.asana.us/v2'),
     ASANA_CLIENT_ID: z.string().min(1),
     ASANA_CLIENT_SECRET: z.string().min(1),

@@ -25,10 +25,11 @@ export function GET(request: NextRequest) {
   cookies().set('region', region);
   cookies().set('state', state);
 
-  const redirectUrl = new URL(`${env.ASANA_APP_INSTALL_URL}oauth_authorize`);
+  const redirectUrl = new URL(`${env.ASANA_APP_INSTALL_URL}/oauth_authorize`);
   redirectUrl.searchParams.append('response_type', 'code');
   redirectUrl.searchParams.append('client_id', env.ASANA_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.ASANA_REDIRECT_URI);
+  redirectUrl.searchParams.append('state', state);
 
   redirect(redirectUrl.toString());
 }

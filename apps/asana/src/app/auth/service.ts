@@ -52,7 +52,6 @@ export const setupOrganisation = async ({
       name: 'asana/app.installed',
       data: {
         organisationId,
-        region,
       },
     },
     {

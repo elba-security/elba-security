@@ -6,12 +6,14 @@ const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),
 });
 
+// TODO: @Guillaume, We need to discussed about this schema
 const asanaUnauthorizedError = z.object({
   errors: z.array(
     z.object({
-      extensions: z.object({
-        code: z.literal('AUTHENTICATION_ERROR'),
-      }),
+      message: z.union([
+        z.literal('Not Authorized'),
+        z.string().refine((message) => message.includes('token has expired')),
+      ]),
     })
   ),
 });
@@ -42,6 +44,7 @@ export const unauthorizedMiddleware = new InngestMiddleware({
 
             try {
               const response: unknown = await error.response.clone().json();
+              // DOC: https://developers.asana.com/docs/errors#missing-authorization-header
               const isUnauthorizedError = asanaUnauthorizedError.safeParse(response).success;
               if (!isUnauthorizedError) {
                 return;

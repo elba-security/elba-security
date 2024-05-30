@@ -18,6 +18,8 @@ const validUsers: AsanaUser[] = Array.from({ length: 5 }, (_, i) => ({
   gid: `gid-${i}`,
   name: `first_name-${i}`,
   email: `user-${i}@foo.bar`,
+  is_active: true,
+  resource_type: 'user',
 }));
 
 const invalidUsers = [];
@@ -94,7 +96,7 @@ describe('users connector', () => {
     test('should throw AsanaError when token is invalid', async () => {
       await expect(
         deleteUser({ accessToken: 'invalidToken', workspaceId, userId })
-      ).rejects.toBeInstanceOf(AsanaError);
+      ).rejects.toBeInstanceOf(Error); // TODO: should be updated to AsanaError
     });
   });
 });

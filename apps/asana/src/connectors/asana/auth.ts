@@ -18,8 +18,11 @@ const workspaceResponseSchema = z.object({
 });
 
 export const getToken = async (code: string) => {
-  const response = await fetch(`${env.ASANA_APP_INSTALL_URL}oauth_token`, {
+  const response = await fetch(`${env.ASANA_APP_INSTALL_URL}/oauth_token`, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
     body: new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: env.ASANA_CLIENT_ID,
@@ -27,9 +30,6 @@ export const getToken = async (code: string) => {
       redirect_uri: env.ASANA_REDIRECT_URI,
       code,
     }).toString(),
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
   });
 
   if (!response.ok) {
@@ -52,18 +52,18 @@ export const getToken = async (code: string) => {
   };
 };
 
-export const getRefreshToken = async (refreshTokenInfo: string) => {
-  const response = await fetch(`${env.ASANA_APP_INSTALL_URL}oauth_token`, {
+export const getRefreshToken = async (refreshToken: string) => {
+  const response = await fetch(`${env.ASANA_APP_INSTALL_URL}/oauth_token`, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
     body: new URLSearchParams({
       grant_type: 'refresh_token',
       client_id: env.ASANA_CLIENT_ID,
       client_secret: env.ASANA_CLIENT_SECRET,
-      refresh_token: refreshTokenInfo,
+      refresh_token: refreshToken,
     }).toString(),
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
   });
 
   if (!response.ok) {
@@ -72,16 +72,21 @@ export const getRefreshToken = async (refreshTokenInfo: string) => {
 
   const data: unknown = await response.json();
 
-  const result = tokenResponseSchema.safeParse(data);
+  logger.info('Refresh token response', { data });
+
+  // Asana refresh token is long-lived and does not return a refresh token
+  const result = tokenResponseSchema.omit({ refresh_token: true }).safeParse(data);
 
   if (!result.success) {
-    logger.error('Invalid Jira refresh token response', { data });
-    throw new Error('Invalid Jira token response');
+    logger.error('Invalid Jira refresh token response', {
+      data,
+      result: JSON.stringify(result, null, 2),
+    });
+    throw new Error('Invalid Asana token response');
   }
 
   return {
     accessToken: result.data.access_token,
-    refreshToken: result.data.refresh_token,
     expiresIn: result.data.expires_in,
   };
 };
@@ -96,7 +101,7 @@ export const getWorkspaceIds = async (accessToken: string) => {
   });
 
   if (!response.ok) {
-    throw new AsanaError('Could not retrieve workspace');
+    throw new AsanaError('Could not retrieve workspace', { response });
   }
 
   const resData: unknown = await response.json();

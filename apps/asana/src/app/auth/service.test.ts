@@ -37,13 +37,10 @@ describe('setupOrganisation', () => {
   });
 
   test('should setup organisation when the code is valid and the organisation is not registered', async () => {
-    // mock inngest client, only inngest.send should be used
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mock the getToken function to return a predefined token
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
 
-    // assert the function resolves without returning a value
     await expect(
       setupOrganisation({
         organisationId: organisation.id,
@@ -52,11 +49,9 @@ describe('setupOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    // check if getToken was called correctly
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
-    // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)
@@ -67,7 +62,6 @@ describe('setupOrganisation', () => {
     expect(storedOrganisation.region).toBe(region);
     await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
 
-    // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
@@ -83,7 +77,6 @@ describe('setupOrganisation', () => {
         name: 'asana/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
       {
@@ -145,7 +138,6 @@ describe('setupOrganisation', () => {
         name: 'asana/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
       {
