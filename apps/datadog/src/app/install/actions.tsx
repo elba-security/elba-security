@@ -13,7 +13,9 @@ const formSchema = z.object({
   organisationId: z.string().uuid(),
   apiKey: z.string().min(1, { message: 'The api token is required' }).trim(),
   appKey: z.string().min(1, { message: 'The app key is required' }).trim(),
-  sourceRegion: z.enum(DATADOG_REGIONS),
+  sourceRegion: z.enum(DATADOG_REGIONS, {
+    errorMap: () => ({ message: 'The region is required' }),
+  }),
   region: z.string().min(1),
 });
 
