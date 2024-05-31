@@ -3,7 +3,6 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/common/env';
 import { DatadogError } from '../common/error';
 import type { DatadogUser } from './users';
 import { getUsers, deleteUser } from './users';
@@ -14,7 +13,7 @@ const endPage = 2;
 const nextPage = 1;
 const testId = 'test-id';
 const appKey = 'test-appKey';
-const sourceRegion = 'EU';
+const sourceRegion = 'EU1';
 const totalCount = 20;
 const totalFilteredCount = 41;
 
@@ -35,7 +34,7 @@ describe('users connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${env.DATADOG_EU_API_BASE_URL}/api/v2/users`, ({ request }) => {
+        http.get(`https://api.datadoghq.eu/api/v2/users`, ({ request }) => {
           if (request.headers.get('DD-API-KEY') !== validApiKey) {
             return new Response(undefined, { status: 401 });
           }
@@ -109,7 +108,7 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.delete<{ testId: string }>(
-          `${env.DATADOG_EU_API_BASE_URL}/api/v2/users/:userId`,
+          `https://api.datadoghq.eu/api/v2/users/:userId`,
           ({ request }) => {
             const url = new URL(request.url.toString());
             const userId = url.pathname.split('/').pop();

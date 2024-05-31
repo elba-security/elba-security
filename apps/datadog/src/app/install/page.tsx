@@ -13,6 +13,7 @@ import {
 } from '@elba-security/design-system';
 import { useSearchParams } from 'next/navigation';
 import { useFormState } from 'react-dom';
+import { DATADOG_REGIONS_NAMES } from '@/connectors/datadog/regions';
 import type { FormState } from './actions';
 import { install } from './actions';
 
@@ -41,7 +42,7 @@ export default function InstallPage() {
               3. For the API key, create an API key from the API Keys Page in Datadog and input the
               key value in Elba:
             </p>
-            <p>4. For Region, choose between EU, US</p>
+            <p>4. Choose your Datadog account region</p>
           </div>
         </InstructionsStep>
 
@@ -71,8 +72,11 @@ export default function InstallPage() {
               <FormLabel>Region</FormLabel>
 
               <Select name="sourceRegion" placeholder="Select a region">
-                <option value="us">US</option>
-                <option value="eu">EU</option>
+                {Object.entries(DATADOG_REGIONS_NAMES).map(([value, name]) => (
+                  <option key={value} value={value}>
+                    {`[${value}] - ${name}`}
+                  </option>
+                ))}
               </Select>
 
               {state.errors?.sourceRegion?.at(0) ? (

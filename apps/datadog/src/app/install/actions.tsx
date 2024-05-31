@@ -6,19 +6,14 @@ import { getRedirectUrl } from '@elba-security/sdk';
 import { isRedirectError } from 'next/dist/client/components/redirect';
 import { DatadogError } from '@/connectors/common/error';
 import { env } from '@/common/env';
+import { DATADOG_REGIONS } from '@/connectors/datadog/regions';
 import { registerOrganisation } from './service';
 
 const formSchema = z.object({
   organisationId: z.string().uuid(),
   apiKey: z.string().min(1, { message: 'The api token is required' }).trim(),
   appKey: z.string().min(1, { message: 'The app key is required' }).trim(),
-  sourceRegion: z
-    .string()
-    .nullable()
-    .transform((val) => val ?? '')
-    .refine((val) => val !== '', {
-      message: 'Select the region',
-    }),
+  sourceRegion: z.enum(DATADOG_REGIONS),
   region: z.string().min(1),
 });
 
