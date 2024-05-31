@@ -93,6 +93,10 @@ export const deleteUser = async ({ userId, workspaceId, accessToken }: DeleteUse
     }),
   });
 
+  if (response.status === 404) {
+    return;
+  }
+
   if (!response.ok) {
     throw new AsanaError('Could not delete user', { response });
   }

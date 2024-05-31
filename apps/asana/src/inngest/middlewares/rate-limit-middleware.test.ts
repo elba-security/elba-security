@@ -4,8 +4,8 @@ import { AsanaError } from '@/connectors/common/error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
 describe('rate-limit middleware', () => {
-  test('should not transform the output when their is no error', async () => {
-    await expect(
+  test('should not transform the output when their is no error', () => {
+    expect(
       rateLimitMiddleware
         .init()
         // @ts-expect-error -- this is a mock
@@ -13,11 +13,11 @@ describe('rate-limit middleware', () => {
         .transformOutput({
           result: {},
         })
-    ).resolves.toBeUndefined();
+    ).toBeUndefined();
   });
 
-  test('should not transform the output when the error is not about asana rate limit', async () => {
-    await expect(
+  test('should not transform the output when the error is not about Doppler rate limit', () => {
+    expect(
       rateLimitMiddleware
         .init()
         // @ts-expect-error -- this is a mock
@@ -27,17 +27,16 @@ describe('rate-limit middleware', () => {
             error: new Error('foo bar'),
           },
         })
-    ).resolves.toBeUndefined();
+    ).toBeUndefined();
   });
 
-  test('should transform the output error to RetryAfterError when the error is about asana rate limit', async () => {
+  test('should transform the output error to RetryAfterError when the error is about Doppler rate limit', () => {
     const rateLimitError = new AsanaError('foo bar', {
-      response: new Response(
-        '{"errors":[{"message":"Rate limit exceeded","extensions":{"code":"RATELIMITED"}}]}',
-        {
-          headers: new Headers({ 'Retry-After': '10' }),
-        }
-      ),
+      // @ts-expect-error this is a mock
+      response: {
+        status: 429,
+        headers: new Headers({ 'retry-after': '10' }),
+      },
     });
 
     const context = {
@@ -51,7 +50,7 @@ describe('rate-limit middleware', () => {
       },
     };
 
-    const result = await rateLimitMiddleware
+    const result = rateLimitMiddleware
       .init()
       // @ts-expect-error -- this is a mock
       .onFunctionRun({ fn: { name: 'foo' } })

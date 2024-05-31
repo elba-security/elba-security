@@ -7,7 +7,6 @@ import { deleteUser as deleteAsanaUser } from '@/connectors/asana/users';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 import { getWorkspaceIds } from '@/connectors/asana/auth';
-import { AsanaError } from '@/connectors/common/error';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -49,28 +48,15 @@ export const deleteUser = inngest.createFunction(
     });
 
     await Promise.all(
-      workspaceIds.map(async (workspaceId) => {
-        await step.run('delete-user-from-workspace', async () => {
-          try {
-            await deleteAsanaUser({
-              userId,
-              workspaceId,
-              accessToken,
-            });
-          } catch (error) {
-            // TODO: @Guillaume, This error should be handled  properly , We need to discuss about this
-            if (
-              error instanceof AsanaError &&
-              error.response?.status === 404 &&
-              error.response.statusText === 'Not Found'
-            ) {
-              return;
-            }
-
-            throw error;
-          }
-        });
-      })
+      workspaceIds.map(async (workspaceId) =>
+        step.run(`delete-user-from-workspace-${workspaceId}`, async () =>
+          deleteAsanaUser({
+            userId,
+            workspaceId,
+            accessToken,
+          })
+        )
+      )
     );
   }
 );

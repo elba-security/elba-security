@@ -96,7 +96,7 @@ describe('users connector', () => {
     test('should throw AsanaError when token is invalid', async () => {
       await expect(
         deleteUser({ accessToken: 'invalidToken', workspaceId, userId })
-      ).rejects.toBeInstanceOf(Error); // TODO: should be updated to AsanaError
+      ).rejects.toBeInstanceOf(AsanaError);
     });
   });
 });
