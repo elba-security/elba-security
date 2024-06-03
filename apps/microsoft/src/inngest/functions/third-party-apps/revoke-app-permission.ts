@@ -28,7 +28,7 @@ export const revokeAppPermission = inngest.createFunction(
       limit: 10,
     },
   },
-  async ({ event, logger }) => {
+  async ({ event, logger, step }) => {
     const { organisationId, appId, permissionId, oauthGrantIds } = event.data;
 
     if (!permissionId && !oauthGrantIds?.length) {
@@ -50,22 +50,29 @@ export const revokeAppPermission = inngest.createFunction(
 
     const token = await decrypt(organisation.token);
 
-    await Promise.all([
-      // oauthGrantIds max length is 2
-      ...(oauthGrantIds?.map((oauthGrantId) =>
-        deleteOauthGrant({
-          token,
-          oauthGrantId,
-        })
-      ) ?? []),
-      permissionId &&
-        deleteAppPermission({
+    if (oauthGrantIds) {
+      for (let i = 0; i < oauthGrantIds.length; i++) {
+        // eslint-disable-next-line no-await-in-loop -- convenience
+        await step.run(`delete-oauth-grant-${i}`, async () => {
+          await deleteOauthGrant({
+            token,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- convenience
+            oauthGrantId: oauthGrantIds[i]!,
+          });
+        });
+      }
+    }
+
+    if (permissionId) {
+      await step.run(`delete-app-user-permission`, async () => {
+        await deleteAppPermission({
           tenantId: organisation.tenantId,
           token,
           appId,
           permissionId,
-        }),
-    ]);
+        });
+      });
+    }
 
     return { status: 'deleted' };
   }
