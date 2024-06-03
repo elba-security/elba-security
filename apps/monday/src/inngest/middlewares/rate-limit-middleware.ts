@@ -1,16 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { z } from 'zod';
 import { MondayError } from '@/connectors/common/error';
-
-const mondayRateLimitError = z.object({
-  errors: z.array(
-    z.object({
-      extensions: z.object({
-        code: z.literal('RATELIMITED'),
-      }),
-    })
-  ),
-});
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
@@ -18,29 +7,17 @@ export const rateLimitMiddleware = new InngestMiddleware({
     return {
       onFunctionRun: ({ fn }) => {
         return {
-          transformOutput: async (ctx) => {
+          transformOutput: (ctx) => {
             const {
               result: { error, ...result },
               ...context
             } = ctx;
 
-            if (!(error instanceof MondayError) || !error.response) {
+            if (!(error instanceof MondayError) || error.response?.status !== 429) {
               return;
             }
 
-            try {
-              const response: unknown = await error.response.clone().json();
-              const isRateLimitError = mondayRateLimitError.safeParse(response).success;
-              if (!isRateLimitError) {
-                return;
-              }
-            } catch (_error) {
-              return;
-            }
-
-            // We are not sure of  retry-after header value, so we set it to 60 seconds
-            // https://developers.monday.app/docs/graphql/working-with-the-graphql-api/rate-limiting
-            const retryAfter = error.response.headers.get('Retry-After') || 60;
+            const retryAfter = error.response.headers.get('retry-after') || 60;
 
             return {
               ...context,

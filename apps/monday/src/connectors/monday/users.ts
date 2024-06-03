@@ -42,7 +42,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   }
 `;
 
-  const response = await fetch(`${env.MONDAY_API_BASE_URL}`, {
+  const response = await fetch(env.MONDAY_API_BASE_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
       invalidUsers.push(user);
     }
   }
-  const prevPage = page ? page : 0;
+  const prevPage = page || 0;
 
   return {
     validUsers,
@@ -89,8 +89,8 @@ export const deleteUsers = async ({ userIds, workspaceId, accessToken }: DeleteU
     }
   }`;
 
-  const response = await fetch(`${env.MONDAY_API_BASE_URL}`, {
-    method: 'post',
+  const response = await fetch(env.MONDAY_API_BASE_URL, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,

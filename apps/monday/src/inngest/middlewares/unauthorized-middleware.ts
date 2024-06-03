@@ -6,16 +6,6 @@ const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),
 });
 
-const mondayUnauthorizedError = z.object({
-  errors: z.array(
-    z.object({
-      extensions: z.object({
-        code: z.literal('AUTHENTICATION_ERROR'),
-      }),
-    })
-  ),
-});
-
 const hasRequiredDataProperties = (data: unknown): data is z.infer<typeof requiredDataSchema> =>
   requiredDataSchema.safeParse(data).success;
 
@@ -36,17 +26,11 @@ export const unauthorizedMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (!(error instanceof MondayError) || !error.response) {
-              return;
-            }
-
-            try {
-              const response: unknown = await error.response.clone().json();
-              const isUnauthorizedError = mondayUnauthorizedError.safeParse(response).success;
-              if (!isUnauthorizedError) {
-                return;
-              }
-            } catch (_error) {
+            if (
+              !(error instanceof MondayError) ||
+              !error.response ||
+              ![401, 403].includes(error.response.status)
+            ) {
               return;
             }
 

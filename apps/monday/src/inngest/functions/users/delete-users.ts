@@ -50,7 +50,7 @@ export const deleteUsers = inngest.createFunction(
 
     await Promise.all(
       workspaceIds.map(async (workspaceId) => {
-        await step.run('delete-users-from-workspace', async () => {
+        await step.run(`delete-users-from-workspace-${workspaceId}`, async () => {
           return deleteMondayUser({
             userIds,
             workspaceId,
