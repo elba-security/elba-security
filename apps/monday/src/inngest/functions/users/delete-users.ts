@@ -5,7 +5,7 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUsers as deleteMondayUser } from '@/connectors/monday/users';
 import { decrypt } from '@/common/crypto';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { getWorkspaceIds } from '@/connectors/monday/auth';
 
 export const deleteUsers = inngest.createFunction(

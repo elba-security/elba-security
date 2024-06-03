@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server';
 import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { RedirectType, redirect } from 'next/navigation';
 import { getRedirectUrl } from '@elba-security/sdk';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { setupOrganisation } from './service';
 
 export const runtime = 'edge';
