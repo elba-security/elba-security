@@ -5,7 +5,7 @@ import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
-import { deleteAppPermission } from '@/connectors/microsoft/apps';
+import { deleteAppPermission, deleteOauthGrant } from '@/connectors/microsoft/apps';
 
 export const revokeAppPermission = inngest.createFunction(
   {
@@ -28,8 +28,13 @@ export const revokeAppPermission = inngest.createFunction(
       limit: 10,
     },
   },
-  async ({ event }) => {
-    const { organisationId, appId, permissionId } = event.data;
+  async ({ event, logger }) => {
+    const { organisationId, appId, permissionId, oauthGrantIds } = event.data;
+
+    if (!permissionId && !oauthGrantIds?.length) {
+      logger.warn('No permissions or oauth grant to delete', { appId, organisationId });
+      return { status: 'ignored' };
+    }
 
     const [organisation] = await db
       .select({
@@ -43,11 +48,25 @@ export const revokeAppPermission = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    await deleteAppPermission({
-      tenantId: organisation.tenantId,
-      token: await decrypt(organisation.token),
-      appId,
-      permissionId,
-    });
+    const token = await decrypt(organisation.token);
+
+    await Promise.all([
+      // oauthGrantIds max length is 2
+      ...(oauthGrantIds?.map((oauthGrantId) =>
+        deleteOauthGrant({
+          token,
+          oauthGrantId,
+        })
+      ) ?? []),
+      permissionId &&
+        deleteAppPermission({
+          tenantId: organisation.tenantId,
+          token,
+          appId,
+          permissionId,
+        }),
+    ]);
+
+    return { status: 'deleted' };
   }
 );
