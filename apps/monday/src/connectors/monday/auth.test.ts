@@ -18,7 +18,7 @@ type RequestBodyType = {
   client_id: string;
   client_secret: string;
   code: string;
-}
+};
 
 describe('auth connector', () => {
   describe('getToken', () => {
@@ -50,23 +50,12 @@ describe('auth connector', () => {
   describe('getWorkspaceIds', () => {
     beforeEach(() => {
       server.use(
-        http.post(`${env.MONDAY_API_BASE_URL}`, ({ request }) => {
+        http.post(env.MONDAY_API_BASE_URL, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${accessToken}`) {
             return new Response(undefined, { status: 401 });
           }
 
-          return Response.json({
-            data: {
-              boards: [
-                {
-                  workspace_id: workspaceId,
-                  workspace: {
-                    is_default_workspace: true,
-                  },
-                },
-              ],
-            },
-          });
+          return Response.json({ data: { workspaces: [{ id: workspaceId }] } });
         })
       );
     });

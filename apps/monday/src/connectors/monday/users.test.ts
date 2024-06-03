@@ -10,7 +10,7 @@ import { getUsers, deleteUsers } from './users';
 
 type RequestBody = {
   query: string;
-}
+};
 const validToken = 'token-1234';
 const endPage = 3;
 const firstPage = 1;
@@ -30,7 +30,7 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       server.use(
-        http.post(`${env.MONDAY_API_BASE_URL}`, async ({ request }) => {
+        http.post(env.MONDAY_API_BASE_URL, async ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -40,10 +40,9 @@ describe('users connector', () => {
 
           // Extract the page parameter using a regular expression
           const pageMatch = /page:\s*(?<pageNumber>\d+)/.exec(query);
-          const page =
-            pageMatch?.groups?.pageNumber
-              ? parseInt(pageMatch.groups.pageNumber, 10)
-              : undefined;
+          const page = pageMatch?.groups?.pageNumber
+            ? parseInt(pageMatch.groups.pageNumber, 10)
+            : undefined;
 
           return Response.json({
             data: {
