@@ -7,19 +7,30 @@ import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { syncUsers } from './sync-users';
 
+const installationId = 'test-installation-id';
+const organizationSlug = 'test-organization-slug';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
   region: 'us',
+  installationId,
+  organizationSlug,
 };
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const nextPage = '1';
 const users: usersConnector.SentryUser[] = Array.from({ length: 2 }, (_, i) => ({
-  gid: `id-${i}`,
+  id: `id-${i}`,
   name: `name-${i}`,
   email: `user-${i}@foo.bar`,
+  role: 'member',
+  user: {
+    isActive: true,
+    has2fa: false,
+  },
+  pending: false,
+  authMethod: 'password',
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'sentry/users.sync.requested');
@@ -85,12 +96,16 @@ describe('synchronize-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          role: 'member',
+          authMethod: 'password',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          role: 'member',
+          authMethod: 'password',
         },
       ],
     });
@@ -123,12 +138,16 @@ describe('synchronize-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          role: 'member',
+          authMethod: 'password',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          role: 'member',
+          authMethod: 'password',
         },
       ],
     });

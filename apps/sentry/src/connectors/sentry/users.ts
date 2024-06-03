@@ -91,7 +91,7 @@ export const getUsers = async ({ accessToken, cursor, organizationSlug }: GetUse
 
 export const deleteUser = async ({ userId, organizationSlug, accessToken }: DeleteUsersParams) => {
   const response = await fetch(
-    `${env.SENTRY_API_BASE_URL}/workspaces/${organizationSlug}/members/${userId}`,
+    `${env.SENTRY_API_BASE_URL}/organizations/${organizationSlug}/members/${userId}/`,
     {
       method: 'delete',
       headers: {
@@ -101,7 +101,7 @@ export const deleteUser = async ({ userId, organizationSlug, accessToken }: Dele
     }
   );
 
-  if (!response.ok && response.status === 404) {
+  if (!response.ok || response.status === 404) {
     throw new SentryError(`Could not delete a user with Id: ${userId}`, { response });
   }
 };

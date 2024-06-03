@@ -8,11 +8,16 @@ const now = Date.now();
 
 const setup = createInngestFunctionMock(scheduleUsersSync);
 
+const installationId = 'test-installation-id';
+const organizationSlug = 'test-organization-slug';
+
 export const organisations = Array.from({ length: 5 }, (_, i) => ({
   id: `00000000-0000-0000-0000-00000000000${i}`,
   accessToken: `test-access-token${i}`,
   refreshToken: `test-refresh-token${i}`,
   region: `us`,
+  installationId,
+  organizationSlug,
 }));
 
 describe('schedule-users-syncs', () => {

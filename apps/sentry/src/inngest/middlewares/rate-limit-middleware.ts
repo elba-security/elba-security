@@ -38,9 +38,10 @@ export const rateLimitMiddleware = new InngestMiddleware({
               return;
             }
 
-            // We are not sure of  retry-after header value, so we set it to 60 seconds
-            // https://developers.sentry.app/docs/graphql/working-with-the-graphql-api/rate-limiting
-            const retryAfter = error.response.headers.get('Retry-After') || 60;
+            const rateLimitReset = error.response.headers.get('x-sentry-rate-limit-reset');
+
+            const nowInSeconds = Math.floor(Date.now() / 1000);
+            const retryAfter = rateLimitReset ? parseInt(rateLimitReset) - nowInSeconds : 60;
 
             return {
               ...context,

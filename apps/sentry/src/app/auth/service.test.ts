@@ -11,19 +11,23 @@ import { setupOrganisation } from './service';
 const code = 'some-code';
 const accessToken = 'some token';
 const refreshToken = 'some refresh token';
-const expiresIn = 60;
+const expiresAt = '2100-01-01T00:00:00.000Z';
 const region = 'us';
 const now = new Date();
+const installationId = 'test-installation-id';
+const organizationSlug = 'test-organizationSlug';
 const getTokenData = {
   accessToken,
   refreshToken,
-  expiresIn,
+  expiresAt,
 };
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken,
   refreshToken,
+  installationId,
+  organizationSlug,
   region,
 };
 
@@ -49,12 +53,14 @@ describe('setupOrganisation', () => {
         organisationId: organisation.id,
         code,
         region,
+        installationId,
+        organizationSlug,
       })
     ).resolves.toBeUndefined();
 
     // check if getToken was called correctly
     expect(getToken).toBeCalledTimes(1);
-    expect(getToken).toBeCalledWith(code);
+    expect(getToken).toBeCalledWith(code, installationId);
 
     // verify the organisation token is set in the database
     const [storedOrganisation] = await db
@@ -90,7 +96,7 @@ describe('setupOrganisation', () => {
         name: 'sentry/token.refresh.requested',
         data: {
           organisationId: organisation.id,
-          expiresAt: now.getTime() + 60 * 1000,
+          expiresAt: new Date(expiresAt).getTime(),
         },
       },
     ]);
@@ -112,12 +118,14 @@ describe('setupOrganisation', () => {
         organisationId: organisation.id,
         code,
         region,
+        organizationSlug,
+        installationId,
       })
     ).resolves.toBeUndefined();
 
     // verify getToken usage
     expect(getToken).toBeCalledTimes(1);
-    expect(getToken).toBeCalledWith(code);
+    expect(getToken).toBeCalledWith(code, installationId);
 
     // check if the token in the database is updated
     const [storedOrganisation] = await db
@@ -152,7 +160,7 @@ describe('setupOrganisation', () => {
         name: 'sentry/token.refresh.requested',
         data: {
           organisationId: organisation.id,
-          expiresAt: now.getTime() + 60 * 1000,
+          expiresAt: new Date(expiresAt).getTime(),
         },
       },
     ]);
@@ -172,12 +180,14 @@ describe('setupOrganisation', () => {
         organisationId: organisation.id,
         code,
         region,
+        installationId,
+        organizationSlug,
       })
     ).rejects.toThrowError(error);
 
     // verify getToken usage
     expect(getToken).toBeCalledTimes(1);
-    expect(getToken).toBeCalledWith(code);
+    expect(getToken).toBeCalledWith(code, installationId);
 
     // ensure no organisation is added or updated in the database
     await expect(

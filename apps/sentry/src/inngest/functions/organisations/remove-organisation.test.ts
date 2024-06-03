@@ -7,11 +7,15 @@ import { organisationsTable } from '@/database/schema';
 import { env } from '@/common/env';
 import { removeOrganisation } from './remove-organisation';
 
+const installationId = 'test-installation-id';
+const organizationSlug = 'test-organization-slug';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: 'access-token',
   refreshToken: 'refresh-token',
   region: 'us',
+  installationId,
+  organizationSlug,
 };
 
 const setup = createInngestFunctionMock(removeOrganisation, 'sentry/app.uninstalled');

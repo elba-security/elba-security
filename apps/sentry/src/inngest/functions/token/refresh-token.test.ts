@@ -13,7 +13,7 @@ const newTokens = {
   accessToken: 'new-access-token',
   refreshToken: 'new-refresh-token',
 };
-
+const installationId = 'test-installation-id';
 const encryptedTokens = {
   accessToken: await encrypt(newTokens.accessToken),
   refreshToken: await encrypt(newTokens.refreshToken),
@@ -24,13 +24,13 @@ const organisation = {
   accessToken: encryptedTokens.accessToken,
   refreshToken: encryptedTokens.refreshToken,
   region: 'us',
-  cloudId: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  installationId,
+  organizationSlug: 'test-organization-slug',
 };
 const now = new Date();
 // current token expires in an hour
-const expiresAt = now.getTime() + 60 * 1000;
+const expiresAt = '2100-01-01T00:00:00.000Z';
 // next token duration
-const expiresIn = 60 * 1000;
 
 const setup = createInngestFunctionMock(refreshToken, 'sentry/token.refresh.requested');
 
@@ -46,12 +46,12 @@ describe('refresh-token', () => {
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(authConnector, 'getRefreshToken').mockResolvedValue({
       ...newTokens,
-      expiresIn,
+      expiresAt,
     });
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      expiresAt,
+      expiresAt: new Date(expiresAt).getTime(),
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -66,12 +66,12 @@ describe('refresh-token', () => {
 
     vi.spyOn(authConnector, 'getRefreshToken').mockResolvedValue({
       ...newTokens,
-      expiresIn,
+      expiresAt,
     });
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      expiresAt,
+      expiresAt: new Date(expiresAt).getTime(),
     });
 
     await expect(result).resolves.toBe(undefined);
@@ -91,14 +91,14 @@ describe('refresh-token', () => {
     );
 
     expect(authConnector.getRefreshToken).toBeCalledTimes(1);
-    expect(authConnector.getRefreshToken).toBeCalledWith(newTokens.refreshToken);
+    expect(authConnector.getRefreshToken).toBeCalledWith(newTokens.refreshToken, installationId);
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('next-refresh', {
       name: 'sentry/token.refresh.requested',
       data: {
         organisationId: organisation.id,
-        expiresAt: now.getTime() + expiresIn * 1000,
+        expiresAt: new Date(expiresAt).getTime(),
       },
     });
   });
