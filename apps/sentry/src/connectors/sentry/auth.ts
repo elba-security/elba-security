@@ -4,40 +4,35 @@ import { env } from '@/common/env';
 import { SentryError } from '../common/error';
 
 const tokenResponseSchema = z.object({
-  access_token: z.string(),
-  refresh_token: z.string(),
-  expires_in: z.number(),
+  token: z.string(),
+  refreshToken: z.string(),
+  expiresAt: z.string(),
 });
 
-const workspaceResponseSchema = z.object({
-  data: z.array(
-    z.object({
-      gid: z.string(),
-    })
-  ),
-});
+export const getToken = async (code: string, installationId: string) => {
+  const response = await fetch(
+    `${env.SENTRY_API_BASE_URL}/sentry-app-installations/${installationId}/authorizations/`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        grant_type: 'authorization_code',
+        code,
+        client_id: env.SENTRY_CLIENT_ID,
+        client_secret: env.SENTRY_CLIENT_SECRET,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
 
-export const getToken = async (code: string) => {
-  const response = await fetch(`${env.SENTRY_APP_INSTALL_URL}/token/`, {
-    method: 'POST',
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      client_id: env.SENTRY_CLIENT_ID,
-      client_secret: env.SENTRY_CLIENT_SECRET,
-      redirect_uri: env.SENTRY_REDIRECT_URI,
-      code,
-    }).toString(),
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  });
-  
   if (!response.ok) {
     throw new SentryError('Could not retrieve token', { response });
   }
 
   const data: unknown = await response.json();
 
+  // the schema is not correct now
   const result = tokenResponseSchema.safeParse(data);
 
   if (!result.success) {
@@ -46,25 +41,28 @@ export const getToken = async (code: string) => {
   }
 
   return {
-    accessToken: result.data.access_token,
-    refreshToken: result.data.refresh_token,
-    expiresIn: result.data.expires_in,
+    accessToken: result.data.token,
+    refreshToken: result.data.refreshToken,
+    expiresAt: result.data.expiresAt,
   };
 };
 
-export const getRefreshToken = async (refreshTokenInfo: string) => {
-  const response = await fetch(`${env.SENTRY_APP_INSTALL_URL}/token`, {
-    method: 'POST',
-    body: new URLSearchParams({
-      grant_type: 'refresh_token',
-      client_id: env.SENTRY_CLIENT_ID,
-      client_secret: env.SENTRY_CLIENT_SECRET,
-      refresh_token: refreshTokenInfo,
-    }).toString(),
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  });
+export const getRefreshToken = async (refreshTokenInfo: string, installationId: string) => {
+  const response = await fetch(
+    `${env.SENTRY_API_BASE_URL}/sentry-app-installations/${installationId}/authorizations/`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        grant_type: 'refresh_token',
+        refresh_token: refreshTokenInfo,
+        client_id: env.SENTRY_CLIENT_ID,
+        client_secret: env.SENTRY_CLIENT_SECRET,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
 
   if (!response.ok) {
     throw new SentryError('Could not retrieve token', { response });
@@ -75,47 +73,13 @@ export const getRefreshToken = async (refreshTokenInfo: string) => {
   const result = tokenResponseSchema.safeParse(data);
 
   if (!result.success) {
-    logger.error('Invalid Jira refresh token response', { data });
-    throw new Error('Invalid Jira token response');
+    logger.error('Invalid sentry refresh token response', { data });
+    throw new Error('Invalid sentry token response');
   }
 
   return {
-    accessToken: result.data.access_token,
-    refreshToken: result.data.refresh_token,
-    expiresIn: result.data.expires_in,
+    accessToken: result.data.token,
+    refreshToken: result.data.refreshToken,
+    expiresAt: result.data.expiresAt,
   };
-};
-
-export const getWorkspaceIds = async (accessToken: string) => {
-  const response = await fetch(`${env.SENTRY_API_BASE_URL}/workspaces`, {
-    method: 'get',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    throw new SentryError('Could not retrieve workspace');
-  }
-
-  const resData: unknown = await response.json();
-
-  const result = workspaceResponseSchema.safeParse(resData);
-
-  if (!result.success) {
-    throw new SentryError('Could not parse workspace response');
-  }
-
-  if (result.data.data.length === 0) {
-    throw new SentryError('No workspace found');
-  }
-
-  const workspaceIds = result.data.data.map((board) => board.gid);
-
-  if (!workspaceIds.length) {
-    throw new SentryError('No Main workspace found');
-  }
-
-  return workspaceIds;
 };

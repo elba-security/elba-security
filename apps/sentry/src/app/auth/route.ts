@@ -10,10 +10,12 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
+  const installationId = request.nextUrl.searchParams.get('installationId');
+  const organizationSlug = request.nextUrl.searchParams.get('orgSlug');
   const organisationId = request.cookies.get('organisation_id')?.value;
   const region = request.cookies.get('region')?.value;
 
-  if (!organisationId || !code || !region) {
+  if (!organisationId || !code || !region || !installationId || !organizationSlug) {
     return new ElbaInstallRedirectResponse({
       region,
       sourceId: env.ELBA_SOURCE_ID,
@@ -22,7 +24,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  await setupOrganisation({ organisationId, code, region });
+  await setupOrganisation({ organisationId, code, region, installationId, organizationSlug });
   redirect(
     getRedirectUrl({
       region,

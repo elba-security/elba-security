@@ -1,4 +1,3 @@
-import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/sentry/auth';
@@ -9,16 +8,19 @@ type SetupOrganisationParams = {
   organisationId: string;
   code: string;
   region: string;
+  organizationSlug: string;
+  installationId: string;
 };
 
 export const setupOrganisation = async ({
   organisationId,
   code,
   region,
+  installationId,
+  organizationSlug,
 }: SetupOrganisationParams) => {
-  const { accessToken, refreshToken, expiresIn } = await getToken(code);
+  const { accessToken, refreshToken, expiresAt } = await getToken(code, installationId);
 
-  console.log('accessToken:', accessToken);
   const encryptedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
 
@@ -28,6 +30,8 @@ export const setupOrganisation = async ({
       id: organisationId,
       accessToken: encryptedAccessToken,
       refreshToken: encodedRefreshToken,
+      installationId,
+      organizationSlug,
       region,
     })
     .onConflictDoUpdate({
@@ -35,6 +39,8 @@ export const setupOrganisation = async ({
       set: {
         accessToken: encryptedAccessToken,
         refreshToken: encodedRefreshToken,
+        installationId,
+        organizationSlug,
         region,
       },
     });
@@ -60,7 +66,7 @@ export const setupOrganisation = async ({
       name: 'sentry/token.refresh.requested',
       data: {
         organisationId,
-        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
+        expiresAt: new Date(expiresAt).getTime(),
       },
     },
   ]);

@@ -25,11 +25,5 @@ export function GET(request: NextRequest) {
   cookies().set('region', region);
   cookies().set('state', state);
 
-  const redirectUrl = new URL(`${env.SENTRY_APP_INSTALL_URL}/authorize`);
-  redirectUrl.searchParams.append('client_id', env.SENTRY_CLIENT_ID);
-  redirectUrl.searchParams.append('redirect_uri', env.SENTRY_REDIRECT_URI);
-  redirectUrl.searchParams.append('response_type', 'code');
-  redirectUrl.searchParams.append('scope', 'member:read member:write org:admin');
-
-  redirect(redirectUrl.toString());
+  redirect(`${env.SENTRY_APP_INSTALL_URL}`);
 }

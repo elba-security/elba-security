@@ -11,9 +11,11 @@ import { type SentryUser } from '@/connectors/sentry/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUser = (user: SentryUser): User => ({
-  id: user.gid,
+  id: user.id,
   displayName: user.name,
   email: user.email,
+  role: user.role,
+  authMethod: user.user?.has2fa ? 'mfa' : 'password',
   additionalEmails: [],
 });
 
@@ -46,6 +48,7 @@ export const syncUsers = inngest.createFunction(
     const [organisation] = await db
       .select({
         token: organisationsTable.accessToken,
+        organizationSlug: organisationsTable.organizationSlug,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -58,9 +61,15 @@ export const syncUsers = inngest.createFunction(
     const token = await decrypt(organisation.token);
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken: token, page });
+      const result = await getUsers({
+        accessToken: token,
+        cursor: page,
+        organizationSlug: organisation.organizationSlug,
+      });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers
+        .filter((user) => !user.pending && user.user && user.user.isActive) // Ensure both conditions are met
+        .map(formatElbaUser);
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

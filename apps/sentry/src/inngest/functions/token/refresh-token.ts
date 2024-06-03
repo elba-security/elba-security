@@ -1,5 +1,4 @@
 import { subMinutes } from 'date-fns/subMinutes';
-import { addSeconds } from 'date-fns/addSeconds';
 import { and, eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
@@ -37,6 +36,7 @@ export const refreshToken = inngest.createFunction(
       const [organisation] = await db
         .select({
           refreshToken: organisationsTable.refreshToken,
+          installationId: organisationsTable.installationId,
         })
         .from(organisationsTable)
         .where(and(eq(organisationsTable.id, organisationId)));
@@ -50,8 +50,8 @@ export const refreshToken = inngest.createFunction(
       const {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
-        expiresIn,
-      } = await getRefreshToken(refreshTokenInfo);
+        expiresAt: tokenExpiresAt,
+      } = await getRefreshToken(refreshTokenInfo, organisation.installationId);
 
       const encryptedAccessToken = await encrypt(newAccessToken);
       const encryptedRefreshToken = await encrypt(newRefreshToken);
@@ -64,7 +64,7 @@ export const refreshToken = inngest.createFunction(
         })
         .where(eq(organisationsTable.id, organisationId));
 
-      return addSeconds(new Date(), expiresIn);
+      return new Date(tokenExpiresAt).getTime();
     });
 
     await step.sendEvent('next-refresh', {

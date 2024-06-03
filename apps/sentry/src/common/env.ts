@@ -18,7 +18,8 @@ export const env = z
     SENTRY_CLIENT_ID: z.string().min(1),
     SENTRY_CLIENT_SECRET: z.string().min(1),
     SENTRY_REDIRECT_URI: z.string().url(),
+    HARVEST_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),
     SENTRY_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
-    SENTRY_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
+    USERS_SYNC_CRON: z.string().default('0 0 * * *'),
   })
   .parse(process.env);

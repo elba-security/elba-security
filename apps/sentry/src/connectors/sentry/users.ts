@@ -3,42 +3,41 @@ import { env } from '@/common/env';
 import { SentryError } from '../common/error';
 
 const sentryUserSchema = z.object({
-  gid: z.string(),
+  role: z.string(),
+  id: z.string(),
   name: z.string(),
   email: z.string(),
+  pending: z.boolean(),
+  user: z
+    .object({
+      has2fa: z.boolean(),
+      isActive: z.boolean(),
+    })
+    .nullable(),
 });
 
 export type SentryUser = z.infer<typeof sentryUserSchema>;
 
-const sentryResponseSchema = z.object({
-  data: z.array(z.unknown()),
-  next_page: z
-    .object({
-      offset: z.string(),
-    })
-    .optional(),
-});
+const sentryResponseSchema = z.array(z.unknown());
 
 export type GetUsersParams = {
   accessToken: string;
-  page?: string | null;
+  cursor?: string | null;
+  organizationSlug: string;
 };
 
 export type DeleteUsersParams = {
   accessToken: string;
   userId: string;
-  workspaceId: string;
+  organizationSlug: string;
 };
 
-export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
-  const url = new URL(`${env.SENTRY_API_BASE_URL}/users`);
+export const getUsers = async ({ accessToken, cursor, organizationSlug }: GetUsersParams) => {
+  const url = new URL(`${env.SENTRY_API_BASE_URL}/organizations/${organizationSlug}/members/`);
 
-  const optFields = 'email, name';
-
-  url.searchParams.append('opt_fields', optFields);
-
-  if (page) {
-    url.searchParams.append('offset', String(page));
+  url.searchParams.append('per_page', String(`${env.HARVEST_USERS_SYNC_BATCH_SIZE}`));
+  if (cursor) {
+    url.searchParams.append('cursor', String(cursor));
   }
 
   const response = await fetch(url.toString(), {
@@ -58,9 +57,8 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
 
   const validUsers: SentryUser[] = [];
   const invalidUsers: unknown[] = [];
-  const users = result.data;
 
-  for (const user of users) {
+  for (const user of result) {
     const userResult = sentryUserSchema.safeParse(user);
     if (userResult.success) {
       validUsers.push(userResult.data);
@@ -69,28 +67,41 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
     }
   }
 
+  const linkHeader = response.headers.get('Link');
+  let nextCursor: string | null = null;
+  if (linkHeader) {
+    const links = linkHeader.split(', ');
+    const nextLink = links.find((link) => link.includes('rel="next"'));
+    const results = links.find((link) => link.includes('results="true"'));
+    if (nextLink && results) {
+      const match = /<(?<url>[^>]+)>/.exec(nextLink);
+      if (match?.groups?.url) {
+        const parsedUrl = new URL(match.groups.url);
+        nextCursor = parsedUrl.searchParams.get('cursor');
+      }
+    }
+  }
+
   return {
     validUsers,
     invalidUsers,
-    nextPage: result.next_page?.offset ?? null,
+    nextPage: nextCursor,
   };
 };
 
-export const deleteUser = async ({ userId, workspaceId, accessToken }: DeleteUsersParams) => {
-  const response = await fetch(`${env.SENTRY_API_BASE_URL}/workspaces/${workspaceId}/removeUser`, {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({
-      data: {
-        user: `${userId}`,
+export const deleteUser = async ({ userId, organizationSlug, accessToken }: DeleteUsersParams) => {
+  const response = await fetch(
+    `${env.SENTRY_API_BASE_URL}/workspaces/${organizationSlug}/members/${userId}`,
+    {
+      method: 'delete',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
       },
-    }),
-  });
+    }
+  );
 
-  if (!response.ok) {
-    throw new SentryError(`Could not remove a user with Id: ${userId}`, { response });
+  if (!response.ok && response.status === 404) {
+    throw new SentryError(`Could not delete a user with Id: ${userId}`, { response });
   }
 };
