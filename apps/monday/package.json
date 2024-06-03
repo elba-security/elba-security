@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
+    "@elba-security/design-system": "workspace:*",
     "@elba-security/inngest": "workspace:*",
     "@elba-security/logger": "workspace:*",
     "@elba-security/nextjs": "workspace:*",

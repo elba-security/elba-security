@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { MondayError } from '../common/error';
 
 const tokenResponseSchema = z.object({
@@ -25,7 +25,7 @@ export const getToken = async (code: string) => {
     },
     body: JSON.stringify({
       grant_type: 'authorization_code',
-      client_id: env.MONDAY_CLIENT_ID,
+      client_id: env.NEXT_PUBLIC_MONDAY_CLIENT_ID,
       client_secret: env.MONDAY_CLIENT_SECRET,
       redirect_uri: env.MONDAY_REDIRECT_URI,
       code,
