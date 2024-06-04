@@ -13,7 +13,7 @@ export const env = z
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
-    SENTRY_APP_INSTALL_URL: z.string().url().default('https://sentry.io/oauth'),
+    SENTRY_APP_INSTALL_URL: z.string().url(),
     SENTRY_API_BASE_URL: z.string().url().default('https://sentry.io/api/0'),
     SENTRY_CLIENT_ID: z.string().min(1),
     SENTRY_CLIENT_SECRET: z.string().min(1),
