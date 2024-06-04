@@ -92,7 +92,7 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.delete<{ userId: string }>(
-          `${env.SENTRY_API_BASE_URL}/organizations/${organizationSlug}/members/${userId}/`,
+          `${env.SENTRY_API_BASE_URL}/organizations/${organizationSlug}/members/:userId/`,
           ({ request }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(undefined, { status: 401 });
