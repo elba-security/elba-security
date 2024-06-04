@@ -1,16 +1,11 @@
-/**
- * DISCLAIMER:
- * This is an example connector, the function has a poor implementation.
- * When requesting against API endpoint we might prefer to valid the response
- * data received using zod than unsafely assign types to it.
- * This might not fit your usecase if you are using a SDK to connect to the Saas.
- * These file illustrate potential scenarios and methodologies relevant for SaaS integration.
- */
-
+import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { IntercomError } from '../common/error';
 
-type GetTokenResponseData = { access_token: string };
+const tokenResponseSchema = z.object({
+  access_token: z.string(),
+});
 
 export const getToken = async (code: string) => {
   const response = await fetch(`${env.INTERCOM_API_BASE_URL}/auth/eagle/token`, {
@@ -29,9 +24,16 @@ export const getToken = async (code: string) => {
     throw new IntercomError('Could not retrieve token', { response });
   }
 
-  const data = (await response.json()) as GetTokenResponseData;
+  const data: unknown = await response.json();
+
+  const result = tokenResponseSchema.safeParse(data);
+
+  if (!result.success) {
+    logger.error('Invalid Intercom token response', { data });
+    throw new IntercomError('Invalid Intercom token response');
+  }
 
   return {
-    accessToken: data.access_token,
+    accessToken: result.data.access_token,
   };
 };

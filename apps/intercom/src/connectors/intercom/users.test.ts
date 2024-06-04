@@ -9,7 +9,8 @@ import type { IntercomUser } from './users';
 import { getUsers } from './users';
 
 const validToken = 'token-1234';
-const nextCursor = 'next-cursor';
+const endPage = '3';
+const nextPage = 'next-page';
 
 const validUsers: IntercomUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
@@ -21,52 +22,49 @@ const invalidUsers = [];
 
 describe('users connector', () => {
   describe('getUsers', () => {
-    // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
         http.get(`${env.INTERCOM_API_BASE_URL}/admins`, ({ request }) => {
-          // briefly implement API endpoint behaviour
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
 
           const url = new URL(request.url);
           const startingAfter = url.searchParams.get('starting_after');
-          let returnData;
-          if (startingAfter) {
-            returnData = {
-              pages: {
-                page: 3,
-                per_page: 20,
-                next: {
-                  starting_after: nextCursor,
-                },
-              },
-              admins: validUsers,
-            };
-          } else {
-            returnData = {
-              admins: validUsers,
-            };
-          }
-          return Response.json(returnData);
+          const responseData =
+            startingAfter !== endPage
+              ? {
+                  admins: validUsers,
+                  pages: {
+                    page: 3,
+                    per_page: 20,
+                    next: {
+                      starting_after: nextPage,
+                    },
+                  },
+                }
+              : {
+                  admins: validUsers,
+                };
+
+          return Response.json(responseData);
         })
       );
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(getUsers({ accessToken: validToken, next: 'start' })).resolves.toStrictEqual({
+      await expect(getUsers({ accessToken: validToken, page: nextPage })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage: nextCursor,
+        nextPage,
       });
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(getUsers({ accessToken: validToken })).resolves.toStrictEqual({
+      await expect(getUsers({ accessToken: validToken, page: endPage })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage: undefined,
+        nextPage: null,
       });
     });
 

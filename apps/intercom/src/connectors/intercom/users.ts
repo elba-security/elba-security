@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { env } from '@/common/env';
 import { IntercomError } from '../common/error';
 
 const intercomUserSchema = z.object({
@@ -26,20 +27,18 @@ const intercomResponseSchema = z.object({
 
 export type GetUsersParams = {
   accessToken: string;
-  next?: string | null;
+  page?: string | null;
 };
 
-export const getUsers = async ({ accessToken, next }: GetUsersParams) => {
-  const query = next
+export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
+  const query = page
     ? new URLSearchParams({
         per_page: '20',
-        starting_after: next,
+        starting_after: page,
       }).toString()
     : '';
 
-  const endpoint = `${process.env.INTERCOM_API_BASE_URL}/admins?${query}`;
-
-  const response = await fetch(endpoint, {
+  const response = await fetch(`${env.INTERCOM_API_BASE_URL}/admins?${query}`, {
     method: 'GET',
     headers: {
       Accept: 'application/json',
@@ -52,24 +51,24 @@ export const getUsers = async ({ accessToken, next }: GetUsersParams) => {
     throw new IntercomError('Could not retrieve users', { response });
   }
 
-  const data: unknown = await response.json();
-  const { admins, pages } = intercomResponseSchema.parse(data);
+  const resData: unknown = await response.json();
+  const { admins, pages } = intercomResponseSchema.parse(resData);
 
   const validUsers: IntercomUser[] = [];
   const invalidUsers: unknown[] = [];
 
-  for (const node of admins) {
-    const result = intercomUserSchema.safeParse(node);
-    if (result.success) {
-      validUsers.push(result.data);
+  for (const user of admins) {
+    const userResult = intercomUserSchema.safeParse(user);
+    if (userResult.success) {
+      validUsers.push(userResult.data);
     } else {
-      invalidUsers.push(node);
+      invalidUsers.push(user);
     }
   }
 
   return {
     validUsers,
     invalidUsers,
-    nextPage: pages?.next?.starting_after,
+    nextPage: pages?.next ? pages.next.starting_after : null,
   };
 };

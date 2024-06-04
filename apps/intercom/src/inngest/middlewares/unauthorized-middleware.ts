@@ -6,16 +6,6 @@ const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),
 });
 
-// const intercomUnauthorizedError = z.object({
-//   errors: z.array(
-//     z.object({
-//       extensions: z.object({
-//         code: z.literal('AUTHENTICATION_ERROR'),
-//       }),
-//     })
-//   ),
-// });
-
 const hasRequiredDataProperties = (data: unknown): data is z.infer<typeof requiredDataSchema> =>
   requiredDataSchema.safeParse(data).success;
 
@@ -36,19 +26,9 @@ export const unauthorizedMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (!(error instanceof IntercomError) || !error.response) {
+            if (!(error instanceof IntercomError) || error.response?.status !== 401) {
               return;
             }
-
-            // try {
-            //   const response: unknown = await error.response.clone().json();
-            //   const isUnauthorizedError = intercomUnauthorizedError.safeParse(response).success;
-            //   if (!isUnauthorizedError) {
-            //     return;
-            //   }
-            // } catch (_error) {
-            //   return;
-            // }
 
             if (hasRequiredDataProperties(data)) {
               await client.send({

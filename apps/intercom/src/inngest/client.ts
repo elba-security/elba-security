@@ -2,9 +2,10 @@ import { EventSchemas, Inngest } from 'inngest';
 import { sentryMiddleware } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { unauthorizedMiddleware } from './middlewares/unauthorized-middleware';
 
 export const inngest = new Inngest({
-  id: 'slack',
+  id: 'intercom',
   schemas: new EventSchemas().fromRecord<{
     'intercom/users.sync.requested': {
       data: {
@@ -13,12 +14,6 @@ export const inngest = new Inngest({
         syncStartedAt: number;
         page: string | null;
       };
-    };
-    'intercom/token.refresh.requested': {
-      data: {
-        organisationId: string;
-      };
-      ts: number;
     };
     'intercom/app.installed': {
       data: {
@@ -30,7 +25,13 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
+    'intercom/users.delete.requested': {
+      data: {
+        organisationId: string;
+        userId: string;
+      };
+    };
   }>(),
-  middleware: [rateLimitMiddleware, sentryMiddleware],
+  middleware: [rateLimitMiddleware, unauthorizedMiddleware, sentryMiddleware],
   logger,
 });

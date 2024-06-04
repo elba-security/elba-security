@@ -1,5 +1,4 @@
-import { uuid, text, pgTable, timestamp } from 'drizzle-orm/pg-core';
-import { type InferSelectModel } from 'drizzle-orm';
+import { uuid, text, timestamp, pgTable } from 'drizzle-orm/pg-core';
 
 export const organisationsTable = pgTable('organisations', {
   id: uuid('id').primaryKey(),
@@ -7,5 +6,3 @@ export const organisationsTable = pgTable('organisations', {
   accessToken: text('access_token').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
-
-export type SelectOrganisation = InferSelectModel<typeof organisationsTable>;

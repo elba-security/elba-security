@@ -1,11 +1,11 @@
 import { env } from '@/common/env';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { inngest } from '../../client';
+import { inngest } from '@/inngest/client';
 
-export const scheduleUsersSynchronize = inngest.createFunction(
+export const scheduleUsersSync = inngest.createFunction(
   {
-    id: 'schedule-users-syncs',
+    id: 'intercom-schedule-users-syncs',
     cancelOn: [
       {
         event: 'intercom/app.installed',
@@ -16,6 +16,7 @@ export const scheduleUsersSynchronize = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
+    retries: 5,
   },
   { cron: env.INTERCOM_USERS_SYNC_CRON },
   async ({ step }) => {

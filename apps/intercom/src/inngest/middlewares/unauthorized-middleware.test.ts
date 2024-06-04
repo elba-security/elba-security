@@ -33,7 +33,7 @@ describe('unauthorized middleware', () => {
     expect(send).toBeCalledTimes(0);
   });
 
-  test('should not transform the output when the error is not about intercom authorization', async () => {
+  test('should not transform the output when the error is not about Intercom authorization', async () => {
     const send = vi.fn().mockResolvedValue(undefined);
     await expect(
       unauthorizedMiddleware
@@ -51,12 +51,23 @@ describe('unauthorized middleware', () => {
     expect(send).toBeCalledTimes(0);
   });
 
-  test('should transform the output error to NonRetriableError and remove the organisation when the error is about intercom authorization', async () => {
+  test('should transform the output error to NonRetriableError and remove the organisation when the error is about Intercom authorization', async () => {
     const unauthorizedError = new IntercomError('foo bar', {
-      // @ts-expect-error this is a mock
-      response: {
-        status: 401,
-      },
+      response: new Response(
+        `
+        {
+          "errors": [
+            {
+              "message": "Not Authorized"
+            }
+          ]
+        }
+        `,
+        {
+          status: 401,
+          statusText: 'Unauthorized',
+        }
+      ),
     });
 
     const context = {

@@ -1,14 +1,14 @@
 import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { NonRetriableError } from 'inngest';
+import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/intercom/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { inngest } from '@/inngest/client';
+import { decrypt } from '@/common/crypto';
 import { type IntercomUser } from '@/connectors/intercom/users';
 import { createElbaClient } from '@/connectors/elba/client';
-import { decrypt } from '@/common/crypto';
 
 const formatElbaUser = (user: IntercomUser): User => ({
   id: user.id,
@@ -17,7 +17,7 @@ const formatElbaUser = (user: IntercomUser): User => ({
   additionalEmails: [],
 });
 
-export const synchronizeUsers = inngest.createFunction(
+export const syncUsers = inngest.createFunction(
   {
     id: 'intercom-sync-users',
     priority: {
@@ -44,19 +44,21 @@ export const synchronizeUsers = inngest.createFunction(
     const { organisationId, syncStartedAt, page } = event.data;
 
     const [organisation] = await db
-      .select({ token: organisationsTable.accessToken, region: organisationsTable.region })
+      .select({
+        accessToken: organisationsTable.accessToken,
+        region: organisationsTable.region,
+      })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
-
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
+    const accessToken = await decrypt(organisation.accessToken);
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken: token, next: page });
+      const result = await getUsers({ accessToken, page });
 
       const users = result.validUsers.map(formatElbaUser);
 
@@ -79,7 +81,7 @@ export const synchronizeUsers = inngest.createFunction(
         name: 'intercom/users.sync.requested',
         data: {
           ...event.data,
-          page: nextPage.toString(),
+          page: nextPage,
         },
       });
       return {

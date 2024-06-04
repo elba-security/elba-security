@@ -3,7 +3,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { createElbaClient } from '@/connectors/elba/client';
-import { inngest } from '@/inngest/client';
+import { inngest } from '../../client';
 
 export const removeOrganisation = inngest.createFunction(
   {
@@ -21,7 +21,6 @@ export const removeOrganisation = inngest.createFunction(
   },
   async ({ event }) => {
     const { organisationId } = event.data;
-
     const [organisation] = await db
       .select({
         region: organisationsTable.region,
