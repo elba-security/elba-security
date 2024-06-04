@@ -25,5 +25,5 @@ export function GET(request: NextRequest) {
   cookies().set('region', region);
   cookies().set('state', state);
 
-  redirect(`${env.SENTRY_APP_INSTALL_URL}`);
+  redirect(env.SENTRY_APP_INSTALL_URL);
 }
