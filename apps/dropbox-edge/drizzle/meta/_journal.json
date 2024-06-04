@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1717197657281,
+      "tag": "0000_overrated_goblin_queen",
+      "breakpoints": true
+    }
+  ]
+}
