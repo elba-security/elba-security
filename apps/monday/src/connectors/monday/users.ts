@@ -48,6 +48,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
       'Content-Type': 'application/json',
       Accept: 'application/json',
       Authorization: `Bearer ${accessToken}`,
+      'API-Version': env.MONDAY_API_VERSION,
     },
     body: JSON.stringify({ query }),
   });
@@ -94,6 +95,7 @@ export const deleteUsers = async ({ userIds, workspaceId, accessToken }: DeleteU
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
+      'API-Version': env.MONDAY_API_VERSION,
     },
     body: JSON.stringify({ query }),
   });

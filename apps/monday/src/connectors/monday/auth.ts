@@ -64,6 +64,7 @@ export const getWorkspaceIds = async (accessToken: string) => {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
+      'API-Version': env.MONDAY_API_VERSION,
     },
     body: JSON.stringify({
       query,

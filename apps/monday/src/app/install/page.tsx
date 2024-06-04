@@ -20,7 +20,7 @@ export default function InstallPage({
       <InstructionsSteps>
         <InstructionsStep index={1}>
           <h3>Install app</h3>
-          <p>First install the monday app</p>
+          <p>First install the monday app and come back to this page afterwards</p>
           <Link
             href={mondayInstallUrl}
             rel="noopener noreferrer"
@@ -31,7 +31,7 @@ export default function InstallPage({
         </InstructionsStep>
         <InstructionsStep index={2}>
           <h3>Connect Monday</h3>
-          <p>After you installed the app, connect elba with Monday</p>
+          <p>After installing the app, connect to your monday account</p>
           <Button
             onClick={() => connectMondayApp({ organisationId, region })}
             style={{ alignSelf: 'start' }}>
