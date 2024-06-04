@@ -1,6 +1,5 @@
 'use server';
 
-import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { cookies } from 'next/headers';
 import { RedirectType, redirect } from 'next/navigation';
 import { getRedirectUrl } from '@elba-security/sdk';
