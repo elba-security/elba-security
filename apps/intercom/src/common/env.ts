@@ -13,11 +13,12 @@ export const env = z
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
-    INTERCOM_APP_INSTALL_URL: z.string().url(),
-    INTERCOM_API_BASE_URL: z.string().url(),
+    INTERCOM_APP_INSTALL_URL: z.string().url('https://app.intercom.com/oauth'),
+    INTERCOM_API_BASE_URL: z.string().url('https://api.intercom.io'),
     INTERCOM_CLIENT_ID: z.string().min(1),
     INTERCOM_CLIENT_SECRET: z.string().min(1),
     INTERCOM_REDIRECT_URI: z.string().url(),
     INTERCOM_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
+    INTERCOM_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
   })
   .parse(process.env);

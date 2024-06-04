@@ -31,19 +31,22 @@ export type GetUsersParams = {
 };
 
 export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
-  const query = page
-    ? new URLSearchParams({
-        per_page: '20',
-        starting_after: page,
-      }).toString()
-    : '';
+  const url = new URL(`${env.INTERCOM_API_BASE_URL}/admins`);
 
-  const response = await fetch(`${env.INTERCOM_API_BASE_URL}/admins?${query}`, {
+  // Based on this documentation, pagination is optional
+  // https://developers.intercom.com/docs/references/1.0/rest-api/admins/list-admins/#admin-list
+
+  if (page) {
+    url.searchParams.append('per_page', String(env.INTERCOM_USERS_SYNC_BATCH_SIZE));
+    url.searchParams.append('starting_after', page);
+  }
+
+  const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
       Accept: 'application/json',
       Authorization: `Bearer ${accessToken}`,
-      'Intercom-Version': '2.10',
+      'Intercom-Version': '2.11',
     },
   });
 

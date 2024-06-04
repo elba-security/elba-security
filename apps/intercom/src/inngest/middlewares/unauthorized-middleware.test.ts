@@ -53,21 +53,10 @@ describe('unauthorized middleware', () => {
 
   test('should transform the output error to NonRetriableError and remove the organisation when the error is about Intercom authorization', async () => {
     const unauthorizedError = new IntercomError('foo bar', {
-      response: new Response(
-        `
-        {
-          "errors": [
-            {
-              "message": "Not Authorized"
-            }
-          ]
-        }
-        `,
-        {
-          status: 401,
-          statusText: 'Unauthorized',
-        }
-      ),
+      // @ts-expect-error this is a mock
+      response: {
+        status: 401,
+      },
     });
 
     const context = {

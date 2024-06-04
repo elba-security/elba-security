@@ -5,6 +5,7 @@ import { getRedirectUrl } from '@elba-security/sdk';
 import { env } from '@/common/env';
 import { setupOrganisation } from './service';
 
+export const preferredRegion = 'fra1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
