@@ -101,7 +101,7 @@ export const deleteUser = async ({ userId, organizationSlug, accessToken }: Dele
     }
   );
 
-  if (!response.ok || response.status === 404) {
+  if (!response.ok && response.status !== 404) {
     throw new SentryError(`Could not delete a user with Id: ${userId}`, { response });
   }
 };
