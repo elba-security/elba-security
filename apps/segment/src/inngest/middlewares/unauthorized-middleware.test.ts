@@ -55,7 +55,7 @@ describe('unauthorized middleware', () => {
     const unauthorizedError = new SegmentError('foo bar', {
       // @ts-expect-error this is a mock
       response: {
-        status: 401,
+        status: 403,
       },
     });
 
