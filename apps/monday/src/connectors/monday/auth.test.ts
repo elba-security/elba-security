@@ -6,13 +6,11 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env/server';
 import { MondayError } from '../common/error';
-import { getToken, getWorkspaceIds } from './auth';
+import { getToken } from './auth';
 
 const validCode = '1234';
 const invalidCode = 'invalid-code';
 const accessToken = 'access-token-1234';
-const invalidToken = 'invalid-token';
-const workspaceId = '000000';
 
 type RequestBodyType = {
   client_id: string;
@@ -44,28 +42,6 @@ describe('auth connector', () => {
 
     test('should throw when the code is invalid', async () => {
       await expect(getToken(invalidCode)).rejects.toBeInstanceOf(MondayError);
-    });
-  });
-
-  describe('getWorkspaceIds', () => {
-    beforeEach(() => {
-      server.use(
-        http.post(env.MONDAY_API_BASE_URL, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${accessToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-
-          return Response.json({ data: { workspaces: [{ id: workspaceId }] } });
-        })
-      );
-    });
-
-    test('should return the workspaceIds when the accessToken is valid', async () => {
-      await expect(getWorkspaceIds(accessToken)).resolves.toStrictEqual([workspaceId]);
-    });
-
-    test('should throw when the accessToken is invalid', async () => {
-      await expect(getWorkspaceIds(invalidToken)).rejects.toBeInstanceOf(MondayError);
     });
   });
 });

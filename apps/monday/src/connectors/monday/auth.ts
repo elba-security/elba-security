@@ -7,16 +7,6 @@ const tokenResponseSchema = z.object({
   access_token: z.string(),
 });
 
-const workspaceSchema = z.object({
-  data: z.object({
-    workspaces: z.array(
-      z.object({
-        id: z.string().min(1),
-      })
-    ),
-  }),
-});
-
 export const getToken = async (code: string) => {
   const response = await fetch(`${env.MONDAY_APP_INSTALL_URL}/token`, {
     method: 'POST',
@@ -48,50 +38,4 @@ export const getToken = async (code: string) => {
   return {
     accessToken: result.data.access_token,
   };
-};
-
-export const getWorkspaceIds = async (accessToken: string) => {
-  const query = `
-    query GetWorkspace {
-      workspaces {
-        id
-      }
-    }
-  `;
-
-  const response = await fetch(env.MONDAY_API_BASE_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-      'API-Version': env.MONDAY_API_VERSION,
-    },
-    body: JSON.stringify({
-      query,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new MondayError('Could not retrieve workspace');
-  }
-
-  const resData: unknown = await response.json();
-
-  const result = workspaceSchema.safeParse(resData);
-
-  if (!result.success) {
-    throw new MondayError('Could not parse workspace response');
-  }
-
-  if (result.data.data.workspaces.length === 0) {
-    throw new MondayError('No workspace found');
-  }
-
-  const workspaceIds = result.data.data.workspaces.map(({ id }) => id);
-
-  if (!workspaceIds.length) {
-    throw new MondayError('No workspace found');
-  }
-
-  return workspaceIds;
 };

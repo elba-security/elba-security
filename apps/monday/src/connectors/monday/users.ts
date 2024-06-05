@@ -21,12 +21,6 @@ export type GetUsersParams = {
   page?: number | null;
 };
 
-export type DeleteUsersParams = {
-  accessToken: string;
-  userIds: string[];
-  workspaceId: string;
-};
-
 export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   const query = `
   query {
@@ -79,28 +73,4 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
     invalidUsers,
     nextPage: users.length > 0 ? prevPage + 1 : null,
   };
-};
-
-export const deleteUsers = async ({ userIds, workspaceId, accessToken }: DeleteUsersParams) => {
-  const userIdsString = userIds.map((id) => `"${id}"`).join(', ');
-
-  const query = `mutation {
-    delete_users_from_workspace(workspace_id: "${workspaceId}", user_ids: [${userIdsString}]) {
-      id
-    }
-  }`;
-
-  const response = await fetch(env.MONDAY_API_BASE_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-      'API-Version': env.MONDAY_API_VERSION,
-    },
-    body: JSON.stringify({ query }),
-  });
-
-  if (!response.ok) {
-    throw new MondayError(`Could not suspend users with Id: ${userIdsString}`, { response });
-  }
 };

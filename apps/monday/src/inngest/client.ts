@@ -25,12 +25,6 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'monday/users.delete.requested': {
-      data: {
-        organisationId: string;
-        userIds: string[];
-      };
-    };
   }>(),
   middleware: [rateLimitMiddleware, unauthorizedMiddleware, sentryMiddleware],
   logger,
