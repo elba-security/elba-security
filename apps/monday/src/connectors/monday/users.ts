@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { env } from '@/common/env/server';
+import { logger } from '@elba-security/logger';
+import { env } from '@/common/env';
 import { MondayError } from '../common/error';
 
 const mondayUserSchema = z.object({
@@ -10,24 +11,26 @@ const mondayUserSchema = z.object({
 
 export type MondayUser = z.infer<typeof mondayUserSchema>;
 
+const mondayUserTeamsSchema = z.object({
+  id: z.string(),
+  teams: z.array(z.object({ id: z.string() })),
+});
+
+export type MondayUserTeams = z.infer<typeof mondayUserTeamsSchema>;
+
 const mondayResponseSchema = z.object({
   data: z.object({
     users: z.array(z.unknown()),
   }),
 });
 
-export type GetUsersParams = {
+export const getUsers = async ({
+  accessToken,
+  page,
+}: {
   accessToken: string;
   page?: number | null;
-};
-
-export type DeleteUsersParams = {
-  accessToken: string;
-  userIds: string[];
-  workspaceId: string;
-};
-
-export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
+}) => {
   const query = `
   query {
     users (
@@ -81,7 +84,69 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   };
 };
 
-export const deleteUsers = async ({ userIds, workspaceId, accessToken }: DeleteUsersParams) => {
+export const getUsersTeams = async ({
+  userIds,
+  accessToken,
+}: {
+  userIds: string[];
+  accessToken: string;
+}) => {
+  const query = `
+  query {
+    users (
+      ids: ${userIds.map((id) => `"${id}"`).join(',')}
+    ) {
+      id,
+      teams {
+        id
+      }
+    }
+  }
+`;
+
+  const response = await fetch(env.MONDAY_API_BASE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      'API-Version': env.MONDAY_API_VERSION,
+    },
+    body: JSON.stringify({ query }),
+  });
+
+  if (!response.ok) {
+    throw new MondayError('Could not retrieve users teams', { response });
+  }
+
+  const resData: unknown = await response.json();
+  const result = mondayResponseSchema.parse(resData);
+
+  const validUsers: MondayUserTeams[] = [];
+  const invalidUsers: unknown[] = [];
+  const users = result.data.users;
+
+  for (const user of users) {
+    const userResult = mondayUserTeamsSchema.safeParse(user);
+    if (userResult.success) {
+      validUsers.push(userResult.data);
+    } else {
+      invalidUsers.push(user);
+    }
+  }
+
+  return { validUsers, invalidUsers };
+};
+
+export const deleteUsersFromWorkspace = async ({
+  userIds,
+  workspaceId,
+  accessToken,
+}: {
+  accessToken: string;
+  userIds: string[];
+  workspaceId: string;
+}) => {
   const userIdsString = userIds.map((id) => `"${id}"`).join(', ');
 
   const query = `mutation {
@@ -100,7 +165,61 @@ export const deleteUsers = async ({ userIds, workspaceId, accessToken }: DeleteU
     body: JSON.stringify({ query }),
   });
 
+  logger.info('response delete users workspace', {
+    workspaceId,
+    userIds,
+    json: (await response.json()) as unknown,
+  });
+
   if (!response.ok) {
-    throw new MondayError(`Could not suspend users with Id: ${userIdsString}`, { response });
+    throw new MondayError(
+      `Could not remove users from workspace ${workspaceId}: ${userIdsString}`,
+      { response }
+    );
+  }
+};
+
+export const deleteUsersFromTeam = async ({
+  userIds,
+  teamId,
+  accessToken,
+}: {
+  accessToken: string;
+  userIds: string[];
+  teamId: string;
+}) => {
+  const userIdsString = userIds.map((id) => `"${id}"`).join(', ');
+
+  const query = `mutation {
+    remove_users_from_team(team_id: "${teamId}", user_ids: [${userIdsString}]) {
+      successful_users {
+        id
+      }
+      failed_users {
+        id
+      }
+    }
+  }`;
+
+  const response = await fetch(env.MONDAY_API_BASE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      'API-Version': env.MONDAY_API_VERSION,
+    },
+    body: JSON.stringify({ query }),
+  });
+
+  logger.info('response delete users teams', {
+    teamId,
+    userIds,
+    json: (await response.json()) as unknown,
+  });
+
+  if (!response.ok) {
+    throw new MondayError(`Could not remove users from team ${teamId}: ${userIdsString}`, {
+      response,
+    });
   }
 };

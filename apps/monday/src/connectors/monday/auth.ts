@@ -1,10 +1,13 @@
 import { z } from 'zod';
-import { logger } from '@elba-security/logger';
-import { env } from '@/common/env/server';
+import { env } from '@/common/env';
 import { MondayError } from '../common/error';
 
-const tokenResponseSchema = z.object({
-  access_token: z.string(),
+const adminTokenSchema = z.object({
+  data: z.object({
+    me: z.object({
+      is_admin: z.boolean(),
+    }),
+  }),
 });
 
 const workspaceSchema = z.object({
@@ -17,42 +20,45 @@ const workspaceSchema = z.object({
   }),
 });
 
-export const getToken = async (code: string) => {
-  const response = await fetch(`${env.MONDAY_APP_INSTALL_URL}/token`, {
+export const isAdminToken = async (token: string) => {
+  const query = `
+    query {
+      me {
+        is_admin
+      }
+    }
+  `;
+
+  const response = await fetch(env.MONDAY_API_BASE_URL, {
     method: 'POST',
     headers: {
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
+      'API-Version': env.MONDAY_API_VERSION,
     },
     body: JSON.stringify({
-      grant_type: 'authorization_code',
-      client_id: env.NEXT_PUBLIC_MONDAY_CLIENT_ID,
-      client_secret: env.MONDAY_CLIENT_SECRET,
-      redirect_uri: env.MONDAY_REDIRECT_URI,
-      code,
+      query,
     }),
   });
 
   if (!response.ok) {
-    throw new MondayError('Could not retrieve token', { response });
+    throw new MondayError('Could not retrieve token information', { response });
   }
 
-  const data: unknown = await response.json();
+  const resData: unknown = await response.json();
 
-  const result = tokenResponseSchema.safeParse(data);
+  const result = adminTokenSchema.safeParse(resData);
 
   if (!result.success) {
-    logger.error('Invalid Monday token response', { data });
-    throw new MondayError('Invalid Monday token response');
+    throw new MondayError('Could not parse token response');
   }
 
-  return {
-    accessToken: result.data.access_token,
-  };
+  return result.data.data.me.is_admin;
 };
 
 export const getWorkspaceIds = async (accessToken: string) => {
   const query = `
-    query GetWorkspace {
+    query {
       workspaces {
         id
       }
@@ -72,7 +78,7 @@ export const getWorkspaceIds = async (accessToken: string) => {
   });
 
   if (!response.ok) {
-    throw new MondayError('Could not retrieve workspace');
+    throw new MondayError('Could not retrieve workspaces', { response });
   }
 
   const resData: unknown = await response.json();
@@ -88,10 +94,6 @@ export const getWorkspaceIds = async (accessToken: string) => {
   }
 
   const workspaceIds = result.data.data.workspaces.map(({ id }) => id);
-
-  if (!workspaceIds.length) {
-    throw new MondayError('No workspace found');
-  }
 
   return workspaceIds;
 };

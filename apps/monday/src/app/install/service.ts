@@ -1,23 +1,18 @@
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { getToken } from '@/connectors/monday/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
-type SetupOrganisationParams = {
-  organisationId: string;
-  code: string;
-  region: string;
-};
-
 export const setupOrganisation = async ({
   organisationId,
-  code,
+  token,
   region,
-}: SetupOrganisationParams) => {
-  const { accessToken } = await getToken(code);
-
-  const encryptedAccessToken = await encrypt(accessToken);
+}: {
+  organisationId: string;
+  token: string;
+  region: string;
+}) => {
+  const encryptedAccessToken = await encrypt(token);
 
   await db
     .insert(organisationsTable)

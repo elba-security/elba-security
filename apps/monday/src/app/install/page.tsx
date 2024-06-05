@@ -1,44 +1,67 @@
 'use client';
 
-import { Button, InstructionsStep, InstructionsSteps } from '@elba-security/design-system';
-import Link from 'next/link';
-import { env } from '@/common/env/client';
-import { connectMondayApp } from './actions';
+import {
+  Form,
+  FormErrorMessage,
+  FormField,
+  FormLabel,
+  Input,
+  InstructionsStep,
+  SubmitButton,
+} from '@elba-security/design-system';
+import { useFormState } from 'react-dom';
+import { useSearchParams } from 'next/navigation';
+import type { FormState } from './actions';
+import { install } from './actions';
 
-export default function InstallPage({
-  searchParams,
-}: {
-  searchParams: Record<string, string | undefined>;
-}) {
-  const organisationId = searchParams.organisation_id;
-  const region = searchParams.region;
-  const mondayInstallUrl = `https://auth.monday.com/oauth2/authorize?client_id=${env.NEXT_PUBLIC_MONDAY_CLIENT_ID}&response_type=install`;
+export default function InstallPage() {
+  const searchParams = useSearchParams();
+  const organisationId = searchParams.get('organisation_id');
+  const region = searchParams.get('region');
+
+  const [state, formAction] = useFormState<FormState, FormData>(install, {});
 
   return (
     <>
       <h1>Setup Monday integration</h1>
-      <InstructionsSteps>
-        <InstructionsStep index={1}>
-          <h3>Install app</h3>
-          <p>First install the monday app and come back to this page afterwards</p>
-          <Link
-            href={mondayInstallUrl}
-            rel="noopener noreferrer"
-            style={{ alignSelf: 'start' }}
-            target="_blank">
-            <Button>Install</Button>
-          </Link>
-        </InstructionsStep>
-        <InstructionsStep index={2}>
-          <h3>Connect Monday</h3>
-          <p>After installing the app, connect to your monday account</p>
-          <Button
-            onClick={() => connectMondayApp({ organisationId, region })}
-            style={{ alignSelf: 'start' }}>
-            Connect
-          </Button>
-        </InstructionsStep>
-      </InstructionsSteps>
+      <InstructionsStep index={1}>
+        <h3>Create Token</h3>
+        <p>
+          In the Monday Dashboard, use the menu and navigate to <strong>Administration</strong>
+        </p>
+        <p>
+          Navigate to <strong>Connections &gt; API</strong>
+        </p>
+        <p>
+          If you didn&apos;t create an API token yet, click on <strong>Generate</strong>
+        </p>
+        <p>Copy your personal API token</p>
+      </InstructionsStep>
+      <InstructionsStep index={2}>
+        <h3>Connect Monday</h3>
+        <Form action={formAction}>
+          <FormField isInvalid={Boolean(state.errors?.token?.at(0))}>
+            <FormLabel>Personal API Token</FormLabel>
+            <Input
+              minLength={1}
+              name="token"
+              placeholder="Paste Your Personal API Token"
+              type="text"
+            />
+            {state.errors?.token?.at(0) ? (
+              <FormErrorMessage>{state.errors.token.at(0)}</FormErrorMessage>
+            ) : null}
+          </FormField>
+
+          {organisationId !== null && (
+            <input name="organisationId" type="hidden" value={organisationId} />
+          )}
+
+          {region !== null && <input name="region" type="hidden" value={region} />}
+
+          <SubmitButton>Install</SubmitButton>
+        </Form>
+      </InstructionsStep>
     </>
   );
 }

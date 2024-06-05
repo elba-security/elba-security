@@ -3,9 +3,13 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUsers as deleteMondayUser } from '@/connectors/monday/users';
+import {
+  deleteUsersFromTeam,
+  deleteUsersFromWorkspace,
+  getUsersTeams,
+} from '@/connectors/monday/users';
 import { decrypt } from '@/common/crypto';
-import { env } from '@/common/env/server';
+import { env } from '@/common/env';
 import { getWorkspaceIds } from '@/connectors/monday/auth';
 
 export const deleteUsers = inngest.createFunction(
@@ -28,7 +32,7 @@ export const deleteUsers = inngest.createFunction(
     retries: 5,
   },
   { event: 'monday/users.delete.requested' },
-  async ({ event, step }) => {
+  async ({ event, step, logger }) => {
     const { userIds, organisationId } = event.data;
 
     const [organisation] = await db
@@ -48,10 +52,43 @@ export const deleteUsers = inngest.createFunction(
       return getWorkspaceIds(accessToken);
     });
 
+    const teamsUsers = await step.run('get-users-teams', async () => {
+      const { validUsers, invalidUsers } = await getUsersTeams({ userIds, accessToken });
+
+      if (invalidUsers.length) {
+        logger.error(`Got invalid users while deleting Monday users`, {
+          organisationId,
+          userIds,
+          invalidUsers,
+        });
+      }
+
+      const teamsUsersMap = new Map<string, string[]>();
+      for (const user of validUsers) {
+        for (const team of user.teams) {
+          const teamUsers = teamsUsersMap.get(team.id);
+          if (!teamUsers) {
+            teamsUsersMap.set(team.id, [user.id]);
+          } else {
+            teamUsers.push(user.id);
+          }
+        }
+      }
+      return [...teamsUsersMap.entries()];
+    });
+
+    await Promise.all(
+      teamsUsers.map(async ([teamId, teamUserIds]) => {
+        await step.run(`delete-users-from-team-${teamId}`, async () => {
+          return deleteUsersFromTeam({ userIds: teamUserIds, teamId, accessToken });
+        });
+      })
+    );
+
     await Promise.all(
       workspaceIds.map(async (workspaceId) => {
         await step.run(`delete-users-from-workspace-${workspaceId}`, async () => {
-          return deleteMondayUser({
+          return deleteUsersFromWorkspace({
             userIds,
             workspaceId,
             accessToken,

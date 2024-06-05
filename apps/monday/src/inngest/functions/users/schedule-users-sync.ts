@@ -1,4 +1,4 @@
-import { env } from '@/common/env/server';
+import { env } from '@/common/env';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';

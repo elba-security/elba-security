@@ -14,13 +14,9 @@ export const env = z
     ENCRYPTION_KEY: z.string().min(1),
     MONDAY_API_BASE_URL: z.string().url(),
     MONDAY_API_VERSION: z.string().min(1).default('2024-04'),
-    MONDAY_APP_INSTALL_URL: z.string().url(),
-    MONDAY_CLIENT_SECRET: z.string().min(1),
     MONDAY_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
-    MONDAY_REDIRECT_URI: z.string().url(),
     MONDAY_USERS_SYNC_BATCH_SIZE: zEnvInt().default(400),
     MONDAY_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    NEXT_PUBLIC_MONDAY_CLIENT_ID: z.string().min(1),
     VERCEL_ENV: z.string().min(1).optional(),
   })
   .parse(process.env);

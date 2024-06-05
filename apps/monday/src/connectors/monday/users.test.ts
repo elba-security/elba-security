@@ -3,7 +3,7 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/common/env/server';
+import { env } from '@/common/env';
 import { MondayError } from '../common/error';
 import type { MondayUser } from './users';
 import { getUsers, deleteUsers } from './users';
