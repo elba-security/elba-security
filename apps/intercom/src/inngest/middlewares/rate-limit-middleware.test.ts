@@ -1,10 +1,20 @@
-import { describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { RetryAfterError } from 'inngest';
 import { IntercomError } from '@/connectors/common/error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
-const rateLimitReset = '1487332520';
+const rateLimitReset = 1717515430; // Unix timestamp in seconds
+
 describe('rate-limit middleware', () => {
+  beforeAll(() => {
+    // Set current time to 30s before rate limit reset
+    vi.setSystemTime(new Date((rateLimitReset - 30) * 1000));
+  });
+
+  afterAll(() => {
+    vi.useRealTimers();
+  });
+
   test('should not transform the output when their is no error', () => {
     expect(
       rateLimitMiddleware
@@ -39,7 +49,7 @@ describe('rate-limit middleware', () => {
         headers: new Headers({
           'X-RateLimit-Limit': '100',
           'X-RateLimit-Remaining': '0',
-          'X-RateLimit-Reset': rateLimitReset,
+          'X-RateLimit-Reset': `${rateLimitReset}`,
         }),
       },
     });
@@ -61,9 +71,7 @@ describe('rate-limit middleware', () => {
       .onFunctionRun({ fn: { name: 'foo' } })
       .transformOutput(context);
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect(result?.result.error.retryAfter).toStrictEqual(
-      String(Number(rateLimitReset) - Math.floor(Date.now() / 1000))
-    );
+    expect(result?.result.error.retryAfter).toStrictEqual('30');
     expect(result).toMatchObject({
       foo: 'bar',
       baz: {

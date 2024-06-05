@@ -72,6 +72,6 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   return {
     validUsers,
     invalidUsers,
-    nextPage: pages?.next ? pages.next.starting_after : null,
+    nextPage: pages?.next?.starting_after || null,
   };
 };

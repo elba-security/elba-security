@@ -20,14 +20,9 @@ export const rateLimitMiddleware = new InngestMiddleware({
             // DOC: https://developers.intercom.com/docs/references/rest-api/errors/rate-limiting/
             if (error.response.status === 429) {
               let resetAfter = 60;
-              const rateLimitRemaining = error.response.headers.get('X-RateLimit-Remaining');
               const rateLimitReset = error.response.headers.get('X-RateLimit-Reset');
 
-              if (
-                Boolean(rateLimitRemaining) &&
-                Boolean(rateLimitReset) &&
-                Number(rateLimitRemaining) < 2
-              ) {
+              if (rateLimitReset) {
                 resetAfter = Number(rateLimitReset) - Math.floor(Date.now() / 1000);
               }
 
