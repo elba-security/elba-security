@@ -26,7 +26,7 @@ describe('auth connector', () => {
     beforeEach(() => {
       server.use(
         http.post(
-          `${env.SENTRY_API_BASE_URL}/sentry-app-installations/{installationId}/authorizations/`,
+          `${env.SENTRY_API_BASE_URL}/sentry-app-installations/${installationId}/authorizations/`,
           async ({ request }) => {
             const body = (await request.json()) as GetTokenRequestData;
             const searchParams = new URLSearchParams(body);

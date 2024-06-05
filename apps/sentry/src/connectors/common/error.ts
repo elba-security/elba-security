@@ -1,4 +1,4 @@
-type SentryErrorOptions = { response?: Response };
+type SentryErrorOptions = { response?: Response } & ErrorOptions;
 
 export class SentryError extends Error {
   response?: Response;

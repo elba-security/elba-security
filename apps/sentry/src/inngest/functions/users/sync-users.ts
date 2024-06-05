@@ -68,7 +68,7 @@ export const syncUsers = inngest.createFunction(
       });
 
       const users = result.validUsers
-        .filter((user) => !user.pending && user.user?.isActive) // Ensure both conditions are met
+        .filter((user) => !user.pending && user.user?.isActive)
         .map(formatElbaUser);
 
       if (result.invalidUsers.length > 0) {

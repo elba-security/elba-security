@@ -37,7 +37,7 @@ export const getToken = async (code: string, installationId: string) => {
 
   if (!result.success) {
     logger.error('Invalid Sentry token response', { data });
-    throw new SentryError('Invalid Sentry token response', { error: result.error });
+    throw new SentryError('Invalid Sentry token response', { cause: result.error });
   }
 
   return {
@@ -74,7 +74,7 @@ export const getRefreshToken = async (refreshTokenInfo: string, installationId: 
 
   if (!result.success) {
     logger.error('Invalid sentry refresh token response', { data });
-    throw new Error('Invalid sentry token response');
+    throw new Error('Invalid sentry token response', { cause: result.error });
   }
 
   return {

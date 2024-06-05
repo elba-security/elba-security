@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
 import { SentryError } from '../common/error';
+import { getNextCursorFromHeader } from '../utils/pagination';
 
 const sentryUserSchema = z.object({
   role: z.string(),
@@ -68,19 +69,7 @@ export const getUsers = async ({ accessToken, cursor, organizationSlug }: GetUse
   }
 
   const linkHeader = response.headers.get('Link');
-  let nextCursor: string | null = null;
-  if (linkHeader) {
-    const links = linkHeader.split(', ');
-    const nextLink = links.find((link) => link.includes('rel="next"'));
-    const results = links.find((link) => link.includes('results="true"'));
-    if (nextLink && results) {
-      const match = /<(?<url>[^>]+)>/.exec(nextLink);
-      if (match?.groups?.url) {
-        const parsedUrl = new URL(match.groups.url);
-        nextCursor = parsedUrl.searchParams.get('cursor');
-      }
-    }
-  }
+  const nextCursor = linkHeader ? getNextCursorFromHeader(linkHeader) : null;
 
   return {
     validUsers,
