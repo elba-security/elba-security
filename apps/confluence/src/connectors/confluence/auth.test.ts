@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call -- test convenience */
 /* eslint-disable @typescript-eslint/no-unsafe-return -- test convenience */
 import { http } from 'msw';
-import { describe, expect, test, beforeEach } from 'vitest';
+import { describe, expect, test, beforeEach, beforeAll, afterAll, vi } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { checkAdmin, getInstance, getRefreshedToken, getToken } from './auth';
@@ -15,6 +15,18 @@ const oauthToken = {
   token_type: 'foobar',
   expires_in: 3600,
   refresh_token: 'refresh-token',
+};
+const now = Date.now();
+
+const organisation = {
+  id: `45a76301-f1dd-4a77-b12f-9d7d3fca3c90`,
+  region: 'us',
+  instanceId: '1234',
+  instanceUrl: 'http://foo.bar',
+  accessToken: 'encrypted-access-token',
+  refreshToken: 'encrypted-refresh-token',
+  createdAt: new Date(),
+  tokenExpiresAt: new Date(),
 };
 
 const users = Array.from({ length: 5 }, (_, i) => ({
@@ -85,6 +97,14 @@ describe('auth connector', () => {
   });
 
   describe('getRefreshedToken', () => {
+    beforeAll(() => {
+      vi.setSystemTime(now);
+    });
+
+    afterAll(() => {
+      vi.useRealTimers();
+    });
+
     beforeEach(() => {
       server.use(
         http.post('https://api.atlassian.com/oauth/token', async ({ request }) => {
@@ -105,15 +125,21 @@ describe('auth connector', () => {
     });
 
     test('should return the refreshed token when the refreshToken is valid', async () => {
-      await expect(getRefreshedToken(validRefreshToken)).resolves.toMatchObject({
-        accessToken: oauthToken.access_token,
+      await expect(
+        getRefreshedToken({ ...organisation, refreshToken: validRefreshToken })
+      ).resolves.toMatchObject({
+        organisation: {
+          accessToken: oauthToken.access_token,
+          refreshToken: oauthToken.refresh_token,
+        },
         expiresIn: oauthToken.expires_in,
-        refreshToken: oauthToken.refresh_token,
       });
     });
 
     test('should throw when the refreshToken is invalid', async () => {
-      await expect(getToken('wrong-refresh-token')).rejects.toBeInstanceOf(ConfluenceError);
+      await expect(
+        getRefreshedToken({ ...organisation, refreshToken: 'wrong-refresh-token' })
+      ).rejects.toBeInstanceOf(ConfluenceError);
     });
   });
 

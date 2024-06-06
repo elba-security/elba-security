@@ -1,4 +1,6 @@
+import type { GetRefreshedToken } from '@elba-security/app-core';
 import { env } from '@/common/env';
+import type { organisationsTable } from '@/database/schema';
 import { ConfluenceError } from './common/error';
 
 type GetTokenResponseData = {
@@ -43,7 +45,9 @@ export const getToken = async (code: string) => {
  * scopes:
  *   - offline_access
  */
-export const getRefreshedToken = async (refreshToken: string) => {
+export const getRefreshedToken: GetRefreshedToken<typeof organisationsTable> = async ({
+  refreshToken,
+}) => {
   const response = await fetch('https://api.atlassian.com/oauth/token', {
     method: 'POST',
     body: JSON.stringify({
@@ -64,8 +68,10 @@ export const getRefreshedToken = async (refreshToken: string) => {
   const data = (await response.json()) as GetTokenResponseData;
 
   return {
-    accessToken: data.access_token,
-    refreshToken: data.refresh_token,
+    organisation: {
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+    },
     expiresIn: data.expires_in,
   };
 };
