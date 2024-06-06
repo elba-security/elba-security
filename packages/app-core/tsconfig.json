@@ -1,5 +1,5 @@
 {
   "extends": "@elba-security/tsconfig/base.json",
-  "include": ["src/**/*.ts"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

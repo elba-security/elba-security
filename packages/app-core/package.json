@@ -2,13 +2,17 @@
   "name": "@elba-security/app-core",
   "private": true,
   "main": "src/index.ts",
+  "scripts": {
+    "lint": "eslint src",
+    "type-check": "tsc --noEmit"
+  },
   "dependencies": {
     "@elba-security/utils": "workspace:*"
   },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
-    "typescript": "^5",
+    "typescript": "^5.4.5",
     "inngest": "3.14.2",
     "date-fns": "^3.3.1",
     "drizzle-orm": "0.29.4"
