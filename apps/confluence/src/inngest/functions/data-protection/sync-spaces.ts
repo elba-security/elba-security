@@ -35,7 +35,7 @@ export const syncSpaces = inngest.createFunction(
   },
   async ({ event, step }) => {
     const { organisationId, cursor, type, syncStartedAt, isFirstSync } = event.data;
-    const organisation = await step.run('get-organisation', () => getOrganisation(organisationId));
+    const organisation = await getOrganisation(organisationId);
 
     const nextCursor = await step.run('paginate-spaces', async () => {
       const users = await getOrganisationUsers(organisationId);

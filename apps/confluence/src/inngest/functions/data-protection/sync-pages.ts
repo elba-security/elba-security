@@ -31,7 +31,7 @@ export const syncPages = inngest.createFunction(
   async ({ event, step }) => {
     const { organisationId, cursor, syncStartedAt, isFirstSync } = event.data;
 
-    const organisation = await step.run('get-organisation', () => getOrganisation(organisationId));
+    const organisation = await getOrganisation(organisationId);
 
     const elba = createElbaClient(organisation.id, organisation.region);
 

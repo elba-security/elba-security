@@ -32,7 +32,8 @@ export const syncUsers = inngest.createFunction(
   async ({ event, step }) => {
     const { organisationId, syncStartedAt, isFirstSync, cursor } = event.data;
 
-    const organisation = await step.run('get-organisation', () => getOrganisation(organisationId));
+    const organisation = await getOrganisation(organisationId);
+
     const { groupIds, cursor: nextCursor } = await step.run('list-group-ids', async () =>
       getGroupIds({
         accessToken: await decrypt(organisation.accessToken),

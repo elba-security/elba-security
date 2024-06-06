@@ -26,7 +26,7 @@ export const syncGroupUsers = inngest.createFunction(
   async ({ event, step }) => {
     const { organisationId, cursor, syncStartedAt, groupId, isFirstSync } = event.data;
 
-    const organisation = await step.run('get-organisation', () => getOrganisation(organisationId));
+    const organisation = await getOrganisation(organisationId);
 
     const nextCursor = await step.run('paginate-group-users', async () => {
       const elba = createElbaClient(organisation.id, organisation.region);

@@ -103,7 +103,7 @@ export const refreshDataProtectionObject = inngest.createFunction(
   async ({ event, step }) => {
     const { organisationId, objectId, metadata } = event.data;
 
-    const organisation = await step.run('get-organisation', () => getOrganisation(organisationId));
+    const organisation = await getOrganisation(organisationId);
 
     return step.run('refresh-object', async () => {
       const object = await getDataProtectionObject({
