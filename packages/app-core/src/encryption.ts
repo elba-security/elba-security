@@ -22,8 +22,8 @@ export const encryptRecord = async <T extends NonNullable<unknown>>({
   const encryptedData = { ...data };
 
   for (const key of encryptedKeys) {
-    if (Object.hasOwn(data, key)) {
-      const rawValue = data[key] as string;
+    const rawValue = data[key as keyof T];
+    if (typeof rawValue === 'string') {
       // eslint-disable-next-line no-await-in-loop -- convenience
       const value = await encryptText({ data: rawValue, key: encryptionKey });
       encryptedData[key] = value as T[typeof key];
@@ -51,8 +51,8 @@ export const decryptRecord = async <T extends NonNullable<unknown>>({
   const decryptedData = { ...data };
 
   for (const key of encryptedKeys) {
-    if (Object.hasOwn(data, key)) {
-      const rawValue = data[key] as string;
+    const rawValue = data[key as keyof T];
+    if (typeof rawValue === 'string') {
       // eslint-disable-next-line no-await-in-loop -- convenience
       const value = await decryptText({ data: rawValue, key: encryptionKey });
       decryptedData[key] = value as T[typeof key];
