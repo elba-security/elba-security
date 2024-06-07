@@ -6,16 +6,6 @@ import { inngest } from '@/inngest/client';
 export const scheduleUsersSync = inngest.createFunction(
   {
     id: 'linear-schedule-users-syncs',
-    cancelOn: [
-      {
-        event: 'linear/app.installed',
-        match: 'data.organisationId',
-      },
-      {
-        event: 'linear/app.uninstalled',
-        match: 'data.organisationId',
-      },
-    ],
     retries: 5,
   },
   { cron: env.LINEAR_USERS_SYNC_CRON },

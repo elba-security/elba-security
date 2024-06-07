@@ -6,16 +6,6 @@ import { inngest } from '@/inngest/client';
 export const scheduleUsersSync = inngest.createFunction(
   {
     id: 'notion-schedule-users-syncs',
-    cancelOn: [
-      {
-        event: 'notion/app.installed',
-        match: 'data.organisationId',
-      },
-      {
-        event: 'notion/app.uninstalled',
-        match: 'data.organisationId',
-      },
-    ],
     retries: 5,
   },
   { cron: env.NOTION_USERS_SYNC_CRON },

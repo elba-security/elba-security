@@ -6,16 +6,6 @@ import { inngest } from '@/inngest/client';
 export const scheduleUsersSync = inngest.createFunction(
   {
     id: 'zoom-schedule-users-syncs',
-    cancelOn: [
-      {
-        event: 'zoom/app.installed',
-        match: 'data.organisationId',
-      },
-      {
-        event: 'zoom/app.uninstalled',
-        match: 'data.organisationId',
-      },
-    ],
     retries: 5,
   },
   { cron: env.ZOOM_USERS_SYNC_CRON },

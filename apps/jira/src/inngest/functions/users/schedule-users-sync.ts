@@ -6,16 +6,6 @@ import { inngest } from '@/inngest/client';
 export const scheduleUsersSync = inngest.createFunction(
   {
     id: 'jira-schedule-users-syncs',
-    cancelOn: [
-      {
-        event: 'jira/app.installed',
-        match: 'data.organisationId',
-      },
-      {
-        event: 'jira/app.uninstalled',
-        match: 'data.organisationId',
-      },
-    ],
     retries: 5,
   },
   { cron: env.JIRA_USERS_SYNC_CRON },
