@@ -6,16 +6,6 @@ import { inngest } from '../../client';
 export const scheduleUsersSync = inngest.createFunction(
   {
     id: 'fivetran-schedule-users-syncs',
-    cancelOn: [
-      {
-        event: 'fivetran/app.installed',
-        match: 'data.organisationId',
-      },
-      {
-        event: 'fivetran/app.uninstalled',
-        match: 'data.organisationId',
-      },
-    ],
   },
   { cron: env.FIVETRAN_USERS_SYNC_CRON },
   async ({ step }) => {
