@@ -4,8 +4,8 @@
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
+import { DbtlabsError } from '../common/error';
 import { type DbtlabsUser, getUsers } from './users';
-import { DbtlabsError } from './commons/error';
 
 const nextCursor = '1';
 const limit = 100;
@@ -55,7 +55,7 @@ describe('users connector', () => {
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
       await expect(
-        getUsers({ serviceToken, accountId, accessUrl, afterToken: nextCursor })
+        getUsers({ serviceToken, accountId, accessUrl, page: nextCursor })
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
@@ -65,7 +65,7 @@ describe('users connector', () => {
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
       await expect(
-        getUsers({ serviceToken, accountId, accessUrl, afterToken: null })
+        getUsers({ serviceToken, accountId, accessUrl, page: null })
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
@@ -79,7 +79,7 @@ describe('users connector', () => {
           serviceToken: 'foo-id',
           accountId,
           accessUrl,
-          afterToken: nextCursor,
+          page: nextCursor,
         })
       ).rejects.toBeInstanceOf(DbtlabsError);
     });

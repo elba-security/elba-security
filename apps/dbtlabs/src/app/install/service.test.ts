@@ -3,9 +3,9 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import * as userConnector from '@/connectors/users';
+import * as userConnector from '@/connectors/dbtlabs/users';
 import { decrypt } from '@/common/crypto';
-import { DbtlabsError } from '@/connectors/commons/error';
+import { DbtlabsError } from '@/connectors/common/error';
 import { registerOrganisation } from './service';
 
 const serviceToken = 'test-personal-token';

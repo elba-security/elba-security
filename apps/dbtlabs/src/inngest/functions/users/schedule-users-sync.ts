@@ -1,11 +1,11 @@
 import { env } from '@/common/env';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { inngest } from '../../client';
+import { inngest } from '@/inngest/client';
 
 export const scheduleUsersSync = inngest.createFunction(
-  { id: 'schedule-users-syncs' },
-  { cron: env.USERS_SYNC_CRON },
+  { id: 'dbtlabs-schedule-users-sync' },
+  { cron: env.DBTLABS_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({

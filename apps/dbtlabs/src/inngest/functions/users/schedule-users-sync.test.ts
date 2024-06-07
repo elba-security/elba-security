@@ -12,7 +12,7 @@ const setup = createInngestFunctionMock(scheduleUsersSync);
 const encodedPersonalToken = await encrypt('test-personal-token');
 
 export const organisations = Array.from({ length: 2 }, (_, i) => ({
-  id: `b91f113b-bcf9-4a28-98c7-5b13fb671c1${i}`,
+  id: `00000000-0000-0000-0000-00000000000${i}`,
   region: 'us',
   serviceToken: encodedPersonalToken,
   accountId: `${i}`,

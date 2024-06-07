@@ -2,13 +2,13 @@ import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
-import { getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/dbtlabs/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { type DbtlabsUser } from '@/connectors/users';
+import { type DbtlabsUser } from '@/connectors/dbtlabs/users';
 import { decrypt } from '@/common/crypto';
-import { getElbaClient } from '@/connectors/elba/client';
+import { createElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUser = (user: DbtlabsUser): User => ({
   id: user.id.toString(),
@@ -19,9 +19,9 @@ const formatElbaUser = (user: DbtlabsUser): User => ({
 
 export const syncUsers = inngest.createFunction(
   {
-    id: 'synchronize-users',
+    id: 'dbtlabs-sync-users',
     priority: {
-      run: 'event.data.isFirstSync ? 600 : -600',
+      run: 'event.data.isFirstSync ? 600 : 0',
     },
     concurrency: {
       key: 'event.data.organisationId',
@@ -42,13 +42,14 @@ export const syncUsers = inngest.createFunction(
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
+
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
     const { accountId, accessUrl, region } = organisation;
 
-    const elba = getElbaClient({ organisationId, region });
+    const elba = createElbaClient({ organisationId, region });
     const serviceToken = await decrypt(organisation.serviceToken);
 
     const nextPage = await step.run('list-users', async () => {
@@ -56,10 +57,10 @@ export const syncUsers = inngest.createFunction(
         serviceToken,
         accountId,
         accessUrl,
-        afterToken: page,
+        page,
       });
 
-      const users = result.validUsers.filter(({ is_active: active }) => active).map(formatElbaUser);
+      const users = result.validUsers.map(formatElbaUser);
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

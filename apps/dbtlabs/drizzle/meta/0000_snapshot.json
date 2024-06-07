@@ -1,5 +1,5 @@
 {
-  "id": "a4cc1d71-2694-4473-9f9b-7a75a84ceddb",
+  "id": "45dda065-902e-44eb-99bf-43d27240ec6c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -14,20 +14,20 @@
           "primaryKey": true,
           "notNull": true
         },
-        "accountId": {
-          "name": "accountId",
+        "account_id": {
+          "name": "account_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "serviceToken": {
-          "name": "serviceToken",
+        "service_token": {
+          "name": "service_token",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "accessUrl": {
-          "name": "accessUrl",
+        "access_url": {
+          "name": "access_url",
           "type": "text",
           "primaryKey": false,
           "notNull": true

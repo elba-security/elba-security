@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { DbtlabsError } from './commons/error';
+import { env } from '@/common/env';
+import { DbtlabsError } from '../common/error';
 
 const dbtlabsUserSchema = z.object({
   id: z.number(),
@@ -15,14 +16,18 @@ export type DbtlabsUser = z.infer<typeof dbtlabsUserSchema>;
 const dbtlabsResponseSchema = z.object({
   data: z.array(z.unknown()),
   extra: z.object({
-    filters: z.object({
-      limit: z.number().nullable(),
-      offset: z.number().nullable(),
-    }),
-    pagination: z.object({
-      count: z.number().nullable(),
-      total_count: z.number().nullable(),
-    }),
+    filters: z
+      .object({
+        limit: z.number(),
+        offset: z.number(),
+      })
+      .optional(),
+    pagination: z
+      .object({
+        count: z.number(),
+        total_count: z.number(),
+      })
+      .optional(),
   }),
 });
 
@@ -30,22 +35,19 @@ export type GetUsersParams = {
   serviceToken: string;
   accountId: string;
   accessUrl: string;
-  afterToken?: string | null;
+  page: string | null;
 };
 
-export const getUsers = async ({
-  serviceToken,
-  accountId,
-  afterToken,
-  accessUrl,
-}: GetUsersParams) => {
-  const endpoint = new URL(`${accessUrl}/api/v2/accounts/${accountId}/users`);
+export const getUsers = async ({ serviceToken, accountId, page, accessUrl }: GetUsersParams) => {
+  // V3 version of the API is available, however, it is in beta , we can use once it is stable
+  const url = new URL(`${accessUrl}/api/v2/accounts/${accountId}/users`);
+  url.searchParams.append('limit', String(env.DBTLABS_USERS_SYNC_BATCH_SIZE));
 
-  if (afterToken) {
-    endpoint.searchParams.append('offset', String(afterToken));
+  if (page) {
+    url.searchParams.append('offset', String(page));
   }
 
-  const response = await fetch(endpoint.toString(), {
+  const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -67,21 +69,28 @@ export const getUsers = async ({
   for (const node of data) {
     const result = dbtlabsUserSchema.safeParse(node);
     if (result.success) {
+      //Api will not return invited users but we need ot filter inactive users
+      if (!result.data.is_active) {
+        continue;
+      }
       validUsers.push(result.data);
     } else {
       invalidUsers.push(node);
     }
   }
 
-  let nextPage: string | null = null;
-  const { limit, offset } = extra.filters;
-  const { total_count: totalCount } = extra.pagination;
+  let nextPage: number | null = null;
 
-  // Calculate if there is a next page based on the current offset, limit, and total count
-  if (limit && offset && totalCount) {
+  if (extra.filters && extra.pagination) {
+    const {
+      filters: { limit, offset },
+      pagination: { total_count: totalCount },
+    } = extra;
+
     const nextOffset = offset + limit;
+
     if (nextOffset < totalCount) {
-      nextPage = nextOffset.toString();
+      nextPage = nextOffset;
     }
   }
 

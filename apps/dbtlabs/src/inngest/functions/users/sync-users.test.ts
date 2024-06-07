@@ -1,15 +1,15 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/dbtlabs/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { syncUsers } from './sync-users';
 
-const nextPage = '1';
+const nextPage = 1;
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
   serviceToken: await encrypt('test-personal-token'),
   accountId: '00000',
   accessUrl: 'https://example.us1.dbt.com',

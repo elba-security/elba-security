@@ -2,7 +2,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
-import { getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/dbtlabs/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -21,7 +21,7 @@ export const registerOrganisation = async ({
 }: SetupOrganisationParams) => {
   const encodedserviceToken = await encrypt(serviceToken);
 
-  await getUsers({ serviceToken, accountId, accessUrl });
+  await getUsers({ serviceToken, accountId, accessUrl, page: null });
 
   await db
     .insert(organisationsTable)
