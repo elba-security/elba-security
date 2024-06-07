@@ -6,16 +6,6 @@ import { inngest } from '@/inngest/client';
 export const scheduleUsersSync = inngest.createFunction(
   {
     id: 'datadog-schedule-users-syncs',
-    cancelOn: [
-      {
-        event: 'datadog/app.installed',
-        match: 'data.organisationId',
-      },
-      {
-        event: 'datadog/app.uninstalled',
-        match: 'data.organisationId',
-      },
-    ],
     retries: 5,
   },
   { cron: env.DATADOG_USERS_SYNC_CRON },

@@ -466,11 +466,8 @@ importers:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
-        specifier: 3.14.2
-        version: 3.14.2(typescript@5.2.2)
-      msw:
-        specifier: ^2.0.1
-        version: 2.0.6(typescript@5.2.2)
+        specifier: 3.19.11
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -520,15 +517,18 @@ importers:
       inngest-cli:
         specifier: ^0.25.2
         version: 0.25.2
+      msw:
+        specifier: ^2.3.1
+        version: 2.3.1(typescript@5.3.3)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
       testcontainers:
-        specifier: ^10.8.1
-        version: 10.8.1
+        specifier: ^10.9.0
+        version: 10.9.0
       typescript:
-        specifier: ^5
-        version: 5.2.2
+        specifier: ^5.3.3
+        version: 5.3.3
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
