@@ -6,16 +6,6 @@ import { inngest } from '../../client';
 export const scheduleUsersSynchronize = inngest.createFunction(
   {
     id: 'aircall-schedule-users-sync',
-    cancelOn: [
-      {
-        event: 'aircall/app.installed',
-        match: 'data.organisationId',
-      },
-      {
-        event: 'aircall/app.uninstalled',
-        match: 'data.organisationId',
-      },
-    ],
     retries: 5,
   },
   {
