@@ -6,16 +6,6 @@ import { inngest } from '@/inngest/client';
 export const scheduleUsersSync = inngest.createFunction(
   {
     id: 'asana-schedule-users-syncs',
-    cancelOn: [
-      {
-        event: 'asana/app.installed',
-        match: 'data.organisationId',
-      },
-      {
-        event: 'asana/app.uninstalled',
-        match: 'data.organisationId',
-      },
-    ],
     retries: 5,
   },
   { cron: env.ASANA_USERS_SYNC_CRON },
