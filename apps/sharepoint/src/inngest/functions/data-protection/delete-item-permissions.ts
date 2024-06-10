@@ -7,7 +7,6 @@ import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 import { deleteItemPermission } from '@/connectors/microsoft/sharepoint/permissions';
 import { MicrosoftError } from '@/common/error';
-import { createElbaClient } from '@/connectors/elba/client';
 
 export const deleteDataProtectionItemPermissions = inngest.createFunction(
   {
@@ -103,13 +102,6 @@ export const deleteDataProtectionItemPermissions = inngest.createFunction(
       },
       { deletedPermissions: [], notFoundPermissions: [], unexpectedFailedPermissions: [] }
     );
-
-    if (parsedResult.notFoundPermissions.length) {
-      const elba = createElbaClient({ organisationId, region: organisation.region });
-      await elba.dataProtection.deleteObjects({
-        ids: [itemId],
-      });
-    }
 
     return parsedResult;
   }
