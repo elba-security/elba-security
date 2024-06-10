@@ -5,7 +5,10 @@ import { handleWebhook } from '@/app/api/webhooks/microsoft/event-handler/servic
 import { getSubscriptionsFromDB } from '@/common/get-db-subscriptions';
 import { isClientStateValid } from '@/common/validate-client-state';
 
-export const subscriptionSchema = z.object({
+export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
+
+const subscriptionSchema = z.object({
   subscriptionId: z.string(),
   resource: z.string(),
   tenantId: z.string(),

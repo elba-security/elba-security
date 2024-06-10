@@ -7,7 +7,7 @@ export const preferredRegion = 'fra1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export const baseSchema = z.object({
+const baseSchema = z.object({
   id: z.string(),
   organisationId: z.string(),
   metadata: z.object({
