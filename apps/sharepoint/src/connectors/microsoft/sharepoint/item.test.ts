@@ -55,13 +55,11 @@ describe('get-item connector', () => {
 
             const formatedItem = selectedKeys.reduce<Partial<MicrosoftDriveItem>>(
               (acc, key: keyof MicrosoftDriveItem) => {
-                acc[key] = item[key];
-                return acc;
+                return { ...acc, [key]: item[key] };
               },
               {}
             );
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
             return Response.json(formatedItem);
           }
         )

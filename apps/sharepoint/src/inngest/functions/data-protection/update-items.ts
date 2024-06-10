@@ -6,8 +6,8 @@ import { db } from '@/database/client';
 import { organisationsTable, sharePointTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { getDelta } from '@/connectors/microsoft/delta/get-delta';
-import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import { createElbaClient } from '@/connectors/elba/client';
+import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import {
   formatDataProtectionItems,
   getCkunkedArray,

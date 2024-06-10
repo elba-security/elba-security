@@ -69,7 +69,6 @@ describe('permissions connector', () => {
               nextPageUrl.searchParams.set('$skiptoken', '');
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
             return Response.json({
               '@odata.nextLink':
                 skipToken === null ? null : decodeURIComponent(nextPageUrl.toString()),
@@ -197,7 +196,7 @@ describe('permissions connector', () => {
             } else if (params.itemId !== itemId) {
               return new Response(undefined, { status: 404 });
             }
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
+
             return Response.json({ status: 200 });
           }
         )
