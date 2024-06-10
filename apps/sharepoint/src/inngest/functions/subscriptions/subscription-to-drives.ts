@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { v4 as uuidv4 } from 'uuid';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
@@ -47,7 +46,7 @@ export const subscriptionToDrive = inngest.createFunction(
 
     const changeType = 'updated';
     const resource = `sites/${siteId}/drives/${driveId}/root`;
-    const clientState = uuidv4();
+    const clientState = crypto.randomUUID();
 
     return createSubscription({
       token: await decrypt(organisation.token),

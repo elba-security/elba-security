@@ -59,8 +59,7 @@ describe('items connector', () => {
             const formatedItems = items.map((site) =>
               selectedKeys.reduce<Partial<MicrosoftDriveItem>>(
                 (acc, key: keyof MicrosoftDriveItem) => {
-                  acc[key] = site[key];
-                  return acc;
+                  return { ...acc, [key]: site[key] };
                 },
                 {}
               )
@@ -69,7 +68,6 @@ describe('items connector', () => {
             const nextPageUrl = new URL(url);
             nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
             return Response.json({
               '@odata.nextLink':
                 skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
@@ -100,8 +98,7 @@ describe('items connector', () => {
             const formatedItems = items.map((site) =>
               selectedKeys.reduce<Partial<MicrosoftDriveItem>>(
                 (acc, key: keyof MicrosoftDriveItem) => {
-                  acc[key] = site[key];
-                  return acc;
+                  return { ...acc, [key]: site[key] };
                 },
                 {}
               )
@@ -110,7 +107,6 @@ describe('items connector', () => {
             const nextPageUrl = new URL(url);
             nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
             return Response.json({
               '@odata.nextLink':
                 skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),

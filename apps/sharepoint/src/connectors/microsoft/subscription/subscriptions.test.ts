@@ -36,7 +36,6 @@ describe('subscription connector', () => {
             return new Response(undefined, { status: 401 });
           }
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
           return Response.json(subscription);
         })
       );
@@ -69,7 +68,6 @@ describe('subscription connector', () => {
               return new Response(undefined, { status: 400 });
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
             return Response.json(subscription);
           }
         )

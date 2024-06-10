@@ -29,7 +29,7 @@ export const deleteDataProtectionItemPermissions = inngest.createFunction(
     retries: 5,
   },
   { event: 'sharepoint/data_protection.delete_object_permissions.requested' },
-  async ({ event, step }) => {
+  async ({ event, step, logger }) => {
     const {
       id: itemId,
       organisationId,
@@ -65,8 +65,18 @@ export const deleteDataProtectionItemPermissions = inngest.createFunction(
 
             return { status: 204, permissionId };
           } catch (error) {
-            if (error instanceof MicrosoftError && error.response?.status === 404)
+            if (error instanceof MicrosoftError && error.response?.status === 404) {
               return { status: 404, permissionId };
+            }
+
+            logger.error('Failed to delete permission', {
+              organisationId,
+              siteId,
+              driveId,
+              itemId,
+              permissionId,
+              error,
+            });
 
             throw error;
           }

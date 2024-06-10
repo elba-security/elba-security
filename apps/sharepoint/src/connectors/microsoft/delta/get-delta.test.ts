@@ -57,8 +57,7 @@ describe('delta connector', () => {
             const formatedDelta = selectedKeys.length
               ? delta.map((site) =>
                   selectedKeys.reduce<Partial<Delta>>((acc, key: keyof Delta) => {
-                    acc[key] = site[key];
-                    return acc;
+                    return { ...acc, [key]: site[key] };
                   }, {})
                 )
               : delta;
