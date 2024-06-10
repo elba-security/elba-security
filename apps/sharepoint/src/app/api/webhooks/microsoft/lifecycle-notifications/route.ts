@@ -6,7 +6,10 @@ import { getSubscriptionsFromDB } from '@/common/get-db-subscriptions';
 import { isClientStateValid } from '@/common/validate-client-state';
 import { handleSubscriptionEvent } from './service';
 
-export const lifecycleEventSchema = z.object({
+export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
+
+const lifecycleEventSchema = z.object({
   subscriptionId: z.string(),
   lifecycleEvent: z.enum(['reauthorizationRequired', 'subscriptionRemoved']),
   // This is actually a tenantId, for some reason MS send different name even if in documentation it said otherwise
