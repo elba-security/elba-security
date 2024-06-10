@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1717138780209,
+      "tag": "0000_pretty_doctor_octopus",
+      "breakpoints": true
+    }
+  ]
+}
