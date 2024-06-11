@@ -1,5 +1,5 @@
 {
-  "id": "68559320-f4ac-4a30-899f-77ca98ac3961",
+  "id": "eb3fe3a8-86cf-4173-8bd7-9539ced56c90",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -105,7 +105,6 @@
           "name": "sharepoint_organisation_id_organisations_id_fk",
           "tableFrom": "sharepoint",
           "tableTo": "organisations",
-          "schemaTo": "public",
           "columnsFrom": ["organisation_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
