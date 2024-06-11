@@ -4,6 +4,7 @@ import { type NextRequest } from 'next/server';
 import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { env } from '@/common/env';
 
+export const preferredRegion = 'fra1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
@@ -25,12 +26,15 @@ export function GET(request: NextRequest) {
   cookies().set('region', region);
   cookies().set('state', state);
 
-  const redirectUrl = new URL(`${env.HUBSPOT_APP_INSTALL_URL}/oauth_authorize`);
+  const redirectUrl = new URL(`${env.HUBSPOT_APP_INSTALL_URL}`);
   redirectUrl.searchParams.append('response_type', 'code');
   redirectUrl.searchParams.append('client_id', env.HUBSPOT_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.HUBSPOT_REDIRECT_URI);
   redirectUrl.searchParams.append('state', state);
-  redirectUrl.searchParams.append('scope', 'crm.objects.owners.read oauth');
+  redirectUrl.searchParams.append(
+    'scope',
+    'settings.users.read settings.users.write crm.objects.users.read crm.objects.users.write oauth'
+  );
 
   redirect(redirectUrl.toString());
 }

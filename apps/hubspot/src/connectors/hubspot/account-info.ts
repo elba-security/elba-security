@@ -17,6 +17,7 @@ export const getAccountTimezone = async (token: string) => {
   const data: unknown = await response.json();
 
   const result = getAccountResponseSchema.safeParse(data);
+
   if (!result.success) {
     logger.error('Invalid Hubspot timezone response', { data });
     throw new HubspotError('Invalid Hubspot timezone response', { cause: result.error });

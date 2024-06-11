@@ -105,16 +105,12 @@ describe('setupOrganisation', () => {
   });
 
   test('should setup organisation when the code is valid and the organisation is already registered', async () => {
-    // mock inngest client, only inngest.send should be used
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // pre-insert an organisation to simulate an existing entry
     await db.insert(organisationsTable).values(organisation);
 
-    // mock getToken as above
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
-
-    // assert the function resolves without returning a value
     await expect(
       setupOrganisation({
         organisationId: organisation.id,
@@ -123,11 +119,9 @@ describe('setupOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    // verify getToken usage
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
-    // check if the token in the database is updated
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)
@@ -137,7 +131,6 @@ describe('setupOrganisation', () => {
     }
     await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
 
-    // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
@@ -173,14 +166,12 @@ describe('setupOrganisation', () => {
   });
 
   test('should not setup the organisation when the code is invalid', async () => {
-    // mock inngest client
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const error = new Error('invalid code');
     // mock getToken to reject with a dumb error for an invalid code
     const getToken = vi.spyOn(authConnector, 'getToken').mockRejectedValue(error);
 
-    // assert that the function throws the mocked error
     await expect(
       setupOrganisation({
         organisationId: organisation.id,
@@ -189,16 +180,13 @@ describe('setupOrganisation', () => {
       })
     ).rejects.toThrowError(error);
 
-    // verify getToken usage
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
-    // ensure no organisation is added or updated in the database
     await expect(
       db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toHaveLength(0);
 
-    // ensure no sync users event is sent
     expect(send).toBeCalledTimes(0);
   });
 });
