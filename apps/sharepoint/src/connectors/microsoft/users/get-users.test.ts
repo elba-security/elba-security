@@ -51,7 +51,7 @@ describe('auth connector', () => {
           const skipToken = url.searchParams.get('$skiptoken');
 
           const selectedKeys = select?.split(',') || ([] as unknown as (keyof MicrosoftUser)[]);
-          const formatedUsers = users.map((user) =>
+          const formattedUsers = users.map((user) =>
             selectedKeys.reduce<Partial<MicrosoftUser>>((acc, key: keyof MicrosoftUser) => {
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- convenience
               acc[key] = user[key];
@@ -65,7 +65,7 @@ describe('auth connector', () => {
           return Response.json({
             '@odata.nextLink':
               skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
-            value: formatedUsers.slice(0, top ? Number(top) : 0),
+            value: formattedUsers.slice(0, top ? Number(top) : 0),
           });
         })
       );

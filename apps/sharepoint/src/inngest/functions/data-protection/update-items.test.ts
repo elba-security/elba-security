@@ -6,11 +6,11 @@ import { organisationsTable, sharePointTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { env } from '@/common/env';
-import type { MicrosoftDriveItemPermissions } from '@/connectors/microsoft/sharepoint/permissions';
+import type { MicrosoftDriveItemPermission } from '@/connectors/microsoft/sharepoint/permissions';
 import type { Delta } from '@/connectors/microsoft/delta/get-delta';
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
 import * as deltaConnector from '@/connectors/microsoft/delta/get-delta';
-import type { ItemsWithPermisions } from './common/types';
+import type { ItemsWithPermissions } from './common/types';
 import {
   formatDataProtectionItems,
   parsedDeltaState,
@@ -80,7 +80,7 @@ const items: Delta[] = Array.from({ length: itemLength }, (_, i) => {
   };
 });
 
-const mockPermissions = (itemCount: number): MicrosoftDriveItemPermissions[] => {
+const mockPermissions = (itemCount: number): MicrosoftDriveItemPermission[] => {
   return Array.from({ length: itemCount }, (_, i) => ({
     id: `permission-id-${i}`,
     roles: ['write'],
@@ -205,19 +205,19 @@ describe('update-item-and-permissions', () => {
 
     const updatedLength = updated.length;
 
-    const updateItemsWithPermisionsResult = updated.map((item, index) => ({
+    const updateItemsWithPermissionsResult = updated.map((item, index) => ({
       item,
       permissions: mockPermissions(index <= updatedLength / 2 ? 4 : 6).map((permission) =>
         permissionsConnector.validateAndParsePermission(
-          permission as unknown as MicrosoftDriveItemPermissions
+          permission as unknown as MicrosoftDriveItemPermission
         )
       ),
-    })) as ItemsWithPermisions[];
+    })) as ItemsWithPermissions[];
 
-    const { toDelete, toUpdate } = removeInheritedUpdate(updateItemsWithPermisionsResult);
+    const { toDelete, toUpdate } = removeInheritedUpdate(updateItemsWithPermissionsResult);
 
     const updateDataProtectionItems = formatDataProtectionItems({
-      itemsWithPermisions: toUpdate,
+      itemsWithPermissions: toUpdate,
       siteId,
       driveId,
     });

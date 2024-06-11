@@ -11,7 +11,7 @@ import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items
 import {
   formatDataProtectionItems,
   getCkunkedArray,
-  getItemsWithPermisionsFromChunks,
+  getItemsWithPermissionsFromChunks,
   parsedDeltaState,
   removeInheritedUpdate,
 } from './common/helpers';
@@ -76,30 +76,30 @@ export const updateItems = inngest.createFunction(
           env.MICROSOFT_DATA_PROTECTION_ITEM_PERMISSIONS_CHUNK_SIZE
         );
 
-        const itemsWithPermisions = await getItemsWithPermisionsFromChunks({
+        const itemsWithPermissions = await getItemsWithPermissionsFromChunks({
           itemsChunks,
           token: await decrypt(record.token),
           siteId,
           driveId,
         });
 
-        const { toDelete, toUpdate } = removeInheritedUpdate(itemsWithPermisions);
+        const { toDelete, toUpdate } = removeInheritedUpdate(itemsWithPermissions);
 
         const dataProtectionItems = formatDataProtectionItems({
-          itemsWithPermisions: toUpdate,
+          itemsWithPermissions: toUpdate,
           siteId,
           driveId,
         });
 
         if (!dataProtectionItems.length) {
-          return itemsWithPermisions.reduce<string[]>(
-            (acc, itemWithPermisions) => {
+          return itemsWithPermissions.reduce<string[]>(
+            (acc, itemWithPermissions) => {
               if (
-                !itemWithPermisions.permissions.length &&
-                itemWithPermisions.item.name !== 'root' &&
-                !toDelete.includes(itemWithPermisions.item.id)
+                !itemWithPermissions.permissions.length &&
+                itemWithPermissions.item.name !== 'root' &&
+                !toDelete.includes(itemWithPermissions.item.id)
               )
-                acc.push(itemWithPermisions.item.id);
+                acc.push(itemWithPermissions.item.id);
               return acc;
             },
             [...toDelete]

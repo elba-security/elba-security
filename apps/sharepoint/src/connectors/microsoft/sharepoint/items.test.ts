@@ -56,7 +56,7 @@ describe('items connector', () => {
             const selectedKeys =
               select?.split(',') || ([] as unknown as (keyof MicrosoftDriveItem)[]);
 
-            const formatedItems = items.map((site) =>
+            const formattedItems = items.map((site) =>
               selectedKeys.reduce<Partial<MicrosoftDriveItem>>(
                 (acc, key: keyof MicrosoftDriveItem) => {
                   return { ...acc, [key]: site[key] };
@@ -71,7 +71,7 @@ describe('items connector', () => {
             return Response.json({
               '@odata.nextLink':
                 skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
-              value: formatedItems.slice(0, top ? Number(top) : 0),
+              value: formattedItems.slice(0, top ? Number(top) : 0),
             });
           }
         ),
@@ -95,7 +95,7 @@ describe('items connector', () => {
             const selectedKeys =
               select?.split(',') || ([] as unknown as (keyof MicrosoftDriveItem)[]);
 
-            const formatedItems = items.map((site) =>
+            const formattedItems = items.map((site) =>
               selectedKeys.reduce<Partial<MicrosoftDriveItem>>(
                 (acc, key: keyof MicrosoftDriveItem) => {
                   return { ...acc, [key]: site[key] };
@@ -110,7 +110,7 @@ describe('items connector', () => {
             return Response.json({
               '@odata.nextLink':
                 skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
-              value: formatedItems.slice(0, top ? Number(top) : 0),
+              value: formattedItems.slice(0, top ? Number(top) : 0),
             });
           }
         )

@@ -11,7 +11,7 @@ import { createElbaClient } from '@/connectors/elba/client';
 import {
   formatDataProtectionItems,
   getCkunkedArray,
-  getItemsWithPermisionsFromChunks,
+  getItemsWithPermissionsFromChunks,
   getParentFolderPermissions,
   groupItems,
   removeInheritedSync,
@@ -111,7 +111,7 @@ export const syncItems = inngest.createFunction(
           env.MICROSOFT_DATA_PROTECTION_ITEM_PERMISSIONS_CHUNK_SIZE
         );
 
-        const itemsWithPermisions = await getItemsWithPermisionsFromChunks({
+        const itemsWithPermissions = await getItemsWithPermissionsFromChunks({
           itemsChunks,
           token,
           siteId,
@@ -127,7 +127,7 @@ export const syncItems = inngest.createFunction(
         );
 
         const dataProtectionItems = formatDataProtectionItems({
-          itemsWithPermisions: removeInheritedSync(parentFolderPermissions, itemsWithPermisions),
+          itemsWithPermissions: removeInheritedSync(parentFolderPermissions, itemsWithPermissions),
           siteId,
           driveId,
         });

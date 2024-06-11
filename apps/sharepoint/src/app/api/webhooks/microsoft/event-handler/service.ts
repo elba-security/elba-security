@@ -8,7 +8,7 @@ export const parsedSchema = z.object({
   driveId: z.string().min(1),
 });
 
-export const resoursesSchema = z.object({
+export const resourcesSchema = z.object({
   sites: z.literal('siteId'),
   drives: z.literal('driveId'),
 });
@@ -18,8 +18,8 @@ export const selectFields: SelectFieldsType = {
   drives: 'driveId',
 };
 
-export const parseResourceString = (resourse: string, getFields: SelectFieldsType) => {
-  const dataArray = resourse.split('/');
+export const parseResourceString = (resource: string, getFields: SelectFieldsType) => {
+  const dataArray = resource.split('/');
   const keys = Object.keys(getFields);
 
   const result = keys.reduce<ParsedType>(

@@ -4,6 +4,17 @@ import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 import { decrypt } from '@/common/crypto';
 
+export const incomingSubscriptionSchema = z.object({
+  subscriptionId: z.string(),
+  resource: z.string(),
+  tenantId: z.string(),
+  clientState: z.string(),
+});
+
+export const incomingSubscriptionArraySchema = z.object({
+  value: z.array(incomingSubscriptionSchema),
+});
+
 const subscriptionSchema = z.object({
   id: z.string(),
   expirationDateTime: z.string(),

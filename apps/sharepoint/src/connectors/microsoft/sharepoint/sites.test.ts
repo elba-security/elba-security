@@ -31,7 +31,7 @@ describe('sites connector', () => {
 
           const selectedKeys = select?.split(',') || ([] as unknown as (keyof MicrosoftSite)[]);
 
-          const formatedSites = sites.map((site) =>
+          const formattedSites = sites.map((site) =>
             selectedKeys.reduce<Partial<MicrosoftSite>>((acc, key: keyof MicrosoftSite) => {
               acc[key] = site[key];
               return acc;
@@ -44,7 +44,7 @@ describe('sites connector', () => {
           return Response.json({
             '@odata.nextLink':
               skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
-            value: formatedSites.slice(0, top ? Number(top) : 0),
+            value: formattedSites.slice(0, top ? Number(top) : 0),
           });
         })
       );

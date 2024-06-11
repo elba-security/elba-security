@@ -1,9 +1,9 @@
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
-import type { MicrosoftDriveItemPermissions } from '@/connectors/microsoft/sharepoint/permissions';
+import type { MicrosoftDriveItemPermission } from '@/connectors/microsoft/sharepoint/permissions';
 
-export type ItemsWithPermisions = {
+export type ItemsWithPermissions = {
   item: MicrosoftDriveItem;
-  permissions: MicrosoftDriveItemPermissions[];
+  permissions: MicrosoftDriveItemPermission[];
 };
 
 export type Folder = {
@@ -17,7 +17,7 @@ export type ParsedDelta = {
   updated: MicrosoftDriveItem[];
 };
 
-export type ItemsWithPermisionsParsed = {
+export type ItemsWithPermissionsParsed = {
   toDelete: string[];
-  toUpdate: ItemsWithPermisions[];
+  toUpdate: ItemsWithPermissions[];
 };
