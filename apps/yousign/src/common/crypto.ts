@@ -1,14 +1,11 @@
-import { decryptText, encryptText } from '@elba-security/utils';
-import { env } from '@/common/env';
+import { env } from '@/env';
+import { decryptText, encryptText } from '../../../../packages/utils/src';
+// import { decryptText, encryptText } from '@elba-security/utils';
 
-export const encrypt = (data: string) =>
-  encryptText({
-    data,
-    key: env.ENCRYPTION_KEY,
-  });
+export const encrypt = (data: string) => {
+  return encryptText(data, env.ENCRYPTION_KEY);
+};
 
-export const decrypt = (data: string) =>
-  decryptText({
-    data,
-    key: env.ENCRYPTION_KEY,
-  });
+export const decrypt = (data: string) => {
+  return decryptText(data, env.ENCRYPTION_KEY);
+};

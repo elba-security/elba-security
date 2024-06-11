@@ -1,5 +1,4 @@
-import { removeOrganisation } from './organisation/remove-organisation';
-import { scheduleUsersSync } from './users/schedule-users-sync';
-import { syncUsers } from './users/sync-users';
+import { synchronizeUsers } from './users/synchronize-users';
+import { scheduleUsersSynchronize } from './users/schedule-users-synchronize'; 
 
-export const inngestFunctions = [syncUsers, scheduleUsersSync, removeOrganisation];
+export const inngestFunctions = [synchronizeUsers, scheduleUsersSynchronize];

@@ -2,7 +2,6 @@ import { EventSchemas, Inngest } from 'inngest';
 import { sentryMiddleware } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
-import { unauthorizedMiddleware } from './middlewares/unauthorized-middleware';
 
 export const inngest = new Inngest({
   id: 'yousign',
@@ -15,23 +14,19 @@ export const inngest = new Inngest({
         page: string | null;
       };
     };
-    'yousign/app.installed': {
+    'yousign/yousign.elba_app.installed': {
       data: {
         organisationId: string;
+        region: string;
       };
     };
-    'yousign/app.uninstalled': {
+    'yousign/yousign.elba_app.uninstalled': {
       data: {
         organisationId: string;
-      };
-    };
-    'yousign/users.delete.requested': {
-      data: {
-        userId: string;
-        organisationId: string;
+        region: string;
       };
     };
   }>(),
-  middleware: [sentryMiddleware, unauthorizedMiddleware, rateLimitMiddleware],
+  middleware: [rateLimitMiddleware, sentryMiddleware],
   logger,
 });
