@@ -5,13 +5,13 @@ import { env } from '@/common/env';
 import * as itemsConnector from '@/connectors/microsoft/sharepoint/items';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
-import type { MicrosoftDriveItemPermissions } from '@/connectors/microsoft/sharepoint/permissions';
+import type { MicrosoftDriveItemPermission } from '@/connectors/microsoft/sharepoint/permissions';
 import { encrypt } from '@/common/crypto';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { syncItems } from './sync-items';
 import { formatDataProtectionItems, groupItems, removeInheritedSync } from './common/helpers';
-import type { ItemsWithPermisions } from './common/types';
+import type { ItemsWithPermissions } from './common/types';
 
 const token = 'test-token';
 
@@ -60,7 +60,7 @@ const groupedItems: MicrosoftDriveItem[] = Array.from({ length: itemsCount }, (_
   };
 });
 
-const mockPermissions = (itemCount: number): MicrosoftDriveItemPermissions[] => {
+const mockPermissions = (itemCount: number): MicrosoftDriveItemPermission[] => {
   return Array.from({ length: itemCount }, (_, i) => ({
     id: `permission-id-${i}`,
     roles: ['write'],
@@ -194,17 +194,17 @@ describe('sync-items', () => {
       });
     }
 
-    const itemsWithPermisionsResult = [...folders, ...files].map((item) => ({
+    const itemsWithPermissionsResult = [...folders, ...files].map((item) => ({
       item,
       permissions: permissions.map((permission) =>
         permissionsConnector.validateAndParsePermission(
-          permission as unknown as MicrosoftDriveItemPermissions
+          permission as unknown as MicrosoftDriveItemPermission
         )
       ),
     }));
 
     const dataProtectionItems = formatDataProtectionItems({
-      itemsWithPermisions: itemsWithPermisionsResult as unknown as ItemsWithPermisions[],
+      itemsWithPermissions: itemsWithPermissionsResult as unknown as ItemsWithPermissions[],
       siteId,
       driveId,
     });
@@ -322,19 +322,19 @@ describe('sync-items', () => {
       });
     }
 
-    const itemsWithPermisionsResult = [...folders, ...files].map((item) => ({
+    const itemsWithPermissionsResult = [...folders, ...files].map((item) => ({
       item,
       permissions: mockPermissions(itemsCount).map((permission) =>
         permissionsConnector.validateAndParsePermission(
-          permission as unknown as MicrosoftDriveItemPermissions
+          permission as unknown as MicrosoftDriveItemPermission
         )
       ),
     }));
 
     const dataProtectionItems = formatDataProtectionItems({
-      itemsWithPermisions: removeInheritedSync(
+      itemsWithPermissions: removeInheritedSync(
         mockPermissions(itemsCount / 2).map((permission) => permission.id),
-        itemsWithPermisionsResult as ItemsWithPermisions[]
+        itemsWithPermissionsResult as ItemsWithPermissions[]
       ),
       siteId,
       driveId,
@@ -409,17 +409,17 @@ describe('sync-items', () => {
       });
     }
 
-    const itemsWithPermisionsResult = [...files].map((item) => ({
+    const itemsWithPermissionsResult = [...files].map((item) => ({
       item,
       permissions: permissions.map((permission) =>
         permissionsConnector.validateAndParsePermission(
-          permission as unknown as MicrosoftDriveItemPermissions
+          permission as unknown as MicrosoftDriveItemPermission
         )
       ),
     }));
 
     const dataProtectionItems = formatDataProtectionItems({
-      itemsWithPermisions: itemsWithPermisionsResult as unknown as ItemsWithPermisions[],
+      itemsWithPermissions: itemsWithPermissionsResult as unknown as ItemsWithPermissions[],
       siteId,
       driveId,
     });

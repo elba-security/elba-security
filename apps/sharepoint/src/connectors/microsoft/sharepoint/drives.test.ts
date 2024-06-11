@@ -35,7 +35,7 @@ describe('drives connector', () => {
 
           const selectedKeys = select?.split(',') || ([] as unknown as (keyof MicrosoftDrive)[]);
 
-          const formatedDrives = drives.map((site) =>
+          const formattedDrives = drives.map((site) =>
             selectedKeys.reduce<Partial<MicrosoftDrive>>((acc, key: keyof MicrosoftDrive) => {
               acc[key] = site[key];
               return acc;
@@ -48,7 +48,7 @@ describe('drives connector', () => {
           return Response.json({
             '@odata.nextLink':
               skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
-            value: formatedDrives.slice(0, top ? Number(top) : 0),
+            value: formattedDrives.slice(0, top ? Number(top) : 0),
           });
         })
       );

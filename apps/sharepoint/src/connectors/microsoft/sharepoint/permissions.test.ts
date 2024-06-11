@@ -3,7 +3,7 @@ import { describe, expect, test, beforeEach, vi } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import type { MicrosoftDriveItemPermissions } from './permissions';
+import type { MicrosoftDriveItemPermission } from './permissions';
 import { getAllItemPermissions, getItemPermissions } from './permissions';
 import * as getPermissionsConnector from './permissions';
 
@@ -17,7 +17,7 @@ const driveId = 'some-drive-id';
 const itemId = 'some-item-id';
 const permissionId = 'permission-id';
 
-const permissions: MicrosoftDriveItemPermissions[] = Array.from({ length: 5 }, (_, i) => ({
+const permissions: MicrosoftDriveItemPermission[] = Array.from({ length: 5 }, (_, i) => ({
   id: `permission-id-${i}`,
   roles: ['write'],
   link: { scope: 'users' },

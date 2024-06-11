@@ -66,7 +66,7 @@ export const refreshItem = inngest.createFunction(
 
       if (item !== null && permissions.length) {
         const dataProtectionItem = formatDataProtectionItems({
-          itemsWithPermisions: [
+          itemsWithPermissions: [
             {
               item,
               permissions,

@@ -1,23 +1,13 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 import type { WebhookResponse } from '@/app/api/webhooks/microsoft/event-handler/types';
 import { getSubscriptionsFromDB } from '@/common/get-db-subscriptions';
 import { isClientStateValid } from '@/common/validate-client-state';
+import { lifecycleEventArraySchema } from '@/connectors/microsoft/lifecycle-events/lifecycle-events';
 import { handleSubscriptionEvent } from './service';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
-
-const lifecycleEventSchema = z.object({
-  subscriptionId: z.string(),
-  lifecycleEvent: z.enum(['reauthorizationRequired', 'subscriptionRemoved']),
-  // This is actually a tenantId, for some reason MS send different name even if in documentation it said otherwise
-  organizationId: z.string(),
-  clientState: z.string(),
-});
-
-const lifecycleEventArray = z.object({ value: z.array(lifecycleEventSchema) });
 
 export async function POST(req: NextRequest) {
   if (req.nextUrl.searchParams.get('validationToken')) {
@@ -31,7 +21,7 @@ export async function POST(req: NextRequest) {
 
   const data = (await req.json()) as WebhookResponse<object>;
 
-  const parseResult = lifecycleEventArray.safeParse(data);
+  const parseResult = lifecycleEventArraySchema.safeParse(data);
 
   if (!parseResult.success) {
     return NextResponse.json({ message: 'Invalid data' }, { status: 404 });

@@ -54,7 +54,7 @@ describe('delta connector', () => {
 
             const selectedKeys = select?.split(',') || ([] as unknown as (keyof Delta)[]);
 
-            const formatedDelta = selectedKeys.length
+            const formattedDelta = selectedKeys.length
               ? delta.map((site) =>
                   selectedKeys.reduce<Partial<Delta>>((acc, key: keyof Delta) => {
                     return { ...acc, [key]: site[key] };
@@ -62,7 +62,7 @@ describe('delta connector', () => {
                 )
               : delta;
 
-            // const formatedDelta = selectedKeys.length && selectedKeys[0] === 'id' ? [] : delta;
+            // const formattedDelta = selectedKeys.length && selectedKeys[0] === 'id' ? [] : delta;
 
             const nextPageUrl = new URL(url);
             nextPageUrl.searchParams.set(
@@ -76,7 +76,7 @@ describe('delta connector', () => {
                 : { '@odata.nextLink': decodeURIComponent(nextPageUrl.toString()) };
 
             return Response.json({
-              value: formatedDelta.slice(0, top ? Number(top) : 0),
+              value: formattedDelta.slice(0, top ? Number(top) : 0),
               ...addToken,
             });
           }

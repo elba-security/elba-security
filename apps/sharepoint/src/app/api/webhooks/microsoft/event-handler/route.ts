@@ -1,21 +1,12 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 import { handleWebhook } from '@/app/api/webhooks/microsoft/event-handler/service';
 import { getSubscriptionsFromDB } from '@/common/get-db-subscriptions';
 import { isClientStateValid } from '@/common/validate-client-state';
+import { incomingSubscriptionArraySchema } from '@/connectors/microsoft/subscription/subscriptions';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
-
-const subscriptionSchema = z.object({
-  subscriptionId: z.string(),
-  resource: z.string(),
-  tenantId: z.string(),
-  clientState: z.string(),
-});
-
-const subscriptionArray = z.object({ value: z.array(subscriptionSchema) });
 
 export async function POST(req: NextRequest) {
   if (req.nextUrl.searchParams.get('validationToken')) {
@@ -29,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   const data: unknown = await req.json();
 
-  const parseResult = subscriptionArray.safeParse(data);
+  const parseResult = incomingSubscriptionArraySchema.safeParse(data);
 
   if (!parseResult.success) {
     return NextResponse.json({ message: 'Invalid data' }, { status: 404 });

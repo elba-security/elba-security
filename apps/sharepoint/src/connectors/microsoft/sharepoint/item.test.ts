@@ -53,14 +53,14 @@ describe('get-item connector', () => {
             const selectedKeys =
               select?.split(',') || ([] as unknown as (keyof MicrosoftDriveItem)[]);
 
-            const formatedItem = selectedKeys.reduce<Partial<MicrosoftDriveItem>>(
+            const formattedItem = selectedKeys.reduce<Partial<MicrosoftDriveItem>>(
               (acc, key: keyof MicrosoftDriveItem) => {
                 return { ...acc, [key]: item[key] };
               },
               {}
             );
 
-            return Response.json(formatedItem);
+            return Response.json(formattedItem);
           }
         )
       );

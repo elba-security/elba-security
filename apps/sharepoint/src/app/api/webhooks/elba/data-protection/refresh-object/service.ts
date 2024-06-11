@@ -1,17 +1,21 @@
 import { inngest } from '@/inngest/client';
-import type { RefreshDataProtectionObjectSchema } from './types';
+import { itemMetadataSchema } from '@/inngest/functions/data-protection/common/helpers';
 
 export const refreshObject = async ({
   id,
   organisationId,
   metadata,
-}: RefreshDataProtectionObjectSchema) => {
+}: {
+  id: string;
+  organisationId: string;
+  metadata?: unknown;
+}) => {
   await inngest.send({
     name: 'sharepoint/data_protection.refresh_object.requested',
     data: {
       id,
       organisationId,
-      metadata,
+      metadata: itemMetadataSchema.parse(metadata),
     },
   });
 };
