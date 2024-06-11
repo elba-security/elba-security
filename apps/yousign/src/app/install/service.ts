@@ -1,29 +1,31 @@
-import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
+import { getUsers } from '../../connectors/yousign/users';
+import { db } from '../../database/client';
+import { organisationsTable } from '../../database/schema';
+import { inngest } from '../../inngest/client';
 
 type SetupOrganisationParams = {
   organisationId: string;
-  token: string;
+  apiKey: string;
   region: string;
 };
-
 export const registerOrganisation = async ({
   organisationId,
-  token,
+  apiKey,
   region,
 }: SetupOrganisationParams) => {
-  const encodedToken = await encrypt(token);
+  await getUsers({ apiKey, after: null });
+
+  const encodedtoken = await encrypt(apiKey);
 
   await db
-    .insert(Organisation)
-    .values({ id: organisationId, region, token: encodedToken })
+    .insert(organisationsTable)
+    .values({ id: organisationId, region, apiKey: encodedtoken })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
         region,
-        token: encodedToken,
+        apiKey: encodedtoken,
       },
     });
 
@@ -31,15 +33,14 @@ export const registerOrganisation = async ({
     {
       name: 'yousign/users.sync.requested',
       data: {
-        organisationId,
         isFirstSync: true,
+        organisationId,
         syncStartedAt: Date.now(),
         page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
-      name: 'yousign/yousign.elba_app.installed',
+      name: 'yousign/app.installed',
       data: {
         organisationId,
         region,
