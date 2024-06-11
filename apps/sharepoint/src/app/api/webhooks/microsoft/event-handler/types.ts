@@ -1,8 +1,8 @@
 import type { z } from 'zod';
-import type { subscriptionSchema } from '@/app/api/webhooks/microsoft/event-handler/route';
-import type { parsedSchema, resoursesSchema } from './service';
+import type { incomingSubscriptionSchema } from '@/connectors/microsoft/subscription/subscriptions';
+import type { parsedSchema, resourcesSchema } from './service';
 
-export type SubscriptionPayload = z.infer<typeof subscriptionSchema>;
+export type SubscriptionPayload = z.infer<typeof incomingSubscriptionSchema>;
 
 export type WebhookResponse<T> = {
   value: T[];
@@ -10,7 +10,7 @@ export type WebhookResponse<T> = {
 
 export type ParsedType = z.infer<typeof parsedSchema>;
 
-export type SelectFieldsType = z.infer<typeof resoursesSchema>;
+export type SelectFieldsType = z.infer<typeof resourcesSchema>;
 
 export type UpdateItemsData = {
   id: string;

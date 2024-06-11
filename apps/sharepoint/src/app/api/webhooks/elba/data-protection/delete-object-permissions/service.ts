@@ -1,14 +1,24 @@
 import { inngest } from '@/inngest/client';
-import type { DeleteItemPermissionsSchema } from './types';
+import { itemMetadataSchema } from '@/inngest/functions/data-protection/common/helpers';
 
-export const deleteObjectPermissions = async (data: DeleteItemPermissionsSchema) => {
+export const deleteObjectPermissions = async ({
+  organisationId,
+  id,
+  permissions,
+  metadata,
+}: {
+  organisationId: string;
+  id: string;
+  permissions: { id: string }[];
+  metadata?: unknown;
+}) => {
   await inngest.send({
     name: 'sharepoint/data_protection.delete_object_permissions.requested',
     data: {
-      id: data.id,
-      organisationId: data.organisationId,
-      metadata: data.metadata,
-      permissions: data.permissions.map((p) => p.id),
+      id,
+      organisationId,
+      metadata: itemMetadataSchema.parse(metadata),
+      permissions: permissions.map((p) => p.id),
     },
   });
 };

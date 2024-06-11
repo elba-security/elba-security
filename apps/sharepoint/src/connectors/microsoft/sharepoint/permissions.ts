@@ -103,7 +103,7 @@ type DeleteItemPermissionParams = GetPermissionsParams & {
   permissionId: string;
 };
 
-export type MicrosoftDriveItemPermissions = z.infer<typeof basePSchema>;
+export type MicrosoftDriveItemPermission = z.infer<typeof basePSchema>;
 
 export const getAllItemPermissions = async ({
   token,
@@ -132,7 +132,7 @@ export const getAllItemPermissions = async ({
     permissions.push(...nextData.permissions);
   }
 
-  const parsedPermissions = permissions.reduce<MicrosoftDriveItemPermissions[]>((acc, el) => {
+  const parsedPermissions = permissions.reduce<MicrosoftDriveItemPermission[]>((acc, el) => {
     const parsedPermission = validateAndParsePermission(el);
     if (parsedPermission !== null) acc.push(parsedPermission);
 
@@ -169,7 +169,7 @@ export const getItemPermissions = async ({
     throw new MicrosoftError('Could not retrieve permissions', { response });
   }
 
-  const data = (await response.json()) as MicrosoftPaginatedResponse<MicrosoftDriveItemPermissions>;
+  const data = (await response.json()) as MicrosoftPaginatedResponse<MicrosoftDriveItemPermission>;
 
   const nextSkipToken = getNextSkipTokenFromNextLink(data['@odata.nextLink']);
 

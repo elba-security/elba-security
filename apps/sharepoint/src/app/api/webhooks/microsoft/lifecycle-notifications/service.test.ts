@@ -3,8 +3,9 @@ import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
+import type { MicrosoftSubscriptionEvent } from '@/connectors/microsoft/lifecycle-events/lifecycle-events';
 import { handleSubscriptionEvent } from './service';
-import type { MicrosoftSubscriptionEvent, SubscriptionRefresh } from './type';
+import type { SubscriptionRefresh } from './types';
 
 const organisations = [
   {

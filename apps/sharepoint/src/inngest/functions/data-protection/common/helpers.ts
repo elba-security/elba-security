@@ -1,17 +1,30 @@
 import type { DataProtectionObject, DataProtectionObjectPermission } from '@elba-security/sdk';
+import { z } from 'zod';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import {
   getAllItemPermissions,
-  type MicrosoftDriveItemPermissions,
+  type MicrosoftDriveItemPermission,
 } from '@/connectors/microsoft/sharepoint/permissions';
 import type { Delta } from '@/connectors/microsoft/delta/get-delta';
-import type { Folder, ItemsWithPermisions, ItemsWithPermisionsParsed, ParsedDelta } from './types';
+import type {
+  Folder,
+  ItemsWithPermissions,
+  ItemsWithPermissionsParsed,
+  ParsedDelta,
+} from './types';
+
+export const itemMetadataSchema = z.object({
+  siteId: z.string(),
+  driveId: z.string(),
+});
+
+type ItemMetadata = z.infer<typeof itemMetadataSchema>;
 
 export const removeInheritedSync = (
   parentPermissionIds: string[],
-  itemsWithPermisions: ItemsWithPermisions[]
-): ItemsWithPermisions[] => {
-  return itemsWithPermisions.map(({ item, permissions }) => {
+  itemsWithPermissions: ItemsWithPermissions[]
+): ItemsWithPermissions[] => {
+  return itemsWithPermissions.map(({ item, permissions }) => {
     const filteredPermissions = permissions.filter(
       (permission) => !parentPermissionIds.includes(permission.id)
     );
@@ -44,27 +57,24 @@ export const getCkunkedArray = <T>(array: T[], batchSize: number): T[][] => {
 };
 
 export const formatPermissions = (
-  permission: MicrosoftDriveItemPermissions
-): DataProtectionObjectPermission[] | [] => {
+  permission: MicrosoftDriveItemPermission
+): DataProtectionObjectPermission | null => {
   if (permission.grantedToV2?.user) {
-    return [
-      {
-        id: permission.id,
-        type: 'user',
-        displayName: permission.grantedToV2.user.displayName,
-        userId: permission.grantedToV2.user.id,
-      },
-    ];
+    return {
+      id: permission.id,
+      type: 'user',
+      displayName: permission.grantedToV2.user.displayName,
+      userId: permission.grantedToV2.user.id,
+      email: permission.grantedToV2.user.email,
+    };
   } else if (permission.link?.scope === 'anonymous') {
-    return [
-      {
-        id: permission.id,
-        type: 'anyone',
-        metadata: {
-          sharedLinks: [permission.link.webUrl],
-        },
+    return {
+      id: permission.id,
+      type: 'anyone',
+      metadata: {
+        sharedLinks: [permission.link.webUrl],
       },
-    ];
+    };
   }
 
   // This part is for link access when we create a link for people that we choose, will be updated in next iterations
@@ -78,10 +88,10 @@ export const formatPermissions = (
   //       userId: user?.id,
   //     })) as DataProtectionObjectPermission[];
   // }
-  return [];
+  return null;
 };
 
-export const getItemsWithPermisionsFromChunks = async ({
+export const getItemsWithPermissionsFromChunks = async ({
   itemsChunks,
   token,
   siteId,
@@ -92,7 +102,7 @@ export const getItemsWithPermisionsFromChunks = async ({
   siteId: string;
   driveId: string;
 }) => {
-  const itemsWithPermisions: ItemsWithPermisions[] = [];
+  const itemsWithPermissions: ItemsWithPermissions[] = [];
 
   for (const itemsChunk of itemsChunks) {
     // eslint-disable-next-line no-await-in-loop -- Avoiding hundreds of inngest functions
@@ -113,30 +123,30 @@ export const getItemsWithPermisionsFromChunks = async ({
 
       if (!item || !permissions) continue;
 
-      itemsWithPermisions.push({
+      itemsWithPermissions.push({
         item,
         permissions: permissions.permissions,
       });
     }
   }
 
-  return itemsWithPermisions;
+  return itemsWithPermissions;
 };
 
 export const formatDataProtectionItems = ({
-  itemsWithPermisions,
+  itemsWithPermissions,
   siteId,
   driveId,
 }: {
-  itemsWithPermisions: ItemsWithPermisions[];
+  itemsWithPermissions: ItemsWithPermissions[];
   siteId: string;
   driveId: string;
 }): DataProtectionObject[] => {
   const dataProtection: DataProtectionObject[] = [];
 
-  for (const { item, permissions } of itemsWithPermisions) {
+  for (const { item, permissions } of itemsWithPermissions) {
     if (item.createdBy.user.id) {
-      const validPermissions: MicrosoftDriveItemPermissions[] = permissions.filter(
+      const validPermissions: MicrosoftDriveItemPermission[] = permissions.filter(
         (permission) =>
           permission.link?.scope === 'users' ||
           permission.link?.scope === 'anonymous' ||
@@ -152,9 +162,13 @@ export const formatDataProtectionItems = ({
           metadata: {
             siteId,
             driveId,
-          },
+          } satisfies ItemMetadata,
           updatedAt: item.lastModifiedDateTime,
-          permissions: validPermissions.map(formatPermissions).flat(),
+          permissions: validPermissions
+            .map(formatPermissions)
+            .filter((permission): permission is DataProtectionObjectPermission =>
+              Boolean(permission)
+            ),
         };
 
         dataProtection.push(dataProtectionItem);
@@ -203,26 +217,26 @@ export const parsedDeltaState = (delta: Delta[]): ParsedDelta => {
 };
 
 export const removeInheritedUpdate = (
-  itemsWithPermisions: ItemsWithPermisions[]
-): ItemsWithPermisionsParsed => {
-  return itemsWithPermisions.reduce<ItemsWithPermisionsParsed>(
-    (acc, itemWithPermisions, _, arr) => {
+  itemsWithPermissions: ItemsWithPermissions[]
+): ItemsWithPermissionsParsed => {
+  return itemsWithPermissions.reduce<ItemsWithPermissionsParsed>(
+    (acc, itemWithPermissions, _, arr) => {
       const parent = arr.find(
-        ({ item: { id } }) => id === itemWithPermisions.item.parentReference.id
+        ({ item: { id } }) => id === itemWithPermissions.item.parentReference.id
       );
 
       if (parent) {
         const parentPermissionIds = parent.permissions.map(({ id }) => id);
 
-        const filteredPermissions = itemWithPermisions.permissions.filter(
+        const filteredPermissions = itemWithPermissions.permissions.filter(
           (permission) => !parentPermissionIds.includes(permission.id)
         );
 
         if (!filteredPermissions.length) {
-          acc.toDelete.push(itemWithPermisions.item.id);
+          acc.toDelete.push(itemWithPermissions.item.id);
         } else {
           acc.toUpdate.push({
-            item: itemWithPermisions.item,
+            item: itemWithPermissions.item,
             permissions: filteredPermissions,
           });
         }

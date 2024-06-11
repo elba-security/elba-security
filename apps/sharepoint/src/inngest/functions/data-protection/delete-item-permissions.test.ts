@@ -5,7 +5,7 @@ import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { MicrosoftError } from '@/common/error';
-import * as deleteItemPermisionConnector from '@/connectors/microsoft/sharepoint/permissions';
+import * as deleteItemPermissionConnector from '@/connectors/microsoft/sharepoint/permissions';
 import { deleteDataProtectionItemPermissions } from './delete-item-permissions';
 
 const token = 'test-token';
@@ -48,7 +48,7 @@ describe('delete-object', () => {
   });
 
   test('should abort deletation when organisation is not registered', async () => {
-    vi.spyOn(deleteItemPermisionConnector, 'deleteItemPermission').mockResolvedValue();
+    vi.spyOn(deleteItemPermissionConnector, 'deleteItemPermission').mockResolvedValue();
 
     const [result, { step }] = setup({
       ...setupData,
@@ -58,11 +58,11 @@ describe('delete-object', () => {
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(step.run).toBeCalledTimes(0);
-    expect(deleteItemPermisionConnector.deleteItemPermission).toBeCalledTimes(0);
+    expect(deleteItemPermissionConnector.deleteItemPermission).toBeCalledTimes(0);
   });
 
   test('should delete object when item exists and return deleted permissions', async () => {
-    vi.spyOn(deleteItemPermisionConnector, 'deleteItemPermission').mockResolvedValue();
+    vi.spyOn(deleteItemPermissionConnector, 'deleteItemPermission').mockResolvedValue();
 
     const [result, { step }] = setup(setupData);
 
@@ -73,11 +73,11 @@ describe('delete-object', () => {
     });
 
     expect(step.run).toBeCalledTimes(permissions.length);
-    expect(deleteItemPermisionConnector.deleteItemPermission).toBeCalledTimes(permissions.length);
+    expect(deleteItemPermissionConnector.deleteItemPermission).toBeCalledTimes(permissions.length);
 
     for (let i = 0; i < permissions.length; i++) {
       const permissionId = permissions[i];
-      expect(deleteItemPermisionConnector.deleteItemPermission).nthCalledWith(i + 1, {
+      expect(deleteItemPermissionConnector.deleteItemPermission).nthCalledWith(i + 1, {
         token,
         itemId,
         siteId,
@@ -88,7 +88,7 @@ describe('delete-object', () => {
   });
 
   test('should delete object when item exists and return deleted permissions and not found permission', async () => {
-    vi.spyOn(deleteItemPermisionConnector, 'deleteItemPermission').mockImplementation(
+    vi.spyOn(deleteItemPermissionConnector, 'deleteItemPermission').mockImplementation(
       ({ permissionId }) => {
         if (permissionId === notFoundPermissionId) {
           return Promise.reject(
@@ -120,13 +120,13 @@ describe('delete-object', () => {
     });
 
     expect(step.run).toBeCalledTimes(permissionArray.length);
-    expect(deleteItemPermisionConnector.deleteItemPermission).toBeCalledTimes(
+    expect(deleteItemPermissionConnector.deleteItemPermission).toBeCalledTimes(
       permissionArray.length
     );
 
     for (let i = 0; i < permissionArray.length; i++) {
       const permissionId = permissionArray[i];
-      expect(deleteItemPermisionConnector.deleteItemPermission).nthCalledWith(i + 1, {
+      expect(deleteItemPermissionConnector.deleteItemPermission).nthCalledWith(i + 1, {
         token,
         itemId,
         siteId,
