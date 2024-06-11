@@ -6,16 +6,6 @@ import { inngest } from '@/inngest/client';
 export const scheduleUsersSync = inngest.createFunction(
   {
     id: 'hubspot-schedule-users-syncs',
-    cancelOn: [
-      {
-        event: 'hubspot/app.installed',
-        match: 'data.organisationId',
-      },
-      {
-        event: 'hubspot/app.uninstalled',
-        match: 'data.organisationId',
-      },
-    ],
     retries: 5,
   },
   { cron: env.USERS_SYNC_CRON },
