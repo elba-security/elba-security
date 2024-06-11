@@ -1,6 +1,6 @@
 {
   "name": "@elba-security/hubspot",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 4000",
@@ -14,11 +14,11 @@
     "database:up": "docker-compose -p hubspot --profile edge --env-file=.env.local up -d",
     "database:down": "docker-compose -p hubspot down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
-    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts",
-    "database:open:db": "drizzle-kit studio --config ../../drizzle.config.ts"
+    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
+    "@elba-security/design-system": "workspace:*",
     "@elba-security/inngest": "workspace:*",
     "@elba-security/logger": "workspace:*",
     "@elba-security/nextjs": "workspace:*",
@@ -26,10 +26,8 @@
     "@elba-security/utils": "workspace:*",
     "@neondatabase/serverless": "0.9.0",
     "@sentry/nextjs": "^7.88.0",
-    "date-fns": "^3.2.0",
     "drizzle-orm": "^0.29.4",
-    "inngest": "3.14.2",
-    "msw": "^2.0.1",
+    "inngest": "3.19.11",
     "next": "14.0.1",
     "react": "^18",
     "react-dom": "^18",
@@ -48,10 +46,10 @@
     "drizzle-kit": "^0.20.6",
     "eslint": "^8",
     "inngest-cli": "^0.25.2",
-    "msw": "^2.0.1",
+    "msw": "^2.3.1",
     "postgres": "^3.4.3",
-    "testcontainers": "^10.8.1",
-    "typescript": "^5",
+    "testcontainers": "^10.9.0",
+    "typescript": "^5.3.3",
     "vitest": "1.4.0"
   }
 }

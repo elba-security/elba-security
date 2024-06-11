@@ -64,16 +64,10 @@ export const getRefreshToken = async (refreshToken: string) => {
 
   const data: unknown = await response.json();
 
-  logger.info('Refresh token response', { data });
-
   const result = tokenResponseSchema.safeParse(data);
 
   if (!result.success) {
-    logger.error('Invalid Jira refresh token response', {
-      data,
-      result: JSON.stringify(result, null, 2),
-    });
-    throw new Error('Invalid Hubspot token response', { cause: result.error });
+    throw new HubspotError('Could not retrieve token', { response });
   }
 
   return {

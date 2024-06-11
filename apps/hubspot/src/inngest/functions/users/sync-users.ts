@@ -16,6 +16,7 @@ const formatElbaUserDisplayName = (user: HubspotUser) => {
   }
   return user.email;
 };
+
 const formatElbaUser = (user: HubspotUser): User => ({
   id: user.id,
   displayName: formatElbaUserDisplayName(user),
