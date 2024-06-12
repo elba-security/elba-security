@@ -30,7 +30,7 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should transform the output error to RetryAfterError when the error is about microsoft rate limit', () => {
+  test('should return RetryAfter error with 15 minutes delay when Microsoft RetryAfter is lower than that', () => {
     const rateLimitError = new MicrosoftError('foo bar', {
       // @ts-expect-error this is a mock
       response: {
@@ -56,7 +56,45 @@ describe('rate-limit middleware', () => {
       .onFunctionRun({ fn: { name: 'foo' } })
       .transformOutput(context);
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect(result?.result.error.retryAfter).toStrictEqual('10');
+    expect(result?.result.error.retryAfter).toStrictEqual(String(15 * 60));
+    expect(result).toMatchObject({
+      foo: 'bar',
+      baz: {
+        biz: true,
+      },
+      result: {
+        data: 'bizz',
+      },
+    });
+  });
+
+  test('should return RetryAfter error with Microsoft delay when Microsoft RetryAfter is greater than 15 minutes', () => {
+    const rateLimitError = new MicrosoftError('foo bar', {
+      // @ts-expect-error this is a mock
+      response: {
+        status: 429,
+        headers: new Headers({ 'Retry-After': String(20 * 60) }),
+      },
+    });
+
+    const context = {
+      foo: 'bar',
+      baz: {
+        biz: true,
+      },
+      result: {
+        data: 'bizz',
+        error: rateLimitError,
+      },
+    };
+
+    const result = rateLimitMiddleware
+      .init()
+      // @ts-expect-error -- this is a mock
+      .onFunctionRun({ fn: { name: 'foo' } })
+      .transformOutput(context);
+    expect(result?.result.error).toBeInstanceOf(RetryAfterError);
+    expect(result?.result.error.retryAfter).toStrictEqual(String(20 * 60));
     expect(result).toMatchObject({
       foo: 'bar',
       baz: {
