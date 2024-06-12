@@ -11,12 +11,12 @@ const code = 'code';
 const region = 'us';
 const now = new Date();
 const accessToken = 'access-token';
-const siteId = 'site-id';
+const siteIds = ['test-id'];
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accessToken,
-  siteId,
+  siteIds,
   region,
 };
 
@@ -32,7 +32,7 @@ describe('setupOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     const getAccessToken = vi.spyOn(auth, 'getAccessToken').mockResolvedValue(accessToken);
 
-    const getSiteId = vi.spyOn(sites, 'getSiteId').mockResolvedValue(siteId);
+    const getSiteId = vi.spyOn(sites, 'getSiteIds').mockResolvedValue(siteIds);
 
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
@@ -49,7 +49,7 @@ describe('setupOrganisation', () => {
     ).resolves.toMatchObject([
       {
         accessToken,
-        siteId,
+        siteIds,
         region,
       },
     ]);

@@ -2,7 +2,7 @@ import { type WebflowSite } from '../types';
 
 export const sites: WebflowSite[] = [
   {
-    id: 'site-id',
+    id: 'test-id',
     displayName: 'site-name',
   },
 ];

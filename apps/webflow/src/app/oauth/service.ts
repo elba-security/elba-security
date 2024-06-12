@@ -1,5 +1,5 @@
 import { getAccessToken } from '@/connectors/auth';
-import { getSiteId } from '@/connectors/sites';
+import { getSiteIds } from '@/connectors/sites';
 import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
 
@@ -15,16 +15,16 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const accessToken = await getAccessToken(code);
-  const siteId = await getSiteId(accessToken);
-  if (!siteId) {
-    throw new Error('Could not retrieve site id');
+  const siteIds = await getSiteIds(accessToken);
+  if (siteIds.length === 0) {
+    throw new Error('No sites found for the organisation');
   }
   await db
     .insert(Organisation)
     .values({
       id: organisationId,
       accessToken,
-      siteId,
+      siteIds,
       region,
     })
     .onConflictDoUpdate({
@@ -32,7 +32,7 @@ export const setupOrganisation = async ({
       set: {
         id: organisationId,
         accessToken,
-        siteId,
+        siteIds,
         region,
       },
     });

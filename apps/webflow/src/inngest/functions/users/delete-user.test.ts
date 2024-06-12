@@ -9,11 +9,11 @@ import { deleteWebflowUser } from './delete-user';
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accessToken: 'access-token',
-  siteId: 'site-id',
+  siteIds: ['test-id'],
   region: 'us',
 };
 
-const userId = 'user-id';
+const userIds = ['user-id'];
 
 const setup = createInngestFunctionMock(deleteWebflowUser, 'webflow/users.delete.requested');
 
@@ -22,7 +22,7 @@ describe('delete-user-request', () => {
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
-      id: userId,
+      ids: userIds,
       organisationId: organisation.id,
     });
 
@@ -40,16 +40,20 @@ describe('delete-user-request', () => {
     await db.insert(Organisation).values(organisation);
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     const [result] = setup({
-      id: userId,
+      ids: userIds,
       organisationId: organisation.id,
     });
 
     await expect(result).resolves.toBeUndefined();
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
-    expect(usersConnector.deleteUser).toBeCalledWith(
-      organisation.accessToken,
-      organisation.siteId,
-      userId
-    );
+    organisation.siteIds.forEach((siteId) => {
+      userIds.forEach((userId) => {
+        expect(usersConnector.deleteUser).toBeCalledWith(
+          organisation.accessToken,
+          siteId,
+          userId
+        );
+      });
+    })
   });
 });

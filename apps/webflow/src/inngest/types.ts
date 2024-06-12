@@ -13,7 +13,7 @@ export type InngestEvents = {
   };
   'webflow/users.delete.requested': {
     data: {
-      id: string;
+      ids: string[];
       organisationId: string;
     };
   };

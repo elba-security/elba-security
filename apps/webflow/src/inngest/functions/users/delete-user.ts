@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-loop-func */
+/* eslint-disable no-await-in-loop */
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
@@ -19,14 +21,14 @@ export const deleteWebflowUser = inngest.createFunction(
     event: 'webflow/users.delete.requested',
   },
   async ({ event, step }) => {
-    const { id, organisationId } = event.data;
+    const { ids, organisationId } = event.data;
 
     // retrieve the Webflow organisation access token and site Id
     const organisation = await step.run('get-organisation', async () => {
       const [result] = await db
         .select({
           accessToken: Organisation.accessToken,
-          siteId: Organisation.siteId,
+          siteIds: Organisation.siteIds,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -36,8 +38,10 @@ export const deleteWebflowUser = inngest.createFunction(
       return result;
     });
 
-    await step.run('delete-user', async () => {
-      await deleteUser(organisation.accessToken, organisation.siteId, id);
-    });
+    for (const siteId of organisation.siteIds){
+      await step.run('delete-user', async () => {
+        await Promise.all(ids.map((id) => deleteUser(organisation.accessToken, siteId, id)));
+      });
+    }
   }
 );

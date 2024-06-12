@@ -8,7 +8,7 @@ export const organisations = [
   {
     id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
     accessToken: 'access-token',
-    siteId: 'site-id',
+    siteIds: ['test-id'],
     region: 'us',
   },
 ];

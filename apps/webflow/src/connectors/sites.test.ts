@@ -1,12 +1,12 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
-import { server } from '../../vitest/setup-msw-handlers';
+import { server } from '@elba-security/test-utils';
 import { type WebflowError } from './commons/error';
-import { getSiteId } from './sites';
+import { getSiteIds } from './sites';
 import { sites } from './__mocks__/sites';
 
 const validToken = 'valid-token';
-const siteId = 'site-id';
+const siteIds = ['test-id']
 
 describe('getSiteId', () => {
   beforeEach(() => {
@@ -22,8 +22,8 @@ describe('getSiteId', () => {
 
   test('should not throw when token is valid', async () => {
     try {
-      const result = await getSiteId(validToken);
-      expect(result).toEqual(siteId);
+      const result = await getSiteIds(validToken);
+      expect(result).toEqual(siteIds);
     } catch (error) {
       expect(error).toBeNull();
     }
@@ -31,7 +31,7 @@ describe('getSiteId', () => {
 
   test('should throw an error when token is invalid', async () => {
     try {
-      await getSiteId('invalid-token');
+      await getSiteIds('invalid-token');
     } catch (error) {
       expect((error as WebflowError).message).toBe('Failed to fetch');
     }

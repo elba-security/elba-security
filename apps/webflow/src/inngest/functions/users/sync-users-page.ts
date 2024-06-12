@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-loop-func */
+/* eslint-disable no-await-in-loop */
 import type { User } from '@elba-security/sdk';
 import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
@@ -52,7 +54,7 @@ export const syncUsersPage = inngest.createFunction(
       const [result] = await db
         .select({
           accessToken: Organisation.accessToken,
-          siteId: Organisation.siteId,
+          siteIds: Organisation.siteIds,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -62,39 +64,50 @@ export const syncUsersPage = inngest.createFunction(
       return result;
     });
 
-    const nextPage = await step.run('list-users', async () => {
-      // retrieve this users page
-      const result = await getUsers(organisation.accessToken, organisation.siteId, page);
-      // format each Webflow User to elba user
-      const users = result.users.map(formatElbaUser);
-      // send the batch of users to elba
-      logger.debug('Sending batch of users to elba: ', {
-        organisationId,
-        users,
-      });
-      await elba.users.update({ users });
+    let allUsers: User[] = [];
 
-      if (result.pagination.next) {
-        return result.pagination.next;
+    for (const siteId of organisation.siteIds) {
+      let nextPage: number | null = page;
+
+      while (nextPage !== null) {
+        nextPage = await step.run('list-users', async () => {
+          const result = await getUsers(organisation.accessToken, siteId, Number(nextPage));
+          const users = result.users.map(formatElbaUser);
+      
+          allUsers = allUsers.concat(users);
+          
+          logger.debug('Sending batch of users to elba: ', {
+            organisationId,
+            users,
+          });
+          
+          await elba.users.update({ users });
+
+          if (result.pagination.next) {
+            return result.pagination.next;
+          }
+          return null;
+        });
+
+        // if there is a next page enqueue a new sync user event
+        if (nextPage) {
+          await step.sendEvent('sync-users-page', {
+            name: 'webflow/users.page_sync.requested',
+            data: {
+              ...event.data,
+              page: nextPage,
+            },
+          });
+          return {
+            status: 'ongoing',
+          };
+        }
       }
-      return null;
-    });
-
-    // if there is a next page enqueue a new sync user event
-    if (nextPage) {
-      await step.sendEvent('sync-users-page', {
-        name: 'webflow/users.page_sync.requested',
-        data: {
-          ...event.data,
-          page: nextPage,
-        },
-      });
-      return {
-        status: 'ongoing',
-      };
     }
 
-    // delete the elba users that has been sent before this sync
+    await elba.users.update({ users: allUsers });
+
+    // delete the elba users that have been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

@@ -1,19 +1,17 @@
 import { inngest } from '@/inngest/client';
 
 export const deleteUserRequest = async ({
-  userIds,
+  ids,
   organisationId,
 }: {
-  userIds: string[];
+  ids: string[];
   organisationId: string;
 }) => {
-  await inngest.send(
-    userIds.map((userId) => ({
-      name: 'webflow/users.delete.requested',
-      data: {
-        id: userId,
-        organisationId,
-      },
-    }))
-  );
+  await inngest.send({
+    name: 'webflow/users.delete.requested',
+    data: {
+      ids,
+      organisationId,
+    },
+  });
 };
