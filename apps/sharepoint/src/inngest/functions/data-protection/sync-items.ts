@@ -10,7 +10,7 @@ import { getItems } from '@/connectors/microsoft/sharepoint/items';
 import { createElbaClient } from '@/connectors/elba/client';
 import {
   formatDataProtectionItems,
-  getCkunkedArray,
+  getChunkedArray,
   getItemsWithPermissionsFromChunks,
   getParentFolderPermissions,
   groupItems,
@@ -106,7 +106,7 @@ export const syncItems = inngest.createFunction(
     const parentFolderPermissionsResult = await step.run(
       'get-permissions-update-elba',
       async () => {
-        const itemsChunks = getCkunkedArray<MicrosoftDriveItem>(
+        const itemsChunks = getChunkedArray<MicrosoftDriveItem>(
           [...folders, ...files],
           env.MICROSOFT_DATA_PROTECTION_ITEM_PERMISSIONS_CHUNK_SIZE
         );
