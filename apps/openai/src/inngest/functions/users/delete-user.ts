@@ -3,15 +3,14 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as usersConnector from '@/connectors/openai/users';
-import { env } from '@/env';
-import { inngest } from '../../client';
+import { inngest } from '@/inngest/client';
 
 export const deleteUser = inngest.createFunction(
   {
     id: 'openai-delete-user',
     concurrency: {
       key: 'event.data.organisationId',
-      limit: env.OPENAI_DELETE_USER_CONCURRENCY,
+      limit: 5,
     },
     retries: 5,
     cancelOn: [

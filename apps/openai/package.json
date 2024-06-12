@@ -1,6 +1,6 @@
 {
   "name": "@elba-security/openai",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 4000",
@@ -10,6 +10,7 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "type-check": "tsc --noEmit",
     "database:up": "docker-compose -p openai --profile edge --env-file=.env.local up -d",
     "database:down": "docker-compose -p openai down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
@@ -25,9 +26,9 @@
     "@elba-security/utils": "workspace:*",
     "@neondatabase/serverless": "0.9.0",
     "@sentry/nextjs": "^7.88.0",
+    "date-fns": "^3.2.0",
     "drizzle-orm": "^0.29.4",
-    "inngest": "3.14.2",
-    "msw": "^2.0.1",
+    "inngest": "3.19.11",
     "next": "14.0.1",
     "react": "^18",
     "react-dom": "^18",
@@ -46,10 +47,10 @@
     "drizzle-kit": "^0.20.6",
     "eslint": "^8",
     "inngest-cli": "^0.25.2",
-    "msw": "^2.0.1",
+    "msw": "^2.3.1",
     "postgres": "^3.4.3",
-    "testcontainers": "^10.8.1",
-    "typescript": "^5",
+    "testcontainers": "^10.9.0",
+    "typescript": "^5.3.3",
     "vitest": "1.4.0"
   }
 }

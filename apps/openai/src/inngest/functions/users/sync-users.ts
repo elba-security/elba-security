@@ -63,15 +63,21 @@ export const syncUsers = inngest.createFunction(
         organizationId: organisation.organizationId,
         apiKey: organisation.apiKey,
       });
-      const users = result.users.map(formatElbaUser);
+      const users = result.validUsers.map(formatElbaUser);
+
+      if (result.invalidUsers.length > 0) {
+        logger.error('Invalid users found', { organisationId, invalidUsers: result.invalidUsers });
+      }
 
       if (users.length > 0) {
-        logger.debug('Sending batch of users to elba: ', { organisationId, users });
         await elba.users.update({ users });
       }
     });
 
-    // delete the elba users that has been sent before this sync
+    // TODO: Implement pagination & limit
+    // Since we don't have a official documentations from OpenAI, we are assuming that the API will return all users at once
+    // and it doesn't have pagination & limit.
+
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

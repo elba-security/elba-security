@@ -1,6 +1,6 @@
-import { env } from '@/env';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
+import { env } from '@/common/env';
 import { inngest } from '../../client';
 
 export const scheduleUsersSyncs = inngest.createFunction(

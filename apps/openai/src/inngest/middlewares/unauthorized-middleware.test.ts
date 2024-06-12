@@ -1,12 +1,12 @@
 import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
-import { OpenAiError } from '@/connectors/openai/common/error';
+import { OpenAiError } from '@/connectors/common/error';
 import { unauthorizedMiddleware } from './unauthorized-middleware';
 
-const organisationId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
+const organisationId = '00000000-0000-0000-0000-000000000001';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: organisationId,
   region: 'us',
   installationId: 0,
   accountLogin: 'some-login',

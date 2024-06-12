@@ -4,11 +4,11 @@ import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { removeOrganisation } from './remove-organisation';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000000',
   apiKey: 'some-api-key',
   organizationId: 'some-organization-id',
   region: 'us',

@@ -1,15 +1,22 @@
-import { OpenAiError } from './common/error';
+import { z } from 'zod';
+import { env } from '@/common/env';
+import { OpenAiError } from '../common/error';
 
-export type OpenAiUser = {
-  role: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
-};
+const openAiUserSchema = z.object({
+  role: z.string(),
+  user: z.object({
+    object: z.literal('user'),
+    id: z.string().min(1),
+    name: z.string(),
+    email: z.string(),
+  }),
+});
 
-type GetUsersResponseData = { members: { data: OpenAiUser[] } };
+export type OpenAiUser = z.infer<typeof openAiUserSchema>;
+
+const getUsersResponseDataSchema = z.object({
+  members: z.object({ data: z.array(z.unknown()) }),
+});
 
 type GetUsersParams = {
   apiKey: string;
@@ -17,15 +24,35 @@ type GetUsersParams = {
 };
 
 export const getUsers = async ({ apiKey, organizationId }: GetUsersParams) => {
-  const response = await fetch(`https://api.openai.com/v1/organizations/${organizationId}/users`, {
+  const response = await fetch(`${env.OPENAI_API_BASE_URL}/organizations/${organizationId}/users`, {
     headers: { Authorization: `Bearer ${apiKey}` },
   });
+
   if (!response.ok) {
     throw new OpenAiError('Could not retrieve users', { response });
   }
-  const data = (await response.json()) as GetUsersResponseData;
-  const users = data.members.data;
-  return { users };
+
+  const resData: unknown = await response.json();
+
+  const { members } = getUsersResponseDataSchema.parse(resData);
+
+  const validUsers: OpenAiUser[] = [];
+  const invalidUsers: unknown[] = [];
+
+  for (const member of members.data) {
+    const result = openAiUserSchema.safeParse(member);
+
+    if (result.success) {
+      validUsers.push(result.data);
+    } else {
+      invalidUsers.push(member);
+    }
+  }
+
+  return {
+    validUsers,
+    invalidUsers,
+  };
 };
 
 type DeleteUserParams = {
@@ -36,12 +63,13 @@ type DeleteUserParams = {
 
 export const deleteUser = async ({ apiKey, organizationId, userId }: DeleteUserParams) => {
   const response = await fetch(
-    `https://api.openai.com/v1/organizations/${organizationId}/users/${userId}`,
+    `${env.OPENAI_API_BASE_URL}/organizations/${organizationId}/users/${userId}`,
     {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${apiKey}` },
     }
   );
+
   if (!response.ok && response.status !== 404) {
     throw new OpenAiError(`Could not delete user with Id: ${userId}`, { response });
   }

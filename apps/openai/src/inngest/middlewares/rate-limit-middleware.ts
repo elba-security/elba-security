@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { OpenAiError } from '@/connectors/openai/common/error';
+import { OpenAiError } from '@/connectors/common/error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'openai-rate-limit',

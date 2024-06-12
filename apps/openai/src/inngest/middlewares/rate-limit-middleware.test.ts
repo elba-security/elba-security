@@ -1,6 +1,6 @@
 import { RetryAfterError } from 'inngest';
 import { describe, expect, test } from 'vitest';
-import { OpenAiError } from '@/connectors/openai/common/error';
+import { OpenAiError } from '@/connectors/common/error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
 describe('rate-limit middleware', () => {

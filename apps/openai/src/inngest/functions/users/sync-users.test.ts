@@ -3,20 +3,27 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/openai/users';
 import { db } from '@/database/client';
+import type { Organisation } from '@/database/schema';
 import { organisationsTable } from '@/database/schema';
-import { env } from '@/env';
-import { syncUsers } from './sync-users-page';
+import { env } from '@/common/env';
+import type { OpenAiUser } from '@/connectors/openai/users';
+import { syncUsers } from './sync-users';
 
-const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+const organisation: Omit<Organisation, 'createdAt'> = {
+  id: '00000000-0000-0000-0000-000000000000',
   apiKey: 'test-api-key',
   organizationId: 'test-id',
   region: 'us',
 };
 
-export const users = Array.from({ length: 10 }, (_, i) => ({
+export const users: OpenAiUser[] = Array.from({ length: 10 }, (_, i) => ({
   role: 'admin',
-  user: { id: `userId-${i}`, name: `username-${i}`, email: `username-${i}@foo.bar` },
+  user: {
+    object: 'user',
+    id: `userId-${i}`,
+    name: `username-${i}`,
+    email: `username-${i}@foo.bar`,
+  },
 }));
 
 const syncStartedAt = Date.now();
@@ -27,7 +34,8 @@ describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
     const elba = spyOnElba();
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      users,
+      validUsers: users,
+      invalidUsers: [],
     });
 
     const [result, { step }] = setup({
@@ -49,7 +57,8 @@ describe('sync-users', () => {
     await db.insert(organisationsTable).values(organisation);
 
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      users,
+      validUsers: users,
+      invalidUsers: [],
     });
 
     const [result, { step }] = setup({

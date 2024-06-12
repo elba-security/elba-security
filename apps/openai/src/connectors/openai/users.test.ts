@@ -1,15 +1,23 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test convenience */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test convenience */
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { users } from '@/inngest/functions/users/__mocks__/integration';
+import { OpenAiError } from '../common/error';
+import type { OpenAiUser } from './users';
 import { deleteUser, getUsers } from './users';
-import { OpenAiError } from './common/error';
 
 const apiKey = 'valid-api-key';
 const organizationId = 'valid-organization-id';
 const userId = 'test-user-id';
+
+export const users: OpenAiUser[] = Array.from({ length: 10 }, (_, i) => ({
+  role: 'admin',
+  user: {
+    object: 'user',
+    id: `userId-${i}`,
+    name: `username-${i}`,
+    email: `username-${i}@foo.bar`,
+  },
+}));
 
 describe('getOpenAiUsers', () => {
   beforeEach(() => {
@@ -31,7 +39,7 @@ describe('getOpenAiUsers', () => {
 
   test('should fetch users when apiKey and organizationId are valid', async () => {
     const result = await getUsers({ apiKey, organizationId });
-    expect(result.users).toEqual(users);
+    expect(result.validUsers).toEqual(users);
   });
 
   test('should throws when apiKey is invalid', async () => {

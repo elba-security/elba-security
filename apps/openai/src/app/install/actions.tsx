@@ -4,8 +4,8 @@ import { z } from 'zod';
 import { getRedirectUrl } from '@elba-security/sdk';
 import { RedirectType, redirect } from 'next/navigation';
 import { isRedirectError } from 'next/dist/client/components/redirect';
-import { env } from '@/env';
-import { OpenAiError } from '@/connectors/openai/common/error';
+import { env } from '@/common/env';
+import { OpenAiError } from '@/connectors/common/error';
 import { registerOrganisation } from './service';
 
 const formSchema = z.object({
@@ -29,20 +29,40 @@ export type FormState = {
 export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
   const region = formData.get('region');
   try {
-    const result = formSchema.parse({
+    const result = formSchema.safeParse({
       apiKey: formData.get('apiKey'),
       sourceOrganizationId: formData.get('sourceOrganizationId'),
       organisationId: formData.get('organisationId'),
       region: formData.get('region'),
     });
 
-    await registerOrganisation(result);
+    if (!result.success) {
+      const { fieldErrors } = result.error.flatten();
+
+      if (fieldErrors.organisationId || fieldErrors.region) {
+        redirect(
+          getRedirectUrl({
+            sourceId: env.ELBA_SOURCE_ID,
+            baseUrl: env.ELBA_REDIRECT_URL,
+            region: region as string,
+            error: 'internal_error',
+          }),
+          RedirectType.replace
+        );
+      }
+
+      return {
+        errors: fieldErrors,
+      };
+    }
+
+    await registerOrganisation(result.data);
 
     redirect(
       getRedirectUrl({
         sourceId: env.ELBA_SOURCE_ID,
         baseUrl: env.ELBA_REDIRECT_URL,
-        region: result.region,
+        region: result.data.region,
       }),
       RedirectType.replace
     );
@@ -50,6 +70,7 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
     if (isRedirectError(error)) {
       throw error;
     }
+
     logger.warn('Could not register organisation', { error });
     if (error instanceof OpenAiError && error.response?.status === 401) {
       return {

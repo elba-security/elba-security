@@ -30,7 +30,8 @@ export default function InstallPage() {
         <InstructionsStep index={1}>
           <h3>Generate API Key</h3>
           <p>
-            Navigate to the left navigation bar, and then select <strong>API Keys</strong>.
+            To create and manage your API keys, visit your{' '}
+            <a href="https://platform.openai.com/api-keys">User settings.</a>
           </p>
           <p>Click Create new secret key.</p>
           <p>Give your API key a name.</p>
@@ -45,7 +46,10 @@ export default function InstallPage() {
         <InstructionsStep index={2}>
           <h3>Retrieve Organization ID</h3>
           <p>
-            Navigate to <strong>Settings</strong> on the left navigation bar.
+            To find your Organization Id, visit your{' '}
+            <a href="https://platform.openai.com/settings/organization/general">
+              Organization settings.
+            </a>
           </p>
           <p>
             Select <strong>Organization</strong>.
