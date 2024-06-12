@@ -48,7 +48,7 @@ export const groupItems = (items: MicrosoftDriveItem[]) =>
     { files: [] as MicrosoftDriveItem[], folders: [] as MicrosoftDriveItem[] }
   );
 
-export const getCkunkedArray = <T>(array: T[], batchSize: number): T[][] => {
+export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
   const chunks: T[][] = [];
   for (let i = 0; i < array.length; i += batchSize) {
     chunks.push(array.slice(i, i + Number(batchSize)));
@@ -77,7 +77,7 @@ export const formatPermissions = (
     };
   }
 
-  // This part is for link access when we create a link for people that we choose, will be updated in next iterations
+  // TODO: This part is for link access when we create a link for people that we choose, will be updated in next iterations
   // else if (permission.link?.scope === 'users') {
   //   return permission.grantedToIdentitiesV2
   //     .filter(({ user }) => user) // Need to check, maybe we can remove this, because user always should be after validation in connector
