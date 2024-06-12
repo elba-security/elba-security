@@ -10,7 +10,7 @@ import { createElbaClient } from '@/connectors/elba/client';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import {
   formatDataProtectionItems,
-  getCkunkedArray,
+  getChunkedArray,
   getItemsWithPermissionsFromChunks,
   parsedDeltaState,
   removeInheritedUpdate,
@@ -71,7 +71,7 @@ export const updateItems = inngest.createFunction(
 
     if (updated.length) {
       itemIdsWithoutPermissions = await step.run('update elba items', async () => {
-        const itemsChunks = getCkunkedArray<MicrosoftDriveItem>(
+        const itemsChunks = getChunkedArray<MicrosoftDriveItem>(
           updated,
           env.MICROSOFT_DATA_PROTECTION_ITEM_PERMISSIONS_CHUNK_SIZE
         );
