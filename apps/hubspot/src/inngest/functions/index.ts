@@ -3,6 +3,7 @@ import { syncUsers } from './users/sync-users';
 import { scheduleUsersSync } from './users/schedule-users-sync';
 import { refreshToken } from './token/refresh-token';
 import { scheduleTimeZoneRefresh } from './timezone/schedule-timezone-refresh';
+import { deleteUser } from './users/delete-user';
 
 export const inngestFunctions = [
   refreshToken,
@@ -10,4 +11,5 @@ export const inngestFunctions = [
   scheduleUsersSync,
   syncUsers,
   scheduleTimeZoneRefresh,
+  deleteUser,
 ];

@@ -22,6 +22,7 @@ const users: usersConnector.HubspotUser[] = Array.from({ length: 2 }, (_, i) => 
   firstName: `firstName-${i}`,
   lastName: `lastName-${i}`,
   email: `user-${i}@foo.bar`,
+  superAdmin: true,
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'hubspot/users.sync.requested');
@@ -87,12 +88,14 @@ describe('synchronize-users', () => {
           displayName: 'firstName-0 lastName-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          role: 'admin',
         },
         {
           additionalEmails: [],
           displayName: 'firstName-1 lastName-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          role: 'admin',
         },
       ],
     });
@@ -125,12 +128,14 @@ describe('synchronize-users', () => {
           displayName: 'firstName-0 lastName-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          role: 'admin',
         },
         {
           additionalEmails: [],
           displayName: 'firstName-1 lastName-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          role: 'admin',
         },
       ],
     });
