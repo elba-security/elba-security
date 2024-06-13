@@ -1,11 +1,28 @@
 import { expect, test, describe, vi } from 'vitest';
-import { createInngestFunctionMock } from '@elba-security/test-utils';
+import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/webflow/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { users } from '@/connectors/__mocks__/users';
+import * as crypto from '@/common/crypto';
+import { env } from '@/common/env';
+import { type WebflowUser } from '@/connectors/types';
 import { syncUsersPage } from './sync-users-page';
+
+const elbaUsers = [
+  {
+    id: 'user-id',
+    role: 'member',
+    additionalEmails: [],
+    authMethod: undefined,
+    displayName: 'username',
+    email: 'user@gmail.com',
+  },
+];
+
+const users: WebflowUser[] = [
+  {id: 'user-id', data: {name: 'username', email: 'user@gmail.com'}}
+];
 
 const region = 'us';
 const accessToken = 'access-token';
@@ -49,6 +66,9 @@ describe('sync-users', () => {
         next: 10,
       },
     });
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
+
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
@@ -59,6 +79,10 @@ describe('sync-users', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
+    expect(crypto.decrypt).toBeCalledTimes(1);
+    expect(crypto.decrypt).toBeCalledWith(organisation.accessToken);
+
+    
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users-page', {
@@ -74,7 +98,12 @@ describe('sync-users', () => {
   });
 
   test('should finalize the sync when there is a no next page', async () => {
+    const elba = spyOnElba();
     await db.insert(Organisation).values(organisation);
+
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
+
     // mock the getUsers function that returns webflow users page, but this time the response does not indicate that their is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       users,
@@ -92,6 +121,25 @@ describe('sync-users', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
+    expect(crypto.decrypt).toBeCalledTimes(1);
+    expect(crypto.decrypt).toBeCalledWith(organisation.accessToken);
+
+    expect(elba).toBeCalledTimes(1);
+    expect(elba).toBeCalledWith({
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
+      organisationId: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+      region: 'us',
+    });
+
+    const elbaInstance = elba.mock.results[0]?.value;
+    expect(elbaInstance?.users.update).toBeCalledTimes(2);
+    expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
+
+    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
+    expect(elbaInstance?.users.delete).toBeCalledWith({
+      syncedBefore: new Date(syncStartedAt).toISOString(),
+    });
     // the function should not send another event that continue the pagination
     expect(step.sendEvent).toBeCalledTimes(0);
   });

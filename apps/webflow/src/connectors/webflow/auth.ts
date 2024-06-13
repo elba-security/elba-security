@@ -1,5 +1,5 @@
 import { env } from '@/common/env';
-import type { GetTokenResponseData } from './types';
+import type { GetTokenResponseData } from '../types';
 
 export const getAccessToken = async (code: string) => {
   const url = `${env.WEBFLOW_API_BASE_URL}/oauth/access_token`;

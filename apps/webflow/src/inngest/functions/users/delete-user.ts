@@ -5,7 +5,8 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { env } from '@/common/env';
 import { Organisation } from '@/database/schema';
-import { deleteUser } from '@/connectors/users';
+import { deleteUser } from '@/connectors/webflow/users';
+import { decrypt } from '@/common/crypto';
 import { inngest } from '../../client';
 
 export const deleteWebflowUser = inngest.createFunction(
@@ -38,9 +39,11 @@ export const deleteWebflowUser = inngest.createFunction(
       return result;
     });
 
+    const token = await decrypt(organisation.accessToken);
+
     for (const siteId of organisation.siteIds){
       await step.run('delete-user', async () => {
-        await Promise.all(ids.map((id) => deleteUser(organisation.accessToken, siteId, id)));
+        await Promise.all(ids.map((id) => deleteUser(token, siteId, id)));
       });
     }
   }

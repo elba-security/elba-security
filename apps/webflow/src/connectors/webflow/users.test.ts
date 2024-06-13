@@ -3,8 +3,8 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { deleteUser, getUsers } from './users';
-import type { WebflowError } from './commons/error';
-import { users } from './__mocks__/users';
+import { WebflowError } from '../commons/error';
+import { users } from '../__mocks__/users';
 
 const validToken = 'valid-token';
 const siteId = 'test-site-id';
@@ -40,12 +40,9 @@ describe('getUsers', () => {
   });
 
   test('should throw WebflowError when token is invalid', async () => {
-    try {
-      await getUsers('invalidToken', siteId, 0);
-    } catch (error) {
-      expect((error as WebflowError).message).toEqual('Could not retrieve users');
-    }
+    await expect(getUsers('invalidToken', siteId, 0)).rejects.toBeInstanceOf(WebflowError);
   });
+
   test('should return nextPage when there are more users available', async () => {
     const result = await getUsers(validToken, siteId, 0);
     expect(result.pagination.next).equals(10);
@@ -77,10 +74,6 @@ describe('deleteUser', () => {
   });
 
   test('should throw WebflowError when token is invalid', async () => {
-    try {
-      await deleteUser('invalidToken', siteId, userId);
-    } catch (error) {
-      expect((error as WebflowError).message).toEqual(`Could not delete user with Id: ${userId}`);
-    }
+    await expect(deleteUser('invalidToken', siteId, userId)).rejects.toBeInstanceOf(WebflowError);
   });
 });

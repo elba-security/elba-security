@@ -1,7 +1,9 @@
-import { getAccessToken } from '@/connectors/auth';
-import { getSiteIds } from '@/connectors/sites';
+import { getAccessToken } from '@/connectors/webflow/auth';
+import { getSiteIds } from '@/connectors/webflow/sites';
 import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
+import { encrypt  } from '@/common/crypto';
+
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -15,6 +17,7 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const accessToken = await getAccessToken(code);
+  const encodedAccessToken = await encrypt(accessToken);
   const siteIds = await getSiteIds(accessToken);
   if (siteIds.length === 0) {
     throw new Error('No sites found for the organisation');
@@ -23,7 +26,7 @@ export const setupOrganisation = async ({
     .insert(Organisation)
     .values({
       id: organisationId,
-      accessToken,
+      accessToken: encodedAccessToken,
       siteIds,
       region,
     })
@@ -31,7 +34,7 @@ export const setupOrganisation = async ({
       target: [Organisation.id],
       set: {
         id: organisationId,
-        accessToken,
+        accessToken: encodedAccessToken,
         siteIds,
         region,
       },

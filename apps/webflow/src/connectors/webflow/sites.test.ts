@@ -1,9 +1,9 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { type WebflowError } from './commons/error';
+import { WebflowError } from '../commons/error';
 import { getSiteIds } from './sites';
-import { sites } from './__mocks__/sites';
+import { sites } from '../__mocks__/sites';
 
 const validToken = 'valid-token';
 const siteIds = ['test-id']
@@ -21,19 +21,10 @@ describe('getSiteId', () => {
   });
 
   test('should not throw when token is valid', async () => {
-    try {
-      const result = await getSiteIds(validToken);
-      expect(result).toEqual(siteIds);
-    } catch (error) {
-      expect(error).toBeNull();
-    }
+    await expect(getSiteIds(validToken)).resolves.toEqual(siteIds);
   });
 
   test('should throw an error when token is invalid', async () => {
-    try {
-      await getSiteIds('invalid-token');
-    } catch (error) {
-      expect((error as WebflowError).message).toBe('Failed to fetch');
-    }
+    await expect(getSiteIds('invalid-token')).rejects.toBeInstanceOf(WebflowError);
   });
 });

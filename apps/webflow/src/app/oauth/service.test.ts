@@ -3,9 +3,11 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import * as auth from '@/connectors/auth';
-import * as sites from '@/connectors/sites';
+import * as authConnector from '@/connectors/webflow/auth';
+import * as sitesConnector from '@/connectors/webflow/sites';
 import { setupOrganisation } from './service';
+import { WebflowError } from '@/connectors/commons/error';
+import { decrypt } from '@/common/crypto';
 
 const code = 'code';
 const region = 'us';
@@ -30,9 +32,9 @@ describe('setupOrganisation', () => {
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
-    const getAccessToken = vi.spyOn(auth, 'getAccessToken').mockResolvedValue(accessToken);
+    const getAccessToken = vi.spyOn(authConnector, 'getAccessToken').mockResolvedValue(accessToken);
 
-    const getSiteId = vi.spyOn(sites, 'getSiteIds').mockResolvedValue(siteIds);
+    const getSiteIds = vi.spyOn(sitesConnector, 'getSiteIds').mockResolvedValue(siteIds);
 
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
@@ -44,15 +46,22 @@ describe('setupOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        accessToken,
-        siteIds,
-        region,
-      },
-    ]);
+    expect(getAccessToken).toBeCalledTimes(1);
+    expect(getAccessToken).toBeCalledWith(code);
+
+    expect(getSiteIds).toBeCalledWith(accessToken);
+    expect(getSiteIds).toBeCalledTimes(1);
+
+    const [storedOrganisation] = await db
+      .select()
+      .from(Organisation)
+      .where(eq(Organisation.id, organisation.id));
+
+      if (!storedOrganisation) {
+        throw new WebflowError(`Organisation with ID ${organisation.id} not found.`);
+      }
+      expect(storedOrganisation.region).toBe(region);
+      await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
@@ -65,9 +74,7 @@ describe('setupOrganisation', () => {
         page: 0,
       },
     });
-
-    expect(getAccessToken).toBeCalledWith(code);
-    expect(getSiteId).toBeCalledWith(accessToken);
+    
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
@@ -75,6 +82,8 @@ describe('setupOrganisation', () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // pre-insert an organisation to simulate an existing entry
     await db.insert(Organisation).values(organisation);
+
+    const getAccessToken = vi.spyOn(authConnector, 'getAccessToken').mockResolvedValue(accessToken);
 
     await expect(
       setupOrganisation({
@@ -84,17 +93,20 @@ describe('setupOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    // check if the token in the database is updated
-    await expect(
-      db
-        .select({ accessToken: Organisation.accessToken })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        accessToken,
-      },
-    ]);
+    expect(getAccessToken).toBeCalledTimes(1);
+    expect(getAccessToken).toBeCalledWith(code);
+
+    const [storedOrganisation] = await db
+    .select()
+    .from(Organisation)
+    .where(eq(Organisation.id, organisation.id));
+
+    if (!storedOrganisation) {
+      throw new WebflowError(`Organisation with ID ${organisation.id} not found.`);
+    }
+    expect(storedOrganisation.region).toBe(region);
+    await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
+
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);

@@ -1,9 +1,10 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/webflow/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
+import * as crypto from '@/common/crypto';
 import { deleteWebflowUser } from './delete-user';
 
 const organisation = {
@@ -38,6 +39,9 @@ describe('delete-user-request', () => {
   test('should continue the request when the organization is registered', async () => {
     // setup the test with an organisation
     await db.insert(Organisation).values(organisation);
+
+    vi.spyOn(crypto, 'decrypt').mockResolvedValue(organisation.accessToken);
+
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     const [result] = setup({
       ids: userIds,
@@ -45,6 +49,10 @@ describe('delete-user-request', () => {
     });
 
     await expect(result).resolves.toBeUndefined();
+
+    expect(crypto.decrypt).toBeCalledTimes(1);
+    expect(crypto.decrypt).toBeCalledWith(organisation.accessToken);
+
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     organisation.siteIds.forEach((siteId) => {
       userIds.forEach((userId) => {

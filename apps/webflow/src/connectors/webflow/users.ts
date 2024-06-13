@@ -1,6 +1,6 @@
 import { env } from '@/common/env';
-import { WebflowError } from './commons/error';
-import { type GetUsersResponseData } from './types';
+import { WebflowError } from '../commons/error';
+import { type GetUsersResponseData } from '../types';
 
 export type Pagination = {
   next: number | null;

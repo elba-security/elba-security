@@ -4,12 +4,14 @@ import type { User } from '@elba-security/sdk';
 import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/webflow/users';
 import { type WebflowUser } from '@/connectors/types';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/common/env';
 import { inngest } from '@/inngest/client';
+import { createElbaClient } from '@/connectors/elba/client';
+import { decrypt } from '@/common/crypto';
 
 const formatElbaUser = (user: WebflowUser): User => ({
   id: user.id,
@@ -40,14 +42,7 @@ export const syncUsersPage = inngest.createFunction(
   },
   { event: 'webflow/users.page_sync.requested' },
   async ({ event, step, logger }) => {
-    const { organisationId, syncStartedAt, region, page } = event.data;
-
-    const elba = new Elba({
-      organisationId,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-      region,
-    });
+    const { organisationId, syncStartedAt, page } = event.data;
 
     // retrieve the Webflow Organisation
     const organisation = await step.run('get-organisation', async () => {
@@ -55,6 +50,7 @@ export const syncUsersPage = inngest.createFunction(
         .select({
           accessToken: Organisation.accessToken,
           siteIds: Organisation.siteIds,
+          region: Organisation.region,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -64,6 +60,9 @@ export const syncUsersPage = inngest.createFunction(
       return result;
     });
 
+    const elba = createElbaClient({ organisationId, region: organisation.region });
+    const token = await decrypt(organisation.accessToken);
+
     let allUsers: User[] = [];
 
     for (const siteId of organisation.siteIds) {
@@ -71,7 +70,7 @@ export const syncUsersPage = inngest.createFunction(
 
       while (nextPage !== null) {
         nextPage = await step.run('list-users', async () => {
-          const result = await getUsers(organisation.accessToken, siteId, Number(nextPage));
+          const result = await getUsers(token, siteId, Number(nextPage));
           const users = result.users.map(formatElbaUser);
       
           allUsers = allUsers.concat(users);
