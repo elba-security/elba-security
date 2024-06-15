@@ -1,4 +1,4 @@
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { ClickUpError } from './commons/error';
 import type { GetUsersResponseData, UserResponseData } from './types';
 

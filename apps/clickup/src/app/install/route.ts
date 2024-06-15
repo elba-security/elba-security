@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { NextResponse, type NextRequest } from 'next/server';
-import { env } from '@/env';
+import { env } from '@/common/env';
 
 export const preferredRegion = env.VERCEL_PREFERRED_REGION;
 export const runtime = 'edge';

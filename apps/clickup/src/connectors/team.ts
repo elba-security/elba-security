@@ -1,5 +1,5 @@
 import { ClickUpError } from '@/connectors/commons/error';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import type { GetTeamResponseData } from './types';
 
 export const getTeamId = async (token: string) => {

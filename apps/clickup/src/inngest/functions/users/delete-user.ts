@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { Organisation } from '@/database/schema';
 import { deleteUser } from '@/connectors/users';
 import { decrypt } from '@/common/crypto';

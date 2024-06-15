@@ -1,7 +1,7 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '../env';
+import { env } from '../common/env';
 import { getTeamId } from './team';
 import { ClickUpError } from './commons/error';
 import { ClickUpTeam } from './types';

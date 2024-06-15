@@ -7,7 +7,7 @@ import { Organisation } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { syncUsers } from './sync-users';
 import { ClickUpUser } from '@/connectors/types';
-import { env } from '@/env';
+import { env } from '@/common/env';
 
 const region = 'us';
 const accessToken = 'access-token';

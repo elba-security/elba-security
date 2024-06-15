@@ -1,5 +1,5 @@
 import { serve } from 'inngest/next';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { inngest } from '@/inngest/client';
 import { inngestFunctions } from '@/inngest/functions';
 

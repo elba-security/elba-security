@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { logger } from '@elba-security/logger';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { setupOrganisation } from './service';
 
 export const preferredRegion = env.VERCEL_PREFERRED_REGION;

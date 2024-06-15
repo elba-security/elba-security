@@ -5,7 +5,7 @@ import { getUsers } from '@/connectors/users';
 import { type ClickUpUser } from '@/connectors/types';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { inngest } from '@/inngest/client';
 import { getElbaClient } from '@/connectors/client';
 import { decrypt } from '@/common/crypto';

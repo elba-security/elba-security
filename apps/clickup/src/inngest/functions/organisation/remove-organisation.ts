@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { Organisation } from '@/database/schema';
 import { getElbaClient } from '@/connectors/client';
 import { inngest } from '../../client';
