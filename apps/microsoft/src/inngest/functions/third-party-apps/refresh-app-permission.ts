@@ -8,6 +8,7 @@ import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatApp } from '@/connectors/elba/third-party-apps/objects';
 import { getApp } from '@/connectors/microsoft/apps';
+import { getAppOauthGrants } from './get-app-oauth-grants';
 
 export const refreshAppPermission = inngest.createFunction(
   {
@@ -30,7 +31,7 @@ export const refreshAppPermission = inngest.createFunction(
       limit: 10,
     },
   },
-  async ({ event }) => {
+  async ({ step, event }) => {
     const { organisationId, appId, userId } = event.data;
 
     const [organisation] = await db
@@ -46,18 +47,38 @@ export const refreshAppPermission = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const app = await getApp({
-      tenantId: organisation.tenantId,
-      token: await decrypt(organisation.token),
-      appId,
-    });
+    const app = await step.run('get-app', async () =>
+      getApp({
+        tenantId: organisation.tenantId,
+        token: await decrypt(organisation.token),
+        appId,
+      })
+    );
 
     const elba = createElbaClient(organisationId, organisation.region);
 
     if (!app) {
       await elba.thirdPartyApps.deleteObjects({ ids: [{ appId, userId }] });
-    } else {
-      await elba.thirdPartyApps.updateObjects({ apps: [formatApp(app)] });
+      return { status: 'deleted' };
     }
+
+    const oauthGrants = await step.invoke(`get-app-oauth-grants`, {
+      function: getAppOauthGrants,
+      data: {
+        organisationId,
+        appId: app.id,
+        skipToken: null,
+      },
+    });
+
+    const elbaApp = formatApp({ ...app, oauthGrants });
+
+    if (!elbaApp.users.some((user) => user.id === userId)) {
+      await elba.thirdPartyApps.deleteObjects({ ids: [{ appId, userId }] });
+      return { status: 'deleted' };
+    }
+
+    await elba.thirdPartyApps.updateObjects({ apps: [elbaApp] });
+    return { status: 'updated' };
   }
 );

@@ -15,11 +15,19 @@ export const inngest = new Inngest({
         skipToken: string | null;
       };
     };
+    'microsoft/third_party_apps.get_app_oauth_grants.requested': {
+      data: {
+        organisationId: string;
+        appId: string;
+        skipToken: string | null;
+      };
+    };
     'microsoft/third_party_apps.revoke_app_permission.requested': {
       data: {
         organisationId: string;
         appId: string;
-        permissionId: string;
+        permissionId?: string;
+        oauthGrantIds?: string[];
       };
     };
     'microsoft/third_party_apps.refresh_app_permission.requested': {

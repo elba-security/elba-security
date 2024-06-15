@@ -3,18 +3,20 @@ import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
+import type { MicrosoftAppWithOauthGrants } from '@/connectors/microsoft/apps';
 import { getApps } from '@/connectors/microsoft/apps';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatApp } from '@/connectors/elba/third-party-apps/objects';
+import { getAppOauthGrants } from './get-app-oauth-grants';
 
 export const syncApps = inngest.createFunction(
   {
     id: 'microsoft-sync-apps',
     priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
+      run: 'event.data.isFirstSync ? 600 : -600',
     },
     cancelOn: [
       {
@@ -53,7 +55,7 @@ export const syncApps = inngest.createFunction(
 
     const elba = createElbaClient(organisationId, organisation.region);
 
-    const nextSkipToken = await step.run('paginate', async () => {
+    const { nextSkipToken, validApps } = await step.run('paginate', async () => {
       const result = await getApps({
         token: await decrypt(organisation.token),
         tenantId: organisation.tenantId,
@@ -67,12 +69,31 @@ export const syncApps = inngest.createFunction(
           invalidApps: result.invalidApps,
         });
       }
+      return {
+        nextSkipToken: result.nextSkipToken,
+        validApps: result.validApps,
+      };
+    });
 
+    const appsWithOauthGrants = await Promise.all(
+      validApps.map(async (app) => {
+        const oauthGrants = await step.invoke(`get-app-oauth-grants-${app.id}`, {
+          function: getAppOauthGrants,
+          data: {
+            organisationId,
+            appId: app.id,
+            skipToken: null,
+          },
+        });
+
+        return { ...app, oauthGrants } as MicrosoftAppWithOauthGrants;
+      })
+    );
+
+    await step.run('send-third-party-apps', async () => {
       await elba.thirdPartyApps.updateObjects({
-        apps: result.validApps.map(formatApp),
+        apps: appsWithOauthGrants.map(formatApp),
       });
-
-      return result.nextSkipToken;
     });
 
     if (nextSkipToken) {

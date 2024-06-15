@@ -2,7 +2,7 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/env';
-import { deleteAppPermission, getApp, getApps } from './apps';
+import { deleteAppPermission, deleteOauthGrant, getApp, getAppOauthGrants, getApps } from './apps';
 import type { MicrosoftUser } from './users';
 import { MicrosoftError } from './commons/error';
 import type { MicrosoftApp } from './apps';
@@ -19,6 +19,16 @@ const invalidApps = [
     id: 'bar',
   },
 ];
+
+const validAppOauthGrants = Array.from({ length: 100 }, (_, i) => ({
+  id: `grant-id-${i}`,
+  principalId: `user-id-${i}`,
+  scope: ' scope-1 scope-2',
+}));
+
+const invalidAppOauthGrants = [{ id: 'invalid-oauth-grand-id' }];
+
+const appOauthGrants = [...validAppOauthGrants, ...invalidAppOauthGrants];
 
 const validApps: MicrosoftApp[] = Array.from(
   { length: env.THIRD_PARTY_APPS_SYNC_BATCH_SIZE - invalidApps.length },
@@ -185,6 +195,84 @@ describe('apps connector', () => {
       ).rejects.toBeInstanceOf(MicrosoftError);
     });
   });
+
+  describe('getAppOauthGrants', () => {
+    beforeEach(() => {
+      server.use(
+        http.get<{ tenantId: string; appId: string }>(
+          `${env.MICROSOFT_API_URL}/:tenantId/servicePrincipals/:appId/oauth2PermissionGrants`,
+          ({ request, params }) => {
+            if (
+              request.headers.get('Authorization') !== `Bearer ${validToken}` ||
+              params.tenantId !== tenantId
+            ) {
+              return new Response(undefined, { status: 401 });
+            }
+            const url = new URL(request.url);
+            const skipToken = url.searchParams.get('$skiptoken');
+
+            const nextPageUrl = new URL(url);
+            nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
+            return Response.json({
+              '@odata.nextLink':
+                skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
+              value: appOauthGrants,
+            });
+          }
+        )
+      );
+    });
+
+    test('should return oauth grants and nextSkipToken when the token is valid and their is another page', async () => {
+      await expect(
+        getAppOauthGrants({
+          tenantId,
+          appId: 'app-id',
+          token: validToken,
+          skipToken: startSkipToken,
+        })
+      ).resolves.toStrictEqual({
+        validAppOauthGrants,
+        invalidAppOauthGrants,
+        nextSkipToken,
+      });
+    });
+
+    test('should return oauth grants and no nextSkipToken when the token is valid and their is no other page', async () => {
+      await expect(
+        getAppOauthGrants({ tenantId, appId: 'app-id', token: validToken, skipToken: endSkipToken })
+      ).resolves.toStrictEqual({
+        validAppOauthGrants,
+        invalidAppOauthGrants,
+        nextSkipToken: null,
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(
+        getAppOauthGrants({
+          tenantId,
+          appId: 'app-id',
+          token: 'invalid-token',
+          skipToken: endSkipToken,
+        })
+      ).rejects.toBeInstanceOf(MicrosoftError);
+    });
+
+    test('should throws when the tenantId is invalid', async () => {
+      await expect(
+        getAppOauthGrants({
+          tenantId: 'invalid-tenant-id',
+          appId: 'app-id',
+          token: validToken,
+          skipToken: endSkipToken,
+        })
+      ).rejects.toBeInstanceOf(MicrosoftError);
+    });
+  });
+
   describe('deleteAppPermission', () => {
     beforeEach(() => {
       server.use(
@@ -262,6 +350,61 @@ describe('apps connector', () => {
           token: validToken,
           appId: 'app-id-0',
           permissionId: 'permission-id',
+        })
+      ).rejects.toBeInstanceOf(MicrosoftError);
+    });
+  });
+
+  describe('deleteOauthGrant', () => {
+    beforeEach(() => {
+      server.use(
+        http.delete<{ oauthGrantId: string }>(
+          `${env.MICROSOFT_API_URL}/:oauth2PermissionGrants/:oauthGrantId`,
+          ({ request, params }) => {
+            if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+              return new Response(undefined, { status: 401 });
+            }
+
+            if (!params.oauthGrantId) {
+              return new Response(undefined, { status: 400 });
+            }
+
+            const oauthGrant = validAppOauthGrants.find(({ id }) => id === params.oauthGrantId);
+
+            if (!oauthGrant) {
+              return new Response(undefined, { status: 404 });
+            }
+
+            return new Response(null, { status: 204 });
+          }
+        )
+      );
+    });
+
+    test('should return void when the oauth grant does not exist', async () => {
+      await expect(
+        deleteOauthGrant({
+          token: validToken,
+          oauthGrantId: 'invalid-oauth-grant',
+        })
+      ).resolves.toBe(void 0);
+    });
+
+    test('should return void when the oauth grant has been deleted', async () => {
+      await expect(
+        deleteOauthGrant({
+          token: validToken,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion  -- convenience
+          oauthGrantId: validAppOauthGrants[0]!.id,
+        })
+      ).resolves.toBe(void 0);
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(
+        deleteOauthGrant({
+          token: 'invalid-token',
+          oauthGrantId: 'invalid-oauth-grant',
         })
       ).rejects.toBeInstanceOf(MicrosoftError);
     });
