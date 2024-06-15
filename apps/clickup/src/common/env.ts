@@ -13,6 +13,7 @@ export const env = z
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
+    CLICKUP_API_INSTALL_URL: z.string().url().default('https://api.clickup.com/api'),
     CLICKUP_API_BASE_URL: z.string().url().default('https://api.clickup.com/api/v2'),
     CLICKUP_CLIENT_ID: z.string(),
     CLICKUP_CLIENT_SECRET: z.string(),

@@ -1,7 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/clickup/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as crypto from '@/common/crypto';
@@ -10,7 +10,7 @@ import { deleteClickUpUser } from './delete-user';
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accessToken: 'access-token',
-  teamId: 'team-id',
+  teamIds: ['test-id'],
   region: 'us',
 };
 
@@ -53,12 +53,14 @@ describe('delete-user-request', () => {
     expect(crypto.decrypt).toBeCalledWith(organisation.accessToken);
 
     expect(usersConnector.deleteUser).toBeCalledTimes(userIds.length);
-    userIds.forEach((userId) => {
-      expect(usersConnector.deleteUser).toBeCalledWith(
-        organisation.accessToken,
-        organisation.teamId,
-        userId
-      );
-    });
+    organisation.teamIds.forEach((teamId) => {
+      userIds.forEach((userId) => {
+        expect(usersConnector.deleteUser).toBeCalledWith(
+          organisation.accessToken,
+          teamId,
+          userId
+        );
+      });
+    })
   });
 });

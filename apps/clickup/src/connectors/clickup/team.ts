@@ -1,8 +1,8 @@
 import { ClickUpError } from '@/connectors/commons/error';
 import { env } from '@/common/env';
-import type { GetTeamResponseData } from './types';
+import type { GetTeamResponseData } from '../types';
 
-export const getTeamId = async (token: string) => {
+export const getTeamIds = async (token: string) => {
   const response = await fetch(`${env.CLICKUP_API_BASE_URL}/team`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -13,5 +13,6 @@ export const getTeamId = async (token: string) => {
 
   const data = (await response.json()) as GetTeamResponseData;
 
-  return data.teams.at(0)?.id;
+  const teamIds: string[] = data.teams.map((team) => team.id);
+  return teamIds;
 };

@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-loop-func */
+/* eslint-disable no-await-in-loop */
 import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/clickup/users';
 import { type ClickUpUser } from '@/connectors/types';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { env } from '@/common/env';
 import { inngest } from '@/inngest/client';
-import { getElbaClient } from '@/connectors/client';
 import { decrypt } from '@/common/crypto';
+import { createElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUser = (user: ClickUpUser): User => ({
   id: user.id,
@@ -29,7 +30,7 @@ export const syncUsers = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
-    retries: env.USERS_SYNC_MAX_RETRY,
+    retries: 5,
     cancelOn: [
       {
         event: 'clickup/elba_app.uninstalled',
@@ -39,15 +40,14 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'clickup/users.page_sync.requested' },
   async ({ event, step, logger }) => {
-    const { organisationId, syncStartedAt, region } = event.data;
-
-    const elba = getElbaClient({organisationId, region})
+    const { organisationId, syncStartedAt } = event.data
 
     const organisation = await step.run('get-organisation', async () => {
       const [result] = await db
         .select({
           accessToken: Organisation.accessToken,
-          teamId: Organisation.teamId,
+          teamIds: Organisation.teamIds,
+          region: Organisation.region,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -57,16 +57,25 @@ export const syncUsers = inngest.createFunction(
       return result;
     });
 
-    await step.run('list-users', async () => {
-      const decryptedToken = await decrypt(organisation.accessToken);
-      const result = await getUsers(decryptedToken, organisation.teamId);
-      const users = result.users.map(formatElbaUser);
-      logger.debug('Sending batch of users to elba: ', {
-        organisationId,
-        users,
+    const elba = createElbaClient({ organisationId, region: organisation.region });
+    const token = await decrypt(organisation.accessToken);
+
+    let allUsers: User[] = [];
+
+    for (const teamId of organisation.teamIds) {
+      await step.run('list-users', async () => {
+        const result = await getUsers(token, teamId);
+        const users = result.users.map(formatElbaUser);
+        allUsers = allUsers.concat(users);
+        logger.debug('Sending batch of users to elba: ', {
+          organisationId,
+          users,
+        });
+        await elba.users.update({ users });
       });
-      await elba.users.update({ users });
-    });
+    }
+
+    await elba.users.update({ users: allUsers });
 
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })

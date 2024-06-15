@@ -1,6 +1,6 @@
 import { env } from '@/common/env';
-import { ClickUpError } from './commons/error';
-import type { GetTokenResponseData } from './types';
+import { ClickUpError } from '../commons/error';
+import type { GetTokenResponseData } from '../types';
 
 export const getAccessToken = async (code: string) => {
   const response = await fetch(

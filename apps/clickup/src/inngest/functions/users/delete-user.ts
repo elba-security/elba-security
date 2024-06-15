@@ -1,9 +1,9 @@
+/* eslint-disable no-await-in-loop */
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { env } from '@/common/env';
 import { Organisation } from '@/database/schema';
-import { deleteUser } from '@/connectors/users';
+import { deleteUser } from '@/connectors/clickup/users';
 import { decrypt } from '@/common/crypto';
 import { inngest } from '../../client';
 
@@ -13,7 +13,7 @@ export const deleteClickUpUser = inngest.createFunction(
     priority: {
       run: '600',
     },
-    retries: env.REMOVE_ORGANISATION_MAX_RETRY,
+    retries: 5,
   },
   {
     event: 'clickup/users.delete.requested',
@@ -25,7 +25,7 @@ export const deleteClickUpUser = inngest.createFunction(
       const [result] = await db
         .select({
           accessToken: Organisation.accessToken,
-          teamId: Organisation.teamId,
+          teamIds: Organisation.teamIds,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -35,9 +35,11 @@ export const deleteClickUpUser = inngest.createFunction(
       return result;
     });
 
-    await step.run('delete-user', async () => {
-      const decryptedToken = await decrypt(organisation.accessToken);
-      await Promise.all(ids.map((id) => deleteUser(decryptedToken, organisation.teamId, id)));
-    });
+    const token = await decrypt(organisation.accessToken);
+    for (const teamId of organisation.teamIds){
+      await step.run('delete-user', async () => {
+        await Promise.all(ids.map((id) => deleteUser(token, teamId, id)));
+      });
+    }
   }
 );

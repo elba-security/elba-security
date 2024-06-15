@@ -2,8 +2,8 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
+import { ClickUpError } from '../commons/error';
 import { getUsers, deleteUser } from './users';
-import { ClickUpError } from './commons/error';
 
 const validToken = 'token-1234';
 const teamId = 'test-team-id';

@@ -1,9 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { env } from '@/common/env';
 import { Organisation } from '@/database/schema';
-import { getElbaClient } from '@/connectors/client';
+import { getElbaClient } from '@/connectors/clickup/client';
 import { inngest } from '../../client';
 
 export const removeOrganisation = inngest.createFunction(
@@ -12,7 +11,7 @@ export const removeOrganisation = inngest.createFunction(
     priority: {
       run: '600',
     },
-    retries: env.REMOVE_ORGANISATION_MAX_RETRY,
+    retries: 5,
   },
   {
     event: 'clickup/elba_app.uninstalled',

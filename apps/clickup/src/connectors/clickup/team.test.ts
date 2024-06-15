@@ -1,14 +1,14 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '../common/env';
-import { getTeamId } from './team';
-import { ClickUpError } from './commons/error';
-import { ClickUpTeam } from './types';
+import { env } from '../../common/env';
+import { ClickUpError } from '../commons/error';
+import { type ClickUpTeam } from '../types';
+import { getTeamIds } from './team';
 
 const validToken = 'valid-token';
-const teamId = 'team-id';
-const teams: ClickUpTeam[] = [{ id: teamId, name: 'team-name' }];
+const teamIds = ['test-id'];
+const teams: ClickUpTeam[] = [{ id: 'test-id', name: 'team-name' }];
 
 describe('getTeamId', () => {
   beforeEach(() => {
@@ -23,11 +23,11 @@ describe('getTeamId', () => {
   });
 
   test('should not throw when token is valid', async () => {
-    const result = await getTeamId(validToken);
-    expect(result).toEqual(teamId);
+    const result = await getTeamIds(validToken);
+    expect(result).toEqual(teamIds);
   });
 
   test('should throw an error when token is invalid', async () => {
-    await expect(getTeamId('invalidToken')).rejects.toThrowError(ClickUpError);
+    await expect(getTeamIds('invalidToken')).rejects.toThrowError(ClickUpError);
   });
 });

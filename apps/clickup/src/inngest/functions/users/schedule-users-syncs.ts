@@ -5,13 +5,13 @@ import { inngest } from '../../client';
 
 export const scheduleUsersSyncs = inngest.createFunction(
   { id: 'clickup-schedule-users-syncs' },
-  { cron: env.USERS_SYNC_CRON },
+  { cron: env.CLICKUP_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({
         id: Organisation.id,
         accessToken: Organisation.accessToken,
-        teamId: Organisation.teamId,
+        teamIds: Organisation.teamIds,
         region: Organisation.region,
       })
       .from(Organisation);

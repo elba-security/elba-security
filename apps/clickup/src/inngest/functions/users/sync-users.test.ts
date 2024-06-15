@@ -1,22 +1,22 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/clickup/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as crypto from '@/common/crypto';
-import { syncUsers } from './sync-users';
-import { ClickUpUser } from '@/connectors/types';
+import { type ClickUpUser } from '@/connectors/types';
 import { env } from '@/common/env';
+import { syncUsers } from './sync-users';
 
 const region = 'us';
 const accessToken = 'access-token';
-const teamId = 'team-id';
+const teamIds = ['test-id'];
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accessToken,
-  teamId,
+  teamIds,
   region,
 };
 const users: ClickUpUser[] = [
@@ -52,7 +52,6 @@ describe('sync-users', () => {
       syncStartedAt: Date.now(),
       region: 'us',
     });
-
     // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
@@ -62,11 +61,12 @@ describe('sync-users', () => {
 
   test('should sync when organisation is registered', async () => {
     const elba = spyOnElba();
-    // setup the test with an organisation
+
     await db.insert(Organisation).values(organisation);
+
     // @ts-expect-error -- this is a mock
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
-    // mock the getUsers function that returns clickup users page
+    
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       users,
     });
@@ -91,7 +91,7 @@ describe('sync-users', () => {
     });
 
     const elbaInstance = elba.mock.results[0]?.value;
-    expect(elbaInstance?.users.update).toBeCalledTimes(1);
+    expect(elbaInstance?.users.update).toBeCalledTimes(2);
     expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
 
     expect(elbaInstance?.users.delete).toBeCalledTimes(1);
@@ -99,7 +99,6 @@ describe('sync-users', () => {
       syncedBefore: new Date(syncStartedAt).toISOString(),
     });
 
-    // the function should not send another event that continue the pagination
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 });

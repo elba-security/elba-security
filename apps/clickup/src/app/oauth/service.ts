@@ -1,5 +1,5 @@
-import { getAccessToken } from '@/connectors/auth';
-import { getTeamId } from '@/connectors/team';
+import { getAccessToken } from '@/connectors/clickup/auth';
+import { getTeamIds } from '@/connectors/clickup/team';
 import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '../../common/crypto';
@@ -17,16 +17,16 @@ export const setupOrganisation = async ({
 }: SetupOrganisationParams) => {
   const accessToken = await getAccessToken(code);
   const encodedToken = await encrypt(accessToken);
-  const teamId = await getTeamId(accessToken);
-  if (!teamId) {
-    throw new Error('Could not retrieve site id');
+  const teamIds = await getTeamIds(accessToken);
+  if (teamIds.length === 0) {
+    throw new Error('No teams found');
   }
   await db
     .insert(Organisation)
     .values({
       id: organisationId,
       accessToken: encodedToken,
-      teamId,
+      teamIds,
       region,
     })
     .onConflictDoUpdate({
@@ -34,7 +34,7 @@ export const setupOrganisation = async ({
       set: {
         id: organisationId,
         accessToken: encodedToken,
-        teamId,
+        teamIds,
         region,
       },
     });

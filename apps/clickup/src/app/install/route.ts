@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest } from 'next/server';
+import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { env } from '@/common/env';
 
-export const preferredRegion = env.VERCEL_PREFERRED_REGION;
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
@@ -12,15 +12,23 @@ export function GET(request: NextRequest) {
   const region = request.nextUrl.searchParams.get('region');
 
   if (!organisationId || !region) {
-    redirect(`${env.ELBA_REDIRECT_URL}?error=true`);
+    return new ElbaInstallRedirectResponse({
+      region,
+      sourceId: env.ELBA_SOURCE_ID,
+      baseUrl: env.ELBA_REDIRECT_URL,
+      error: 'unauthorized',
+    });
   }
 
-  cookies().set('state', organisationId);
+  const state = crypto.randomUUID();
   cookies().set('organisation_id', organisationId);
   cookies().set('region', region);
+  cookies().set('state', state);
 
-  return NextResponse.redirect(
-    `https://app.clickup.com/api?client_id=${env.CLICKUP_CLIENT_ID}&redirect_uri=${env.CLICKUP_REDIRECT_URI}
-   `
-  );
+  const redirectUrl = new URL(`${env.CLICKUP_API_INSTALL_URL}`);
+  redirectUrl.searchParams.append('client_id', env.CLICKUP_CLIENT_ID);
+  redirectUrl.searchParams.append('redirect_uri', env.CLICKUP_REDIRECT_URI);
+  redirectUrl.searchParams.append('response_type', 'code');
+
+  redirect(redirectUrl.toString());
 }

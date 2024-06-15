@@ -1,6 +1,6 @@
 import { env } from '@/common/env';
-import { ClickUpError } from './commons/error';
-import type { GetUsersResponseData, UserResponseData } from './types';
+import { ClickUpError } from '../commons/error';
+import type { GetUsersResponseData, UserResponseData } from '../types';
 
 export const getUsers = async (token: string, teamId: string) => {
   const response = await fetch(`${env.CLICKUP_API_BASE_URL}/team/${teamId}`, {
