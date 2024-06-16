@@ -3,11 +3,14 @@ export type ConfluencePaginatedResponseDataV1<T> = {
   limit: number;
   size: number;
   results: T[];
+  _links: {
+    next?: string;
+  };
 };
 
 export const getNextPaginationCursorV1 = <T>(data: ConfluencePaginatedResponseDataV1<T>) => {
-  if (data.size < data.limit) return null;
-  return data.size + data.limit;
+  if (!data._links.next) return null;
+  return data.start + data.limit;
 };
 
 export type ConfluencePaginatedResponseDataV2<T> = {

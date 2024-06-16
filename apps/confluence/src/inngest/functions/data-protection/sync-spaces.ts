@@ -34,7 +34,7 @@ export const syncSpaces = inngest.createFunction(
     event: 'confluence/data_protection.spaces.sync.requested',
   },
   async ({ event, step }) => {
-    const { organisationId, cursor, type, syncStartedAt } = event.data;
+    const { organisationId, cursor, type, syncStartedAt, isFirstSync } = event.data;
     const organisation = await step.run('get-organisation', () => getOrganisation(organisationId));
 
     const nextCursor = await step.run('paginate-spaces', async () => {
@@ -74,7 +74,9 @@ export const syncSpaces = inngest.createFunction(
       await step.sendEvent('request-next-spaces-sync', {
         name: 'confluence/data_protection.spaces.sync.requested',
         data: {
-          ...event.data,
+          organisationId,
+          isFirstSync,
+          syncStartedAt,
           // when global spaces are all synced we pivot to personal space syncing
           type: nextCursor ? type : 'personal',
           cursor: nextCursor,

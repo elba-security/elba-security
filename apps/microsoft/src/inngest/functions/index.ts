@@ -6,8 +6,10 @@ import { syncApps } from './third-party-apps/sync-apps';
 import { refreshToken } from './token/refresh-token';
 import { scheduleUsersSyncs } from './users/schedule-users-syncs';
 import { syncUsers } from './users/sync-users';
+import { getAppOauthGrants } from './third-party-apps/get-app-oauth-grants';
 
 export const inngestFunctions = [
+  getAppOauthGrants,
   syncUsers,
   scheduleUsersSyncs,
   scheduleAppsSyncs,
