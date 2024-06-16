@@ -5,6 +5,7 @@ export const getOrganizationIds = async (token: string, zoneDomain: string) => {
   const response = await fetch(`https://${zoneDomain}/api/v2/organizations?zone=${zoneDomain}`, {
     headers: { Authorization: `Token ${token}` },
   });
+
   if (!response.ok) {
     throw new MakeError('Failed to fetch', { response });
   }

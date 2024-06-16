@@ -1,4 +1,4 @@
-import { env } from '../../env';
+import { env } from '@/common/env';
 import { MakeError } from '../commons/error';
 
 export type MakeUser = {
@@ -12,9 +12,14 @@ export type Pagination = {
 };
 type GetUsersResponseData = { users: MakeUser[]; pg: Pagination };
 
-export const getUsers = async (token: string, organizationId: string, page: number | null, zoneDomain: string) => {
+export const getUsers = async (
+  token: string,
+  organizationId: string,
+  page: number | null,
+  zoneDomain: string
+) => {
   const url = new URL(
-    `https://${zoneDomain}/api/v2/users?organizationId=${organizationId}&pg[limit]=${env.USERS_SYNC_BATCH_SIZE}`
+    `https://${zoneDomain}/api/v2/users?organizationId=${organizationId}&pg[limit]=${env.MAKE_USERS_SYNC_BATCH_SIZE}`
   );
 
   if (page !== null) {
@@ -33,8 +38,9 @@ export const getUsers = async (token: string, organizationId: string, page: numb
     email: user.email,
   }));
   const pagination = {
-    next: data.users.length === env.USERS_SYNC_BATCH_SIZE ? data.pg.offset + data.pg.limit : null
+    next:
+      data.users.length === env.MAKE_USERS_SYNC_BATCH_SIZE ? data.pg.offset + data.pg.limit : null,
   };
-  
+
   return { users, pagination };
 };

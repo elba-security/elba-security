@@ -1,11 +1,8 @@
-/* eslint-disable no-await-in-loop */
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { encrypt } from '../../common/crypto';
 import { getOrganizationIds } from '@/connectors/make/organizations';
-import { getTeamIds } from '@/connectors/make/teams';
-import { getUsers } from '@/connectors/make/users';
+import { encrypt } from '../../common/crypto';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -27,7 +24,7 @@ export const registerOrganisation = async ({
   const encryptedToken = await encrypt(token);
   await db
     .insert(Organisation)
-    .values({ id: organisationId, organizationIds, zoneDomain,region, token: encryptedToken })
+    .values({ id: organisationId, organizationIds, zoneDomain, region, token: encryptedToken })
     .onConflictDoUpdate({
       target: Organisation.id,
       set: {
