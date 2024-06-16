@@ -3,9 +3,18 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { scheduleUsersSyncs } from './schedule-users-syncs';
-import { organisations } from './__mocks__/integration';
 
 const now = Date.now();
+
+const organisations = [
+  {
+    id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+    token: 'access-token',
+    organizationIds: ['organization-id'],
+    zoneDomain: 'test-zone',
+    region: 'us',
+  },
+];
 
 const setup = createInngestFunctionMock(scheduleUsersSyncs);
 
@@ -27,7 +36,6 @@ describe('schedule-users-syncs', () => {
   test('should schedule jobs when there are organisations', async () => {
     await db.insert(Organisation).values(organisations);
     const [result, { step }] = setup();
-
     await expect(result).resolves.toStrictEqual({
       organisations,
     });
@@ -41,7 +49,7 @@ describe('schedule-users-syncs', () => {
           region,
           syncStartedAt: now,
           isFirstSync: false,
-          page: null,
+          page: 0,
         },
       }))
     );

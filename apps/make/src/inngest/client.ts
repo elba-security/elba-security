@@ -1,5 +1,4 @@
 import { EventSchemas, Inngest } from 'inngest';
-import { sentryMiddleware } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 
@@ -18,9 +17,10 @@ export const inngest = new Inngest({
     'make/elba_app.uninstalled': {
       data: {
         organisationId: string;
+        region: string;
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware, sentryMiddleware],
+  middleware: [rateLimitMiddleware],
   logger,
 });

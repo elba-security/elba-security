@@ -1,7 +1,7 @@
 import { Elba } from '@elba-security/sdk';
-import { env } from '../env';
+import { env } from '@/common/env';
 
-export const getElbaClient = ({
+export const createElbaClient = ({
   organisationId,
   region,
 }: {
@@ -14,4 +14,4 @@ export const getElbaClient = ({
     baseUrl: env.ELBA_API_BASE_URL,
     region,
   });
-}
+};

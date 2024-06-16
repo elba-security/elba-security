@@ -4,13 +4,14 @@ import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { removeOrganisation } from './remove-organisation';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  teamId: 'test-team',
+  organizationIds: ['organization-id'],
   token: 'test-token',
+  zoneDomain: 'test-zone',
   region: 'us',
 };
 
@@ -30,7 +31,7 @@ describe('remove-organisation', () => {
     const elba = spyOnElba();
     await db.insert(Organisation).values(organisation);
 
-    const [result] = setup({ organisationId: organisation.id });
+    const [result] = setup({ organisationId: organisation.id, region: organisation.region });
 
     await expect(result).resolves.toBeUndefined();
 

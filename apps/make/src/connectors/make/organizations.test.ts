@@ -12,7 +12,7 @@ const organizations = { entities: [{ id: 'test-id', name: 'test-name' }] };
 describe('getOrganizationIds', () => {
   beforeEach(() => {
     server.use(
-      http.get(`https://${zoneDomain}/api/v2/organizations?zone=${zoneDomain}`, ({ request }) => {
+      http.get(`https://${zoneDomain}/api/v2/organizations`, ({ request }) => {
         if (request.headers.get('Authorization') !== `Token ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }

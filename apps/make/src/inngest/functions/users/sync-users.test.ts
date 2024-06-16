@@ -5,14 +5,29 @@ import * as usersConnector from '@/connectors/make/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as crypto from '@/common/crypto';
+import { env } from '@/common/env';
 import { syncUsers } from './sync-users';
-import { elbaUsers, users } from './__mocks__/integration';
-import { env } from '@/env';
+
+const elbaUsers = [
+  {
+    id: 'user-id',
+    role: 'member',
+    additionalEmails: [],
+    authMethod: 'password',
+    displayName: 'username',
+    email: 'user@gmail.com',
+  },
+];
+
+const users: usersConnector.MakeUser[] = [
+  {id: 'user-id', email: 'user@gmail.com', name: 'username'},
+];
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   token: 'test-token',
-  teamId: 'team-id',
+  organizationIds: ['organization-id'],
+  zoneDomain: 'test-zone',
   region: 'us',
 };
 const syncStartedAt = Date.now();
@@ -26,7 +41,7 @@ describe('sync-users', () => {
       isFirstSync: false,
       syncStartedAt: Date.now(),
       region: organisation.region,
-      page: null,
+      page: 0,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -48,7 +63,7 @@ describe('sync-users', () => {
       isFirstSync: false,
       syncStartedAt,
       region: organisation.region,
-      page: null,
+      page: 0,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -86,7 +101,7 @@ describe('sync-users', () => {
       isFirstSync: false,
       syncStartedAt,
       region: organisation.region,
-      page: null,
+      page: 0,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
@@ -103,7 +118,7 @@ describe('sync-users', () => {
     expect(crypto.decrypt).toBeCalledWith(organisation.token);
 
     const elbaInstance = elba.mock.results[0]?.value;
-    expect(elbaInstance?.users.update).toBeCalledTimes(1);
+    expect(elbaInstance?.users.update).toBeCalledTimes(2);
     expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
 
     expect(elbaInstance?.users.delete).toBeCalledTimes(1);

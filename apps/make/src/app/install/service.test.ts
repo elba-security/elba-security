@@ -5,11 +5,11 @@ import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as crypto from '@/common/crypto';
 import * as organizations from '@/connectors/make/organizations';
-import { registerOrganisation } from './service';
 import { MakeError } from '@/connectors/commons/error';
+import { registerOrganisation } from './service';
 
 const token = 'test-token';
-const zoneDomain = 'eu2.make.com';
+const zoneDomain = 'test-zone';
 const organizationIds = ['organization-id'];
 const region = 'us';
 const now = new Date();
@@ -39,7 +39,6 @@ describe('registerOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
 
-    vi.spyOn(crypto, 'encrypt').mockResolvedValue(token);
     await expect(
       registerOrganisation({
         organisationId: organisation.id,

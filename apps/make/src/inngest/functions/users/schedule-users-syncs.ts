@@ -1,17 +1,18 @@
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '../../client';
 
 export const scheduleUsersSyncs = inngest.createFunction(
   { id: 'make-schedule-users-syncs' },
-  { cron: env.USERS_SYNC_CRON },
+  { cron: env.MAKE_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({
         id: Organisation.id,
         token: Organisation.token,
-        teamId: Organisation.teamId,
+        organizationIds: Organisation.organizationIds,
+        zoneDomain: Organisation.zoneDomain,
         region: Organisation.region,
       })
       .from(Organisation);
@@ -26,7 +27,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
             region,
             syncStartedAt: Date.now(),
             isFirstSync: false,
-            page: null,
+            page: 0,
           },
         }))
       );
