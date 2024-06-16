@@ -1,7 +1,7 @@
 import { type User } from '@elba-security/sdk';
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
-import { type MakeUser, getUsers } from '@/connectors/users';
+import { type MakeUser, getUsers } from '@/connectors/make/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { env } from '@/env';

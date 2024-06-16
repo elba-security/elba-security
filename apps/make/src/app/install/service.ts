@@ -1,31 +1,40 @@
+/* eslint-disable no-await-in-loop */
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '../../common/crypto';
+import { getOrganizationIds } from '@/connectors/make/organizations';
+import { getTeamIds } from '@/connectors/make/teams';
+import { getUsers } from '@/connectors/make/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
   token: string;
-  teamId: string;
+  zoneDomain: string;
   region: string;
 };
 
 export const registerOrganisation = async ({
   organisationId,
   token,
-  teamId,
+  zoneDomain,
   region,
 }: SetupOrganisationParams) => {
+  const organizationIds = await getOrganizationIds(token, zoneDomain);
+  if (organizationIds.length === 0) {
+    throw new Error('No organizations found');
+  }
   const encryptedToken = await encrypt(token);
   await db
     .insert(Organisation)
-    .values({ id: organisationId, teamId, region, token: encryptedToken })
+    .values({ id: organisationId, organizationIds, zoneDomain,region, token: encryptedToken })
     .onConflictDoUpdate({
       target: Organisation.id,
       set: {
         region,
         token: encryptedToken,
-        teamId,
+        organizationIds,
+        zoneDomain,
       },
     });
 

@@ -1,7 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/make/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as crypto from '@/common/crypto';

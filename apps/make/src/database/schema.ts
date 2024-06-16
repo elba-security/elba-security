@@ -6,7 +6,8 @@ export const Organisation = pgTable('organisation', {
   region: text('region').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   token: text('token').notNull(),
-  teamId: text('team_id').notNull(),
+  organizationIds: text('organization_ids').array().notNull(),
+  zoneDomain: text('zone_domain').notNull(),
 });
 
 export type SelectOrganisation = InferSelectModel<typeof Organisation>;

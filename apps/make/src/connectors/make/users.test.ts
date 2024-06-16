@@ -2,9 +2,9 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { http } from 'msw';
 import { server } from '@elba-security/test-utils';
 import { getUsers, type MakeUser } from './users';
-import { MakeError } from './commons/error';
-import { env } from '../env';
-import { users } from '../inngest/functions/users/__mocks__/integration';
+import { MakeError } from '../commons/error';
+import { env } from '../../env';
+import { users } from '../../inngest/functions/users/__mocks__/integration';
 
 const validToken = 'test-token';
 const teamId = 'team-id';

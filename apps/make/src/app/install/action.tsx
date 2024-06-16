@@ -9,15 +9,14 @@ const formSchema = z.object({
   organisationId: z.string().uuid(),
   token: z.string().min(1),
   region: z.string().min(1),
-  teamId: z.string().min(1),
+  zoneDomain: z.string().min(1),
 });
 
 export type FormState = {
   redirectUrl?: string;
   errors?: {
     token?: string[] | undefined;
-    teamId?: string[] | undefined;
-    // we are not handling organisationId and region errors in the client as fields are hidden
+    zoneDomain?: string[] | undefined;
   };
 };
 
@@ -26,7 +25,7 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
     token: formData.get('token'),
     organisationId: formData.get('organisationId'),
     region: formData.get('region'),
-    teamId: formData.get('teamId'),
+    zoneDomain: formData.get('zoneDomain'),
   });
   if (!result.success) {
     const { fieldErrors } = result.error.flatten();

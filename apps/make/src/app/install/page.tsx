@@ -85,7 +85,7 @@ function InstructionsModal() {
             onClick={() => {
               setActive('2');
             }}
-            text="Get Team ID"
+            text="Get Zone Domain"
           />
           <div className={styles.timeline} />
           <Step
@@ -112,9 +112,9 @@ function InstructionsModal() {
           <InstructionItems
             heading="Get Team ID"
             instructions={[
-              'Select Teams from the sidebar of the page.',
-              'Click on the Variable button of the desired team',
-              'Copy the  Value displayed against the Team id.',
+              'Select Organizations from the sidebar of the page.',
+              'Click on the Variables tab',
+              'Copy the Value displayed against the Zone Domain.',
             ]}
           />
         )}
@@ -138,16 +138,16 @@ function InstructionsModal() {
                 {state.errors?.token?.at(0) ? <span>{state.errors.token.at(0)}</span> : null}
               </div>
               <div role="group">
-                <label htmlFor="teamId">Team ID</label>
+                <label htmlFor="zoneDomain">Zone Domain</label>
                 <input
-                  id="teamId"
+                  id="zoneDomain"
                   minLength={1}
-                  name="teamId"
-                  placeholder="Your Team Id Here"
+                  name="zoneDomain"
+                  placeholder="Your Zone Domain Here"
                   type="text"
                 />
 
-                {state.errors?.teamId?.at(0) ? <span>{state.errors.teamId.at(0)}</span> : null}
+                {state.errors?.zoneDomain?.at(0) ? <span>{state.errors.zoneDomain.at(0)}</span> : null}
               </div>
               {organisationId !== null && (
                 <input name="organisationId" type="hidden" value={organisationId} />
