@@ -22,7 +22,7 @@ const formatElbaApp = (
   const scopes = formatElbaAppScopes(installation.permissions);
   return {
     id: `${installation.id}`,
-    url: app.html_url,
+    url: installation.html_url,
     name: app.name,
     publisherName: app.owner?.name ?? undefined,
     description: app.description ?? undefined,

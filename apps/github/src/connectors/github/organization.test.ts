@@ -31,6 +31,7 @@ const invalidMembers = [
 const validInstallations = Array.from({ length: 5 }, (_, i) => ({
   id: i,
   app_slug: `app-${i}`,
+  html_url: `http://foo.bar/${i}`,
   created_at: new Date().toISOString(),
   permissions: { foo: 'read', baz: 'write', biz: 'read' },
   suspended_at: null,

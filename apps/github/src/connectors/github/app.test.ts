@@ -11,7 +11,6 @@ describe('app connector', () => {
     test('should return installation when installation is valid', async () => {
       const app = {
         name: 'foo',
-        html_url: 'http://github.com/foo',
         description: null,
         owner: null,
       };
@@ -34,9 +33,7 @@ describe('app connector', () => {
 
     test('should throw when installation is invalid', async () => {
       const app = {
-        name: 'foo',
-        // html_url should be defined
-        html_url: null,
+        name: null,
         description: null,
         owner: null,
       };
