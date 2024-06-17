@@ -1,12 +1,36 @@
-import { describe, expect, test } from 'vitest';
+import { afterEach } from 'node:test';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { RetryAfterError } from 'inngest';
 import { HubspotError } from '@/connectors/common/error';
+import { encrypt } from '@/common/crypto';
+import { db } from '@/database/client';
+import { organisationsTable } from '@/database/schema';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
+const accessToken = 'some token';
+const refreshToken = 'some refresh token';
+const region = 'us';
+const timeZone = 'us/eastern';
+const organisation = {
+  id: '00000000-0000-0000-0000-000000000001',
+  accessToken: await encrypt(accessToken),
+  refreshToken: await encrypt(refreshToken),
+  region,
+  timeZone,
+};
+
 describe('rate-limit middleware', () => {
-  test('should not transform the output when their is no error', () => {
+  beforeEach(() => {
+    vi.setSystemTime(new Date('2022-01-01T10:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test('should not transform the output when their is no error', async () => {
     expect(
-      rateLimitMiddleware
+      await rateLimitMiddleware
         .init()
         // @ts-expect-error -- this is a mock
         .onFunctionRun({ fn: { name: 'foo' } })
@@ -16,9 +40,9 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should not transform the output when the error is not about Doppler rate limit', () => {
+  test('should not transform the output when the error is not about Hubspot rate limit', async () => {
     expect(
-      rateLimitMiddleware
+      await rateLimitMiddleware
         .init()
         // @ts-expect-error -- this is a mock
         .onFunctionRun({ fn: { name: 'foo' } })
@@ -30,41 +54,67 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should transform the output error to RetryAfterError when the error is about Doppler rate limit', () => {
-    const rateLimitError = new HubspotError('foo bar', {
-      // @ts-expect-error this is a mock
-      response: {
-        status: 429,
-        headers: new Headers({ 'retry-after': '10' }),
-      },
-    });
+  test.only.each([
+    {
+      dailyRateLimitRemaining: '499855',
+      rateLimitRemaining: '149',
+      rateLimitInterval: '10000',
+      retryAfter: '60',
+    },
+    {
+      dailyRateLimitRemaining: '0',
+      rateLimitRemaining: '0',
+      rateLimitInterval: '10000',
+      retryAfter: '68400',
+    },
+  ])(
+    'should transform the output error to RetryAfterError when the error is about Hubspot rate limit',
+    async ({ dailyRateLimitRemaining, rateLimitRemaining, rateLimitInterval, retryAfter }) => {
+      await db.insert(organisationsTable).values(organisation);
 
-    const context = {
-      foo: 'bar',
-      baz: {
-        biz: true,
-      },
-      result: {
-        data: 'bizz',
-        error: rateLimitError,
-      },
-    };
+      const rateLimitError = new HubspotError('foo bar', {
+        // @ts-expect-error this is a mock
+        response: {
+          status: 429,
+          headers: new Headers({
+            'X-HubSpot-RateLimit-Remaining': rateLimitRemaining,
+            'X-HubSpot-RateLimit-Interval-Milliseconds': rateLimitInterval,
+            'X-HubSpot-RateLimit-Daily-Remaining': dailyRateLimitRemaining,
+          }),
+        },
+      });
 
-    const result = rateLimitMiddleware
-      .init()
-      // @ts-expect-error -- this is a mock
-      .onFunctionRun({ fn: { name: 'foo' } })
-      .transformOutput(context);
-    expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect(result?.result.error.retryAfter).toStrictEqual('10');
-    expect(result).toMatchObject({
-      foo: 'bar',
-      baz: {
-        biz: true,
-      },
-      result: {
-        data: 'bizz',
-      },
-    });
-  });
+      const context = {
+        foo: 'bar',
+        baz: {
+          biz: true,
+        },
+        result: {
+          data: {
+            organisationId: '00000000-0000-0000-0000-000000000001',
+          },
+          error: rateLimitError,
+        },
+      };
+
+      const result = await rateLimitMiddleware
+        .init()
+        // @ts-expect-error -- this is a mock
+        .onFunctionRun({ fn: { name: 'foo' } })
+        .transformOutput(context);
+      expect(result?.result.error).toBeInstanceOf(RetryAfterError);
+      expect(result?.result.error.retryAfter).toStrictEqual(retryAfter);
+      expect(result).toMatchObject({
+        foo: 'bar',
+        baz: {
+          biz: true,
+        },
+        result: {
+          data: {
+            organisationId: '00000000-0000-0000-0000-000000000001',
+          },
+        },
+      });
+    }
+  );
 });

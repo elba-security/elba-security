@@ -62,6 +62,9 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   const validUsers: HubspotUser[] = [];
   const invalidUsers: unknown[] = [];
 
+  // TODO: Users should be filtered by status (active, inactive, pending)
+  // Still we don't have any properties available in the API to filter the inactive and pending users
+  // Community: https://community.hubspot.com/t5/HubSpot-Ideas/Activate-and-Deactivate-users-via-API/idc-p/992350#M182790
   for (const user of result.results) {
     const userResult = hubspotUserSchema.safeParse(user);
     if (userResult.success) {

@@ -11,6 +11,7 @@ export const getAccountTimezone = async (token: string) => {
   const response = await fetch(`${env.HUBSPOT_API_BASE_URL}/account-info/v3/details`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+
   if (!response.ok) {
     throw new HubspotError('Could not retrieve users', { response });
   }
