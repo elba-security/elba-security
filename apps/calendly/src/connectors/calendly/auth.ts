@@ -63,6 +63,8 @@ export const getRefreshToken = async (refreshToken: string) => {
       Authorization: `${encodedKey}`,
     },
     body: new URLSearchParams({
+      client_id: env.CALENDLY_CLIENT_ID,
+      client_secret: env.CALENDLY_CLIENT_SECRET,
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
     }),
