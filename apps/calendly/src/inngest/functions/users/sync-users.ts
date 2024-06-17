@@ -10,8 +10,14 @@ import { decrypt } from '@/common/crypto';
 import { type CalendlyUser } from '@/connectors/calendly/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
+// extract uu
+const extractUUID = (user: CalendlyUser): string => {
+  const regex = /organization_memberships\/(?<uuid>[a-f0-9-]{36})/;
+  const match = regex.exec(user.uri);
+  return match?.groups?.uuid ? match.groups.uuid : user.user.email;
+};
 const formatElbaUser = (user: CalendlyUser): User => ({
-  id: user.user.email,
+  id: extractUUID(user),
   displayName: user.user.name,
   email: user.user.email,
   role: user.role,

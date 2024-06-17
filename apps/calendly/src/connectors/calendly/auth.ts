@@ -77,7 +77,7 @@ export const getRefreshToken = async (refreshToken: string) => {
   const result = tokenResponseSchema.safeParse(data);
 
   if (!result.success) {
-    logger.error('Invalid Jira refresh token response', {
+    logger.error('Invalid Calendly refresh token response', {
       data,
       result: JSON.stringify(result, null, 2),
     });

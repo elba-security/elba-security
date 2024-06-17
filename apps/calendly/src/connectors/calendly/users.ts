@@ -8,6 +8,7 @@ const calendlyUserSchema = z.object({
     email: z.string(),
   }),
   role: z.string(),
+  uri: z.string(),
 });
 
 export type CalendlyUser = z.infer<typeof calendlyUserSchema>;
@@ -82,10 +83,6 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
       Authorization: `Bearer ${accessToken}`,
     },
   });
-
-  if (response.status === 404) {
-    return;
-  }
 
   if (!response.ok && response.status !== 404) {
     throw new CalendlyError(`Could not delete user with Id: ${userId}`, { response });

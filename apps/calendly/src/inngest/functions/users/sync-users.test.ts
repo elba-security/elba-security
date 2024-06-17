@@ -10,15 +10,16 @@ import { syncUsers } from './sync-users';
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const nextPage = '1';
-const organisationURI = 'some-org-uri';
+const organizationUri = 'some-org-uri';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
-  organisationURI,
+  organizationUri,
   region: 'us',
 };
 const users: usersConnector.CalendlyUser[] = Array.from({ length: 2 }, (_, i) => ({
+  uri: `https://test-uri/organization_memberships/00000000-0000-0000-0000-00000000009${i}`,
   user: {
     name: `name-${i}`,
     email: `user-${i}@foo.bar`,
@@ -88,13 +89,15 @@ describe('sync-users', () => {
           additionalEmails: [],
           displayName: 'name-0',
           email: 'user-0@foo.bar',
-          id: 'id-0',
+          id: '00000000-0000-0000-0000-000000000090',
+          role: 'user',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
-          id: 'id-1',
+          role: 'user',
+          id: '00000000-0000-0000-0000-000000000091',
         },
       ],
     });
@@ -126,13 +129,15 @@ describe('sync-users', () => {
           additionalEmails: [],
           displayName: 'name-0',
           email: 'user-0@foo.bar',
-          id: 'id-0',
+          role: 'user',
+          id: '00000000-0000-0000-0000-000000000090',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
-          id: 'id-1',
+          role: 'user',
+          id: '00000000-0000-0000-0000-000000000091',
         },
       ],
     });
