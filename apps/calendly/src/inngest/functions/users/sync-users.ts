@@ -10,7 +10,7 @@ import { decrypt } from '@/common/crypto';
 import { type CalendlyUser } from '@/connectors/calendly/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
-// extract uu
+// extract uuid from user's unique uri like this: "https://api.calendly.com/organization_memberships/AAAAAAAAAAAAAAAA"
 const extractUUID = (user: CalendlyUser): string => {
   const regex = /organization_memberships\/(?<uuid>[a-f0-9-]{36})/;
   const match = regex.exec(user.uri);
