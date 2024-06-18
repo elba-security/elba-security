@@ -1,15 +1,12 @@
 import type { User } from '@elba-security/sdk';
 import { Elba } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import type { MicrosoftUser } from '@/connectors/microsoft/users';
 import { getUsers } from '@/connectors/microsoft/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
+import { getOrganisation } from '@/inngest/common/organisations';
 
 const formatElbaUser = (user: MicrosoftUser): User => ({
   id: user.id,
@@ -44,18 +41,7 @@ export const syncUsers = inngest.createFunction(
   async ({ event, step }) => {
     const { organisationId, syncStartedAt, skipToken } = event.data;
 
-    const [organisation] = await db
-      .select({
-        token: organisationsTable.token,
-        tenantId: organisationsTable.tenantId,
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
+    const organisation = await getOrganisation(organisationId);
 
     const elba = new Elba({
       organisationId,

@@ -1,13 +1,13 @@
 import { subMinutes } from 'date-fns/subMinutes';
 import { addSeconds } from 'date-fns/addSeconds';
-import { and, eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
+import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getToken } from '@/connectors/microsoft/auth';
 import { env } from '@/env';
 import { encrypt } from '@/common/crypto';
+import { getOrganisation } from '@/inngest/common/organisations';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -35,16 +35,7 @@ export const refreshToken = inngest.createFunction(
     await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 30));
 
     const nextExpiresAt = await step.run('refresh-token', async () => {
-      const [organisation] = await db
-        .select({
-          tenantId: organisationsTable.tenantId,
-        })
-        .from(organisationsTable)
-        .where(and(eq(organisationsTable.id, organisationId)));
-
-      if (!organisation) {
-        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-      }
+      const organisation = await getOrganisation(organisationId);
 
       const { token, expiresIn } = await getToken(organisation.tenantId);
 

@@ -1,11 +1,8 @@
-import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { deleteAppPermission, deleteOauthGrant } from '@/connectors/microsoft/apps';
+import { getOrganisation } from '@/inngest/common/organisations';
 
 export const revokeAppPermission = inngest.createFunction(
   {
@@ -36,17 +33,7 @@ export const revokeAppPermission = inngest.createFunction(
       return { status: 'ignored' };
     }
 
-    const [organisation] = await db
-      .select({
-        token: organisationsTable.token,
-        tenantId: organisationsTable.tenantId,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
+    const organisation = await getOrganisation(organisationId);
 
     const token = await decrypt(organisation.token);
 

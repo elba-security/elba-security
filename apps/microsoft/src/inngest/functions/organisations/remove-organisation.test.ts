@@ -50,6 +50,6 @@ describe('remove-organisation', () => {
 
     await expect(
       db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
-    ).resolves.toHaveLength(0);
+    ).resolves.toMatchObject([{ isDeleted: true }]);
   });
 });

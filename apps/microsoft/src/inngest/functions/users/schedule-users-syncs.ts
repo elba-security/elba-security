@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm/sql';
 import { env } from '@/env';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
@@ -11,7 +12,8 @@ export const scheduleUsersSyncs = inngest.createFunction(
       .select({
         id: organisationsTable.id,
       })
-      .from(organisationsTable);
+      .from(organisationsTable)
+      .where(eq(organisationsTable.isDeleted, false));
 
     if (organisations.length > 0) {
       await step.sendEvent(

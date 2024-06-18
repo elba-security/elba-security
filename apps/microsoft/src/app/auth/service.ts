@@ -33,6 +33,7 @@ export const setupOrganisation = async ({
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
+        isDeleted: false,
         tenantId,
         token: encodedToken,
         region,

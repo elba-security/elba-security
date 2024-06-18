@@ -1,15 +1,12 @@
-import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import type { MicrosoftAppWithOauthGrants } from '@/connectors/microsoft/apps';
 import { getApps } from '@/connectors/microsoft/apps';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatApp } from '@/connectors/elba/third-party-apps/objects';
+import { getOrganisation } from '@/inngest/common/organisations';
 import { getAppOauthGrants } from './get-app-oauth-grants';
 
 export const syncApps = inngest.createFunction(
@@ -40,18 +37,7 @@ export const syncApps = inngest.createFunction(
   async ({ event, step }) => {
     const { syncStartedAt, organisationId, skipToken } = event.data;
 
-    const [organisation] = await db
-      .select({
-        token: organisationsTable.token,
-        tenantId: organisationsTable.tenantId,
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
+    const organisation = await getOrganisation(organisationId);
 
     const elba = createElbaClient(organisationId, organisation.region);
 

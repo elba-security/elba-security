@@ -1,11 +1,8 @@
-import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
 import * as appsService from '@/connectors/microsoft/apps';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { env } from '@/env';
 import { decrypt } from '@/common/crypto';
+import { getOrganisation } from '@/inngest/common/organisations';
 
 export const getAppOauthGrants = inngest.createFunction(
   {
@@ -38,18 +35,7 @@ export const getAppOauthGrants = inngest.createFunction(
   async ({ step, event, logger }): Promise<appsService.MicrosoftAppOauthGrant[]> => {
     const { organisationId, appId, skipToken } = event.data;
 
-    const [organisation] = await db
-      .select({
-        token: organisationsTable.token,
-        tenantId: organisationsTable.tenantId,
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
+    const organisation = await getOrganisation(organisationId);
 
     const { grants, nextSkipToken } = await step.run('paginate', async () => {
       const result = await appsService.getAppOauthGrants({
