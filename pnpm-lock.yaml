@@ -1972,6 +1972,9 @@ importers:
       '@elba-security/utils':
         specifier: workspace:*
         version: link:../utils
+      date-fns:
+        specifier: ^3.2.0
+        version: 3.3.1
     devDependencies:
       '@elba-security/eslint-config-custom':
         specifier: workspace:*
@@ -1985,9 +1988,6 @@ importers:
       '@types/node':
         specifier: ^20
         version: 20.14.2
-      date-fns:
-        specifier: ^3.2.0
-        version: 3.3.1
       eslint:
         specifier: ^8
         version: 8.53.0
@@ -5759,6 +5759,7 @@ packages:
 
   /date-fns@3.3.1:
     resolution: {integrity: sha512-y8e109LYGgoQDveiEBD3DYXKba1jWf5BA8YU1FL5Tvm0BTdEfy54WLCwnuYWZNnzzvALy/QQ4Hov+Q9RVRv+Zw==}
+    dev: false
 
   /debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}

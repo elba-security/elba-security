@@ -30,7 +30,7 @@ export const refreshToken = inngest.createFunction(
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
     middleware: [unauthorizedMiddleware],
-    onFailure: failureRetry({ backoff: 30 * 60 }),
+    onFailure: failureRetry({ backoffSeconds: 30 * 60 }),
   },
   { event: 'microsoft/token.refresh.requested' },
   async ({ event, step }) => {

@@ -28,7 +28,7 @@ export const refreshToken = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
-    onFailure: failureRetry({ backoff: 30 * 60 }),
+    onFailure: failureRetry({ backoffSeconds: 30 * 60 }),
     middleware: [unauthorizedMiddleware],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
