@@ -62,7 +62,7 @@ describe('rate-limit middleware', () => {
     const retryAfter = resetTime - currentTime;
 
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect(result?.result.error.retryAfter).toStrictEqual(`${retryAfter}s`);
+    expect(result?.result.error.retryAfter).toStrictEqual(`${retryAfter}`);
     expect(result).toMatchObject({
       foo: 'bar',
       baz: {

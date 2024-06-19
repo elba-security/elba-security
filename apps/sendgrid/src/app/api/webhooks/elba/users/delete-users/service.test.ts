@@ -6,7 +6,7 @@ const userId1 = 'test-user-id1';
 const userId2 = 'test-user-id2';
 const organisationId = '00000000-0000-0000-0000-000000000002';
 
-describe('calendly/users.delete.requested', () => {
+describe('sendgrid/users.delete.requested', () => {
   it('should send request to delete user', async () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
@@ -18,14 +18,14 @@ describe('calendly/users.delete.requested', () => {
           organisationId,
           userId: userId1,
         },
-        name: 'calendly/users.delete.requested',
+        name: 'sendgrid/users.delete.requested',
       },
       {
         data: {
           organisationId,
           userId: userId2,
         },
-        name: 'calendly/users.delete.requested',
+        name: 'sendgrid/users.delete.requested',
       },
     ]);
   });

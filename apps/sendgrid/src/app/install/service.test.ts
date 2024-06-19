@@ -13,12 +13,11 @@ const apiKey = 'test-api-key';
 const region = 'us';
 const now = new Date();
 const validUsers: SendgridUser[] = Array.from({ length: 2 }, (_, i) => ({
-  id: `${i}`,
-  access: `owner`,
-  user: {
-    name: `username-${i}`,
-    email: `user-${i}@foo.bar`,
-  },
+  username: `username-${i}`,
+  email: `user-${i}@foo.bar`,
+  first_name: `first_name-${i}`,
+  last_name: `last_name-${i}`,
+  is_admin: false,
 }));
 
 const invalidUsers = [];
@@ -57,7 +56,7 @@ describe('registerOrganisation', () => {
     ).resolves.toBeUndefined();
 
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey });
+    expect(getUsers).toBeCalledWith({ apiKey, offset: 0 });
 
     const [storedOrganisation] = await db
       .select()
@@ -108,7 +107,7 @@ describe('registerOrganisation', () => {
     ).resolves.toBeUndefined();
 
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey });
+    expect(getUsers).toBeCalledWith({ apiKey, offset: 0 });
 
     // check if the apiKey in the database is updated
     const [storedOrganisation] = await db
