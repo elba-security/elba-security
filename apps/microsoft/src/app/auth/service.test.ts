@@ -152,6 +152,69 @@ describe('setupOrganisation', () => {
     ]);
   });
 
+  test('should setup organisation when the code is valid and the organisation is soft deleted', async () => {
+    // @ts-expect-error -- this is a mock
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue({ token, expiresIn });
+    const getUsers = vi
+      .spyOn(usersConnector, 'getUsers')
+      .mockResolvedValue({ validUsers: [], invalidUsers: [], nextSkipToken: null });
+
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue(token);
+    await db.insert(organisationsTable).values({ ...organisation, isDeleted: true });
+
+    await expect(
+      setupOrganisation({
+        organisationId: organisation.id,
+        tenantId,
+        region,
+      })
+    ).resolves.toStrictEqual({ isAppInstallationCompleted: true });
+
+    expect(getToken).toBeCalledTimes(1);
+    expect(getToken).toBeCalledWith(tenantId);
+    expect(getUsers).toBeCalledTimes(1);
+    expect(getUsers).toBeCalledWith({ token, tenantId, skipToken: null });
+    expect(crypto.encrypt).toBeCalledTimes(1);
+
+    await expect(
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
+    ).resolves.toMatchObject([
+      {
+        token,
+        region,
+        tenantId,
+        isDeleted: false,
+      },
+    ]);
+
+    expect(send).toBeCalledTimes(1);
+    expect(send).toBeCalledWith([
+      {
+        name: 'microsoft/app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+      {
+        name: 'microsoft/users.sync.requested',
+        data: {
+          organisationId: organisation.id,
+          isFirstSync: true,
+          syncStartedAt: now.getTime(),
+          skipToken: null,
+        },
+      },
+      {
+        name: 'microsoft/token.refresh.requested',
+        data: {
+          organisationId: organisation.id,
+          expiresAt: now.getTime() + expiresIn * 1000,
+        },
+      },
+    ]);
+  });
+
   test('should not setup the organisation when the tenantId is invalid', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);

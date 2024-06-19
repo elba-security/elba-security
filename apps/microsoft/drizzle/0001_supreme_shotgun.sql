@@ -1,0 +1,1 @@
+ALTER TABLE "organisations" ADD COLUMN "is_deleted" boolean DEFAULT false;
