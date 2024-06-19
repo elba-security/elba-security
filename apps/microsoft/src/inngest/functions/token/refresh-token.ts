@@ -2,12 +2,14 @@ import { subMinutes } from 'date-fns/subMinutes';
 import { addSeconds } from 'date-fns/addSeconds';
 import { and, eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
+import { failureRetry } from '@elba-security/inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getToken } from '@/connectors/microsoft/auth';
 import { env } from '@/env';
 import { encrypt } from '@/common/crypto';
+import { unauthorizedMiddleware } from '@/inngest/middlewares/unauthorized-middleware';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -27,6 +29,8 @@ export const refreshToken = inngest.createFunction(
       },
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
+    middleware: [unauthorizedMiddleware],
+    onFailure: failureRetry({ backoff: 30 * 60 }),
   },
   { event: 'microsoft/token.refresh.requested' },
   async ({ event, step }) => {
