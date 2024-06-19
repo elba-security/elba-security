@@ -28,7 +28,7 @@ export const refreshToken = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
-    onFailure: failureRetry({ backoffSeconds: 30 * 60 }),
+    onFailure: failureRetry(),
     middleware: [unauthorizedMiddleware],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },

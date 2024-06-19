@@ -28,7 +28,7 @@ export const refreshToken = inngest.createFunction(
       },
     ],
     retries: 5,
-    onFailure: failureRetry({ backoffSeconds: 30 * 60 }),
+    onFailure: failureRetry(),
     middleware: [unauthorizedMiddleware],
   },
   { event: 'zoom/token.refresh.requested' },

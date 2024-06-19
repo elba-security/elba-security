@@ -2,11 +2,12 @@ import { addSeconds } from 'date-fns';
 import type { Context, FailureEventPayload } from 'inngest/types';
 
 type FailureRetryParams = {
-  backoffSeconds: number;
+  backoffSeconds?: number;
 };
 
+/** Retry an function event trigger after a backoff delay (default 30min) */
 export const failureRetry =
-  ({ backoffSeconds }: FailureRetryParams) =>
+  ({ backoffSeconds = 30 * 60 }: FailureRetryParams = {}) =>
   async ({ event, step }: Context) => {
     const { data } = event as FailureEventPayload;
     if (data.error.name === 'NonRetriableError') {
