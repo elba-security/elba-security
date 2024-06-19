@@ -17,10 +17,12 @@
     "@types/node": "^20",
     "eslint": "^8",
     "inngest": "3.19.11",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "date-fns": "^3.2.0"
   },
   "peerDependencies": {
     "@sentry/nextjs": "^7.88.0",
-    "inngest": ">=3.19.0"
+    "inngest": ">=3.19.0",
+    "date-fns": ">=3.2.0"
   }
 }
