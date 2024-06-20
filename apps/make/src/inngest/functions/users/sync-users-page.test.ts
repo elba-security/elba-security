@@ -6,7 +6,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { env } from '@/common/env';
-import { syncUsers } from './sync-users';
+import { syncUsersPage } from './sync-users-page';
 
 const elbaUsers = [
   {
@@ -26,15 +26,14 @@ const users: usersConnector.MakeUser[] = [
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   token: 'test-token',
-  organizationIds: ['organization-id'],
   zoneDomain: 'test-zone',
   region: 'us',
 };
 const syncStartedAt = Date.now();
 
-const setup = createInngestFunctionMock(syncUsers, 'make/users.page_sync.requested');
+const setup = createInngestFunctionMock(syncUsersPage, 'make/users.page_sync.requested');
 
-describe('sync-users', () => {
+describe('sync-users-page', () => {
   test('should abort sync when organisation is not registered', async () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
@@ -42,6 +41,7 @@ describe('sync-users', () => {
       syncStartedAt: Date.now(),
       region: organisation.region,
       page: 0,
+      sourceOrganizationId: 'test-id'
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -64,6 +64,7 @@ describe('sync-users', () => {
       syncStartedAt,
       region: organisation.region,
       page: 0,
+      sourceOrganizationId: 'test-id'
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -82,6 +83,7 @@ describe('sync-users', () => {
         syncStartedAt,
         region: organisation.region,
         page: 10,
+        sourceOrganizationId: 'test-id'
       },
     });
   });
@@ -102,6 +104,7 @@ describe('sync-users', () => {
       syncStartedAt,
       region: organisation.region,
       page: 0,
+      sourceOrganizationId: 'test-id'
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
@@ -118,15 +121,16 @@ describe('sync-users', () => {
     expect(crypto.decrypt).toBeCalledWith(organisation.token);
 
     const elbaInstance = elba.mock.results[0]?.value;
-    expect(elbaInstance?.users.update).toBeCalledTimes(2);
+    expect(elbaInstance?.users.update).toBeCalledTimes(1);
     expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
 
-    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
-    expect(elbaInstance?.users.delete).toBeCalledWith({
-      syncedBefore: new Date(syncStartedAt).toISOString(),
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith('make/users.organization_sync.completed', {
+      name: 'make/users.organization_sync.completed',
+      data: {
+        organisationId: organisation.id,
+        sourceOrganizationId: 'test-id',
+      },
     });
-
-    // the function should not send another event that continue the pagination
-    expect(step.sendEvent).toBeCalledTimes(0);
   });
 });

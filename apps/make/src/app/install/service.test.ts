@@ -10,7 +10,6 @@ import { registerOrganisation } from './service';
 
 const token = 'test-token';
 const zoneDomain = 'test-zone';
-const organizationIds = ['organization-id'];
 const region = 'us';
 const now = new Date();
 
@@ -18,7 +17,6 @@ const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   token,
   zoneDomain,
-  organizationIds,
   region,
 };
 
@@ -32,10 +30,6 @@ describe('registerOrganisation', () => {
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
-    const getOrganizationIds = vi
-      .spyOn(organizations, 'getOrganizationIds')
-      .mockResolvedValue(organizationIds);
-
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
 
@@ -47,9 +41,6 @@ describe('registerOrganisation', () => {
         region,
       })
     ).resolves.toBeUndefined();
-
-    expect(getOrganizationIds).toBeCalledWith(token, zoneDomain);
-    expect(getOrganizationIds).toBeCalledTimes(1);
 
     const [storedOrganisation] = await db
       .select()
@@ -64,13 +55,10 @@ describe('registerOrganisation', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'make/users.page_sync.requested',
+      name: 'make/users.sync.requested',
       data: {
-        isFirstSync: true,
         organisationId: organisation.id,
         syncStartedAt: now.getTime(),
-        region,
-        page: null,
       },
     });
   });
@@ -103,13 +91,10 @@ describe('registerOrganisation', () => {
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'make/users.page_sync.requested',
+      name: 'make/users.sync.requested',
       data: {
-        isFirstSync: true,
         organisationId: organisation.id,
         syncStartedAt: now.getTime(),
-        region,
-        page: null,
       },
     });
   });

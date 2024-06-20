@@ -19,7 +19,7 @@ const formatElbaUser = (user: MakeUser): User => ({
   additionalEmails: [],
 });
 
-export const syncUsers = inngest.createFunction(
+export const syncUsersPage = inngest.createFunction(
   {
     id: 'make-sync-users-page',
     priority: {
@@ -39,13 +39,12 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'make/users.page_sync.requested' },
   async ({ event, step, logger }) => {
-    const { organisationId, syncStartedAt, page } = event.data
+    const { organisationId, page, sourceOrganizationId } = event.data
 
     const organisation = await step.run('get-organisation', async () => {
       const [result] = await db
         .select({
-          token: Organisation.token,
-          organizationIds: Organisation.organizationIds,
+          accessToken: Organisation.token,
           region: Organisation.region,
           zoneDomain: Organisation.zoneDomain,
         })
@@ -58,52 +57,44 @@ export const syncUsers = inngest.createFunction(
     });
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
+    const token = await decrypt(organisation.accessToken);
 
-    let allUsers: User[] = [];
-    for (const organizationId of organisation.organizationIds) {
-      let nextPage: number | null = page;
+    const nextPage = await step.run('list-users', async () => {
+      const result = await getUsers(token, sourceOrganizationId, page, organisation.zoneDomain);
+      const users = result.users.map(formatElbaUser);
+      logger.debug('Sending batch of users to elba: ', {
+        organisationId,
+        users,
+      });
+      await elba.users.update({ users });
 
-      while (nextPage !== null) {
-        nextPage = await step.run('list-users', async () => {
-          const result = await getUsers(token, organizationId, Number(nextPage), organisation.zoneDomain);
-          const users = result.users.map(formatElbaUser);
-          allUsers = allUsers.concat(users);
-
-
-          logger.debug('Sending batch of users to elba: ', {
-            organisationId,
-            users,
-          });
-          await elba.users.update({ users });
-
-          if (result.pagination.next) {
-            return result.pagination.next;
-          }
-          return null;
-        });
-
-        // if there is a next page enqueue a new sync user event
-        if (nextPage) {
-          await step.sendEvent('sync-users-page', {
-            name: 'make/users.page_sync.requested',
-            data: {
-              ...event.data,
-              page: nextPage,
-            },
-          });
-          return {
-            status: 'ongoing',
-          };
-        }
+      if (result.pagination.next) {
+        return result.pagination.next;
       }
-    }
-    await elba.users.update({ users: allUsers });
+      return null;
+    });
 
-    // delete the Elba users that have been sent before this sync
-    await step.run('finalize', () =>
-      elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
-    );
+    if (nextPage) {
+      await step.sendEvent('sync-users-page', {
+        name: 'make/users.page_sync.requested',
+        data: {
+          ...event.data,
+          page: nextPage,
+        },
+      });
+      return {
+        status: 'ongoing',
+      };
+    }
+
+    // Signal the completion of user sync for this site
+    await step.sendEvent('make/users.organization_sync.completed', {
+      name: 'make/users.organization_sync.completed',
+      data: {
+        organisationId,
+        sourceOrganizationId,
+      },
+    });
 
     return {
       status: 'completed',

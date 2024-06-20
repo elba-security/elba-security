@@ -10,7 +10,6 @@ const organisations = [
   {
     id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
     token: 'access-token',
-    organizationIds: ['organization-id'],
     zoneDomain: 'test-zone',
     region: 'us',
   },
@@ -42,14 +41,11 @@ describe('schedule-users-syncs', () => {
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
       'sync-organisations-users',
-      organisations.map(({ id, region }) => ({
-        name: 'make/users.page_sync.requested',
+      organisations.map(({ id }) => ({
+        name: 'make/users.sync.requested',
         data: {
           organisationId: id,
-          region,
           syncStartedAt: now,
-          isFirstSync: false,
-          page: 0,
         },
       }))
     );
