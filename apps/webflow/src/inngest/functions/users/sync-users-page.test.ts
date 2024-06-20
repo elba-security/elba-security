@@ -26,12 +26,10 @@ const users: WebflowUser[] = [
 
 const region = 'us';
 const accessToken = 'access-token';
-const siteIds = ['test-id'];
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accessToken,
-  siteIds,
   region,
 };
 const syncStartedAt = Date.now();
