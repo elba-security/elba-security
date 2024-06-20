@@ -23,6 +23,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
           data: {
             organisationId: id,
             syncStartedAt: Date.now(),
+            isFirstSync: true
           },
         }))
       );

@@ -6,14 +6,13 @@ export type InngestEvents = {
     data: {
       organisationId: string;
       syncStartedAt: number;
+      isFirstSync: boolean;
     };
   };
   'webflow/users.page_sync.requested': {
     data: {
       organisationId: string;
       region: string;
-      isFirstSync: boolean;
-      syncStartedAt: number;
       page: number;
       siteId: string;
     };

@@ -4,7 +4,6 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as authConnector from '@/connectors/webflow/auth';
-import * as sitesConnector from '@/connectors/webflow/sites';
 import { WebflowError } from '@/connectors/commons/error';
 import { decrypt } from '@/common/crypto';
 import { setupOrganisation } from './service';
@@ -61,7 +60,8 @@ describe('setupOrganisation', () => {
       name: 'webflow/users.sync.requested',
       data: {
         organisationId: organisation.id,
-        syncStartedAt: Date.now()
+        syncStartedAt: Date.now(),
+        isFirstSync: true
       },
     });
     
@@ -105,6 +105,7 @@ describe('setupOrganisation', () => {
       data: {
         organisationId: organisation.id,
         syncStartedAt: Date.now(),
+        isFirstSync: true
       },
     });
   });

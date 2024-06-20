@@ -32,7 +32,6 @@ const organisation = {
   accessToken,
   region,
 };
-const syncStartedAt = Date.now();
 
 const setup = createInngestFunctionMock(syncUsersPage, 'webflow/users.page_sync.requested');
 
@@ -41,8 +40,6 @@ describe('sync-users', () => {
     // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt: Date.now(),
       page: 0,
       region: 'us',
       siteId: 'test-id',
@@ -70,8 +67,6 @@ describe('sync-users', () => {
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt,
       page: 0,
       region: organisation.region,
       siteId: 'test-id',
@@ -89,8 +84,6 @@ describe('sync-users', () => {
       name: 'webflow/users.page_sync.requested',
       data: {
         organisationId: organisation.id,
-        isFirstSync: false,
-        syncStartedAt,
         region: organisation.region,
         page: 10,
         siteId: 'test-id',
@@ -114,8 +107,6 @@ describe('sync-users', () => {
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt,
       page: 0,
       region: 'us',
       siteId: 'test-id',

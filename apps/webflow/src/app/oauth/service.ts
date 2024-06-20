@@ -38,6 +38,7 @@ export const setupOrganisation = async ({
     data: {
       organisationId,
       syncStartedAt: Date.now(),
+      isFirstSync: true
     },
   });
 };

@@ -28,6 +28,7 @@ describe('sync-users', () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
       syncStartedAt,
+      isFirstSync: true
     });
 
     // assert the function throws a NonRetriableError that will inform inngest to definitively cancel the event (no further retries)
@@ -49,6 +50,7 @@ describe('sync-users', () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
       syncStartedAt,
+      isFirstSync: true
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
@@ -64,8 +66,6 @@ describe('sync-users', () => {
         data: {
           organisationId: organisation.id,
           region: organisation.region,
-          isFirstSync: false,
-          syncStartedAt,
           page: 0,
           siteId,
         },

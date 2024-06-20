@@ -57,8 +57,6 @@ export const syncUsers = inngest.createFunction(
           data: {
             organisationId,
             region: organisation.region,
-            isFirstSync: false,
-            syncStartedAt,
             page: 0,
             siteId,
           },
