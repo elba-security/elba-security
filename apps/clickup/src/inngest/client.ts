@@ -5,12 +5,24 @@ import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 export const inngest = new Inngest({
   id: 'clickup',
   schemas: new EventSchemas().fromRecord<{
+    'clickup/users.sync.requested': {
+      data: {
+        organisationId: string;
+        syncStartedAt: number;
+        isFirstSync: boolean;
+      };
+    };
     'clickup/users.page_sync.requested': {
       data: {
         organisationId: string;
         region: string;
-        isFirstSync: boolean;
-        syncStartedAt: number;
+        teamId: string;
+      };
+    };
+    'clickup/users.team_sync.completed': {
+      data: {
+        organisationId: string;
+        teamId: string;
       };
     };
     'clickup/elba_app.uninstalled': {

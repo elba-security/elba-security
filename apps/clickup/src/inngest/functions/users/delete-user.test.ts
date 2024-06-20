@@ -2,6 +2,7 @@ import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/clickup/users';
+import * as teamsConnector from '@/connectors/clickup/team';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as crypto from '@/common/crypto';
@@ -10,10 +11,10 @@ import { deleteClickUpUser } from './delete-user';
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accessToken: 'access-token',
-  teamIds: ['test-id'],
   region: 'us',
 };
 
+const teamIds = ['test-id'];
 const userIds = ['user-id'];
 
 const setup = createInngestFunctionMock(deleteClickUpUser, 'clickup/users.delete.requested');
@@ -39,6 +40,9 @@ describe('delete-user-request', () => {
   test('should continue the request when the organization is registered', async () => {
     // setup the test with an organisation
     await db.insert(Organisation).values(organisation);
+
+    vi.spyOn(teamsConnector, 'getTeamIds').mockResolvedValue(teamIds);
+
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(organisation.accessToken);
 
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
@@ -53,7 +57,7 @@ describe('delete-user-request', () => {
     expect(crypto.decrypt).toBeCalledWith(organisation.accessToken);
 
     expect(usersConnector.deleteUser).toBeCalledTimes(userIds.length);
-    organisation.teamIds.forEach((teamId) => {
+    teamIds.forEach((teamId) => {
       userIds.forEach((userId) => {
         expect(usersConnector.deleteUser).toBeCalledWith(
           organisation.accessToken,

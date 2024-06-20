@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-loop-func */
-/* eslint-disable no-await-in-loop */
 import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
@@ -20,7 +18,7 @@ const formatElbaUser = (user: ClickUpUser): User => ({
   additionalEmails: [],
 });
 
-export const syncUsers = inngest.createFunction(
+export const syncUsersPage = inngest.createFunction(
   {
     id: 'clickup-sync-users-page',
     priority: {
@@ -40,13 +38,12 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'clickup/users.page_sync.requested' },
   async ({ event, step, logger }) => {
-    const { organisationId, syncStartedAt } = event.data
+    const { organisationId, teamId } = event.data
 
     const organisation = await step.run('get-organisation', async () => {
       const [result] = await db
         .select({
           accessToken: Organisation.accessToken,
-          teamIds: Organisation.teamIds,
           region: Organisation.region,
         })
         .from(Organisation)
@@ -60,26 +57,24 @@ export const syncUsers = inngest.createFunction(
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.accessToken);
 
-    let allUsers: User[] = [];
-
-    for (const teamId of organisation.teamIds) {
-      await step.run('list-users', async () => {
-        const result = await getUsers(token, teamId);
-        const users = result.users.map(formatElbaUser);
-        allUsers = allUsers.concat(users);
-        logger.debug('Sending batch of users to elba: ', {
-          organisationId,
-          users,
-        });
-        await elba.users.update({ users });
+    await step.run('list-users', async () => {
+      const result = await getUsers(token, teamId);
+      const users = result.users.map(formatElbaUser);
+      logger.debug('Sending batch of users to elba: ', {
+        organisationId,
+        users,
       });
-    }
+      await elba.users.update({ users });
+    });
 
-    await elba.users.update({ users: allUsers });
-
-    await step.run('finalize', () =>
-      elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
-    );
+    // Signal the completion of user sync for this team
+    await step.sendEvent('clickup/users.team_sync.completed', {
+      name: 'clickup/users.team_sync.completed',
+      data: {
+        organisationId,
+        teamId,
+      },
+    });
 
     return {
       status: 'completed',

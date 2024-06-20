@@ -13,12 +13,10 @@ const code = 'code';
 const region = 'us';
 const now = new Date();
 const accessToken = 'access-token';
-const teamIds = ['site-id'];
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accessToken,
-  teamIds,
   region,
 };
 
@@ -34,8 +32,6 @@ describe('setupOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     const getAccessToken = vi.spyOn(auth, 'getAccessToken').mockResolvedValue(accessToken);
 
-    const getTeamIds = vi.spyOn(teams, 'getTeamIds').mockResolvedValue(teamIds);
-
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
 
@@ -50,9 +46,6 @@ describe('setupOrganisation', () => {
     expect(getAccessToken).toBeCalledTimes(1);
     expect(getAccessToken).toBeCalledWith(code);
 
-    expect(getTeamIds).toBeCalledWith(accessToken);
-    expect(getTeamIds).toBeCalledTimes(1);
-
     const [storedOrganisation] = await db
       .select()
       .from(Organisation)
@@ -66,11 +59,10 @@ describe('setupOrganisation', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'clickup/users.page_sync.requested',
+      name: 'clickup/users.sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
-        region,
         syncStartedAt: Date.now(),
       },
     });
@@ -108,11 +100,10 @@ describe('setupOrganisation', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'clickup/users.page_sync.requested',
+      name: 'clickup/users.sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
-        region,
         syncStartedAt: Date.now(),
       },
     });

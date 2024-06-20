@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
@@ -6,6 +5,7 @@ import { Organisation } from '@/database/schema';
 import { deleteUser } from '@/connectors/clickup/users';
 import { decrypt } from '@/common/crypto';
 import { inngest } from '../../client';
+import { getTeamIds } from '@/connectors/clickup/team';
 
 export const deleteClickUpUser = inngest.createFunction(
   {
@@ -25,7 +25,6 @@ export const deleteClickUpUser = inngest.createFunction(
       const [result] = await db
         .select({
           accessToken: Organisation.accessToken,
-          teamIds: Organisation.teamIds,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -36,7 +35,13 @@ export const deleteClickUpUser = inngest.createFunction(
     });
 
     const token = await decrypt(organisation.accessToken);
-    for (const teamId of organisation.teamIds){
+
+    const teamIds = await step.run('get-team-ids', async () => {
+      const result = await getTeamIds(token);
+      return result
+    });
+
+    for (const teamId of teamIds){
       await step.run('delete-user', async () => {
         await Promise.all(ids.map((id) => deleteUser(token, teamId, id)));
       });

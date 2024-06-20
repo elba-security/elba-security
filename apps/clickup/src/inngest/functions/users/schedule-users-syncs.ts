@@ -11,7 +11,6 @@ export const scheduleUsersSyncs = inngest.createFunction(
       .select({
         id: Organisation.id,
         accessToken: Organisation.accessToken,
-        teamIds: Organisation.teamIds,
         region: Organisation.region,
       })
       .from(Organisation);
@@ -19,13 +18,12 @@ export const scheduleUsersSyncs = inngest.createFunction(
     if (organisations.length > 0) {
       await step.sendEvent(
         'sync-organisations-users',
-        organisations.map(({ id, region }) => ({
-          name: 'clickup/users.page_sync.requested',
+        organisations.map(({ id }) => ({
+          name: 'clickup/users.sync.requested',
           data: {
             organisationId: id,
-            region,
             syncStartedAt: Date.now(),
-            isFirstSync: false,
+            isFirstSync: true
           },
         }))
       );

@@ -7,16 +7,14 @@ import { Organisation } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { type ClickUpUser } from '@/connectors/types';
 import { env } from '@/common/env';
-import { syncUsers } from './sync-users';
+import { syncUsersPage } from './sync-users-page';
 
 const region = 'us';
 const accessToken = 'access-token';
-const teamIds = ['test-id'];
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accessToken,
-  teamIds,
   region,
 };
 const users: ClickUpUser[] = [
@@ -41,16 +39,15 @@ const elbaUsers = [
 
 const syncStartedAt = Date.now();
 
-const setup = createInngestFunctionMock(syncUsers, 'clickup/users.page_sync.requested');
+const setup = createInngestFunctionMock(syncUsersPage, 'clickup/users.page_sync.requested');
 
-describe('sync-users', () => {
+describe('sync-users-page', () => {
   test('should abort sync when organisation is not registered', async () => {
     // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt: Date.now(),
       region: 'us',
+      teamId: 'test-id',
     });
     // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -72,9 +69,8 @@ describe('sync-users', () => {
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt,
       region: organisation.region,
+      teamId: 'test-id',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
@@ -91,14 +87,16 @@ describe('sync-users', () => {
     });
 
     const elbaInstance = elba.mock.results[0]?.value;
-    expect(elbaInstance?.users.update).toBeCalledTimes(2);
+    expect(elbaInstance?.users.update).toBeCalledTimes(1);
     expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
 
-    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
-    expect(elbaInstance?.users.delete).toBeCalledWith({
-      syncedBefore: new Date(syncStartedAt).toISOString(),
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith('clickup/users.team_sync.completed', {
+      name: 'clickup/users.team_sync.completed',
+      data: {
+        organisationId: organisation.id,
+        teamId: 'test-id',
+      },
     });
-
-    expect(step.sendEvent).toBeCalledTimes(0);
   });
 });

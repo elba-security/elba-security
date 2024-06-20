@@ -8,7 +8,6 @@ export const organisations = [
   {
     id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
     accessToken: 'access-token',
-    teamIds: ['test-id'],
     region: 'us',
   },
 ];
@@ -33,7 +32,7 @@ describe('schedule-users-syncs', () => {
   });
 
   test('should schedule jobs when there are organisations', async () => {
-    await db.insert(Organisation).values(organisations);
+    await db.insert(Organisation).values(organisations)
     const [result, { step }] = setup();
     await expect(result).resolves.toStrictEqual({
       organisations,
@@ -42,12 +41,11 @@ describe('schedule-users-syncs', () => {
     expect(step.sendEvent).toBeCalledWith(
       'sync-organisations-users',
       organisations.map(({ id, region }) => ({
-        name: 'clickup/users.page_sync.requested',
+        name: 'clickup/users.sync.requested',
         data: {
           organisationId: id,
-          region,
-          syncStartedAt: now,
-          isFirstSync: false,
+          syncStartedAt: Date.now(),
+          isFirstSync: true
         },
       }))
     );

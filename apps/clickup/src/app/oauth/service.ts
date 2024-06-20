@@ -17,16 +17,11 @@ export const setupOrganisation = async ({
 }: SetupOrganisationParams) => {
   const accessToken = await getAccessToken(code);
   const encodedToken = await encrypt(accessToken);
-  const teamIds = await getTeamIds(accessToken);
-  if (teamIds.length === 0) {
-    throw new Error('No teams found');
-  }
   await db
     .insert(Organisation)
     .values({
       id: organisationId,
       accessToken: encodedToken,
-      teamIds,
       region,
     })
     .onConflictDoUpdate({
@@ -34,17 +29,15 @@ export const setupOrganisation = async ({
       set: {
         id: organisationId,
         accessToken: encodedToken,
-        teamIds,
         region,
       },
     });
 
   await inngest.send({
-    name: 'clickup/users.page_sync.requested',
+    name: 'clickup/users.sync.requested',
     data: {
       isFirstSync: true,
       organisationId,
-      region,
       syncStartedAt: Date.now(),
     },
   });
