@@ -1265,6 +1265,9 @@ importers:
       '@elba-security/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      '@elba-security/zod':
+        specifier: workspace:*
+        version: link:../../packages/zod
       '@neondatabase/serverless':
         specifier: 0.9.0
         version: 0.9.0
@@ -2181,6 +2184,28 @@ importers:
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)
+
+  packages/zod:
+    dependencies:
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
+    devDependencies:
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../eslint-config-custom
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      eslint:
+        specifier: ^8
+        version: 8.53.0
+      vitest:
+        specifier: 1.4.0
+        version: 1.4.0(@edge-runtime/vm@3.1.7)
+      zod:
+        specifier: 3.22.4
+        version: 3.22.4
 
 packages:
 

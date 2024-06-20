@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { zSegregate } from '@elba-security/zod';
 import { env } from '@/env';
 import { MicrosoftError } from './commons/error';
 import {
@@ -43,19 +44,9 @@ export const getUsers = async ({ token, tenantId, skipToken }: GetUsersParams) =
 
   const data = (await response.json()) as MicrosoftPaginatedResponse<unknown>;
 
-  const validUsers: MicrosoftUser[] = [];
-  const invalidUsers: unknown[] = [];
-
-  for (const user of data.value) {
-    const result = userSchema.safeParse(user);
-    if (result.success) {
-      validUsers.push(result.data);
-    } else {
-      invalidUsers.push(user);
-    }
-  }
+  const users = zSegregate(userSchema).parse(data.value);
 
   const nextSkipToken = getNextSkipTokenFromNextLink(data['@odata.nextLink']);
 
-  return { validUsers, invalidUsers, nextSkipToken };
+  return { validUsers: users.valids, invalidUsers: users.invalids, nextSkipToken };
 };

@@ -30,6 +30,8 @@ const invalidAppOauthGrants = [{ id: 'invalid-oauth-grand-id' }];
 
 const appOauthGrants = [...validAppOauthGrants, ...invalidAppOauthGrants];
 
+const invalidAppRoleAssignedTo: unknown[] = ['foo', 'bar', { id: 'permission-id-2' }];
+
 const validApps: MicrosoftApp[] = Array.from(
   { length: env.THIRD_PARTY_APPS_SYNC_BATCH_SIZE - invalidApps.length },
   (_, i) => ({
@@ -43,7 +45,9 @@ const validApps: MicrosoftApp[] = Array.from(
         id: 'permission-id',
         principalId: 'principal-id',
       },
-    ],
+      ...invalidAppRoleAssignedTo,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- to accept invalid appRoleAssignedTo
+    ] as any[],
     info: {
       logoUrl: null,
     },
@@ -84,7 +88,6 @@ describe('apps connector', () => {
           const nextPageUrl = new URL(url);
           nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
           return Response.json({
             '@odata.nextLink':
               skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
@@ -98,7 +101,12 @@ describe('apps connector', () => {
       await expect(
         getApps({ tenantId, token: validToken, skipToken: startSkipToken })
       ).resolves.toStrictEqual({
-        validApps,
+        validApps: validApps.map((app) => ({
+          ...app,
+          appRoleAssignedTo: app.appRoleAssignedTo.filter(
+            (value) => !invalidAppRoleAssignedTo.includes(value)
+          ),
+        })),
         invalidApps,
         nextSkipToken,
       });
@@ -108,7 +116,12 @@ describe('apps connector', () => {
       await expect(
         getApps({ tenantId, token: validToken, skipToken: endSkipToken })
       ).resolves.toStrictEqual({
-        validApps,
+        validApps: validApps.map((app) => ({
+          ...app,
+          appRoleAssignedTo: app.appRoleAssignedTo.filter(
+            (value) => !invalidAppRoleAssignedTo.includes(value)
+          ),
+        })),
         invalidApps,
         nextSkipToken: null,
       });
@@ -165,7 +178,6 @@ describe('apps connector', () => {
               {}
             );
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
             return Response.json(formattedApp);
           }
         )
@@ -177,10 +189,16 @@ describe('apps connector', () => {
     });
 
     test('should returns app when the app does exist', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- convenience
+      const app = validApps.at(0)!;
       await expect(
         getApp({ tenantId, token: validToken, appId: 'app-id-0' })
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- convenience
-      ).resolves.toMatchObject(validApps.at(0)!);
+      ).resolves.toMatchObject({
+        ...app,
+        appRoleAssignedTo: app.appRoleAssignedTo.filter(
+          (value) => !invalidAppRoleAssignedTo.includes(value)
+        ),
+      });
     });
 
     test('should throws when the token is invalid', async () => {
@@ -214,7 +232,6 @@ describe('apps connector', () => {
             const nextPageUrl = new URL(url);
             nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
             return Response.json({
               '@odata.nextLink':
                 skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
