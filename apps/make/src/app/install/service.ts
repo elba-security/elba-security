@@ -34,6 +34,7 @@ export const registerOrganisation = async ({
     data: {
       organisationId,
       syncStartedAt: Date.now(),
+      isFirstSync: true
     },
   });
 };

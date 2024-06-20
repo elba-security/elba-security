@@ -4,7 +4,6 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as crypto from '@/common/crypto';
-import * as organizations from '@/connectors/make/organizations';
 import { MakeError } from '@/connectors/commons/error';
 import { registerOrganisation } from './service';
 
@@ -59,6 +58,7 @@ describe('registerOrganisation', () => {
       data: {
         organisationId: organisation.id,
         syncStartedAt: now.getTime(),
+        isFirstSync: true
       },
     });
   });
@@ -95,6 +95,7 @@ describe('registerOrganisation', () => {
       data: {
         organisationId: organisation.id,
         syncStartedAt: now.getTime(),
+        isFirstSync: true
       },
     });
   });

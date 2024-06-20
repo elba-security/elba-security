@@ -15,8 +15,6 @@ export const inngest = new Inngest({
       data: {
         organisationId: string;
         region: string;
-        isFirstSync: boolean;
-        syncStartedAt: number;
         page: number;
         sourceOrganizationId: string;
       };

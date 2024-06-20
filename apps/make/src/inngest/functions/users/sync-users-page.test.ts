@@ -37,8 +37,6 @@ describe('sync-users-page', () => {
   test('should abort sync when organisation is not registered', async () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt: Date.now(),
       region: organisation.region,
       page: 0,
       sourceOrganizationId: 'test-id'
@@ -60,8 +58,6 @@ describe('sync-users-page', () => {
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt,
       region: organisation.region,
       page: 0,
       sourceOrganizationId: 'test-id'
@@ -79,8 +75,6 @@ describe('sync-users-page', () => {
       name: 'make/users.page_sync.requested',
       data: {
         organisationId: organisation.id,
-        isFirstSync: false,
-        syncStartedAt,
         region: organisation.region,
         page: 10,
         sourceOrganizationId: 'test-id'
@@ -100,8 +94,6 @@ describe('sync-users-page', () => {
     
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt,
       region: organisation.region,
       page: 0,
       sourceOrganizationId: 'test-id'
