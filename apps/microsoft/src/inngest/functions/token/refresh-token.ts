@@ -9,7 +9,6 @@ import { inngest } from '@/inngest/client';
 import { getToken } from '@/connectors/microsoft/auth';
 import { env } from '@/env';
 import { encrypt } from '@/common/crypto';
-import { unauthorizedMiddleware } from '@/inngest/middlewares/unauthorized-middleware';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -29,7 +28,8 @@ export const refreshToken = inngest.createFunction(
       },
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
-    middleware: [unauthorizedMiddleware],
+    // TODO: improve 401 filtering before re-applying
+    // middleware: [unauthorizedMiddleware],
     onFailure: failureRetry(),
   },
   { event: 'microsoft/token.refresh.requested' },
