@@ -5,20 +5,18 @@ import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as authConnector from '@/connectors/webflow/auth';
 import * as sitesConnector from '@/connectors/webflow/sites';
-import { setupOrganisation } from './service';
 import { WebflowError } from '@/connectors/commons/error';
 import { decrypt } from '@/common/crypto';
+import { setupOrganisation } from './service';
 
 const code = 'code';
 const region = 'us';
 const now = new Date();
 const accessToken = 'access-token';
-const siteIds = ['test-id'];
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   accessToken,
-  siteIds,
   region,
 };
 
@@ -34,8 +32,6 @@ describe('setupOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     const getAccessToken = vi.spyOn(authConnector, 'getAccessToken').mockResolvedValue(accessToken);
 
-    const getSiteIds = vi.spyOn(sitesConnector, 'getSiteIds').mockResolvedValue(siteIds);
-
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     await expect(
@@ -48,9 +44,6 @@ describe('setupOrganisation', () => {
 
     expect(getAccessToken).toBeCalledTimes(1);
     expect(getAccessToken).toBeCalledWith(code);
-
-    expect(getSiteIds).toBeCalledWith(accessToken);
-    expect(getSiteIds).toBeCalledTimes(1);
 
     const [storedOrganisation] = await db
       .select()
@@ -65,13 +58,10 @@ describe('setupOrganisation', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'webflow/users.page_sync.requested',
+      name: 'webflow/users.sync.requested',
       data: {
-        isFirstSync: true,
         organisationId: organisation.id,
-        region,
-        syncStartedAt: Date.now(),
-        page: 0,
+        syncStartedAt: Date.now()
       },
     });
     
@@ -111,13 +101,10 @@ describe('setupOrganisation', () => {
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'webflow/users.page_sync.requested',
+      name: 'webflow/users.sync.requested',
       data: {
-        isFirstSync: true,
         organisationId: organisation.id,
-        region,
         syncStartedAt: Date.now(),
-        page: 0,
       },
     });
   });

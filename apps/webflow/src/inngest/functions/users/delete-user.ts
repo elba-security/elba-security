@@ -7,6 +7,7 @@ import { env } from '@/common/env';
 import { Organisation } from '@/database/schema';
 import { deleteUser } from '@/connectors/webflow/users';
 import { decrypt } from '@/common/crypto';
+import { getSiteIds } from '@/connectors/webflow/sites';
 import { inngest } from '../../client';
 
 export const deleteWebflowUser = inngest.createFunction(
@@ -29,7 +30,6 @@ export const deleteWebflowUser = inngest.createFunction(
       const [result] = await db
         .select({
           accessToken: Organisation.accessToken,
-          siteIds: Organisation.siteIds,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -41,7 +41,12 @@ export const deleteWebflowUser = inngest.createFunction(
 
     const token = await decrypt(organisation.accessToken);
 
-    for (const siteId of organisation.siteIds){
+    const siteIds = await step.run('get-site-ids', async () => {
+      const result = await getSiteIds(token);
+      return result
+    });
+
+    for (const siteId of siteIds){
       await step.run('delete-user', async () => {
         await Promise.all(ids.map((id) => deleteUser(token, siteId, id)));
       });

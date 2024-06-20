@@ -47,6 +47,7 @@ describe('sync-users', () => {
       syncStartedAt: Date.now(),
       page: 0,
       region: 'us',
+      siteId: 'test-id',
     });
 
     // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
@@ -57,15 +58,15 @@ describe('sync-users', () => {
   });
 
   test('should continue the sync when there is a next page', async () => {
-    // setup the test with an organisation
     await db.insert(Organisation).values(organisation);
-    // mock the getUsers function that returns webflow users page
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       users,
       pagination: {
         next: 10,
       },
     });
+
     // @ts-expect-error -- this is a mock
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
 
@@ -75,6 +76,7 @@ describe('sync-users', () => {
       syncStartedAt,
       page: 0,
       region: organisation.region,
+      siteId: 'test-id',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -93,6 +95,7 @@ describe('sync-users', () => {
         syncStartedAt,
         region: organisation.region,
         page: 10,
+        siteId: 'test-id',
       },
     });
   });
@@ -117,6 +120,7 @@ describe('sync-users', () => {
       syncStartedAt,
       page: 0,
       region: 'us',
+      siteId: 'test-id',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
@@ -133,14 +137,16 @@ describe('sync-users', () => {
     });
 
     const elbaInstance = elba.mock.results[0]?.value;
-    expect(elbaInstance?.users.update).toBeCalledTimes(2);
+    expect(elbaInstance?.users.update).toBeCalledTimes(1);
     expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
 
-    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
-    expect(elbaInstance?.users.delete).toBeCalledWith({
-      syncedBefore: new Date(syncStartedAt).toISOString(),
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith('webflow/users.site_sync.completed', {
+      name: 'webflow/users.site_sync.completed',
+      data: {
+        organisationId: organisation.id,
+        siteId: 'test-id',
+      },
     });
-    // the function should not send another event that continue the pagination
-    expect(step.sendEvent).toBeCalledTimes(0);
   });
 });
