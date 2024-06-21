@@ -13,9 +13,13 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (error instanceof CalendlyError && error.response?.status === 429) {
+            if (!(error instanceof CalendlyError)) {
+              return;
+            }
+
+            if (error.response?.status === 429) {
               let retryAfter = 60;
-              const retryAfterHeader = error.response.headers.get('X-RateLimit-Reset');
+              const retryAfterHeader = error.response.headers.get('x-ratelimit-reset');
               if (retryAfterHeader) {
                 retryAfter = parseInt(retryAfterHeader, 10);
               }

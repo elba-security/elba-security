@@ -54,6 +54,7 @@ export const getUsers = async ({ accessToken, organizationUri, page }: GetUsersP
   }
 
   const resData: unknown = await response.json();
+
   const result = calendlyResponseSchema.parse(resData);
 
   const validUsers: CalendlyUser[] = [];
@@ -75,6 +76,7 @@ export const getUsers = async ({ accessToken, organizationUri, page }: GetUsersP
   };
 };
 
+// Owner of the organization cannot be deleted
 export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => {
   const response = await fetch(`${env.CALENDLY_API_BASE_URL}/organization_memberships/${userId}`, {
     method: 'DELETE',

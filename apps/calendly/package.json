@@ -1,6 +1,6 @@
 {
   "name": "@elba-security/calendly",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 4000",
@@ -14,8 +14,7 @@
     "database:up": "docker-compose -p calendly --profile edge --env-file=.env.local up -d",
     "database:down": "docker-compose -p calendly down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
-    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts",
-    "database:open:db": "drizzle-kit studio --config ../../drizzle.config.ts"
+    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
