@@ -2,12 +2,14 @@ import { subMinutes } from 'date-fns/subMinutes';
 import { addSeconds } from 'date-fns/addSeconds';
 import { and, eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
+import { failureRetry } from '@elba-security/inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getRefreshToken } from '@/connectors/box/auth';
 import { env } from '@/common/env';
 import { encrypt, decrypt } from '@/common/crypto';
+import { unauthorizedMiddleware } from '@/inngest/middlewares/unauthorized-middleware';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -26,6 +28,8 @@ export const refreshToken = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
+    onFailure: failureRetry(),
+    middleware: [unauthorizedMiddleware],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
   { event: 'box/token.refresh.requested' },
