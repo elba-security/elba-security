@@ -20,7 +20,7 @@ export const inngest = new Inngest({
         sourceOrganizationId: string;
       };
     };
-    'make/users.organization_sync.completed': {
+    'make/users.sync.completed': {
       data: {
         organisationId: string;
         sourceOrganizationId: string;
