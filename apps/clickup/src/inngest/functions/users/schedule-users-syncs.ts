@@ -19,7 +19,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
       await step.sendEvent(
         'sync-organisations-users',
         organisations.map(({ id }) => ({
-          name: 'clickup/users.sync.requested',
+          name: 'clickup/users.start_sync.requested',
           data: {
             organisationId: id,
             syncStartedAt: Date.now(),

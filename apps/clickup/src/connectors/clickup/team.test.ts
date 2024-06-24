@@ -2,13 +2,13 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '../../common/env';
+import {z} from 'zod'
 import { ClickUpError } from '../commons/error';
-import { type ClickUpTeam } from '../types';
-import { getTeamIds } from './team';
+import { ClickUpTeamSchema, getTeamIds } from './team';
 
 const validToken = 'valid-token';
 const teamIds = ['test-id'];
-const teams: ClickUpTeam[] = [{ id: 'test-id', name: 'team-name' }];
+const teams: z.infer<typeof ClickUpTeamSchema>[] = [{ id: 'test-id', name: 'team-name' }];
 
 describe('getTeamId', () => {
   beforeEach(() => {

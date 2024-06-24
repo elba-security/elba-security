@@ -41,7 +41,7 @@ describe('schedule-users-syncs', () => {
     expect(step.sendEvent).toBeCalledWith(
       'sync-organisations-users',
       organisations.map(({ id, region }) => ({
-        name: 'clickup/users.sync.requested',
+        name: 'clickup/users.start_sync.requested',
         data: {
           organisationId: id,
           syncStartedAt: Date.now(),

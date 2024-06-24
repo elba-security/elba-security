@@ -20,7 +20,7 @@ const organisation = {
 
 const syncStartedAt = Date.now();
 
-const setup = createInngestFunctionMock(syncUsers, 'clickup/users.sync.requested');
+const setup = createInngestFunctionMock(syncUsers, 'clickup/users.start_sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
@@ -61,10 +61,9 @@ describe('sync-users', () => {
     expect(step.sendEvent).toBeCalledTimes(teamIds.length);
     teamIds.forEach((teamId, index) => {
       expect(step.sendEvent).toHaveBeenNthCalledWith(index + 1, 'sync-users-page', {
-        name: 'clickup/users.page_sync.requested',
+        name: 'clickup/users.sync.requested',
         data: {
           organisationId: organisation.id,
-          region: organisation.region,
           page: 0,
           teamId,
         },
@@ -72,7 +71,7 @@ describe('sync-users', () => {
 
       // check that the function waits for the sync completion for each team
       expect(step.waitForEvent).toHaveBeenNthCalledWith(index + 1, 'wait-sync-team-users', {
-        event: 'clickup/users.team_sync.completed',
+        event: 'clickup/users.sync.completed',
         timeout: '1 day',
         if: `event.data.organisationId == '${organisation.id}' && event.data.teamId == '${teamId}'`,
       });

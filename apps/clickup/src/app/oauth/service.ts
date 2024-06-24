@@ -34,7 +34,7 @@ export const setupOrganisation = async ({
     });
 
   await inngest.send({
-    name: 'clickup/users.sync.requested',
+    name: 'clickup/users.start_sync.requested',
     data: {
       isFirstSync: true,
       organisationId,

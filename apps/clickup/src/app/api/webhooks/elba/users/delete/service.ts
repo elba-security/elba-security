@@ -1,17 +1,19 @@
 import { inngest } from '@/inngest/client';
 
 export const deleteUserRequest = async ({
-  ids,
+  userIds,
   organisationId,
 }: {
-  ids: string[];
+  userIds: string[];
   organisationId: string;
 }) => {
-  await inngest.send({
-    name: 'clickup/users.delete.requested',
-    data: {
-      ids,
-      organisationId,
-    },
-  });
+  await inngest.send(
+    userIds.map((userId) => ({
+      name: 'clickup/users.delete.requested',
+      data: {
+        userId,
+        organisationId,
+      },
+    }))
+  );
 };

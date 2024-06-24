@@ -59,7 +59,7 @@ describe('setupOrganisation', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'clickup/users.sync.requested',
+      name: 'clickup/users.start_sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,
@@ -100,7 +100,7 @@ describe('setupOrganisation', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'clickup/users.sync.requested',
+      name: 'clickup/users.start_sync.requested',
       data: {
         isFirstSync: true,
         organisationId: organisation.id,

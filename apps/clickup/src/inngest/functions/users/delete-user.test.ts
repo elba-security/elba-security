@@ -15,7 +15,7 @@ const organisation = {
 };
 
 const teamIds = ['test-id'];
-const userIds = ['user-id'];
+const userId = 'user-id';
 
 const setup = createInngestFunctionMock(deleteClickUpUser, 'clickup/users.delete.requested');
 
@@ -24,7 +24,7 @@ describe('delete-user-request', () => {
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
-      ids: userIds,
+      userId,
       organisationId: organisation.id,
     });
 
@@ -47,7 +47,7 @@ describe('delete-user-request', () => {
 
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
     const [result] = setup({
-      ids: userIds,
+      userId,
       organisationId: organisation.id,
     });
 
@@ -56,15 +56,13 @@ describe('delete-user-request', () => {
     expect(crypto.decrypt).toBeCalledTimes(1);
     expect(crypto.decrypt).toBeCalledWith(organisation.accessToken);
 
-    expect(usersConnector.deleteUser).toBeCalledTimes(userIds.length);
+    expect(usersConnector.deleteUser).toBeCalledTimes(1);
     teamIds.forEach((teamId) => {
-      userIds.forEach((userId) => {
         expect(usersConnector.deleteUser).toBeCalledWith(
           organisation.accessToken,
           teamId,
           userId
         );
-      });
     })
   });
 });

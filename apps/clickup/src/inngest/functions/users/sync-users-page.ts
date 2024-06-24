@@ -1,15 +1,15 @@
 import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { getUsers } from '@/connectors/clickup/users';
-import { type ClickUpUser } from '@/connectors/types';
+import { ClickupUserSchema, getUsers } from '@/connectors/clickup/users';
 import { db } from '@/database/client';
+import {z} from 'zod'
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUser = (user: ClickUpUser): User => ({
+const formatElbaUser = (user: z.infer<typeof ClickupUserSchema>): User => ({
   id: user.id,
   displayName: user.username,
   email: user.email,
@@ -31,12 +31,12 @@ export const syncUsersPage = inngest.createFunction(
     retries: 5,
     cancelOn: [
       {
-        event: 'clickup/elba_app.uninstalled',
+        event: 'clickup/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
   },
-  { event: 'clickup/users.page_sync.requested' },
+  { event: 'clickup/users.sync.requested' },
   async ({ event, step, logger }) => {
     const { organisationId, teamId } = event.data
 
@@ -64,12 +64,14 @@ export const syncUsersPage = inngest.createFunction(
         organisationId,
         users,
       });
-      await elba.users.update({ users });
+      if(users.length > 0) {
+        await elba.users.update({ users });
+       }
     });
 
     // Signal the completion of user sync for this team
-    await step.sendEvent('clickup/users.team_sync.completed', {
-      name: 'clickup/users.team_sync.completed',
+    await step.sendEvent('clickup/users.sync.completed', {
+      name: 'clickup/users.sync.completed',
       data: {
         organisationId,
         teamId,

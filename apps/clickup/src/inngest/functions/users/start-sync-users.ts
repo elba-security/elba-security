@@ -17,12 +17,12 @@ export const syncUsers = inngest.createFunction(
       retries: 5,
       cancelOn: [
         {
-          event: 'clickup/elba_app.uninstalled',
+          event: 'clickup/app.uninstalled',
           match: 'data.organisationId',
         },
       ],
     },
-    { event: 'clickup/users.sync.requested' },
+    { event: 'clickup/users.start_sync.requested' },
     async ({ event, step }) => {
       const { organisationId, syncStartedAt } = event.data;
   
@@ -51,10 +51,9 @@ export const syncUsers = inngest.createFunction(
       // Process each team one by one
       for (const teamId of teamIds) {
         await step.sendEvent('sync-users-page', {
-          name: 'clickup/users.page_sync.requested',
+          name: 'clickup/users.sync.requested',
           data: {
             organisationId,
-            region: organisation.region,
             page: 0,
             teamId,
           },
@@ -62,7 +61,7 @@ export const syncUsers = inngest.createFunction(
   
         // Wait for the sync to complete for the current team
         await step.waitForEvent(`wait-sync-team-users`, {
-          event: 'clickup/users.team_sync.completed',
+          event: 'clickup/users.sync.completed',
           timeout: '1 day',
           if: `event.data.organisationId == '${organisationId}' && event.data.teamId == '${teamId}'`,
         });

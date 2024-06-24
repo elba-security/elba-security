@@ -1,5 +1,5 @@
 {
-  "name": "@elba-security/make",
+  "name": "@elba-security/clickup",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,8 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "type-check": "tsc --noEmit",
-    "database:up": "docker-compose -p zoom --profile edge --env-file=.env.local up -d",
-    "database:down": "docker-compose -p zoom down --volumes",
+    "database:up": "docker-compose -p clickup --profile edge --env-file=.env.local up -d",
+    "database:down": "docker-compose -p clickup down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
     "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
   },

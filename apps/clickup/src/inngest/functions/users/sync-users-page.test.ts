@@ -5,7 +5,8 @@ import * as usersConnector from '@/connectors/clickup/users';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import * as crypto from '@/common/crypto';
-import { type ClickUpUser } from '@/connectors/types';
+import {z} from 'zod'
+import { ClickupUserSchema } from '@/connectors/clickup/users';
 import { env } from '@/common/env';
 import { syncUsersPage } from './sync-users-page';
 
@@ -17,7 +18,7 @@ const organisation = {
   accessToken,
   region,
 };
-const users: ClickUpUser[] = [
+const users: z.infer<typeof ClickupUserSchema>[] = [
   {
     id: 'test-id',
     username: 'test-username',
@@ -39,14 +40,13 @@ const elbaUsers = [
 
 const syncStartedAt = Date.now();
 
-const setup = createInngestFunctionMock(syncUsersPage, 'clickup/users.page_sync.requested');
+const setup = createInngestFunctionMock(syncUsersPage, 'clickup/users.sync.requested');
 
 describe('sync-users-page', () => {
   test('should abort sync when organisation is not registered', async () => {
     // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      region: 'us',
       teamId: 'test-id',
     });
     // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
@@ -69,7 +69,6 @@ describe('sync-users-page', () => {
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      region: organisation.region,
       teamId: 'test-id',
     });
 
@@ -91,8 +90,8 @@ describe('sync-users-page', () => {
     expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('clickup/users.team_sync.completed', {
-      name: 'clickup/users.team_sync.completed',
+    expect(step.sendEvent).toBeCalledWith('clickup/users.sync.completed', {
+      name: 'clickup/users.sync.completed',
       data: {
         organisationId: organisation.id,
         teamId: 'test-id',

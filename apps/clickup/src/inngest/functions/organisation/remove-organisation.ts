@@ -14,10 +14,10 @@ export const removeOrganisation = inngest.createFunction(
     retries: 5,
   },
   {
-    event: 'clickup/elba_app.uninstalled',
+    event: 'clickup/app.uninstalled',
   },
   async ({ event }) => {
-    const { organisationId, region } = event.data;
+    const { organisationId } = event.data;
     const [organisation] = await db
       .select({
         region: Organisation.region,
@@ -29,7 +29,7 @@ export const removeOrganisation = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const elba = getElbaClient({ organisationId, region });
+    const elba = getElbaClient({ organisationId, region: organisation.region });
 
     await elba.connectionStatus.update({ hasError: true });
 
