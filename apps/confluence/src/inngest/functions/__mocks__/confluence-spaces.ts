@@ -69,7 +69,7 @@ export const spaceWithPermissions: ConfluenceSpaceWithPermissions = {
   authorId: 'author-id',
   type: 'global',
   _links: {
-    webui: 'baz/biz',
+    webui: '/baz/biz',
   },
   permissions: [...userPermissions, ...groupPermissions, ...anonymousPermissions],
 };
@@ -176,5 +176,5 @@ export const spaceWithPermissionsObject: DataProtectionObject = {
       userId: 'account-9',
     },
   ],
-  url: 'http://foo.bar/baz/biz',
+  url: 'http://foo.bar/wiki/baz/biz',
 };

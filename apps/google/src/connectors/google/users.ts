@@ -1,13 +1,16 @@
 import type { infer as zInfer } from 'zod';
 import { z } from 'zod';
 import { admin_directory_v1 as adminDirectory } from '@googleapis/admin';
+import { logger } from '@elba-security/logger';
 
 export const googleUserSchema = z.object({
   id: z.string().min(1),
   primaryEmail: z.string().email(),
-  name: z.object({
-    fullName: z.string().min(1).optional(),
-  }),
+  name: z
+    .object({
+      fullName: z.string().min(1).optional(),
+    })
+    .optional(),
   emails: z
     .array(
       z.object({
@@ -42,6 +45,7 @@ export const getGoogleUser = async ({
 
   const result = googleUserSchema.safeParse(user);
   if (!result.success) {
+    logger.error('Failed to parse Google user', { user });
     throw new Error('Failed to parse Google user');
   }
 

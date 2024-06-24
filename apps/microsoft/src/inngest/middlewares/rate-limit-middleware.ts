@@ -25,7 +25,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                 ...result,
                 error: new RetryAfterError(
                   `Microsoft rate limit reached by '${fn.name}'`,
-                  Number(retryAfter) * 1000,
+                  `${retryAfter}s`,
                   {
                     cause: error,
                   }

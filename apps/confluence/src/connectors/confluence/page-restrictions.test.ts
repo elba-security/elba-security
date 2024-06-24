@@ -66,6 +66,9 @@ describe('page-restrictions connector', () => {
               limit: 250,
               size: 1000,
               results: pageRestrictions,
+              _links: {
+                next: 'nextLink',
+              },
             });
           }
         )

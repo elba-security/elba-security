@@ -5,7 +5,7 @@ import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
-import { deleteAppPermission } from '@/connectors/microsoft/apps';
+import { deleteAppPermission, deleteOauthGrant } from '@/connectors/microsoft/apps';
 
 export const revokeAppPermission = inngest.createFunction(
   {
@@ -28,8 +28,13 @@ export const revokeAppPermission = inngest.createFunction(
       limit: 10,
     },
   },
-  async ({ event }) => {
-    const { organisationId, appId, permissionId } = event.data;
+  async ({ event, logger, step }) => {
+    const { organisationId, appId, permissionId, oauthGrantIds } = event.data;
+
+    if (!permissionId && !oauthGrantIds?.length) {
+      logger.warn('No permissions or oauth grant to delete', { appId, organisationId });
+      return { status: 'ignored' };
+    }
 
     const [organisation] = await db
       .select({
@@ -43,11 +48,32 @@ export const revokeAppPermission = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    await deleteAppPermission({
-      tenantId: organisation.tenantId,
-      token: await decrypt(organisation.token),
-      appId,
-      permissionId,
-    });
+    const token = await decrypt(organisation.token);
+
+    if (oauthGrantIds) {
+      for (let i = 0; i < oauthGrantIds.length; i++) {
+        // eslint-disable-next-line no-await-in-loop -- convenience
+        await step.run(`delete-oauth-grant-${i}`, async () => {
+          await deleteOauthGrant({
+            token,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- convenience
+            oauthGrantId: oauthGrantIds[i]!,
+          });
+        });
+      }
+    }
+
+    if (permissionId) {
+      await step.run(`delete-app-user-permission`, async () => {
+        await deleteAppPermission({
+          tenantId: organisation.tenantId,
+          token,
+          appId,
+          permissionId,
+        });
+      });
+    }
+
+    return { status: 'deleted' };
   }
 );

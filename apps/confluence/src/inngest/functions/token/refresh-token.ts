@@ -1,6 +1,7 @@
 import { subMinutes } from 'date-fns/subMinutes';
 import { addSeconds } from 'date-fns/addSeconds';
 import { eq } from 'drizzle-orm';
+import { failureRetry } from '@elba-security/inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -8,6 +9,7 @@ import { getRefreshedToken } from '@/connectors/confluence/auth';
 import { env } from '@/common/env';
 import { decrypt, encrypt } from '@/common/crypto';
 import { getOrganisation } from '@/inngest/common/organisations';
+import { unauthorizedMiddleware } from '@/inngest/middlewares/unauthorized-middleware';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -26,6 +28,8 @@ export const refreshToken = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
+    onFailure: failureRetry(),
+    middleware: [unauthorizedMiddleware],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
   },
   { event: 'confluence/token.refresh.requested' },

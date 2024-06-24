@@ -7,6 +7,7 @@ import { env } from '@/env';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { syncApps } from './sync-apps';
+import { getAppOauthGrants } from './get-app-oauth-grants';
 
 const token = 'test-token';
 const encryptedToken = await encrypt(token);
@@ -18,6 +19,25 @@ const organisation = {
   region: 'us',
   token: encryptedToken,
 };
+
+const oauthGrants = [
+  {
+    id: 'grant-id-1-1',
+    principalId: 'principal-id',
+    // first space is not a typo, the API actually does that
+    scope: ' scope-1 scope2 scope3',
+  },
+  {
+    id: 'grant-id-1-2',
+    principalId: 'principal-id',
+    scope: ' scope3 scope4 scope5',
+  },
+  {
+    id: 'grant-id-2-1',
+    principalId: 'principal-id-2',
+    scope: ' scope3 scope4 scope5',
+  },
+];
 
 const setup = createInngestFunctionMock(syncApps, 'microsoft/third_party_apps.sync.requested');
 
@@ -36,6 +56,10 @@ const apps = [
       {
         id: 'role-id',
         principalId: 'principal-id',
+      },
+      {
+        id: 'role-id-2',
+        principalId: 'principal-id-2',
       },
     ],
   },
@@ -62,7 +86,7 @@ describe('sync-apps', () => {
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(elba).toBeCalledTimes(0);
-
+    expect(step.invoke).toBeCalledTimes(0);
     expect(getApps).toBeCalledTimes(0);
 
     expect(step.sendEvent).toBeCalledTimes(0);
@@ -80,8 +104,23 @@ describe('sync-apps', () => {
     });
     const [result, { step }] = setup(data);
 
+    step.invoke.mockResolvedValue(oauthGrants);
+
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
+    expect(step.invoke).toBeCalledTimes(apps.length);
+    for (let i = 0; i < apps.length; i++) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- testing convenience
+      const app = apps[i]!;
+      expect(step.invoke).toHaveBeenNthCalledWith(i + 1, `get-app-oauth-grants-${app.id}`, {
+        function: getAppOauthGrants,
+        data: {
+          organisationId: organisation.id,
+          appId: app.id,
+          skipToken: null,
+        },
+      });
+    }
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
       organisationId: organisation.id,
@@ -106,8 +145,17 @@ describe('sync-apps', () => {
               id: 'principal-id',
               metadata: {
                 permissionId: 'role-id',
+                oauthGrantIds: ['grant-id-1-1', 'grant-id-1-2'],
               },
-              scopes: [],
+              scopes: ['scope-1', 'scope2', 'scope3', 'scope4', 'scope5'],
+            },
+            {
+              id: 'principal-id-2',
+              metadata: {
+                permissionId: 'role-id-2',
+                oauthGrantIds: ['grant-id-2-1'],
+              },
+              scopes: ['scope3', 'scope4', 'scope5'],
             },
           ],
         },
@@ -141,6 +189,8 @@ describe('sync-apps', () => {
     });
     const [result, { step }] = setup(data);
 
+    step.invoke.mockResolvedValue(oauthGrants);
+
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
     expect(elba).toBeCalledTimes(1);
@@ -167,8 +217,17 @@ describe('sync-apps', () => {
               id: 'principal-id',
               metadata: {
                 permissionId: 'role-id',
+                oauthGrantIds: ['grant-id-1-1', 'grant-id-1-2'],
               },
-              scopes: [],
+              scopes: ['scope-1', 'scope2', 'scope3', 'scope4', 'scope5'],
+            },
+            {
+              id: 'principal-id-2',
+              metadata: {
+                permissionId: 'role-id-2',
+                oauthGrantIds: ['grant-id-2-1'],
+              },
+              scopes: ['scope3', 'scope4', 'scope5'],
             },
           ],
         },

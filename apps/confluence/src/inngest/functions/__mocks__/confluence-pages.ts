@@ -44,7 +44,7 @@ export const pageWithRestrictions: ConfluencePageWithRestrictions = {
   id: 'page-id',
   title: 'page title',
   _links: {
-    webui: 'baz/biz',
+    webui: '/baz/biz',
   },
   spaceId: 'space-id',
   ownerId: 'owner-id',
@@ -160,5 +160,5 @@ export const pageWithRestrictionsObject: DataProtectionObject = {
       userId: 'app-id',
     },
   ],
-  url: 'http://foo.bar/baz/biz',
+  url: 'http://foo.bar/wiki/baz/biz',
 };
