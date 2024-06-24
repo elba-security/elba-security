@@ -32,12 +32,16 @@ export const syncUsersPage = inngest.createFunction(
     retries: 5,
     cancelOn: [
       {
-        event: 'make/elba_app.uninstalled',
+        event: 'make/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'make/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
   },
-  { event: 'make/users.page_sync.requested' },
+  { event: 'make/users.sync.requested' },
   async ({ event, step, logger }) => {
     const { organisationId, page, sourceOrganizationId } = event.data
 
@@ -76,7 +80,7 @@ export const syncUsersPage = inngest.createFunction(
 
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
-        name: 'make/users.page_sync.requested',
+        name: 'make/users.sync.requested',
         data: {
           ...event.data,
           page: nextPage,
@@ -88,8 +92,8 @@ export const syncUsersPage = inngest.createFunction(
     }
 
     // Signal the completion of user sync for this site
-    await step.sendEvent('make/users.organization_sync.completed', {
-      name: 'make/users.organization_sync.completed',
+    await step.sendEvent('make/users.sync.completed', {
+      name: 'make/users.sync.completed',
       data: {
         organisationId,
         sourceOrganizationId,

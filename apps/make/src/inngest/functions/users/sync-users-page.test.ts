@@ -31,7 +31,7 @@ const organisation = {
 };
 const syncStartedAt = Date.now();
 
-const setup = createInngestFunctionMock(syncUsersPage, 'make/users.page_sync.requested');
+const setup = createInngestFunctionMock(syncUsersPage, 'make/users.sync.requested');
 
 describe('sync-users-page', () => {
   test('should abort sync when organisation is not registered', async () => {
@@ -72,7 +72,7 @@ describe('sync-users-page', () => {
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users-page', {
-      name: 'make/users.page_sync.requested',
+      name: 'make/users.sync.requested',
       data: {
         organisationId: organisation.id,
         region: organisation.region,
@@ -117,8 +117,8 @@ describe('sync-users-page', () => {
     expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('make/users.organization_sync.completed', {
-      name: 'make/users.organization_sync.completed',
+    expect(step.sendEvent).toBeCalledWith('make/users.sync.completed', {
+      name: 'make/users.sync.completed',
       data: {
         organisationId: organisation.id,
         sourceOrganizationId: 'test-id',

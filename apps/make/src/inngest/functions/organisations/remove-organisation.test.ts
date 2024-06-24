@@ -15,12 +15,12 @@ const organisation = {
   region: 'us',
 };
 
-const setup = createInngestFunctionMock(removeOrganisation, 'make/elba_app.uninstalled');
+const setup = createInngestFunctionMock(removeOrganisation, 'make/app.uninstalled');
 
 describe('remove-organisation', () => {
   test("should not remove given organisation when it's not registered", async () => {
     const elba = spyOnElba();
-    const [result] = setup({ organisationId: organisation.id });
+    const [result] = setup({ organisationId: organisation.id});
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
@@ -31,7 +31,7 @@ describe('remove-organisation', () => {
     const elba = spyOnElba();
     await db.insert(Organisation).values(organisation);
 
-    const [result] = setup({ organisationId: organisation.id, region: organisation.region });
+    const [result] = setup({ organisationId: organisation.id });
 
     await expect(result).resolves.toBeUndefined();
 

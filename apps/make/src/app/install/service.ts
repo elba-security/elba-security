@@ -29,12 +29,20 @@ export const registerOrganisation = async ({
       },
     });
 
-  await inngest.send({
-    name: 'make/users.sync.requested',
-    data: {
-      organisationId,
-      syncStartedAt: Date.now(),
-      isFirstSync: true
+  await inngest.send([
+    {
+      name: 'make/users.start_sync.requested',
+      data: {
+        organisationId,
+        syncStartedAt: Date.now(),
+        isFirstSync: true
+      },
     },
-  });
+    {
+      name: 'make/app.installed',
+      data: {
+        organisationId,
+      },
+    },
+  ]);
 };

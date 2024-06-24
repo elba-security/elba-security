@@ -18,12 +18,16 @@ export const syncUsers = inngest.createFunction(
       retries: 5,
       cancelOn: [
         {
-          event: 'make/elba_app.uninstalled',
+          event: 'make/app.installed',
+          match: 'data.organisationId',
+        },
+        {
+          event: 'make/app.uninstalled',
           match: 'data.organisationId',
         },
       ],
     },
-    { event: 'make/users.sync.requested' },
+    { event: 'make/users.start_sync.requested' },
     async ({ event, step }) => {
       const { organisationId, syncStartedAt } = event.data;
 
@@ -52,7 +56,7 @@ export const syncUsers = inngest.createFunction(
   
       for (const organizationId of organizationIds) {
         await step.sendEvent('sync-users-page', {
-          name: 'make/users.page_sync.requested',
+          name: 'make/users.sync.requested',
           data: {
             organisationId,
             region: organisation.region,
@@ -63,7 +67,7 @@ export const syncUsers = inngest.createFunction(
   
         // Wait for the sync to complete for the current organization
         await step.waitForEvent(`wait-sync-organization-users`, {
-          event: 'make/users.organization_sync.completed',
+          event: 'make/users.sync.completed',
           timeout: '1 day',
           if: `event.data.organisationId == '${organisationId}' && event.data.sourceOrganizationId == '${organizationId}'`,
         });

@@ -21,9 +21,9 @@ const organisation = {
 
 const syncStartedAt = Date.now();
 
-const setup = createInngestFunctionMock(syncUsers, 'make/users.sync.requested');
+const setup = createInngestFunctionMock(syncUsers, 'make/users.start_sync.requested');
 
-describe('sync-users', () => {
+describe('start-sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
@@ -62,7 +62,7 @@ describe('sync-users', () => {
     expect(step.sendEvent).toBeCalledTimes(organizationIds.length);
     organizationIds.forEach((organizationId, index) => {
       expect(step.sendEvent).toHaveBeenNthCalledWith(index + 1, 'sync-users-page', {
-        name: 'make/users.page_sync.requested',
+        name: 'make/users.sync.requested',
         data: {
           organisationId: organisation.id,
           region: organisation.region,
@@ -73,7 +73,7 @@ describe('sync-users', () => {
 
       // check that the function waits for the sync completion for each source organization
       expect(step.waitForEvent).toHaveBeenNthCalledWith(index + 1, 'wait-sync-organization-users', {
-        event: 'make/users.organization_sync.completed',
+        event: 'make/users.sync.completed',
         timeout: '1 day',
         if: `event.data.organisationId == '${organisation.id}' && event.data.sourceOrganizationId == '${organizationId}'`,
       });

@@ -5,13 +5,14 @@ import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 export const inngest = new Inngest({
   id: 'make',
   schemas: new EventSchemas().fromRecord<{
-    'make/users.sync.requested': {
+    'make/users.start_sync.requested': {
       data: {
         organisationId: string;
         syncStartedAt: number;
+        isFirstSync: boolean;
       };
     };
-    'make/users.page_sync.requested': {
+    'make/users.sync.requested': {
       data: {
         organisationId: string;
         region: string;
@@ -25,10 +26,14 @@ export const inngest = new Inngest({
         sourceOrganizationId: string;
       };
     };
-    'make/elba_app.uninstalled': {
+    'make/app.installed': {
       data: {
         organisationId: string;
-        region: string;
+      };
+    };
+    'make/app.uninstalled': {
+      data: {
+        organisationId: string;
       };
     };
   }>(),

@@ -53,14 +53,22 @@ describe('registerOrganisation', () => {
     await expect(crypto.decrypt(storedOrganisation.token)).resolves.toEqual(token);
 
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: 'make/users.sync.requested',
+    expect(send).toBeCalledWith([
+      {
+      name: 'make/users.start_sync.requested',
       data: {
         organisationId: organisation.id,
         syncStartedAt: now.getTime(),
         isFirstSync: true
       },
-    });
+    },
+    {
+      name: 'make/app.installed',
+      data: {
+        organisationId: organisation.id,
+      },
+    },
+  ]);
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
@@ -90,14 +98,22 @@ describe('registerOrganisation', () => {
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: 'make/users.sync.requested',
+    expect(send).toBeCalledWith([
+      {
+      name: 'make/users.start_sync.requested',
       data: {
         organisationId: organisation.id,
         syncStartedAt: now.getTime(),
         isFirstSync: true
       },
-    });
+    },
+    {
+      name: 'make/app.installed',
+      data: {
+        organisationId: organisation.id,
+      },
+    },
+  ]);
   });
 
   test('should not setup the organisation when the organisation id is invalid', async () => {
