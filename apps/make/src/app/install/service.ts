@@ -4,16 +4,16 @@ import { inngest } from '@/inngest/client';
 import { encrypt } from '../../common/crypto';
 
 type SetupOrganisationParams = {
-  organisationId: string;
   token: string;
   zoneDomain: string;
+  organisationId: string;
   region: string;
 };
 
 export const registerOrganisation = async ({
-  organisationId,
   token,
   zoneDomain,
+  organisationId,
   region,
 }: SetupOrganisationParams) => {
   const encryptedToken = await encrypt(token);
