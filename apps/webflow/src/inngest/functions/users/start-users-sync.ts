@@ -10,7 +10,7 @@ import { decrypt } from '@/common/crypto';
 
 export const syncUsers = inngest.createFunction(
     {
-      id: 'webflow-sync-users',
+      id: 'webflow-start-sync-users',
       concurrency: {
         key: 'event.data.organisationId',
         limit: 1,
@@ -23,7 +23,7 @@ export const syncUsers = inngest.createFunction(
         },
       ],
     },
-    { event: 'webflow/users.sync.requested' },
+    { event: 'webflow/users.start_sync.requested' },
     async ({ event, step }) => {
       const { organisationId, syncStartedAt } = event.data;
   
@@ -53,7 +53,7 @@ export const syncUsers = inngest.createFunction(
       // Process each site one by one
       for (const siteId of siteIds) {
         await step.sendEvent('sync-users-page', {
-          name: 'webflow/users.page_sync.requested',
+          name: 'webflow/users.sync.requested',
           data: {
             organisationId,
             region: organisation.region,
@@ -64,7 +64,7 @@ export const syncUsers = inngest.createFunction(
   
         // Wait for the sync to complete for the current site
         await step.waitForEvent(`wait-sync-site-users`, {
-          event: 'webflow/users.site_sync.completed',
+          event: 'webflow/users.sync.completed',
           timeout: '1 day',
           if: `event.data.organisationId == '${organisationId}' && event.data.siteId == '${siteId}'`,
         });

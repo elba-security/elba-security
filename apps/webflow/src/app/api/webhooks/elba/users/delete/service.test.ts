@@ -1,31 +1,32 @@
-import { expect, test, describe, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { inngest } from '@/inngest/client';
-import { mockNextRequest } from '@/test-utils/mock-app-route';
-import { DELETE as handler } from './route';
+import { deleteUserRequest } from './service';
 
-const organisationId = '00000000-0000-0000-0000-000000000001';
+const userId1 = 'test-user-id1';
+const userId2 = 'test-user-id2';
+const organisationId = '00000000-0000-0000-0000-000000000002';
 
-describe('deleteUserRequest', () => {
-  test('should send request to delete user', async () => {
-    // @ts-expect-error -- this is a mock
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+describe('webflow/users.delete.requested', () => {
+  it('should send request to delete user', async () => {
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
-    const response = await mockNextRequest({
-      handler,
-      body: {
-        ids: ['user-id-1'],
-        organisationId,
-      },
-    });
-
-    expect(response.status).toBe(200);
+    await deleteUserRequest({ userIds: [userId1, userId2], organisationId });
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: 'webflow/users.delete.requested',
-      data: {
-        ids: ['user-id-1'],
-        organisationId,
+    expect(send).toBeCalledWith([
+      {
+        data: {
+          organisationId,
+          userId: userId1,
+        },
+        name: 'webflow/users.delete.requested',
       },
-    });
+      {
+        data: {
+          organisationId,
+          userId: userId2,
+        },
+        name: 'webflow/users.delete.requested',
+      },
+    ]);
   });
 });

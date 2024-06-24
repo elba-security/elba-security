@@ -21,7 +21,7 @@ const organisation = {
 
 const syncStartedAt = Date.now();
 
-const setup = createInngestFunctionMock(syncUsers, 'webflow/users.sync.requested');
+const setup = createInngestFunctionMock(syncUsers, 'webflow/users.start_sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
@@ -62,7 +62,7 @@ describe('sync-users', () => {
     expect(step.sendEvent).toBeCalledTimes(siteIds.length);
     siteIds.forEach((siteId, index) => {
       expect(step.sendEvent).toHaveBeenNthCalledWith(index + 1, 'sync-users-page', {
-        name: 'webflow/users.page_sync.requested',
+        name: 'webflow/users.sync.requested',
         data: {
           organisationId: organisation.id,
           region: organisation.region,
@@ -73,7 +73,7 @@ describe('sync-users', () => {
 
       // check that the function waits for the sync completion for each site
       expect(step.waitForEvent).toHaveBeenNthCalledWith(index + 1, 'wait-sync-site-users', {
-        event: 'webflow/users.site_sync.completed',
+        event: 'webflow/users.sync.completed',
         timeout: '1 day',
         if: `event.data.organisationId == '${organisation.id}' && event.data.siteId == '${siteId}'`,
       });

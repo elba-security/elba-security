@@ -33,7 +33,7 @@ const organisation = {
   region,
 };
 
-const setup = createInngestFunctionMock(syncUsersPage, 'webflow/users.page_sync.requested');
+const setup = createInngestFunctionMock(syncUsersPage, 'webflow/users.sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
@@ -81,7 +81,7 @@ describe('sync-users', () => {
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users-page', {
-      name: 'webflow/users.page_sync.requested',
+      name: 'webflow/users.sync.requested',
       data: {
         organisationId: organisation.id,
         region: organisation.region,
@@ -130,8 +130,8 @@ describe('sync-users', () => {
     expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('webflow/users.site_sync.completed', {
-      name: 'webflow/users.site_sync.completed',
+    expect(step.sendEvent).toBeCalledWith('webflow/users.sync.completed', {
+      name: 'webflow/users.sync.completed',
       data: {
         organisationId: organisation.id,
         siteId: 'test-id',

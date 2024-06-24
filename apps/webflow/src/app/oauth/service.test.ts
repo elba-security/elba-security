@@ -57,7 +57,7 @@ describe('setupOrganisation', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'webflow/users.sync.requested',
+      name: 'webflow/users.start_sync.requested',
       data: {
         organisationId: organisation.id,
         syncStartedAt: Date.now(),
@@ -101,7 +101,7 @@ describe('setupOrganisation', () => {
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'webflow/users.sync.requested',
+      name: 'webflow/users.start_sync.requested',
       data: {
         organisationId: organisation.id,
         syncStartedAt: Date.now(),

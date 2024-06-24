@@ -34,7 +34,7 @@ export const setupOrganisation = async ({
     });
 
   await inngest.send({
-    name: 'webflow/users.sync.requested',
+    name: 'webflow/users.start_sync.requested',
     data: {
       organisationId,
       syncStartedAt: Date.now(),

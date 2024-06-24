@@ -38,7 +38,7 @@ export const syncUsersPage = inngest.createFunction(
       },
     ],
   },
-  { event: 'webflow/users.page_sync.requested' },
+  { event: 'webflow/users.sync.requested' },
   async ({ event, step, logger }) => {
     const { organisationId, page, siteId } = event.data;
 
@@ -77,7 +77,7 @@ export const syncUsersPage = inngest.createFunction(
 
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
-        name: 'webflow/users.page_sync.requested',
+        name: 'webflow/users.sync.requested',
         data: {
           ...event.data,
           page: nextPage,
@@ -89,8 +89,8 @@ export const syncUsersPage = inngest.createFunction(
     }
 
     // Signal the completion of user sync for this site
-    await step.sendEvent('webflow/users.site_sync.completed', {
-      name: 'webflow/users.site_sync.completed',
+    await step.sendEvent('webflow/users.sync.completed', {
+      name: 'webflow/users.sync.completed',
       data: {
         organisationId,
         siteId,

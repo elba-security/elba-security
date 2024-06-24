@@ -41,7 +41,7 @@ describe('schedule-users-syncs', () => {
     expect(step.sendEvent).toBeCalledWith(
       'sync-organisations-users',
       organisations.map(({ id }) => ({
-        name: 'webflow/users.sync.requested',
+        name: 'webflow/users.start_sync.requested',
         data: {
           organisationId: id,
           syncStartedAt: now,

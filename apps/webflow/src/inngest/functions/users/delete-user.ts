@@ -23,9 +23,8 @@ export const deleteWebflowUser = inngest.createFunction(
     event: 'webflow/users.delete.requested',
   },
   async ({ event, step }) => {
-    const { ids, organisationId } = event.data;
+    const { userId, organisationId } = event.data;
 
-    // retrieve the Webflow organisation access token and site Id
     const organisation = await step.run('get-organisation', async () => {
       const [result] = await db
         .select({
@@ -48,7 +47,7 @@ export const deleteWebflowUser = inngest.createFunction(
 
     for (const siteId of siteIds){
       await step.run('delete-user', async () => {
-        await Promise.all(ids.map((id) => deleteUser(token, siteId, id)));
+        await deleteUser(token, siteId, userId);
       });
     }
   }
