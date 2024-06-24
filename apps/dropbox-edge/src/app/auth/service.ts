@@ -49,13 +49,6 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
-      name: 'dropbox/token.refresh.requested',
-      data: {
-        organisationId,
-        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
-      },
-    },
-    {
       name: 'dropbox/users.sync.requested',
       data: {
         organisationId,
@@ -70,9 +63,12 @@ export const setupOrganisation = async ({
         organisationId,
       },
     },
+    {
+      name: 'dropbox/token.refresh.requested',
+      data: {
+        organisationId,
+        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
+      },
+    },
   ]);
-
-  return {
-    status: 'completed',
-  };
 };

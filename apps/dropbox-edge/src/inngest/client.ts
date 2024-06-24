@@ -44,6 +44,27 @@ export const inngest = new Inngest({
         userId: string;
       };
     };
+    'dropbox/third_party_apps.sync.requested': {
+      data: {
+        organisationId: string;
+        isFirstSync: boolean;
+        syncStartedAt: number;
+      };
+    };
+    'dropbox/third_party_apps.refresh_objects.requested': {
+      data: {
+        organisationId: string;
+        userId: string;
+        appId: string;
+      };
+    };
+    'dropbox/third_party_apps.delete_object.requested': {
+      data: {
+        organisationId: string;
+        userId: string;
+        appId: string;
+      };
+    };
   }>(),
   middleware: [rateLimitMiddleware, sentryMiddleware],
   logger,

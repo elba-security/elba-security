@@ -2,6 +2,7 @@ import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { addSeconds } from 'date-fns';
 import * as authConnector from '@/connectors/dropbox/auth';
+import * as usersConnector from '@/connectors/dropbox/users';
 import { db } from '@/database/client';
 import type { Organisation } from '@/database/schema';
 import { organisationsTable } from '@/database/schema';
@@ -43,7 +44,16 @@ describe('setupOrganisation', () => {
   test('should setup organisation when the code is valid and the organisation is not registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    vi.spyOn(usersConnector, 'getAuthenticatedAdmin').mockResolvedValue({
+      teamMemberId: organisation.adminTeamMemberId,
+    });
+
+    vi.spyOn(usersConnector, 'getCurrentUserAccount').mockResolvedValue({
+      rootNamespaceId: organisation.rootNamespaceId,
+      teamMemberId: organisation.adminTeamMemberId,
+    });
 
     await expect(
       setupOrganisation({
@@ -76,7 +86,7 @@ describe('setupOrganisation', () => {
           isFirstSync: true,
           organisationId: organisation.id,
           syncStartedAt: now.getTime(),
-          page: null,
+          cursor: null,
         },
       },
       {
@@ -98,9 +108,17 @@ describe('setupOrganisation', () => {
   test('should setup organisation when the code is valid and the organisation is already registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    await db.insert(organisationsTable).values(organisation);
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    vi.spyOn(usersConnector, 'getAuthenticatedAdmin').mockResolvedValue({
+      teamMemberId: organisation.adminTeamMemberId,
+    });
+
+    vi.spyOn(usersConnector, 'getCurrentUserAccount').mockResolvedValue({
+      rootNamespaceId: organisation.rootNamespaceId,
+      teamMemberId: organisation.adminTeamMemberId,
+    });
+    await db.insert(organisationsTable).values(organisation);
 
     await expect(
       setupOrganisation({
@@ -128,7 +146,7 @@ describe('setupOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-        name: 'box/users.sync.requested',
+        name: 'dropbox/users.sync.requested',
         data: {
           isFirstSync: true,
           organisationId: organisation.id,
@@ -137,14 +155,13 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'box/app.installed',
+        name: 'dropbox/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
       {
-        name: 'box/token.refresh.requested',
+        name: 'dropbox/token.refresh.requested',
         data: {
           organisationId: organisation.id,
           expiresAt: addSeconds(now, expiresIn).getTime(),

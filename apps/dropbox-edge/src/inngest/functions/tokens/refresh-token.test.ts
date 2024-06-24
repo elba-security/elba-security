@@ -85,9 +85,11 @@ describe('refresh-token', () => {
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisation.id));
+
     if (!updatedOrganisation) {
       throw new DropboxError(`Organisation with ID ${organisation.id} not found.`);
     }
+
     await expect(decrypt(updatedOrganisation.refreshToken)).resolves.toEqual(
       newTokens.refreshToken
     );
@@ -97,7 +99,7 @@ describe('refresh-token', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('next-refresh', {
-      name: 'box/token.refresh.requested',
+      name: 'dropbox/token.refresh.requested',
       data: {
         organisationId: organisation.id,
         expiresAt: now.getTime() + expiresIn * 1000,

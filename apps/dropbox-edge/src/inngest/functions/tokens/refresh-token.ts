@@ -1,8 +1,8 @@
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
-import { subMinutes } from 'date-fns';
+import { addSeconds, subMinutes } from 'date-fns';
 import { inngest } from '@/inngest/client';
-import { encrypt } from '@/common/crypto';
+import { decrypt, encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getRefreshToken } from '@/connectors/dropbox/auth';
@@ -34,7 +34,6 @@ export const refreshToken = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        accessToken: organisationsTable.accessToken,
         refreshToken: organisationsTable.refreshToken,
       })
       .from(organisationsTable)
@@ -45,11 +44,13 @@ export const refreshToken = inngest.createFunction(
     }
 
     const nextExpiresAt = await step.run('get-refresh-token', async () => {
+      const decryptedAccessToken = await decrypt(organisation.refreshToken);
+
       const {
         refreshToken: newRefreshToken,
         accessToken: newAccessToken,
         expiresIn,
-      } = await getRefreshToken(organisation.refreshToken);
+      } = await getRefreshToken(decryptedAccessToken);
 
       const encryptedNewAccessToken = await encrypt(newAccessToken);
       const encryptedNewRefreshToken = await encrypt(newRefreshToken);
@@ -69,12 +70,8 @@ export const refreshToken = inngest.createFunction(
       name: 'dropbox/token.refresh.requested',
       data: {
         organisationId,
-        expiresAt: new Date(nextExpiresAt).getTime(),
+        expiresAt: addSeconds(new Date(), nextExpiresAt).getTime(),
       },
     });
-
-    return {
-      status: 'completed',
-    };
   }
 );
