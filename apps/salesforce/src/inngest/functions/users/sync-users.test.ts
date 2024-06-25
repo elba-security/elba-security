@@ -8,7 +8,7 @@ import { encrypt } from '@/common/crypto';
 import { syncUsers } from './sync-users';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
   instanceUrl: 'test-some-url',
@@ -18,6 +18,7 @@ const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const nextPage = 1;
 const users: usersConnector.SalesforceUser[] = Array.from({ length: 2 }, (_, i) => ({
+  attributes: { type: 'User' },
   Id: `id-${i}`,
   Name: `name-${i}`,
   Email: `user-${i}@foo.bar`,

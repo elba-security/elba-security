@@ -20,7 +20,9 @@ export type GetExpiresInParams = {
 };
 
 export const getToken = async (code: string) => {
-  const response = await fetch(`${env.SALESFORCE_APP_INSTALL_URL}services/oauth2/token`, {
+  const url = new URL('/services/oauth2/token', env.SALESFORCE_APP_INSTALL_URL);
+
+  const response = await fetch(url.toString(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -55,7 +57,8 @@ export const getToken = async (code: string) => {
 };
 
 export const getRefreshToken = async (refreshToken: string) => {
-  const response = await fetch(`${env.SALESFORCE_APP_INSTALL_URL}services/oauth2/token`, {
+  const url = new URL('/services/oauth2/token', env.SALESFORCE_APP_INSTALL_URL);
+  const response = await fetch(url.toString(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -74,22 +77,26 @@ export const getRefreshToken = async (refreshToken: string) => {
 
   const data: unknown = await response.json();
 
-  const result = tokenResponseSchema.safeParse(data);
+  const result = tokenResponseSchema
+    .omit({
+      refresh_token: true,
+    })
+    .safeParse(data);
 
   if (!result.success) {
     logger.error('Invalid salesforce token response', { data });
     throw new SalesforceError('Invalid salesforce token response');
   }
-
+  // Refresh token is valid until revoked—Default. The refresh token is used indefinitely, unless revoked by the user or Salesforce admin.
   return {
     accessToken: result.data.access_token,
-    refreshToken: result.data.refresh_token,
     instanceUrl: result.data.instance_url,
   };
 };
 
 export const getExpiresIn = async ({ token, tokenType }: GetExpiresInParams) => {
-  const response = await fetch(`${env.SALESFORCE_APP_INSTALL_URL}services/oauth2/introspect`, {
+  const url = new URL('/services/oauth2/introspect', env.SALESFORCE_APP_INSTALL_URL);
+  const response = await fetch(url.toString(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
