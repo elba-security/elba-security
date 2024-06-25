@@ -16,16 +16,16 @@ export const registerOrganisation = async ({
 }: SetupOrganisationParams) => {
   await getUsers({ apiKey, after: null });
 
-  const encodedtoken = await encrypt(apiKey);
+  const encryptedToken = await encrypt(apiKey);
 
   await db
     .insert(organisationsTable)
-    .values({ id: organisationId, region, apiKey: encodedtoken })
+    .values({ id: organisationId, region, apiKey: encryptedToken })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
         region,
-        apiKey: encodedtoken,
+        apiKey: encryptedToken,
       },
     });
 

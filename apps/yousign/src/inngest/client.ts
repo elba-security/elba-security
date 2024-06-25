@@ -25,12 +25,6 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'yousign/users.delete.requested': {
-      data: {
-        userId: string;
-        organisationId: string;
-      };
-    };
   }>(),
   middleware: [sentryMiddleware, unauthorizedMiddleware, rateLimitMiddleware],
   logger,

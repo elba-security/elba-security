@@ -95,7 +95,7 @@ export const syncUsers = inngest.createFunction(
         name: 'yousign/users.sync.requested',
         data: {
           ...event.data,
-          page: nextPage.toString(),
+          page: nextPage,
         },
       });
       return {
