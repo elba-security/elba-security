@@ -3,6 +3,9 @@ import { env } from '@/common/env';
 import { SalesforceError } from '../common/error';
 
 const salesforceUserSchema = z.object({
+  attributes: z.object({
+    type: z.string().min(1),
+  }),
   Id: z.string(),
   Name: z.string(),
   Email: z.string(),
@@ -31,9 +34,12 @@ export type DeleteUsersParams = {
 const limit = env.SALESFORCE_USERS_SYNC_BATCH_SIZE;
 
 export const getUsers = async ({ accessToken, instanceUrl, offset }: GetUsersParams) => {
-  const endpoint = `${instanceUrl}/services/data/v60.0/query/?q=SELECT+Id,+Name,+Email,+IsActive+FROM+User+limit+${limit}+offset+${offset}`;
+  const url = new URL(
+    `/services/data/v60.0/query/?q=SELECT+Id,+Name,+Email,+IsActive+FROM+User+limit+${limit}+offset+${offset}`,
+    instanceUrl
+  );
 
-  const response = await fetch(endpoint, {
+  const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
       Accept: 'application/json',
@@ -46,6 +52,7 @@ export const getUsers = async ({ accessToken, instanceUrl, offset }: GetUsersPar
   }
 
   const data: unknown = await response.json();
+
   const { records, totalSize } = salesforceResponseSchema.parse(data);
   const validUsers: SalesforceUser[] = [];
   const invalidUsers: unknown[] = [];
@@ -53,6 +60,10 @@ export const getUsers = async ({ accessToken, instanceUrl, offset }: GetUsersPar
   for (const record of records) {
     const result = salesforceUserSchema.safeParse(record);
     if (result.success) {
+      if (result.data.attributes.type !== 'User') {
+        continue;
+      }
+
       validUsers.push(result.data);
     } else {
       invalidUsers.push(record);
@@ -67,9 +78,9 @@ export const getUsers = async ({ accessToken, instanceUrl, offset }: GetUsersPar
 };
 
 export const deleteUser = async ({ accessToken, instanceUrl, userId }: DeleteUsersParams) => {
-  const url = `${instanceUrl}/services/data/v60.0/sobjects/User/${userId}`;
+  const url = new URL(`/services/data/v60.0/sobjects/User/${userId}`, instanceUrl);
 
-  const response = await fetch(url, {
+  const response = await fetch(url.toString(), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
