@@ -2,7 +2,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
-import { getUsers } from '@/connectors/statsig/users';
+import { getAllUsers } from '@/connectors/statsig/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -17,7 +17,7 @@ export const registerOrganisation = async ({
 }: SetupOrganisationParams) => {
   const encodedApiKey = await encrypt(apiKey);
 
-  await getUsers({ apiKey, page: null });
+  await getAllUsers({ apiKey });
 
   await db
     .insert(organisationsTable)

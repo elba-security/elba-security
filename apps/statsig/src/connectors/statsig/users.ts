@@ -17,16 +17,10 @@ const statsigResponseSchema = z.object({
 
 export type GetAllUsersParams = {
   apiKey: string;
-  page: number | null;
 };
 
-export const getUsers = async ({ apiKey, page = 1 }: GetAllUsersParams) => {
+export const getAllUsers = async ({ apiKey }: GetAllUsersParams) => {
   const endpoint = new URL(`${env.STATSIG_API_BASE_URL}users`);
-  endpoint.searchParams.append('limit', String(env.STATSIG_USERS_SYNC_BATCH_SIZE));
-
-  if (page) {
-    endpoint.searchParams.append('page', String(page));
-  }
 
   const response = await fetch(endpoint.toString(), {
     method: 'GET',

@@ -2,7 +2,7 @@ import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
-import { getUsers } from '@/connectors/statsig/users';
+import { getAllUsers } from '@/connectors/statsig/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -50,7 +50,7 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'statsig/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, syncStartedAt } = event.data;
 
     const [organisation] = await db
       .select({
@@ -68,9 +68,8 @@ export const syncUsers = inngest.createFunction(
     const apiKey = await decrypt(organisation.apiKey);
 
     await step.run('list-users', async () => {
-      const result = await getUsers({
+      const result = await getAllUsers({
         apiKey,
-        page,
       });
 
       const users = result.validUsers.map(formatElbaUser);

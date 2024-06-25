@@ -13,19 +13,16 @@ const apiKey = 'test-api-key';
 const region = 'us';
 const now = new Date();
 const validUsers: StatsigUser[] = Array.from({ length: 2 }, (_, i) => ({
-  id: `${i}`,
-  access: `owner`,
-  user: {
-    name: `username-${i}`,
-    email: `user-${i}@foo.bar`,
-  },
+  firstName: `firstName-${i}`,
+  lastName: `lastName-${i}`,
+  email: `user-${i}@foo.bar`,
+  role: 'member',
 }));
 
 const invalidUsers = [];
-const getUsersData = {
+const getAllUsersData = {
   validUsers,
   invalidUsers,
-  nextPage: null,
 };
 
 const organisation = {
@@ -46,7 +43,7 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
+    const getUsers = vi.spyOn(userConnector, 'getAllUsers').mockResolvedValue(getAllUsersData);
 
     await expect(
       registerOrganisation({
@@ -57,7 +54,7 @@ describe('registerOrganisation', () => {
     ).resolves.toBeUndefined();
 
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey });
+    expect(getUsers).toBeCalledWith({ apiKey, page: null });
 
     const [storedOrganisation] = await db
       .select()
@@ -95,7 +92,7 @@ describe('registerOrganisation', () => {
     // mocked the getUsers function
     // @ts-expect-error -- this is a mock
     vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
-    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
+    const getUsers = vi.spyOn(userConnector, 'getAllUsers').mockResolvedValue(getAllUsersData);
     // pre-insert an organisation to simulate an existing entry
     await db.insert(organisationsTable).values(organisation);
 
@@ -108,7 +105,7 @@ describe('registerOrganisation', () => {
     ).resolves.toBeUndefined();
 
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey });
+    expect(getUsers).toBeCalledWith({ apiKey, page: null });
 
     // check if the apiKey in the database is updated
     const [storedOrganisation] = await db
