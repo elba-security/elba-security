@@ -50,8 +50,7 @@ export const refreshToken = inngest.createFunction(
 
       const refreshTokenInfo = await decrypt(organisation.refreshToken);
 
-      const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-        await getRefreshToken(refreshTokenInfo);
+      const { accessToken: newAccessToken, instanceUrl } = await getRefreshToken(refreshTokenInfo);
 
       const { expiresAt: newExpiresAt } = await getExpiresIn({
         token: newAccessToken,
@@ -59,13 +58,12 @@ export const refreshToken = inngest.createFunction(
       });
 
       const encryptedAccessToken = await encrypt(newAccessToken);
-      const encryptedRefreshToken = await encrypt(newRefreshToken);
 
       await db
         .update(organisationsTable)
         .set({
           accessToken: encryptedAccessToken,
-          refreshToken: encryptedRefreshToken,
+          instanceUrl,
         })
         .where(eq(organisationsTable.id, organisationId));
 

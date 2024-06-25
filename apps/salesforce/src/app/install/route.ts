@@ -26,11 +26,11 @@ export function GET(request: NextRequest) {
   cookies().set('region', region);
   cookies().set('state', state);
 
-  const redirectUrl = new URL(`${env.SALESFORCE_APP_INSTALL_URL}services/oauth2/authorize?`);
+  const redirectUrl = new URL('/services/oauth2/authorize', env.SALESFORCE_APP_INSTALL_URL);
   redirectUrl.searchParams.append('client_id', env.SALESFORCE_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.SALESFORCE_REDIRECT_URI);
   redirectUrl.searchParams.append('response_type', 'code');
   redirectUrl.searchParams.append('state', state);
-  redirectUrl.searchParams.append('scope', 'full refresh_token api');
+  redirectUrl.searchParams.append('scope', 'refresh_token api');
   redirect(redirectUrl.toString());
 }

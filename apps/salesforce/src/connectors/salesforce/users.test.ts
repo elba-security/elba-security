@@ -13,7 +13,9 @@ const limit = env.SALESFORCE_USERS_SYNC_BATCH_SIZE;
 const lastOffset = 40;
 const total = 25;
 const instanceUrl = 'https://some-url';
+
 const validUsers: SalesforceUser[] = Array.from({ length: 5 }, (_, i) => ({
+  attributes: { type: 'User' },
   Id: `id-${i}`,
   Name: `name-${i}`,
   Email: `user-${i}@foo.bar`,
