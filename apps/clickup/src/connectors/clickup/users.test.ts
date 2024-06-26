@@ -9,7 +9,7 @@ const validToken = 'token-1234';
 const teamId = 'test-team-id';
 const userId = 'test-user-id';
 
-const users = [
+const usersApiResponse = [
   {
     user: {
       id: 'test-id',
@@ -19,6 +19,18 @@ const users = [
     },
   },
 ];
+
+const validUsers = [
+  {
+    id: 'test-id',
+    username: 'test-username',
+    email: 'test-user-@foo.bar',
+    role: 'owner',
+  },
+]
+
+const invalidUsers = [];
+
 const roles = [
   {
     id: 1,
@@ -48,7 +60,7 @@ describe('getUsers', () => {
         return new Response(
           JSON.stringify({
             team: {
-              members: users,
+              members: usersApiResponse,
               roles,
             },
           }),
@@ -60,20 +72,14 @@ describe('getUsers', () => {
 
   test('should fetch users when token is valid', async () => {
     const result = await getUsers(validToken, teamId);
-    expect(result.users).toEqual([
-      {
-        id: 'test-id',
-        username: 'test-username',
-        email: 'test-user-@foo.bar',
-        role: 'owner',
-      },
-    ]);
+    expect(result).toEqual({ validUsers, invalidUsers });
   });
 
   test('should throw ClickUpError when token is invalid', async () => {
     await expect(getUsers('invalidToken', teamId)).rejects.toThrowError(ClickUpError);
   });
 });
+
 describe('deleteUser', () => {
   beforeEach(() => {
     server.use(

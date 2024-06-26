@@ -24,6 +24,11 @@ export const inngest = new Inngest({
         teamId: string;
       };
     };
+    'clickup/app.installed': {
+      data: {
+        organisationId: string;
+      };
+    };
     'clickup/app.uninstalled': {
       data: {
         organisationId: string;

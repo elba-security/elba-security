@@ -18,7 +18,7 @@ const organisation = {
   accessToken,
   region,
 };
-const users: z.infer<typeof ClickupUserSchema>[] = [
+const validUsers: usersConnector.ClickUpUser[] = [
   {
     id: 'test-id',
     username: 'test-username',
@@ -26,6 +26,8 @@ const users: z.infer<typeof ClickupUserSchema>[] = [
     role: 'test-role',
   },
 ];
+
+const invalidUsers = [];
 
 const elbaUsers = [
   {
@@ -65,7 +67,8 @@ describe('sync-users-page', () => {
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
     
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      users,
+      validUsers,
+      invalidUsers
     });
     const [result, { step }] = setup({
       organisationId: organisation.id,

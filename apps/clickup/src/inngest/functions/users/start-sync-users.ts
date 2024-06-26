@@ -20,6 +20,10 @@ export const syncUsers = inngest.createFunction(
           event: 'clickup/app.uninstalled',
           match: 'data.organisationId',
         },
+        {
+          event: 'clickup/app.installed',
+          match: 'data.organisationId',
+        },
       ],
     },
     { event: 'clickup/users.start_sync.requested' },

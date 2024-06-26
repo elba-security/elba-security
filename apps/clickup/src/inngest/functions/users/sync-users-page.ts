@@ -34,6 +34,10 @@ export const syncUsersPage = inngest.createFunction(
         event: 'clickup/app.uninstalled',
         match: 'data.organisationId',
       },
+      {
+        event: 'clickup/app.installed',
+        match: 'data.organisationId',
+      },
     ],
   },
   { event: 'clickup/users.sync.requested' },
@@ -59,7 +63,15 @@ export const syncUsersPage = inngest.createFunction(
 
     await step.run('list-users', async () => {
       const result = await getUsers(token, teamId);
-      const users = result.users.map(formatElbaUser);
+      const users = result.validUsers.map(formatElbaUser);
+
+      if (result.invalidUsers.length > 0) {
+        logger.warn('Retrieved users contains invalid data', {
+          organisationId,
+          invalidUsers: result.invalidUsers,
+        });
+      }
+
       logger.debug('Sending batch of users to elba: ', {
         organisationId,
         users,

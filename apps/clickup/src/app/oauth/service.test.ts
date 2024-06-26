@@ -58,14 +58,22 @@ describe('setupOrganisation', () => {
     await expect(crypto.decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
 
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: 'clickup/users.start_sync.requested',
-      data: {
-        isFirstSync: true,
-        organisationId: organisation.id,
-        syncStartedAt: Date.now(),
+    expect(send).toBeCalledWith([
+      {
+        name: 'clickup/users.start_sync.requested',
+        data: {
+          isFirstSync: true,
+          organisationId: organisation.id,
+          syncStartedAt: Date.now(),
+        },
       },
-    });
+      {
+        name: 'clickup/app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+  ]);
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
@@ -99,14 +107,22 @@ describe('setupOrganisation', () => {
     await expect(crypto.decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
 
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: 'clickup/users.start_sync.requested',
-      data: {
-        isFirstSync: true,
-        organisationId: organisation.id,
-        syncStartedAt: Date.now(),
+    expect(send).toBeCalledWith([
+      {
+        name: 'clickup/users.start_sync.requested',
+        data: {
+          isFirstSync: true,
+          organisationId: organisation.id,
+          syncStartedAt: Date.now(),
+        },
       },
-    });
+      {
+        name: 'clickup/app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
+      },
+  ]);
   });
 
   test('should not setup the organisation when the organisation id is invalid', async () => {

@@ -41,10 +41,12 @@ export const deleteClickUpUser = inngest.createFunction(
       return result
     });
 
-    for (const teamId of teamIds){
-      await step.run('delete-user', async () => {
+    const deleteUserPromises = teamIds.map((teamId) =>
+      step.run('delete-user', async () => {
         await deleteUser(token, teamId, userId);
-      });
-    }
+      })
+    );
+    
+    await Promise.all(deleteUserPromises);
   }
 );

@@ -35,7 +35,7 @@ describe('schedule-users-syncs', () => {
     await db.insert(Organisation).values(organisations)
     const [result, { step }] = setup();
     await expect(result).resolves.toStrictEqual({
-      organisations,
+      organisations: organisations.map(({ id }) => ({ id })),
     });
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(

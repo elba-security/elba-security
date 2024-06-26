@@ -33,12 +33,20 @@ export const setupOrganisation = async ({
       },
     });
 
-  await inngest.send({
-    name: 'clickup/users.start_sync.requested',
-    data: {
-      isFirstSync: true,
-      organisationId,
-      syncStartedAt: Date.now(),
+  await inngest.send([
+    {
+      name: 'clickup/users.start_sync.requested',
+      data: {
+        isFirstSync: true,
+        organisationId,
+        syncStartedAt: Date.now(),
+      },
     },
-  });
+    {
+      name: 'clickup/app.installed',
+      data: {
+        organisationId,
+      },
+    },
+]);
 };

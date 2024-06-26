@@ -11,6 +11,12 @@ export const removeOrganisation = inngest.createFunction(
     priority: {
       run: '600',
     },
+    cancelOn: [
+      {
+        event: 'clickup/app.installed',
+        match: 'data.organisationId',
+      },
+    ],
     retries: 5,
   },
   {
