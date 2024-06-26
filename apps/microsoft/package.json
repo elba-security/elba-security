@@ -24,6 +24,7 @@
     "@elba-security/sdk": "workspace:*",
     "@elba-security/utils": "workspace:*",
     "@elba-security/design-system": "workspace:*",
+    "@elba-security/zod": "workspace:*",
     "@neondatabase/serverless": "0.9.0",
     "@sentry/nextjs": "^7.88.0",
     "@vercel/postgres": "0.5.1",

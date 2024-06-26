@@ -1,12 +1,13 @@
 import { z } from 'zod';
+import { zFilteredArray, zSegregate } from '@elba-security/zod';
 import { env } from '@/env';
 import { MicrosoftError } from './commons/error';
 import type { MicrosoftPaginatedResponse } from './commons/pagination';
 import { getNextSkipTokenFromNextLink } from './commons/pagination';
 
 const appPermissionSchema = z.object({
-  id: z.string().nullish(),
-  principalId: z.string().nullish(),
+  id: z.string(),
+  principalId: z.string(),
 });
 
 const appSchema = z.object({
@@ -15,7 +16,7 @@ const appSchema = z.object({
   homepage: z.string().nullish(),
   oauth2PermissionScopes: z.array(z.string()),
   appDisplayName: z.string(),
-  appRoleAssignedTo: z.array(appPermissionSchema),
+  appRoleAssignedTo: zFilteredArray(appPermissionSchema),
   info: z
     .object({
       logoUrl: z.string().nullish(),
@@ -77,23 +78,13 @@ export const getAppOauthGrants = async ({
 
   const data = (await response.json()) as MicrosoftPaginatedResponse<unknown>;
 
-  const validAppOauthGrants: MicrosoftAppOauthGrant[] = [];
-  const invalidAppOauthGrants: unknown[] = [];
-
-  for (const appOauthGrant of data.value) {
-    const result = appOAuthGrantSchema.safeParse(appOauthGrant);
-    if (result.success) {
-      validAppOauthGrants.push(result.data);
-    } else {
-      invalidAppOauthGrants.push(appOauthGrant);
-    }
-  }
+  const appOauthGrants = zSegregate(appOAuthGrantSchema).parse(data.value);
 
   const nextSkipToken = getNextSkipTokenFromNextLink(data['@odata.nextLink']);
 
   return {
-    validAppOauthGrants,
-    invalidAppOauthGrants,
+    validAppOauthGrants: appOauthGrants.valids,
+    invalidAppOauthGrants: appOauthGrants.invalids,
     nextSkipToken,
   };
 };
@@ -132,21 +123,11 @@ export const getApps = async ({ tenantId, token, skipToken }: GetAppsParams) => 
 
   const data = (await response.json()) as MicrosoftPaginatedResponse<unknown>;
 
-  const validApps: MicrosoftApp[] = [];
-  const invalidApps: unknown[] = [];
-
-  for (const app of data.value) {
-    const result = appSchema.safeParse(app);
-    if (result.success) {
-      validApps.push(result.data);
-    } else {
-      invalidApps.push(app);
-    }
-  }
+  const apps = zSegregate(appSchema).parse(data.value);
 
   const nextSkipToken = getNextSkipTokenFromNextLink(data['@odata.nextLink']);
 
-  return { validApps, invalidApps, nextSkipToken };
+  return { validApps: apps.valids, invalidApps: apps.invalids, nextSkipToken };
 };
 
 export type GetAppParams = {

@@ -1,16 +1,6 @@
 import type { ThirdPartyAppsObjectUser } from '@elba-security/sdk';
-import type {
-  MicrosoftAppPermission,
-  MicrosoftAppWithOauthGrants,
-} from '@/connectors/microsoft/apps';
+import type { MicrosoftAppWithOauthGrants } from '@/connectors/microsoft/apps';
 import type { AppUserMetadata } from './metadata';
-
-type ValidMicrosoftAppRolePermission = { id: string; principalId: string };
-
-const isValidAppRolePermission = (
-  appRole: MicrosoftAppPermission
-): appRole is ValidMicrosoftAppRolePermission =>
-  Boolean(appRole.principalId) && Boolean(appRole.id);
 
 const mergeScopes = (a: string[], b: string[]) =>
   [...a, ...b].filter((scope, i, scopes) => scopes.indexOf(scope) === i);
@@ -34,10 +24,6 @@ const formatAppUsers = (app: MicrosoftAppWithOauthGrants): ThirdPartyAppsObjectU
 
   // add users directly assigned to the app
   for (const appRole of app.appRoleAssignedTo) {
-    if (!isValidAppRolePermission(appRole)) {
-      continue;
-    }
-
     users.set(appRole.principalId, {
       id: appRole.principalId,
       scopes: app.oauth2PermissionScopes,
