@@ -16,7 +16,7 @@ export const env = z
     SENDGRID_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     SENDGRID_USERS_SYNC_CONCURRENCY: zEnvInt().default(1),
     SENDGRID_DELETE_USER_CONCURRENCY: zEnvInt().default(1),
-    SENDGRID_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),
+    SENDGRID_USERS_SYNC_BATCH_SIZE: zEnvInt().default(300), // Default=500, MAX=500
     VERCEL_ENV: z.string().min(1).optional(),
   })
   .parse(process.env);

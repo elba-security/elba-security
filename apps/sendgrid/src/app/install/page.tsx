@@ -34,16 +34,10 @@ export default function InstallPage() {
             <strong>API Keys</strong>
           </p>
           <p>
-            3. Click the <strong>Create API Key</strong> button on the top-right of the offset to
-            create a new API key. A new screen will appear.
+            3. Click the <strong>Create API Key</strong>
           </p>
           <p>
-            4. Inside the <strong>API Key Name</strong> field, enter a name for your API key.
-            Something like Gravity Forms is a good option.
-          </p>
-          <p>
-            5. In the <strong>API Key Permissions</strong> section, select{' '}
-            <strong>Full Access</strong>.
+            4. Give a API key name and select the <strong>Full Access</strong> permission
           </p>
           <p>
             6. Click the <strong>Create & View button</strong>. You will be presented with your

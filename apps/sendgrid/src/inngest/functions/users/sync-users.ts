@@ -15,8 +15,9 @@ const formatElbaUser = (user: SendgridUser): User => ({
   id: user.username,
   displayName: user.username,
   email: user.email,
-  role: user.is_admin ? 'owner' : 'user',
+  role: user.user_type, // 'owner' | 'admin' |'teammate'
   additionalEmails: [],
+  isSuspendable: user.user_type !== 'owner',
 });
 
 export const syncUsers = inngest.createFunction(

@@ -12,6 +12,7 @@ const nextCursor = 1;
 const offset = 0;
 const endPageOffset = 2;
 const apiKey = 'test-api-key';
+
 const validUsers: SendgridUser[] = Array.from(
   { length: env.SENDGRID_USERS_SYNC_BATCH_SIZE },
   (_, i) => ({
@@ -19,7 +20,7 @@ const validUsers: SendgridUser[] = Array.from(
     email: `user-${i}@foo.bar`,
     first_name: `first_name-${i}`,
     last_name: `last_name-${i}`,
-    is_admin: false,
+    user_type: 'teammate',
   })
 );
 
@@ -28,7 +29,7 @@ const endPageUsers: SendgridUser[] = Array.from({ length: 2 }, (_, i) => ({
   email: `endpage-user-${i}@foo.bar`,
   first_name: `endpage-first_name-${i}`,
   last_name: `endpage-last_name-${i}`,
-  is_admin: false,
+  user_type: 'teammate',
 }));
 const invalidUsers = [];
 

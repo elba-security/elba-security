@@ -35,6 +35,7 @@ export const unauthorizedMiddleware = new InngestMiddleware({
                   },
                 });
               }
+
               return {
                 ...context,
                 result: {

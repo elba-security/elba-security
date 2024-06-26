@@ -12,12 +12,13 @@ import { registerOrganisation } from './service';
 const apiKey = 'test-api-key';
 const region = 'us';
 const now = new Date();
+
 const validUsers: SendgridUser[] = Array.from({ length: 2 }, (_, i) => ({
   username: `username-${i}`,
   email: `user-${i}@foo.bar`,
   first_name: `first_name-${i}`,
   last_name: `last_name-${i}`,
-  is_admin: false,
+  user_type: 'teammate',
 }));
 
 const invalidUsers = [];

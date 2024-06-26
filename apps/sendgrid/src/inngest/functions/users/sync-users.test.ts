@@ -19,7 +19,7 @@ const users: usersConnector.SendgridUser[] = Array.from({ length: 2 }, (_, i) =>
   email: `user-${i}@foo.bar`,
   first_name: `first_name-${i}`,
   last_name: `last_name-${i}`,
-  is_admin: false,
+  user_type: 'teammate',
 }));
 
 const syncStartedAt = Date.now();
@@ -74,14 +74,16 @@ describe('sync-users', () => {
           displayName: 'username-0',
           email: 'user-0@foo.bar',
           id: 'username-0',
-          role: 'user',
+          role: 'teammate',
+          isSuspendable: true,
         },
         {
           additionalEmails: [],
           displayName: 'username-1',
           email: 'user-1@foo.bar',
           id: 'username-1',
-          role: 'user',
+          role: 'teammate',
+          isSuspendable: true,
         },
       ],
     });
@@ -126,14 +128,16 @@ describe('sync-users', () => {
           displayName: 'username-0',
           email: 'user-0@foo.bar',
           id: 'username-0',
-          role: 'user',
+          role: 'teammate',
+          isSuspendable: true,
         },
         {
           additionalEmails: [],
           displayName: 'username-1',
           email: 'user-1@foo.bar',
           id: 'username-1',
-          role: 'user',
+          role: 'teammate',
+          isSuspendable: true,
         },
       ],
     });

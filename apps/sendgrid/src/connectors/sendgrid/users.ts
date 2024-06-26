@@ -3,11 +3,11 @@ import { env } from '@/common/env';
 import { SendgridError } from '../commons/error';
 
 const sendgridUserSchema = z.object({
-  username: z.string(),
-  email: z.string(),
-  first_name: z.string(),
-  last_name: z.string(),
-  is_admin: z.boolean(),
+  username: z.string().min(1),
+  email: z.string().min(1),
+  first_name: z.string().min(1),
+  last_name: z.string().min(1),
+  user_type: z.string().min(1), // 'owner' | 'admin' | 'teammate'
 });
 
 export type SendgridUser = z.infer<typeof sendgridUserSchema>;

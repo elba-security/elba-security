@@ -13,8 +13,12 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (error instanceof SendgridError && error.response?.status === 429) {
-              const resetTimestamp = error.response.headers.get('X-RateLimit-Reset');
+            if (!(error instanceof SendgridError)) {
+              return;
+            }
+
+            if (error.response?.status === 429) {
+              const resetTimestamp = error.response.headers.get('x-ratelimit-reset'); // in seconds, Request can be made after this time
               const currentTime = Math.floor(Date.now() / 1000);
               const retryAfter = resetTimestamp ? parseInt(resetTimestamp, 10) - currentTime : 60;
 
