@@ -23,6 +23,8 @@ const users: usersConnector.MakeUser[] = [
   {id: 'user-id', email: 'user@gmail.com', name: 'username'},
 ];
 
+const invalidUsers = []
+
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   token: 'test-token',
@@ -53,7 +55,8 @@ describe('sync-users-page', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      users,
+      validUsers: users,
+      invalidUsers,
       pagination: { next: 10 },
     });
     const [result, { step }] = setup({
@@ -88,7 +91,8 @@ describe('sync-users-page', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      users,
+      validUsers: users,
+      invalidUsers,
       pagination: { next: null },
     });
     

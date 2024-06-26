@@ -34,7 +34,7 @@ describe('getUsers', () => {
 
   test('should fetch users when token is valid', async () => {
     const result = await getUsers(validToken, organizationId, null, zoneDomain);
-    expect(result.users).toEqual(users);
+    expect(result).toEqual({validUsers: users, invalidUsers: [], pagination: { next: nextOffset}});
   });
 
   test('should throw MakeError when token is invalid', async () => {

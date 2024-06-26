@@ -65,7 +65,15 @@ export const syncUsersPage = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers(token, sourceOrganizationId, page, organisation.zoneDomain);
-      const users = result.users.map(formatElbaUser);
+      const users = result.validUsers.map(formatElbaUser);
+
+      if (result.invalidUsers.length > 0) {
+        logger.warn('Retrieved users contains invalid data', {
+          organisationId,
+          invalidUsers: result.invalidUsers,
+        });
+      }
+      
       logger.debug('Sending batch of users to elba: ', {
         organisationId,
         users,

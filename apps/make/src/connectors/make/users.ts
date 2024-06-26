@@ -1,16 +1,26 @@
+import { z } from 'zod';
 import { env } from '@/common/env';
 import { MakeError } from '../commons/error';
 
-export type MakeUser = {
-  id: string;
-  name: string;
-  email: string;
-};
-export type Pagination = {
-  limit: number;
-  offset: number;
-};
-type GetUsersResponseData = { users: MakeUser[]; pg: Pagination };
+const MakeUserSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string().email(),
+});
+
+const PaginationSchema = z.object({
+  limit: z.number(),
+  offset: z.number(),
+});
+
+const GetUsersResponseDataSchema = z.object({
+  users: z.array(MakeUserSchema),
+  pg: PaginationSchema,
+});
+
+export type MakeUser = z.infer<typeof MakeUserSchema>;
+export type Pagination = z.infer<typeof PaginationSchema>;
+
 
 export const getUsers = async (
   token: string,
@@ -31,16 +41,25 @@ export const getUsers = async (
   if (!response.ok) {
     throw new MakeError('Could not retrieve users', { response });
   }
-  const data = (await response.json()) as GetUsersResponseData;
-  const users = data.users.map((user: MakeUser) => ({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-  }));
+  const resData: unknown = await response.json();
+  const result = GetUsersResponseDataSchema.parse(resData);
+  const { users, pg } = result;
+
+  const validUsers: MakeUser[] = [];
+  const invalidUsers: unknown[] = [];
+
+  for (const user of users) {
+    const userValidation = MakeUserSchema.safeParse(user);
+    if (userValidation.success) {
+      validUsers.push(userValidation.data);
+    } else {
+      invalidUsers.push(user);
+    }
+  }
+
   const pagination = {
-    next:
-      data.users.length === env.MAKE_USERS_SYNC_BATCH_SIZE ? data.pg.offset + data.pg.limit : null,
+    next: users.length === env.MAKE_USERS_SYNC_BATCH_SIZE ? pg.offset + pg.limit : null,
   };
 
-  return { users, pagination };
+  return { validUsers,invalidUsers, pagination };
 };
