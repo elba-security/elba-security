@@ -32,9 +32,6 @@ export const deleteUser = inngest.createFunction(
     }
     const accessToken = await decrypt(organisation.token);
 
-    await deleteCalendlyUser({
-      userId,
-      accessToken,
-    });
+    await deleteCalendlyUser({ userId, accessToken });
   }
 );

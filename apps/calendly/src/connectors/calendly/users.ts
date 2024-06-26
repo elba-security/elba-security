@@ -34,11 +34,11 @@ export type DeleteUsersParams = {
 export const getUsers = async ({ accessToken, organizationUri, page }: GetUsersParams) => {
   const url = new URL(`${env.CALENDLY_API_BASE_URL}/organization_memberships`);
 
-  url.searchParams.append('organization', `${organizationUri}`);
+  url.searchParams.append('organization', organizationUri);
   url.searchParams.append('count', `${env.CALENDLY_USERS_SYNC_BATCH_SIZE}`);
 
   if (page) {
-    url.searchParams.append('page_token', String(page));
+    url.searchParams.append('page_token', page);
   }
 
   const response = await fetch(url.toString(), {

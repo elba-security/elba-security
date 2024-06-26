@@ -1,6 +1,6 @@
 import { subMinutes } from 'date-fns/subMinutes';
 import { addSeconds } from 'date-fns/addSeconds';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { failureRetry } from '@elba-security/inngest';
 import { db } from '@/database/client';
@@ -43,7 +43,7 @@ export const refreshToken = inngest.createFunction(
           refreshToken: organisationsTable.refreshToken,
         })
         .from(organisationsTable)
-        .where(and(eq(organisationsTable.id, organisationId)));
+        .where(eq(organisationsTable.id, organisationId));
 
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
