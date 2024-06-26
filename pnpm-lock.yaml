@@ -64,7 +64,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -116,7 +116,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -125,7 +125,7 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
@@ -164,7 +164,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -195,7 +195,7 @@ importers:
         version: 14.0.4
       '@types/node':
         specifier: ^20
-        version: 20.14.2
+        version: 20.11.16
       '@types/react':
         specifier: ^18
         version: 18.2.79
@@ -207,7 +207,7 @@ importers:
         version: 16.3.1
       drizzle-kit:
         specifier: ^0.20.6
-        version: 0.20.18
+        version: 0.20.10
       eslint:
         specifier: ^8
         version: 8.53.0
@@ -216,7 +216,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -225,10 +225,10 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
-        version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.14.2)
+        version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
 
   apps/box:
     dependencies:
@@ -264,7 +264,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -295,7 +295,7 @@ importers:
         version: 14.0.4
       '@types/node':
         specifier: ^20
-        version: 20.14.2
+        version: 20.11.16
       '@types/react':
         specifier: ^18
         version: 18.2.79
@@ -307,7 +307,7 @@ importers:
         version: 16.3.1
       drizzle-kit:
         specifier: ^0.20.6
-        version: 0.20.18
+        version: 0.20.10
       eslint:
         specifier: ^8
         version: 8.53.0
@@ -316,7 +316,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -325,10 +325,110 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
-        version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.14.2)
+        version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
+
+  apps/clickup:
+    dependencies:
+      '@elba-security/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@elba-security/inngest':
+        specifier: workspace:*
+        version: link:../../packages/inngest
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@elba-security/nextjs':
+        specifier: workspace:*
+        version: link:../../packages/nextjs
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@neondatabase/serverless':
+        specifier: 0.9.0
+        version: 0.9.0
+      '@sentry/nextjs':
+        specifier: ^7.88.0
+        version: 7.93.0(next@14.0.1)(react@18.2.0)
+      date-fns:
+        specifier: ^3.2.0
+        version: 3.3.1
+      drizzle-orm:
+        specifier: ^0.29.4
+        version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
+      inngest:
+        specifier: 3.19.11
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
+      next:
+        specifier: 14.0.1
+        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: ^18
+        version: 18.2.0
+      react-dom:
+        specifier: ^18
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^3.1.7
+        version: 3.1.7
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: ^14.0.2
+        version: 14.0.4
+      '@types/node':
+        specifier: ^20
+        version: 20.11.16
+      '@types/react':
+        specifier: ^18
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: ^18
+        version: 18.2.25
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
+      drizzle-kit:
+        specifier: ^0.20.6
+        version: 0.20.10
+      eslint:
+        specifier: ^8
+        version: 8.53.0
+      inngest-cli:
+        specifier: ^0.25.2
+        version: 0.25.2
+      msw:
+        specifier: ^2.3.1
+        version: 2.3.1(typescript@5.4.5)
+      postgres:
+        specifier: ^3.4.3
+        version: 3.4.3
+      testcontainers:
+        specifier: ^10.9.0
+        version: 10.9.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.4.5
+      vitest:
+        specifier: 1.4.0
+        version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
 
   apps/calendly:
     dependencies:
@@ -464,7 +564,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -519,7 +619,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -528,7 +628,7 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
@@ -567,7 +667,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -619,7 +719,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -628,7 +728,7 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
@@ -667,107 +767,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
-      next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
-      react:
-        specifier: ^18
-        version: 18.2.0
-      react-dom:
-        specifier: ^18
-        version: 18.2.0(react@18.2.0)
-      zod:
-        specifier: ^3.22.4
-        version: 3.22.4
-    devDependencies:
-      '@edge-runtime/vm':
-        specifier: ^3.1.7
-        version: 3.1.7
-      '@elba-security/eslint-config-custom':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config-custom
-      '@elba-security/test-utils':
-        specifier: workspace:*
-        version: link:../../packages/test-utils
-      '@elba-security/tsconfig':
-        specifier: workspace:*
-        version: link:../../packages/tsconfig
-      '@next/eslint-plugin-next':
-        specifier: ^14.0.2
-        version: 14.0.4
-      '@types/node':
-        specifier: ^20
-        version: 20.14.2
-      '@types/react':
-        specifier: ^18
-        version: 18.2.79
-      '@types/react-dom':
-        specifier: ^18
-        version: 18.2.25
-      dotenv:
-        specifier: ^16.3.1
-        version: 16.3.1
-      drizzle-kit:
-        specifier: ^0.20.6
-        version: 0.20.18
-      eslint:
-        specifier: ^8
-        version: 8.53.0
-      inngest-cli:
-        specifier: ^0.25.2
-        version: 0.25.2
-      msw:
-        specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
-      postgres:
-        specifier: ^3.4.3
-        version: 3.4.3
-      testcontainers:
-        specifier: ^10.9.0
-        version: 10.9.0
-      typescript:
-        specifier: ^5.3.3
-        version: 5.3.3
-      vitest:
-        specifier: 1.4.0
-        version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.14.2)
-
-  apps/dropbox:
-    dependencies:
-      '@elba-security/config':
-        specifier: workspace:*
-        version: link:../../packages/config
-      '@elba-security/logger':
-        specifier: workspace:*
-        version: link:../../packages/logger
-      '@elba-security/nextjs':
-        specifier: workspace:*
-        version: link:../../packages/nextjs
-      '@elba-security/schemas':
-        specifier: workspace:*
-        version: link:../../packages/schemas
-      '@elba-security/sdk':
-        specifier: workspace:*
-        version: link:../../packages/sdk
-      '@elba-security/utils':
-        specifier: workspace:*
-        version: link:../../packages/utils
-      '@sentry/nextjs':
-        specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
-      date-fns:
-        specifier: ^2.30.0
-        version: 2.30.0
-      drizzle-orm:
-        specifier: ^0.29.4
-        version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
-      dropbox:
-        specifier: ^10.34.0
-        version: 10.34.0(@types/node-fetch@2.6.11)
-      inngest:
-        specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -810,7 +810,7 @@ importers:
         version: 16.3.1
       drizzle-kit:
         specifier: ^0.20.6
-        version: 0.20.18
+        version: 0.20.10
       eslint:
         specifier: ^8
         version: 8.53.0
@@ -819,7 +819,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -828,7 +828,107 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
+      vitest:
+        specifier: 1.4.0
+        version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
+
+  apps/dropbox:
+    dependencies:
+      '@elba-security/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@elba-security/nextjs':
+        specifier: workspace:*
+        version: link:../../packages/nextjs
+      '@elba-security/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@sentry/nextjs':
+        specifier: ^7.88.0
+        version: 7.93.0(next@14.0.1)(react@18.2.0)
+      date-fns:
+        specifier: ^2.30.0
+        version: 2.30.0
+      drizzle-orm:
+        specifier: ^0.29.4
+        version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
+      dropbox:
+        specifier: ^10.34.0
+        version: 10.34.0(@types/node-fetch@2.6.11)
+      inngest:
+        specifier: 3.19.11
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
+      next:
+        specifier: 14.0.1
+        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: ^18
+        version: 18.2.0
+      react-dom:
+        specifier: ^18
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^3.1.7
+        version: 3.1.7
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: ^14.0.2
+        version: 14.0.4
+      '@types/node':
+        specifier: ^20
+        version: 20.11.16
+      '@types/react':
+        specifier: ^18
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: ^18
+        version: 18.2.25
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
+      drizzle-kit:
+        specifier: ^0.20.6
+        version: 0.20.10
+      eslint:
+        specifier: ^8
+        version: 8.53.0
+      inngest-cli:
+        specifier: ^0.25.2
+        version: 0.25.2
+      msw:
+        specifier: ^2.3.1
+        version: 2.3.1(typescript@5.4.5)
+      postgres:
+        specifier: ^3.4.3
+        version: 3.4.3
+      testcontainers:
+        specifier: ^10.9.0
+        version: 10.9.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
@@ -867,7 +967,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -898,7 +998,7 @@ importers:
         version: 14.0.4
       '@types/node':
         specifier: ^20
-        version: 20.14.2
+        version: 20.11.16
       '@types/react':
         specifier: ^18
         version: 18.2.79
@@ -910,7 +1010,7 @@ importers:
         version: 16.3.1
       drizzle-kit:
         specifier: ^0.20.6
-        version: 0.20.18
+        version: 0.20.10
       eslint:
         specifier: ^8
         version: 8.53.0
@@ -919,7 +1019,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -928,10 +1028,10 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
-        version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.14.2)
+        version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
 
   apps/github:
     dependencies:
@@ -967,7 +1067,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -1028,13 +1128,13 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       testcontainers:
         specifier: ^10.9.0
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.10.3)
@@ -1070,7 +1170,7 @@ importers:
         version: 7.93.0(next@14.0.1)(react@18.2.0)
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
-        version: 0.7.1(typescript@5.3.3)(zod@3.22.4)
+        version: 0.7.1(typescript@5.4.5)(zod@3.22.4)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.6.0)(@types/react@18.2.47)(postgres@3.4.3)(react@18.2.0)
@@ -1079,7 +1179,7 @@ importers:
         version: 9.6.3
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -1131,7 +1231,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -1140,7 +1240,7 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
@@ -1179,7 +1279,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -1231,7 +1331,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -1240,7 +1340,7 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
@@ -1276,7 +1376,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -1319,7 +1419,7 @@ importers:
         version: 16.3.1
       drizzle-kit:
         specifier: ^0.20.6
-        version: 0.20.18
+        version: 0.20.10
       eslint:
         specifier: ^8
         version: 8.53.0
@@ -1328,7 +1428,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -1337,7 +1437,7 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
@@ -1382,7 +1482,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -1437,7 +1537,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -1446,7 +1546,7 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.10.3)
@@ -1485,7 +1585,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -1537,7 +1637,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -1546,7 +1646,7 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
@@ -1585,7 +1685,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -1628,7 +1728,7 @@ importers:
         version: 16.3.1
       drizzle-kit:
         specifier: ^0.20.6
-        version: 0.20.18
+        version: 0.20.10
       eslint:
         specifier: ^8
         version: 8.53.0
@@ -1637,7 +1737,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -1646,7 +1746,7 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
@@ -1691,13 +1791,13 @@ importers:
         version: 6.11.1
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
-        version: 0.7.1(typescript@5.3.3)(zod@3.22.4)
+        version: 0.7.1(typescript@5.4.5)(zod@3.22.4)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.47)(@vercel/postgres@0.5.1)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -1746,13 +1846,13 @@ importers:
         version: 8.53.0
       eslint-plugin-vitest:
         specifier: ^0.3.10
-        version: 0.3.20(eslint@8.53.0)(typescript@5.3.3)(vitest@1.4.0)
+        version: 0.3.20(eslint@8.53.0)(typescript@5.4.5)(vitest@1.4.0)
       inngest-cli:
         specifier: ^0.25.2
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -1761,7 +1861,7 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.10.3)
@@ -1800,7 +1900,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.6.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       jose:
         specifier: ^5.2.4
         version: 5.2.4
@@ -1855,7 +1955,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -1864,7 +1964,7 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
@@ -2003,7 +2103,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -2055,7 +2155,7 @@ importers:
         version: 0.25.2
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -2064,7 +2164,7 @@ importers:
         version: 10.9.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
@@ -2101,7 +2201,7 @@ importers:
         version: 3.14.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
 
   packages/config:
     devDependencies:
@@ -2153,19 +2253,19 @@ importers:
         version: 3.4.3
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
 
   packages/eslint-config-custom:
     devDependencies:
       '@vercel/style-guide':
         specifier: ^5.0.0
-        version: 5.0.1(eslint@8.53.0)(prettier@3.0.3)(typescript@5.3.3)
+        version: 5.0.1(eslint@8.53.0)(prettier@3.0.3)(typescript@5.4.5)
       eslint-config-turbo:
         specifier: ^1.10.12
         version: 1.10.16(eslint@8.53.0)
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
 
   packages/inngest:
     dependencies:
@@ -2187,16 +2287,16 @@ importers:
         version: 7.93.0(next@14.0.1)(react@18.2.0)
       '@types/node':
         specifier: ^20
-        version: 20.14.2
+        version: 20.11.16
       eslint:
         specifier: ^8
         version: 8.53.0
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
 
   packages/logger:
     devDependencies:
@@ -2214,7 +2314,7 @@ importers:
         version: 8.53.0
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
 
   packages/nextjs:
     dependencies:
@@ -2251,7 +2351,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)
@@ -2263,7 +2363,7 @@ importers:
     dependencies:
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -2307,10 +2407,10 @@ importers:
         version: 8.53.0
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.11.16)
@@ -2331,7 +2431,7 @@ importers:
         version: 3.4.3
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
       vitest:
         specifier: '>=1.0.0'
         version: 1.0.0(@types/node@20.11.16)
@@ -2353,10 +2453,10 @@ importers:
         version: 8.53.0
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
+        version: 3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5)
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.3.3)
+        version: 2.3.1(typescript@5.4.5)
       testcontainers:
         specifier: ^10.9.0
         version: 10.9.0
@@ -2367,7 +2467,7 @@ importers:
     dependencies:
       typescript:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.4.5
     devDependencies:
       '@elba-security/eslint-config-custom':
         specifier: workspace:*
@@ -3114,7 +3214,7 @@ packages:
     dependencies:
       ajv: 8.16.0
       ajv-formats: 2.1.1(ajv@8.16.0)
-      fast-uri: 2.3.1
+      fast-uri: 2.4.0
 
   /@fastify/error@3.4.1:
     resolution: {integrity: sha512-wWSvph+29GR783IhmvdwWnN4bUxTD01Vm5Xad4i7i1VuAOItLvbPAb69sb0IQ2N57yprvhNIwAP5B6xfKTmjmQ==}
@@ -3149,24 +3249,9 @@ packages:
       - supports-color
     dev: false
 
-  /@hono/node-server@1.11.1:
-    resolution: {integrity: sha512-GW1Iomhmm1o4Z+X57xGby8A35Cu9UZLL7pSMdqDBkD99U5cywff8F+8hLk5aBTzNubnsFAvWQ/fZjNwPsEn9lA==}
-    engines: {node: '>=18.14.1'}
-    dev: true
-
   /@hono/node-server@1.2.3:
     resolution: {integrity: sha512-IH2lpqgSSLt9sIhWBE6FivFj+0RglCNYVuBT39vkumfjqjHAwQnx7KJw9WDVNlyH+AJY0N5ImZgcIbfM5xgyBw==}
     engines: {node: '>=18.14.1'}
-    dev: true
-
-  /@hono/zod-validator@0.2.1(hono@4.3.2)(zod@3.22.4):
-    resolution: {integrity: sha512-HFoxln7Q6JsE64qz2WBS28SD33UB2alp3aRKmcWnNLDzEL1BLsWfbdX6e1HIiUprHYTIXf5y7ax8eYidKUwyaA==}
-    peerDependencies:
-      hono: '>=3.9.0'
-      zod: ^3.19.1
-    dependencies:
-      hono: 4.3.2
-      zod: 3.22.4
     dev: true
 
   /@humanwhocodes/config-array@0.11.13:
@@ -3424,7 +3509,7 @@ packages:
     engines: {node: '>= 8'}
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
-      fastq: 1.17.1
+      fastq: 1.15.0
 
   /@octokit/app@14.0.2:
     resolution: {integrity: sha512-NCSCktSx+XmjuSUVn2dLfqQ9WIYePGP95SDJs4I9cn/0ZkeXcPkaoCLl64Us3dRKL2ozC7hArwze5Eu+/qt1tg==}
@@ -3449,7 +3534,7 @@ packages:
       '@octokit/request-error': 5.0.1
       '@octokit/types': 12.4.0
       deprecation: 2.3.1
-      lru-cache: 10.2.0
+      lru-cache: 10.1.0
       universal-github-app-jwt: 1.1.2
       universal-user-agent: 6.0.1
     dev: false
@@ -4027,14 +4112,14 @@ packages:
     resolution: {integrity: sha512-DTuBFbqu4gGfajREEMrkq5jBhcnskinhr4+AnfJEk48zhVeEv3XnUKGIX98B74kxhYsIMfApGGySTn7V3b5yBA==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
     dev: false
 
   /@slack/logger@4.0.0:
     resolution: {integrity: sha512-Wz7QYfPAlG/DR+DfABddUZeNgoeY7d1J39OCR2jR+v7VBsB8ezulDK5szTnDDPDwLH5IWhLvXIHlCFZV7MSKgA==}
     engines: {node: '>= 18', npm: '>= 8.6.0'}
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
     dev: false
 
   /@slack/oauth@2.6.1:
@@ -4044,7 +4129,7 @@ packages:
       '@slack/logger': 3.0.0
       '@slack/web-api': 6.11.1
       '@types/jsonwebtoken': 8.5.9
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
       jsonwebtoken: 9.0.2
       lodash.isstring: 4.0.1
     transitivePeerDependencies:
@@ -4057,7 +4142,7 @@ packages:
     dependencies:
       '@slack/logger': 3.0.0
       '@slack/web-api': 6.11.1
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
       '@types/p-queue': 2.3.2
       '@types/ws': 7.4.7
       eventemitter3: 3.1.2
@@ -4083,7 +4168,7 @@ packages:
       '@slack/logger': 3.0.0
       '@slack/types': 2.11.0
       '@types/is-stream': 1.1.0
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
       axios: 1.6.5
       eventemitter3: 3.1.2
       form-data: 2.5.1
@@ -4095,8 +4180,8 @@ packages:
       - debug
     dev: false
 
-  /@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.1)(svelte@4.2.18)(vite@5.0.5):
-    resolution: {integrity: sha512-OqoyTmFG2cYmCFAdBfW+Qxbg8m23H4dv6KqwEt7ofr/ROcfcIl3Z/VT56L22H9f0uNZyr+9Bs1eh2gedOCK9kA==}
+  /@sveltejs/kit@2.5.15(@sveltejs/vite-plugin-svelte@3.1.1)(svelte@4.2.18)(vite@5.0.5):
+    resolution: {integrity: sha512-O3yB2Z84xllzaRyBLAw/jCi74wx9hTszs6mqUj4pbKsGBRHtTXl3qA+yvKbfXnxNhab/jEyVfphB9q6jU05dpg==}
     engines: {node: '>=18.13'}
     hasBin: true
     requiresBuild: true
@@ -4160,7 +4245,7 @@ packages:
     dependencies:
       tslib: 2.6.2
 
-  /@t3-oss/env-core@0.7.1(typescript@5.3.3)(zod@3.22.4):
+  /@t3-oss/env-core@0.7.1(typescript@5.4.5)(zod@3.22.4):
     resolution: {integrity: sha512-3+SQt39OlmSaRLqYVFv8uRm1BpFepM5TIiMytRqO9cjH+wB77o6BIJdeyM5h5U4qLBMEzOJWCY4MBaU/rLwbYw==}
     peerDependencies:
       typescript: '>=4.7.2'
@@ -4169,11 +4254,11 @@ packages:
       typescript:
         optional: true
     dependencies:
-      typescript: 5.3.3
+      typescript: 5.4.5
       zod: 3.22.4
     dev: false
 
-  /@t3-oss/env-nextjs@0.7.1(typescript@5.3.3)(zod@3.22.4):
+  /@t3-oss/env-nextjs@0.7.1(typescript@5.4.5)(zod@3.22.4):
     resolution: {integrity: sha512-tQDbNLGCOvKGi+JoGuJ/CJInJI7/kLWJqtgGppAKS7ZFLdVOqZYR/uRjxlXOWPnxmUKF8VswOAsq7fXUpNZDhA==}
     peerDependencies:
       typescript: '>=4.7.2'
@@ -4182,8 +4267,8 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@t3-oss/env-core': 0.7.1(typescript@5.3.3)(zod@3.22.4)
-      typescript: 5.3.3
+      '@t3-oss/env-core': 0.7.1(typescript@5.4.5)(zod@3.22.4)
+      typescript: 5.4.5
       zod: 3.22.4
     dev: false
 
@@ -4215,7 +4300,7 @@ packages:
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
     dev: false
 
   /@types/btoa-lite@1.0.2:
@@ -4225,7 +4310,7 @@ packages:
   /@types/connect@3.4.38:
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
     dev: false
 
   /@types/cookie@0.6.0:
@@ -4239,7 +4324,7 @@ packages:
   /@types/docker-modem@3.0.6:
     resolution: {integrity: sha512-yKpAGEuKRSS8wwx0joknWxsmLha78wNMe9R2S3UNsVOkZded8UqOrV8KoeDXoXsjndxwyF3eIhyClGbO1SEhEg==}
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
       '@types/ssh2': 1.15.0
     dev: true
 
@@ -4247,7 +4332,7 @@ packages:
     resolution: {integrity: sha512-RjY96chW88t2QvSebCsec+mQYo3/nyOr+/tVcE+0ynlOg2m/i9wPE52DhptzF75QDlhv2uDYVPqKfHKeGTn6Fg==}
     dependencies:
       '@types/docker-modem': 3.0.6
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
       '@types/ssh2': 1.15.0
     dev: true
 
@@ -4257,7 +4342,7 @@ packages:
   /@types/express-serve-static-core@4.17.41:
     resolution: {integrity: sha512-OaJ7XLaelTgrvlZD8/aa0vvvxZdUmlCn6MtWeB7TkiKW70BQLc9XEPpDLPdbo52ZhXUCrznlWdCHWxJWtdyajA==}
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
       '@types/qs': 6.9.11
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -4279,7 +4364,7 @@ packages:
   /@types/is-stream@1.1.0:
     resolution: {integrity: sha512-jkZatu4QVbR60mpIzjINmtS1ZF4a/FqdTUTBeQDVOQ2PYyidtwFKr0B5G6ERukKwliq+7mIXvxyppwzG5EgRYg==}
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
     dev: false
 
   /@types/js-cookie@3.0.6:
@@ -4296,13 +4381,13 @@ packages:
   /@types/jsonwebtoken@8.5.9:
     resolution: {integrity: sha512-272FMnFGzAVMGtu9tkr29hRL6bZj4Zs1KZNeHLnKqAvp06tAIcarTMwOh8/8bz4FmKRcMxZhZNeUAQsNLoiPhg==}
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
     dev: false
 
   /@types/jsonwebtoken@9.0.5:
     resolution: {integrity: sha512-VRLSGzik+Unrup6BsouBeHsf4d1hOEgYWTm/7Nmw1sXoN1+tRly/Gy/po3yeahnP4jfnQWWAhQAqcNfH7ngOkA==}
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
     dev: false
 
   /@types/mime@1.3.5:
@@ -4371,8 +4456,8 @@ packages:
   /@types/pg@8.6.6:
     resolution: {integrity: sha512-O2xNmXebtwVekJDD+02udOncjVcMZQuTEQEMpKJ0ZRf5E7/9JJX3izhKUcUifBkyKpljyUM6BTgy2trmviKlpw==}
     dependencies:
-      '@types/node': 20.14.2
-      pg-protocol: 1.6.1
+      '@types/node': 20.11.16
+      pg-protocol: 1.6.0
       pg-types: 2.2.0
     dev: false
 
@@ -4431,7 +4516,7 @@ packages:
     resolution: {integrity: sha512-x2EM6TJOybec7c52BX0ZspPodMsQUd5L6PRwOunVyVUhXiBSKf3AezDL8Dgvgt5o0UfKNfuA0eMLr2wLT4AiBA==}
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
     dev: false
 
   /@types/serve-static@1.15.5:
@@ -4439,19 +4524,19 @@ packages:
     dependencies:
       '@types/http-errors': 2.0.4
       '@types/mime': 3.0.4
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
     dev: false
 
   /@types/ssh2-streams@0.1.12:
     resolution: {integrity: sha512-Sy8tpEmCce4Tq0oSOYdfqaBpA3hDM8SoxoFh5vzFsu2oL+znzGz8oVWW7xb4K920yYMUY+PIG31qZnFMfPWNCg==}
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
     dev: true
 
   /@types/ssh2@0.5.52:
     resolution: {integrity: sha512-lbLLlXxdCZOSJMCInKH2+9V/77ET2J6NPQHpFI0kda61Dd1KglJs+fPQBchizmzYSOJBgdTajhPqBO1xxLywvg==}
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
       '@types/ssh2-streams': 0.1.12
     dev: true
 
@@ -4476,10 +4561,10 @@ packages:
   /@types/ws@7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.11.16
     dev: false
 
-  /@typescript-eslint/eslint-plugin@6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.3.3):
+  /@typescript-eslint/eslint-plugin@6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.4.5):
     resolution: {integrity: sha512-uoLj4g2OTL8rfUQVx2AFO1hp/zja1wABJq77P6IclQs6I/m9GLrm7jCdgzZkvWdDCQf1uEvoa8s8CupsgWQgVg==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -4491,10 +4576,10 @@ packages:
         optional: true
     dependencies:
       '@eslint-community/regexpp': 4.10.0
-      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.3.3)
+      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.4.5)
       '@typescript-eslint/scope-manager': 6.10.0
-      '@typescript-eslint/type-utils': 6.10.0(eslint@8.53.0)(typescript@5.3.3)
-      '@typescript-eslint/utils': 6.10.0(eslint@8.53.0)(typescript@5.3.3)
+      '@typescript-eslint/type-utils': 6.10.0(eslint@8.53.0)(typescript@5.4.5)
+      '@typescript-eslint/utils': 6.10.0(eslint@8.53.0)(typescript@5.4.5)
       '@typescript-eslint/visitor-keys': 6.10.0
       debug: 4.3.4
       eslint: 8.53.0
@@ -4502,13 +4587,13 @@ packages:
       ignore: 5.2.4
       natural-compare: 1.4.0
       semver: 7.5.4
-      ts-api-utils: 1.0.3(typescript@5.3.3)
-      typescript: 5.3.3
+      ts-api-utils: 1.0.3(typescript@5.4.5)
+      typescript: 5.4.5
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.3.3):
+  /@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.4.5):
     resolution: {integrity: sha512-+sZwIj+s+io9ozSxIWbNB5873OSdfeBEH/FR0re14WLI6BaKuSOnnwCJ2foUiu8uXf4dRp1UqHP0vrZ1zXGrog==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -4520,11 +4605,11 @@ packages:
     dependencies:
       '@typescript-eslint/scope-manager': 6.10.0
       '@typescript-eslint/types': 6.10.0
-      '@typescript-eslint/typescript-estree': 6.10.0(typescript@5.3.3)
+      '@typescript-eslint/typescript-estree': 6.10.0(typescript@5.4.5)
       '@typescript-eslint/visitor-keys': 6.10.0
       debug: 4.3.4
       eslint: 8.53.0
-      typescript: 5.3.3
+      typescript: 5.4.5
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4553,7 +4638,7 @@ packages:
       '@typescript-eslint/visitor-keys': 6.19.0
     dev: true
 
-  /@typescript-eslint/type-utils@6.10.0(eslint@8.53.0)(typescript@5.3.3):
+  /@typescript-eslint/type-utils@6.10.0(eslint@8.53.0)(typescript@5.4.5):
     resolution: {integrity: sha512-wYpPs3hgTFblMYwbYWPT3eZtaDOjbLyIYuqpwuLBBqhLiuvJ+9sEp2gNRJEtR5N/c9G1uTtQQL5AhV0fEPJYcg==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -4563,12 +4648,12 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/typescript-estree': 6.10.0(typescript@5.3.3)
-      '@typescript-eslint/utils': 6.10.0(eslint@8.53.0)(typescript@5.3.3)
+      '@typescript-eslint/typescript-estree': 6.10.0(typescript@5.4.5)
+      '@typescript-eslint/utils': 6.10.0(eslint@8.53.0)(typescript@5.4.5)
       debug: 4.3.4
       eslint: 8.53.0
-      ts-api-utils: 1.0.3(typescript@5.3.3)
-      typescript: 5.3.3
+      ts-api-utils: 1.0.3(typescript@5.4.5)
+      typescript: 5.4.5
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4588,7 +4673,7 @@ packages:
     engines: {node: ^16.0.0 || >=18.0.0}
     dev: true
 
-  /@typescript-eslint/typescript-estree@5.62.0(typescript@5.3.3):
+  /@typescript-eslint/typescript-estree@5.62.0(typescript@5.4.5):
     resolution: {integrity: sha512-CmcQ6uY7b9y694lKdRB8FEel7JbU/40iSAPomu++SjLMntB+2Leay2LO6i8VnJk58MtE9/nQSFIH6jpyRWyYzA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -4603,13 +4688,13 @@ packages:
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.5.4
-      tsutils: 3.21.0(typescript@5.3.3)
-      typescript: 5.3.3
+      tsutils: 3.21.0(typescript@5.4.5)
+      typescript: 5.4.5
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/typescript-estree@6.10.0(typescript@5.3.3):
+  /@typescript-eslint/typescript-estree@6.10.0(typescript@5.4.5):
     resolution: {integrity: sha512-ek0Eyuy6P15LJVeghbWhSrBCj/vJpPXXR+EpaRZqou7achUWL8IdYnMSC5WHAeTWswYQuP2hAZgij/bC9fanBg==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -4624,13 +4709,13 @@ packages:
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.5.4
-      ts-api-utils: 1.0.3(typescript@5.3.3)
-      typescript: 5.3.3
+      ts-api-utils: 1.0.3(typescript@5.4.5)
+      typescript: 5.4.5
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/typescript-estree@6.19.0(typescript@5.3.3):
+  /@typescript-eslint/typescript-estree@6.19.0(typescript@5.4.5):
     resolution: {integrity: sha512-o/zefXIbbLBZ8YJ51NlkSAt2BamrK6XOmuxSR3hynMIzzyMY33KuJ9vuMdFSXW+H0tVvdF9qBPTHA91HDb4BIQ==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -4646,13 +4731,13 @@ packages:
       is-glob: 4.0.3
       minimatch: 9.0.3
       semver: 7.5.4
-      ts-api-utils: 1.0.3(typescript@5.3.3)
-      typescript: 5.3.3
+      ts-api-utils: 1.0.3(typescript@5.4.5)
+      typescript: 5.4.5
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/utils@5.62.0(eslint@8.53.0)(typescript@5.3.3):
+  /@typescript-eslint/utils@5.62.0(eslint@8.53.0)(typescript@5.4.5):
     resolution: {integrity: sha512-n8oxjeb5aIbPFEtmQxQYOLI0i9n5ySBEY/ZEHHZqKQSFnxio1rv6dthascc9dLuwrL0RC5mPCxB7vnAVGAYWAQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -4663,7 +4748,7 @@ packages:
       '@types/semver': 7.5.5
       '@typescript-eslint/scope-manager': 5.62.0
       '@typescript-eslint/types': 5.62.0
-      '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.3.3)
+      '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.4.5)
       eslint: 8.53.0
       eslint-scope: 5.1.1
       semver: 7.5.4
@@ -4672,7 +4757,7 @@ packages:
       - typescript
     dev: true
 
-  /@typescript-eslint/utils@6.10.0(eslint@8.53.0)(typescript@5.3.3):
+  /@typescript-eslint/utils@6.10.0(eslint@8.53.0)(typescript@5.4.5):
     resolution: {integrity: sha512-v+pJ1/RcVyRc0o4wAGux9x42RHmAjIGzPRo538Z8M1tVx6HOnoQBCX/NoadHQlZeC+QO2yr4nNSFWOoraZCAyg==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -4683,7 +4768,7 @@ packages:
       '@types/semver': 7.5.5
       '@typescript-eslint/scope-manager': 6.10.0
       '@typescript-eslint/types': 6.10.0
-      '@typescript-eslint/typescript-estree': 6.10.0(typescript@5.3.3)
+      '@typescript-eslint/typescript-estree': 6.10.0(typescript@5.4.5)
       eslint: 8.53.0
       semver: 7.5.4
     transitivePeerDependencies:
@@ -4691,7 +4776,7 @@ packages:
       - typescript
     dev: true
 
-  /@typescript-eslint/utils@6.19.0(eslint@8.53.0)(typescript@5.3.3):
+  /@typescript-eslint/utils@6.19.0(eslint@8.53.0)(typescript@5.4.5):
     resolution: {integrity: sha512-QR41YXySiuN++/dC9UArYOg4X86OAYP83OWTewpVx5ct1IZhjjgTLocj7QNxGhWoTqknsgpl7L+hGygCO+sdYw==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -4702,7 +4787,7 @@ packages:
       '@types/semver': 7.5.5
       '@typescript-eslint/scope-manager': 6.19.0
       '@typescript-eslint/types': 6.19.0
-      '@typescript-eslint/typescript-estree': 6.19.0(typescript@5.3.3)
+      '@typescript-eslint/typescript-estree': 6.19.0(typescript@5.4.5)
       eslint: 8.53.0
       semver: 7.5.4
     transitivePeerDependencies:
@@ -4787,7 +4872,7 @@ packages:
       json-schema-to-ts: 1.6.4
       ts-morph: 12.0.0
 
-  /@vercel/style-guide@5.0.1(eslint@8.53.0)(prettier@3.0.3)(typescript@5.3.3):
+  /@vercel/style-guide@5.0.1(eslint@8.53.0)(prettier@3.0.3)(typescript@5.4.5):
     resolution: {integrity: sha512-3J/5xpwJ2Wk+cKB3EGY2KCdVQycaThLKhjBmgXPfIKb+E74lPpXVIDfaQE0D2JoAyIzGsqdH7Lbmr+DojwofxQ==}
     engines: {node: '>=16'}
     peerDependencies:
@@ -4808,25 +4893,25 @@ packages:
       '@babel/core': 7.23.3
       '@babel/eslint-parser': 7.23.3(@babel/core@7.23.3)(eslint@8.53.0)
       '@rushstack/eslint-patch': 1.5.1
-      '@typescript-eslint/eslint-plugin': 6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.3.3)
-      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.3.3)
+      '@typescript-eslint/eslint-plugin': 6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.4.5)
+      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.4.5)
       eslint: 8.53.0
       eslint-config-prettier: 9.0.0(eslint@8.53.0)
       eslint-import-resolver-alias: 1.1.2(eslint-plugin-import@2.29.0)
       eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@6.10.0)(eslint-plugin-import@2.29.0)(eslint@8.53.0)
       eslint-plugin-eslint-comments: 3.2.0(eslint@8.53.0)
       eslint-plugin-import: 2.29.0(@typescript-eslint/parser@6.10.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.53.0)
-      eslint-plugin-jest: 27.6.0(@typescript-eslint/eslint-plugin@6.10.0)(eslint@8.53.0)(typescript@5.3.3)
+      eslint-plugin-jest: 27.6.0(@typescript-eslint/eslint-plugin@6.10.0)(eslint@8.53.0)(typescript@5.4.5)
       eslint-plugin-jsx-a11y: 6.8.0(eslint@8.53.0)
       eslint-plugin-playwright: 0.16.0(eslint-plugin-jest@27.6.0)(eslint@8.53.0)
       eslint-plugin-react: 7.33.2(eslint@8.53.0)
       eslint-plugin-react-hooks: 4.6.0(eslint@8.53.0)
-      eslint-plugin-testing-library: 6.1.2(eslint@8.53.0)(typescript@5.3.3)
+      eslint-plugin-testing-library: 6.1.2(eslint@8.53.0)(typescript@5.4.5)
       eslint-plugin-tsdoc: 0.2.17
       eslint-plugin-unicorn: 48.0.1(eslint@8.53.0)
       prettier: 3.0.3
       prettier-plugin-packagejson: 2.4.6(prettier@3.0.3)
-      typescript: 5.3.3
+      typescript: 5.4.5
     transitivePeerDependencies:
       - eslint-import-resolver-node
       - eslint-import-resolver-webpack
@@ -4877,7 +4962,7 @@ packages:
   /@vitest/snapshot@1.4.0:
     resolution: {integrity: sha512-saAFnt5pPIA5qDGxOHxJ/XxhMFKkUSBJmVt5VgDsAqPTX6JP326r5C/c9UuCMPoXNzuudTPsYDZCoJ5ilpqG2A==}
     dependencies:
-      magic-string: 0.30.10
+      magic-string: 0.30.5
       pathe: 1.1.1
       pretty-format: 29.7.0
     dev: true
@@ -5293,13 +5378,13 @@ packages:
     resolution: {integrity: sha512-9GNFMRrEMG5y3Jvv+V4azWvc+qNWdWLTjDdhf/zgMlz8haaaLWv0xeAIWxz9PuWUBawsVxy0zZotjCdR3Xq+2w==}
     hasBin: true
     dependencies:
-      aws-sdk: 2.1636.0
+      aws-sdk: 2.1642.0
       commander: 3.0.2
       js-yaml: 3.14.1
       watchpack: 2.4.0
 
-  /aws-sdk@2.1636.0:
-    resolution: {integrity: sha512-0w/jOCYnwewLYjH4UCh3GTBjR/NMdvEKNrd1pnM4FvfJSmjfzCinDvmf5Qc6xeIrqPfrdYOoQh7NJhYeJScCIQ==}
+  /aws-sdk@2.1642.0:
+    resolution: {integrity: sha512-xTqRcLbb7F3GadFQN1+m25nP1twA2Lmlmhpt5gbYb3VCR91lb+c9EnsEr7U60zLv4AR2ip/GkDtSpKS/EzLOzA==}
     engines: {node: '>= 10.0.0'}
     requiresBuild: true
     dependencies:
@@ -5979,7 +6064,7 @@ packages:
       supports-color:
         optional: true
     dependencies:
-      ms: 2.1.3
+      ms: 2.1.2
     dev: true
 
   /debug@4.3.4:
@@ -6202,31 +6287,6 @@ packages:
       json-diff: 0.9.0
       minimatch: 7.4.6
       semver: 7.5.4
-      zod: 3.22.4
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
-  /drizzle-kit@0.20.18:
-    resolution: {integrity: sha512-fLTwcnLqtBxGd+51H/dEm9TC0FW6+cIX/RVPyNcitBO77X9+nkogEfMAJebpd/8Yl4KucmePHRYRWWvUlW0rqg==}
-    hasBin: true
-    dependencies:
-      '@esbuild-kit/esm-loader': 2.6.5
-      '@hono/node-server': 1.11.1
-      '@hono/zod-validator': 0.2.1(hono@4.3.2)(zod@3.22.4)
-      camelcase: 7.0.1
-      chalk: 5.3.0
-      commander: 9.5.0
-      env-paths: 3.0.0
-      esbuild: 0.19.8
-      esbuild-register: 3.5.0(esbuild@0.19.8)
-      glob: 8.1.0
-      hanji: 0.0.5
-      hono: 4.3.2
-      json-diff: 0.9.0
-      minimatch: 7.4.6
-      semver: 7.5.4
-      superjson: 2.2.1
       zod: 3.22.4
     transitivePeerDependencies:
       - supports-color
@@ -7119,7 +7179,7 @@ packages:
       eslint-import-resolver-webpack:
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.3.3)
+      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.4.5)
       debug: 3.2.7
       eslint: 8.53.0
       eslint-import-resolver-node: 0.3.9
@@ -7149,7 +7209,7 @@ packages:
       '@typescript-eslint/parser':
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.3.3)
+      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.4.5)
       array-includes: 3.1.7
       array.prototype.findlastindex: 1.2.3
       array.prototype.flat: 1.3.2
@@ -7174,7 +7234,7 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-jest@27.6.0(@typescript-eslint/eslint-plugin@6.10.0)(eslint@8.53.0)(typescript@5.3.3):
+  /eslint-plugin-jest@27.6.0(@typescript-eslint/eslint-plugin@6.10.0)(eslint@8.53.0)(typescript@5.4.5):
     resolution: {integrity: sha512-MTlusnnDMChbElsszJvrwD1dN3x6nZl//s4JD23BxB6MgR66TZlL064su24xEIS3VACfAoHV1vgyMgPw8nkdng==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     peerDependencies:
@@ -7187,8 +7247,8 @@ packages:
       jest:
         optional: true
     dependencies:
-      '@typescript-eslint/eslint-plugin': 6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.3.3)
-      '@typescript-eslint/utils': 5.62.0(eslint@8.53.0)(typescript@5.3.3)
+      '@typescript-eslint/eslint-plugin': 6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.4.5)
+      '@typescript-eslint/utils': 5.62.0(eslint@8.53.0)(typescript@5.4.5)
       eslint: 8.53.0
     transitivePeerDependencies:
       - supports-color
@@ -7230,7 +7290,7 @@ packages:
         optional: true
     dependencies:
       eslint: 8.53.0
-      eslint-plugin-jest: 27.6.0(@typescript-eslint/eslint-plugin@6.10.0)(eslint@8.53.0)(typescript@5.3.3)
+      eslint-plugin-jest: 27.6.0(@typescript-eslint/eslint-plugin@6.10.0)(eslint@8.53.0)(typescript@5.4.5)
     dev: true
 
   /eslint-plugin-react-hooks@4.6.0(eslint@8.53.0):
@@ -7267,13 +7327,13 @@ packages:
       string.prototype.matchall: 4.0.10
     dev: true
 
-  /eslint-plugin-testing-library@6.1.2(eslint@8.53.0)(typescript@5.3.3):
+  /eslint-plugin-testing-library@6.1.2(eslint@8.53.0)(typescript@5.4.5):
     resolution: {integrity: sha512-Ra16FeBlonfbScOIdZEta9o+OxtwDqiUt+4UCpIM42TuatyLdtfU/SbwnIzPcAszrbl58PGwyZ9YGU9dwIo/tA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0, npm: '>=6'}
     peerDependencies:
       eslint: ^7.5.0 || ^8.0.0
     dependencies:
-      '@typescript-eslint/utils': 5.62.0(eslint@8.53.0)(typescript@5.3.3)
+      '@typescript-eslint/utils': 5.62.0(eslint@8.53.0)(typescript@5.4.5)
       eslint: 8.53.0
     transitivePeerDependencies:
       - supports-color
@@ -7320,7 +7380,7 @@ packages:
       strip-indent: 3.0.0
     dev: true
 
-  /eslint-plugin-vitest@0.3.20(eslint@8.53.0)(typescript@5.3.3)(vitest@1.4.0):
+  /eslint-plugin-vitest@0.3.20(eslint@8.53.0)(typescript@5.4.5)(vitest@1.4.0):
     resolution: {integrity: sha512-O05k4j9TGMOkkghj9dRgpeLDyOSiVIxQWgNDPfhYPm5ioJsehcYV/zkRLekQs+c8+RBCVXucSED3fYOyy2EoWA==}
     engines: {node: ^18.0.0 || >= 20.0.0}
     peerDependencies:
@@ -7333,7 +7393,7 @@ packages:
       vitest:
         optional: true
     dependencies:
-      '@typescript-eslint/utils': 6.19.0(eslint@8.53.0)(typescript@5.3.3)
+      '@typescript-eslint/utils': 6.19.0(eslint@8.53.0)(typescript@5.4.5)
       eslint: 8.53.0
       vitest: 1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.10.3)
     transitivePeerDependencies:
@@ -7672,7 +7732,7 @@ packages:
       ajv: 8.16.0
       ajv-formats: 3.0.1(ajv@8.16.0)
       fast-deep-equal: 3.1.3
-      fast-uri: 2.3.1
+      fast-uri: 2.4.0
       json-schema-ref-resolver: 1.0.1
       rfdc: 1.3.1
 
@@ -7689,11 +7749,11 @@ packages:
     resolution: {integrity: sha512-dwsoQlS7h9hMeYUq1W++23NDcBLV4KqONnITDV9DjfS3q1SgDGVrBdvvTLUotWtPSD7asWDV9/CmsZPy8Hf70A==}
     engines: {node: '>=6'}
 
-  /fast-uri@2.3.1:
-    resolution: {integrity: sha512-iC7SLdMJx2KGdBkhJ6UulbNfpeIGTMS3/OIJpPa1JkZu9DKVQmPtBBme9Esoa4XP2eLGaHBv4vzRqlolXKo9cg==}
+  /fast-uri@2.4.0:
+    resolution: {integrity: sha512-ypuAmmMKInk5q7XcepxlnUWDLWv4GFtaJqAzWKqn62IpQ3pejtr5dTVbt3vwqVaMKmkNR55sTT+CqUKIaT21BA==}
 
-  /fastify@4.27.0:
-    resolution: {integrity: sha512-ci9IXzbigB8dyi0mSy3faa3Bsj0xWAPb9JeT4KRzubdSb6pNhcADRUaXCBml6V1Ss/a05kbtQls5LBmhHydoTA==}
+  /fastify@4.28.0:
+    resolution: {integrity: sha512-HhW7UHW07YlqH5qpS0af8d2Gl/o98DhJ8ZDQWHRNDnzeOhZvtreWsX8xanjGgXmkYerGbo8ax/n40Dpwqkot8Q==}
     dependencies:
       '@fastify/ajv-compiler': 3.5.0
       '@fastify/error': 3.4.1
@@ -7704,13 +7764,18 @@ packages:
       fast-json-stringify: 5.16.0
       find-my-way: 8.2.0
       light-my-request: 5.13.0
-      pino: 9.1.0
+      pino: 9.2.0
       process-warning: 3.0.0
       proxy-addr: 2.0.7
       rfdc: 1.3.1
       secure-json-parse: 2.7.0
       semver: 7.5.4
       toad-cache: 3.7.0
+
+  /fastq@1.15.0:
+    resolution: {integrity: sha512-wBrocU2LCXXa+lWBt8RoIRD89Fi8OdABODa/kEnyeyjS5aZO5/GNvI5sEINADqP/h8M29UHTHUb53sUu5Ihqdw==}
+    dependencies:
+      reusify: 1.0.4
 
   /fastq@1.17.1:
     resolution: {integrity: sha512-sRVD3lWVIXWg6By68ZN7vho9a1pQcN/WBFaAAsDDFzlJjvoGx0P8z7V1t72grFJfJhu3YPZBuu25f7Kaw2jN1w==}
@@ -8210,8 +8275,8 @@ packages:
     engines: {node: '>=16.0.0'}
     dev: true
 
-  /hono@4.3.2:
-    resolution: {integrity: sha512-wiZcF5N06tc232U11DnqW6hP8DNoypjsrxslKXfvOqOAkTdh7K1HLZJH/92Mf+urxUTGi96f1w4xx/1Qozoqiw==}
+  /hono@4.4.6:
+    resolution: {integrity: sha512-XGRnoH8WONv60+PPvP9Sn067A9r/8JdHDJ5bgon0DVEHeR1cJPkWjv2aT+DBfMH9/mEkYa1+VEVFp1DT1lIwjw==}
     engines: {node: '>=16.0.0'}
 
   /hosted-git-info@2.8.9:
@@ -8347,7 +8412,7 @@ packages:
       - supports-color
     dev: true
 
-  /inngest@3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3):
+  /inngest@3.19.11(@sveltejs/kit@2.5.15)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.0)(h3@1.9.0)(hono@4.4.6)(koa@2.15.3)(next@14.0.1)(typescript@5.4.5):
     resolution: {integrity: sha512-FYclm1cVV81mEB/RKiWHWx5lp+u2b7LUfwuj1Uv1HVUIgr3d9IGXPX4qC0QgvQsZWGyBhmcRN9q+maDcl7pD8w==}
     engines: {node: '>=14'}
     peerDependencies:
@@ -8362,7 +8427,7 @@ packages:
       next: '>=12.0.0'
       typescript: '>=4.7.2'
     dependencies:
-      '@sveltejs/kit': 2.5.10(@sveltejs/vite-plugin-svelte@3.1.1)(svelte@4.2.18)(vite@5.0.5)
+      '@sveltejs/kit': 2.5.15(@sveltejs/vite-plugin-svelte@3.1.1)(svelte@4.2.18)(vite@5.0.5)
       '@types/debug': 4.1.12
       '@vercel/node': 2.15.10
       aws-lambda: 1.0.7
@@ -8371,17 +8436,17 @@ packages:
       cross-fetch: 4.0.0
       debug: 4.3.4
       express: 4.19.2
-      fastify: 4.27.0
+      fastify: 4.28.0
       h3: 1.9.0
       hash.js: 1.1.7
-      hono: 4.3.2
+      hono: 4.4.6
       json-stringify-safe: 5.0.1
       koa: 2.15.3
       ms: 2.1.3
       next: 14.0.1(react-dom@18.2.0)(react@18.2.0)
       serialize-error-cjs: 0.1.3
       strip-ansi: 5.2.0
-      typescript: 5.3.3
+      typescript: 5.4.5
       zod: 3.22.4
     transitivePeerDependencies:
       - encoding
@@ -9114,9 +9179,15 @@ packages:
     dependencies:
       get-func-name: 2.0.2
 
+  /lru-cache@10.1.0:
+    resolution: {integrity: sha512-/1clY/ui8CzjKFyjdvwPWJUYKiFVXG2I2cY0ssG7h4+hwk+XOIX7ZSG9Q7TW8TW3Kp3BUSqgFWBLgL4PJ+Blag==}
+    engines: {node: 14 || >=16.14}
+    dev: false
+
   /lru-cache@10.2.0:
     resolution: {integrity: sha512-2bIM8x+VAf6JT4bKAljS1qUWgMsqZRPGJS6FSahIMPVvctcNhyVp7AJu7quxOW9jwkryBReKZY5tY5JYv2n/7Q==}
     engines: {node: 14 || >=16.14}
+    dev: true
 
   /lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
@@ -9160,7 +9231,6 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@jridgewell/sourcemap-codec': 1.4.15
-    dev: false
 
   /make-error@1.3.6:
     resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
@@ -9307,7 +9377,7 @@ packages:
       acorn: 8.11.2
       pathe: 1.1.1
       pkg-types: 1.0.3
-      ufo: 1.3.2
+      ufo: 1.3.1
 
   /mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -9326,7 +9396,7 @@ packages:
   /ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  /msw@2.3.1(typescript@5.3.3):
+  /msw@2.3.1(typescript@5.4.5):
     resolution: {integrity: sha512-ocgvBCLn/5l3jpl1lssIb3cniuACJLoOfZu01e3n5dbJrpA5PeeWn28jCLgQDNt6d7QT8tF2fYRzm9JoEHtiig==}
     engines: {node: '>=18'}
     hasBin: true
@@ -9352,8 +9422,8 @@ packages:
       outvariant: 1.4.2
       path-to-regexp: 6.2.1
       strict-event-emitter: 0.5.1
-      type-fest: 4.19.0
-      typescript: 5.3.3
+      type-fest: 4.20.0
+      typescript: 5.4.5
       yargs: 17.7.2
     dev: true
 
@@ -9793,8 +9863,8 @@ packages:
     engines: {node: '>=4.0.0'}
     dev: false
 
-  /pg-protocol@1.6.1:
-    resolution: {integrity: sha512-jPIlvgoD63hrEuihvIg+tJhoGjUsLPn6poJY9N5CnlPd91c2T18T/9zBtLxZSb1EhYxBRoZJtzScCaWlYLtktg==}
+  /pg-protocol@1.6.0:
+    resolution: {integrity: sha512-M+PDm637OY5WM307051+bsDia5Xej6d9IR4GwJse1qA1DIhiKlksvrneZOYQq42OM+spubpcNYEo2FcKQrDk+Q==}
     dev: false
 
   /pg-types@2.2.0:
@@ -9835,8 +9905,8 @@ packages:
   /pino-std-serializers@7.0.0:
     resolution: {integrity: sha512-e906FRY0+tV27iq4juKzSYPbUj2do2X2JX4EzSca1631EB2QJQUqGbDuERal7LCtOpxl6x3+nvo9NPZcmjkiFA==}
 
-  /pino@9.1.0:
-    resolution: {integrity: sha512-qUcgfrlyOtjwhNLdbhoL7NR4NkHjzykAPw0V2QLFbvu/zss29h4NkRnibyFzBrNCbzCOY3WZ9hhKSwfOkNggYA==}
+  /pino@9.2.0:
+    resolution: {integrity: sha512-g3/hpwfujK5a4oVbaefoJxezLzsDgLcNJeITvC6yrfwYeT9la+edCK42j5QpEQSQCZgTKapXvnQIdgZwvRaZug==}
     hasBin: true
     dependencies:
       atomic-sleep: 1.0.0
@@ -9849,7 +9919,7 @@ packages:
       real-require: 0.2.0
       safe-stable-stringify: 2.4.3
       sonic-boom: 4.0.1
-      thread-stream: 3.0.2
+      thread-stream: 3.1.0
 
   /pirates@4.0.6:
     resolution: {integrity: sha512-saLsH7WeYYPiD25LDuLRRY/i+6HaPYr6G1OUlN39otzkSTxKnubR9RTxS3/Kk50s1g2JTgFwWQDQyplC5/SHZg==}
@@ -11076,8 +11146,8 @@ packages:
       any-promise: 1.3.0
     dev: true
 
-  /thread-stream@3.0.2:
-    resolution: {integrity: sha512-cBL4xF2A3lSINV4rD5tyqnKH4z/TgWPvT+NaVhJDSwK962oo/Ye7cHSMbDzwcu7tAE1SfU6Q4XtV6Hucmi6Hlw==}
+  /thread-stream@3.1.0:
+    resolution: {integrity: sha512-OqyPZ9u96VohAyMfJykzmivOrY2wfMSf3C5TtFJVgN+Hm6aj+voFhlK+kZEIv2FBh1X6Xp3DlnCOfEQ3B2J86A==}
     dependencies:
       real-require: 0.2.0
 
@@ -11153,13 +11223,13 @@ packages:
   /tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
-  /ts-api-utils@1.0.3(typescript@5.3.3):
+  /ts-api-utils@1.0.3(typescript@5.4.5):
     resolution: {integrity: sha512-wNMeqtMz5NtwpT/UZGY5alT+VoKdSsOOP/kqHFcUW1P/VRhH2wJ48+DN2WwUliNbQ976ETwDL0Ifd2VVvgonvg==}
     engines: {node: '>=16.13.0'}
     peerDependencies:
       typescript: '>=4.2.0'
     dependencies:
-      typescript: 5.3.3
+      typescript: 5.4.5
     dev: true
 
   /ts-interface-checker@0.1.13:
@@ -11225,14 +11295,14 @@ packages:
     resolution: {integrity: sha512-LxhtAkPDTkVCMQjt2h6eBVY28KCjikZqZfMcC15YBeNjkgUpdCfBu5HoiOTDu86v6smE8yOjyEktJ8hlbANHQA==}
     engines: {node: '>=0.6.x'}
 
-  /tsutils@3.21.0(typescript@5.3.3):
+  /tsutils@3.21.0(typescript@5.4.5):
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
     engines: {node: '>= 6'}
     peerDependencies:
       typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
     dependencies:
       tslib: 1.14.1
-      typescript: 5.3.3
+      typescript: 5.4.5
     dev: true
 
   /tsx@3.14.0:
@@ -11350,8 +11420,8 @@ packages:
     engines: {node: '>=14.16'}
     dev: true
 
-  /type-fest@4.19.0:
-    resolution: {integrity: sha512-CN2l+hWACRiejlnr68vY0/7734Kzu+9+TOslUXbSCQ1ruY9XIHDBSceVXCcHm/oXrdzhtLMMdJEKfemf1yXiZQ==}
+  /type-fest@4.20.0:
+    resolution: {integrity: sha512-MBh+PHUHHisjXf4tlx0CFWoMdjx8zCMLJHOjnV1prABYZFHqtFOyauCIK2/7w4oIfwkF8iNhLtnJEfVY2vn3iw==}
     engines: {node: '>=16'}
     dev: true
 
@@ -11409,10 +11479,13 @@ packages:
     engines: {node: '>=4.2.0'}
     hasBin: true
 
-  /typescript@5.3.3:
-    resolution: {integrity: sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==}
+  /typescript@5.4.5:
+    resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
     engines: {node: '>=14.17'}
     hasBin: true
+
+  /ufo@1.3.1:
+    resolution: {integrity: sha512-uY/99gMLIOlJPwATcMVYfqDSxUR9//AUcgZMzwfSTJPDKzA1S8mX4VLqa+fiAtveraQUBCz4FFcwVZBGbwBXIw==}
 
   /ufo@1.3.2:
     resolution: {integrity: sha512-o+ORpgGwaYQXgqGDwd+hkS4PuZ3QnmqMMxRuajK/a38L6fTpcE5GPIfrf+L/KemFzfUpeUQc1rRS1iDBozvnFA==}
@@ -11618,27 +11691,6 @@ packages:
       - terser
     dev: true
 
-  /vite-node@1.4.0(@types/node@20.14.2):
-    resolution: {integrity: sha512-VZDAseqjrHgNd4Kh8icYHWzTKSCZMhia7GyHfhtzLW33fZlG9SwsB6CEhgyVOWkJfJ2pFLrp/Gj1FSfAiqH9Lw==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    hasBin: true
-    dependencies:
-      cac: 6.7.14
-      debug: 4.3.4
-      pathe: 1.1.1
-      picocolors: 1.0.0
-      vite: 5.0.5(@types/node@20.14.2)
-    transitivePeerDependencies:
-      - '@types/node'
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: true
-
   /vite@5.0.5(@types/node@20.10.3):
     resolution: {integrity: sha512-OekeWqR9Ls56f3zd4CaxzbbS11gqYkEiBtnWFFgYR2WV8oPJRRKq0mpskYy/XaoCL3L7VINDhqqOMNDiYdGvGg==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -11709,42 +11761,6 @@ packages:
       rollup: 4.6.1
     optionalDependencies:
       fsevents: 2.3.3
-
-  /vite@5.0.5(@types/node@20.14.2):
-    resolution: {integrity: sha512-OekeWqR9Ls56f3zd4CaxzbbS11gqYkEiBtnWFFgYR2WV8oPJRRKq0mpskYy/XaoCL3L7VINDhqqOMNDiYdGvGg==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': ^18.0.0 || >=20.0.0
-      less: '*'
-      lightningcss: ^1.21.0
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      '@types/node': 20.14.2
-      esbuild: 0.19.8
-      postcss: 8.4.32
-      rollup: 4.6.1
-    optionalDependencies:
-      fsevents: 2.3.3
-    dev: true
 
   /vitefu@0.2.5(vite@5.0.5):
     resolution: {integrity: sha512-SgHtMLoqaeeGnd2evZ849ZbACbnwQCIwRH57t18FxcXoZop0uQu0uzlIhJBlF/eWVzuce0sHeqPcDo+evVcg8Q==}
@@ -11972,63 +11988,6 @@ packages:
       tinypool: 0.8.2
       vite: 5.0.5(@types/node@20.11.16)
       vite-node: 1.4.0(@types/node@20.11.16)
-      why-is-node-running: 2.2.2
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: true
-
-  /vitest@1.4.0(@edge-runtime/vm@3.1.7)(@types/node@20.14.2):
-    resolution: {integrity: sha512-gujzn0g7fmwf83/WzrDTnncZt2UiXP41mHuFYFrdwaLRVQ6JYQEiME2IfEjU3vcFL3VKa75XhI3lFgn+hfVsQw==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    hasBin: true
-    peerDependencies:
-      '@edge-runtime/vm': '*'
-      '@types/node': ^18.0.0 || >=20.0.0
-      '@vitest/browser': 1.4.0
-      '@vitest/ui': 1.4.0
-      happy-dom: '*'
-      jsdom: '*'
-    peerDependenciesMeta:
-      '@edge-runtime/vm':
-        optional: true
-      '@types/node':
-        optional: true
-      '@vitest/browser':
-        optional: true
-      '@vitest/ui':
-        optional: true
-      happy-dom:
-        optional: true
-      jsdom:
-        optional: true
-    dependencies:
-      '@edge-runtime/vm': 3.1.7
-      '@types/node': 20.14.2
-      '@vitest/expect': 1.4.0
-      '@vitest/runner': 1.4.0
-      '@vitest/snapshot': 1.4.0
-      '@vitest/spy': 1.4.0
-      '@vitest/utils': 1.4.0
-      acorn-walk: 8.3.2
-      chai: 4.3.10
-      debug: 4.3.4
-      execa: 8.0.1
-      local-pkg: 0.5.0
-      magic-string: 0.30.10
-      pathe: 1.1.1
-      picocolors: 1.0.0
-      std-env: 3.6.0
-      strip-literal: 2.1.0
-      tinybench: 2.5.1
-      tinypool: 0.8.2
-      vite: 5.0.5(@types/node@20.14.2)
-      vite-node: 1.4.0(@types/node@20.14.2)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
