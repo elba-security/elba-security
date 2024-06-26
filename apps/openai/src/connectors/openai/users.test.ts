@@ -11,6 +11,7 @@ const userId = 'test-user-id';
 
 export const users: OpenAiUser[] = Array.from({ length: 10 }, (_, i) => ({
   role: 'admin',
+  is_service_account: false,
   user: {
     object: 'user',
     id: `userId-${i}`,

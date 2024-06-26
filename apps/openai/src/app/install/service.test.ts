@@ -122,30 +122,4 @@ describe('registerOrganisation', () => {
       },
     ]);
   });
-
-  test('should not setup the organisation when the given values are invalid', async () => {
-    // @ts-expect-error -- this is a mock
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
-    const error = new Error('foo bar');
-    vi.spyOn(userConnector, 'getUsers').mockRejectedValue(error);
-
-    // assert that the function throws the mocked error
-    await expect(
-      registerOrganisation({
-        organisationId: organisation.id,
-        apiKey: organisation.apiKey,
-        sourceOrganizationId: organisation.organizationId,
-        region: organisation.region,
-      })
-    ).rejects.toThrowError(error);
-
-    // ensure no organisation is added or updated in the database
-    await expect(
-      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
-    ).resolves.toHaveLength(0);
-
-    // ensure no sync users event is sent
-    expect(send).toBeCalledTimes(0);
-  });
 });

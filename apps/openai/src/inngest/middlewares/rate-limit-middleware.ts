@@ -14,7 +14,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
             } = ctx;
 
             if (error instanceof OpenAiError && error.response?.status === 429) {
-              // Documentation does not give details for this endpoint, 2 minutes fallack if the header is not present
+              // Documentation does not give details for this endpoint, 2 minutes fallback if the header is not present
               const retryAfter = error.response.headers.get('Retry-After') || 120;
 
               return {
@@ -22,7 +22,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                 result: {
                   ...result,
                   error: new RetryAfterError(
-                    `Openai rate limit reached by '${fn.name}'`,
+                    `OpenAI rate limit reached by '${fn.name}'`,
                     `${retryAfter}s`,
                     {
                       cause: error,

@@ -1,4 +1,3 @@
-import { getUsers } from '@/connectors/openai/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -16,9 +15,6 @@ export const registerOrganisation = async ({
   sourceOrganizationId,
   region,
 }: SetupOrganisationParams) => {
-  // dumb check to see if the provided configuration works
-  await getUsers({ apiKey, organizationId: sourceOrganizationId });
-
   await db
     .insert(organisationsTable)
     .values({ id: organisationId, organizationId: sourceOrganizationId, region, apiKey })
@@ -26,7 +22,6 @@ export const registerOrganisation = async ({
       target: organisationsTable.id,
       set: {
         apiKey,
-        organizationId: sourceOrganizationId,
       },
     });
 

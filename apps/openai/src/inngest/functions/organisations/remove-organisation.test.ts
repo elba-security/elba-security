@@ -36,6 +36,7 @@ describe('remove-organisation', () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: organisation.id,
       region: organisation.region,
       apiKey: env.ELBA_API_KEY,

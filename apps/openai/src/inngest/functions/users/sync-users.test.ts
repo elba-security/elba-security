@@ -18,6 +18,7 @@ const organisation: Omit<Organisation, 'createdAt'> = {
 
 export const users: OpenAiUser[] = Array.from({ length: 10 }, (_, i) => ({
   role: 'admin',
+  is_service_account: false,
   user: {
     object: 'user',
     id: `userId-${i}`,
@@ -67,7 +68,7 @@ describe('sync-users', () => {
       syncStartedAt,
     });
 
-    await expect(result).resolves.toBeUndefined();
+    await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
     expect(step.sendEvent).toBeCalledTimes(0);
     expect(usersConnector.getUsers).toBeCalledTimes(1);
@@ -79,6 +80,7 @@ describe('sync-users', () => {
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
       apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: organisation.id,
       region: organisation.region,
     });
@@ -92,6 +94,8 @@ describe('sync-users', () => {
         email: user.user.email,
         role: user.role,
         additionalEmails: [],
+        isSuspendable: true,
+        url: 'https://platform.openai.com/settings/organization/team',
       })),
     });
 

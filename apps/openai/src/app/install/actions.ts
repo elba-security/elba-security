@@ -6,6 +6,7 @@ import { RedirectType, redirect } from 'next/navigation';
 import { isRedirectError } from 'next/dist/client/components/redirect';
 import { env } from '@/common/env';
 import { OpenAiError } from '@/connectors/common/error';
+import { getTokenOwnerInfo } from '@/connectors/openai/users';
 import { registerOrganisation } from './service';
 
 const formSchema = z.object({
@@ -13,16 +14,12 @@ const formSchema = z.object({
   apiKey: z.string().min(1, {
     message: 'API Key is required',
   }),
-  sourceOrganizationId: z.string().min(1, {
-    message: 'Organization ID is required',
-  }),
   region: z.string().min(1),
 });
 
 export type FormState = {
   errors?: {
     apiKey?: string[];
-    sourceOrganizationId?: string[];
   };
 };
 
@@ -31,7 +28,6 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
   try {
     const result = formSchema.safeParse({
       apiKey: formData.get('apiKey'),
-      sourceOrganizationId: formData.get('sourceOrganizationId'),
       organisationId: formData.get('organisationId'),
       region: formData.get('region'),
     });
@@ -56,7 +52,31 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
       };
     }
 
-    await registerOrganisation(result.data);
+    const { userId, organization } = await getTokenOwnerInfo(result.data.apiKey);
+
+    // This check is not the cleanest. Sadly the endpoint doesn't return `is_service_account`
+    // user are always prefixed with `user-` but service accounts aren't
+    // If an admin creates a service account with a name starting with `user-` this will fail
+    // We should probably rely on email attribute as it's null for service accounts
+    if (userId.startsWith('user-')) {
+      return { errors: { apiKey: ["The given API key doesn't belong to a service account"] } };
+    }
+    if (organization?.personal) {
+      return { errors: { apiKey: ["Personal organizations aren't supported"] } };
+    }
+    if (!organization?.id) {
+      return { errors: { apiKey: ["The given API key doesn't belong to an organization"] } };
+    }
+    if (organization.role !== 'owner') {
+      return { errors: { apiKey: ["The service account role isn't 'owner'"] } };
+    }
+
+    await registerOrganisation({
+      apiKey: result.data.apiKey,
+      organisationId: result.data.organisationId,
+      sourceOrganizationId: organization.id,
+      region: result.data.region,
+    });
 
     redirect(
       getRedirectUrl({
@@ -85,6 +105,7 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
       sourceId: env.ELBA_SOURCE_ID,
       baseUrl: env.ELBA_REDIRECT_URL,
       region: region as string,
+      error: 'internal_error',
     }),
     RedirectType.replace
   );
