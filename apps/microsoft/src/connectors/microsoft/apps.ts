@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/env';
 import { MicrosoftError } from './commons/error';
 import type { MicrosoftPaginatedResponse } from './commons/pagination';
@@ -127,6 +128,12 @@ export const getApps = async ({ tenantId, token, skipToken }: GetAppsParams) => 
   });
 
   if (!response.ok) {
+    logger.error('Could not retrieve apps', {
+      response: {
+        status: response.status,
+        body: await response.clone().text(),
+      },
+    });
     throw new MicrosoftError('Could not retrieve apps', { response });
   }
 
@@ -174,7 +181,13 @@ export const getApp = async ({ tenantId, token, appId }: GetAppParams) => {
     if (response.status === 404) {
       return null;
     }
-    throw new MicrosoftError('Could not retrieve apps', { response });
+    logger.error('Could not retrieve app', {
+      response: {
+        status: response.status,
+        body: await response.clone().text(),
+      },
+    });
+    throw new MicrosoftError('Could not retrieve app', { response });
   }
 
   const data: unknown = await response.json();
@@ -210,6 +223,12 @@ export const deleteAppPermission = async ({
   );
 
   if (!response.ok && response.status !== 404) {
+    logger.error('Could not delete app permission', {
+      response: {
+        status: response.status,
+        body: await response.clone().text(),
+      },
+    });
     throw new MicrosoftError('Could not delete app user permission', { response });
   }
 };
@@ -228,6 +247,12 @@ export const deleteOauthGrant = async ({ token, oauthGrantId }: DeleteOauthGrant
   });
 
   if (!response.ok && response.status !== 404) {
+    logger.error('Could not delete oauth grant', {
+      response: {
+        status: response.status,
+        body: await response.clone().text(),
+      },
+    });
     throw new MicrosoftError('Could not delete oauth grant', { response });
   }
 };
