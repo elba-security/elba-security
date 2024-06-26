@@ -11,6 +11,8 @@ export const updateUsersSchema = z.object({
       additionalEmails: z.array(z.string().email()),
       role: z.string().min(1).optional(),
       authMethod: z.enum(['mfa', 'password', 'sso']).optional(),
+      isSuspendable: z.boolean().optional(),
+      url: z.string().url().optional(),
     })
   ),
 });

@@ -102,6 +102,3 @@ export const syncUsersPage = inngest.createFunction(
     };
   }
 );
-
-
-

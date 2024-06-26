@@ -14,3 +14,4 @@ export async function DELETE(request: Request) {
 
   return new NextResponse();
 }
+

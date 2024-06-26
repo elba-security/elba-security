@@ -29,6 +29,7 @@ describe('setupOrganisation', () => {
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
+
     const getAccessToken = vi.spyOn(authConnector, 'getAccessToken').mockResolvedValue(accessToken);
 
     // @ts-expect-error -- this is a mock
