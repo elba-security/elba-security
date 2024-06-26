@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/env';
 import { MicrosoftError } from './commons/error';
 import {
@@ -38,6 +39,12 @@ export const getUsers = async ({ token, tenantId, skipToken }: GetUsersParams) =
   });
 
   if (!response.ok) {
+    logger.error('Could not retrieve users', {
+      response: {
+        status: response.status,
+        body: await response.clone().text(),
+      },
+    });
     throw new MicrosoftError('Could not retrieve users', { response });
   }
 
