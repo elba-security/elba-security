@@ -3,7 +3,7 @@ import { env } from '@/common/env';
 import { YousignError } from '../common/error';
 
 const yousignUserSchema = z.object({
-  id: z.string().uuid(), // ID is a number in the JSON response.
+  id: z.string(),
   first_name: z.string(),
   last_name: z.string(),
   email: z.string(),
