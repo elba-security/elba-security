@@ -6,6 +6,7 @@ import { cookies } from 'next/headers';
 import { isRedirectError } from 'next/dist/client/components/redirect';
 import { logger } from '@elba-security/logger';
 import { getRedirectUrl } from '@elba-security/sdk';
+import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 import { env } from '@/env';
 import { setupOrganisation } from './service';
 
@@ -22,6 +23,7 @@ type AppInstallData = {
 };
 
 export const checkAppInstallation = async (data: AppInstallData) => {
+  unstable_noStore();
   const regionFromCookies = cookies().get('region')?.value;
   try {
     const {
