@@ -2,18 +2,30 @@ import { type GetFunctionInput } from 'inngest';
 import { type inngest } from './client';
 
 export type InngestEvents = {
-  'webflow/users.page_sync.requested': {
+  'webflow/users.start_sync.requested': {
+    data: {
+      organisationId: string;
+      syncStartedAt: number;
+      isFirstSync: boolean;
+    };
+  };
+  'webflow/users.sync.requested': {
     data: {
       organisationId: string;
       region: string;
-      isFirstSync: boolean;
-      syncStartedAt: number;
       page: number;
+      siteId: string;
+    };
+  };
+  'webflow/users.sync.completed': {
+    data: {
+      organisationId: string;
+      siteId: string;
     };
   };
   'webflow/users.delete.requested': {
     data: {
-      id: string;
+      userId: string;
       organisationId: string;
     };
   };

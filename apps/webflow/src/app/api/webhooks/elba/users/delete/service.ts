@@ -11,7 +11,7 @@ export const deleteUserRequest = async ({
     userIds.map((userId) => ({
       name: 'webflow/users.delete.requested',
       data: {
-        id: userId,
+        userId,
         organisationId,
       },
     }))
