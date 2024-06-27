@@ -1,7 +1,8 @@
-import { getAccessToken } from '@/connectors/auth';
-import { getSiteId } from '@/connectors/sites';
+import { getAccessToken } from '@/connectors/webflow/auth';
 import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
+import { encrypt  } from '@/common/crypto';
+
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -15,36 +16,29 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const accessToken = await getAccessToken(code);
-  const siteId = await getSiteId(accessToken);
-  if (!siteId) {
-    throw new Error('Could not retrieve site id');
-  }
+  const encodedAccessToken = await encrypt(accessToken);
   await db
     .insert(Organisation)
     .values({
       id: organisationId,
-      accessToken,
-      siteId,
+      accessToken: encodedAccessToken,
       region,
     })
     .onConflictDoUpdate({
       target: [Organisation.id],
       set: {
         id: organisationId,
-        accessToken,
-        siteId,
+        accessToken: encodedAccessToken,
         region,
       },
     });
 
   await inngest.send({
-    name: 'webflow/users.page_sync.requested',
+    name: 'webflow/users.start_sync.requested',
     data: {
-      isFirstSync: true,
       organisationId,
-      region,
       syncStartedAt: Date.now(),
-      page: 0,
+      isFirstSync: true
     },
   });
 };

@@ -11,7 +11,6 @@ export const scheduleUsersSyncs = inngest.createFunction(
       .select({
         id: Organisation.id,
         accessToken: Organisation.accessToken,
-        siteId: Organisation.siteId,
         region: Organisation.region,
       })
       .from(Organisation);
@@ -19,14 +18,12 @@ export const scheduleUsersSyncs = inngest.createFunction(
     if (organisations.length > 0) {
       await step.sendEvent(
         'sync-organisations-users',
-        organisations.map(({ id, region }) => ({
-          name: 'webflow/users.page_sync.requested',
+        organisations.map(({ id }) => ({
+          name: 'webflow/users.start_sync.requested',
           data: {
             organisationId: id,
-            region,
             syncStartedAt: Date.now(),
-            isFirstSync: false,
-            page: 0,
+            isFirstSync: true
           },
         }))
       );

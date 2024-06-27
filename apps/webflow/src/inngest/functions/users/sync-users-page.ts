@@ -1,13 +1,15 @@
+/* eslint-disable no-return-await */
+/* eslint-disable no-await-in-loop */
 import type { User } from '@elba-security/sdk';
-import { Elba } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/webflow/users';
 import { type WebflowUser } from '@/connectors/types';
 import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
-import { env } from '@/common/env';
+import { decrypt } from '@/common/crypto';
 import { inngest } from '@/inngest/client';
+import { createElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUser = (user: WebflowUser): User => ({
   id: user.id,
@@ -36,23 +38,16 @@ export const syncUsersPage = inngest.createFunction(
       },
     ],
   },
-  { event: 'webflow/users.page_sync.requested' },
+  { event: 'webflow/users.sync.requested' },
   async ({ event, step, logger }) => {
-    const { organisationId, syncStartedAt, region, page } = event.data;
-
-    const elba = new Elba({
-      organisationId,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-      region,
-    });
+    const { organisationId, page, siteId } = event.data;
 
     // retrieve the Webflow Organisation
     const organisation = await step.run('get-organisation', async () => {
       const [result] = await db
         .select({
           accessToken: Organisation.accessToken,
-          siteId: Organisation.siteId,
+          region: Organisation.region,
         })
         .from(Organisation)
         .where(eq(Organisation.id, organisationId));
@@ -62,12 +57,12 @@ export const syncUsersPage = inngest.createFunction(
       return result;
     });
 
+    const elba = createElbaClient({ organisationId, region: organisation.region });
+    const token = await decrypt(organisation.accessToken);
+
     const nextPage = await step.run('list-users', async () => {
-      // retrieve this users page
-      const result = await getUsers(organisation.accessToken, organisation.siteId, page);
-      // format each Webflow User to elba user
+      const result = await getUsers(token, siteId, page);
       const users = result.users.map(formatElbaUser);
-      // send the batch of users to elba
       logger.debug('Sending batch of users to elba: ', {
         organisationId,
         users,
@@ -80,10 +75,9 @@ export const syncUsersPage = inngest.createFunction(
       return null;
     });
 
-    // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('sync-users-page', {
-        name: 'webflow/users.page_sync.requested',
+        name: 'webflow/users.sync.requested',
         data: {
           ...event.data,
           page: nextPage,
@@ -94,10 +88,14 @@ export const syncUsersPage = inngest.createFunction(
       };
     }
 
-    // delete the elba users that has been sent before this sync
-    await step.run('finalize', () =>
-      elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
-    );
+    // Signal the completion of user sync for this site
+    await step.sendEvent('webflow/users.sync.completed', {
+      name: 'webflow/users.sync.completed',
+      data: {
+        organisationId,
+        siteId,
+      },
+    });
 
     return {
       status: 'completed',
