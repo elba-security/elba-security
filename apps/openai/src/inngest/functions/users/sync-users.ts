@@ -13,7 +13,7 @@ const formatElbaUser = (user: OpenAiUser): User => ({
   email: user.user.email,
   role: user.role,
   additionalEmails: [],
-  isSuspendable: true, // TODO
+  isSuspendable: true,
   url: 'https://platform.openai.com/settings/organization/team',
 });
 
@@ -76,7 +76,7 @@ export const syncUsers = inngest.createFunction(
       }
     });
 
-    // It seems OpenAî doesn't support pagination nor limit.
+    // It seems OpenAI doesn't support pagination nor limit.
     // We should keep an eye on this in case they support it in the future.
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
