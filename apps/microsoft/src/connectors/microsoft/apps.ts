@@ -4,6 +4,7 @@ import { env } from '@/env';
 import { MicrosoftError } from './commons/error';
 import type { MicrosoftPaginatedResponse } from './commons/pagination';
 import { getNextSkipTokenFromNextLink } from './commons/pagination';
+import { formatLoggerResponse } from './commons/logger';
 
 const appPermissionSchema = z.object({
   id: z.string().nullish(),
@@ -73,7 +74,10 @@ export const getAppOauthGrants = async ({
   });
 
   if (!response.ok) {
-    throw new MicrosoftError('Could not retrieve app members', { response });
+    logger.error('Could not retrieve app oauth grants', {
+      response: formatLoggerResponse(response),
+    });
+    throw new MicrosoftError('Could not retrieve app oauth grants', { response });
   }
 
   const data = (await response.json()) as MicrosoftPaginatedResponse<unknown>;
@@ -128,12 +132,7 @@ export const getApps = async ({ tenantId, token, skipToken }: GetAppsParams) => 
   });
 
   if (!response.ok) {
-    logger.error('Could not retrieve apps', {
-      response: {
-        status: response.status,
-        body: await response.clone().text(),
-      },
-    });
+    logger.error('Could not retrieve apps', { response: formatLoggerResponse(response) });
     throw new MicrosoftError('Could not retrieve apps', { response });
   }
 
@@ -182,10 +181,7 @@ export const getApp = async ({ tenantId, token, appId }: GetAppParams) => {
       return null;
     }
     logger.error('Could not retrieve app', {
-      response: {
-        status: response.status,
-        body: await response.clone().text(),
-      },
+      response: formatLoggerResponse(response),
     });
     throw new MicrosoftError('Could not retrieve app', { response });
   }
@@ -224,10 +220,7 @@ export const deleteAppPermission = async ({
 
   if (!response.ok && response.status !== 404) {
     logger.error('Could not delete app permission', {
-      response: {
-        status: response.status,
-        body: await response.clone().text(),
-      },
+      response: formatLoggerResponse(response),
     });
     throw new MicrosoftError('Could not delete app user permission', { response });
   }
@@ -248,10 +241,7 @@ export const deleteOauthGrant = async ({ token, oauthGrantId }: DeleteOauthGrant
 
   if (!response.ok && response.status !== 404) {
     logger.error('Could not delete oauth grant', {
-      response: {
-        status: response.status,
-        body: await response.clone().text(),
-      },
+      response: formatLoggerResponse(response),
     });
     throw new MicrosoftError('Could not delete oauth grant', { response });
   }

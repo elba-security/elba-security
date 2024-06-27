@@ -6,6 +6,7 @@ import {
   getNextSkipTokenFromNextLink,
   type MicrosoftPaginatedResponse,
 } from './commons/pagination';
+import { formatLoggerResponse } from './commons/logger';
 
 const userSchema = z.object({
   id: z.string(),
@@ -40,10 +41,7 @@ export const getUsers = async ({ token, tenantId, skipToken }: GetUsersParams) =
 
   if (!response.ok) {
     logger.error('Could not retrieve users', {
-      response: {
-        status: response.status,
-        body: await response.clone().text(),
-      },
+      response: formatLoggerResponse(response),
     });
     throw new MicrosoftError('Could not retrieve users', { response });
   }
