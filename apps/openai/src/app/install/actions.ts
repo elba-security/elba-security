@@ -1,9 +1,11 @@
 'use server';
+
 import { logger } from '@elba-security/logger';
 import { z } from 'zod';
 import { getRedirectUrl } from '@elba-security/sdk';
 import { RedirectType, redirect } from 'next/navigation';
 import { isRedirectError } from 'next/dist/client/components/redirect';
+import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- tg
 import { env } from '@/common/env';
 import { OpenAiError } from '@/connectors/common/error';
 import { getTokenOwnerInfo } from '@/connectors/openai/users';
@@ -24,6 +26,7 @@ export type FormState = {
 };
 
 export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
+  unstable_noStore();
   const region = formData.get('region');
   try {
     const result = formSchema.safeParse({
