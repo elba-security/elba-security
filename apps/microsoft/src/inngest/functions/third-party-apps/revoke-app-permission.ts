@@ -10,9 +10,6 @@ import { deleteAppPermission, deleteOauthGrant } from '@/connectors/microsoft/ap
 export const revokeAppPermission = inngest.createFunction(
   {
     id: 'microsoft-revoke-app-permission',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     cancelOn: [
       {
         event: 'microsoft/app.uninstalled',

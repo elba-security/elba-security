@@ -16,7 +16,7 @@ export const syncApps = inngest.createFunction(
   {
     id: 'microsoft-sync-apps',
     priority: {
-      run: 'event.data.isFirstSync ? 600 : -600',
+      run: 'event.data.isFirstSync ? 600 : 0',
     },
     cancelOn: [
       {
@@ -28,14 +28,14 @@ export const syncApps = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
-    retries: env.THIRD_PARTY_APPS_SYNC_MAX_RETRY,
-  },
-  {
-    event: 'microsoft/third_party_apps.sync.requested',
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,
     },
+    retries: env.THIRD_PARTY_APPS_SYNC_MAX_RETRY,
+  },
+  {
+    event: 'microsoft/third_party_apps.sync.requested',
   },
   async ({ event, step }) => {
     const { syncStartedAt, organisationId, skipToken } = event.data;
