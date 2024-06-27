@@ -3,9 +3,9 @@ export const formatLoggerResponse = async (response: Response) => ({
   data: (await response
     .clone()
     .json()
-    .catch(() => ({}))) as unknown,
+    .catch(() => null)) as unknown,
   body: await response
     .clone()
     .text()
-    .catch(() => ''),
+    .catch(() => null),
 });
