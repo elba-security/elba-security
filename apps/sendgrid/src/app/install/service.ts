@@ -15,7 +15,7 @@ export const registerOrganisation = async ({
   apiKey,
   region,
 }: SetupOrganisationParams) => {
-  const encodedApiKey = await encrypt(apiKey);
+  const encryptedApiKey = await encrypt(apiKey);
 
   await getUsers({ apiKey, offset: 0 });
 
@@ -24,13 +24,13 @@ export const registerOrganisation = async ({
     .values({
       id: organisationId,
       region,
-      apiKey: encodedApiKey,
+      apiKey: encryptedApiKey,
     })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
         region,
-        apiKey: encodedApiKey,
+        apiKey: encryptedApiKey,
       },
     });
 

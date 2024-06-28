@@ -14,6 +14,16 @@ export const deleteUser = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: env.SENDGRID_DELETE_USER_CONCURRENCY,
     },
+    cancelOn: [
+      {
+        event: 'sendgrid/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'sendgrid/app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
     retries: 5,
   },
   { event: 'sendgrid/users.delete.requested' },
@@ -32,9 +42,6 @@ export const deleteUser = inngest.createFunction(
     }
     const apiKey = await decrypt(organisation.apiKey);
 
-    await deleteSendgridUser({
-      userId,
-      apiKey,
-    });
+    await deleteSendgridUser({ userId, apiKey });
   }
 );

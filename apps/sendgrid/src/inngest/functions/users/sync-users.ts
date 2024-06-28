@@ -91,17 +91,13 @@ export const syncUsers = inngest.createFunction(
           page: nextPage,
         },
       });
-      return {
-        status: 'ongoing',
-      };
+      return { status: 'ongoing' };
     }
 
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );
 
-    return {
-      status: 'completed',
-    };
+    return { status: 'completed' };
   }
 );

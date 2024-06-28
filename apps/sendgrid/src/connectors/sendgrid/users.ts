@@ -18,7 +18,7 @@ const sendgridResponseSchema = z.object({
 
 export type GetUsersParams = {
   apiKey: string;
-  offset: number | 0;
+  offset: number;
 };
 
 export type DeleteUsersParams = {
