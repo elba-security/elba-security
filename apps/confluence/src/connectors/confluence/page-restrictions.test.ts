@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test convenience */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test convenience */
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';

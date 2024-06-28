@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
 import type { ResponseResolver } from 'msw';
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';

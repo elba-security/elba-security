@@ -84,7 +84,6 @@ describe('apps connector', () => {
           const nextPageUrl = new URL(url);
           nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
           return Response.json({
             '@odata.nextLink':
               skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
@@ -165,7 +164,6 @@ describe('apps connector', () => {
               {}
             );
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
             return Response.json(formattedApp);
           }
         )
@@ -214,7 +212,6 @@ describe('apps connector', () => {
             const nextPageUrl = new URL(url);
             nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- convenience
             return Response.json({
               '@odata.nextLink':
                 skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),

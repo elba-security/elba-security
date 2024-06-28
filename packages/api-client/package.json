@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@elba-security/schemas": "workspace:*",
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
@@ -22,6 +22,6 @@
     "eslint": "^8",
     "hono": "^3.11.7",
     "tsx": "^3.12.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.5.2"
   }
 }
