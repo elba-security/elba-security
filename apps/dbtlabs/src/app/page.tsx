@@ -1,3 +1,3 @@
 export default function Home() {
-  return <main>Elba x Dbtlabs</main>;
+  return <main>Elba x dbt Labs</main>;
 }

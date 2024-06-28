@@ -35,7 +35,7 @@ export type GetUsersParams = {
   serviceToken: string;
   accountId: string;
   accessUrl: string;
-  page: string | null;
+  page: number | null;
 };
 
 export const getUsers = async ({ serviceToken, accountId, page, accessUrl }: GetUsersParams) => {

@@ -1,13 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test conveniency */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test conveniency */
-
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { DbtlabsError } from '../common/error';
 import { type DbtlabsUser, getUsers } from './users';
 
-const nextCursor = '1';
+const nextCursor = 1;
 const limit = 100;
 const offset = 1;
 const serviceToken = 'test-personal-token';
@@ -59,7 +56,7 @@ describe('users connector', () => {
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage: (offset + limit).toString(),
+        nextPage: offset + limit,
       });
     });
 

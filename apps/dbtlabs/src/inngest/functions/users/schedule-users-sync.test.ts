@@ -9,12 +9,12 @@ const now = Date.now();
 
 const setup = createInngestFunctionMock(scheduleUsersSync);
 
-const encodedPersonalToken = await encrypt('test-personal-token');
+const encryptedPersonalToken = await encrypt('test-personal-token');
 
 export const organisations = Array.from({ length: 2 }, (_, i) => ({
   id: `00000000-0000-0000-0000-00000000000${i}`,
   region: 'us',
-  serviceToken: encodedPersonalToken,
+  serviceToken: encryptedPersonalToken,
   accountId: `${i}`,
   accessUrl: 'https://example.us1.dbt.com',
 }));

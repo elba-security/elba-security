@@ -10,11 +10,20 @@ import { type DbtlabsUser } from '@/connectors/dbtlabs/users';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUser = (user: DbtlabsUser): User => ({
+const formatElbaUser = ({
+  accessUrl,
+  accountId,
+  user,
+}: {
+  accessUrl: string;
+  accountId: string;
+  user: DbtlabsUser;
+}): User => ({
   id: user.id.toString(),
-  displayName: `${user.fullname}`,
+  displayName: user.fullname,
   email: user.email,
   additionalEmails: [],
+  url: `${accessUrl}/settings/accounts/${accountId}/pages/users`,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -27,6 +36,16 @@ export const syncUsers = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
+    cancelOn: [
+      {
+        event: 'dbtlabs/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'dbtlabs/app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
     retries: 3,
   },
   { event: 'dbtlabs/users.sync.requested' },
@@ -60,7 +79,7 @@ export const syncUsers = inngest.createFunction(
         page,
       });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers.map((user) => formatElbaUser({ accessUrl, accountId, user }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
@@ -84,17 +103,13 @@ export const syncUsers = inngest.createFunction(
           page: nextPage,
         },
       });
-      return {
-        status: 'ongoing',
-      };
+      return { status: 'ongoing' };
     }
 
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );
 
-    return {
-      status: 'completed',
-    };
+    return { status: 'completed' };
   }
 );

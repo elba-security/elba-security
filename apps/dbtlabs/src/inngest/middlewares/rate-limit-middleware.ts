@@ -16,7 +16,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
             if (!(error instanceof DbtlabsError)) {
               return;
             }
-            // Dbtlabs doesn't provide ratel imit headers, therefore we are using a default value
+            // dbt Labs doesn't provide ratel imit headers, therefore we are using a default value
             if (error instanceof DbtlabsError && error.response?.status === 429) {
               const retryAfter = 60;
 

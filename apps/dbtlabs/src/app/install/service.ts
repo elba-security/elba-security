@@ -19,7 +19,7 @@ export const registerOrganisation = async ({
   accountId,
   accessUrl,
 }: SetupOrganisationParams) => {
-  const encodedserviceToken = await encrypt(serviceToken);
+  const encryptedServiceToken = await encrypt(serviceToken);
 
   await getUsers({ serviceToken, accountId, accessUrl, page: null });
 
@@ -29,7 +29,7 @@ export const registerOrganisation = async ({
       id: organisationId,
       region,
       accountId,
-      serviceToken: encodedserviceToken,
+      serviceToken: encryptedServiceToken,
       accessUrl,
     })
     .onConflictDoUpdate({
@@ -37,7 +37,7 @@ export const registerOrganisation = async ({
       set: {
         accountId,
         region,
-        serviceToken: encodedserviceToken,
+        serviceToken: encryptedServiceToken,
       },
     });
 

@@ -77,12 +77,14 @@ describe('sync-users', () => {
           displayName: 'fullname-0',
           email: 'user-0@foo.bar',
           id: '0',
+          url: 'https://example.us1.dbt.com/settings/accounts/00000/pages/users',
         },
         {
           additionalEmails: [],
           displayName: 'fullname-1',
           email: 'user-1@foo.bar',
           id: '1',
+          url: 'https://example.us1.dbt.com/settings/accounts/00000/pages/users',
         },
       ],
     });
@@ -128,12 +130,14 @@ describe('sync-users', () => {
           displayName: 'fullname-0',
           email: 'user-0@foo.bar',
           id: '0',
+          url: 'https://example.us1.dbt.com/settings/accounts/00000/pages/users',
         },
         {
           additionalEmails: [],
           displayName: 'fullname-1',
           email: 'user-1@foo.bar',
           id: '1',
+          url: 'https://example.us1.dbt.com/settings/accounts/00000/pages/users',
         },
       ],
     });

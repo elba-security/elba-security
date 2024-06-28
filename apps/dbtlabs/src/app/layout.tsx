@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Elba x Dbtlabs',
-  description: 'Official Elba x Dbtlabs integration',
+  title: 'Elba x dbt Labs',
+  description: 'Official Elba x dbt Labs integration',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

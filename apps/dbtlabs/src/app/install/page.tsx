@@ -24,21 +24,32 @@ export default function InstallPage() {
 
   return (
     <>
-      <h1>Setup Dbtlabs integration</h1>
+      <h1>Setup dbt Labs integration</h1>
       <InstructionsSteps>
         <InstructionsStep index={1}>
           <h3>Create Service Token</h3>
           <p>1. Click the setting icon in the right-nav and open the Account setting page.</p>
-          <p>2. In the Account section, copy Account Id and Access URLs</p>
-          <p>3. In the API tokens/Service tokens section, click + Create service token.</p>
-          <p>4. The Create Access token window appears.</p>
           <p>
-            5. Enter a name for the service token in the Name field and Add an Account Admin
-            permission.
+            2. In the Account section, copy <strong>Account ID</strong> and{' '}
+            <strong>Access URL</strong>
+          </p>
+          <p>
+            3. In the <strong>API tokens/Service tokens</strong> section, click{' '}
+            <strong>+ Create service token</strong>.
+          </p>
+          <p>
+            4. Click on the <strong>+ Add</strong> Button and in <strong>Permission set</strong>{' '}
+            select <strong>Account Admin</strong>
+          </p>
+          <p>
+            5. Enter the name for the service token in <strong>Token name</strong>
+          </p>
+          <p>
+            6. Click on <strong>Save</strong> and copy the token.
           </p>
         </InstructionsStep>
         <InstructionsStep index={2}>
-          <h3>Connect Doppler</h3>
+          <h3>Connect dbt Labs</h3>
           <Form action={formAction}>
             <FormField isInvalid={Boolean(state.errors?.accessUrl?.at(0))}>
               <FormLabel>Access Url</FormLabel>

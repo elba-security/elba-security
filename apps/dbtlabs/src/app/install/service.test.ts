@@ -46,7 +46,7 @@ describe('registerOrganisation', () => {
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
 
     await expect(
@@ -61,7 +61,7 @@ describe('registerOrganisation', () => {
 
     // check if getUsers was called correctly
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ serviceToken, accountId, accessUrl });
+    expect(getUsers).toBeCalledWith({ serviceToken, accountId, accessUrl, page: null });
     // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
@@ -111,7 +111,7 @@ describe('registerOrganisation', () => {
       })
     ).resolves.toBeUndefined();
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ serviceToken, accountId, accessUrl });
+    expect(getUsers).toBeCalledWith({ serviceToken, accountId, accessUrl, page: null });
     // check if the token in the database is updated
     const [storedOrganisation] = await db
       .select()
