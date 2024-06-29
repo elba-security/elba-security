@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { deleteThirdPartyAppsObject } from './delete-object';
+import { NonRetriableError } from 'inngest';
 import { db, organisations } from '@/database';
 import { insertOrganisations } from '@/test-utils/token';
 import * as crypto from '@/common/crypto';
-import { NonRetriableError } from 'inngest';
+import { deleteThirdPartyAppsObject } from './delete-object';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const setup = createInngestFunctionMock(
@@ -18,8 +18,8 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('@/connectors/dropbox/dbx-access', () => {
-  const actual = vi.importActual('dropbox');
+vi.mock('@/connectors/dropbox/dbx-access', async () => {
+  const actual = await vi.importActual('dropbox');
   return {
     ...actual,
     DBXAccess: vi.fn(() => {
@@ -43,9 +43,9 @@ describe('third-party-apps-delete-objects', () => {
     mocks.teamLinkedAppsRevokeLinkedAppMock.mockResolvedValue({});
 
     const elba = spyOnElba();
-    const [result, { step }] = await setup({
+    const [result, { step }] = setup({
       organisationId: '00000000-0000-0000-0000-000000000010',
-      teamMemberId: 'team-member-id',
+      userId: 'team-member-id',
       appId: 'app-id',
     });
 
@@ -59,14 +59,14 @@ describe('third-party-apps-delete-objects', () => {
   test('should delete the member third party app', async () => {
     mocks.teamLinkedAppsRevokeLinkedAppMock.mockResolvedValue({});
 
-    const [result] = await setup({
+    const [result] = setup({
       organisationId,
-      teamMemberId: 'team-member-id',
+      userId: 'team-member-id',
       appId: 'app-id',
     });
 
     await expect(result).resolves.toBeUndefined();
 
-    await expect(mocks.teamLinkedAppsRevokeLinkedAppMock).toBeCalledTimes(1);
+    expect(mocks.teamLinkedAppsRevokeLinkedAppMock).toBeCalledTimes(1);
   });
 });

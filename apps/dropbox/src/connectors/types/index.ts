@@ -1,13 +1,6 @@
-import {
-  DropboxAuthOptions,
-  DropboxResponse,
-  DropboxResponseError,
-  files,
-  sharing,
-  team,
-  users,
-} from 'dropbox';
-import { DataProtectionPermission } from '@elba-security/schemas';
+import type { DropboxAuthOptions, files, sharing, team, users } from 'dropbox';
+import { DropboxResponse, DropboxResponseError } from 'dropbox';
+import type { DataProtectionPermission } from '@elba-security/schemas';
 
 export type GetAccessToken = {
   code: string;
@@ -32,9 +25,9 @@ export type DropboxAuthResultWithStatus = NonNullableFields<{
   result: DropboxAuthResult;
 }>;
 
-export interface DBXAuthOptions extends DropboxAuthOptions {
+export type DBXAuthOptions = {
   redirectUri: string;
-}
+} & DropboxAuthOptions;
 
 export { DropboxResponse, DropboxResponseError };
 export type { team, users };
@@ -83,12 +76,14 @@ export type FolderAndFilePermissions = {
   display_name?: string;
   type: DataProtectionPermission['type'];
   role: sharing.AccessLevel['.tag'];
-  metadata?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  metadata?: unknown;
 };
 
 export type FileOrFolder = files.FolderMetadataReference | files.FileMetadataReference;
 
-export type FileToAdd = FileOrFolder & {
+export type SelectedTypes = files.FolderMetadataReference | FileSelectedTypes;
+
+export type FileToAdd = SelectedTypes & {
   permissions: FolderAndFilePermissions[];
   metadata: {
     name: string;
@@ -96,22 +91,11 @@ export type FileToAdd = FileOrFolder & {
   };
 };
 
-export type DeleteObjectPermissions = {
-  id: string;
-  organisationId: string;
-  metadata: {
-    ownerId: string;
-    type: 'file' | 'folder';
-    isPersonal: boolean;
-  };
-  permissions: Array<{
-    id: string;
-    metadata: {
-      sharedLinks: string[];
-    };
-  }>;
-};
-
 export type ExtendedTeamMemberProfile = team.TeamMemberProfile & {
   root_folder_id: string;
 };
+
+export type FileSelectedTypes = Pick<
+  files.FileMetadataReference,
+  '.tag' | 'id' | 'name' | 'content_hash'
+>;

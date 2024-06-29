@@ -1,10 +1,11 @@
-import { FunctionHandler, inngest } from '@/inngest/client';
-import { getOrganisationAccessDetails } from '../common/data';
-import { InputArgWithTrigger } from '@/inngest/types';
+import { NonRetriableError } from 'inngest';
+import type { FunctionHandler } from '@/inngest/client';
+import { inngest } from '@/inngest/client';
+import type { InputArgWithTrigger } from '@/inngest/types';
 import { DBXUsers } from '@/connectors';
 import { decrypt } from '@/common/crypto';
-import { ExtendedTeamMemberProfile, SyncJob } from '@/connectors/types';
-import { NonRetriableError } from 'inngest';
+import type { ExtendedTeamMemberProfile, SyncJob } from '@/connectors/types';
+import { getOrganisationAccessDetails } from '../common/data';
 
 const handler: FunctionHandler = async ({
   event,
@@ -30,10 +31,6 @@ const handler: FunctionHandler = async ({
     return dbxUsers.fetchUsers(cursor);
   });
 
-  if (!team) {
-    throw new Error(`Team is undefined for the organisation ${organisationId}`);
-  }
-
   const job: SyncJob = {
     organisationId,
     syncStartedAt,
@@ -57,13 +54,12 @@ const handler: FunctionHandler = async ({
   });
 
   if (team.members.length > 0) {
-    const eventsToWait = sharedLinkJobs.map(
-      async (sharedLinkJob) =>
-        await step.waitForEvent(`wait-sync-shared-links`, {
-          event: 'dropbox/data_protection.synchronize_shared_links.sync_page.completed',
-          timeout: '1 day',
-          if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${sharedLinkJob.teamMemberId}' && async.data.isPersonal == ${sharedLinkJob.isPersonal}`,
-        })
+    const eventsToWait = sharedLinkJobs.map((sharedLinkJob) =>
+      step.waitForEvent(`wait-sync-shared-links`, {
+        event: 'dropbox/data_protection.synchronize_shared_links.sync_page.completed',
+        timeout: '1day',
+        if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${sharedLinkJob.teamMemberId}' && async.data.isPersonal == ${sharedLinkJob.isPersonal}`,
+      })
     );
 
     await step.sendEvent(
@@ -78,13 +74,14 @@ const handler: FunctionHandler = async ({
   }
 
   if (team.hasMore) {
-    return await step.sendEvent('start-shared-link-sync', {
+    await step.sendEvent('start-shared-link-sync', {
       name: 'dropbox/data_protection.shared_link.start.sync_page.requested',
       data: {
         ...event.data,
         cursor: team.nextCursor,
       },
     });
+    return;
   }
 
   // Once all the shared links are fetched,

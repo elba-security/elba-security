@@ -1,10 +1,11 @@
-import { FunctionHandler, inngest } from '@/inngest/client';
-import { getOrganisationAccessDetails } from '../common/data';
-import { InputArgWithTrigger } from '@/inngest/types';
+import { NonRetriableError } from 'inngest';
+import type { FunctionHandler } from '@/inngest/client';
+import { inngest } from '@/inngest/client';
+import type { InputArgWithTrigger } from '@/inngest/types';
 import { DBXApps } from '@/connectors/dropbox/dbx-apps';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/env';
-import { NonRetriableError } from 'inngest';
+import { getOrganisationAccessDetails } from '../common/data';
 
 const handler: FunctionHandler = async ({
   event,

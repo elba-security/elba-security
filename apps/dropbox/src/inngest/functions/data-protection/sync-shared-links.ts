@@ -1,10 +1,11 @@
-import { FunctionHandler, inngest } from '@/inngest/client';
-import { InputArgWithTrigger } from '@/inngest/types';
-import { getOrganisationAccessDetails } from '../common/data';
-import { DBXFiles } from '@/connectors';
-import { insertSharedLinks } from './data';
-import { decrypt } from '@/common/crypto';
 import { NonRetriableError } from 'inngest';
+import type { FunctionHandler } from '@/inngest/client';
+import { inngest } from '@/inngest/client';
+import type { InputArgWithTrigger } from '@/inngest/types';
+import { DBXFiles } from '@/connectors';
+import { decrypt } from '@/common/crypto';
+import { getOrganisationAccessDetails } from '../common/data';
+import { insertSharedLinks } from './data';
 
 const handler: FunctionHandler = async ({
   event,
@@ -29,15 +30,11 @@ const handler: FunctionHandler = async ({
   });
 
   const sharedLinks = await step.run('fetch-shared-links', async () => {
-    return await dbx.fetchSharedLinks({
+    return dbx.fetchSharedLinks({
       isPersonal,
       cursor,
     });
   });
-
-  if (!sharedLinks) {
-    throw new Error(`SharedLinks is undefined for the organisation ${organisationId}`);
-  }
 
   if (sharedLinks.links.length > 0) {
     await step.run('insert-shared-links', async () => {
@@ -46,14 +43,15 @@ const handler: FunctionHandler = async ({
     });
   }
 
-  if (sharedLinks?.hasMore) {
-    return await step.sendEvent('sync-shared-links', {
+  if (sharedLinks.hasMore) {
+    await step.sendEvent('sync-shared-links', {
       name: 'dropbox/data_protection.shared_links.sync_page.requested',
       data: {
         ...event.data,
-        cursor: sharedLinks.nextCursor!,
+        cursor: sharedLinks.nextCursor,
       },
     });
+    return;
   }
 
   await step.sendEvent(`wait-for-shared-links-to-be-fetched`, {

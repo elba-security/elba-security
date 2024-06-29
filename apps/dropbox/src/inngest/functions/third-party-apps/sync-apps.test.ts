@@ -1,15 +1,16 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { DropboxResponseError } from 'dropbox';
-import * as crypto from '@/common/crypto';
-import { linkedApps, membersLinkedAppFirstPage } from './__mocks__/member-linked-apps';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
+import { NonRetriableError } from 'inngest';
+import * as crypto from '@/common/crypto';
 import { insertOrganisations } from '@/test-utils/token';
-import { syncApps } from './sync-apps';
 import { db } from '@/database/client';
 import { organisations } from '@/database';
-import { NonRetriableError } from 'inngest';
+import { syncApps } from './sync-apps';
+import { linkedApps, membersLinkedAppFirstPage } from './__mocks__/member-linked-apps';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
+const syncStartedAt = 1707068979946;
 
 const mocks = vi.hoisted(() => {
   return {
@@ -17,8 +18,8 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('@/connectors/dropbox/dbx-access', () => {
-  const actual = vi.importActual('dropbox');
+vi.mock('@/connectors/dropbox/dbx-access', async () => {
+  const actual = await vi.importActual('dropbox');
   return {
     ...actual,
     DBXAccess: vi.fn(() => {
@@ -41,14 +42,13 @@ describe('run-user-sync-jobs', () => {
   });
 
   test('should abort sync when organisation is not registered', async () => {
-    mocks.teamLinkedAppsListMembersLinkedAppsMock.mockImplementation(() => {});
+    mocks.teamLinkedAppsListMembersLinkedAppsMock.mockImplementation(() => ({}));
 
     const elba = spyOnElba();
-    const [result, { step }] = await setup({
+    const [result, { step }] = setup({
       organisationId: '00000000-0000-0000-0000-000000000010',
-      userId: 'team-member-id',
-      appId: 'app-id',
       isFirstSync: false,
+      syncStartedAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -73,10 +73,10 @@ describe('run-user-sync-jobs', () => {
       )
     );
 
-    const [result] = await setup({
+    const [result] = setup({
       organisationId,
       isFirstSync: false,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(DropboxResponseError);
@@ -96,16 +96,17 @@ describe('run-user-sync-jobs', () => {
       )
     );
 
-    const [result] = await setup({
+    const [result] = setup({
       organisationId,
       isFirstSync: false,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(DropboxResponseError);
   });
 
   test('should call elba delete event if the members apps length is 0', async () => {
+    vi.setSystemTime('2024-02-04T17:49:39.946Z');
     const elba = spyOnElba();
     vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
     mocks.teamLinkedAppsListMembersLinkedAppsMock.mockImplementation(() => {
@@ -117,10 +118,10 @@ describe('run-user-sync-jobs', () => {
       };
     });
 
-    const [result] = await setup({
+    const [result] = setup({
       organisationId,
       isFirstSync: false,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -138,11 +139,12 @@ describe('run-user-sync-jobs', () => {
     expect(elbaInstance?.thirdPartyApps.updateObjects).toBeCalledTimes(0);
     expect(elbaInstance?.thirdPartyApps.deleteObjects).toBeCalledTimes(1);
     expect(elbaInstance?.thirdPartyApps.deleteObjects).toBeCalledWith({
-      syncedBefore: '2021-01-01T00:00:00.000Z',
+      syncedBefore: '2024-02-04T17:49:39.946Z',
     });
   });
 
   test('should fetch members apps send it to elba(without pagination)', async () => {
+    vi.setSystemTime('2024-02-04T17:49:39.946Z');
     const elba = spyOnElba();
     mocks.teamLinkedAppsListMembersLinkedAppsMock.mockImplementation(() => {
       return {
@@ -154,10 +156,10 @@ describe('run-user-sync-jobs', () => {
       };
     });
 
-    const [result] = await setup({
+    const [result] = setup({
       organisationId,
       isFirstSync: false,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -176,7 +178,7 @@ describe('run-user-sync-jobs', () => {
     expect(elbaInstance?.thirdPartyApps.updateObjects).toBeCalledWith(linkedApps);
     expect(elbaInstance?.thirdPartyApps.deleteObjects).toBeCalledTimes(1);
     expect(elbaInstance?.thirdPartyApps.deleteObjects).toBeCalledWith({
-      syncedBefore: '2021-01-01T00:00:00.000Z',
+      syncedBefore: '2024-02-04T17:49:39.946Z',
     });
   });
 
@@ -192,10 +194,10 @@ describe('run-user-sync-jobs', () => {
       };
     });
 
-    const [result, { step }] = await setup({
+    const [result, { step }] = setup({
       organisationId,
       isFirstSync: false,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
       cursor: 'cursor-1',
     });
 
@@ -218,7 +220,7 @@ describe('run-user-sync-jobs', () => {
         cursor: 'cursor-1',
         isFirstSync: false,
         organisationId: '00000000-0000-0000-0000-000000000001',
-        syncStartedAt: '2021-01-01T00:00:00.000Z',
+        syncStartedAt,
       },
     });
 

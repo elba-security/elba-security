@@ -1,4 +1,4 @@
-import { team } from 'dropbox';
+import type { team } from 'dropbox';
 
 export const membersListFirstPage = (userIds: number[]) =>
   userIds.map((id, idx) => ({
@@ -32,7 +32,7 @@ export const membersListFirstPage = (userIds: number[]) =>
       },
       joined_on: '2023-01-19T13:09:04Z',
       groups: [`g:000000000000${id}`],
-      member_folder_id: '01234567${i}',
+      member_folder_id: `01234567${idx}`,
       root_folder_id: `100${idx}`,
     },
   }));

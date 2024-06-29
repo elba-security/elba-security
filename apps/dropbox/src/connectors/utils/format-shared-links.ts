@@ -1,16 +1,16 @@
-import { sharing } from 'dropbox';
-import { SharedLinks } from '../types';
+import type { sharing } from 'dropbox';
+import type { SharedLinks } from '../types';
 
 export const filterSharedLinks = (sharedLinks: sharing.ListSharedLinksResult['links']) => {
   return sharedLinks.reduce((acc: SharedLinks[], link) => {
-    const { id, url, link_permissions, path_lower } = link;
+    const { id, url, link_permissions: linkPermissions, path_lower: pathLower } = link;
 
     const effectiveAudience =
-      link_permissions.effective_audience?.['.tag'] ??
-      link_permissions.resolved_visibility?.['.tag'] ??
+      linkPermissions.effective_audience?.['.tag'] ??
+      linkPermissions.resolved_visibility?.['.tag'] ??
       null;
 
-    if (!id || !effectiveAudience) {
+    if (!id || !effectiveAudience || !pathLower) {
       return acc;
     }
 
@@ -22,7 +22,7 @@ export const filterSharedLinks = (sharedLinks: sharing.ListSharedLinksResult['li
       id,
       url,
       linkAccessLevel: link.link_permissions.link_access_level?.['.tag'] ?? 'viewer',
-      pathLower: path_lower!,
+      pathLower,
     };
 
     acc.push(linkObject);

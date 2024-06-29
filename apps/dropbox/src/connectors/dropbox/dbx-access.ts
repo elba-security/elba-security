@@ -1,4 +1,5 @@
-import { Dropbox, DropboxOptions } from 'dropbox';
+import type { DropboxOptions } from 'dropbox';
+import { Dropbox } from 'dropbox';
 
 export class DBXAccess extends Dropbox {
   private customOptions: DropboxOptions;
@@ -6,7 +7,7 @@ export class DBXAccess extends Dropbox {
   constructor(options: DropboxOptions) {
     super({
       ...options,
-      fetch: fetch,
+      fetch,
     });
 
     this.customOptions = options;
@@ -16,7 +17,7 @@ export class DBXAccess extends Dropbox {
     const updatedDropbox = new Dropbox({
       ...this.customOptions,
       ...options,
-      fetch: fetch,
+      fetch,
     });
 
     // Assign the updated Dropbox instance back to this instance

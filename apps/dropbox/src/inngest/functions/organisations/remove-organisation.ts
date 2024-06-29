@@ -3,8 +3,8 @@ import { Elba } from '@elba-security/sdk';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { env } from '@/env';
-import { inngest } from '../../client';
 import { organisations } from '@/database';
+import { inngest } from '../../client';
 
 export const removeOrganisation = inngest.createFunction(
   {
