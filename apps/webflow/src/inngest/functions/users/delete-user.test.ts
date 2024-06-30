@@ -4,12 +4,12 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/webflow/users';
 import { db } from '@/database/client';
 import * as sitesConnector from '@/connectors/webflow/sites';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { deleteWebflowUser } from './delete-user';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+  id: '00000000-0000-0000-0000-000000000001',
   accessToken: 'access-token',
   region: 'us',
 };
@@ -39,7 +39,7 @@ describe('delete-user-request', () => {
 
   test('should continue the request when the organization is registered', async () => {
     // setup the test with an organisation
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     vi.spyOn(sitesConnector, 'getSiteIds').mockResolvedValue(siteIds);
 
@@ -58,11 +58,7 @@ describe('delete-user-request', () => {
 
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     siteIds.forEach((siteId) => {
-        expect(usersConnector.deleteUser).toBeCalledWith(
-          organisation.accessToken,
-          siteId,
-          userId
-        );
-    })
+      expect(usersConnector.deleteUser).toBeCalledWith(organisation.accessToken, siteId, userId);
+    });
   });
 });

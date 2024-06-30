@@ -1,12 +1,10 @@
-/* eslint-disable no-return-await */
-/* eslint-disable no-await-in-loop */
 import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { getUsers } from '@/connectors/webflow/users';
 import { type WebflowUser } from '@/connectors/types';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { inngest } from '@/inngest/client';
 import { createElbaClient } from '@/connectors/elba/client';
@@ -42,15 +40,14 @@ export const syncUsersPage = inngest.createFunction(
   async ({ event, step, logger }) => {
     const { organisationId, page, siteId } = event.data;
 
-    // retrieve the Webflow Organisation
     const organisation = await step.run('get-organisation', async () => {
       const [result] = await db
         .select({
-          accessToken: Organisation.accessToken,
-          region: Organisation.region,
+          accessToken: organisationsTable.accessToken,
+          region: organisationsTable.region,
         })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisationId));
+        .from(organisationsTable)
+        .where(eq(organisationsTable.id, organisationId));
       if (!result) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
@@ -61,7 +58,11 @@ export const syncUsersPage = inngest.createFunction(
     const token = await decrypt(organisation.accessToken);
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers(token, siteId, page);
+      const result = await getUsers({
+        token,
+        siteId,
+        page,
+      });
       const users = result.users.map(formatElbaUser);
       logger.debug('Sending batch of users to elba: ', {
         organisationId,
@@ -76,20 +77,21 @@ export const syncUsersPage = inngest.createFunction(
     });
 
     if (nextPage) {
-      await step.sendEvent('sync-users-page', {
+      await step.sendEvent('sync-users', {
         name: 'webflow/users.sync.requested',
         data: {
           ...event.data,
           page: nextPage,
         },
       });
+
       return {
         status: 'ongoing',
       };
     }
 
     // Signal the completion of user sync for this site
-    await step.sendEvent('webflow/users.sync.completed', {
+    await step.sendEvent('sync-users-completed', {
       name: 'webflow/users.sync.completed',
       data: {
         organisationId,

@@ -1,7 +1,7 @@
 import { env } from '@/common/env';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { inngest } from '../../client';
+import { organisationsTable } from '@/database/schema';
+import { inngest } from '@/inngest/client';
 
 export const scheduleUsersSyncs = inngest.createFunction(
   { id: 'webflow-schedule-users-syncs' },
@@ -9,11 +9,9 @@ export const scheduleUsersSyncs = inngest.createFunction(
   async ({ step }) => {
     const organisations = await db
       .select({
-        id: Organisation.id,
-        accessToken: Organisation.accessToken,
-        region: Organisation.region,
+        id: organisationsTable.id,
       })
-      .from(Organisation);
+      .from(organisationsTable);
 
     if (organisations.length > 0) {
       await step.sendEvent(
@@ -23,7 +21,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
           data: {
             organisationId: id,
             syncStartedAt: Date.now(),
-            isFirstSync: true
+            isFirstSync: true,
           },
         }))
       );

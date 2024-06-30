@@ -6,11 +6,18 @@ export type Pagination = {
   next: number | null;
 };
 
-export const getUsers = async (token: string, siteId: string, offset: number) => {
+type GetUsers = {
+  token: string;
+  siteId: string;
+  page: number | null;
+};
+
+export const getUsers = async ({ token, siteId, page }: GetUsers) => {
   const url = new URL(`${env.WEBFLOW_API_BASE_URL}/v2/sites/${siteId}/users`);
 
   url.searchParams.set('limit', env.USERS_SYNC_BATCH_SIZE.toString());
-  url.searchParams.set('offset', offset.toString());
+
+  url.searchParams.set('offset', String(page) || '0');
 
   const response = await fetch(url.toString(), {
     headers: { Authorization: `Bearer ${token}` },

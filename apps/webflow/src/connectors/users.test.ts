@@ -1,7 +1,7 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
+import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { server } from '../../vitest/setup-msw-handlers';
 import { deleteUser, getUsers } from './users';
 import type { WebflowError } from './commons/error';
 import { users } from './__mocks__/users';

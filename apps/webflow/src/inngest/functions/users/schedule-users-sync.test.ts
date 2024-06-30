@@ -1,12 +1,12 @@
 import { expect, test, describe, beforeAll, vi, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
+import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { scheduleUsersSyncs } from './schedule-users-syncs';
+import { scheduleUsersSyncs } from './schedule-users-sync';
 
 export const organisations = [
   {
-    id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+    id: '00000000-0000-0000-0000-000000000001',
     accessToken: 'access-token',
     region: 'us',
   },
@@ -32,7 +32,8 @@ describe('schedule-users-syncs', () => {
   });
 
   test('should schedule jobs when there are organisations', async () => {
-    await db.insert(Organisation).values(organisations);
+    await db.insert(organisationsTable).values(organisations);
+
     const [result, { step }] = setup();
     await expect(result).resolves.toStrictEqual({
       organisations,
@@ -45,7 +46,7 @@ describe('schedule-users-syncs', () => {
         data: {
           organisationId: id,
           syncStartedAt: now,
-          isFirstSync: true
+          isFirstSync: true,
         },
       }))
     );

@@ -3,7 +3,7 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { NonRetriableError } from 'inngest';
 import * as sitesConnector from '@/connectors/webflow/sites';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { env } from '@/common/env';
 import { syncUsers } from './start-users-sync';
@@ -28,7 +28,7 @@ describe('sync-users', () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
       syncStartedAt,
-      isFirstSync: true
+      isFirstSync: true,
     });
 
     // assert the function throws a NonRetriableError that will inform inngest to definitively cancel the event (no further retries)
@@ -40,7 +40,7 @@ describe('sync-users', () => {
 
   test('should sync users for each site and finalize the sync', async () => {
     const elba = spyOnElba();
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     vi.spyOn(sitesConnector, 'getSiteIds').mockResolvedValue(siteIds);
 
@@ -50,7 +50,7 @@ describe('sync-users', () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
       syncStartedAt,
-      isFirstSync: true
+      isFirstSync: true,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });

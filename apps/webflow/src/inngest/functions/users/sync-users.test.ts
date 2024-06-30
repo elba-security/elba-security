@@ -3,11 +3,11 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/webflow/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { env } from '@/common/env';
 import { type WebflowUser } from '@/connectors/types';
-import { syncUsersPage } from './sync-users-page';
+import { syncUsersPage } from './sync-users';
 
 const elbaUsers = [
   {
@@ -21,7 +21,7 @@ const elbaUsers = [
 ];
 
 const users: WebflowUser[] = [
-  {id: 'user-id', data: {name: 'username', email: 'user@gmail.com'}}
+  { id: 'user-id', data: { name: 'username', email: 'user@gmail.com' } },
 ];
 
 const region = 'us';
@@ -40,9 +40,8 @@ describe('sync-users', () => {
     // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      page: 0,
-      region: 'us',
       siteId: 'test-id',
+      page: 0,
     });
 
     // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
@@ -53,7 +52,7 @@ describe('sync-users', () => {
   });
 
   test('should continue the sync when there is a next page', async () => {
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       users,
@@ -68,7 +67,6 @@ describe('sync-users', () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
       page: 0,
-      region: organisation.region,
       siteId: 'test-id',
     });
 
@@ -77,14 +75,12 @@ describe('sync-users', () => {
     expect(crypto.decrypt).toBeCalledTimes(1);
     expect(crypto.decrypt).toBeCalledWith(organisation.accessToken);
 
-    
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users-page', {
       name: 'webflow/users.sync.requested',
       data: {
         organisationId: organisation.id,
-        region: organisation.region,
         page: 10,
         siteId: 'test-id',
       },
@@ -93,7 +89,7 @@ describe('sync-users', () => {
 
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     // @ts-expect-error -- this is a mock
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
@@ -108,7 +104,6 @@ describe('sync-users', () => {
     const [result, { step }] = setup({
       organisationId: organisation.id,
       page: 0,
-      region: 'us',
       siteId: 'test-id',
     });
 

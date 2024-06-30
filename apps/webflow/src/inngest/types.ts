@@ -12,9 +12,8 @@ export type InngestEvents = {
   'webflow/users.sync.requested': {
     data: {
       organisationId: string;
-      region: string;
-      page: number;
       siteId: string;
+      page: number | null;
     };
   };
   'webflow/users.sync.completed': {
