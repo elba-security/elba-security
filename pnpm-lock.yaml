@@ -839,23 +839,35 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       '@neondatabase/serverless':
+<<<<<<< HEAD
         specifier: 0.9.0
         version: 0.9.0
       '@sentry/nextjs':
         specifier: ^7.88.0
         version: 7.119.0(next@14.0.1)(react@18.2.0)
+=======
+        specifier: 0.9.4
+        version: 0.9.4
+>>>>>>> e09242c4 (chore: use common getOrganisation function)
       date-fns:
         specifier: ^3.2.0
         version: 3.3.1
       drizzle-orm:
         specifier: ^0.29.4
+<<<<<<< HEAD
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
         version: 3.19.11(@sveltejs/kit@2.5.24)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.28.1)(h3@1.12.0)(hono@4.4.10)(koa@2.15.3)(next@14.0.1)(typescript@5.5.3)
+=======
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+      inngest:
+        specifier: 3.19.11
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4)(typescript@5.5.3)
+>>>>>>> e09242c4 (chore: use common getOrganisation function)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.2.4
+        version: 14.2.4(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -863,11 +875,19 @@ importers:
         specifier: ^18
         version: 18.2.0(react@18.2.0)
       zod:
+<<<<<<< HEAD
         specifier: ^3.22.4
         version: 3.23.8
     devDependencies:
       '@edge-runtime/vm':
         specifier: ^3.1.7
+=======
+        specifier: ^3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^3.2.0
+>>>>>>> e09242c4 (chore: use common getOrganisation function)
         version: 3.2.0
       '@elba-security/eslint-config-custom':
         specifier: workspace:*
@@ -879,7 +899,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@next/eslint-plugin-next':
+<<<<<<< HEAD
         specifier: ^14.0.2
+=======
+        specifier: ^14.2.4
+>>>>>>> e09242c4 (chore: use common getOrganisation function)
         version: 14.2.4
       '@types/node':
         specifier: ^20
@@ -891,7 +915,11 @@ importers:
         specifier: ^18
         version: 18.2.25
       dotenv:
+<<<<<<< HEAD
         specifier: ^16.3.1
+=======
+        specifier: ^16.4.5
+>>>>>>> e09242c4 (chore: use common getOrganisation function)
         version: 16.4.5
       drizzle-kit:
         specifier: ^0.20.6
@@ -900,12 +928,13 @@ importers:
         specifier: ^8
         version: 8.57.0
       inngest-cli:
-        specifier: ^0.25.2
-        version: 0.25.2
+        specifier: ^0.29.1
+        version: 0.29.1
       msw:
         specifier: ^2.3.1
         version: 2.3.1(typescript@5.5.3)
       postgres:
+<<<<<<< HEAD
         specifier: ^3.4.3
         version: 3.4.4
       testcontainers:
@@ -917,6 +946,19 @@ importers:
       vitest:
         specifier: 1.4.0
         version: 1.4.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
+=======
+        specifier: ^3.4.4
+        version: 3.4.4
+      testcontainers:
+        specifier: ^10.10.0
+        version: 10.10.0
+      typescript:
+        specifier: ^5.5.2
+        version: 5.5.3
+      vitest:
+        specifier: 1.6.0
+        version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
+>>>>>>> e09242c4 (chore: use common getOrganisation function)
 
   apps/fivetran:
     dependencies:
@@ -5322,7 +5364,7 @@ packages:
       debug: 4.3.5
       globby: 11.1.0
       is-glob: 4.0.3
-      semver: 7.5.4
+      semver: 7.6.2
       tsutils: 3.21.0(typescript@5.5.3)
       typescript: 5.5.3
     transitivePeerDependencies:

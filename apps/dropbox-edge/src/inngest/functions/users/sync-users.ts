@@ -1,13 +1,10 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { type DropboxTeamMember, getUsers } from '@/connectors/dropbox/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
+import { getOrganisation } from '@/database/organisations';
 
 const formatElbaUser = (user: DropboxTeamMember): User => ({
   id: user.profile.team_member_id,
@@ -42,18 +39,7 @@ export const syncUsers = inngest.createFunction(
   async ({ event, step }) => {
     const { organisationId, syncStartedAt, cursor } = event.data;
 
-    const [organisation] = await db
-      .select({
-        accessToken: organisationsTable.accessToken,
-        adminTeamMemberId: organisationsTable.adminTeamMemberId,
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
+    const organisation = await getOrganisation(organisationId);
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const accessToken = await decrypt(organisation.accessToken);
