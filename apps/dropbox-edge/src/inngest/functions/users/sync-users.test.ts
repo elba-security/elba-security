@@ -50,7 +50,6 @@ describe('synchronize-users', () => {
       cursor: null,
     });
 
-    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(usersConnector.getUsers).toBeCalledTimes(0);
@@ -60,9 +59,8 @@ describe('synchronize-users', () => {
 
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
-    // setup the test with an organisation
+
     await db.insert(organisationsTable).values(organisation);
-    // mock the getUser function that returns SaaS users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],

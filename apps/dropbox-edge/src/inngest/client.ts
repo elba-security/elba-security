@@ -29,7 +29,13 @@ export const inngest = new Inngest({
         cursor: string | null;
       };
     };
-    'dropbox/users.sync.requested.completed': {
+    'dropbox/users.delete.requested': {
+      data: {
+        organisationId: string;
+        userId: string;
+      };
+    };
+    'dropbox/third_party_apps.sync.requested': {
       data: {
         organisationId: string;
         isFirstSync: boolean;
@@ -37,10 +43,19 @@ export const inngest = new Inngest({
         cursor: string | null;
       };
     };
-    'dropbox/users.delete.requested': {
+    'dropbox/third_party_apps.refresh_objects.requested': {
       data: {
         organisationId: string;
         userId: string;
+        appId: string;
+        isFirstSync: boolean;
+      };
+    };
+    'dropbox/third_party_apps.delete_object.requested': {
+      data: {
+        organisationId: string;
+        userId: string;
+        appId: string;
       };
     };
   }>(),

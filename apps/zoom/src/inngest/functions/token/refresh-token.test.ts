@@ -85,6 +85,7 @@ describe('refresh-token', () => {
     if (!updatedOrganisation) {
       throw new ZoomError(`Organisation with ID ${organisation.id} not found.`);
     }
+
     await expect(decrypt(updatedOrganisation.refreshToken)).resolves.toEqual(
       newTokens.refreshToken
     );
