@@ -1,11 +1,13 @@
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { subMinutes } from 'date-fns';
+import { failureRetry } from '@elba-security/inngest';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getRefreshToken } from '@/connectors/dropbox/auth';
+import { unauthorizedMiddleware } from '@/inngest/middlewares/unauthorized-middleware';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -24,6 +26,8 @@ export const refreshToken = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
+    onFailure: failureRetry(),
+    middleware: [unauthorizedMiddleware],
     retries: 5,
   },
   { event: 'dropbox/token.refresh.requested' },

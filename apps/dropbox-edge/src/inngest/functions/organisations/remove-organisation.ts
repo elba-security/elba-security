@@ -3,7 +3,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { createElbaClient } from '@/connectors/elba/client';
-import { inngest } from '../../client';
+import { inngest } from '@/inngest/client';
 
 export const removeOrganisation = inngest.createFunction(
   {
