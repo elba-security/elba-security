@@ -37,7 +37,6 @@ export const refreshToken = inngest.createFunction(
     await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 30));
     const [organisation] = await db
       .select({
-        accessToken: organisationsTable.accessToken,
         refreshToken: organisationsTable.refreshToken,
       })
       .from(organisationsTable)

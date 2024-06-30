@@ -105,7 +105,7 @@ const teamMemberSchema = z.object({
       display_name: z.string().min(1),
     }),
     status: z.object({
-      '.tag': z.union([z.literal('active'), z.literal('suspended')]),
+      '.tag': z.string(), // z.union([z.literal('active'), z.literal('suspended')]),
     }),
     secondary_emails: z
       .array(
@@ -172,6 +172,11 @@ export const getUsers = async ({
     const userResult = teamMemberSchema.safeParse(member);
 
     if (userResult.success) {
+      // Only active users are valid
+      if (userResult.data.profile.status['.tag'] !== 'active') {
+        continue;
+      }
+
       validUsers.push(userResult.data);
     } else {
       invalidUsers.push(member);

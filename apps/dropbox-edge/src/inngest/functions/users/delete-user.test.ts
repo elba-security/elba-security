@@ -1,4 +1,4 @@
-import { expect, test, describe, beforeEach, vi } from 'vitest';
+import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/dropbox/users';
 import { organisationsTable } from '@/database/schema';
@@ -22,10 +22,6 @@ const organisation = {
 const setup = createInngestFunctionMock(deleteUser, 'dropbox/users.delete.requested');
 
 describe('deleteUser', () => {
-  beforeEach(() => {
-    vi.restoreAllMocks();
-  });
-
   test('should deactivate user', async () => {
     vi.spyOn(usersConnector, 'suspendUser').mockResolvedValueOnce();
     await db.insert(organisationsTable).values(organisation);
