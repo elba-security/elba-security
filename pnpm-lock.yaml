@@ -58,16 +58,16 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -116,7 +116,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -125,7 +125,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
@@ -155,7 +155,7 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       date-fns:
         specifier: ^3.2.0
         version: 3.3.1
@@ -164,10 +164,10 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -216,7 +216,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -225,7 +225,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
@@ -255,7 +255,7 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       date-fns:
         specifier: ^3.2.0
         version: 3.3.1
@@ -264,10 +264,10 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -316,7 +316,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -325,7 +325,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
@@ -355,7 +355,7 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       date-fns:
         specifier: ^3.2.0
         version: 3.3.1
@@ -364,10 +364,10 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -416,7 +416,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -425,7 +425,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
@@ -458,7 +458,7 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       date-fns:
         specifier: ^3.2.0
         version: 3.3.1
@@ -467,10 +467,10 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.47)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -519,7 +519,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -528,7 +528,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
@@ -561,16 +561,16 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -619,7 +619,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -628,7 +628,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
@@ -661,16 +661,16 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -719,7 +719,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -728,7 +728,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
@@ -761,16 +761,16 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -819,7 +819,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -828,7 +828,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
@@ -855,7 +855,7 @@ importers:
         version: link:../../packages/utils
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       date-fns:
         specifier: ^2.30.0
         version: 2.30.0
@@ -867,10 +867,10 @@ importers:
         version: 10.34.0(@types/node-fetch@2.6.11)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -919,7 +919,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -928,7 +928,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
@@ -961,16 +961,16 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -1019,7 +1019,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -1028,7 +1028,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
@@ -1061,19 +1061,19 @@ importers:
         version: 7.3.1
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@types/react@18.2.47)(postgres@3.4.3)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
@@ -1128,13 +1128,13 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       testcontainers:
         specifier: ^10.10.0
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.10.3)
@@ -1167,10 +1167,10 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
-        version: 0.7.1(typescript@5.5.2)(zod@3.23.8)
+        version: 0.7.1(typescript@5.5.3)(zod@3.23.8)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.47)(postgres@3.4.4)(react@18.2.0)
@@ -1179,10 +1179,10 @@ importers:
         version: 9.6.3
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -1231,7 +1231,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -1240,7 +1240,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
@@ -1270,16 +1270,16 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -1328,7 +1328,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -1337,7 +1337,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
@@ -1370,16 +1370,16 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -1428,7 +1428,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -1437,7 +1437,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
@@ -1467,16 +1467,16 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -1525,7 +1525,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -1534,7 +1534,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
@@ -1567,7 +1567,7 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       date-fns:
         specifier: ^3.2.0
         version: 3.3.1
@@ -1576,13 +1576,13 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.47)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       jose:
         specifier: ^5.2.4
         version: 5.2.4
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -1634,7 +1634,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -1643,7 +1643,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.10.3)
@@ -1673,16 +1673,16 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -1731,7 +1731,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -1740,7 +1740,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
@@ -1773,16 +1773,16 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -1831,7 +1831,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -1840,7 +1840,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
@@ -1873,16 +1873,16 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -1931,7 +1931,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -1940,7 +1940,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
@@ -1970,7 +1970,7 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       '@slack/bolt':
         specifier: ^3.14.0
         version: 3.17.0
@@ -1979,16 +1979,16 @@ importers:
         version: 6.11.1
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
-        version: 0.7.1(typescript@5.5.2)(zod@3.23.8)
+        version: 0.7.1(typescript@5.5.3)(zod@3.23.8)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.47)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -2040,7 +2040,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -2049,7 +2049,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.10.3)
@@ -2079,7 +2079,7 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       date-fns:
         specifier: ^3.3.1
         version: 3.3.1
@@ -2088,13 +2088,13 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       jose:
         specifier: ^5.2.4
         version: 5.2.4
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -2143,7 +2143,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -2152,7 +2152,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
@@ -2185,16 +2185,16 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -2243,7 +2243,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -2252,7 +2252,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
@@ -2282,7 +2282,7 @@ importers:
         version: 0.9.4
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       date-fns:
         specifier: ^3.2.0
         version: 3.3.1
@@ -2291,10 +2291,10 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -2343,7 +2343,7 @@ importers:
         version: 0.29.1
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -2352,7 +2352,7 @@ importers:
         version: 10.10.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
@@ -2382,14 +2382,14 @@ importers:
         specifier: ^8
         version: 8.53.0
       hono:
-        specifier: ^3.11.7
-        version: 3.11.7
+        specifier: ^4.4.10
+        version: 4.4.10
       tsx:
         specifier: ^3.12.2
         version: 3.14.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
 
   packages/config:
     devDependencies:
@@ -2401,13 +2401,13 @@ importers:
         version: link:../tsconfig
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       eslint:
         specifier: ^8
         version: 8.53.0
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
 
   packages/design-system:
     dependencies:
@@ -2441,19 +2441,19 @@ importers:
         version: 3.4.3
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
 
   packages/eslint-config-custom:
     devDependencies:
       '@vercel/style-guide':
         specifier: ^5.0.0
-        version: 5.0.1(eslint@8.53.0)(prettier@3.0.3)(typescript@5.5.2)
+        version: 5.0.1(eslint@8.53.0)(prettier@3.0.3)(typescript@5.5.3)
       eslint-config-turbo:
         specifier: ^1.10.12
         version: 1.10.16(eslint@8.53.0)
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
 
   packages/inngest:
     dependencies:
@@ -2472,7 +2472,7 @@ importers:
         version: link:../tsconfig
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       '@types/node':
         specifier: ^20
         version: 20.14.2
@@ -2481,10 +2481,10 @@ importers:
         version: 8.53.0
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
 
   packages/logger:
     devDependencies:
@@ -2496,13 +2496,13 @@ importers:
         version: link:../tsconfig
       '@sentry/nextjs':
         specifier: ^7.88.0
-        version: 7.93.0(next@14.0.1)(react@18.2.0)
+        version: 7.93.0(next@14.1.1)(react@18.2.0)
       eslint:
         specifier: ^8
         version: 8.53.0
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
 
   packages/nextjs:
     dependencies:
@@ -2529,8 +2529,8 @@ importers:
         specifier: ^8
         version: 8.53.0
       next:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.1
+        version: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18
         version: 18.2.0
@@ -2539,7 +2539,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)
@@ -2551,7 +2551,7 @@ importers:
     dependencies:
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -2595,10 +2595,10 @@ importers:
         version: 8.53.0
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
@@ -2619,10 +2619,10 @@ importers:
         version: 3.4.3
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
       vitest:
         specifier: '>=1.6.0'
-        version: 1.6.0(@types/node@20.11.16)
+        version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -2641,10 +2641,10 @@ importers:
         version: 8.53.0
       inngest:
         specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2)
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3)
       msw:
         specifier: ^2.3.1
-        version: 2.3.1(typescript@5.5.2)
+        version: 2.3.1(typescript@5.5.3)
       testcontainers:
         specifier: ^10.10.0
         version: 10.10.0
@@ -2655,7 +2655,7 @@ importers:
     dependencies:
       typescript:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.5.3
     devDependencies:
       '@elba-security/eslint-config-custom':
         specifier: workspace:*
@@ -2951,7 +2951,6 @@ packages:
   /@edge-runtime/primitives@4.1.0:
     resolution: {integrity: sha512-Vw0lbJ2lvRUqc7/soqygUX216Xb8T3WBZ987oywz6aJqRxcwSVWwr9e+Nqo2m9bxobA9mdbWNNoRY6S9eko1EQ==}
     engines: {node: '>=16'}
-    dev: true
 
   /@edge-runtime/vm@3.0.1:
     resolution: {integrity: sha512-69twXLIcqVx0iNlc1vFqnXgka2CZi2c/QBAmMzXBk0M6mPG+ICCBh2dd+cv1K+HW2pfLuSW+EskkFXWGeCf1Vw==}
@@ -2970,7 +2969,6 @@ packages:
     engines: {node: '>=16'}
     dependencies:
       '@edge-runtime/primitives': 4.1.0
-    dev: true
 
   /@esbuild-kit/core-utils@3.3.2:
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
@@ -3603,8 +3601,8 @@ packages:
       '@types/pg': 8.11.6
     dev: false
 
-  /@next/env@14.0.1:
-    resolution: {integrity: sha512-Ms8ZswqY65/YfcjrlcIwMPD7Rg/dVjdLapMcSHG26W6O67EJDF435ShW4H4LXi1xKO1oRc97tLXUpx8jpLe86A==}
+  /@next/env@14.1.1:
+    resolution: {integrity: sha512-7CnQyD5G8shHxQIIg3c7/pSeYFeMhsNbpU/bmvH7ZnDql7mNRgg8O2JZrhrc/soFnfBnKP4/xXNiiSIPn2w8gA==}
 
   /@next/eslint-plugin-next@14.0.4:
     resolution: {integrity: sha512-U3qMNHmEZoVmHA0j/57nRfi3AscXNvkOnxDmle/69Jz/G0o/gWjXTDdlgILZdrxQ0Lw/jv2mPW8PGy0EGIHXhQ==}
@@ -3612,72 +3610,72 @@ packages:
       glob: 7.1.7
     dev: true
 
-  /@next/swc-darwin-arm64@14.0.1:
-    resolution: {integrity: sha512-JyxnGCS4qT67hdOKQ0CkgFTp+PXub5W1wsGvIq98TNbF3YEIN7iDekYhYsZzc8Ov0pWEsghQt+tANdidITCLaw==}
+  /@next/swc-darwin-arm64@14.1.1:
+    resolution: {integrity: sha512-yDjSFKQKTIjyT7cFv+DqQfW5jsD+tVxXTckSe1KIouKk75t1qZmj/mV3wzdmFb0XHVGtyRjDMulfVG8uCKemOQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     optional: true
 
-  /@next/swc-darwin-x64@14.0.1:
-    resolution: {integrity: sha512-625Z7bb5AyIzswF9hvfZWa+HTwFZw+Jn3lOBNZB87lUS0iuCYDHqk3ujuHCkiyPtSC0xFBtYDLcrZ11mF/ap3w==}
+  /@next/swc-darwin-x64@14.1.1:
+    resolution: {integrity: sha512-KCQmBL0CmFmN8D64FHIZVD9I4ugQsDBBEJKiblXGgwn7wBCSe8N4Dx47sdzl4JAg39IkSN5NNrr8AniXLMb3aw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     optional: true
 
-  /@next/swc-linux-arm64-gnu@14.0.1:
-    resolution: {integrity: sha512-iVpn3KG3DprFXzVHM09kvb//4CNNXBQ9NB/pTm8LO+vnnnaObnzFdS5KM+w1okwa32xH0g8EvZIhoB3fI3mS1g==}
+  /@next/swc-linux-arm64-gnu@14.1.1:
+    resolution: {integrity: sha512-YDQfbWyW0JMKhJf/T4eyFr4b3tceTorQ5w2n7I0mNVTFOvu6CGEzfwT3RSAQGTi/FFMTFcuspPec/7dFHuP7Eg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     optional: true
 
-  /@next/swc-linux-arm64-musl@14.0.1:
-    resolution: {integrity: sha512-mVsGyMxTLWZXyD5sen6kGOTYVOO67lZjLApIj/JsTEEohDDt1im2nkspzfV5MvhfS7diDw6Rp/xvAQaWZTv1Ww==}
+  /@next/swc-linux-arm64-musl@14.1.1:
+    resolution: {integrity: sha512-fiuN/OG6sNGRN/bRFxRvV5LyzLB8gaL8cbDH5o3mEiVwfcMzyE5T//ilMmaTrnA8HLMS6hoz4cHOu6Qcp9vxgQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     optional: true
 
-  /@next/swc-linux-x64-gnu@14.0.1:
-    resolution: {integrity: sha512-wMqf90uDWN001NqCM/auRl3+qVVeKfjJdT9XW+RMIOf+rhUzadmYJu++tp2y+hUbb6GTRhT+VjQzcgg/QTD9NQ==}
+  /@next/swc-linux-x64-gnu@14.1.1:
+    resolution: {integrity: sha512-rv6AAdEXoezjbdfp3ouMuVqeLjE1Bin0AuE6qxE6V9g3Giz5/R3xpocHoAi7CufRR+lnkuUjRBn05SYJ83oKNQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     optional: true
 
-  /@next/swc-linux-x64-musl@14.0.1:
-    resolution: {integrity: sha512-ol1X1e24w4j4QwdeNjfX0f+Nza25n+ymY0T2frTyalVczUmzkVD7QGgPTZMHfR1aLrO69hBs0G3QBYaj22J5GQ==}
+  /@next/swc-linux-x64-musl@14.1.1:
+    resolution: {integrity: sha512-YAZLGsaNeChSrpz/G7MxO3TIBLaMN8QWMr3X8bt6rCvKovwU7GqQlDu99WdvF33kI8ZahvcdbFsy4jAFzFX7og==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     optional: true
 
-  /@next/swc-win32-arm64-msvc@14.0.1:
-    resolution: {integrity: sha512-WEmTEeWs6yRUEnUlahTgvZteh5RJc4sEjCQIodJlZZ5/VJwVP8p2L7l6VhzQhT4h7KvLx/Ed4UViBdne6zpIsw==}
+  /@next/swc-win32-arm64-msvc@14.1.1:
+    resolution: {integrity: sha512-1L4mUYPBMvVDMZg1inUYyPvFSduot0g73hgfD9CODgbr4xiTYe0VOMTZzaRqYJYBA9mana0x4eaAaypmWo1r5A==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     optional: true
 
-  /@next/swc-win32-ia32-msvc@14.0.1:
-    resolution: {integrity: sha512-oFpHphN4ygAgZUKjzga7SoH2VGbEJXZa/KL8bHCAwCjDWle6R1SpiGOdUdA8EJ9YsG1TYWpzY6FTbUA+iAJeww==}
+  /@next/swc-win32-ia32-msvc@14.1.1:
+    resolution: {integrity: sha512-jvIE9tsuj9vpbbXlR5YxrghRfMuG0Qm/nZ/1KDHc+y6FpnZ/apsgh+G6t15vefU0zp3WSpTMIdXRUsNl/7RSuw==}
     engines: {node: '>= 10'}
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
     optional: true
 
-  /@next/swc-win32-x64-msvc@14.0.1:
-    resolution: {integrity: sha512-FFp3nOJ/5qSpeWT0BZQ+YE1pSMk4IMpkME/1DwKBwhg4mJLB9L+6EXuJi4JEwaJdl5iN+UUlmUD3IsR1kx5fAg==}
+  /@next/swc-win32-x64-msvc@14.1.1:
+    resolution: {integrity: sha512-S6K6EHDU5+1KrBDLko7/c1MNy/Ya73pIAmvKeFwsF4RmBFJSO7/7YeD4FnZ4iBdzE69PpQ4sOMU9ORKeNuxe8A==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
@@ -4183,7 +4181,7 @@ packages:
       '@sentry/utils': 7.93.0
       localforage: 1.10.0
 
-  /@sentry/nextjs@7.93.0(next@14.0.1)(react@18.2.0):
+  /@sentry/nextjs@7.93.0(next@14.1.1)(react@18.2.0):
     resolution: {integrity: sha512-/O4Xl+hMSEM6/sVfmKXCZhLUUGNJbi+L0tasTiw4wB4EQQeMDKf4cBfx8e4mNBMzhA2SZnfQZAwJGqhvFJniPQ==}
     engines: {node: '>=8'}
     peerDependencies:
@@ -4204,7 +4202,7 @@ packages:
       '@sentry/vercel-edge': 7.93.0
       '@sentry/webpack-plugin': 1.21.0
       chalk: 3.0.0
-      next: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+      next: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       resolve: 1.22.8
       rollup: 2.78.0
@@ -4412,7 +4410,7 @@ packages:
       vite: ^5.0.0
     dependencies:
       '@sveltejs/vite-plugin-svelte': 3.1.1(svelte@4.2.18)(vite@5.0.5)
-      debug: 4.3.5
+      debug: 4.3.4
       svelte: 4.2.18
       vite: 5.0.5(@types/node@20.11.16)
     transitivePeerDependencies:
@@ -4426,7 +4424,7 @@ packages:
       vite: ^5.0.0
     dependencies:
       '@sveltejs/vite-plugin-svelte-inspector': 2.1.0(@sveltejs/vite-plugin-svelte@3.1.1)(svelte@4.2.18)(vite@5.0.5)
-      debug: 4.3.5
+      debug: 4.3.4
       deepmerge: 4.3.1
       kleur: 4.1.5
       magic-string: 0.30.10
@@ -4442,7 +4440,7 @@ packages:
     dependencies:
       tslib: 2.6.2
 
-  /@t3-oss/env-core@0.7.1(typescript@5.5.2)(zod@3.23.8):
+  /@t3-oss/env-core@0.7.1(typescript@5.5.3)(zod@3.23.8):
     resolution: {integrity: sha512-3+SQt39OlmSaRLqYVFv8uRm1BpFepM5TIiMytRqO9cjH+wB77o6BIJdeyM5h5U4qLBMEzOJWCY4MBaU/rLwbYw==}
     peerDependencies:
       typescript: '>=4.7.2'
@@ -4451,11 +4449,11 @@ packages:
       typescript:
         optional: true
     dependencies:
-      typescript: 5.5.2
+      typescript: 5.5.3
       zod: 3.23.8
     dev: false
 
-  /@t3-oss/env-nextjs@0.7.1(typescript@5.5.2)(zod@3.23.8):
+  /@t3-oss/env-nextjs@0.7.1(typescript@5.5.3)(zod@3.23.8):
     resolution: {integrity: sha512-tQDbNLGCOvKGi+JoGuJ/CJInJI7/kLWJqtgGppAKS7ZFLdVOqZYR/uRjxlXOWPnxmUKF8VswOAsq7fXUpNZDhA==}
     peerDependencies:
       typescript: '>=4.7.2'
@@ -4464,8 +4462,8 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@t3-oss/env-core': 0.7.1(typescript@5.5.2)(zod@3.23.8)
-      typescript: 5.5.2
+      '@t3-oss/env-core': 0.7.1(typescript@5.5.3)(zod@3.23.8)
+      typescript: 5.5.3
       zod: 3.23.8
     dev: false
 
@@ -4761,7 +4759,7 @@ packages:
       '@types/node': 20.14.2
     dev: false
 
-  /@typescript-eslint/eslint-plugin@6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.5.2):
+  /@typescript-eslint/eslint-plugin@6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.5.3):
     resolution: {integrity: sha512-uoLj4g2OTL8rfUQVx2AFO1hp/zja1wABJq77P6IclQs6I/m9GLrm7jCdgzZkvWdDCQf1uEvoa8s8CupsgWQgVg==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -4773,10 +4771,10 @@ packages:
         optional: true
     dependencies:
       '@eslint-community/regexpp': 4.10.0
-      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.2)
+      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.3)
       '@typescript-eslint/scope-manager': 6.10.0
-      '@typescript-eslint/type-utils': 6.10.0(eslint@8.53.0)(typescript@5.5.2)
-      '@typescript-eslint/utils': 6.10.0(eslint@8.53.0)(typescript@5.5.2)
+      '@typescript-eslint/type-utils': 6.10.0(eslint@8.53.0)(typescript@5.5.3)
+      '@typescript-eslint/utils': 6.10.0(eslint@8.53.0)(typescript@5.5.3)
       '@typescript-eslint/visitor-keys': 6.10.0
       debug: 4.3.4
       eslint: 8.53.0
@@ -4784,13 +4782,13 @@ packages:
       ignore: 5.2.4
       natural-compare: 1.4.0
       semver: 7.5.4
-      ts-api-utils: 1.0.3(typescript@5.5.2)
-      typescript: 5.5.2
+      ts-api-utils: 1.0.3(typescript@5.5.3)
+      typescript: 5.5.3
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2):
+  /@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.3):
     resolution: {integrity: sha512-+sZwIj+s+io9ozSxIWbNB5873OSdfeBEH/FR0re14WLI6BaKuSOnnwCJ2foUiu8uXf4dRp1UqHP0vrZ1zXGrog==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -4802,11 +4800,11 @@ packages:
     dependencies:
       '@typescript-eslint/scope-manager': 6.10.0
       '@typescript-eslint/types': 6.10.0
-      '@typescript-eslint/typescript-estree': 6.10.0(typescript@5.5.2)
+      '@typescript-eslint/typescript-estree': 6.10.0(typescript@5.5.3)
       '@typescript-eslint/visitor-keys': 6.10.0
       debug: 4.3.4
       eslint: 8.53.0
-      typescript: 5.5.2
+      typescript: 5.5.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4827,7 +4825,7 @@ packages:
       '@typescript-eslint/visitor-keys': 6.10.0
     dev: true
 
-  /@typescript-eslint/type-utils@6.10.0(eslint@8.53.0)(typescript@5.5.2):
+  /@typescript-eslint/type-utils@6.10.0(eslint@8.53.0)(typescript@5.5.3):
     resolution: {integrity: sha512-wYpPs3hgTFblMYwbYWPT3eZtaDOjbLyIYuqpwuLBBqhLiuvJ+9sEp2gNRJEtR5N/c9G1uTtQQL5AhV0fEPJYcg==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -4837,12 +4835,12 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/typescript-estree': 6.10.0(typescript@5.5.2)
-      '@typescript-eslint/utils': 6.10.0(eslint@8.53.0)(typescript@5.5.2)
+      '@typescript-eslint/typescript-estree': 6.10.0(typescript@5.5.3)
+      '@typescript-eslint/utils': 6.10.0(eslint@8.53.0)(typescript@5.5.3)
       debug: 4.3.4
       eslint: 8.53.0
-      ts-api-utils: 1.0.3(typescript@5.5.2)
-      typescript: 5.5.2
+      ts-api-utils: 1.0.3(typescript@5.5.3)
+      typescript: 5.5.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4857,7 +4855,7 @@ packages:
     engines: {node: ^16.0.0 || >=18.0.0}
     dev: true
 
-  /@typescript-eslint/typescript-estree@5.62.0(typescript@5.5.2):
+  /@typescript-eslint/typescript-estree@5.62.0(typescript@5.5.3):
     resolution: {integrity: sha512-CmcQ6uY7b9y694lKdRB8FEel7JbU/40iSAPomu++SjLMntB+2Leay2LO6i8VnJk58MtE9/nQSFIH6jpyRWyYzA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -4868,17 +4866,17 @@ packages:
     dependencies:
       '@typescript-eslint/types': 5.62.0
       '@typescript-eslint/visitor-keys': 5.62.0
-      debug: 4.3.5
+      debug: 4.3.4
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.5.4
-      tsutils: 3.21.0(typescript@5.5.2)
-      typescript: 5.5.2
+      tsutils: 3.21.0(typescript@5.5.3)
+      typescript: 5.5.3
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/typescript-estree@6.10.0(typescript@5.5.2):
+  /@typescript-eslint/typescript-estree@6.10.0(typescript@5.5.3):
     resolution: {integrity: sha512-ek0Eyuy6P15LJVeghbWhSrBCj/vJpPXXR+EpaRZqou7achUWL8IdYnMSC5WHAeTWswYQuP2hAZgij/bC9fanBg==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -4893,13 +4891,13 @@ packages:
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.5.4
-      ts-api-utils: 1.0.3(typescript@5.5.2)
-      typescript: 5.5.2
+      ts-api-utils: 1.0.3(typescript@5.5.3)
+      typescript: 5.5.3
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/utils@5.62.0(eslint@8.53.0)(typescript@5.5.2):
+  /@typescript-eslint/utils@5.62.0(eslint@8.53.0)(typescript@5.5.3):
     resolution: {integrity: sha512-n8oxjeb5aIbPFEtmQxQYOLI0i9n5ySBEY/ZEHHZqKQSFnxio1rv6dthascc9dLuwrL0RC5mPCxB7vnAVGAYWAQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -4910,7 +4908,7 @@ packages:
       '@types/semver': 7.5.5
       '@typescript-eslint/scope-manager': 5.62.0
       '@typescript-eslint/types': 5.62.0
-      '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.5.2)
+      '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.5.3)
       eslint: 8.53.0
       eslint-scope: 5.1.1
       semver: 7.5.4
@@ -4919,7 +4917,7 @@ packages:
       - typescript
     dev: true
 
-  /@typescript-eslint/utils@6.10.0(eslint@8.53.0)(typescript@5.5.2):
+  /@typescript-eslint/utils@6.10.0(eslint@8.53.0)(typescript@5.5.3):
     resolution: {integrity: sha512-v+pJ1/RcVyRc0o4wAGux9x42RHmAjIGzPRo538Z8M1tVx6HOnoQBCX/NoadHQlZeC+QO2yr4nNSFWOoraZCAyg==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -4930,7 +4928,7 @@ packages:
       '@types/semver': 7.5.5
       '@typescript-eslint/scope-manager': 6.10.0
       '@typescript-eslint/types': 6.10.0
-      '@typescript-eslint/typescript-estree': 6.10.0(typescript@5.5.2)
+      '@typescript-eslint/typescript-estree': 6.10.0(typescript@5.5.3)
       eslint: 8.53.0
       semver: 7.5.4
     transitivePeerDependencies:
@@ -4997,7 +4995,7 @@ packages:
       json-schema-to-ts: 1.6.4
       ts-morph: 12.0.0
 
-  /@vercel/style-guide@5.0.1(eslint@8.53.0)(prettier@3.0.3)(typescript@5.5.2):
+  /@vercel/style-guide@5.0.1(eslint@8.53.0)(prettier@3.0.3)(typescript@5.5.3):
     resolution: {integrity: sha512-3J/5xpwJ2Wk+cKB3EGY2KCdVQycaThLKhjBmgXPfIKb+E74lPpXVIDfaQE0D2JoAyIzGsqdH7Lbmr+DojwofxQ==}
     engines: {node: '>=16'}
     peerDependencies:
@@ -5018,25 +5016,25 @@ packages:
       '@babel/core': 7.23.3
       '@babel/eslint-parser': 7.23.3(@babel/core@7.23.3)(eslint@8.53.0)
       '@rushstack/eslint-patch': 1.5.1
-      '@typescript-eslint/eslint-plugin': 6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.5.2)
-      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.2)
+      '@typescript-eslint/eslint-plugin': 6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.5.3)
+      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.3)
       eslint: 8.53.0
       eslint-config-prettier: 9.0.0(eslint@8.53.0)
       eslint-import-resolver-alias: 1.1.2(eslint-plugin-import@2.29.0)
       eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@6.10.0)(eslint-plugin-import@2.29.0)(eslint@8.53.0)
       eslint-plugin-eslint-comments: 3.2.0(eslint@8.53.0)
       eslint-plugin-import: 2.29.0(@typescript-eslint/parser@6.10.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.53.0)
-      eslint-plugin-jest: 27.6.0(@typescript-eslint/eslint-plugin@6.10.0)(eslint@8.53.0)(typescript@5.5.2)
+      eslint-plugin-jest: 27.6.0(@typescript-eslint/eslint-plugin@6.10.0)(eslint@8.53.0)(typescript@5.5.3)
       eslint-plugin-jsx-a11y: 6.8.0(eslint@8.53.0)
       eslint-plugin-playwright: 0.16.0(eslint-plugin-jest@27.6.0)(eslint@8.53.0)
       eslint-plugin-react: 7.33.2(eslint@8.53.0)
       eslint-plugin-react-hooks: 4.6.0(eslint@8.53.0)
-      eslint-plugin-testing-library: 6.1.2(eslint@8.53.0)(typescript@5.5.2)
+      eslint-plugin-testing-library: 6.1.2(eslint@8.53.0)(typescript@5.5.3)
       eslint-plugin-tsdoc: 0.2.17
       eslint-plugin-unicorn: 48.0.1(eslint@8.53.0)
       prettier: 3.0.3
       prettier-plugin-packagejson: 2.4.6(prettier@3.0.3)
-      typescript: 5.5.2
+      typescript: 5.5.3
     transitivePeerDependencies:
       - eslint-import-resolver-node
       - eslint-import-resolver-webpack
@@ -5120,7 +5118,7 @@ packages:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
     dependencies:
-      debug: 4.3.5
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
 
@@ -5128,7 +5126,7 @@ packages:
     resolution: {integrity: sha512-o/zjMZRhJxny7OyEF+Op8X+efiELC7k7yOjMzgfzVqOzXqkBkWI79YoTdOtsuWd5BWhAGAuOY/Xa6xpiaWXiNg==}
     engines: {node: '>= 14'}
     dependencies:
-      debug: 4.3.5
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -5642,7 +5640,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001561
+      caniuse-lite: 1.0.30001639
       electron-to-chromium: 1.4.579
       node-releases: 2.0.13
       update-browserslist-db: 1.0.13(browserslist@4.22.1)
@@ -5751,8 +5749,8 @@ packages:
     engines: {node: '>=14.16'}
     dev: true
 
-  /caniuse-lite@1.0.30001561:
-    resolution: {integrity: sha512-NTt0DNoKe958Q0BE0j0c1V9jbUzhBxHIEJy7asmGrpE0yG63KTV7PLHPnK2E1O9RsQrQ081I3NLuXGS6zht3cw==}
+  /caniuse-lite@1.0.30001639:
+    resolution: {integrity: sha512-eFHflNTBIlFwP2AIKaYuBQN/apnUoKNhBdza8ZnW/h2di4LCZ4xFqYlxUxo+LQ76KFI1PGcC1QDxMbxTZpSCAg==}
 
   /canonicalize@1.0.8:
     resolution: {integrity: sha512-0CNTVCLZggSh7bc5VkX5WWPWO+cyZbNd07IHIsSXLia/eAq+r836hgk+8BKoEh7949Mda87VUOitx5OddVj64A==}
@@ -6157,6 +6155,7 @@ packages:
         optional: true
     dependencies:
       ms: 2.1.2
+    dev: true
 
   /deep-eql@4.1.3:
     resolution: {integrity: sha512-WaEtAOpRA1MQ0eohqZjpGD8zdI0Ovsm8mmFhaDN8dvDZzyoUMcYDnf5Y6iu7HTXxf8JDS23qWa4a+hKCDyOPzw==}
@@ -7297,7 +7296,7 @@ packages:
       eslint-import-resolver-webpack:
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.2)
+      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.3)
       debug: 3.2.7
       eslint: 8.53.0
       eslint-import-resolver-node: 0.3.9
@@ -7327,7 +7326,7 @@ packages:
       '@typescript-eslint/parser':
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.2)
+      '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.3)
       array-includes: 3.1.7
       array.prototype.findlastindex: 1.2.3
       array.prototype.flat: 1.3.2
@@ -7352,7 +7351,7 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-jest@27.6.0(@typescript-eslint/eslint-plugin@6.10.0)(eslint@8.53.0)(typescript@5.5.2):
+  /eslint-plugin-jest@27.6.0(@typescript-eslint/eslint-plugin@6.10.0)(eslint@8.53.0)(typescript@5.5.3):
     resolution: {integrity: sha512-MTlusnnDMChbElsszJvrwD1dN3x6nZl//s4JD23BxB6MgR66TZlL064su24xEIS3VACfAoHV1vgyMgPw8nkdng==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     peerDependencies:
@@ -7365,8 +7364,8 @@ packages:
       jest:
         optional: true
     dependencies:
-      '@typescript-eslint/eslint-plugin': 6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.5.2)
-      '@typescript-eslint/utils': 5.62.0(eslint@8.53.0)(typescript@5.5.2)
+      '@typescript-eslint/eslint-plugin': 6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.5.3)
+      '@typescript-eslint/utils': 5.62.0(eslint@8.53.0)(typescript@5.5.3)
       eslint: 8.53.0
     transitivePeerDependencies:
       - supports-color
@@ -7408,7 +7407,7 @@ packages:
         optional: true
     dependencies:
       eslint: 8.53.0
-      eslint-plugin-jest: 27.6.0(@typescript-eslint/eslint-plugin@6.10.0)(eslint@8.53.0)(typescript@5.5.2)
+      eslint-plugin-jest: 27.6.0(@typescript-eslint/eslint-plugin@6.10.0)(eslint@8.53.0)(typescript@5.5.3)
     dev: true
 
   /eslint-plugin-react-hooks@4.6.0(eslint@8.53.0):
@@ -7445,13 +7444,13 @@ packages:
       string.prototype.matchall: 4.0.10
     dev: true
 
-  /eslint-plugin-testing-library@6.1.2(eslint@8.53.0)(typescript@5.5.2):
+  /eslint-plugin-testing-library@6.1.2(eslint@8.53.0)(typescript@5.5.3):
     resolution: {integrity: sha512-Ra16FeBlonfbScOIdZEta9o+OxtwDqiUt+4UCpIM42TuatyLdtfU/SbwnIzPcAszrbl58PGwyZ9YGU9dwIo/tA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0, npm: '>=6'}
     peerDependencies:
       eslint: ^7.5.0 || ^8.0.0
     dependencies:
-      '@typescript-eslint/utils': 5.62.0(eslint@8.53.0)(typescript@5.5.2)
+      '@typescript-eslint/utils': 5.62.0(eslint@8.53.0)(typescript@5.5.3)
       eslint: 8.53.0
     transitivePeerDependencies:
       - supports-color
@@ -8362,13 +8361,13 @@ packages:
     dependencies:
       react-is: 16.13.1
 
-  /hono@3.11.7:
-    resolution: {integrity: sha512-TcfAq7IdipF+9coxnuzYlSSBXbm9mTyWjjagLCv/2ampboNcKJdi+XCK5G48mHQtpI5+9Rj3J4FfcGgw9vzIww==}
+  /hono@4.3.2:
+    resolution: {integrity: sha512-wiZcF5N06tc232U11DnqW6hP8DNoypjsrxslKXfvOqOAkTdh7K1HLZJH/92Mf+urxUTGi96f1w4xx/1Qozoqiw==}
     engines: {node: '>=16.0.0'}
     dev: true
 
-  /hono@4.3.2:
-    resolution: {integrity: sha512-wiZcF5N06tc232U11DnqW6hP8DNoypjsrxslKXfvOqOAkTdh7K1HLZJH/92Mf+urxUTGi96f1w4xx/1Qozoqiw==}
+  /hono@4.4.10:
+    resolution: {integrity: sha512-z6918u9rXRU5CCisMHd2uUVoQXcNyUrUMmYY7VH10v4HJG7+hqgMK/G8YNTd13C6s4rBfzF09iz8VpOip9qG3A==}
     engines: {node: '>=16.0.0'}
 
   /hosted-git-info@2.8.9:
@@ -8504,7 +8503,7 @@ packages:
       - supports-color
     dev: true
 
-  /inngest@3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.5.2):
+  /inngest@3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.1.1)(typescript@5.5.3):
     resolution: {integrity: sha512-FYclm1cVV81mEB/RKiWHWx5lp+u2b7LUfwuj1Uv1HVUIgr3d9IGXPX4qC0QgvQsZWGyBhmcRN9q+maDcl7pD8w==}
     engines: {node: '>=14'}
     peerDependencies:
@@ -8531,14 +8530,14 @@ packages:
       fastify: 4.27.0
       h3: 1.9.0
       hash.js: 1.1.7
-      hono: 4.3.2
+      hono: 4.4.10
       json-stringify-safe: 5.0.1
       koa: 2.15.3
       ms: 2.1.3
-      next: 14.0.1(react-dom@18.2.0)(react@18.2.0)
+      next: 14.1.1(react-dom@18.2.0)(react@18.2.0)
       serialize-error-cjs: 0.1.3
       strip-ansi: 5.2.0
-      typescript: 5.5.2
+      typescript: 5.5.3
       zod: 3.22.4
     transitivePeerDependencies:
       - encoding
@@ -9060,7 +9059,7 @@ packages:
       content-disposition: 0.5.4
       content-type: 1.0.5
       cookies: 0.9.1
-      debug: 4.3.5
+      debug: 4.3.4
       delegates: 1.0.0
       depd: 2.0.0
       destroy: 1.2.0
@@ -9480,7 +9479,7 @@ packages:
   /ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  /msw@2.3.1(typescript@5.5.2):
+  /msw@2.3.1(typescript@5.5.3):
     resolution: {integrity: sha512-ocgvBCLn/5l3jpl1lssIb3cniuACJLoOfZu01e3n5dbJrpA5PeeWn28jCLgQDNt6d7QT8tF2fYRzm9JoEHtiig==}
     engines: {node: '>=18'}
     hasBin: true
@@ -9507,7 +9506,7 @@ packages:
       path-to-regexp: 6.2.1
       strict-event-emitter: 0.5.1
       type-fest: 4.19.0
-      typescript: 5.5.2
+      typescript: 5.5.3
       yargs: 17.7.2
     dev: true
 
@@ -9547,8 +9546,8 @@ packages:
     resolution: {integrity: sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ==}
     dev: true
 
-  /next@14.0.1(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-s4YaLpE4b0gmb3ggtmpmV+wt+lPRuGtANzojMQ2+gmBpgX9w5fTbjsy6dXByBuENsdCX5pukZH/GxdFgO62+pA==}
+  /next@14.1.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-McrGJqlGSHeaz2yTRPkEucxQKe5Zq7uPwyeHNmJaZNY4wx9E9QdxmTp310agFRoMuIYgQrCrT3petg13fSVOww==}
     engines: {node: '>=18.17.0'}
     hasBin: true
     peerDependencies:
@@ -9562,25 +9561,25 @@ packages:
       sass:
         optional: true
     dependencies:
-      '@next/env': 14.0.1
+      '@next/env': 14.1.1
       '@swc/helpers': 0.5.2
       busboy: 1.6.0
-      caniuse-lite: 1.0.30001561
+      caniuse-lite: 1.0.30001639
+      graceful-fs: 4.2.11
       postcss: 8.4.31
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       styled-jsx: 5.1.1(react@18.2.0)
-      watchpack: 2.4.0
     optionalDependencies:
-      '@next/swc-darwin-arm64': 14.0.1
-      '@next/swc-darwin-x64': 14.0.1
-      '@next/swc-linux-arm64-gnu': 14.0.1
-      '@next/swc-linux-arm64-musl': 14.0.1
-      '@next/swc-linux-x64-gnu': 14.0.1
-      '@next/swc-linux-x64-musl': 14.0.1
-      '@next/swc-win32-arm64-msvc': 14.0.1
-      '@next/swc-win32-ia32-msvc': 14.0.1
-      '@next/swc-win32-x64-msvc': 14.0.1
+      '@next/swc-darwin-arm64': 14.1.1
+      '@next/swc-darwin-x64': 14.1.1
+      '@next/swc-linux-arm64-gnu': 14.1.1
+      '@next/swc-linux-arm64-musl': 14.1.1
+      '@next/swc-linux-x64-gnu': 14.1.1
+      '@next/swc-linux-x64-musl': 14.1.1
+      '@next/swc-win32-arm64-msvc': 14.1.1
+      '@next/swc-win32-ia32-msvc': 14.1.1
+      '@next/swc-win32-x64-msvc': 14.1.1
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
@@ -11309,13 +11308,13 @@ packages:
   /tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
-  /ts-api-utils@1.0.3(typescript@5.5.2):
+  /ts-api-utils@1.0.3(typescript@5.5.3):
     resolution: {integrity: sha512-wNMeqtMz5NtwpT/UZGY5alT+VoKdSsOOP/kqHFcUW1P/VRhH2wJ48+DN2WwUliNbQ976ETwDL0Ifd2VVvgonvg==}
     engines: {node: '>=16.13.0'}
     peerDependencies:
       typescript: '>=4.2.0'
     dependencies:
-      typescript: 5.5.2
+      typescript: 5.5.3
     dev: true
 
   /ts-interface-checker@0.1.13:
@@ -11381,14 +11380,14 @@ packages:
     resolution: {integrity: sha512-LxhtAkPDTkVCMQjt2h6eBVY28KCjikZqZfMcC15YBeNjkgUpdCfBu5HoiOTDu86v6smE8yOjyEktJ8hlbANHQA==}
     engines: {node: '>=0.6.x'}
 
-  /tsutils@3.21.0(typescript@5.5.2):
+  /tsutils@3.21.0(typescript@5.5.3):
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
     engines: {node: '>= 6'}
     peerDependencies:
       typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
     dependencies:
       tslib: 1.14.1
-      typescript: 5.5.2
+      typescript: 5.5.3
     dev: true
 
   /tsx@3.14.0:
@@ -11565,8 +11564,8 @@ packages:
     engines: {node: '>=4.2.0'}
     hasBin: true
 
-  /typescript@5.5.2:
-    resolution: {integrity: sha512-NcRtPEOsPFFWjobJEtfihkLCZCXZt/os3zf8nTxjVH3RvTSxjrCamJpbExGvYOF+tFHc3pA65qpdwPbzjohhew==}
+  /typescript@5.5.3:
+    resolution: {integrity: sha512-/hreyEujaB0w76zKo6717l3L0o/qEUtRgdvUBvlkhoWeOVMjMuHNHk0BRBzikzuGDqNmPQbg5ifMEqsHLiIUcQ==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -11915,7 +11914,7 @@ packages:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.2
       chai: 4.3.10
-      debug: 4.3.5
+      debug: 4.3.4
       execa: 8.0.1
       local-pkg: 0.5.0
       magic-string: 0.30.10
@@ -11972,7 +11971,7 @@ packages:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.2
       chai: 4.3.10
-      debug: 4.3.5
+      debug: 4.3.4
       execa: 8.0.1
       local-pkg: 0.5.0
       magic-string: 0.30.10
@@ -12050,7 +12049,6 @@ packages:
       - sugarss
       - supports-color
       - terser
-    dev: true
 
   /vitest@1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2):
     resolution: {integrity: sha512-H5r/dN06swuFnzNFhq/dnz37bPXnq8xB2xB5JOVk8K09rUtoeNN+LHWkoQ0A/i3hvbUKKcCei9KpbxqHMLhLLA==}
@@ -12086,7 +12084,7 @@ packages:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.2
       chai: 4.3.10
-      debug: 4.3.5
+      debug: 4.3.4
       execa: 8.0.1
       local-pkg: 0.5.0
       magic-string: 0.30.10
@@ -12108,62 +12106,6 @@ packages:
       - supports-color
       - terser
     dev: true
-
-  /vitest@1.6.0(@types/node@20.11.16):
-    resolution: {integrity: sha512-H5r/dN06swuFnzNFhq/dnz37bPXnq8xB2xB5JOVk8K09rUtoeNN+LHWkoQ0A/i3hvbUKKcCei9KpbxqHMLhLLA==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    hasBin: true
-    peerDependencies:
-      '@edge-runtime/vm': '*'
-      '@types/node': ^18.0.0 || >=20.0.0
-      '@vitest/browser': 1.6.0
-      '@vitest/ui': 1.6.0
-      happy-dom: '*'
-      jsdom: '*'
-    peerDependenciesMeta:
-      '@edge-runtime/vm':
-        optional: true
-      '@types/node':
-        optional: true
-      '@vitest/browser':
-        optional: true
-      '@vitest/ui':
-        optional: true
-      happy-dom:
-        optional: true
-      jsdom:
-        optional: true
-    dependencies:
-      '@types/node': 20.11.16
-      '@vitest/expect': 1.6.0
-      '@vitest/runner': 1.6.0
-      '@vitest/snapshot': 1.6.0
-      '@vitest/spy': 1.6.0
-      '@vitest/utils': 1.6.0
-      acorn-walk: 8.3.2
-      chai: 4.3.10
-      debug: 4.3.5
-      execa: 8.0.1
-      local-pkg: 0.5.0
-      magic-string: 0.30.10
-      pathe: 1.1.1
-      picocolors: 1.0.0
-      std-env: 3.6.0
-      strip-literal: 2.1.0
-      tinybench: 2.5.1
-      tinypool: 0.8.4
-      vite: 5.0.5(@types/node@20.11.16)
-      vite-node: 1.6.0(@types/node@20.11.16)
-      why-is-node-running: 2.2.2
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: false
 
   /watchpack@2.4.0:
     resolution: {integrity: sha512-Lcvm7MGST/4fup+ifyKi2hjyIAwcdI4HRgtvTpIUxBRhB+RFtUh8XtDOxUfctVCnhVi+QQj49i91OyvzkJl6cg==}
