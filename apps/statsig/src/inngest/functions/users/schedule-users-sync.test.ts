@@ -50,7 +50,6 @@ describe('statsig-schedule-users-sync', () => {
           organisationId: id,
           syncStartedAt: now,
           isFirstSync: false,
-          page: null,
         },
       }))
     );

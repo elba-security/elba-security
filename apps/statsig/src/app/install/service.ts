@@ -2,7 +2,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
-import { getAllUsers } from '@/connectors/statsig/users';
+import { getUsers } from '@/connectors/statsig/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -17,7 +17,7 @@ export const registerOrganisation = async ({
 }: SetupOrganisationParams) => {
   const encodedApiKey = await encrypt(apiKey);
 
-  await getAllUsers({ apiKey });
+  await getUsers({ apiKey });
 
   await db
     .insert(organisationsTable)
@@ -41,10 +41,8 @@ export const registerOrganisation = async ({
         organisationId,
         isFirstSync: true,
         syncStartedAt: Date.now(),
-        page: null,
       },
     },
-    // this will cancel scheduled key refresh if it exists
     {
       name: 'statsig/app.installed',
       data: {

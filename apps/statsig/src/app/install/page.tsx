@@ -28,11 +28,17 @@ export default function InstallPage() {
       <InstructionsSteps>
         <InstructionsStep index={1}>
           <h3>Generate an API Key</h3>
-          <p>1. On your Statsig account, Navigate to the Statsig Console</p>
           <p>
-            2. click <strong>Project Settings</strong> and select <strong>API Keys.</strong>
+            1. On your Statsig <strong>My account</strong>, Navigate to the Statsig Console
           </p>
-          <p>3. Generate a new key and add a description. </p>
+          <p>
+            2. Click <strong>Project</strong> and select <strong>Keys & Environments</strong>
+          </p>
+          <p>
+            3. Click <strong>Generate New Key</strong> select <strong>Console</strong>, add a
+            description and select <strong>Production</strong> environment select{' '}
+            <strong>Create</strong>
+          </p>
           <p>4. Copy the created key to the form bellow</p>
         </InstructionsStep>
         <InstructionsStep index={2}>

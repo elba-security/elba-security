@@ -15,17 +15,18 @@ const statsigResponseSchema = z.object({
   data: z.array(z.unknown()),
 });
 
-export type GetAllUsersParams = {
+export type GetUsers = {
   apiKey: string;
 };
 
-export const getAllUsers = async ({ apiKey }: GetAllUsersParams) => {
-  const endpoint = new URL(`${env.STATSIG_API_BASE_URL}users`);
+export const getUsers = async ({ apiKey }: GetUsers) => {
+  // TODO: Pagination parameters required from August 1st 2024, https://docs.statsig.com/console-api/users#get-/users
+  const url = new URL(`${env.STATSIG_API_BASE_URL}/users`);
 
-  const response = await fetch(endpoint.toString(), {
+  const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
-      'statsig-api-key': apiKey,
+      'STATSIG-API-KEY': apiKey,
       'Content-Type': 'application/json',
     },
   });
