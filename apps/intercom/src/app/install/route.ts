@@ -29,6 +29,7 @@ export function GET(request: NextRequest) {
   redirectUrl.searchParams.append('response_type', 'code');
   redirectUrl.searchParams.append('client_id', env.INTERCOM_CLIENT_ID);
   redirectUrl.searchParams.append('state', state);
+  redirectUrl.searchParams.append('redirect_uri', env.INTERCOM_REDIRECT_URI);
 
   redirect(redirectUrl.toString());
 }
