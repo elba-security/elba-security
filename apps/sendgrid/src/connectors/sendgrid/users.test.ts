@@ -3,18 +3,16 @@ import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { SendgridError } from '../commons/error';
+import { SendgridError } from './common/error';
 import { type SendgridUser } from './users';
 import { getUsers, deleteUser } from './users';
 
 const userId = 'test-user-id';
-const nextCursor = 1;
-const offset = 0;
-const endPageOffset = 2;
+const startOffset = 0;
 const apiKey = 'test-api-key';
 
 const validUsers: SendgridUser[] = Array.from(
-  { length: env.SENDGRID_USERS_SYNC_BATCH_SIZE },
+  { length: env.SENDGRID_USERS_SYNC_BATCH_SIZE * 10 },
   (_, i) => ({
     username: `username-${i}`,
     email: `user-${i}@foo.bar`,
@@ -24,13 +22,6 @@ const validUsers: SendgridUser[] = Array.from(
   })
 );
 
-const endPageUsers: SendgridUser[] = Array.from({ length: 2 }, (_, i) => ({
-  username: `endpage-username-${i}`,
-  email: `endpage-user-${i}@foo.bar`,
-  first_name: `endpage-first_name-${i}`,
-  last_name: `endpage-last_name-${i}`,
-  user_type: 'teammate',
-}));
 const invalidUsers = [];
 
 describe('users connector', () => {
@@ -42,28 +33,57 @@ describe('users connector', () => {
         }
 
         const url = new URL(request.url);
-        const after = url.searchParams.get('offset');
+        const offset = Number(url.searchParams.get('offset')) || 0;
+        const limit = Number(url.searchParams.get('limit'));
 
-        const returnData = {
-          result: after && parseInt(after, 10) === endPageOffset ? endPageUsers : validUsers,
-        };
+        const isEndReached = offset + limit >= validUsers.length;
 
-        return Response.json(returnData);
+        let linkHeader = '';
+
+        if (!isEndReached) {
+          linkHeader += `<http://api.sendgrid.com/v3/resource?limit=${limit}&offset=${
+            offset + limit
+          }>; rel="next"; title="${1 + offset / limit}",`;
+        }
+
+        // prev
+        linkHeader += `<http://api.sendgrid.com/v3/resource?limit=${limit}&offset=${Math.min(
+          0,
+          offset - limit
+        )}>; rel="prev"; title="1",`;
+        // last
+        linkHeader += `<http://api.sendgrid.com/v3/resource?limit=${limit}&offset=${
+          Math.floor(validUsers.length / limit) * limit
+        }>; rel="last"; title="${Math.floor(validUsers.length / limit)}",`;
+        // first
+        linkHeader += `<http://api.sendgrid.com/v3/resource?limit=${limit}&offset=0>; rel="first"; title="1"`;
+
+        return Response.json(
+          {
+            result: validUsers.slice(offset, offset + limit),
+          },
+          {
+            headers: {
+              Link: linkHeader,
+            },
+          }
+        );
       };
       server.use(http.get(`${env.SENDGRID_API_BASE_URL}/v3/teammates`, resolver));
     });
 
     test('should return users and nextPage when the key is valid and their is another offset', async () => {
-      await expect(getUsers({ apiKey, offset })).resolves.toStrictEqual({
-        validUsers,
+      await expect(getUsers({ apiKey, offset: startOffset })).resolves.toStrictEqual({
+        validUsers: validUsers.slice(startOffset, startOffset + env.SENDGRID_USERS_SYNC_BATCH_SIZE),
         invalidUsers,
-        nextPage: offset + env.SENDGRID_USERS_SYNC_BATCH_SIZE,
+        nextPage: startOffset + env.SENDGRID_USERS_SYNC_BATCH_SIZE,
       });
     });
 
     test('should return users and no nextPage when the key is valid and their is no other offset', async () => {
-      await expect(getUsers({ apiKey, offset: endPageOffset })).resolves.toStrictEqual({
-        validUsers: endPageUsers,
+      const offset = validUsers.length - Math.floor(env.SENDGRID_USERS_SYNC_BATCH_SIZE / 2);
+      await expect(getUsers({ apiKey, offset })).resolves.toStrictEqual({
+        validUsers: validUsers.slice(offset, validUsers.length),
         invalidUsers,
         nextPage: null,
       });
@@ -73,7 +93,7 @@ describe('users connector', () => {
       await expect(
         getUsers({
           apiKey: 'foo-id',
-          offset: nextCursor,
+          offset: 0,
         })
       ).rejects.toBeInstanceOf(SendgridError);
     });

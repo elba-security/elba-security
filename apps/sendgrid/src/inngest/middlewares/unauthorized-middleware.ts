@@ -1,6 +1,6 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
-import { SendgridError } from '@/connectors/commons/error';
+import { SendgridError } from '@/connectors/sendgrid/common/error';
 
 const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),

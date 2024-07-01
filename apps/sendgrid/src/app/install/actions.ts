@@ -5,7 +5,7 @@ import { RedirectType, redirect } from 'next/navigation';
 import { getRedirectUrl } from '@elba-security/sdk';
 import { isRedirectError } from 'next/dist/client/components/redirect';
 import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
-import { SendgridError } from '@/connectors/commons/error';
+import { SendgridError } from '@/connectors/sendgrid/common/error';
 import { env } from '@/common/env';
 import { registerOrganisation } from './service';
 

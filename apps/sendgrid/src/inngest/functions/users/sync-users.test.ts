@@ -76,6 +76,7 @@ describe('sync-users', () => {
           id: 'username-0',
           role: 'teammate',
           isSuspendable: true,
+          url: 'https://app.sendgrid.com/settings/teammates',
         },
         {
           additionalEmails: [],
@@ -84,6 +85,7 @@ describe('sync-users', () => {
           id: 'username-1',
           role: 'teammate',
           isSuspendable: true,
+          url: 'https://app.sendgrid.com/settings/teammates',
         },
       ],
     });
@@ -130,6 +132,7 @@ describe('sync-users', () => {
           id: 'username-0',
           role: 'teammate',
           isSuspendable: true,
+          url: 'https://app.sendgrid.com/settings/teammates',
         },
         {
           additionalEmails: [],
@@ -138,6 +141,7 @@ describe('sync-users', () => {
           id: 'username-1',
           role: 'teammate',
           isSuspendable: true,
+          url: 'https://app.sendgrid.com/settings/teammates',
         },
       ],
     });

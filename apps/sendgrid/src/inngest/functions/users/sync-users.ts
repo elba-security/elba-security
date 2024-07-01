@@ -18,6 +18,7 @@ const formatElbaUser = (user: SendgridUser): User => ({
   role: user.user_type, // 'owner' | 'admin' |'teammate'
   additionalEmails: [],
   isSuspendable: user.user_type !== 'owner',
+  url: 'https://app.sendgrid.com/settings/teammates',
 });
 
 export const syncUsers = inngest.createFunction(

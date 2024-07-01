@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { SendgridError } from '../commons/error';
+import { SendgridError } from './common/error';
+import { getNextOffsetFromLink } from './common/pagination';
 
 const sendgridUserSchema = z.object({
   username: z.string().min(1),
@@ -40,7 +41,7 @@ export const getUsers = async ({ apiKey, offset }: GetUsersParams) => {
   });
 
   if (!response.ok) {
-    throw new SendgridError('API request failed', { response });
+    throw new SendgridError('Could not retrieve users', { response });
   }
 
   const resData: unknown = await response.json();
@@ -62,10 +63,7 @@ export const getUsers = async ({ apiKey, offset }: GetUsersParams) => {
   return {
     validUsers,
     invalidUsers,
-    nextPage:
-      users.length === env.SENDGRID_USERS_SYNC_BATCH_SIZE
-        ? offset + env.SENDGRID_USERS_SYNC_BATCH_SIZE
-        : null,
+    nextPage: getNextOffsetFromLink(response.headers.get('Link')),
   };
 };
 
@@ -79,6 +77,6 @@ export const deleteUser = async ({ userId, apiKey }: DeleteUsersParams) => {
   });
 
   if (!response.ok && response.status !== 404) {
-    throw new SendgridError(`Could not delete user with Id: ${userId}`, { response });
+    throw new SendgridError(`Could not delete user with id: ${userId}`, { response });
   }
 };

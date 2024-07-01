@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { SendgridError } from '@/connectors/commons/error';
+import { SendgridError } from '@/connectors/sendgrid/common/error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',

@@ -6,7 +6,7 @@ import { inngest } from '@/inngest/client';
 import * as userConnector from '@/connectors/sendgrid/users';
 import { decrypt } from '@/common/crypto';
 import type { SendgridUser } from '@/connectors/sendgrid/users';
-import { SendgridError } from '@/connectors/commons/error';
+import { SendgridError } from '@/connectors/sendgrid/common/error';
 import { registerOrganisation } from './service';
 
 const apiKey = 'test-api-key';
