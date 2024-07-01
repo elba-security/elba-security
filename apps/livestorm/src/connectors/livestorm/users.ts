@@ -10,7 +10,6 @@ const livestormUserSchema = z.object({
     first_name: z.string().nullable(),
     last_name: z.string().nullable(),
     email: z.string(),
-    pending_invite: z.boolean(),
   }),
 });
 
@@ -27,6 +26,7 @@ export const getUsers = async (token: string, page: number | null) => {
   const url = new URL(`${env.LIVESTORM_API_BASE_URL}/users`);
 
   url.searchParams.append('page[size]', String(env.LIVESTORM_USERS_SYNC_BATCH_SIZE));
+  url.searchParams.append('filter[pending_invite]', 'false');
 
   if (page) {
     url.searchParams.append('page[number]', String(page));
@@ -53,12 +53,6 @@ export const getUsers = async (token: string, page: number | null) => {
     const result = livestormUserSchema.safeParse(node);
 
     if (result.success) {
-      // Only add users that are not pending invite, we collect this data only for logging purposes
-      // It can be filtered in the request by filter[pending_invite], for some reason it is not working, so we filter it here
-      if (result.data.attributes.pending_invite) {
-        continue;
-      }
-
       validUsers.push(result.data);
     } else {
       invalidUsers.push(node);
@@ -68,7 +62,7 @@ export const getUsers = async (token: string, page: number | null) => {
   return {
     validUsers,
     invalidUsers,
-    nextPage: meta.next_page ? meta.next_page : null,
+    nextPage: meta.next_page ?? null,
   };
 };
 

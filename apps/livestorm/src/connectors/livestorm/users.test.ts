@@ -14,7 +14,6 @@ const data: LivestormUser[] = [
       first_name: 'John',
       last_name: 'Doe',
       email: 'john@example.com',
-      pending_invite: false,
     },
   },
 ];
@@ -66,7 +65,6 @@ describe('getUsers', () => {
             email: 'john@example.com',
             first_name: 'John',
             last_name: 'Doe',
-            pending_invite: false,
             role: 'participant',
           },
         },
@@ -86,7 +84,6 @@ describe('getUsers', () => {
             email: 'john@example.com',
             first_name: 'John',
             last_name: 'Doe',
-            pending_invite: false,
             role: 'participant',
           },
         },

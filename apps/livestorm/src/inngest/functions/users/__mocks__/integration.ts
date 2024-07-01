@@ -14,7 +14,6 @@ export const users: LivestormUser[] = Array.from({ length: 10 }, (_, i) => ({
     first_name: `user-first-name-${i}`,
     last_name: `user-last-name-${i}`,
     email: `user-${i}@example.com`,
-    pending_invite: false,
   },
 }));
 
@@ -23,5 +22,7 @@ export const elbaUsers = Array.from({ length: 10 }, (_, i) => ({
   additionalEmails: [],
   displayName: `user-first-name-${i} user-last-name-${i}`,
   email: `user-${i}@example.com`,
+  isSuspendable: true,
   role: `member-${i}`,
+  url: 'https://app.livestorm.co/#/settings?page=settings&tab=team-members',
 }));

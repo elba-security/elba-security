@@ -8,10 +8,13 @@ import { inngest } from '../../client';
 export const removeOrganisation = inngest.createFunction(
   {
     id: 'livestorm-remove-organisation',
-    priority: {
-      run: '600',
-    },
     retries: 5,
+    cancelOn: [
+      {
+        event: 'livestorm/app.installed',
+        match: 'data.organisationId',
+      },
+    ],
   },
   {
     event: 'livestorm/app.uninstalled',

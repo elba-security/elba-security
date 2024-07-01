@@ -1475,11 +1475,8 @@ importers:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.0)(@types/react@18.2.79)(postgres@3.4.3)(react@18.2.0)
       inngest:
-        specifier: 3.14.2
-        version: 3.14.2(typescript@5.3.3)
-      msw:
-        specifier: ^2.0.1
-        version: 2.0.6(typescript@5.3.3)
+        specifier: 3.19.11
+        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.3.2)(koa@2.15.3)(next@14.0.1)(typescript@5.3.3)
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -1529,14 +1526,17 @@ importers:
       inngest-cli:
         specifier: ^0.25.2
         version: 0.25.2
+      msw:
+        specifier: ^2.3.1
+        version: 2.3.1(typescript@5.3.3)
       postgres:
         specifier: ^3.4.3
         version: 3.4.3
       testcontainers:
-        specifier: ^10.8.1
-        version: 10.8.1
+        specifier: ^10.9.0
+        version: 10.9.0
       typescript:
-        specifier: ^5
+        specifier: ^5.3.3
         version: 5.3.3
       vitest:
         specifier: 1.4.0
@@ -4422,7 +4422,7 @@ packages:
       sirv: 2.0.4
       svelte: 4.2.18
       tiny-glob: 0.2.9
-      vite: 5.0.5(@types/node@20.11.16)
+      vite: 5.0.5(@types/node@20.14.2)
 
   /@sveltejs/vite-plugin-svelte-inspector@2.1.0(@sveltejs/vite-plugin-svelte@3.1.1)(svelte@4.2.18)(vite@5.0.5):
     resolution: {integrity: sha512-9QX28IymvBlSCqsCll5t0kQVxipsfhFFL+L2t3nTWfXnddYwxBuAEtTtlaVQpRz9c37BhJjltSeY4AJSC03SSg==}
@@ -4435,7 +4435,7 @@ packages:
       '@sveltejs/vite-plugin-svelte': 3.1.1(svelte@4.2.18)(vite@5.0.5)
       debug: 4.3.4
       svelte: 4.2.18
-      vite: 5.0.5(@types/node@20.11.16)
+      vite: 5.0.5(@types/node@20.14.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -4453,7 +4453,7 @@ packages:
       magic-string: 0.30.10
       svelte: 4.2.18
       svelte-hmr: 0.16.0(svelte@4.2.18)
-      vite: 5.0.5(@types/node@20.11.16)
+      vite: 5.0.5(@types/node@20.14.2)
       vitefu: 0.2.5(vite@5.0.5)
     transitivePeerDependencies:
       - supports-color
@@ -12047,7 +12047,6 @@ packages:
       rollup: 4.6.1
     optionalDependencies:
       fsevents: 2.3.3
-    dev: true
 
   /vitefu@0.2.5(vite@5.0.5):
     resolution: {integrity: sha512-SgHtMLoqaeeGnd2evZ849ZbACbnwQCIwRH57t18FxcXoZop0uQu0uzlIhJBlF/eWVzuce0sHeqPcDo+evVcg8Q==}
@@ -12057,7 +12056,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 5.0.5(@types/node@20.11.16)
+      vite: 5.0.5(@types/node@20.14.2)
 
   /vitest@1.0.0(@types/node@20.11.16):
     resolution: {integrity: sha512-jpablj5+ifiFHV3QGOxPews3uxBuu6rQUzTaQYtEd6ocBpdQBil6AvmmGRQ3Rn0WPgyzb+Ni+JekfMyng+qYng==}

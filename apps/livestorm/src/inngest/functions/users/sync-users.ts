@@ -24,6 +24,8 @@ const formatElbaUser = ({ id, attributes }: LivestormUser): User => ({
   role: attributes.role,
   email: attributes.email,
   additionalEmails: [],
+  isSuspendable: true, // Only workspace owner can't be deleted but it seems there is no proper way to identity the owner
+  url: 'https://app.livestorm.co/#/settings?page=settings&tab=team-members',
 });
 
 export const syncUsers = inngest.createFunction(
@@ -98,17 +100,13 @@ export const syncUsers = inngest.createFunction(
           page: nextPage,
         },
       });
-      return {
-        status: 'ongoing',
-      };
+      return { status: 'ongoing' };
     }
 
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );
 
-    return {
-      status: 'completed',
-    };
+    return { status: 'completed' };
   }
 );

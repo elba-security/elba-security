@@ -12,6 +12,7 @@ import {
 } from '@elba-security/design-system';
 import { useSearchParams } from 'next/navigation';
 import { useFormState } from 'react-dom';
+import Link from 'next/link';
 import type { FormState } from './actions';
 import { install } from './actions';
 
@@ -27,24 +28,32 @@ export default function InstallPage() {
       <h1>Setup Livestorm integration</h1>
       <InstructionsSteps>
         <InstructionsStep index={1}>
-          <h3>How to Generate Token</h3>
-          <p>1. In the Livestorm Dashboard, use the left navigation bar.</p>
+          <h3>Generate an API Token</h3>
           <p>
-            2. Navigate to{' '}
+            1. On the Livestorm dashboard go to{' '}
             <b>
-              Account {'>'} Account Settings {'>'} Public API {'>'} Token Management
+              <Link
+                href="https://app.livestorm.co/#/settings?page=settings&tab=public-api&sub-tab=tokens"
+                rel="noreferrer"
+                target="_blank">
+                Account {'>'} Account Settings {'>'} Public API {'>'} Token Management
+              </Link>
             </b>
           </p>
-          <p>3. Click on new Token.</p>
-          <p>4. Give your API Token a name.</p>
-          <p>5.Select Admin write permission fro the token</p>
           <p>
-            8. Click Generate a Token (The token maybe blocked in default, you should demand the
-            Livestorm to unblock it)
+            2. Click on <strong>Create a token now</strong>.
+          </p>
+          <p>3. Give your API Token a name.</p>
+          <p>
+            4. Select <strong>Write</strong> permission on <strong>Admin</strong> section.
+          </p>
+          <p>
+            5. Click on <strong>Generate a token</strong> (The token may be blocked in default, you
+            should ask Livestorm to unblock it)
           </p>
         </InstructionsStep>
         <InstructionsStep index={2}>
-          <h3>Connect Doppler</h3>
+          <h3>Connect Livestorm</h3>
           <Form action={formAction}>
             <FormField isInvalid={Boolean(state.errors?.token?.at(0))}>
               <FormLabel>API Key</FormLabel>
