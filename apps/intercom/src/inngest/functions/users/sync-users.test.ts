@@ -11,6 +11,7 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   region: 'us',
+  workspaceId: 'workspace-id',
 };
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
@@ -84,12 +85,14 @@ describe('synchronize-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          url: 'https://app.intercom.com/a/apps/workspace-id/settings/teammates/id-0/permissions',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          url: 'https://app.intercom.com/a/apps/workspace-id/settings/teammates/id-1/permissions',
         },
       ],
     });
@@ -122,12 +125,14 @@ describe('synchronize-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          url: 'https://app.intercom.com/a/apps/workspace-id/settings/teammates/id-0/permissions',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          url: 'https://app.intercom.com/a/apps/workspace-id/settings/teammates/id-1/permissions',
         },
       ],
     });

@@ -10,11 +10,18 @@ import { decrypt } from '@/common/crypto';
 import { type IntercomUser } from '@/connectors/intercom/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUser = (user: IntercomUser): User => ({
+const formatElbaUser = ({
+  user,
+  workspaceId,
+}: {
+  user: IntercomUser;
+  workspaceId: string;
+}): User => ({
   id: user.id,
   displayName: user.name,
   email: user.email,
   additionalEmails: [],
+  url: `https://app.intercom.com/a/apps/${workspaceId}/settings/teammates/${user.id}/permissions`,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -46,6 +53,7 @@ export const syncUsers = inngest.createFunction(
     const [organisation] = await db
       .select({
         accessToken: organisationsTable.accessToken,
+        workspaceId: organisationsTable.workspaceId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -60,7 +68,9 @@ export const syncUsers = inngest.createFunction(
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ accessToken, page });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers.map((user) =>
+        formatElbaUser({ user, workspaceId: organisation.workspaceId })
+      );
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
@@ -84,17 +94,13 @@ export const syncUsers = inngest.createFunction(
           page: nextPage,
         },
       });
-      return {
-        status: 'ongoing',
-      };
+      return { status: 'ongoing' };
     }
 
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );
 
-    return {
-      status: 'completed',
-    };
+    return { status: 'completed' };
   }
 );

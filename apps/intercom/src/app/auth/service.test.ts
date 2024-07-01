@@ -1,6 +1,7 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import * as authConnector from '@/connectors/intercom/auth';
+import * as usersConnector from '@/connectors/intercom/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -20,6 +21,7 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken,
   region,
+  workspaceId: 'workspace-id',
 };
 
 describe('setupOrganisation', () => {
@@ -35,6 +37,9 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getCurrentAdmin = vi
+      .spyOn(usersConnector, 'getCurrentAdminInfos')
+      .mockResolvedValue({ app: { id_code: 'workspace-id' } });
 
     await expect(
       setupOrganisation({
@@ -46,6 +51,9 @@ describe('setupOrganisation', () => {
 
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
+
+    expect(getCurrentAdmin).toBeCalledTimes(1);
+    expect(getCurrentAdmin).toBeCalledWith(accessToken);
 
     const [storedOrganisation] = await db
       .select()
@@ -85,6 +93,9 @@ describe('setupOrganisation', () => {
     await db.insert(organisationsTable).values(organisation);
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getCurrentAdmin = vi
+      .spyOn(usersConnector, 'getCurrentAdminInfos')
+      .mockResolvedValue({ app: { id_code: 'workspace-id' } });
 
     await expect(
       setupOrganisation({
@@ -96,6 +107,9 @@ describe('setupOrganisation', () => {
 
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
+
+    expect(getCurrentAdmin).toBeCalledTimes(1);
+    expect(getCurrentAdmin).toBeCalledWith(accessToken);
 
     const [storedOrganisation] = await db
       .select()
@@ -132,6 +146,9 @@ describe('setupOrganisation', () => {
     const error = new Error('invalid code');
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockRejectedValue(error);
+    const getCurrentAdmin = vi
+      .spyOn(usersConnector, 'getCurrentAdminInfos')
+      .mockResolvedValue({ app: { id_code: 'workspace-id' } });
 
     await expect(
       setupOrganisation({
@@ -143,6 +160,8 @@ describe('setupOrganisation', () => {
 
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
+
+    expect(getCurrentAdmin).toBeCalledTimes(0);
 
     await expect(
       db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))

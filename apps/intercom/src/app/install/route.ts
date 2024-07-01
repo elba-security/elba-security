@@ -25,7 +25,7 @@ export function GET(request: NextRequest) {
   cookies().set('region', region);
   cookies().set('state', state);
 
-  const redirectUrl = new URL(`${env.INTERCOM_APP_INSTALL_URL}`);
+  const redirectUrl = new URL(env.INTERCOM_APP_INSTALL_URL);
   redirectUrl.searchParams.append('response_type', 'code');
   redirectUrl.searchParams.append('client_id', env.INTERCOM_CLIENT_ID);
   redirectUrl.searchParams.append('state', state);

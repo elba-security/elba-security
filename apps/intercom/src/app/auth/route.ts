@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
+  // TODO: try catch
   await setupOrganisation({ organisationId, code, region });
   redirect(
     getRedirectUrl({

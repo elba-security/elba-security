@@ -12,6 +12,7 @@ export const organisations = Array.from({ length: 5 }, (_, i) => ({
   id: `00000000-0000-0000-0000-00000000000${i}`,
   accessToken: `test-access-token${i}`,
   region: `us`,
+  workspaceId: 'workspace-id',
 }));
 
 describe('schedule-users-syncs', () => {

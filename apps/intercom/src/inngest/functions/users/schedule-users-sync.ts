@@ -6,16 +6,6 @@ import { inngest } from '@/inngest/client';
 export const scheduleUsersSync = inngest.createFunction(
   {
     id: 'intercom-schedule-users-syncs',
-    cancelOn: [
-      {
-        event: 'intercom/app.installed',
-        match: 'data.organisationId',
-      },
-      {
-        event: 'intercom/app.uninstalled',
-        match: 'data.organisationId',
-      },
-    ],
     retries: 5,
   },
   { cron: env.INTERCOM_USERS_SYNC_CRON },

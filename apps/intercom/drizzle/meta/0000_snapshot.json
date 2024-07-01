@@ -1,5 +1,5 @@
 {
-  "id": "671310f0-eef9-4f09-95d4-3e36b586d488",
+  "id": "6332ab9d-809c-42ce-9968-4ed8565cd854",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -22,6 +22,12 @@
         },
         "access_token": {
           "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspace_id": {
+          "name": "workspace_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true

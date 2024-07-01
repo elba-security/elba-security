@@ -25,12 +25,6 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'intercom/users.delete.requested': {
-      data: {
-        organisationId: string;
-        userId: string;
-      };
-    };
   }>(),
   middleware: [rateLimitMiddleware, unauthorizedMiddleware, sentryMiddleware],
   logger,
