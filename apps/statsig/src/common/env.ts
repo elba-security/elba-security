@@ -12,10 +12,9 @@ export const env = z
     ENCRYPTION_KEY: z.string().min(1),
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
-    STATSIG_API_BASE_URL: z.string().min(1).default('https://api.statsig.com'),
+    STATSIG_API_BASE_URL: z.string().min(1).default('https://statsigapi.net/console/v1'),
     STATSIG_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     STATSIG_USERS_SYNC_CONCURRENCY: zEnvInt().default(1),
-    STATSIG_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),
     VERCEL_ENV: z.string().min(1).optional(),
   })
   .parse(process.env);

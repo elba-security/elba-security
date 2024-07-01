@@ -2,7 +2,7 @@ import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
-import { getAllUsers } from '@/connectors/statsig/users';
+import { getUsers } from '@/connectors/statsig/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -15,6 +15,7 @@ const formatElbaUserDisplayName = (user: StatsigUser) => {
   if (user.firstName && user.lastName) {
     return `${user.firstName} ${user.lastName}`;
   }
+
   return user.email;
 };
 
@@ -22,7 +23,7 @@ const formatElbaUser = (user: StatsigUser): User => ({
   id: user.email,
   email: user.email,
   displayName: formatElbaUserDisplayName(user),
-  role: user.role,
+  role: user.role, // Owner | admin | member (Note: 'Owner' role starts with capital letter)
   additionalEmails: [],
 });
 
@@ -68,7 +69,7 @@ export const syncUsers = inngest.createFunction(
     const apiKey = await decrypt(organisation.apiKey);
 
     await step.run('list-users', async () => {
-      const result = await getAllUsers({
+      const result = await getUsers({
         apiKey,
       });
 

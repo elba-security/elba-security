@@ -20,7 +20,7 @@ const validUsers: StatsigUser[] = Array.from({ length: 2 }, (_, i) => ({
 }));
 
 const invalidUsers = [];
-const getAllUsersData = {
+const getUsersData = {
   validUsers,
   invalidUsers,
 };
@@ -43,7 +43,7 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    const getUsers = vi.spyOn(userConnector, 'getAllUsers').mockResolvedValue(getAllUsersData);
+    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
 
     await expect(
       registerOrganisation({
@@ -89,11 +89,11 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
+
     // @ts-expect-error -- this is a mock
     vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
-    const getUsers = vi.spyOn(userConnector, 'getAllUsers').mockResolvedValue(getAllUsersData);
-    // pre-insert an organisation to simulate an existing entry
+    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
+
     await db.insert(organisationsTable).values(organisation);
 
     await expect(
@@ -107,7 +107,6 @@ describe('registerOrganisation', () => {
     expect(getUsers).toBeCalledTimes(1);
     expect(getUsers).toBeCalledWith({ apiKey, page: null });
 
-    // check if the apiKey in the database is updated
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)
@@ -118,7 +117,6 @@ describe('registerOrganisation', () => {
     }
     expect(storedOrganisation.region).toBe(region);
     await expect(decrypt(storedOrganisation.apiKey)).resolves.toEqual(apiKey);
-    // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {

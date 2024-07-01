@@ -1,12 +1,12 @@
-import type { ResponseResolver } from 'msw';
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { StatsigError } from '../commons/error';
-import { type StatsigUser, getAllUsers } from './users';
+import { type StatsigUser, getUsers } from './users';
 
 const apiKey = 'test-api-key';
+
 const validUsers: StatsigUser[] = Array.from({ length: 2 }, (_, i) => ({
   firstName: `firstName-${i}`,
   lastName: `lastName-${i}`,
@@ -17,38 +17,31 @@ const validUsers: StatsigUser[] = Array.from({ length: 2 }, (_, i) => ({
 const invalidUsers = [];
 
 describe('users connector', () => {
-  describe('getAllUsers', () => {
+  describe('getUsers', () => {
     beforeEach(() => {
-      const resolver: ResponseResolver = ({ request }) => {
-        if (request.headers.get('Authorization') !== `Bearer ${apiKey}`) {
-          return new Response(undefined, { status: 401 });
-        }
+      server.use(
+        http.get(`${env.STATSIG_API_BASE_URL}/users`, ({ request }) => {
+          if (request.headers.get('Statsig-Api-Key') !== String(apiKey)) {
+            return new Response(undefined, { status: 401 });
+          }
 
-        const returnData = {
-          data: validUsers,
-        };
-        return Response.json(returnData);
-      };
-      server.use(http.get(`${env.STATSIG_API_BASE_URL}users`, resolver));
+          return Response.json({
+            data: validUsers,
+          });
+        })
+      );
     });
 
-    test('should return users and nextPage when the key is valid and their is another page', async () => {
-      await expect(getAllUsers({ apiKey })).resolves.toStrictEqual({
+    test('should return all the users in one page', async () => {
+      await expect(getUsers({ apiKey })).resolves.toStrictEqual({
         validUsers,
-        invalidUsers,
-      });
-    });
-
-    test('should return users and no nextPage when the key is valid and their is no other page', async () => {
-      await expect(getAllUsers({ apiKey })).resolves.toStrictEqual({
-        validUsers: [],
         invalidUsers,
       });
     });
 
     test('should throws when the key is invalid', async () => {
       await expect(
-        getAllUsers({
+        getUsers({
           apiKey: 'foo-id',
         })
       ).rejects.toBeInstanceOf(StatsigError);
