@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1716475335765,
+      "tag": "0000_flat_captain_marvel",
+      "breakpoints": true
+    }
+  ]
+}
