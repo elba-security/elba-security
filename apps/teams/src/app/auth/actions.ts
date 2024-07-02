@@ -13,13 +13,13 @@ import { setupOrganisation } from './service';
 const routeInputSchema = z.object({
   organisationId: z.string().uuid(),
   region: z.string().min(1),
-  admin_consent: z.string().transform((value) => value.toLocaleLowerCase() === 'true'),
+  adminConsent: z.string().transform((value) => value.toLocaleLowerCase() === 'true'),
   tenant: z.string().min(1),
 });
 
 type AppInstallData = {
   tenant: string | null;
-  admin_consent: string | null;
+  adminConsent: string | null;
 };
 
 export const checkAppInstallation = async (data: AppInstallData) => {
@@ -30,7 +30,7 @@ export const checkAppInstallation = async (data: AppInstallData) => {
       organisationId,
       region,
       tenant: tenantId,
-      admin_consent: hasConsent,
+      adminConsent: hasConsent,
     } = routeInputSchema.parse({
       ...data,
       organisationId: cookies().get('organisationId')?.value,
