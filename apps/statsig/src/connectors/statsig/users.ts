@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { StatsigError } from '../commons/error';
+import { StatsigError } from './common/error';
 
 const statsigUserSchema = z.object({
   email: z.string(),
@@ -29,10 +29,11 @@ export const getUsers = async ({ apiKey }: GetUsers) => {
       'STATSIG-API-KEY': apiKey,
       'Content-Type': 'application/json',
     },
+    cache: 'no-cache',
   });
 
   if (!response.ok) {
-    throw new StatsigError('API request failed', { response });
+    throw new StatsigError('Could not retrieve users', { response });
   }
 
   const resData: unknown = await response.json();

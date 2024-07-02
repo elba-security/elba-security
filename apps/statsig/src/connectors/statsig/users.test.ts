@@ -2,7 +2,7 @@ import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { StatsigError } from '../commons/error';
+import { StatsigError } from './common/error';
 import { type StatsigUser, getUsers } from './users';
 
 const apiKey = 'test-api-key';
