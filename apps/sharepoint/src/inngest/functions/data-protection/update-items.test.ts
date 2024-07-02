@@ -81,27 +81,45 @@ const items: Delta[] = Array.from({ length: itemLength }, (_, i) => {
 });
 
 const mockPermissions = (itemCount: number): MicrosoftDriveItemPermission[] => {
-  return Array.from({ length: itemCount }, (_, i) => ({
-    id: `permission-id-${i}`,
-    roles: ['write'],
-    link: { scope: 'users' },
-    grantedToV2: {
-      user: {
-        displayName: `some-display-name-${i}`,
-        id: `some-user-id-${i}`,
-        email: `some-user-email-${i}`,
-      },
-    },
-    grantedToIdentitiesV2: [
-      {
-        user: {
-          displayName: `some-display-name-${i}`,
-          id: `some-user-id-${i}`,
-          email: `some-user-email-${i}`,
+  return Array.from({ length: itemCount }, (_, i) => {
+    if (i === 0 || i < 2) {
+      return {
+        id: `permission-id-${i}`,
+        roles: ['write'],
+        grantedToV2: {
+          user: {
+            displayName: `some-display-name-${i}`,
+            id: `some-user-id-${i}`,
+            email: `user-email-${i}@someemail.com`,
+          },
         },
-      },
-    ],
-  }));
+      };
+    }
+
+    if (i === 2) {
+      return {
+        id: `permission-id-${i}`,
+        roles: ['write'],
+        link: { scope: 'anonymous' },
+        grantedToIdentitiesV2: [],
+      };
+    }
+
+    return {
+      id: `permission-id-${i}`,
+      roles: ['write'],
+      link: { scope: 'users' },
+      grantedToIdentitiesV2: [
+        {
+          user: {
+            displayName: `some-display-name-${i}`,
+            id: `some-user-id-${i}`,
+            email: `user-email-${i}@someemail.com`,
+          },
+        },
+      ],
+    };
+  });
 };
 
 const setupData = {

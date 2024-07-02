@@ -2,6 +2,7 @@ import { EventSchemas, Inngest } from 'inngest';
 import { sentryMiddleware } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import type { CombinedPermission } from './functions/data-protection/common/types';
 
 export const inngest = new Inngest({
   id: 'sharepoint',
@@ -96,7 +97,7 @@ export const inngest = new Inngest({
           siteId: string;
           driveId: string;
         };
-        permissions: string[];
+        permissions: CombinedPermission[];
       };
     };
     'sharepoint/drives.subscription.triggered': {

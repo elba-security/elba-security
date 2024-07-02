@@ -21,3 +21,35 @@ export type ItemsWithPermissionsParsed = {
   toDelete: string[];
   toUpdate: ItemsWithPermissions[];
 };
+
+export type CombinedPermission =
+  | {
+      id: string;
+      type: 'user';
+      email: string;
+      metadata: {
+        email: string;
+        linksPermissionIds?: string[];
+        directPermissionId?: string;
+      };
+    }
+  | {
+      id: string;
+      type: 'anyone';
+    };
+
+export type CombinedLinkPermissions = {
+  permissionId: string;
+  userEmails?: string[];
+};
+
+export type PermissionDeletionResult = CombinedLinkPermissions & {
+  siteId: string;
+  driveId: string;
+  itemId: string;
+  status?: number;
+};
+
+export type DeleteItemFunctionParams = PermissionDeletionResult & {
+  token: string;
+};
