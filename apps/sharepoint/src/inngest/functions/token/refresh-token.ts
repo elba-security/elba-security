@@ -2,11 +2,13 @@ import { subMinutes } from 'date-fns/subMinutes';
 import { addSeconds } from 'date-fns/addSeconds';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
+import { failureRetry } from '@elba-security/inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 import { getToken } from '@/connectors/microsoft/auth/get-token';
+import { unauthorizedMiddleware } from '@/inngest/middlewares/unauthorized-middleware';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -15,6 +17,8 @@ export const refreshToken = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
+    onFailure: failureRetry(),
+    middleware: [unauthorizedMiddleware],
     cancelOn: [
       {
         event: 'sharepoint/app.uninstalled',

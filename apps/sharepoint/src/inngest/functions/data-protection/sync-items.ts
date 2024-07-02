@@ -75,7 +75,7 @@ export const syncItems = inngest.createFunction(
     if (folders.length) {
       const eventsWait = folders.map(async ({ id }) =>
         step.waitForEvent(`wait-for-folders-complete-${id}`, {
-          event: 'sharepoint/foder-items.sync.completed',
+          event: 'sharepoint/folder_items.sync.completed',
           timeout: '1d',
           if: `async.data.organisationId == '${organisationId}' && async.data.folderId == '${id}'`,
         })
@@ -166,7 +166,7 @@ export const syncItems = inngest.createFunction(
 
     if (folder?.id) {
       await step.sendEvent('folders-sync-complete', {
-        name: 'sharepoint/foder-items.sync.completed',
+        name: 'sharepoint/folder_items.sync.completed',
         data: {
           organisationId,
           folderId: folder.id,
