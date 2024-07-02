@@ -52,7 +52,7 @@ export const getDelta = async ({
 
   if (isFirstSync) {
     url.searchParams.append('$select', 'id');
-    url.searchParams.append('$top', String(1000));
+    url.searchParams.append('$top', String(1000)); // TODO: why?
   } else {
     url.searchParams.append('$top', String(env.MICROSOFT_DATA_PROTECTION_SYNC_CHUNK_SIZE));
   }
