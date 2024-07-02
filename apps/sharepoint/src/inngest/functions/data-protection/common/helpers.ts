@@ -86,6 +86,8 @@ export const combinePermisisons = (
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- will be there
         const combinedItem = combinedPermissions.get(elbaPermissionId)!;
         if (combinedItem.type === 'user') {
+          // It's not obvious here, but the Item can have only one direct permission,
+          // so here we are only setting permission.id if combinedItem was created before (with links permissions)
           combinedItem.metadata.directPermissionId = permission.id;
         }
       }
@@ -118,7 +120,9 @@ export const combinePermisisons = (
         } else {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- will be there
           const combinedItem = combinedPermissions.get(elbaPermissionId)!;
-          if (combinedItem.type === 'user' && combinedItem.metadata.linksPermissionIds) {
+          if (combinedItem.type === 'user') {
+            combinedItem.metadata.linksPermissionIds =
+              combinedItem.metadata.linksPermissionIds ?? [];
             combinedItem.metadata.linksPermissionIds.push(permission.id);
           }
         }
