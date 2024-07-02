@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { StatsigError } from '@/connectors/commons/error';
+import { StatsigError } from '@/connectors/statsig/common/error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
