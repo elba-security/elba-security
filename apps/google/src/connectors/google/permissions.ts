@@ -85,7 +85,6 @@ export const listAllGoogleFileNonInheritedPermissions = async (
   const permissions: GoogleFileNonInheritedPermission[] = [];
   do {
     const { permissions: pagePermissions, nextPageToken } =
-      // eslint-disable-next-line no-await-in-loop -- we loop through every permissions
       await listGoogleFileNonInheritedPermissions({
         ...listPermissionsParams,
         pageToken,
@@ -122,7 +121,6 @@ export const listAllGoogleSharedDriveManagerPermissions = async (
   const permissions: GoogleSharedDriveManagerPermission[] = [];
   do {
     const { permissions: pagePermissions, nextPageToken } =
-      // eslint-disable-next-line no-await-in-loop -- we loop through every permissions
       await listGoogleSharedDriveManagerPermissions({
         ...listPermissionsParams,
         pageToken,
