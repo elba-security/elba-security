@@ -1,7 +1,7 @@
 import { afterEach } from 'node:test';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { RetryAfterError } from 'inngest';
-import { HubspotError } from '@/connectors/common/error';
+import { HubspotError } from '@/connectors/hubspot/common/error';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
