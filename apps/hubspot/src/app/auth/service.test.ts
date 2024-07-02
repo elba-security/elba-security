@@ -5,7 +5,7 @@ import * as timeZoneConnector from '@/connectors/hubspot/account-info';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { HubspotError } from '@/connectors/common/error';
+import { HubspotError } from '@/connectors/hubspot/common/error';
 import { decrypt } from '@/common/crypto';
 import { setupOrganisation } from './service';
 
