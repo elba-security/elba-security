@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
-import { HubspotError } from '../common/error';
+import { HubspotError } from './common/error';
 
 const getAccountResponseSchema = z.object({
   timeZone: z.string(),

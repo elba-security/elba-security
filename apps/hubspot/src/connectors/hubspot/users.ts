@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { HubspotError } from '../common/error';
+import { HubspotError } from './common/error';
 
 const hubspotUserSchema = z.object({
   id: z.string(),

@@ -1,11 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call -- test convenient */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- test convenient */
-
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { HubspotError } from '../common/error';
+import { HubspotError } from './common/error';
 import { getToken, getRefreshToken } from './auth';
 
 const validCode = '1234';

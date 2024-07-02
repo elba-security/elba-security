@@ -3,7 +3,7 @@ import { addDays, differenceInSeconds, startOfDay } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
-import { HubspotError } from '@/connectors/common/error';
+import { HubspotError } from '@/connectors/hubspot/common/error';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 
