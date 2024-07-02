@@ -42,27 +42,45 @@ const item: MicrosoftDriveItem = {
   lastModifiedDateTime: '2024-02-23T15:50:09Z',
 };
 
-const permissions: MicrosoftDriveItemPermission[] = Array.from({ length: 10 }, (_, i) => ({
-  id: `permission-id-${i}`,
-  roles: ['write'],
-  link: { scope: 'users' },
-  grantedToV2: {
-    user: {
-      displayName: `some-display-name-${i}`,
-      id: `some-user-id-${i}`,
-      email: `some-user-email-${i}`,
-    },
-  },
-  grantedToIdentitiesV2: [
-    {
-      user: {
-        displayName: `some-display-name-${i}`,
-        id: `some-user-id-${i}`,
-        email: `some-user-email-${i}`,
+const permissions: MicrosoftDriveItemPermission[] = Array.from({ length: 10 }, (_, i) => {
+  if (i === 0 || i < 2) {
+    return {
+      id: `permission-id-${i}`,
+      roles: ['write'],
+      grantedToV2: {
+        user: {
+          displayName: `some-display-name-${i}`,
+          id: `some-user-id-${i}`,
+          email: `user-email-${i}@someemail.com`,
+        },
       },
-    },
-  ],
-}));
+    };
+  }
+
+  if (i === 2) {
+    return {
+      id: `permission-id-${i}`,
+      roles: ['write'],
+      link: { scope: 'anonymous' },
+      grantedToIdentitiesV2: [],
+    };
+  }
+
+  return {
+    id: `permission-id-${i}`,
+    roles: ['write'],
+    link: { scope: 'users' },
+    grantedToIdentitiesV2: [
+      {
+        user: {
+          displayName: `some-display-name-${i}`,
+          id: `some-user-id-${i}`,
+          email: `user-email-${i}@someemail.com`,
+        },
+      },
+    ],
+  };
+});
 
 const setupData = {
   id: itemId,

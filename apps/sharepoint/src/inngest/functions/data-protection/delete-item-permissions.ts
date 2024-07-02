@@ -5,8 +5,11 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
-import { deleteItemPermission } from '@/connectors/microsoft/sharepoint/permissions';
-import { MicrosoftError } from '@/common/error';
+import type { PermissionDeletionResult } from './common/types';
+import {
+  createDeleteItemPermissionFunction,
+  preparePermissionDeletionArray,
+} from './common/helpers';
 
 export const deleteDataProtectionItemPermissions = inngest.createFunction(
   {
@@ -28,7 +31,7 @@ export const deleteDataProtectionItemPermissions = inngest.createFunction(
     retries: 5,
   },
   { event: 'sharepoint/data_protection.delete_object_permissions.requested' },
-  async ({ event, step, logger }) => {
+  async ({ event, step }) => {
     const {
       id: itemId,
       organisationId,
@@ -50,52 +53,54 @@ export const deleteDataProtectionItemPermissions = inngest.createFunction(
 
     const token = await decrypt(organisation.token);
 
+    const permissionDeletionArray = preparePermissionDeletionArray(permissions);
+
     const permissionDeletionResults = await Promise.allSettled(
-      permissions.map((permissionId) =>
-        step.run('delete-item-permissions', async () => {
-          try {
-            await deleteItemPermission({
-              token,
-              siteId,
-              driveId,
-              itemId,
-              permissionId,
-            });
-
-            return { status: 204, permissionId };
-          } catch (error) {
-            if (error instanceof MicrosoftError && error.response?.status === 404) {
-              return { status: 404, permissionId };
-            }
-
-            logger.error('Failed to delete permission', {
-              organisationId,
-              siteId,
-              driveId,
-              itemId,
-              permissionId,
-              error,
-            });
-
-            throw error;
-          }
-        })
+      permissionDeletionArray.map(({ permissionId, userEmails }) =>
+        step.run(
+          'delete-item-permissions',
+          createDeleteItemPermissionFunction({
+            token,
+            siteId,
+            driveId,
+            itemId,
+            permissionId,
+            userEmails,
+          })
+        )
       )
     );
 
     const parsedResult = permissionDeletionResults.reduce<{
-      deletedPermissions: string[];
-      notFoundPermissions: string[];
-      unexpectedFailedPermissions: string[];
+      deletedPermissions: PermissionDeletionResult[];
+      notFoundPermissions: PermissionDeletionResult[];
+      unexpectedFailedPermissions: PermissionDeletionResult[];
     }>(
       (acc, el, index) => {
         if (el.status === 'fulfilled') {
-          if (el.value.status === 204) acc.deletedPermissions.push(el.value.permissionId);
-          if (el.value.status === 404) acc.notFoundPermissions.push(el.value.permissionId);
+          const permissionDeletionResult = {
+            siteId,
+            driveId,
+            itemId,
+            permissionId: el.value.permissionId,
+            userEmails: el.value.userEmails,
+          };
+
+          if (el.value.status === 204)
+            acc.deletedPermissions.push({ status: el.value.status, ...permissionDeletionResult });
+          if (el.value.status === 404)
+            acc.notFoundPermissions.push({ status: el.value.status, ...permissionDeletionResult });
         }
         if (el.status === 'rejected') {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- can't be undefined
-          acc.unexpectedFailedPermissions.push(permissions[index]!);
+          acc.unexpectedFailedPermissions.push({
+            siteId,
+            driveId,
+            itemId,
+            status: 500,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- will be there
+            permissionId: permissionDeletionArray[index]!.permissionId,
+            userEmails: permissionDeletionArray[index]?.userEmails,
+          });
         }
 
         return acc;
