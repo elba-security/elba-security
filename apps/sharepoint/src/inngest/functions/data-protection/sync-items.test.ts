@@ -194,7 +194,7 @@ describe('sync-items', () => {
         const folder = folders[i];
 
         expect(step.waitForEvent).nthCalledWith(i + 1, `wait-for-folders-complete-${folder?.id}`, {
-          event: 'sharepoint/foder-items.sync.completed',
+          event: 'sharepoint/folder_items.sync.completed',
           if: `async.data.organisationId == '${organisation.id}' && async.data.folderId == '${folder?.id}'`,
           timeout: '1d',
         });
@@ -321,7 +321,7 @@ describe('sync-items', () => {
         const folder = folders[i];
 
         expect(step.waitForEvent).nthCalledWith(i + 1, `wait-for-folders-complete-${folder?.id}`, {
-          event: 'sharepoint/foder-items.sync.completed',
+          event: 'sharepoint/folder_items.sync.completed',
           if: `async.data.organisationId == '${organisation.id}' && async.data.folderId == '${folder?.id}'`,
           timeout: '1d',
         });
@@ -374,7 +374,7 @@ describe('sync-items', () => {
     });
 
     expect(step.sendEvent).toBeCalledWith('folders-sync-complete', {
-      name: 'sharepoint/foder-items.sync.completed',
+      name: 'sharepoint/folder_items.sync.completed',
       data: {
         organisationId: organisation.id,
         folderId,

@@ -73,7 +73,7 @@ export const inngest = new Inngest({
         driveId: string;
       };
     };
-    'sharepoint/foder-items.sync.completed': {
+    'sharepoint/folder_items.sync.completed': {
       data: {
         organisationId: string;
         folderId: string;
