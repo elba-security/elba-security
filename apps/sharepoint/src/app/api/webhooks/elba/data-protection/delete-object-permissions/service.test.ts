@@ -4,6 +4,7 @@ import { inngest } from '@/inngest/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
+import type { SharepointDeletePermission } from '@/inngest/functions/data-protection/common/types';
 import { POST as handler } from './route';
 
 const token = 'test-token';
@@ -18,8 +19,32 @@ const organisation = {
 const itemId = 'some-item-id';
 const siteId = 'some-site-id';
 const driveId = 'some-drive-id';
-const permissionId = 'some-permissionId-id';
-const permissions = ['some-permissionId-id'];
+
+const count = 5;
+
+const permissions: SharepointDeletePermission[] = Array.from({ length: count }, (_, i) => {
+  if (i === 1)
+    return {
+      id: `some-random-id-${i}`,
+      metadata: {
+        type: 'anyone',
+      },
+    };
+
+  return {
+    id: `some-random-id-${i}`,
+    metadata: {
+      type: 'user',
+      email: `user-email-${i}@someemail.com`,
+      linksPermissionIds: [
+        `user-email-${i}@someemail.com`,
+        `user-email-${i * 1000}@someemail.com`,
+        `user-email-${i * 10000}@someemail.com`,
+      ],
+      directPermissionId: `some-random-id-${i}`,
+    },
+  };
+});
 
 describe('deleteObjectPermissions', () => {
   beforeEach(async () => {
@@ -38,11 +63,7 @@ describe('deleteObjectPermissions', () => {
           siteId,
           driveId,
         },
-        permissions: [
-          {
-            id: permissionId,
-          },
-        ],
+        permissions,
       },
     });
 

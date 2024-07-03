@@ -7,7 +7,7 @@ import { db } from '@/database/client';
 import { MicrosoftError } from '@/common/error';
 import * as deleteItemPermissionConnector from '@/connectors/microsoft/sharepoint/permissions';
 import { deleteDataProtectionItemPermissions } from './delete-item-permissions';
-import type { CombinedLinkPermissions, CombinedPermission } from './common/types';
+import type { CombinedLinkPermissions, SharepointDeletePermission } from './common/types';
 import { preparePermissionDeletionArray } from './common/helpers';
 
 const token = 'test-token';
@@ -15,23 +15,23 @@ const token = 'test-token';
 const siteId = 'some-site-id';
 const driveId = 'some-drive-id';
 const itemId = 'some-item-id';
-const notFoundPermission: CombinedPermission = {
+const notFoundPermission: SharepointDeletePermission = {
   id: `some-not-found-permission-id`,
-  type: 'user',
-  email: `user-email-14454@someemail.com`,
   metadata: {
+    type: 'user',
     email: `user-email-14454@someemail.com`,
     directPermissionId: `some-not-found-permission-id`,
+    linksPermissionIds: [],
   },
 };
 
-const unexpectedFailedPermission: CombinedPermission = {
+const unexpectedFailedPermission: SharepointDeletePermission = {
   id: `some-unexpected-failed-permission-id`,
-  type: 'user',
-  email: `user-email-14454@someemail.com`,
   metadata: {
+    type: 'user',
     email: `user-email-14454@someemail.com`,
     directPermissionId: `some-unexpected-failed-permission-id`,
+    linksPermissionIds: [],
   },
 };
 
@@ -44,18 +44,19 @@ const organisation = {
 
 const count = 5;
 
-const permissions: CombinedPermission[] = Array.from({ length: count }, (_, i) => {
+const permissions: SharepointDeletePermission[] = Array.from({ length: count }, (_, i) => {
   if (i === 1)
     return {
       id: `some-random-id-${i}`,
-      type: 'anyone',
+      metadata: {
+        type: 'anyone',
+      },
     };
 
   return {
     id: `some-random-id-${i}`,
-    type: 'user',
-    email: `user-email-${i}@someemail.com`,
     metadata: {
+      type: 'user',
       email: `user-email-${i}@someemail.com`,
       linksPermissionIds: [
         `user-email-${i}@someemail.com`,
@@ -176,14 +177,20 @@ describe('delete-object', () => {
   test('should not found permission and unexpected failed permission', async () => {
     vi.spyOn(deleteItemPermissionConnector, 'deleteItemPermission').mockImplementation(
       ({ permissionId }) => {
-        if (permissionId === notFoundPermission.metadata.directPermissionId) {
+        if (
+          notFoundPermission.metadata.type === 'user' &&
+          permissionId === notFoundPermission.metadata.directPermissionId
+        ) {
           return Promise.reject(
             new MicrosoftError('Could not delete item permission', {
               response: new Response(undefined, { status: 404 }),
             })
           );
         }
-        if (permissionId === unexpectedFailedPermission.metadata.directPermissionId) {
+        if (
+          unexpectedFailedPermission.metadata.type === 'user' &&
+          permissionId === unexpectedFailedPermission.metadata.directPermissionId
+        ) {
           return Promise.reject(
             new MicrosoftError('Could not delete item permission', {
               response: new Response(undefined, { status: 500 }),
@@ -209,7 +216,9 @@ describe('delete-object', () => {
           itemId,
           status: 404,
           userEmails: undefined,
-          permissionId: notFoundPermission.metadata.directPermissionId,
+          permissionId:
+            notFoundPermission.metadata.type === 'user' &&
+            notFoundPermission.metadata.directPermissionId,
         },
       ],
       unexpectedFailedPermissions: [
@@ -219,7 +228,9 @@ describe('delete-object', () => {
           itemId,
           status: 500,
           userEmails: undefined,
-          permissionId: unexpectedFailedPermission.metadata.directPermissionId,
+          permissionId:
+            unexpectedFailedPermission.metadata.type === 'user' &&
+            unexpectedFailedPermission.metadata.directPermissionId,
         },
       ],
     });
@@ -236,7 +247,8 @@ describe('delete-object', () => {
         itemId,
         siteId,
         driveId,
-        permissionId: permission?.metadata.directPermissionId,
+        permissionId:
+          permission?.metadata.type === 'user' && permission.metadata.directPermissionId,
       });
     }
   });
