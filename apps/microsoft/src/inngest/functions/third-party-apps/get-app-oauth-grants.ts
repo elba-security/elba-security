@@ -21,9 +21,6 @@ export const getAppOauthGrants = inngest.createFunction(
       },
     ],
     retries: 5,
-  },
-  {
-    event: 'microsoft/third_party_apps.get_app_oauth_grants.requested',
     concurrency: [
       {
         key: 'event.data.organisationId',
@@ -34,6 +31,9 @@ export const getAppOauthGrants = inngest.createFunction(
         limit: 1,
       },
     ],
+  },
+  {
+    event: 'microsoft/third_party_apps.get_app_oauth_grants.requested',
   },
   async ({ step, event, logger }): Promise<appsService.MicrosoftAppOauthGrant[]> => {
     const { organisationId, appId, skipToken } = event.data;

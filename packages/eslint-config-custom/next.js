@@ -33,6 +33,8 @@ module.exports = {
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     'unicorn/filename-case': ['error', { case: 'kebabCase', ignore: ['\\.tsx$'] }],
     'turbo/no-undeclared-env-vars': 'off',
+    '@typescript-eslint/prefer-nullish-coalescing': 'off',
+    '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
   },
   overrides: [
     {

@@ -24,7 +24,7 @@ describe('delete-data-protection-object-permissions', () => {
           'permission-id-4': { code: 500, errors: [{ reason: 'unknownError' }] },
         };
         if (errors[permissionId as unknown as string]) {
-          return Promise.reject(errors[permissionId as unknown as string]);
+          return Promise.reject(errors[permissionId as unknown as string]); // eslint-disable-line @typescript-eslint/prefer-promise-reject-errors -- on purpose
         }
         return Promise.resolve(undefined);
       }

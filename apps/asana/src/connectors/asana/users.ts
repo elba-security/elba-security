@@ -88,7 +88,7 @@ export const deleteUser = async ({ userId, workspaceId, accessToken }: DeleteUse
     },
     body: JSON.stringify({
       data: {
-        user: `${userId}`,
+        user: userId,
       },
     }),
   });

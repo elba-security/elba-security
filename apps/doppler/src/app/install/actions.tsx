@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { RedirectType, redirect } from 'next/navigation';
 import { getRedirectUrl } from '@elba-security/sdk';
 import { isRedirectError } from 'next/dist/client/components/redirect';
+import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 import { DopplerError } from '@/connectors/commons/error';
 import { env } from '@/common/env';
 import { registerOrganisation } from './service';
@@ -21,6 +22,7 @@ export type FormState = {
 };
 
 export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
+  unstable_noStore();
   const region = formData.get('region');
   try {
     const result = formSchema.safeParse({

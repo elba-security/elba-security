@@ -2,18 +2,15 @@
   "name": "@elba-security/config",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "lint": "eslint **/*.js"
-  },
+  "scripts": {},
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
     "@sentry/nextjs": "^7.88.0",
-    "eslint": "^8",
-    "next": "14.0.1"
+    "next": "14.2.4"
   },
   "peerDependencies": {
     "@sentry/nextjs": "^7.88.0",
-    "next": "14.0.1"
+    "next": "14.2.4"
   }
 }

@@ -11,6 +11,7 @@ export const env = createEnv({
     DATA_PROTECTION_SYNC_PERSONAL_DRIVES_CONCURRENCY: z.coerce.number().int().positive().min(1),
     DATA_PROTECTION_SYNC_SHARED_DRIVES_BATCH_SIZE: z.coerce.number().int().positive().min(1),
     DATA_PROTECTION_SYNC_SHARED_DRIVES_CONCURRENCY: z.coerce.number().int().positive().min(1),
+    DATABASE_PROXY_PORT: z.coerce.number().int().positive().optional(),
     DATABASE_URL: z.string().min(1),
     ELBA_API_BASE_URL: z.string().url(),
     ELBA_API_KEY: z.string().min(1),
@@ -26,8 +27,9 @@ export const env = createEnv({
     THIRD_PARTY_APPS_CONCURRENCY: z.coerce.number().int().positive().min(1),
     THIRD_PARTY_APPS_SYNC_CRON: z.string().min(1),
     USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().min(1),
-    USERS_SYNC_CRON: z.string().min(1),
     USERS_SYNC_CONCURRENCY: z.coerce.number().int().positive().min(1),
+    USERS_SYNC_CRON: z.string().min(1),
+    VERCEL_ENV: z.string().min(1).optional(),
   },
   experimental__runtimeEnv: {},
 });

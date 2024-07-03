@@ -13,9 +13,6 @@ import { getAppOauthGrants } from './get-app-oauth-grants';
 export const refreshAppPermission = inngest.createFunction(
   {
     id: 'microsoft-refresh-app-permission',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     cancelOn: [
       {
         event: 'microsoft/app.uninstalled',

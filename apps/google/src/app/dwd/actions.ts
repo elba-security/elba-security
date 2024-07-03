@@ -4,10 +4,12 @@ import { cookies } from 'next/headers';
 import { RedirectType, redirect } from 'next/navigation';
 import { getRedirectUrl } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
+import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 import { env } from '@/common/env/server';
 import { isInstallationCompleted } from './service';
 
 export const isDWDActivationPending = async () => {
+  unstable_noStore();
   const organisationId = cookies().get('organisation_id')?.value;
   const region = cookies().get('region')?.value;
   const googleAdminEmail = cookies().get('google_admin_email')?.value;

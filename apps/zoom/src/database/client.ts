@@ -9,7 +9,7 @@ import * as schema from './schema';
 let db: NeonDatabase<typeof schema>;
 
 if (!process.env.VERCEL_ENV || process.env.VERCEL_ENV === 'development') {
-  neonConfig.wsProxy = (host) => `${host}:${env.DATABASE_PROXY_PORT}/v1`;
+  neonConfig.wsProxy = (host) => `${host}:${env.DATABASE_PROXY_PORT!}/v1`; // eslint-disable-line @typescript-eslint/no-non-null-assertion -- convenience
   neonConfig.useSecureWebSocket = false;
   neonConfig.pipelineTLS = false;
   neonConfig.pipelineConnect = false;

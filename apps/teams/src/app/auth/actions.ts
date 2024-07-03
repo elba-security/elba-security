@@ -6,29 +6,31 @@ import { cookies } from 'next/headers';
 import { isRedirectError } from 'next/dist/client/components/redirect';
 import { logger } from '@elba-security/logger';
 import { getRedirectUrl } from '@elba-security/sdk';
+import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 import { env } from '@/env';
 import { setupOrganisation } from './service';
 
 const routeInputSchema = z.object({
   organisationId: z.string().uuid(),
   region: z.string().min(1),
-  admin_consent: z.string().transform((value) => value.toLocaleLowerCase() === 'true'),
+  adminConsent: z.string().transform((value) => value.toLocaleLowerCase() === 'true'),
   tenant: z.string().min(1),
 });
 
 type AppInstallData = {
   tenant: string | null;
-  admin_consent: string | null;
+  adminConsent: string | null;
 };
 
 export const checkAppInstallation = async (data: AppInstallData) => {
+  unstable_noStore();
   const regionFromCookies = cookies().get('region')?.value;
   try {
     const {
       organisationId,
       region,
       tenant: tenantId,
-      admin_consent: hasConsent,
+      adminConsent: hasConsent,
     } = routeInputSchema.parse({
       ...data,
       organisationId: cookies().get('organisationId')?.value,

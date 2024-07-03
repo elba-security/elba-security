@@ -92,7 +92,7 @@ describe('refresh-third-party-apps-object', () => {
     const serviceAccountClientSpy = spyOnGoogleServiceAccountClient();
 
     vi.spyOn(googleTokens, 'getGoogleToken').mockImplementation(() => {
-      // eslint-disable-next-line prefer-promise-reject-errors -- this is a mock
+      // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- on purpose
       return Promise.reject({
         code: 404,
         errors: [{ reason: 'notFound' }],
