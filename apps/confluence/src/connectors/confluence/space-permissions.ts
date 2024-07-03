@@ -103,7 +103,6 @@ export const getAllSpacePermissions = async (params: GetAllSpacePermissionsParam
   let cursor: string | null = null;
   let i = 0;
   do {
-    // eslint-disable-next-line no-await-in-loop -- convenience
     const result: Awaited<ReturnType<typeof getSpacePermissions>> = await getSpacePermissions({
       ...params,
       cursor,

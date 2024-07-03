@@ -15,17 +15,17 @@
   },
   "dependencies": {
     "@elba-security/api-client": "workspace:*",
-    "typescript": "^5.3.3",
-    "zod": "^3.22.4"
+    "typescript": "^5.5.2",
+    "zod": "^3.23.8"
   },
   "peerDependencies": {
     "@elba-security/sdk": "workspace:*",
-    "drizzle-orm": ">=0.29.0",
+    "drizzle-orm": ">=0.31.0",
     "inngest": ">=3.19.0",
     "msw": ">=2.3.0",
     "postgres": ">=3.4.0",
-    "testcontainers": ">=10.8.0",
-    "vitest": ">=1.0.0"
+    "testcontainers": ">=10.10.0",
+    "vitest": ">=1.6.0"
   },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
@@ -34,7 +34,7 @@
     "eslint": "^8",
     "inngest": "3.19.11",
     "msw": "^2.3.1",
-    "testcontainers": "^10.9.0",
-    "typescript": "^5.3.3"
+    "testcontainers": "^10.10.0",
+    "typescript": "^5.5.2"
   }
 }

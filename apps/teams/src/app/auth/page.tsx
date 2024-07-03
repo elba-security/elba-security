@@ -3,12 +3,13 @@
 import { useEffect } from 'react';
 import type { ReadonlyURLSearchParams } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
+import { FullScreenSpinner } from '@elba-security/design-system';
 import { checkAppInstallation } from './actions';
 
 const poolCheckAppInstallation = async (searchParams: ReadonlyURLSearchParams) => {
   const isWaiting = await checkAppInstallation({
     tenant: searchParams.get('tenant'),
-    admin_consent: searchParams.get('admin_consent'),
+    adminConsent: searchParams.get('admin_consent'),
   });
 
   if (!isWaiting) {
@@ -28,5 +29,9 @@ export default function Auth() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- we don't want effect retrigger & don't expect searchParams to changes
   }, []);
 
-  return <span>Waiting for Microsoft confirmation...</span>;
+  return (
+    <FullScreenSpinner>
+      <p>Waiting for Microsoft confirmation...</p>
+    </FullScreenSpinner>
+  );
 }

@@ -20,7 +20,7 @@ export const setupOrganisation = async ({
   const { token, expiresIn } = await getToken(tenantId);
 
   try {
-    // we test the installaton: microsoft API takes time to propagate it through its services
+    // we test the installation: microsoft API takes time to propagate it through its services
     await getUsers({ token, tenantId, skipToken: null });
   } catch {
     return { isAppInstallationCompleted: false };

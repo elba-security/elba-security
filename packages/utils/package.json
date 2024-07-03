@@ -9,13 +9,13 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "typescript": "^5.3.3"
+    "typescript": "^5.5.2"
   },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
     "eslint": "^8",
-    "typescript": "^5.3.3",
-    "vitest": "1.4.0"
+    "typescript": "^5.5.2",
+    "vitest": "1.6.0"
   }
 }

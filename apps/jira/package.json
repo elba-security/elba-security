@@ -25,32 +25,32 @@
     "@elba-security/nextjs": "workspace:*",
     "@elba-security/sdk": "workspace:*",
     "@elba-security/utils": "workspace:*",
-    "@neondatabase/serverless": "0.9.0",
+    "@neondatabase/serverless": "0.9.4",
     "@sentry/nextjs": "^7.88.0",
     "drizzle-orm": "^0.29.4",
     "inngest": "3.19.11",
-    "next": "14.0.1",
+    "next": "14.2.4",
     "react": "^18",
     "react-dom": "^18",
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@edge-runtime/vm": "^3.1.7",
+    "@edge-runtime/vm": "^3.2.0",
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/test-utils": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
-    "@next/eslint-plugin-next": "^14.0.2",
+    "@next/eslint-plugin-next": "^14.2.4",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.5",
     "drizzle-kit": "^0.20.6",
     "eslint": "^8",
-    "inngest-cli": "^0.25.2",
+    "inngest-cli": "^0.29.1",
     "msw": "^2.3.1",
-    "postgres": "^3.4.3",
-    "testcontainers": "^10.9.0",
-    "typescript": "^5.3.3",
-    "vitest": "1.4.0"
+    "postgres": "^3.4.4",
+    "testcontainers": "^10.10.0",
+    "typescript": "^5.5.2",
+    "vitest": "1.6.0"
   }
 }

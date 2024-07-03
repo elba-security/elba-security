@@ -22,7 +22,7 @@ export const synchronizeUsers = inngest.createFunction(
   {
     id: 'box-synchronize-users',
     priority: {
-      run: 'event.data.isFirstSync ? 600 : -600',
+      run: 'event.data.isFirstSync ? 600 : 0',
     },
     concurrency: {
       key: 'event.data.organisationId',

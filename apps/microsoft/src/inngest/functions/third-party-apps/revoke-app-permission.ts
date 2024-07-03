@@ -10,9 +10,6 @@ import { deleteAppPermission, deleteOauthGrant } from '@/connectors/microsoft/ap
 export const revokeAppPermission = inngest.createFunction(
   {
     id: 'microsoft-revoke-app-permission',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     cancelOn: [
       {
         event: 'microsoft/app.uninstalled',
@@ -52,7 +49,6 @@ export const revokeAppPermission = inngest.createFunction(
 
     if (oauthGrantIds) {
       for (let i = 0; i < oauthGrantIds.length; i++) {
-        // eslint-disable-next-line no-await-in-loop -- convenience
         await step.run(`delete-oauth-grant-${i}`, async () => {
           await deleteOauthGrant({
             token,
