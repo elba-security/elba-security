@@ -16,7 +16,6 @@ import type {
   ItemsWithPermissions,
   ItemsWithPermissionsParsed,
   ParsedDelta,
-  SharepointDataProtectionPermission,
   SharepointDeletePermission,
 } from './types';
 
@@ -38,6 +37,7 @@ export type UserPermissionMetadata = z.infer<typeof userPermissionMetadataSchema
 
 export const anyonePermissionMetadataSchema = z.object({
   type: z.literal('anyone'),
+  permissionIds: z.array(z.string()),
 });
 
 export type AnyonePermissionMetadata = z.infer<typeof anyonePermissionMetadataSchema>;
@@ -85,118 +85,76 @@ export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
   return chunks;
 };
 
-export const combinePermissions = (
-  itemId: string,
-  permissions: MicrosoftDriveItemPermission[]
-): DataProtectionObjectPermission[] => {
-  const combinedPermissions = new Map<string, SharepointDataProtectionPermission>();
+export const formatPermissions = (permissions: MicrosoftDriveItemPermission[]) => {
+  const usersPermissions = new Map<string, UserPermissionMetadata>();
+  const anyonePermissionIds = new Set<string>();
 
-  permissions.forEach((permission) => {
-    if (permission.grantedToV2?.user) {
-      const elbaPermissionId = `item-${itemId}-user-${permission.grantedToV2.user.id}`;
-
-      if (!combinedPermissions.has(elbaPermissionId)) {
-        combinedPermissions.set(elbaPermissionId, {
-          id: elbaPermissionId,
-          type: 'user',
-          email: permission.grantedToV2.user.email,
-          metadata: {
-            type: 'user',
-            email: permission.grantedToV2.user.email,
-            directPermissionId: permission.id,
-            linksPermissionIds: [],
-          },
-        });
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- will be there
-        const combinedItem = combinedPermissions.get(elbaPermissionId)!;
-        if (combinedItem.type === 'user') {
-          // It's not obvious here, but the Item can have only one direct permission,
-          // so here we are only setting permission.id if combinedItem was created before (with links permissions)
-          combinedItem.metadata.directPermissionId = permission.id;
-        }
-      }
+  for (const permission of permissions) {
+    if (permission.link?.scope === 'anonymous') {
+      anyonePermissionIds.add(permission.id);
     }
 
-    if (permission.link?.scope === 'anonymous') {
-      combinedPermissions.set(permission.id, {
-        id: permission.id,
-        type: 'anyone',
-        metadata: { type: 'anyone' },
-      });
+    if (permission.grantedToV2?.user) {
+      const userId = permission.grantedToV2.user.id;
+
+      let userPermissions = usersPermissions.get(userId);
+      if (!userPermissions) {
+        userPermissions = {
+          type: 'user',
+          email: permission.grantedToV2.user.email,
+          linksPermissionIds: [],
+        };
+        usersPermissions.set(userId, userPermissions);
+      }
+      userPermissions.directPermissionId = permission.id;
     }
 
     if (permission.link?.scope === 'users' && permission.grantedToIdentitiesV2?.length) {
-      permission.grantedToIdentitiesV2.forEach((identity) => {
-        const elbaPermissionId = `item-${itemId}-user-${identity?.user?.id}`;
-        const email = identity?.user?.email;
-
-        if (!email) return;
-
-        if (!combinedPermissions.has(elbaPermissionId)) {
-          combinedPermissions.set(elbaPermissionId, {
-            id: elbaPermissionId,
-            type: 'user',
-            email,
-            metadata: {
-              type: 'user',
-              email,
-              linksPermissionIds: [permission.id],
-            },
-          });
-        } else {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- will be there
-          const combinedItem = combinedPermissions.get(elbaPermissionId)!;
-          if (combinedItem.type === 'user') {
-            combinedItem.metadata.linksPermissionIds.push(permission.id);
-          }
+      for (const identity of permission.grantedToIdentitiesV2) {
+        if (!identity?.user?.email || identity.user.id) {
+          continue;
         }
-      });
+        const userId = identity.user.id;
+
+        let userPermissions = usersPermissions.get(userId);
+        if (!userPermissions) {
+          userPermissions = {
+            type: 'user',
+            email: identity.user.email,
+            linksPermissionIds: [],
+          };
+          usersPermissions.set(userId, userPermissions);
+        }
+        userPermissions.linksPermissionIds.push(permission.id);
+      }
     }
-  });
+  }
 
-  return Array.from(combinedPermissions.values());
-};
+  const elbaPermissions: DataProtectionObjectPermission[] = [];
+  if (anyonePermissionIds.size) {
+    elbaPermissions.push({
+      id: 'anyone',
+      type: 'anyone',
+      metadata: {
+        type: 'anyone',
+        permissionIds: [...anyonePermissionIds],
+      } satisfies AnyonePermissionMetadata,
+    });
+  }
 
-export const getItemsWithPermissionsFromChunks = async ({
-  itemsChunks,
-  token,
-  siteId,
-  driveId,
-}: {
-  itemsChunks: MicrosoftDriveItem[][];
-  token: string;
-  siteId: string;
-  driveId: string;
-}) => {
-  const itemsWithPermissions: ItemsWithPermissions[] = [];
-
-  for (const itemsChunk of itemsChunks) {
-    const itemPermissionsChunks = await Promise.all(
-      itemsChunk.map((item) =>
-        getAllItemPermissions({
-          token,
-          siteId,
-          driveId,
-          itemId: item.id,
-        })
-      )
-    );
-
-    for (let e = 0; e < itemPermissionsChunks.length; e++) {
-      const item = itemsChunk[e];
-      const permissions = itemPermissionsChunks[e];
-
-      if (!item || !permissions) continue;
-
-      itemsWithPermissions.push({
-        item,
-        permissions: permissions.permissions,
+  if (usersPermissions.size) {
+    for (const [userId, metadata] of usersPermissions.entries()) {
+      elbaPermissions.push({
+        id: `user-${userId}`,
+        type: 'user',
+        email: metadata.email,
+        userId,
+        metadata,
       });
     }
   }
 
-  return itemsWithPermissions;
+  return elbaPermissions;
 };
 
 export const formatDataProtectionItems = ({
@@ -230,7 +188,7 @@ export const formatDataProtectionItems = ({
             driveId,
           } satisfies ItemMetadata,
           updatedAt: item.lastModifiedDateTime,
-          permissions: combinePermissions(item.id, validPermissions),
+          permissions: formatPermissions(validPermissions),
         };
 
         dataProtection.push(dataProtectionItem);
