@@ -29,7 +29,6 @@ export const getToken = async (code: string) => {
   }
 
   const data: unknown = await response.json();
-
   const result = tokenResponseSchema.safeParse(data);
 
   if (!result.success) {

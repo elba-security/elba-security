@@ -2,7 +2,7 @@ import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/hubspot/auth';
-import { getAccountTimezone } from '@/connectors/hubspot/account-info';
+import { getAccountInfo } from '@/connectors/hubspot/account-info';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
@@ -19,7 +19,7 @@ export const setupOrganisation = async ({
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn } = await getToken(code);
 
-  const timeZone = await getAccountTimezone(accessToken);
+  const accountInfo = await getAccountInfo(accessToken);
 
   const encryptedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
@@ -30,7 +30,9 @@ export const setupOrganisation = async ({
       id: organisationId,
       accessToken: encryptedAccessToken,
       refreshToken: encodedRefreshToken,
-      timeZone,
+      timeZone: accountInfo.timeZone,
+      portalId: accountInfo.portalId,
+      domain: accountInfo.uiDomain,
       region,
     })
     .onConflictDoUpdate({
@@ -38,7 +40,9 @@ export const setupOrganisation = async ({
       set: {
         accessToken: encryptedAccessToken,
         refreshToken: encodedRefreshToken,
-        timeZone,
+        timeZone: accountInfo.timeZone,
+        portalId: accountInfo.portalId,
+        domain: accountInfo.uiDomain,
         region,
       },
     });

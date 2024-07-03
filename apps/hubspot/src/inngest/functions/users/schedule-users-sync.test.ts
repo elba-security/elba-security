@@ -15,6 +15,8 @@ export const organisations = Array.from({ length: 5 }, (_, i) => ({
   refreshToken: `test-refresh-token${i}`,
   region: `us`,
   timeZone,
+  domain: 'foo-bar.hubspot.com',
+  portalId: 12345,
 }));
 
 describe('schedule-users-syncs', () => {

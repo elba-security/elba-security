@@ -17,6 +17,8 @@ const organisation = {
   refreshToken: await encrypt(refreshToken),
   region,
   timeZone,
+  domain: 'foo-bar.hubspot.com',
+  portalId: 12345,
 };
 
 const setup = createInngestFunctionMock(deleteUser, 'hubspot/users.delete.requested');

@@ -17,13 +17,17 @@ const formatElbaUserDisplayName = (user: HubspotUser) => {
   return user.email;
 };
 
-const formatElbaUser = (user: HubspotUser): User => ({
-  id: user.id,
-  displayName: formatElbaUserDisplayName(user),
-  email: user.email,
-  role: user.superAdmin ? 'admin' : 'user',
-  additionalEmails: [],
-});
+const formatElbaUser =
+  ({ domain, portalId }: { domain: string; portalId: number }) =>
+  (user: HubspotUser): User => ({
+    id: user.id,
+    displayName: formatElbaUserDisplayName(user),
+    email: user.email,
+    role: user.superAdmin ? 'admin' : 'user',
+    additionalEmails: [],
+    isSuspendable: !user.superAdmin,
+    url: `https://${domain}/settings/${portalId}/users/user/${user.id}`,
+  });
 
 export const syncUsers = inngest.createFunction(
   {
@@ -52,23 +56,21 @@ export const syncUsers = inngest.createFunction(
     const { organisationId, syncStartedAt, page } = event.data;
 
     const [organisation] = await db
-      .select({
-        token: organisationsTable.accessToken,
-        region: organisationsTable.region,
-      })
+      .select()
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
+
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
+    const accessToken = await decrypt(organisation.accessToken);
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken: token, page });
+      const result = await getUsers({ accessToken, page });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers.map(formatElbaUser(organisation));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

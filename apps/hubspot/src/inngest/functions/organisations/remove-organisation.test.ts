@@ -15,6 +15,8 @@ const organisation = {
   refreshToken: 'refresh-token',
   region: 'us',
   timeZone,
+  domain: 'foo-bar.hubspot.com',
+  portalId: 12345,
 };
 
 const setup = createInngestFunctionMock(removeOrganisation, 'hubspot/app.uninstalled');

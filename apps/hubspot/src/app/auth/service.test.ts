@@ -15,6 +15,9 @@ const refreshToken = 'some refresh token';
 const expiresIn = 60;
 const region = 'us';
 const timeZone = 'us/eastern';
+const domain = 'foo-bar.hubspot.com';
+const portalId = 12345;
+
 const now = new Date();
 const getTokenData = {
   accessToken,
@@ -28,6 +31,8 @@ const organisation = {
   refreshToken,
   region,
   timeZone,
+  domain,
+  portalId,
 };
 
 describe('setupOrganisation', () => {
@@ -43,9 +48,11 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
-    const getAccountTimezone = vi
-      .spyOn(timeZoneConnector, 'getAccountTimezone')
-      .mockResolvedValue(timeZone);
+    const getAccountInfo = vi.spyOn(timeZoneConnector, 'getAccountInfo').mockResolvedValue({
+      timeZone,
+      portalId,
+      uiDomain: domain,
+    });
 
     await expect(
       setupOrganisation({
@@ -58,8 +65,8 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
-    expect(getAccountTimezone).toBeCalledTimes(1);
-    expect(getAccountTimezone).toBeCalledWith(accessToken);
+    expect(getAccountInfo).toBeCalledTimes(1);
+    expect(getAccountInfo).toBeCalledWith(accessToken);
 
     const [storedOrganisation] = await db
       .select()
@@ -68,8 +75,13 @@ describe('setupOrganisation', () => {
     if (!storedOrganisation) {
       throw new HubspotError(`Organisation with ID ${organisation.id} not found.`);
     }
-    expect(storedOrganisation.region).toBe(region);
     await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
+    expect(storedOrganisation).toMatchObject({
+      region,
+      timeZone,
+      portalId,
+      domain,
+    });
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
@@ -112,6 +124,12 @@ describe('setupOrganisation', () => {
     await db.insert(organisationsTable).values(organisation);
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getAccountInfo = vi.spyOn(timeZoneConnector, 'getAccountInfo').mockResolvedValue({
+      timeZone,
+      portalId: 54321,
+      uiDomain: `2-${domain}`,
+    });
+
     await expect(
       setupOrganisation({
         organisationId: organisation.id,
@@ -123,6 +141,9 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
+    expect(getAccountInfo).toBeCalledTimes(1);
+    expect(getAccountInfo).toBeCalledWith(accessToken);
+
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)
@@ -131,6 +152,12 @@ describe('setupOrganisation', () => {
       throw new HubspotError(`Organisation with ID ${organisation.id} not found.`);
     }
     await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
+    expect(storedOrganisation).toMatchObject({
+      region,
+      timeZone,
+      portalId: 54321,
+      domain: `2-${domain}`,
+    });
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([

@@ -26,7 +26,10 @@ const organisation = {
   refreshToken: encryptedTokens.refreshToken,
   region: 'us',
   timeZone,
+  domain: 'foo-bar.hubspot.com',
+  portalId: 12345,
 };
+
 const now = new Date();
 // current token expires in an hour
 const expiresAt = now.getTime() + 60 * 1000;
