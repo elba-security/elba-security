@@ -1,5 +1,8 @@
 import { inngest } from '@/inngest/client';
-import { itemMetadataSchema } from '@/inngest/functions/data-protection/common/helpers';
+import {
+  itemMetadataSchema,
+  sharepointMetadata,
+} from '@/inngest/functions/data-protection/common/helpers';
 
 export const deleteObjectPermissions = async ({
   organisationId,
@@ -9,7 +12,7 @@ export const deleteObjectPermissions = async ({
 }: {
   organisationId: string;
   id: string;
-  permissions: { id: string }[];
+  permissions: { id: string; metadata?: unknown }[];
   metadata?: unknown;
 }) => {
   await inngest.send({
@@ -18,7 +21,10 @@ export const deleteObjectPermissions = async ({
       id,
       organisationId,
       metadata: itemMetadataSchema.parse(metadata),
-      permissions: permissions.map((p) => p.id),
+      permissions: permissions.map(({ id: permissionId, metadata: permissionMetadata }) => ({
+        id: permissionId,
+        metadata: sharepointMetadata.parse(permissionMetadata),
+      })),
     },
   });
 };

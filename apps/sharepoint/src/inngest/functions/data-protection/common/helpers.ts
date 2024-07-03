@@ -11,12 +11,13 @@ import type { Delta } from '@/connectors/microsoft/delta/get-delta';
 import { MicrosoftError } from '@/common/error';
 import type {
   CombinedLinkPermissions,
-  CombinedPermission,
   DeleteItemFunctionParams,
   Folder,
   ItemsWithPermissions,
   ItemsWithPermissionsParsed,
   ParsedDelta,
+  SharepointDataProtectionPermission,
+  SharepointDeletePermission,
 } from './types';
 
 export const itemMetadataSchema = z.object({
@@ -25,6 +26,28 @@ export const itemMetadataSchema = z.object({
 });
 
 type ItemMetadata = z.infer<typeof itemMetadataSchema>;
+
+export const userPermissionMetadataSchema = z.object({
+  type: z.literal('user'),
+  email: z.string(),
+  linksPermissionIds: z.array(z.string()),
+  directPermissionId: z.string().optional(),
+});
+
+export type UserPermissionMetadata = z.infer<typeof userPermissionMetadataSchema>;
+
+export const anyonePermissionMetadataSchema = z.object({
+  type: z.literal('anyone'),
+});
+
+export type AnyonePermissionMetadata = z.infer<typeof anyonePermissionMetadataSchema>;
+
+export const sharepointMetadata = z.union([
+  userPermissionMetadataSchema,
+  anyonePermissionMetadataSchema,
+]);
+
+export type SharepointMetadata = z.infer<typeof sharepointMetadata>;
 
 export const removeInheritedSync = (
   parentPermissionIds: string[],
@@ -62,11 +85,11 @@ export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
   return chunks;
 };
 
-export const combinePermisisons = (
+export const combinePermissions = (
   itemId: string,
   permissions: MicrosoftDriveItemPermission[]
 ): DataProtectionObjectPermission[] => {
-  const combinedPermissions = new Map<string, CombinedPermission>();
+  const combinedPermissions = new Map<string, SharepointDataProtectionPermission>();
 
   permissions.forEach((permission) => {
     if (permission.grantedToV2?.user) {
@@ -78,8 +101,10 @@ export const combinePermisisons = (
           type: 'user',
           email: permission.grantedToV2.user.email,
           metadata: {
-            directPermissionId: permission.id,
+            type: 'user',
             email: permission.grantedToV2.user.email,
+            directPermissionId: permission.id,
+            linksPermissionIds: [],
           },
         });
       } else {
@@ -97,6 +122,7 @@ export const combinePermisisons = (
       combinedPermissions.set(permission.id, {
         id: permission.id,
         type: 'anyone',
+        metadata: { type: 'anyone' },
       });
     }
 
@@ -113,6 +139,7 @@ export const combinePermisisons = (
             type: 'user',
             email,
             metadata: {
+              type: 'user',
               email,
               linksPermissionIds: [permission.id],
             },
@@ -121,8 +148,6 @@ export const combinePermisisons = (
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- will be there
           const combinedItem = combinedPermissions.get(elbaPermissionId)!;
           if (combinedItem.type === 'user') {
-            combinedItem.metadata.linksPermissionIds =
-              combinedItem.metadata.linksPermissionIds ?? [];
             combinedItem.metadata.linksPermissionIds.push(permission.id);
           }
         }
@@ -147,7 +172,6 @@ export const getItemsWithPermissionsFromChunks = async ({
   const itemsWithPermissions: ItemsWithPermissions[] = [];
 
   for (const itemsChunk of itemsChunks) {
-    // eslint-disable-next-line no-await-in-loop -- Avoiding hundreds of inngest functions
     const itemPermissionsChunks = await Promise.all(
       itemsChunk.map((item) =>
         getAllItemPermissions({
@@ -206,7 +230,7 @@ export const formatDataProtectionItems = ({
             driveId,
           } satisfies ItemMetadata,
           updatedAt: item.lastModifiedDateTime,
-          permissions: combinePermisisons(item.id, validPermissions),
+          permissions: combinePermissions(item.id, validPermissions),
         };
 
         dataProtection.push(dataProtectionItem);
@@ -332,24 +356,24 @@ export const createDeleteItemPermissionFunction = ({
   };
 };
 
-export const preparePermissionDeletionArray = (permissions: CombinedPermission[]) => {
+export const preparePermissionDeletionArray = (permissions: SharepointDeletePermission[]) => {
   const permissionDeletionArray: CombinedLinkPermissions[] = [];
   const combinedLinkPermissions = new Map<string, string[]>();
 
   for (const permission of permissions) {
-    if (permission.type === 'user' && permission.metadata.directPermissionId) {
+    if (permission.metadata.type === 'user' && permission.metadata.directPermissionId) {
       permissionDeletionArray.push({
         permissionId: permission.metadata.directPermissionId,
       });
     }
 
-    if (permission.type === 'anyone') {
+    if (permission.metadata.type === 'anyone') {
       permissionDeletionArray.push({
         permissionId: permission.id,
       });
     }
 
-    if (permission.type === 'user' && permission.metadata.linksPermissionIds?.length) {
+    if (permission.metadata.type === 'user' && permission.metadata.linksPermissionIds.length) {
       for (const permissionId of permission.metadata.linksPermissionIds) {
         if (combinedLinkPermissions.has(permissionId)) {
           combinedLinkPermissions.get(permissionId)?.push(permission.metadata.email);
