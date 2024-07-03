@@ -13,6 +13,8 @@ const organisation = {
   refreshToken: await encrypt('test-refresh-token'),
   timeZone: 'us/eastern',
   region: 'us',
+  domain: 'foo-bar.hubspot.com',
+  portalId: 12345,
 };
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
@@ -89,6 +91,8 @@ describe('synchronize-users', () => {
           email: 'user-0@foo.bar',
           id: 'id-0',
           role: 'admin',
+          isSuspendable: false,
+          url: 'https://foo-bar.hubspot.com/settings/12345/users/user/id-0',
         },
         {
           additionalEmails: [],
@@ -96,6 +100,8 @@ describe('synchronize-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           role: 'admin',
+          isSuspendable: false,
+          url: 'https://foo-bar.hubspot.com/settings/12345/users/user/id-1',
         },
       ],
     });
@@ -129,6 +135,8 @@ describe('synchronize-users', () => {
           email: 'user-0@foo.bar',
           id: 'id-0',
           role: 'admin',
+          isSuspendable: false,
+          url: 'https://foo-bar.hubspot.com/settings/12345/users/user/id-0',
         },
         {
           additionalEmails: [],
@@ -136,6 +144,8 @@ describe('synchronize-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           role: 'admin',
+          isSuspendable: false,
+          url: 'https://foo-bar.hubspot.com/settings/12345/users/user/id-1',
         },
       ],
     });

@@ -12,6 +12,8 @@ const organisation = {
   refreshToken: 'refresh-token',
   timeZone: 'us/eastern',
   region: 'us',
+  domain: 'foo-bar.hubspot.com',
+  portalId: 12345,
 };
 
 describe('unauthorized middleware', () => {

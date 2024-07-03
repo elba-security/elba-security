@@ -26,7 +26,7 @@ describe('users connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${env.HUBSPOT_API_BASE_URL}/settings/v3/users/`, ({ request }) => {
+        http.get(`${env.HUBSPOT_API_BASE_URL}/settings/v3/users`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }

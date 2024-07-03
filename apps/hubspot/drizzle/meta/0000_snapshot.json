@@ -1,5 +1,5 @@
 {
-  "id": "834a5d84-6b90-470f-9690-a1b8f54b1dc9",
+  "id": "395105cf-6326-42fc-84ff-e5f9ff36d05f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -42,6 +42,18 @@
         "timezone": {
           "name": "timezone",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "domain": {
+          "name": "domain",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "portal_id": {
+          "name": "portal_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         }
