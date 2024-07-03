@@ -1,9 +1,8 @@
 import { eq } from 'drizzle-orm';
-import { Elba } from '@elba-security/sdk';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { env } from '@/common/env';
 import { organisationsTable } from '@/database/schema';
+import { createElbaClient } from '@/connectors/elba/client';
 import { inngest } from '../../client';
 
 export const removeOrganisation = inngest.createFunction(
@@ -12,10 +11,16 @@ export const removeOrganisation = inngest.createFunction(
     priority: {
       run: '600',
     },
+    cancelOn: [
+      {
+        event: 'webflow/app.installed',
+        match: 'data.organisationId',
+      },
+    ],
     retries: 5,
   },
   {
-    event: 'webflow/app.uninstall.requested',
+    event: 'webflow/app.uninstalled',
   },
   async ({ event }) => {
     const { organisationId } = event.data;
@@ -30,11 +35,9 @@ export const removeOrganisation = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const elba = new Elba({
+    const elba = createElbaClient({
       organisationId,
       region: organisation.region,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
     });
 
     await elba.connectionStatus.update({ hasError: true });

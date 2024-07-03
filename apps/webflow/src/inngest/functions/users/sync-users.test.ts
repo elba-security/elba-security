@@ -6,48 +6,39 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
 import { env } from '@/common/env';
-import { type WebflowUser } from '@/connectors/types';
+import type { WebflowUser } from '@/connectors/webflow/users';
 import { syncUsersPage } from './sync-users';
-
-const elbaUsers = [
-  {
-    id: 'user-id',
-    role: 'member',
-    additionalEmails: [],
-    authMethod: undefined,
-    displayName: 'username',
-    email: 'user@gmail.com',
-  },
-];
-
-const users: WebflowUser[] = [
-  { id: 'user-id', data: { name: 'username', email: 'user@gmail.com' } },
-];
 
 const region = 'us';
 const accessToken = 'access-token';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+  id: '00000000-0000-0000-0000-000000000001',
   accessToken,
   region,
 };
+
+const users: WebflowUser[] = Array.from({ length: 3 }, (_, i) => ({
+  id: `user-id-${i}`,
+  status: 'active',
+  data: {
+    name: `username-${i}`,
+    email: `email-${i}@alpha.com`,
+  },
+}));
 
 const setup = createInngestFunctionMock(syncUsersPage, 'webflow/users.sync.requested');
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
-    // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
       siteId: 'test-id',
       page: 0,
     });
 
-    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    // check that the function is not sending other event
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
@@ -55,10 +46,9 @@ describe('sync-users', () => {
     await db.insert(organisationsTable).values(organisation);
 
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      users,
-      pagination: {
-        next: 10,
-      },
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: 10,
     });
 
     // @ts-expect-error -- this is a mock
@@ -74,15 +64,13 @@ describe('sync-users', () => {
 
     expect(crypto.decrypt).toBeCalledTimes(1);
     expect(crypto.decrypt).toBeCalledWith(organisation.accessToken);
-
-    // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users-page', {
       name: 'webflow/users.sync.requested',
       data: {
         organisationId: organisation.id,
-        page: 10,
         siteId: 'test-id',
+        page: 10,
       },
     });
   });
@@ -94,17 +82,16 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
 
-    // mock the getUsers function that returns webflow users page, but this time the response does not indicate that their is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      users,
-      pagination: {
-        next: null,
-      },
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: null,
     });
+
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      page: 0,
       siteId: 'test-id',
+      page: 0,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
@@ -122,7 +109,7 @@ describe('sync-users', () => {
 
     const elbaInstance = elba.mock.results[0]?.value;
     expect(elbaInstance?.users.update).toBeCalledTimes(1);
-    expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
+    expect(elbaInstance?.users.update).toBeCalledWith({ users: {} });
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('webflow/users.sync.completed', {

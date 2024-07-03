@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type NextRequest } from 'next/server';
+import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { env } from '@/common/env';
 
 export const preferredRegion = 'fra1';
@@ -12,7 +13,12 @@ export function GET(request: NextRequest) {
   const region = request.nextUrl.searchParams.get('region');
 
   if (!organisationId || !region) {
-    redirect(`${env.ELBA_REDIRECT_URL}?error=true`);
+    return new ElbaInstallRedirectResponse({
+      region,
+      sourceId: env.ELBA_SOURCE_ID,
+      baseUrl: env.ELBA_REDIRECT_URL,
+      error: 'unauthorized',
+    });
   }
 
   const state = crypto.randomUUID();
@@ -20,11 +26,14 @@ export function GET(request: NextRequest) {
   cookies().set('region', region);
   cookies().set('state', state);
 
-  const redirectUrl = new URL('https://webflow.com/oauth/authorize');
+  const redirectUrl = new URL(env.WEBFLOW_APP_INSTALL_URL);
   redirectUrl.searchParams.append('response_type', 'code');
   redirectUrl.searchParams.append('client_id', env.WEBFLOW_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.WEBFLOW_REDIRECT_URI);
-  redirectUrl.searchParams.append('scope', 'users:read users:write sites:read');
+  redirectUrl.searchParams.append(
+    'scope',
+    'users:read users:write sites:read cms:read authorized_user:read'
+  );
   redirectUrl.searchParams.append('state', state);
 
   redirect(redirectUrl.toString());

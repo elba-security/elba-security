@@ -3,10 +3,16 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { WebflowError } from '../commons/error';
 import { getSiteIds } from './sites';
-import { sites } from '../__mocks__/sites';
 
 const validToken = 'valid-token';
-const siteIds = ['test-id']
+const siteIds = ['test-id'];
+
+export const sites = [
+  {
+    id: 'test-id',
+    displayName: 'site-name',
+  },
+];
 
 describe('getSiteId', () => {
   beforeEach(() => {

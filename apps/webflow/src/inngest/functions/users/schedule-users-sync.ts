@@ -15,7 +15,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
 
     if (organisations.length > 0) {
       await step.sendEvent(
-        'sync-organisations-users',
+        'sync-users',
         organisations.map(({ id }) => ({
           name: 'webflow/users.start_sync.requested',
           data: {

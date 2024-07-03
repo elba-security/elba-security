@@ -3,12 +3,12 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { env } from '@/common/env';
 import { organisationsTable } from '@/database/schema';
-import { deleteUser } from '@/connectors/webflow/users';
+import { deleteUser as deleteWebflowUser } from '@/connectors/webflow/users';
 import { decrypt } from '@/common/crypto';
 import { getSiteIds } from '@/connectors/webflow/sites';
-import { inngest } from '../../client';
+import { inngest } from '@/inngest/client';
 
-export const deleteWebflowUser = inngest.createFunction(
+export const deleteUsers = inngest.createFunction(
   {
     id: 'webflow-delete-user',
     concurrency: {
@@ -30,9 +30,11 @@ export const deleteWebflowUser = inngest.createFunction(
         })
         .from(organisationsTable)
         .where(eq(organisationsTable.id, organisationId));
+
       if (!result) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
+
       return result;
     });
 
@@ -46,7 +48,7 @@ export const deleteWebflowUser = inngest.createFunction(
     await Promise.all(
       siteIds.map((siteId) => {
         return step.run('delete-user', async () => {
-          await deleteUser(token, siteId, userId);
+          await deleteWebflowUser(token, siteId, userId);
         });
       })
     );

@@ -1,5 +1,11 @@
+import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
-import type { GetTokenResponseData } from '../types';
+import { WebflowError } from '../commons/error';
+
+const accessTokenSchema = z.object({
+  access_token: z.string(),
+});
 
 export const getAccessToken = async (code: string) => {
   const url = `${env.WEBFLOW_API_BASE_URL}/oauth/access_token`;
@@ -18,11 +24,17 @@ export const getAccessToken = async (code: string) => {
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`HTTP error! status: ${response.status}, response: ${errorText}`);
+    throw new WebflowError('Could not retrieve token', { response });
   }
 
-  const data = (await response.json()) as GetTokenResponseData;
+  const data: unknown = await response.json();
 
-  return data.access_token;
+  const result = accessTokenSchema.safeParse(data);
+
+  if (!result.success) {
+    logger.error('Invalid Zoom token response', { data });
+    throw new WebflowError('Invalid Webflow token response');
+  }
+
+  return result.data.access_token;
 };

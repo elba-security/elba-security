@@ -13,7 +13,7 @@ const organisation = {
   region: 'us',
 };
 
-const setup = createInngestFunctionMock(removeOrganisation, 'webflow/app.uninstall.requested');
+const setup = createInngestFunctionMock(removeOrganisation, 'webflow/app.uninstalled');
 
 describe('remove-organisation', () => {
   test("should not remove given organisation when it's not registered", async () => {

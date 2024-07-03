@@ -1,8 +1,8 @@
 import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
+import type { WebflowUser } from '@/connectors/webflow/users';
 import { getUsers } from '@/connectors/webflow/users';
-import { type WebflowUser } from '@/connectors/types';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
@@ -14,7 +14,6 @@ const formatElbaUser = (user: WebflowUser): User => ({
   displayName: user.data.name,
   email: user.data.email,
   role: 'member',
-  authMethod: undefined,
   additionalEmails: [],
 });
 
@@ -31,10 +30,19 @@ export const syncUsersPage = inngest.createFunction(
     retries: 5,
     cancelOn: [
       {
-        event: 'webflow/app.uninstall.requested',
+        event: 'webflow/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
+    onFailure: async ({ step, event }) => {
+      await step.sendEvent('failed', {
+        name: 'webflow/users.sync.completed',
+        data: {
+          siteId: event.data.event.data.siteId,
+          organisationId: event.data.event.data.organisationId,
+        },
+      });
+    },
   },
   { event: 'webflow/users.sync.requested' },
   async ({ event, step, logger }) => {
@@ -48,9 +56,11 @@ export const syncUsersPage = inngest.createFunction(
         })
         .from(organisationsTable)
         .where(eq(organisationsTable.id, organisationId));
+
       if (!result) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
+
       return result;
     });
 
@@ -59,21 +69,25 @@ export const syncUsersPage = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({
-        token,
         siteId,
+        token,
         page,
       });
-      const users = result.users.map(formatElbaUser);
-      logger.debug('Sending batch of users to elba: ', {
-        organisationId,
-        users,
-      });
-      await elba.users.update({ users });
 
-      if (result.pagination.next) {
-        return result.pagination.next;
+      const users = result.validUsers.map(formatElbaUser);
+
+      if (result.invalidUsers.length > 0) {
+        logger.warn('Retrieved users contains invalid data', {
+          organisationId,
+          invalidUsers: result.invalidUsers,
+        });
       }
-      return null;
+
+      if (users.length > 0) {
+        await elba.users.update({ users });
+      }
+
+      return result.nextPage;
     });
 
     if (nextPage) {

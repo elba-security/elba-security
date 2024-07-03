@@ -22,10 +22,10 @@ export const getSiteIds = async (token: string) => {
 
   const result: unknown = await response.json();
   const sitesData = sitesSchema.safeParse(result);
+
   if (!sitesData.success) {
     throw new WebflowError('Failed to fetch the organisation sites', { response });
   }
 
-  const siteIds: string[] = sitesData.data.sites.map((site) => site.id);
-  return siteIds;
+  return sitesData.data.sites.map((site) => site.id);
 };

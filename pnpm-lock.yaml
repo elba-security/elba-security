@@ -2098,6 +2098,9 @@ importers:
       '@sentry/nextjs':
         specifier: ^7.88.0
         version: 7.93.0(next@14.0.1)(react@18.2.0)
+      '@tunnel/cli':
+        specifier: ^0.4.6
+        version: 0.4.6
       date-fns:
         specifier: ^3.2.0
         version: 3.3.1
@@ -4422,7 +4425,7 @@ packages:
       sirv: 2.0.4
       svelte: 4.2.18
       tiny-glob: 0.2.9
-      vite: 5.0.5(@types/node@20.11.16)
+      vite: 5.0.5(@types/node@20.14.2)
 
   /@sveltejs/vite-plugin-svelte-inspector@2.1.0(@sveltejs/vite-plugin-svelte@3.1.1)(svelte@4.2.18)(vite@5.0.5):
     resolution: {integrity: sha512-9QX28IymvBlSCqsCll5t0kQVxipsfhFFL+L2t3nTWfXnddYwxBuAEtTtlaVQpRz9c37BhJjltSeY4AJSC03SSg==}
@@ -4435,7 +4438,7 @@ packages:
       '@sveltejs/vite-plugin-svelte': 3.1.1(svelte@4.2.18)(vite@5.0.5)
       debug: 4.3.4
       svelte: 4.2.18
-      vite: 5.0.5(@types/node@20.11.16)
+      vite: 5.0.5(@types/node@20.14.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -4453,7 +4456,7 @@ packages:
       magic-string: 0.30.10
       svelte: 4.2.18
       svelte-hmr: 0.16.0(svelte@4.2.18)
-      vite: 5.0.5(@types/node@20.11.16)
+      vite: 5.0.5(@types/node@20.14.2)
       vitefu: 0.2.5(vite@5.0.5)
     transitivePeerDependencies:
       - supports-color
@@ -4509,6 +4512,11 @@ packages:
 
   /@tsconfig/node16@1.0.4:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
+
+  /@tunnel/cli@0.4.6:
+    resolution: {integrity: sha512-DWVXLjN/xe3I8GzNXW95DQY0JJXYyIpya8kr+j7Qk8NK6u1j4VwUE5iHbt5obVa+uZHFduX9Ip09/ugMiZXMUQ==}
+    hasBin: true
+    dev: false
 
   /@types/aws-lambda@8.10.131:
     resolution: {integrity: sha512-IWmFpqnVDvskYWnNSiu/qlRn80XlIOU0Gy5rKCl/NjhnI95pV8qIHs6L5b+bpHhyzuOSzjLgBcwgFSXrC1nZWA==}
@@ -12047,7 +12055,6 @@ packages:
       rollup: 4.6.1
     optionalDependencies:
       fsevents: 2.3.3
-    dev: true
 
   /vitefu@0.2.5(vite@5.0.5):
     resolution: {integrity: sha512-SgHtMLoqaeeGnd2evZ849ZbACbnwQCIwRH57t18FxcXoZop0uQu0uzlIhJBlF/eWVzuce0sHeqPcDo+evVcg8Q==}
@@ -12057,7 +12064,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 5.0.5(@types/node@20.11.16)
+      vite: 5.0.5(@types/node@20.14.2)
 
   /vitest@1.0.0(@types/node@20.11.16):
     resolution: {integrity: sha512-jpablj5+ifiFHV3QGOxPews3uxBuu6rQUzTaQYtEd6ocBpdQBil6AvmmGRQ3Rn0WPgyzb+Ni+JekfMyng+qYng==}

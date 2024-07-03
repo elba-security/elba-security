@@ -17,7 +17,7 @@ export const syncUsers = inngest.createFunction(
     retries: 5,
     cancelOn: [
       {
-        event: 'webflow/app.uninstall.requested',
+        event: 'webflow/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
@@ -26,7 +26,6 @@ export const syncUsers = inngest.createFunction(
   async ({ event, step }) => {
     const { organisationId, syncStartedAt } = event.data;
 
-    // retrieve the Webflow Organisation
     const organisation = await step.run('get-organisation', async () => {
       const [result] = await db
         .select({
@@ -49,7 +48,6 @@ export const syncUsers = inngest.createFunction(
       return result;
     });
 
-    // Process each site one by one
     if (siteIds.length > 0) {
       const eventsToWait = siteIds.map(async (siteId) => {
         await step.waitForEvent(`wait-sync-site-users-${siteId}`, {
@@ -65,15 +63,14 @@ export const syncUsers = inngest.createFunction(
           name: 'webflow/users.sync.requested',
           data: {
             organisationId,
-            page: null,
             siteId,
+            page: 0,
           },
         }))
       );
       await Promise.all(eventsToWait);
     }
 
-    // Delete the elba users that have been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

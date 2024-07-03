@@ -13,7 +13,7 @@ const region = 'us';
 const accessToken = 'access-token';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+  id: '00000000-0000-0000-0000-000000000001',
   siteIds,
   accessToken,
   region,
@@ -31,10 +31,8 @@ describe('sync-users', () => {
       isFirstSync: true,
     });
 
-    // assert the function throws a NonRetriableError that will inform inngest to definitively cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    // check that the function is not sending other events
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
@@ -58,7 +56,6 @@ describe('sync-users', () => {
     expect(crypto.decrypt).toBeCalledTimes(1);
     expect(crypto.decrypt).toBeCalledWith(organisation.accessToken);
 
-    // check that the function sends sync events for each site
     expect(step.sendEvent).toBeCalledTimes(siteIds.length);
     siteIds.forEach((siteId, index) => {
       expect(step.sendEvent).toHaveBeenNthCalledWith(index + 1, 'sync-users-page', {

@@ -6,7 +6,7 @@ import { db } from '@/database/client';
 import * as sitesConnector from '@/connectors/webflow/sites';
 import { organisationsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
-import { deleteWebflowUser } from './delete-user';
+import { deleteUsers } from './delete-user';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -17,28 +17,25 @@ const organisation = {
 const siteIds = ['test-id'];
 const userId = 'user-id';
 
-const setup = createInngestFunctionMock(deleteWebflowUser, 'webflow/users.delete.requested');
+const setup = createInngestFunctionMock(deleteUsers, 'webflow/users.delete.requested');
 
 describe('delete-user-request', () => {
   test('should abort request when organisation is not registered', async () => {
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValue(undefined);
-    // setup the test without organisation entries in the database, the function cannot retrieve a token
+
     const [result, { step }] = setup({
       userId,
       organisationId: organisation.id,
     });
 
-    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(usersConnector.deleteUser).toBeCalledTimes(0);
 
-    // check that the function is not sending other event
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
   test('should continue the request when the organization is registered', async () => {
-    // setup the test with an organisation
     await db.insert(organisationsTable).values(organisation);
 
     vi.spyOn(sitesConnector, 'getSiteIds').mockResolvedValue(siteIds);

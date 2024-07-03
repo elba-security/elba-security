@@ -1,10 +1,24 @@
+import { z } from 'zod';
 import { env } from '@/common/env';
 import { WebflowError } from '../commons/error';
-import { type GetUsersResponseData } from '../types';
 
-export type Pagination = {
-  next: number | null;
-};
+const webflowUserSchema = z.object({
+  id: z.string(),
+  status: z.string(),
+  data: z.object({
+    email: z.string(),
+    name: z.string(),
+  }),
+});
+
+export type WebflowUser = z.infer<typeof webflowUserSchema>;
+
+const webflowResponseSchema = z.object({
+  users: z.array(z.unknown()),
+  offset: z.number(),
+  limit: z.number(),
+  total: z.number(),
+});
 
 type GetUsers = {
   token: string;
@@ -15,9 +29,8 @@ type GetUsers = {
 export const getUsers = async ({ token, siteId, page }: GetUsers) => {
   const url = new URL(`${env.WEBFLOW_API_BASE_URL}/v2/sites/${siteId}/users`);
 
-  url.searchParams.set('limit', env.USERS_SYNC_BATCH_SIZE.toString());
-
-  url.searchParams.set('offset', String(page) || '0');
+  url.searchParams.set('limit', String(env.USERS_SYNC_BATCH_SIZE));
+  url.searchParams.set('offset', String(page));
 
   const response = await fetch(url.toString(), {
     headers: { Authorization: `Bearer ${token}` },
@@ -27,19 +40,33 @@ export const getUsers = async ({ token, siteId, page }: GetUsers) => {
     throw new WebflowError('Could not retrieve users', { response });
   }
 
-  const data = (await response.json()) as GetUsersResponseData;
-  const users = data.users;
+  const resData: unknown = await response.json();
 
-  const pagination: Pagination = {
-    next: data.offset + data.limit < data.total ? data.offset + data.limit : null,
+  const { users, offset, limit, total } = webflowResponseSchema.parse(resData);
+
+  const validUsers: WebflowUser[] = [];
+  const invalidUsers: unknown[] = [];
+
+  for (const user of users) {
+    const result = webflowUserSchema.safeParse(user);
+    if (result.success) {
+      validUsers.push(result.data);
+    } else {
+      invalidUsers.push(user);
+    }
+  }
+
+  const nextOffset = offset + limit > total ? null : offset + limit;
+
+  return {
+    validUsers,
+    invalidUsers,
+    nextPage: nextOffset,
   };
-
-  return { users, pagination };
 };
 
 export const deleteUser = async (token: string, siteId: string, userId: string) => {
-  const url = new URL(`${env.WEBFLOW_API_BASE_URL}/v2/sites/${siteId}/users/${userId}`);
-  const response = await fetch(url.toString(), {
+  const response = await fetch(`${env.WEBFLOW_API_BASE_URL}/v2/sites/${siteId}/users/${userId}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -47,7 +74,7 @@ export const deleteUser = async (token: string, siteId: string, userId: string) 
     },
   });
 
-  if (!response.ok) {
+  if (!response.ok && response.status !== 404) {
     throw new WebflowError(`Could not delete user with Id: ${userId}`, { response });
   }
 };

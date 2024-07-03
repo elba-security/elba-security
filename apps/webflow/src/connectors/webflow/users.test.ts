@@ -2,14 +2,30 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { deleteUser, getUsers } from './users';
 import { WebflowError } from '../commons/error';
-import { users } from '../__mocks__/users';
+import type { WebflowUser } from './users';
+import { deleteUser, getUsers } from './users';
 
 const validToken = 'valid-token';
 const siteId = 'test-site-id';
 const userId = 'test-user-id';
-const maxUsers = 20;
+const maxUsers = 8;
+
+const validUsers = ({
+  length = 4,
+  startFrom = 0,
+}: {
+  length?: number;
+  startFrom?: number;
+}): WebflowUser[] =>
+  Array.from({ length }, (_, i) => ({
+    id: `00000000-0000-0000-0000-00000000000${startFrom + i}`,
+    status: 'active',
+    data: {
+      email: `user-email-${startFrom + i}@alpha.com`,
+      name: `user-name-${startFrom + i}`,
+    },
+  }));
 
 describe('getUsers', () => {
   beforeEach(() => {
@@ -18,39 +34,61 @@ describe('getUsers', () => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
+
         const url = new URL(request.url);
         const offset = parseInt(url.searchParams.get('offset') || '0');
+
         return new Response(
           JSON.stringify({
-            users,
-            count: users.length,
-            limit: env.USERS_SYNC_BATCH_SIZE,
+            users: validUsers({ startFrom: offset }),
+            count: validUsers.length,
+            limit: 3,
             offset,
             total: maxUsers,
           }),
+
           { status: 200 }
         );
       })
     );
   });
 
-  test('should fetch users when token is valid', async () => {
-    const result = await getUsers(validToken, siteId, 0);
-    expect(result.users).toEqual(users);
+  test('should return users and nextPage when the token is valid and their is another page', async () => {
+    await expect(
+      getUsers({
+        token: validToken,
+        siteId,
+        page: 0,
+      })
+    ).resolves.toStrictEqual({
+      validUsers,
+      invalidUsers: [],
+      nextPage: 0,
+    });
+  });
+
+  test('should return users and no nextPage when the token is valid and their is no other page', async () => {
+    await expect(
+      getUsers({
+        token: validToken,
+        siteId,
+        page: 0,
+      })
+    ).resolves.toStrictEqual({
+      validUsers,
+      invalidUsers: [],
+      nextPage: 0,
+    });
   });
 
   test('should throw WebflowError when token is invalid', async () => {
-    await expect(getUsers('invalidToken', siteId, 0)).rejects.toBeInstanceOf(WebflowError);
-  });
-
-  test('should return nextPage when there are more users available', async () => {
-    const result = await getUsers(validToken, siteId, 0);
-    expect(result.pagination.next).equals(10);
-  });
-
-  test('should return nextPage as null when end of list is reached', async () => {
-    const result = await getUsers(validToken, siteId, 20);
-    expect(result.pagination.next).toBeNull();
+    await expect(
+      getUsers({
+        token: 'invalid-token',
+        siteId,
+        page: 0,
+      })
+    ).rejects.toBeInstanceOf(WebflowError);
   });
 });
 
@@ -63,6 +101,7 @@ describe('deleteUser', () => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
+
           return new Response(undefined, { status: 204 });
         }
       )
