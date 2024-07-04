@@ -1,3 +1,4 @@
+import { logger } from '@elba-security/logger';
 import { env } from '@/env';
 import { MicrosoftError } from './commons/error';
 
@@ -18,6 +19,8 @@ export const getToken = async (tenantId: string) => {
   });
 
   if (!response.ok) {
+    const body = await response.clone().text();
+    logger.error('Could not retrieve token', { body, status: response.status });
     throw new MicrosoftError('Could not retrieve token', { response });
   }
 
