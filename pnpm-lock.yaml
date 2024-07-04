@@ -2428,6 +2428,9 @@ importers:
       '@elba-security/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@types/node':
+        specifier: ^20
+        version: 20.14.2
       eslint:
         specifier: ^8
         version: 8.53.0
