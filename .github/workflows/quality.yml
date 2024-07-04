@@ -34,10 +34,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint apps and packages
-        run: pnpm lint
+        run: pnpm lint --force
 
       - name: Type-check apps and packages
-        run: pnpm type-check
+        run: pnpm type-check --force
 
       - name: Run unit tests for apps and packages
-        run: pnpm test
+        run: pnpm test --force
