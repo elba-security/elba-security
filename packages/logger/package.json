@@ -10,11 +10,11 @@
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
-    "@sentry/nextjs": "^7.88.0",
+    "@sentry/nextjs": "^8.14.0",
     "eslint": "^8",
     "typescript": "^5.5.2"
   },
   "peerDependencies": {
-    "@sentry/nextjs": "^7.88.0"
+    "@sentry/nextjs": "^8.14.0"
   }
 }
