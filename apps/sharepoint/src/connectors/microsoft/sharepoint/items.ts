@@ -1,10 +1,8 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import {
-  getNextSkipTokenFromNextLink,
-  type MicrosoftPaginatedResponse,
-} from '../commons/pagination';
+import { microsoftPaginatedResponseSchema } from '../common/pagination';
 
 export const driveItemSchema = z.object({
   id: z.string(),
@@ -12,9 +10,7 @@ export const driveItemSchema = z.object({
   webUrl: z.string(),
   createdBy: z.object({
     user: z.object({
-      email: z.string().optional(),
       id: z.string().optional(),
-      displayName: z.string(),
     }),
   }),
   lastModifiedDateTime: z.string(),
@@ -28,25 +24,64 @@ export const driveItemSchema = z.object({
   }),
 });
 
-type GetItemsParams = {
+export type MicrosoftDriveItem = z.infer<typeof driveItemSchema>;
+
+export const getItem = async ({
+  token,
+  siteId,
+  driveId,
+  itemId,
+}: {
+  itemId: string;
+  token: string;
+  siteId: string;
+  driveId: string;
+}): Promise<MicrosoftDriveItem | null> => {
+  const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/items/${itemId}`);
+  url.searchParams.append('$select', Object.keys(driveItemSchema.shape).join(','));
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new MicrosoftError('Could not retrieve item', { response });
+  }
+
+  const data: unknown = await response.json();
+  const result = driveItemSchema.safeParse(data);
+  if (!result.success) {
+    logger.error('Failed to parse item', { data, error: result.error });
+    throw new Error('Could not parse item while getting item');
+  }
+
+  return result.data;
+};
+
+export const getItems = async ({
+  token,
+  siteId,
+  driveId,
+  folderId,
+  skipToken,
+}: {
   token: string;
   siteId: string;
   driveId: string;
   folderId: string | null;
   skipToken: string | null;
-};
-
-export type MicrosoftDriveItem = z.infer<typeof driveItemSchema>;
-
-export const getItems = async ({ token, siteId, driveId, folderId, skipToken }: GetItemsParams) => {
+}) => {
   const urlEnding = folderId ? `items/${folderId}/children` : 'root/children';
 
   const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/${urlEnding}`);
   url.searchParams.append('$top', String(env.MICROSOFT_DATA_PROTECTION_ITEM_SYNC_SIZE));
-  url.searchParams.append(
-    '$select',
-    'id,folder,name,webUrl,createdBy,parentReference,lastModifiedDateTime'
-  );
+  url.searchParams.append('$select', Object.keys(driveItemSchema.shape).join(','));
 
   if (skipToken) {
     url.searchParams.append('$skiptoken', skipToken);
@@ -62,9 +97,22 @@ export const getItems = async ({ token, siteId, driveId, folderId, skipToken }: 
     throw new MicrosoftError('Could not retrieve items', { response });
   }
 
-  const data = (await response.json()) as MicrosoftPaginatedResponse<MicrosoftDriveItem>;
+  const data: unknown = await response.json();
+  const result = microsoftPaginatedResponseSchema.safeParse(data);
+  if (!result.success) {
+    logger.error('Failed to parse paginated items response', { data, error: result.error });
+    throw new Error('Could not parse items');
+  }
 
-  const nextSkipToken = getNextSkipTokenFromNextLink(data['@odata.nextLink']);
+  const items: MicrosoftDriveItem[] = [];
+  for (const item of result.data.value) {
+    const parsedItem = driveItemSchema.safeParse(item);
+    if (!parsedItem.success) {
+      logger.error('Failed to parse item while getting items', { item, error: parsedItem.error });
+    } else {
+      items.push(parsedItem.data);
+    }
+  }
 
-  return { items: data.value.map((item) => driveItemSchema.parse(item)), nextSkipToken };
+  return { items, nextSkipToken: result.data['@odata.nextLink'] };
 };

@@ -1,11 +1,11 @@
 import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import { organisationsTable, sharePointTable } from '@/database/schema';
+import * as removeSubscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
-import * as refreshSubscriptionConnector from '@/connectors/microsoft/subscription/subscriptions';
-import { subscriptionRefresh } from './subscription-refresh';
+import { removeSubscription } from './remove-subscription';
 
 const token = 'test-token';
 const organisationId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
@@ -38,25 +38,19 @@ const setupData = {
   organisationId: organisation.id,
 };
 
-const subscription = {
-  id: subscriptionId,
-  clientState,
-  expirationDateTime: sharePoint.subscriptionExpirationDate,
-};
-
 const setup = createInngestFunctionMock(
-  subscriptionRefresh,
-  'sharepoint/subscription.refresh.triggered'
+  removeSubscription,
+  'sharepoint/subscriptions.remove.triggered'
 );
 
-describe('subscription-refresh', () => {
+describe('remove-subscription', () => {
   beforeEach(async () => {
     await db.insert(organisationsTable).values(organisation);
     await db
-      .insert(sharePointTable)
+      .insert(subscriptionsTable)
       .values(sharePoint)
       .onConflictDoUpdate({
-        target: [sharePointTable.organisationId, sharePointTable.driveId],
+        target: [subscriptionsTable.organisationId, subscriptionsTable.driveId],
 
         set: {
           subscriptionId: sharePoint.subscriptionId,
@@ -67,30 +61,40 @@ describe('subscription-refresh', () => {
       });
   });
 
-  test('should abort refreshing when record not found', async () => {
-    vi.spyOn(refreshSubscriptionConnector, 'refreshSubscription').mockResolvedValue(subscription);
+  test('should abort removing when record not found', async () => {
+    vi.spyOn(removeSubscriptionConnector, 'removeSubscription').mockResolvedValue(undefined);
 
-    const [result] = setup({
+    const [result, { step }] = setup({
       ...setupData,
       organisationId: '15a76301-f1dd-4a77-b12a-9d7d3fca3c92', // fake id
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    expect(refreshSubscriptionConnector.refreshSubscription).toBeCalledTimes(0);
+    expect(removeSubscriptionConnector.removeSubscription).toBeCalledTimes(0);
+    expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should run refreshSubscription when data is valid', async () => {
-    vi.spyOn(refreshSubscriptionConnector, 'refreshSubscription').mockResolvedValue(subscription);
+  test('should run removeSubscription when data is valid', async () => {
+    vi.spyOn(removeSubscriptionConnector, 'removeSubscription').mockResolvedValue(undefined);
 
-    const [result] = setup(setupData);
+    const [result, { step }] = setup(setupData);
 
     await expect(result).resolves.toBeUndefined();
 
-    expect(refreshSubscriptionConnector.refreshSubscription).toBeCalledTimes(1);
-    expect(refreshSubscriptionConnector.refreshSubscription).toBeCalledWith(
-      organisation.token,
-      sharePoint.subscriptionId
-    );
+    expect(removeSubscriptionConnector.removeSubscription).toBeCalledTimes(1);
+    expect(removeSubscriptionConnector.removeSubscription).toBeCalledWith({
+      subscriptionId: 'some-subscription-id',
+      token: 'test-token',
+    });
+
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith('remove-subscription-completed', {
+      name: 'sharepoint/subscriptions.remove.completed',
+      data: {
+        subscriptionId,
+        organisationId,
+      },
+    });
   });
 });

@@ -5,11 +5,12 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
-import type { PermissionDeletionResult } from './common/types';
 import {
-  createDeleteItemPermissionFunction,
-  preparePermissionDeletionArray,
-} from './common/helpers';
+  deleteItemPermission,
+  revokeUsersFromLinkPermission,
+} from '@/connectors/microsoft/sharepoint/permissions';
+import { parsePermissionsToDelete } from './common/helpers';
+import { type PermissionToDelete } from './common/types';
 
 export const deleteDataProtectionItemPermissions = inngest.createFunction(
   {
@@ -31,7 +32,7 @@ export const deleteDataProtectionItemPermissions = inngest.createFunction(
     retries: 5,
   },
   { event: 'sharepoint/data_protection.delete_object_permissions.requested' },
-  async ({ event, step }) => {
+  async ({ event, step, logger }) => {
     const {
       id: itemId,
       organisationId,
@@ -53,61 +54,70 @@ export const deleteDataProtectionItemPermissions = inngest.createFunction(
 
     const token = await decrypt(organisation.token);
 
-    const permissionDeletionArray = preparePermissionDeletionArray(permissions);
+    const permissionsToDelete = parsePermissionsToDelete(permissions);
 
     const permissionDeletionResults = await Promise.allSettled(
-      permissionDeletionArray.map(({ permissionId, userEmails }) =>
-        step.run(
-          'delete-item-permissions',
-          createDeleteItemPermissionFunction({
+      permissionsToDelete.map(({ permissionId, userEmails }) =>
+        step.run(`delete-item-permissions-${permissionId}`, async () => {
+          if (userEmails?.length) {
+            return revokeUsersFromLinkPermission({
+              token,
+              siteId,
+              driveId,
+              itemId,
+              permissionId,
+              userEmails,
+            });
+          }
+
+          return deleteItemPermission({
             token,
             siteId,
             driveId,
             itemId,
             permissionId,
-            userEmails,
-          })
-        )
+          });
+        })
       )
     );
 
-    const parsedResult = permissionDeletionResults.reduce<{
-      deletedPermissions: PermissionDeletionResult[];
-      notFoundPermissions: PermissionDeletionResult[];
-      unexpectedFailedPermissions: PermissionDeletionResult[];
-    }>(
-      (acc, el, index) => {
-        if (el.status === 'fulfilled') {
-          const permissionDeletionResult = {
-            siteId,
-            driveId,
-            itemId,
-            permissionId: el.value.permissionId,
-            userEmails: el.value.userEmails,
-          };
+    const deletedPermissions: PermissionToDelete[] = [];
+    const ignoredPermissions: PermissionToDelete[] = [];
+    const unexpectedFailedPermissions: (PermissionToDelete & { reason: unknown })[] = [];
+    for (const [index, permissionDeletionResult] of permissionDeletionResults.entries()) {
+      const { permissionId, userEmails } = permissionsToDelete[index]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion -- can't be undefined
+      if (permissionDeletionResult.status === 'rejected') {
+        unexpectedFailedPermissions.push({
+          permissionId,
+          userEmails,
+          reason: permissionDeletionResult.reason,
+        });
+      } else if (permissionDeletionResult.value === 'deleted') {
+        deletedPermissions.push({ permissionId, userEmails });
+      } else {
+        ignoredPermissions.push({ permissionId, userEmails });
+      }
+    }
 
-          if (el.value.status === 204)
-            acc.deletedPermissions.push({ status: el.value.status, ...permissionDeletionResult });
-          if (el.value.status === 404)
-            acc.notFoundPermissions.push({ status: el.value.status, ...permissionDeletionResult });
-        }
-        if (el.status === 'rejected') {
-          acc.unexpectedFailedPermissions.push({
-            siteId,
-            driveId,
-            itemId,
-            status: 500,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- will be there
-            permissionId: permissionDeletionArray[index]!.permissionId,
-            userEmails: permissionDeletionArray[index]?.userEmails,
-          });
-        }
+    if (unexpectedFailedPermissions.length) {
+      logger.error('Unexpected errors occurred while revoking permissions', {
+        organisationId,
+        siteId,
+        driveId,
+        itemId,
+        unexpectedFailedPermissions,
+      });
+    }
 
-        return acc;
-      },
-      { deletedPermissions: [], notFoundPermissions: [], unexpectedFailedPermissions: [] }
-    );
-
-    return parsedResult;
+    return {
+      deletedPermissions,
+      ignoredPermissions,
+      unexpectedFailedPermissions: unexpectedFailedPermissions.map(
+        ({ permissionId, userEmails }) => ({
+          permissionId,
+          userEmails,
+        })
+      ),
+    };
   }
 );

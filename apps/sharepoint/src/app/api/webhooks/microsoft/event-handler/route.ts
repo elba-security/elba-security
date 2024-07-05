@@ -1,9 +1,8 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { handleWebhook } from '@/app/api/webhooks/microsoft/event-handler/service';
-import { getSubscriptionsFromDB } from '@/common/get-db-subscriptions';
-import { isClientStateValid } from '@/common/validate-client-state';
-import { incomingSubscriptionArraySchema } from '@/connectors/microsoft/subscription/subscriptions';
+import { handleWebhookEvents } from '@/app/api/webhooks/microsoft/event-handler/service';
+import { getValidSubscriptions } from '@/common/subscriptions';
+import { incomingSubscriptionArraySchema } from '@/connectors/microsoft/subscriptions/subscriptions';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -20,26 +19,15 @@ export async function POST(req: NextRequest) {
 
   const data: unknown = await req.json();
 
-  const parseResult = incomingSubscriptionArraySchema.safeParse(data);
+  const result = incomingSubscriptionArraySchema.safeParse(data);
 
-  if (!parseResult.success) {
-    return NextResponse.json({ message: 'Invalid data' }, { status: 404 });
+  if (!result.success || !result.data.value.length) {
+    return new NextResponse(null, { status: 202 });
   }
 
-  const { value } = parseResult.data;
+  const subscriptions = await getValidSubscriptions(result.data.value);
 
-  const subscriptionsData = await getSubscriptionsFromDB(value);
+  await handleWebhookEvents(subscriptions);
 
-  const isValid = isClientStateValid({
-    dbSubscriptions: subscriptionsData,
-    webhookSubscriptions: value,
-  });
-
-  if (!isValid) {
-    return NextResponse.json({ message: 'Invalid data' }, { status: 404 });
-  }
-
-  await handleWebhook(value);
-
-  return NextResponse.json({}, { status: 202 });
+  return new NextResponse(null, { status: 202 });
 }

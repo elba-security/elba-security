@@ -4,7 +4,7 @@ import { MicrosoftError } from '@/common/error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
 describe('rate-limit middleware', () => {
-  test('should not transform the output when their is no error', () => {
+  test('should not transform the output when there is no error', () => {
     expect(
       rateLimitMiddleware
         .init()

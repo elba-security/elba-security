@@ -3,7 +3,7 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import { getToken } from './get-token';
+import { getToken } from './tokens';
 
 const token = 'token-1234';
 const expiresIn = 60;

@@ -4,7 +4,11 @@ import { inngest } from '@/inngest/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
-import type { SharepointDeletePermission } from '@/inngest/functions/data-protection/common/types';
+import type { ElbaPermissionToDelete } from '@/inngest/functions/data-protection/common/types';
+import {
+  type AnyonePermissionMetadata,
+  type UserPermissionMetadata,
+} from '@/connectors/elba/data-protection';
 import { POST as handler } from './route';
 
 const token = 'test-token';
@@ -22,13 +26,14 @@ const driveId = 'some-drive-id';
 
 const count = 5;
 
-const permissions: SharepointDeletePermission[] = Array.from({ length: count }, (_, i) => {
+const permissions: ElbaPermissionToDelete[] = Array.from({ length: count }, (_, i) => {
   if (i === 1)
     return {
       id: `some-random-id-${i}`,
       metadata: {
         type: 'anyone',
-      },
+        permissionIds: [],
+      } satisfies AnyonePermissionMetadata,
     };
 
   return {
@@ -42,7 +47,7 @@ const permissions: SharepointDeletePermission[] = Array.from({ length: count }, 
         `user-email-${i * 10000}@someemail.com`,
       ],
       directPermissionId: `some-random-id-${i}`,
-    },
+    } satisfies UserPermissionMetadata,
   };
 });
 

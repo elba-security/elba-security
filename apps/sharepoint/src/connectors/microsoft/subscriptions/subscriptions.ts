@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { addDays } from 'date-fns';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import { decrypt } from '@/common/crypto';
 
 export const incomingSubscriptionSchema = z.object({
   subscriptionId: z.string(),
@@ -10,6 +10,8 @@ export const incomingSubscriptionSchema = z.object({
   tenantId: z.string(),
   clientState: z.string(),
 });
+
+export type IncomingSubscription = z.infer<typeof incomingSubscriptionSchema>;
 
 export const incomingSubscriptionArraySchema = z.object({
   value: z.array(incomingSubscriptionSchema),
@@ -21,13 +23,6 @@ const subscriptionSchema = z.object({
   clientState: z.string(),
 });
 
-type CreateSubscriptionParams = {
-  token: string;
-  changeType: string;
-  resource: string;
-  clientState: string;
-};
-
 export type Subscription = z.infer<typeof subscriptionSchema>;
 
 export const createSubscription = async ({
@@ -35,7 +30,12 @@ export const createSubscription = async ({
   changeType,
   resource,
   clientState,
-}: CreateSubscriptionParams) => {
+}: {
+  token: string;
+  changeType: string;
+  resource: string;
+  clientState: string;
+}) => {
   const url = new URL(`${env.MICROSOFT_API_URL}/subscriptions`);
 
   const response = await fetch(url, {
@@ -43,6 +43,7 @@ export const createSubscription = async ({
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
+      prefer: 'includesecuritywebhooks',
     },
     body: JSON.stringify({
       changeType,
@@ -55,17 +56,26 @@ export const createSubscription = async ({
   });
 
   if (!response.ok) {
-    throw new MicrosoftError('Could not retrieve create subscription', { response });
+    throw new MicrosoftError('Could not create subscription', { response });
   }
 
-  const data = (await response.json()) as Subscription;
+  const data: unknown = await response.json();
+  const result = subscriptionSchema.safeParse(data);
+  if (!result.success) {
+    logger.error('Failed to parse created subscription', { data, error: result.error });
+    throw new Error('Could not parse created subscription');
+  }
 
-  return subscriptionSchema.parse(data);
+  return result.data;
 };
 
-export const refreshSubscription = async (encryptToken: string, subscriptionId: string) => {
-  const token = await decrypt(encryptToken);
-
+export const refreshSubscription = async ({
+  token,
+  subscriptionId,
+}: {
+  token: string;
+  subscriptionId: string;
+}) => {
   const response = await fetch(`${env.MICROSOFT_API_URL}/subscriptions/${subscriptionId}`, {
     method: 'PATCH',
     headers: {
@@ -78,22 +88,35 @@ export const refreshSubscription = async (encryptToken: string, subscriptionId: 
   });
 
   if (!response.ok) {
-    throw new MicrosoftError('Could not retrieve create subscription', { response });
+    throw new MicrosoftError('Could not refresh subscription', { response });
   }
 
-  const data = (await response.json()) as Subscription;
+  const data: unknown = await response.json();
+  const result = subscriptionSchema.safeParse(data);
+  if (!result.success) {
+    logger.error('Failed to parse refreshed subscription', { data, error: result.error });
+    throw new Error('Could not parse refreshed subscription');
+  }
 
-  return subscriptionSchema.parse(data);
+  return result.data;
 };
 
-export const removeSubscription = async (encryptToken: string, subscriptionId: string) => {
-  const token = await decrypt(encryptToken);
-
-  await fetch(`${env.MICROSOFT_API_URL}/subscriptions/${subscriptionId}`, {
+export const removeSubscription = async ({
+  token,
+  subscriptionId,
+}: {
+  token: string;
+  subscriptionId: string;
+}) => {
+  const response = await fetch(`${env.MICROSOFT_API_URL}/subscriptions/${subscriptionId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
   });
+
+  if (!response.ok) {
+    throw new MicrosoftError('Could not remove subscription', { response });
+  }
 };

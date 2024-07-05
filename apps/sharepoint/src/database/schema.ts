@@ -1,3 +1,4 @@
+import { type InferSelectModel } from 'drizzle-orm';
 import { uuid, text, timestamp, pgTable, unique } from 'drizzle-orm/pg-core';
 
 export const organisationsTable = pgTable('organisations', {
@@ -8,8 +9,10 @@ export const organisationsTable = pgTable('organisations', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-export const sharePointTable = pgTable(
-  'sharepoint',
+export type Organisation = InferSelectModel<typeof organisationsTable>;
+
+export const subscriptionsTable = pgTable(
+  'subscriptions',
   {
     organisationId: uuid('organisation_id')
       .references(() => organisationsTable.id, { onDelete: 'cascade' })
@@ -26,3 +29,5 @@ export const sharePointTable = pgTable(
     unq: unique('unic_drive').on(t.organisationId, t.driveId),
   })
 );
+
+export type Subscription = InferSelectModel<typeof subscriptionsTable>;

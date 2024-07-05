@@ -6,7 +6,7 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
-import { getUsers, type MicrosoftUser } from '@/connectors/microsoft/users/get-users';
+import { getUsers, type MicrosoftUser } from '@/connectors/microsoft/users/users';
 
 const formatElbaUser = (user: MicrosoftUser): User => ({
   id: user.id,
@@ -89,15 +89,11 @@ export const syncUsers = inngest.createFunction(
         },
       });
 
-      return {
-        status: 'ongoing',
-      };
+      return { status: 'ongoing' };
     }
 
     await elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() });
 
-    return {
-      status: 'completed',
-    };
+    return { status: 'completed' };
   }
 );

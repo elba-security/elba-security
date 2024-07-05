@@ -5,14 +5,14 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { getAllItemPermissions } from '@/connectors/microsoft/sharepoint/permissions';
-import { getItem } from '@/connectors/microsoft/sharepoint/item';
+import { getItem } from '@/connectors/microsoft/sharepoint/items';
 import { createElbaClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
-import { formatDataProtectionItems } from './common/helpers';
+import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
 
-export const refreshItem = inngest.createFunction(
+export const refreshDataProtectionObject = inngest.createFunction(
   {
-    id: 'sharepoint-refresh-data-protection-objects',
+    id: 'sharepoint-refresh-data-protection-object',
     concurrency: {
       key: 'event.data.organisationId',
       limit: env.MICROSOFT_DATA_PROTECTION_REFRESH_DELETE_CONCURRENCY,
@@ -49,44 +49,54 @@ export const refreshItem = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with itemId=${organisationId}`);
     }
 
-    await step.run('get-item-permissions', async () => {
-      const token = await decrypt(organisation.token);
+    const token = await decrypt(organisation.token);
 
-      const elba = createElbaClient({ organisationId, region: organisation.region });
+    const elba = createElbaClient({ organisationId, region: organisation.region });
 
-      const [item, { permissions }] = await Promise.all([
-        getItem({ token, siteId, driveId, itemId }),
-        getAllItemPermissions({
+    const result = await step.run('get-item-permissions', async () => {
+      const item = await getItem({ token, siteId, driveId, itemId });
+      if (!item) {
+        return null;
+      }
+
+      const permissions = await getAllItemPermissions({ token, siteId, driveId, itemId });
+      return { item, permissions };
+    });
+
+    if (!result) {
+      await elba.dataProtection.deleteObjects({ ids: [itemId] });
+      return { status: 'deleted' };
+    }
+
+    const { item, permissions } = result;
+    const parentId = item.parentReference.id;
+    let parentPermissionIds: string[] = [];
+    if (parentId) {
+      parentPermissionIds = await step.run('get-parent-permissions', async () => {
+        const parentPermissions = await getAllItemPermissions({
           token,
           siteId,
           driveId,
-          itemId,
-        }),
-      ]);
-
-      if (item !== null && permissions.length) {
-        const dataProtectionItem = formatDataProtectionItems({
-          itemsWithPermissions: [
-            {
-              item,
-              permissions,
-            },
-          ],
-          siteId,
-          driveId,
+          itemId: parentId,
         });
 
-        if (dataProtectionItem.length) {
-          await elba.dataProtection.updateObjects({
-            objects: dataProtectionItem,
-          });
-          return;
-        }
-      }
-
-      await elba.dataProtection.deleteObjects({
-        ids: [itemId],
+        return parentPermissions.map((permission) => permission.id);
       });
+    }
+
+    const [dataProtectionObject] = formatDataProtectionObjects({
+      driveId,
+      items: [{ item, permissions }],
+      siteId,
+      parentPermissionIds,
     });
+
+    if (!dataProtectionObject) {
+      await elba.dataProtection.deleteObjects({ ids: [itemId] });
+      return { status: 'deleted' };
+    }
+
+    await elba.dataProtection.updateObjects({ objects: [dataProtectionObject] });
+    return { status: 'updated' };
   }
 );

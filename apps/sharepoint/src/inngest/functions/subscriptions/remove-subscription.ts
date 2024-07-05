@@ -2,12 +2,13 @@ import { and, eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
-import { organisationsTable, sharePointTable } from '@/database/schema';
-import { removeSubscription } from '@/connectors/microsoft/subscription/subscriptions';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
+import { removeSubscription as removeSharepointSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
+import { decrypt } from '@/common/crypto';
 
-export const subscriptionRemove = inngest.createFunction(
+export const removeSubscription = inngest.createFunction(
   {
-    id: 'sharepoint-subscribe-remove',
+    id: 'sharepoint-remove-subscription',
     cancelOn: [
       {
         event: 'sharepoint/app.uninstalled',
@@ -20,7 +21,7 @@ export const subscriptionRemove = inngest.createFunction(
     ],
     retries: 5,
   },
-  { event: 'sharepoint/subscription.remove.triggered' },
+  { event: 'sharepoint/subscriptions.remove.triggered' },
   async ({ event, step }) => {
     const { subscriptionId, organisationId } = event.data;
 
@@ -28,12 +29,12 @@ export const subscriptionRemove = inngest.createFunction(
       .select({
         token: organisationsTable.token,
       })
-      .from(sharePointTable)
-      .innerJoin(organisationsTable, eq(sharePointTable.organisationId, organisationsTable.id))
+      .from(subscriptionsTable)
+      .innerJoin(organisationsTable, eq(subscriptionsTable.organisationId, organisationsTable.id))
       .where(
         and(
-          eq(sharePointTable.organisationId, organisationId),
-          eq(sharePointTable.subscriptionId, subscriptionId)
+          eq(subscriptionsTable.organisationId, organisationId),
+          eq(subscriptionsTable.subscriptionId, subscriptionId)
         )
       );
 
@@ -43,10 +44,11 @@ export const subscriptionRemove = inngest.createFunction(
       );
     }
 
-    await removeSubscription(record.token, subscriptionId);
+    const token = await decrypt(record.token);
+    await removeSharepointSubscription({ token, subscriptionId });
 
     await step.sendEvent('remove-subscription-completed', {
-      name: 'sharepoint/subscription.remove.completed',
+      name: 'sharepoint/subscriptions.remove.completed',
       data: {
         subscriptionId,
         organisationId,

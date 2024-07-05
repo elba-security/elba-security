@@ -7,7 +7,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
-import { getToken } from '@/connectors/microsoft/auth/get-token';
+import { getToken } from '@/connectors/microsoft/auth/tokens';
 import { unauthorizedMiddleware } from '@/inngest/middlewares/unauthorized-middleware';
 
 export const refreshToken = inngest.createFunction(
@@ -51,11 +51,11 @@ export const refreshToken = inngest.createFunction(
 
       const { token, expiresIn } = await getToken(organisation.tenantId);
 
-      const encodedToken = await encrypt(token);
+      const encryptedToken = await encrypt(token);
 
       await db
         .update(organisationsTable)
-        .set({ token: encodedToken })
+        .set({ token: encryptedToken })
         .where(eq(organisationsTable.id, organisationId));
 
       return addSeconds(new Date(), expiresIn);

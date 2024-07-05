@@ -46,7 +46,7 @@ export const syncSites = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const { sites, nextSkipToken } = await step.run('paginate', async () => {
+    const { siteIds, nextSkipToken } = await step.run('paginate', async () => {
       const result = await getSites({
         token: await decrypt(organisation.token),
         skipToken,
@@ -55,8 +55,8 @@ export const syncSites = inngest.createFunction(
       return result;
     });
 
-    if (sites.length) {
-      const eventsWait = sites.map(({ id }) =>
+    if (siteIds.length) {
+      const eventsWait = siteIds.map((id) =>
         step.waitForEvent(`wait-for-drives-complete-${id}`, {
           event: 'sharepoint/drives.sync.completed',
           timeout: '1d',
@@ -66,7 +66,7 @@ export const syncSites = inngest.createFunction(
 
       await step.sendEvent(
         'drives-sync-triggered',
-        sites.map(({ id }) => ({
+        siteIds.map((id) => ({
           name: 'sharepoint/drives.sync.triggered',
           data: {
             siteId: id,
@@ -91,9 +91,7 @@ export const syncSites = inngest.createFunction(
         },
       });
 
-      return {
-        status: 'ongoing',
-      };
+      return { status: 'ongoing' };
     }
 
     await step.run('elba-permissions-delete', async () => {
@@ -104,8 +102,6 @@ export const syncSites = inngest.createFunction(
       });
     });
 
-    return {
-      status: 'completed',
-    };
+    return { status: 'completed' };
   }
 );

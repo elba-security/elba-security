@@ -46,7 +46,7 @@ export const syncDrives = inngest.createFunction(
 
     const token = await decrypt(organisation.token);
 
-    const { drives, nextSkipToken } = await step.run('paginate', async () => {
+    const { driveIds, nextSkipToken } = await step.run('paginate', async () => {
       const result = await getDrives({
         token,
         siteId,
@@ -56,24 +56,25 @@ export const syncDrives = inngest.createFunction(
       return result;
     });
 
-    if (drives.length) {
-      const eventsWait = drives.map(({ id }) =>
+    if (driveIds.length) {
+      const eventsWait = driveIds.map((id) =>
         step.waitForEvent(`wait-for-items-complete-${id}`, {
           event: 'sharepoint/items.sync.completed',
           timeout: '1d',
-          if: `async.data.organisationId == '${organisationId}' && async.data.driveId == '${id}'`,
+          if: `async.data.organisationId == '${organisationId}' && async.data.driveId == '${id}' && async.data.folderId == null`,
         })
       );
 
       await step.sendEvent(
         'items-sync-triggered',
-        drives.map(({ id }) => ({
+        driveIds.map((id) => ({
           name: 'sharepoint/items.sync.triggered',
           data: {
             siteId,
             driveId: id,
             isFirstSync,
-            folder: null,
+            folderId: null,
+            permissionIds: [],
             skipToken: null,
             organisationId,
           },
@@ -92,9 +93,7 @@ export const syncDrives = inngest.createFunction(
         },
       });
 
-      return {
-        status: 'ongoing',
-      };
+      return { status: 'ongoing' };
     }
 
     await step.sendEvent('drives-sync-complete', {
@@ -105,8 +104,6 @@ export const syncDrives = inngest.createFunction(
       },
     });
 
-    return {
-      status: 'completed',
-    };
+    return { status: 'completed' };
   }
 );

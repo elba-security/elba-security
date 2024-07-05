@@ -1,5 +1,5 @@
+import { objectMetadataSchema } from '@/connectors/elba/data-protection';
 import { inngest } from '@/inngest/client';
-import { itemMetadataSchema } from '@/inngest/functions/data-protection/common/helpers';
 
 export const refreshObject = async ({
   id,
@@ -15,7 +15,7 @@ export const refreshObject = async ({
     data: {
       id,
       organisationId,
-      metadata: itemMetadataSchema.parse(metadata),
+      metadata: objectMetadataSchema.parse(metadata),
     },
   });
 };

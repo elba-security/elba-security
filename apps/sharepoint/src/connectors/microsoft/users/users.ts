@@ -1,10 +1,8 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import {
-  getNextSkipTokenFromNextLink,
-  type MicrosoftPaginatedResponse,
-} from '../commons/pagination';
+import { microsoftPaginatedResponseSchema } from '../common/pagination';
 
 const userSchema = z.object({
   id: z.string(),
@@ -24,7 +22,7 @@ export type GetUsersParams = {
 export const getUsers = async ({ token, tenantId, skipToken }: GetUsersParams) => {
   const url = new URL(`${env.MICROSOFT_API_URL}/${tenantId}/users`);
   url.searchParams.append('$top', String(env.USERS_SYNC_BATCH_SIZE));
-  url.searchParams.append('$select', 'id,mail,userPrincipalName,displayName');
+  url.searchParams.append('$select', Object.keys(userSchema.shape).join(','));
 
   if (skipToken) {
     url.searchParams.append('$skiptoken', skipToken);
@@ -40,21 +38,26 @@ export const getUsers = async ({ token, tenantId, skipToken }: GetUsersParams) =
     throw new MicrosoftError('Could not retrieve users', { response });
   }
 
-  const data = (await response.json()) as MicrosoftPaginatedResponse<unknown>;
+  const data: unknown = await response.json();
+  const result = microsoftPaginatedResponseSchema.safeParse(data);
+  if (!result.success) {
+    logger.error('Failed to parse users', { data, error: result.error });
+    throw new Error('Could not parse users');
+  }
 
   const validUsers: MicrosoftUser[] = [];
   const invalidUsers: unknown[] = [];
 
-  for (const user of data.value) {
-    const result = userSchema.safeParse(user);
-    if (result.success) {
-      validUsers.push(result.data);
+  for (const user of result.data.value) {
+    const parsedUser = userSchema.safeParse(user);
+    if (parsedUser.success) {
+      validUsers.push(parsedUser.data);
     } else {
       invalidUsers.push(user);
     }
   }
 
-  const nextSkipToken = getNextSkipTokenFromNextLink(data['@odata.nextLink']);
+  const nextSkipToken = result.data['@odata.nextLink'];
 
   return { validUsers, invalidUsers, nextSkipToken };
 };

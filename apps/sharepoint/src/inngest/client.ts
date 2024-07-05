@@ -1,8 +1,7 @@
 import { EventSchemas, Inngest } from 'inngest';
-import { sentryMiddleware } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
-import type { SharepointDeletePermission } from './functions/data-protection/common/types';
+import type { ElbaPermissionToDelete } from './functions/data-protection/common/types';
 
 export const inngest = new Inngest({
   id: 'sharepoint',
@@ -53,11 +52,8 @@ export const inngest = new Inngest({
         driveId: string;
         organisationId: string;
         isFirstSync: boolean;
-        folder: {
-          id: string | null;
-          paginated: boolean;
-          permissions: string[] | [];
-        } | null;
+        folderId: string | null;
+        permissionIds: string[];
         skipToken: string | null;
       };
     };
@@ -71,12 +67,7 @@ export const inngest = new Inngest({
       data: {
         organisationId: string;
         driveId: string;
-      };
-    };
-    'sharepoint/folder_items.sync.completed': {
-      data: {
-        organisationId: string;
-        folderId: string;
+        folderId: string | null;
       };
     };
     'sharepoint/data_protection.refresh_object.requested': {
@@ -97,10 +88,10 @@ export const inngest = new Inngest({
           siteId: string;
           driveId: string;
         };
-        permissions: SharepointDeletePermission[];
+        permissions: ElbaPermissionToDelete[];
       };
     };
-    'sharepoint/drives.subscription.triggered': {
+    'sharepoint/subscriptions.create.triggered': {
       data: {
         organisationId: string;
         siteId: string;
@@ -108,43 +99,41 @@ export const inngest = new Inngest({
         isFirstSync: boolean;
       };
     };
-    'sharepoint/subscription.refresh.triggered': {
+    'sharepoint/subscriptions.refresh.triggered': {
       data: {
         subscriptionId: string;
         organisationId: string;
       };
     };
-    'sharepoint/subscription.remove.triggered': {
+    'sharepoint/subscriptions.remove.triggered': {
       data: {
         subscriptionId: string;
         organisationId: string;
       };
     };
-    'sharepoint/subscription.remove.completed': {
+    'sharepoint/subscriptions.remove.completed': {
       data: {
         subscriptionId: string;
         organisationId: string;
       };
     };
-    'sharepoint/data_protection.initialize_delta.requested': {
+    'sharepoint/delta.initialize.requested': {
       data: {
         organisationId: string;
         siteId: string;
         driveId: string;
         isFirstSync: boolean;
-        skipToken: string | null;
       };
     };
-    'sharepoint/update-items.triggered': {
+    'sharepoint/delta.sync.triggered': {
       data: {
         siteId: string;
         driveId: string;
         subscriptionId: string;
         tenantId: string;
-        skipToken: string | null;
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware, sentryMiddleware],
+  middleware: [rateLimitMiddleware],
   logger,
 });

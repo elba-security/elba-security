@@ -1,10 +1,9 @@
-import { http } from 'msw';
-import { describe, expect, test, beforeEach } from 'vitest';
-import { addDays } from 'date-fns';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/common/env';
+import { addDays } from 'date-fns';
+import { http } from 'msw';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { MicrosoftError } from '@/common/error';
-import { encrypt } from '@/common/crypto';
+import { env } from '@/common/env';
 import {
   createSubscription,
   refreshSubscription,
@@ -15,7 +14,6 @@ import {
 const validToken = 'token-1234';
 const changeType = 'updated';
 const resource = `sites/siteId/drives/driveId/root`;
-const encryptedToken = await encrypt(validToken);
 const invalidToken = 'invalid-token';
 const subscriptionId = 'subscription-id';
 const clientState = 'some-client-state';
@@ -75,13 +73,15 @@ describe('subscription connector', () => {
     });
 
     test('should refresh the subscription when the token is valid', async () => {
-      await expect(refreshSubscription(encryptedToken, subscriptionId)).resolves.toStrictEqual(
-        subscription
-      );
+      await expect(
+        refreshSubscription({ token: validToken, subscriptionId })
+      ).resolves.toStrictEqual(subscription);
     });
 
     test('should throw when the token is invalid', async () => {
-      await expect(refreshSubscription(invalidToken, subscriptionId)).rejects.toThrowError();
+      await expect(
+        refreshSubscription({ token: invalidToken, subscriptionId })
+      ).rejects.toThrowError();
     });
   });
 
@@ -99,18 +99,22 @@ describe('subscription connector', () => {
               return new Response(undefined, { status: 400 });
             }
 
-            return undefined;
+            return new Response();
           }
         )
       );
     });
 
-    test('should refresh the subscription when the token is valid', async () => {
-      await expect(removeSubscription(encryptedToken, subscriptionId)).resolves.toBeUndefined();
+    test('should remove the subscription when the token is valid', async () => {
+      await expect(
+        removeSubscription({ token: validToken, subscriptionId })
+      ).resolves.toBeUndefined();
     });
 
     test('should throw when the token is invalid', async () => {
-      await expect(removeSubscription(invalidToken, subscriptionId)).rejects.toThrowError();
+      await expect(
+        removeSubscription({ token: invalidToken, subscriptionId })
+      ).rejects.toThrowError();
     });
   });
 });

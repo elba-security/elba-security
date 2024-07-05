@@ -5,27 +5,29 @@ import { syncSites } from './data-protection/sync-sites';
 import { syncDrives } from './data-protection/sync-drives';
 import { syncItems } from './data-protection/sync-items';
 import { scheduleDataProtectionSyncJobs } from './data-protection/schedule-sync-sites';
-import { refreshItem } from './data-protection/refresh-item';
+import { refreshDataProtectionObject } from './data-protection/refresh-item';
 import { deleteDataProtectionItemPermissions } from './data-protection/delete-item-permissions';
 import { initializeDelta } from './delta/initialize-delta';
-import { updateItems } from './data-protection/update-items';
-import { subscriptionToDrive } from './subscriptions/subscription-to-drives';
-import { subscriptionRefresh } from './subscriptions/subscription-refresh';
-import { subscriptionRemove } from './subscriptions/subscription-remove';
+import { syncDeltaItems } from './data-protection/update-items';
+import { createSubscription } from './subscriptions/create-subscription';
+import { refreshSubscription } from './subscriptions/refresh-subscription';
+import { removeSubscription } from './subscriptions/remove-subscription';
+import { removeOrganisation } from './organisations/remove-organisation';
 
 export const inngestFunctions = [
-  syncUsers,
-  scheduleUsersSyncs,
-  refreshToken,
-  syncSites,
-  syncDrives,
-  syncItems,
-  scheduleDataProtectionSyncJobs,
-  refreshItem,
+  createSubscription,
   deleteDataProtectionItemPermissions,
   initializeDelta,
-  updateItems,
-  subscriptionToDrive,
-  subscriptionRefresh,
-  subscriptionRemove,
+  refreshDataProtectionObject,
+  refreshSubscription,
+  refreshToken,
+  removeOrganisation,
+  removeSubscription,
+  scheduleDataProtectionSyncJobs,
+  scheduleUsersSyncs,
+  syncDeltaItems,
+  syncDrives,
+  syncItems,
+  syncSites,
+  syncUsers,
 ];

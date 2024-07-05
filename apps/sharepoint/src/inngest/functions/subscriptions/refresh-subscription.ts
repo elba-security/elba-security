@@ -2,12 +2,13 @@ import { and, eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
-import { organisationsTable, sharePointTable } from '@/database/schema';
-import { refreshSubscription } from '@/connectors/microsoft/subscription/subscriptions';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
+import { refreshSubscription as refreshSharepointSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
+import { decrypt } from '@/common/crypto';
 
-export const subscriptionRefresh = inngest.createFunction(
+export const refreshSubscription = inngest.createFunction(
   {
-    id: 'sharepoint-subscribe-refresh',
+    id: 'sharepoint-refresh-subscription',
     cancelOn: [
       {
         event: 'sharepoint/app.uninstalled',
@@ -20,7 +21,7 @@ export const subscriptionRefresh = inngest.createFunction(
     ],
     retries: 5,
   },
-  { event: 'sharepoint/subscription.refresh.triggered' },
+  { event: 'sharepoint/subscriptions.refresh.triggered' },
   async ({ event }) => {
     const { subscriptionId, organisationId } = event.data;
 
@@ -28,12 +29,12 @@ export const subscriptionRefresh = inngest.createFunction(
       .select({
         token: organisationsTable.token,
       })
-      .from(sharePointTable)
-      .innerJoin(organisationsTable, eq(sharePointTable.organisationId, organisationsTable.id))
+      .from(subscriptionsTable)
+      .innerJoin(organisationsTable, eq(subscriptionsTable.organisationId, organisationsTable.id))
       .where(
         and(
-          eq(sharePointTable.organisationId, organisationId),
-          eq(sharePointTable.subscriptionId, subscriptionId)
+          eq(subscriptionsTable.organisationId, organisationId),
+          eq(subscriptionsTable.subscriptionId, subscriptionId)
         )
       );
 
@@ -43,17 +44,18 @@ export const subscriptionRefresh = inngest.createFunction(
       );
     }
 
-    const subscription = await refreshSubscription(record.token, subscriptionId);
+    const token = await decrypt(record.token);
+    const subscription = await refreshSharepointSubscription({ token, subscriptionId });
 
     await db
-      .update(sharePointTable)
+      .update(subscriptionsTable)
       .set({
         subscriptionExpirationDate: subscription.expirationDateTime,
       })
       .where(
         and(
-          eq(sharePointTable.organisationId, organisationId),
-          eq(sharePointTable.subscriptionId, subscriptionId)
+          eq(subscriptionsTable.organisationId, organisationId),
+          eq(subscriptionsTable.subscriptionId, subscriptionId)
         )
       );
   }

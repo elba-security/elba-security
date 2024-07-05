@@ -2,15 +2,12 @@ import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { createElbaClient } from '@/connectors/elba/client';
-import { organisationsTable, sharePointTable } from '@/database/schema';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 
 export const removeOrganisation = inngest.createFunction(
   {
     id: 'sharepoint-remove-organisation',
-    priority: {
-      run: '600',
-    },
     retries: 5,
   },
   {
@@ -31,15 +28,15 @@ export const removeOrganisation = inngest.createFunction(
 
     const subscriptions = await db
       .select({
-        subscriptionId: sharePointTable.subscriptionId,
+        subscriptionId: subscriptionsTable.subscriptionId,
       })
-      .from(sharePointTable)
-      .where(eq(sharePointTable.organisationId, organisationId));
+      .from(subscriptionsTable)
+      .where(eq(subscriptionsTable.organisationId, organisationId));
 
     if (subscriptions.length) {
       const eventsWait = subscriptions.map(({ subscriptionId }) =>
         step.waitForEvent(`wait-for-remove-subscription-complete-${subscriptionId}`, {
-          event: 'sharepoint/subscription.remove.completed',
+          event: 'sharepoint/subscriptions.remove.completed',
           timeout: '1d',
           if: `async.data.organisationId == '${organisationId}' && async.data.subscriptionId == '${subscriptionId}'`,
         })
@@ -48,7 +45,7 @@ export const removeOrganisation = inngest.createFunction(
       await step.sendEvent(
         'subscription-remove-triggered',
         subscriptions.map(({ subscriptionId }) => ({
-          name: 'sharepoint/subscription.remove.triggered',
+          name: 'sharepoint/subscriptions.remove.triggered',
           data: {
             organisationId,
             subscriptionId,
@@ -63,7 +60,6 @@ export const removeOrganisation = inngest.createFunction(
 
     await elba.connectionStatus.update({ hasError: true });
 
-    await db.delete(sharePointTable).where(eq(sharePointTable.organisationId, organisationId));
     await db.delete(organisationsTable).where(eq(organisationsTable.id, organisationId));
   }
 );

@@ -2,8 +2,9 @@ import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getToken } from '@/connectors/microsoft/auth/get-token';
+import { getToken } from '@/connectors/microsoft/auth/tokens';
 import { encrypt } from '@/common/crypto';
+import { getUsers } from '@/connectors/microsoft/users/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -18,15 +19,22 @@ export const setupOrganisation = async ({
 }: SetupOrganisationParams) => {
   const { token, expiresIn } = await getToken(tenantId);
 
-  const encodedToken = await encrypt(token);
+  try {
+    // we test the installaton: microsoft API takes time to propagate it through its services
+    await getUsers({ token, tenantId, skipToken: null });
+  } catch {
+    return { isAppInstallationCompleted: false };
+  }
+
+  const encryptedToken = await encrypt(token);
   await db
     .insert(organisationsTable)
-    .values({ id: organisationId, tenantId, token: encodedToken, region })
+    .values({ id: organisationId, tenantId, token: encryptedToken, region })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
         tenantId,
-        token: encodedToken,
+        token: encryptedToken,
         region,
       },
     });
@@ -55,4 +63,6 @@ export const setupOrganisation = async ({
       },
     },
   ]);
+
+  return { isAppInstallationCompleted: true };
 };

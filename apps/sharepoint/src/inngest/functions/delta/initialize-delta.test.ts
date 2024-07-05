@@ -2,13 +2,13 @@ import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import { and, eq } from 'drizzle-orm';
-import * as deltaConnector from '@/connectors/microsoft/delta/get-delta';
-import * as createSubscriptionConnector from '@/connectors/microsoft/subscription/subscriptions';
-import type { Subscription } from '@/connectors/microsoft/subscription/subscriptions';
-import { organisationsTable, sharePointTable } from '@/database/schema';
+import * as deltaConnector from '@/connectors/microsoft/delta/delta';
+import * as createSubscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
+import type { Subscription } from '@/connectors/microsoft/subscriptions/subscriptions';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
-import { subscriptionToDrive } from '../subscriptions/subscription-to-drives';
+import { createSubscription } from '../subscriptions/create-subscription';
 import { initializeDelta } from './initialize-delta';
 
 const token = 'test-token';
@@ -37,10 +37,7 @@ const setupData = {
   skipToken: null,
 };
 
-const setup = createInngestFunctionMock(
-  initializeDelta,
-  'sharepoint/data_protection.initialize_delta.requested'
-);
+const setup = createInngestFunctionMock(initializeDelta, 'sharepoint/delta.initialize.requested');
 
 describe('sync-sites', () => {
   beforeEach(async () => {
@@ -48,10 +45,9 @@ describe('sync-sites', () => {
   });
 
   test('should abort sync when organisation is not registered', async () => {
-    vi.spyOn(deltaConnector, 'getDelta').mockResolvedValue({
-      delta: [],
-      nextSkipToken: null,
-      newDeltaToken: null,
+    vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
+      items: { deleted: [], updated: [] },
+      newDeltaToken: 'new-delta-token',
     });
 
     const [result, { step }] = setup({
@@ -61,41 +57,14 @@ describe('sync-sites', () => {
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    expect(deltaConnector.getDelta).toBeCalledTimes(0);
+    expect(deltaConnector.getDeltaItems).toBeCalledTimes(0);
 
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should continue the sync when there is a next page', async () => {
-    const nextSkipToken = 'next-skip-token';
-
-    vi.spyOn(deltaConnector, 'getDelta').mockResolvedValue({
-      delta: [],
-      nextSkipToken,
-      newDeltaToken: null,
-    });
-
-    const [result] = setup(setupData);
-
-    await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
-  });
-
-  test('should throw NonRetriableError when no newDeltaToken and no skipToken', async () => {
-    vi.spyOn(deltaConnector, 'getDelta').mockResolvedValue({
-      delta: [],
-      nextSkipToken: null,
-      newDeltaToken: null,
-    });
-
-    const [result] = setup(setupData);
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-  });
-
   test('should finalize the sync and insert/update data in db', async () => {
-    vi.spyOn(deltaConnector, 'getDelta').mockResolvedValue({
-      delta: [],
-      nextSkipToken: null,
+    vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
+      items: { deleted: [], updated: [] },
       newDeltaToken: deltaToken,
     });
     vi.spyOn(createSubscriptionConnector, 'createSubscription').mockResolvedValue(subscriptionData);
@@ -106,8 +75,8 @@ describe('sync-sites', () => {
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
     expect(step.invoke).toBeCalledTimes(1);
-    expect(step.invoke).toBeCalledWith('sharepoint/drives.subscription.triggered', {
-      function: subscriptionToDrive,
+    expect(step.invoke).toBeCalledWith('create-subscription', {
+      function: createSubscription,
       data: {
         organisationId: organisation.id,
         siteId,
@@ -118,16 +87,16 @@ describe('sync-sites', () => {
 
     const [record] = await db
       .select({
-        subscriptionId: sharePointTable.subscriptionId,
-        subscriptionExpirationDate: sharePointTable.subscriptionExpirationDate,
-        delta: sharePointTable.delta,
+        subscriptionId: subscriptionsTable.subscriptionId,
+        subscriptionExpirationDate: subscriptionsTable.subscriptionExpirationDate,
+        delta: subscriptionsTable.delta,
       })
-      .from(sharePointTable)
+      .from(subscriptionsTable)
       .where(
         and(
-          eq(sharePointTable.organisationId, organisation.id),
-          eq(sharePointTable.siteId, siteId),
-          eq(sharePointTable.driveId, driveId)
+          eq(subscriptionsTable.organisationId, organisation.id),
+          eq(subscriptionsTable.siteId, siteId),
+          eq(subscriptionsTable.driveId, driveId)
         )
       );
 

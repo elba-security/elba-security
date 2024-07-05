@@ -18,7 +18,7 @@ describe('unauthorized middleware', () => {
     await db.insert(organisationsTable).values(organisation);
   });
 
-  test('should not transform the output when their is no error', async () => {
+  test('should not transform the output when there is no error', async () => {
     const send = vi.fn().mockResolvedValue(undefined);
     await expect(
       unauthorizedMiddleware

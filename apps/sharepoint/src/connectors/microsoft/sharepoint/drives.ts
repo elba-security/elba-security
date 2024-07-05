@@ -1,10 +1,8 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import {
-  getNextSkipTokenFromNextLink,
-  type MicrosoftPaginatedResponse,
-} from '../commons/pagination';
+import { microsoftPaginatedResponseSchema } from '../common/pagination';
 
 const driveSchema = z.object({
   id: z.string(),
@@ -37,9 +35,26 @@ export const getDrives = async ({ token, siteId, skipToken }: GetDrivesParams) =
     throw new MicrosoftError('Could not retrieve drives', { response });
   }
 
-  const data = (await response.json()) as MicrosoftPaginatedResponse<MicrosoftDrive>;
+  const data: unknown = await response.json();
+  const result = microsoftPaginatedResponseSchema.safeParse(data);
+  if (!result.success) {
+    logger.error('Failed to parse paginated drives response', { data, errror: result.error });
+    throw new Error('Could not parse drives');
+  }
 
-  const nextSkipToken = getNextSkipTokenFromNextLink(data['@odata.nextLink']);
+  const nextSkipToken = result.data['@odata.nextLink'];
+  const driveIds: string[] = [];
+  for (const drive of result.data.value) {
+    const parsedDrive = driveSchema.safeParse(drive);
+    if (parsedDrive.success) {
+      driveIds.push(parsedDrive.data.id);
+    } else {
+      logger.error('Failed to parse drive while getting drives', {
+        drive,
+        error: parsedDrive.error,
+      });
+    }
+  }
 
-  return { drives: data.value, nextSkipToken };
+  return { driveIds, nextSkipToken };
 };

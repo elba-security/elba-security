@@ -3,7 +3,7 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { organisationsTable, sharePointTable } from '@/database/schema';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { env } from '@/common/env';
 import { encrypt } from '@/common/crypto';
 import { removeOrganisation } from './remove-organisation';
@@ -40,7 +40,7 @@ describe('remove-organisation', () => {
   test("should remove given organisation when it's registered", async () => {
     const elba = spyOnElba();
     await db.insert(organisationsTable).values(organisation);
-    await db.insert(sharePointTable).values(sharePoints);
+    await db.insert(subscriptionsTable).values(sharePoints);
 
     const [result, { step }] = setup({ organisationId: organisation.id });
 
@@ -55,7 +55,7 @@ describe('remove-organisation', () => {
         i + 1,
         `wait-for-remove-subscription-complete-${sharePoint?.subscriptionId}`,
         {
-          event: 'sharepoint/subscription.remove.completed',
+          event: 'sharepoint/subscriptions.remove.completed',
           timeout: '1d',
           if: `async.data.organisationId == '${sharePoint?.organisationId}' && async.data.subscriptionId == '${sharePoint?.subscriptionId}'`,
         }
