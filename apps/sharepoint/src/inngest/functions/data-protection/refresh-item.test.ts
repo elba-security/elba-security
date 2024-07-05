@@ -10,7 +10,7 @@ import type { MicrosoftDriveItemPermission } from '@/connectors/microsoft/sharep
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
 import { env } from '@/common/env';
 import { refreshItem } from './refresh-item';
-import { formatDataProtectionItems } from './common/helpers';
+import { formatDataProtectionObjects } from './common/helpers';
 
 const token = 'test-token';
 
@@ -160,7 +160,7 @@ describe('refresh-object', () => {
       baseUrl: env.ELBA_API_BASE_URL,
     });
 
-    const dataProtectionItem = formatDataProtectionItems({
+    const dataProtectionItem = formatDataProtectionObjects({
       itemsWithPermissions: [
         {
           item,

@@ -9,7 +9,7 @@ import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items
 import { getItems } from '@/connectors/microsoft/sharepoint/items';
 import { createElbaClient } from '@/connectors/elba/client';
 import {
-  formatDataProtectionItems,
+  formatDataProtectionObjects,
   getChunkedArray,
   getItemsWithPermissionsFromChunks,
   getParentFolderPermissions,
@@ -126,7 +126,7 @@ export const syncItems = inngest.createFunction(
           driveId
         );
 
-        const dataProtectionItems = formatDataProtectionItems({
+        const dataProtectionItems = formatDataProtectionObjects({
           itemsWithPermissions: removeInheritedSync(parentFolderPermissions, itemsWithPermissions),
           siteId,
           driveId,

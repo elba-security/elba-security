@@ -12,7 +12,7 @@ import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permiss
 import * as deltaConnector from '@/connectors/microsoft/delta/get-delta';
 import type { ItemsWithPermissions } from './common/types';
 import {
-  formatDataProtectionItems,
+  formatDataProtectionObjects,
   parsedDeltaState,
   removeInheritedUpdate,
 } from './common/helpers';
@@ -234,7 +234,7 @@ describe('update-item-and-permissions', () => {
 
     const { toDelete, toUpdate } = removeInheritedUpdate(updateItemsWithPermissionsResult);
 
-    const updateDataProtectionItems = formatDataProtectionItems({
+    const updateDataProtectionItems = formatDataProtectionObjects({
       itemsWithPermissions: toUpdate,
       siteId,
       driveId,

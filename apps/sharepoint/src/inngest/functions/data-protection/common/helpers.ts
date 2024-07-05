@@ -157,7 +157,48 @@ export const formatPermissions = (permissions: MicrosoftDriveItemPermission[]) =
   return elbaPermissions;
 };
 
-export const formatDataProtectionItems = ({
+export const getItemsWithPermissionsFromChunks = async ({
+  itemsChunks,
+  token,
+  siteId,
+  driveId,
+}: {
+  itemsChunks: MicrosoftDriveItem[][];
+  token: string;
+  siteId: string;
+  driveId: string;
+}) => {
+  const itemsWithPermissions: ItemsWithPermissions[] = [];
+
+  for (const itemsChunk of itemsChunks) {
+    const itemPermissionsChunks = await Promise.all(
+      itemsChunk.map((item) =>
+        getAllItemPermissions({
+          token,
+          siteId,
+          driveId,
+          itemId: item.id,
+        })
+      )
+    );
+
+    for (let e = 0; e < itemPermissionsChunks.length; e++) {
+      const item = itemsChunk[e];
+      const permissions = itemPermissionsChunks[e];
+
+      if (!item || !permissions) continue;
+
+      itemsWithPermissions.push({
+        item,
+        permissions: permissions.permissions,
+      });
+    }
+  }
+
+  return itemsWithPermissions;
+};
+
+export const formatDataProtectionObjects = ({
   itemsWithPermissions,
   siteId,
   driveId,
@@ -166,19 +207,14 @@ export const formatDataProtectionItems = ({
   siteId: string;
   driveId: string;
 }): DataProtectionObject[] => {
-  const dataProtection: DataProtectionObject[] = [];
+  const objects: DataProtectionObject[] = [];
 
   for (const { item, permissions } of itemsWithPermissions) {
+    // TODO: is item creator always the owner?
     if (item.createdBy.user.id) {
-      const validPermissions: MicrosoftDriveItemPermission[] = permissions.filter(
-        (permission) =>
-          (permission.link?.scope === 'users' && permission.grantedToIdentitiesV2?.length) ||
-          permission.link?.scope === 'anonymous' ||
-          permission.grantedToV2?.user
-      );
-
-      if (validPermissions.length) {
-        const dataProtectionItem = {
+      const formattedPermissions = formatPermissions(permissions);
+      if (formattedPermissions.length) {
+        const object = {
           id: item.id,
           name: item.name,
           url: item.webUrl,
@@ -188,15 +224,15 @@ export const formatDataProtectionItems = ({
             driveId,
           } satisfies ItemMetadata,
           updatedAt: item.lastModifiedDateTime,
-          permissions: formatPermissions(validPermissions),
+          permissions: formattedPermissions,
         };
 
-        dataProtection.push(dataProtectionItem);
+        objects.push(object);
       }
     }
   }
 
-  return dataProtection;
+  return objects;
 };
 
 export const getParentFolderPermissions = async (
@@ -224,16 +260,17 @@ export const getParentFolderPermissions = async (
   };
 };
 
-export const parsedDeltaState = (delta: Delta[]): ParsedDelta => {
-  return delta.reduce<ParsedDelta>(
-    (acc, el) => {
-      if (el.deleted?.state === 'deleted') acc.deleted.push(el.id);
-      else acc.updated.push(el as MicrosoftDriveItem);
-
-      return acc;
-    },
-    { deleted: [], updated: [] }
-  );
+export const parsedDeltaState = (deltaItems: Delta[]): ParsedDelta => {
+  // TODO: fix variable names
+  const items: ParsedDelta = { deleted: [], updated: [] };
+  for (const item of deltaItems) {
+    if (item.deleted?.state === 'deleted') {
+      items.deleted.push(item.id);
+    } else {
+      items.updated.push(item as MicrosoftDriveItem); // TODO: fix this
+    }
+  }
+  return items;
 };
 
 export const removeInheritedUpdate = (
@@ -314,43 +351,46 @@ export const createDeleteItemPermissionFunction = ({
   };
 };
 
-export const preparePermissionDeletionArray = (permissions: SharepointDeletePermission[]) => {
+export const preparePermissionDeletionArray = (
+  permissions: SharepointDeletePermission[]
+): CombinedLinkPermissions[] => {
   const permissionDeletionArray: CombinedLinkPermissions[] = [];
   const combinedLinkPermissions = new Map<string, string[]>();
 
   for (const permission of permissions) {
-    if (permission.metadata.type === 'user' && permission.metadata.directPermissionId) {
-      permissionDeletionArray.push({
-        permissionId: permission.metadata.directPermissionId,
-      });
-    }
+    if (permission.metadata.type === 'user') {
+      if (permission.metadata.directPermissionId) {
+        permissionDeletionArray.push({
+          permissionId: permission.metadata.directPermissionId,
+        });
+      }
 
-    if (permission.metadata.type === 'anyone') {
-      permissionDeletionArray.push({
-        permissionId: permission.id,
-      });
-    }
+      if (permission.metadata.linksPermissionIds.length) {
+        for (const permissionId of permission.metadata.linksPermissionIds) {
+          let linkPermission = combinedLinkPermissions.get(permissionId);
 
-    if (permission.metadata.type === 'user' && permission.metadata.linksPermissionIds.length) {
-      for (const permissionId of permission.metadata.linksPermissionIds) {
-        if (combinedLinkPermissions.has(permissionId)) {
-          combinedLinkPermissions.get(permissionId)?.push(permission.metadata.email);
-        } else {
-          combinedLinkPermissions.set(permissionId, [permission.metadata.email]);
+          if (!linkPermission) {
+            linkPermission = [];
+            combinedLinkPermissions.set(permissionId, linkPermission);
+          }
+
+          linkPermission.push(permission.metadata.email);
         }
       }
     }
-  }
 
-  for (const [permissionId, userEmails] of combinedLinkPermissions) {
-    const emailChunks = getChunkedArray<string>(userEmails, 200);
-    for (const emailChunk of emailChunks) {
-      permissionDeletionArray.push({
-        permissionId,
-        userEmails: emailChunk,
-      });
+    if (permission.metadata.type === 'anyone') {
+      permissionDeletionArray.push(
+        ...permission.metadata.permissionIds.map((permissionId) => ({ permissionId }))
+      );
     }
   }
 
-  return permissionDeletionArray;
+  return [
+    ...permissionDeletionArray,
+    ...[...combinedLinkPermissions.entries()].map(([permissionId, userEmails]) => ({
+      permissionId,
+      userEmails,
+    })),
+  ];
 };

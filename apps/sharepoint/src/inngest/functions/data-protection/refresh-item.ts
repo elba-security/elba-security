@@ -8,7 +8,7 @@ import { getAllItemPermissions } from '@/connectors/microsoft/sharepoint/permiss
 import { getItem } from '@/connectors/microsoft/sharepoint/item';
 import { createElbaClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
-import { formatDataProtectionItems } from './common/helpers';
+import { formatDataProtectionObjects } from './common/helpers';
 
 export const refreshItem = inngest.createFunction(
   {
@@ -65,7 +65,7 @@ export const refreshItem = inngest.createFunction(
       ]);
 
       if (item !== null && permissions.length) {
-        const dataProtectionItem = formatDataProtectionItems({
+        const dataProtectionItem = formatDataProtectionObjects({
           itemsWithPermissions: [
             {
               item,

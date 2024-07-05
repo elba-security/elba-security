@@ -9,7 +9,7 @@ import { getDelta } from '@/connectors/microsoft/delta/get-delta';
 import { createElbaClient } from '@/connectors/elba/client';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import {
-  formatDataProtectionItems,
+  formatDataProtectionObjects,
   getChunkedArray,
   getItemsWithPermissionsFromChunks,
   parsedDeltaState,
@@ -85,7 +85,7 @@ export const updateItems = inngest.createFunction(
 
         const { toDelete, toUpdate } = removeInheritedUpdate(itemsWithPermissions);
 
-        const dataProtectionItems = formatDataProtectionItems({
+        const dataProtectionItems = formatDataProtectionObjects({
           itemsWithPermissions: toUpdate,
           siteId,
           driveId,
