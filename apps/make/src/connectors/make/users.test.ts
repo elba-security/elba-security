@@ -1,7 +1,7 @@
 import { describe, expect, test, beforeEach } from 'vitest';
 import { http } from 'msw';
 import { server } from '@elba-security/test-utils';
-import { MakeError } from '../commons/error';
+import { MakeError } from '../common/error';
 import { users } from '../../inngest/functions/users/__mocks__/integration';
 import { getUsers } from './users';
 
@@ -34,7 +34,11 @@ describe('getUsers', () => {
 
   test('should fetch users when token is valid', async () => {
     const result = await getUsers(validToken, organizationId, null, zoneDomain);
-    expect(result).toEqual({validUsers: users, invalidUsers: [], pagination: { next: nextOffset}});
+    expect(result).toEqual({
+      validUsers: users,
+      invalidUsers: [],
+      pagination: { next: nextOffset },
+    });
   });
 
   test('should throw MakeError when token is invalid', async () => {
@@ -45,11 +49,11 @@ describe('getUsers', () => {
 
   test('should return next offset when there is next offset', async () => {
     const result = await getUsers(validToken, organizationId, 0, zoneDomain);
-    expect(result.pagination.next).toEqual(nextOffset);
+    expect(result.nextPage).toEqual(nextOffset);
   });
 
   test('should return next as null when there are no more pages', async () => {
     const result = await getUsers(validToken, organizationId, lastOffset, zoneDomain);
-    expect(result.pagination.next).toBeNull();
+    expect(result.nextPage).toBeNull();
   });
 });

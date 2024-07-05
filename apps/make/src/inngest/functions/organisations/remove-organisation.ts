@@ -23,7 +23,7 @@ export const removeOrganisation = inngest.createFunction(
     event: 'make/app.uninstalled',
   },
   async ({ event }) => {
-    const { organisationId } = event.data
+    const { organisationId } = event.data;
     const [organisation] = await db
       .select({
         region: Organisation.region,

@@ -1,8 +1,6 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { install } from './actions';
-import type { FormState } from './actions';
 import { useFormState } from 'react-dom';
 import {
   Form,
@@ -14,7 +12,8 @@ import {
   InstructionsSteps,
   SubmitButton,
 } from '@elba-security/design-system';
-
+import { install } from './actions';
+import type { FormState } from './actions';
 
 export default function InstallPage() {
   const searchParams = useSearchParams();
@@ -30,17 +29,14 @@ export default function InstallPage() {
           <div>
             <h3>How to obtain your Make API Token?</h3>
             <p>
-              1. Sign in to Make API and click your avatar at the bottom-left corner of the page and Click <b>Profile</b>
+              1. Sign in to Make API and click your avatar at the bottom-left corner of the page and
+              Click <b>Profile</b>
             </p>
             <p>
               2. Open the API tab and Click <b>Add token</b>
             </p>
-            <p>
-              3. Select the scopes you need for working with API resources.
-            </p>
-            <p>
-              4. Click Save and Copy the token and input the key value in Elba:
-            </p>
+            <p>3. Select the scopes you need for working with API resources.</p>
+            <p>4. Click Save and Copy the token and input the key value in Elba:</p>
           </div>
         </InstructionsStep>
 
@@ -53,9 +49,7 @@ export default function InstallPage() {
             <p>
               2. Click on the <b>Variables</b> tab
             </p>
-            <p>
-              4. Copy the Value displayed against the Zone Domain and input the value in Elba:
-            </p>
+            <p>4. Copy the Value displayed against the Zone Domain and input the value in Elba:</p>
           </div>
         </InstructionsStep>
 
@@ -93,6 +87,3 @@ export default function InstallPage() {
     </>
   );
 }
-
-
-

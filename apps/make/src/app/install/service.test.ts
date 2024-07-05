@@ -4,7 +4,7 @@ import { db } from '@/database/client';
 import { Organisation } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as crypto from '@/common/crypto';
-import { MakeError } from '@/connectors/commons/error';
+import { MakeError } from '@/connectors/common/error';
 import { registerOrganisation } from './service';
 
 const token = 'test-token';
@@ -55,20 +55,20 @@ describe('registerOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-      name: 'make/users.start_sync.requested',
-      data: {
-        organisationId: organisation.id,
-        syncStartedAt: now.getTime(),
-        isFirstSync: true
+        name: 'make/users.start_sync.requested',
+        data: {
+          organisationId: organisation.id,
+          syncStartedAt: now.getTime(),
+          isFirstSync: true,
+        },
       },
-    },
-    {
-      name: 'make/app.installed',
-      data: {
-        organisationId: organisation.id,
+      {
+        name: 'make/app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
       },
-    },
-  ]);
+    ]);
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
@@ -100,20 +100,20 @@ describe('registerOrganisation', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
-      name: 'make/users.start_sync.requested',
-      data: {
-        organisationId: organisation.id,
-        syncStartedAt: now.getTime(),
-        isFirstSync: true
+        name: 'make/users.start_sync.requested',
+        data: {
+          organisationId: organisation.id,
+          syncStartedAt: now.getTime(),
+          isFirstSync: true,
+        },
       },
-    },
-    {
-      name: 'make/app.installed',
-      data: {
-        organisationId: organisation.id,
+      {
+        name: 'make/app.installed',
+        data: {
+          organisationId: organisation.id,
+        },
       },
-    },
-  ]);
+    ]);
   });
 
   test('should not setup the organisation when the organisation id is invalid', async () => {

@@ -1,12 +1,12 @@
 'use server';
 import { logger } from '@elba-security/logger';
 import { z } from 'zod';
-import { MakeError } from '@/connectors/commons/error';
-import { registerOrganisation } from './service';
 import { RedirectType, redirect } from 'next/navigation';
 import { getRedirectUrl } from '@elba-security/sdk';
 import { isRedirectError } from 'next/dist/client/components/redirect';
+import { MakeError } from '@/connectors/common/error';
 import { env } from '@/common/env';
+import { registerOrganisation } from './service';
 
 const formSchema = z.object({
   token: z.string().min(1, { message: 'The api token is required' }).trim(),
@@ -26,7 +26,7 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
   const region = formData.get('region');
   try {
     const validatedFields = formSchema.safeParse({
-      token: formData.get(''),
+      token: formData.get('token'),
       zoneDomain: formData.get('zoneDomain'),
       organisationId: formData.get('organisationId'),
       region: formData.get('region'),

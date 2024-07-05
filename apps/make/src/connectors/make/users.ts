@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { MakeError } from '../commons/error';
+import { MakeError } from '../common/error';
 
 const MakeUserSchema = z.object({
   id: z.string(),
@@ -13,7 +13,7 @@ const PaginationSchema = z.object({
   offset: z.number(),
 });
 
-const GetUsersResponseDataSchema = z.object({
+const getUsersResponseDataSchema = z.object({
   users: z.array(MakeUserSchema),
   pg: PaginationSchema,
 });
@@ -21,29 +21,29 @@ const GetUsersResponseDataSchema = z.object({
 export type MakeUser = z.infer<typeof MakeUserSchema>;
 export type Pagination = z.infer<typeof PaginationSchema>;
 
-
 export const getUsers = async (
   token: string,
   organizationId: string,
   page: number | null,
   zoneDomain: string
 ) => {
-  const url = new URL(
-    `https://${zoneDomain}/api/v2/users?organizationId=${organizationId}&pg[limit]=${env.MAKE_USERS_SYNC_BATCH_SIZE}`
-  );
+  const url = new URL(`https://${zoneDomain}/api/v2/users`);
+  url.searchParams.append('organizationId', String(organizationId));
+  url.searchParams.append('pg[limit]', String(env.MAKE_USERS_SYNC_BATCH_SIZE));
 
   if (page !== null) {
     url.searchParams.append('pg[offset]', String(page));
   }
+
   const response = await fetch(url, {
     headers: { Authorization: `Token ${token}` },
   });
+
   if (!response.ok) {
     throw new MakeError('Could not retrieve users', { response });
   }
   const resData: unknown = await response.json();
-  const result = GetUsersResponseDataSchema.parse(resData);
-  const { users, pg } = result;
+  const { users, pg } = getUsersResponseDataSchema.parse(resData);
 
   const validUsers: MakeUser[] = [];
   const invalidUsers: unknown[] = [];
@@ -57,9 +57,9 @@ export const getUsers = async (
     }
   }
 
-  const pagination = {
-    next: users.length === env.MAKE_USERS_SYNC_BATCH_SIZE ? pg.offset + pg.limit : null,
+  return {
+    validUsers,
+    invalidUsers,
+    nextPage: users.length === env.MAKE_USERS_SYNC_BATCH_SIZE ? pg.offset + pg.limit : null,
   };
-
-  return { validUsers,invalidUsers, pagination };
 };

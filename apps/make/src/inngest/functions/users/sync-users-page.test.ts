@@ -20,10 +20,10 @@ const elbaUsers = [
 ];
 
 const users: usersConnector.MakeUser[] = [
-  {id: 'user-id', email: 'user@gmail.com', name: 'username'},
+  { id: 'user-id', email: 'user@gmail.com', name: 'username' },
 ];
 
-const invalidUsers = []
+const invalidUsers = [];
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
@@ -31,7 +31,6 @@ const organisation = {
   zoneDomain: 'test-zone',
   region: 'us',
 };
-const syncStartedAt = Date.now();
 
 const setup = createInngestFunctionMock(syncUsersPage, 'make/users.sync.requested');
 
@@ -41,7 +40,7 @@ describe('sync-users-page', () => {
       organisationId: organisation.id,
       region: organisation.region,
       page: 0,
-      sourceOrganizationId: 'test-id'
+      sourceOrganizationId: 'test-id',
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -57,20 +56,20 @@ describe('sync-users-page', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers,
-      pagination: { next: 10 },
+      nextPage: 10,
     });
+
     const [result, { step }] = setup({
       organisationId: organisation.id,
       region: organisation.region,
       page: 0,
-      sourceOrganizationId: 'test-id'
+      sourceOrganizationId: 'test-id',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
     expect(crypto.decrypt).toBeCalledTimes(1);
     expect(crypto.decrypt).toBeCalledWith(organisation.token);
-
 
     // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
@@ -80,7 +79,7 @@ describe('sync-users-page', () => {
         organisationId: organisation.id,
         region: organisation.region,
         page: 10,
-        sourceOrganizationId: 'test-id'
+        sourceOrganizationId: 'test-id',
       },
     });
   });
@@ -93,14 +92,14 @@ describe('sync-users-page', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers,
-      pagination: { next: null },
+      nextPage: null,
     });
-    
+
     const [result, { step }] = setup({
       organisationId: organisation.id,
       region: organisation.region,
       page: 0,
-      sourceOrganizationId: 'test-id'
+      sourceOrganizationId: 'test-id',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });

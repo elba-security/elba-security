@@ -8,7 +8,7 @@ import { env } from '@/common/env';
 import { removeOrganisation } from './remove-organisation';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
   organizationIds: ['organization-id'],
   token: 'test-token',
   zoneDomain: 'test-zone',
@@ -20,7 +20,7 @@ const setup = createInngestFunctionMock(removeOrganisation, 'make/app.uninstalle
 describe('remove-organisation', () => {
   test("should not remove given organisation when it's not registered", async () => {
     const elba = spyOnElba();
-    const [result] = setup({ organisationId: organisation.id});
+    const [result] = setup({ organisationId: organisation.id });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
