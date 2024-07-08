@@ -7,7 +7,7 @@ import type {
   SharepointMetadata,
 } from './helpers';
 
-export type ItemsWithPermissions = {
+export type ItemWithPermissions = {
   item: MicrosoftDriveItem;
   permissions: MicrosoftDriveItemPermission[];
 };
@@ -25,7 +25,7 @@ export type ParsedDelta = {
 
 export type ItemsWithPermissionsParsed = {
   toDelete: string[];
-  toUpdate: ItemsWithPermissions[];
+  toUpdate: ItemWithPermissions[];
 };
 
 type ExtractPermissionType<T, U> = T extends { type: U } ? T : never;

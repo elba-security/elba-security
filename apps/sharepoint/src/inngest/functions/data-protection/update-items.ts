@@ -86,7 +86,7 @@ export const updateItems = inngest.createFunction(
         const { toDelete, toUpdate } = removeInheritedUpdate(itemsWithPermissions);
 
         const dataProtectionItems = formatDataProtectionObjects({
-          itemsWithPermissions: toUpdate,
+          items: toUpdate,
           siteId,
           driveId,
         });

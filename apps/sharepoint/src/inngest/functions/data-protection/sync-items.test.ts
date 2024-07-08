@@ -11,7 +11,7 @@ import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { syncItems } from './sync-items';
 import { formatDataProtectionObjects, groupItems, removeInheritedSync } from './common/helpers';
-import type { ItemsWithPermissions } from './common/types';
+import type { ItemWithPermissions } from './common/types';
 
 const token = 'test-token';
 
@@ -222,7 +222,7 @@ describe('sync-items', () => {
     }));
 
     const dataProtectionItems = formatDataProtectionObjects({
-      itemsWithPermissions: itemsWithPermissionsResult as unknown as ItemsWithPermissions[],
+      itemsWithPermissions: itemsWithPermissionsResult as unknown as ItemWithPermissions[],
       siteId,
       driveId,
     });
@@ -352,7 +352,7 @@ describe('sync-items', () => {
     const dataProtectionItems = formatDataProtectionObjects({
       itemsWithPermissions: removeInheritedSync(
         mockPermissions(itemsCount / 2).map((permission) => permission.id),
-        itemsWithPermissionsResult as ItemsWithPermissions[]
+        itemsWithPermissionsResult as ItemWithPermissions[]
       ),
       siteId,
       driveId,
@@ -437,7 +437,7 @@ describe('sync-items', () => {
     }));
 
     const dataProtectionItems = formatDataProtectionObjects({
-      itemsWithPermissions: itemsWithPermissionsResult as unknown as ItemsWithPermissions[],
+      itemsWithPermissions: itemsWithPermissionsResult as unknown as ItemWithPermissions[],
       siteId,
       driveId,
     });

@@ -10,7 +10,7 @@ import type { MicrosoftDriveItemPermission } from '@/connectors/microsoft/sharep
 import type { Delta } from '@/connectors/microsoft/delta/get-delta';
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
 import * as deltaConnector from '@/connectors/microsoft/delta/get-delta';
-import type { ItemsWithPermissions } from './common/types';
+import type { ItemWithPermissions } from './common/types';
 import {
   formatDataProtectionObjects,
   parsedDeltaState,
@@ -230,7 +230,7 @@ describe('update-item-and-permissions', () => {
           permission as unknown as MicrosoftDriveItemPermission
         )
       ),
-    })) as ItemsWithPermissions[];
+    })) as ItemWithPermissions[];
 
     const { toDelete, toUpdate } = removeInheritedUpdate(updateItemsWithPermissionsResult);
 
