@@ -1,5 +1,4 @@
 import { EventSchemas, Inngest } from 'inngest';
-import { sentryMiddleware } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 import type { SharepointDeletePermission } from './functions/data-protection/common/types';
@@ -53,11 +52,14 @@ export const inngest = new Inngest({
         driveId: string;
         organisationId: string;
         isFirstSync: boolean;
-        folder: {
-          id: string | null;
-          paginated: boolean;
-          permissions: string[] | [];
-        } | null;
+        folderId: string | null;
+        permissionIds: string[];
+        // folder: {
+        //   // TODO: improve this
+        //   id: string | null;
+        //   paginated: boolean;
+        //   permissions: string[] | [];
+        // } | null;
         skipToken: string | null;
       };
     };
@@ -145,6 +147,6 @@ export const inngest = new Inngest({
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware, sentryMiddleware],
+  middleware: [rateLimitMiddleware],
   logger,
 });

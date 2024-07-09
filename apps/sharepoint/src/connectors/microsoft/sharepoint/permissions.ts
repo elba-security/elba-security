@@ -55,10 +55,11 @@ const basePSchema = z.object({
   grantedToIdentitiesV2: grantedToIdentitiesV2Schema.optional(),
 });
 
+// TODO: this should be tied to api response!
 export const validateAndParsePermission = (
   data: z.infer<typeof basePSchema>
-):
-  | (Omit<z.infer<typeof basePSchema>, 'grantedToV2'> & {
+): // TODO: fix these types
+| (Omit<z.infer<typeof basePSchema>, 'grantedToV2'> & {
       grantedToV2: z.infer<typeof grantedToV2Schema>;
     })
   | (Omit<z.infer<typeof basePSchema>, 'grantedToIdentitiesV2'> & {
@@ -109,6 +110,7 @@ type RevokeUserFromLinkPermissionParams = DeleteItemPermissionParams & {
 
 export type MicrosoftDriveItemPermission = z.infer<typeof basePSchema>;
 
+// TODO: REFACTOR
 export const getAllItemPermissions = async ({
   token,
   siteId,
@@ -116,34 +118,26 @@ export const getAllItemPermissions = async ({
   itemId,
   skipToken = null,
 }: GetPermissionsParams) => {
-  const { permissions, nextSkipToken } = await getItemPermissions({
-    token,
-    siteId,
-    driveId,
-    itemId,
-    skipToken,
-  });
-
-  if (nextSkipToken) {
-    const nextData = await getAllItemPermissions({
+  const permissions: MicrosoftDriveItemPermission[] = [];
+  let nextSkipToken;
+  do {
+    const result = await getItemPermissions({
       token,
       siteId,
       driveId,
       itemId,
-      skipToken: nextSkipToken,
+      skipToken,
     });
+    nextSkipToken = result.nextSkipToken;
+    for (const permission of result.permissions) {
+      const parsedPermission = validateAndParsePermission(permission);
+      if (parsedPermission) {
+        permissions.push(parsedPermission);
+      }
+    }
+  } while (nextSkipToken);
 
-    permissions.push(...nextData.permissions);
-  }
-
-  const parsedPermissions = permissions.reduce<MicrosoftDriveItemPermission[]>((acc, el) => {
-    const parsedPermission = validateAndParsePermission(el);
-    if (parsedPermission !== null) acc.push(parsedPermission);
-
-    return acc;
-  }, []);
-
-  return { permissions: parsedPermissions, nextSkipToken };
+  return permissions;
 };
 
 export const getItemPermissions = async ({

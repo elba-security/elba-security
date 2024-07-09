@@ -49,21 +49,6 @@ export const sharepointMetadata = z.union([
 
 export type SharepointMetadata = z.infer<typeof sharepointMetadata>;
 
-export const removeInheritedSync = (
-  parentPermissionIds: string[],
-  itemsWithPermissions: ItemWithPermissions[]
-): ItemWithPermissions[] => {
-  return itemsWithPermissions.map(({ item, permissions }) => {
-    const filteredPermissions = permissions.filter(
-      (permission) => !parentPermissionIds.includes(permission.id)
-    );
-    return {
-      item,
-      permissions: filteredPermissions,
-    };
-  });
-};
-
 export const groupItems = (items: MicrosoftDriveItem[]) =>
   items.reduce(
     (acc, item) => {
@@ -157,6 +142,7 @@ export const formatPermissions = (permissions: MicrosoftDriveItemPermission[]) =
   return elbaPermissions;
 };
 
+// TODO: check if we need this
 export const getItemsWithPermissionsFromChunks = async ({
   itemsChunks,
   token,
@@ -190,7 +176,7 @@ export const getItemsWithPermissionsFromChunks = async ({
 
       itemsWithPermissions.push({
         item,
-        permissions: permissions.permissions,
+        permissions: permissions,
       });
     }
   }
@@ -202,17 +188,21 @@ export const formatDataProtectionObjects = ({
   items,
   siteId,
   driveId,
+  parentPermissionIds,
 }: {
   items: ItemWithPermissions[];
   siteId: string;
   driveId: string;
+  parentPermissionIds: string[];
 }): DataProtectionObject[] => {
   const objects: DataProtectionObject[] = [];
+  const parentPermissions = new Set(parentPermissionIds);
 
   for (const { item, permissions } of items) {
-    // TODO: is item creator always the owner?
+    // TODO: is item creator always the owner? - Check with a deleted user
     if (item.createdBy.user.id) {
-      const formattedPermissions = formatPermissions(permissions);
+      const ownPermissions = permissions.filter(({ id }) => !parentPermissions.has(id));
+      const formattedPermissions = formatPermissions(ownPermissions);
       if (formattedPermissions.length) {
         const object = {
           id: item.id,
@@ -233,31 +223,6 @@ export const formatDataProtectionObjects = ({
   }
 
   return objects;
-};
-
-export const getParentFolderPermissions = async (
-  folder: Folder,
-  token: string,
-  siteId: string,
-  driveId: string
-) => {
-  if (folder?.id && !folder.paginated) {
-    const { permissions } = await getAllItemPermissions({
-      token,
-      siteId,
-      driveId,
-      itemId: folder.id,
-    });
-    return {
-      parentFolderPaginated: true,
-      parentFolderPermissions: permissions.map(({ id }) => id),
-    };
-  }
-
-  return {
-    parentFolderPaginated: false,
-    parentFolderPermissions: folder?.permissions ?? [],
-  };
 };
 
 export const parsedDeltaState = (deltaItems: Delta[]): ParsedDelta => {

@@ -89,6 +89,7 @@ export const updateItems = inngest.createFunction(
           items: toUpdate,
           siteId,
           driveId,
+          parentPermissionIds: [], // TODO
         });
 
         if (!dataProtectionItems.length) {
