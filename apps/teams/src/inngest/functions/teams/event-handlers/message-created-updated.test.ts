@@ -1,7 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { eq } from 'drizzle-orm';
 import { handleTeamsWebhookEvent } from '@/inngest/functions/teams/handle-team-webhook-event';
 import { EventType } from '@/app/api/webhooks/microsoft/event-handler/service';
 import { db } from '@/database/client';
@@ -29,8 +28,7 @@ const organisation = {
 };
 
 const channel = {
-  id: `${organisation.id}:channel-id`,
-  channelId: 'channel-id',
+  id: 'channel-id',
   membershipType: 'standard',
   displayName: 'channel-name',
   organisationId: organisation.id,
@@ -121,6 +119,8 @@ const formatObject = {
 
 describe('message-created-updated', () => {
   test('should exit when the messageId is not provided', async () => {
+    await db.insert(organisationsTable).values(organisation);
+
     const [result] = setup({
       payload: {
         subscriptionId: 'subscription-id',
@@ -145,30 +145,6 @@ describe('message-created-updated', () => {
         event: EventType.MessageCreated,
       },
     });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-  });
-
-  test('should throw when the channel not received', async () => {
-    await db.insert(organisationsTable).values(organisation);
-
-    const [result] = setup({
-      payload: {
-        subscriptionId: 'subscription-id',
-        teamId: 'team-id',
-        channelId: 'channel-id',
-        tenantId: 'tenant-id',
-        messageId: 'message-id',
-        event: EventType.MessageCreated,
-      },
-    });
-
-    await expect(
-      db
-        .select({ id: channelsTable.id })
-        .from(channelsTable)
-        .where(eq(channelsTable.id, `${organisation.id}:channel-id`))
-    ).resolves.toMatchObject([]);
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
   });
@@ -214,7 +190,7 @@ describe('message-created-updated', () => {
     const getMessage = vi.spyOn(messageConnector, 'getMessage').mockResolvedValue(invalidMessage);
     const getTeam = vi.spyOn(teamConnector, 'getTeam').mockResolvedValue(team);
 
-    await expect(result).resolves.toBeUndefined();
+    await expect(result).resolves.toBe('Ignoring invalid message');
 
     expect(getMessage).toBeCalledWith({
       token: await decrypt(organisation.token),
@@ -228,7 +204,7 @@ describe('message-created-updated', () => {
     expect(getTeam).toBeCalledTimes(1);
   });
 
-  test('should insert the messageId into the db and send it to Elba ', async () => {
+  test('should call request-to-upsert-message for all organisation within same tenant', async () => {
     await db.insert(organisationsTable).values(organisation);
     await db.insert(channelsTable).values(channel);
     const elba = spyOnElba();

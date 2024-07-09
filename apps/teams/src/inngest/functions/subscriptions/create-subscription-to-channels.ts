@@ -10,20 +10,14 @@ export const createSubscriptionToChannels = inngest.createFunction(
   {
     id: 'teams-create-subscription-to-channels',
     concurrency: {
-      key: 'event.data.organisationId',
+      key: 'event.data.tenantId',
       limit: 1,
     },
-    cancelOn: [
-      {
-        event: 'teams/app.installed',
-        match: 'data.organisationId',
-      },
-    ],
     retries: env.SUBSCRIBE_SYNC_MAX_RETRY,
   },
   { event: 'teams/channels.subscription.requested' },
-  async ({ event }) => {
-    const { organisationId } = event.data;
+  async ({ event, step }) => {
+    const { organisationId, tenantId } = event.data;
 
     const changeType = 'created,deleted';
     const resource = 'teams/getAllChannels';
@@ -39,32 +33,43 @@ export const createSubscriptionToChannels = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const [subscriptionInDb] = await db
-      .select({
-        id: subscriptionsTable.id,
-      })
-      .from(subscriptionsTable)
-      .where(
-        and(
-          eq(subscriptionsTable.organisationId, organisationId),
-          eq(subscriptionsTable.resource, resource)
-        )
-      );
+    const [subscriptionInDb] = await step.run(
+      'get-subscription-for-resource-from-database',
+      async () =>
+        db
+          .select({
+            id: subscriptionsTable.id,
+          })
+          .from(subscriptionsTable)
+          .where(
+            and(
+              eq(subscriptionsTable.tenantId, tenantId),
+              eq(subscriptionsTable.resource, resource)
+            )
+          )
+    );
 
     if (subscriptionInDb) {
-      return null;
+      return `Subscription for resource - ${resource} in tenant - ${tenantId} already exists`;
     }
 
-    const subscription = await createSubscription({
-      encryptToken: organisation.token,
-      changeType,
-      resource,
-    });
+    const subscription = await step.run('creat-subscription-in-microsoft-organisation', async () =>
+      createSubscription({
+        encryptToken: organisation.token,
+        changeType,
+        resource,
+      })
+    );
 
     if (!subscription) {
-      throw new NonRetriableError('Could not retrieve subscription');
+      throw new NonRetriableError('Could not create subscription');
     }
 
-    await db.insert(subscriptionsTable).values({ ...subscription, organisationId });
+    await db
+      .insert(subscriptionsTable)
+      .values({ ...subscription, tenantId })
+      .onConflictDoNothing();
+
+    return `Subscription successfully created for resource - ${resource} in tenant - ${tenantId}`;
   }
 );

@@ -70,17 +70,16 @@ export const syncChannels = inngest.createFunction(
     await step.run('insert-channels-to-db', async () => {
       const channelsToInsert = channels.map((channel) => ({
         organisationId,
-        id: `${organisationId}:${channel.id}`,
+        id: channel.id,
         membershipType: channel.membershipType,
         displayName: channel.displayName,
-        channelId: channel.id,
       }));
 
       await db
         .insert(channelsTable)
         .values(channelsToInsert)
         .onConflictDoUpdate({
-          target: [channelsTable.id],
+          target: [channelsTable.id, channelsTable.organisationId],
           set: {
             displayName: sql`excluded.display_name`,
           },
@@ -93,7 +92,7 @@ export const syncChannels = inngest.createFunction(
         channels.map((channel) => ({
           name: 'teams/channel.subscription.requested',
           data: {
-            uniqueChannelInOrganisationId: `${organisationId}:${channel.id}`,
+            tenantId: organisation.tenantId,
             organisationId,
             channelId: channel.id,
             teamId,

@@ -11,6 +11,7 @@ export const startRecreateSubscriptionsForOrganisations = inngest.createFunction
     const organisations = await db
       .select({
         id: organisationsTable.id,
+        tenantId: organisationsTable.tenantId,
       })
       .from(organisationsTable);
 
@@ -21,6 +22,7 @@ export const startRecreateSubscriptionsForOrganisations = inngest.createFunction
           name: 'teams/subscriptions.recreate.requested',
           data: {
             organisationId: organisation.id,
+            tenantId: organisation.tenantId,
           },
         }))
       );
