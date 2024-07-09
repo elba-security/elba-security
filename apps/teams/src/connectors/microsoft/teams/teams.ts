@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { env } from '@/env';
-import { decrypt } from '@/common/crypto';
 import { MicrosoftError } from '../commons/error';
 import {
   getNextSkipTokenFromNextLink,
@@ -58,8 +57,7 @@ export const getTeams = async ({ token, skipToken }: GetTeamsParams) => {
   return { nextSkipToken, validTeams, invalidTeams };
 };
 
-export const getTeam = async (encryptToken: string, teamId: string) => {
-  const token = await decrypt(encryptToken);
+export const getTeam = async (token: string, teamId: string) => {
   const url = new URL(`${env.MICROSOFT_API_URL}/teams/${teamId}`);
   url.searchParams.append('$select', 'id,visibility,displayName');
 

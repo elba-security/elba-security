@@ -4,6 +4,8 @@ import { logger } from '@elba-security/logger';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/env';
 import { MicrosoftError } from '@/connectors/microsoft/commons/error';
+import type { MicrosoftPaginatedResponse } from '@/connectors/microsoft/commons/pagination';
+import { getNextSkipTokenFromNextLink } from '@/connectors/microsoft/commons/pagination';
 
 const subscriptionSchema = z.object({
   id: z.string(),
@@ -118,4 +120,39 @@ export const deleteSubscription = async (encryptToken: string, subscriptionId: s
   }
 
   return { message: 'subscription has been deleted' };
+};
+
+export const getSubscriptions = async (encryptToken: string, skipToken?: string | null) => {
+  const token = await decrypt(encryptToken);
+
+  const url = new URL(`${env.MICROSOFT_API_URL}/subscriptions`);
+
+  if (skipToken) {
+    url.searchParams.append('$skiptoken', skipToken);
+  }
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await getJson(response);
+    logger.warn('Failed to delete subscription', {
+      status: response.status,
+      microsoftError: error,
+    });
+
+    throw new MicrosoftError('Could not get list of subscriptions', { response });
+  }
+
+  const data = (await response.json()) as MicrosoftPaginatedResponse<MicrosoftSubscription>;
+
+  return {
+    subscriptions: data.value,
+    nextSkipToken: getNextSkipTokenFromNextLink(data['@odata.nextLink']),
+  };
 };

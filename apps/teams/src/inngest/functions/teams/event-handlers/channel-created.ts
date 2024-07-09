@@ -3,7 +3,6 @@ import { db } from '@/database/client';
 import { channelsTable } from '@/database/schema';
 import type { TeamsEventHandler } from '@/inngest/functions/teams/event-handlers/index';
 import { decrypt } from '@/common/crypto';
-import { inngest } from '@/inngest/client';
 import { getChannel } from '@/connectors/microsoft/channels/channels';
 
 export const channelCreatedHandler: TeamsEventHandler = async (
@@ -41,7 +40,7 @@ export const channelCreatedHandler: TeamsEventHandler = async (
       });
   });
 
-  await inngest.send({
+  await step.sendEvent('request-to-create-subscription', {
     name: 'teams/channel.subscription.requested',
     data: {
       tenantId,

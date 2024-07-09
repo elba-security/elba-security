@@ -15,7 +15,7 @@ export const replyDeletedHandler: TeamsEventHandler = async (
       data: {
         organisationId: id,
         region,
-        messageId,
+        messageId: replyId,
       },
     }))
   );

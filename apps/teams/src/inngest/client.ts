@@ -2,7 +2,7 @@ import { EventSchemas, type GetEvents, type GetFunctionInput, Inngest } from 'in
 import { logger } from '@elba-security/logger';
 import type { WebhookPayload } from '@/app/api/webhooks/microsoft/event-handler/service';
 import type { MessageMetadata } from '@/connectors/elba/data-protection/metadata';
-import type { MicrosoftMessage } from '@/connectors/microsoft/types';
+import { type MicrosoftMessageObjectWithoutContent } from '@/connectors/elba/types';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 
 type InngestClient = typeof inngest;
@@ -116,7 +116,9 @@ export const inngest = new Inngest({
         teamId: string;
         teamName: string;
         channelId: string;
-        message: Omit<MicrosoftMessage, 'replies@odata.nextLink' | 'replies'>;
+        messageId: string;
+        replyId?: string;
+        message: MicrosoftMessageObjectWithoutContent;
       };
     };
     'teams/data.protection.object.delete.requested': {
@@ -150,6 +152,12 @@ export const inngest = new Inngest({
       data: {
         organisationId: string;
         tenantId: string;
+      };
+    };
+    'teams/subscriptions.remove.requested': {
+      data: {
+        tenantId: string;
+        skipToken: string | null;
       };
     };
   }>(),

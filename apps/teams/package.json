@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest run ./src/inngest/functions/teams/event-handlers/message-created-updated.test.ts",
+    "test": "vitest run",
     "test:watch": "vitest",
     "type-check": "tsc --noEmit",
     "database:up": "docker-compose -p teams --profile edge --env-file=.env.local up -d",

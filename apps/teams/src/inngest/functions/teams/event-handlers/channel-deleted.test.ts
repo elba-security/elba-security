@@ -8,7 +8,6 @@ import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { channelsTable, organisationsTable, subscriptionsTable } from '@/database/schema';
 import * as subscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
-import { inngest } from '@/inngest/client';
 
 const setup = createInngestFunctionMock(
   handleTeamsWebhookEvent,
@@ -26,17 +25,16 @@ const organisation = {
 };
 
 const channel = {
-  id: `${organisation.id}:channel-id`,
+  id: 'channel-id',
   membershipType: 'standard',
   displayName: 'channel-name',
   organisationId: organisation.id,
-  channelId: 'channel-id',
 };
 
 const subscription = {
   id: 'subscription-id',
   resource: "teams('team-id')/channels('channel-id')",
-  organisationId: organisation.id,
+  tenantId: 'tenant-id',
   changeType: 'create',
 };
 
@@ -66,30 +64,6 @@ describe('channel-deleted', () => {
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
   });
 
-  test('should throw when the channel not received', async () => {
-    await db.insert(organisationsTable).values(organisation);
-
-    const [result] = setup({
-      payload: {
-        subscriptionId: 'subscription-id',
-        teamId: 'team-id',
-        channelId: 'channel-id',
-        tenantId: 'tenant-id',
-        messageId: 'message-id',
-        event: EventType.ChannelDeleted,
-      },
-    });
-
-    await expect(
-      db
-        .select({ id: channelsTable.id })
-        .from(channelsTable)
-        .where(eq(channelsTable.id, 'channel-id'))
-    ).resolves.toMatchObject([]);
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-  });
-
   test('should delete the channel, subscription and messages', async () => {
     await db.insert(organisationsTable).values(organisation);
     await db.insert(channelsTable).values(channel);
@@ -100,10 +74,7 @@ describe('channel-deleted', () => {
       // @ts-expect-error -- this is a mock
       .mockResolvedValue(undefined);
 
-    // @ts-expect-error -- this is a mock
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-
-    const [result] = setup({
+    const [result, { step }] = setup({
       payload: {
         subscriptionId: 'subscription-id',
         teamId: 'team-id',
@@ -114,24 +85,27 @@ describe('channel-deleted', () => {
       },
     });
 
-    await expect(result).resolves.toStrictEqual({ message: 'channel was deleted' });
+    await expect(result).resolves.toStrictEqual('The channel has been removed from the database');
 
     expect(deleteSubscription).toBeCalledWith(organisation.token, subscription.id);
     expect(deleteSubscription).toBeCalledTimes(1);
 
     await db.delete(subscriptionsTable).where(eq(subscriptionsTable.id, subscription.id));
 
-    await db.delete(channelsTable).where(eq(channelsTable.id, `${organisation.id}:channel-id`));
+    await db.delete(channelsTable).where(eq(channelsTable.id, 'channel-id'));
 
-    expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: 'teams/teams.sync.requested',
-      data: {
-        organisationId: organisation.id,
-        syncStartedAt: now,
-        skipToken: null,
-        isFirstSync: true,
-      },
-    });
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith(
+      'request-manual-sync-to-remove-objects',
+      [organisation].map((org) => ({
+        name: 'teams/teams.sync.requested',
+        data: {
+          organisationId: org.id,
+          syncStartedAt: now,
+          skipToken: null,
+          isFirstSync: true,
+        },
+      }))
+    );
   });
 });

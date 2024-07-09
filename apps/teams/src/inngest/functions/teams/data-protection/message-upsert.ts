@@ -14,7 +14,8 @@ export const messageUpsert = inngest.createFunction(
   },
   { event: 'teams/data.protection.object.upsert.requested' },
   async ({ event, step }) => {
-    const { organisationId, region, teamId, teamName, channelId, message } = event.data;
+    const { organisationId, region, teamId, teamName, channelId, messageId, replyId, message } =
+      event.data;
 
     const [channel] = await step.run('get-channel', async () =>
       db
@@ -40,11 +41,12 @@ export const messageUpsert = inngest.createFunction(
     const object = formatDataProtectionObject({
       teamId,
       teamName,
-      messageId: message.id,
+      messageId,
       channelId,
       channelName: channel.displayName,
       organisationId,
       membershipType: channel.membershipType,
+      replyId,
       message,
     });
 

@@ -2,6 +2,7 @@ import type { TeamsEventHandler } from '@/inngest/functions/teams/event-handlers
 import { decrypt } from '@/common/crypto';
 import { getMessage } from '@/connectors/microsoft/messages/messages';
 import { getTeam } from '@/connectors/microsoft/teams/teams';
+import { omitMessageContent } from '@/common/utils';
 
 export const messageCreatedOrUpdatedHandler: TeamsEventHandler = async (
   { channelId, messageId, teamId, organisations, token },
@@ -19,16 +20,17 @@ export const messageCreatedOrUpdatedHandler: TeamsEventHandler = async (
     return 'Could not find a team';
   }
 
-  const message = await step.run('fetch-message-from-microsoft', async () =>
-    getMessage({
+  const messageWithoutContent = await step.run('fetch-message-from-microsoft', async () => {
+    const message = await getMessage({
       token: decryptedToken,
       teamId,
       channelId,
       messageId,
-    })
-  );
+    });
+    return message ? omitMessageContent(message) : message;
+  });
 
-  if (!message || message.messageType !== 'message') {
+  if (!messageWithoutContent || messageWithoutContent.messageType !== 'message') {
     return 'Ignoring invalid message';
   }
 
@@ -42,7 +44,8 @@ export const messageCreatedOrUpdatedHandler: TeamsEventHandler = async (
         teamId,
         teamName: team.displayName,
         channelId,
-        message,
+        messageId,
+        message: messageWithoutContent,
       },
     }))
   );

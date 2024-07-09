@@ -39,16 +39,15 @@ export const teamsEventHandler = async (context: TeamsWebhookHandlerContext) => 
   const type = payload.event;
   const eventHandler = teamsEventHandlers[type];
 
-  const organisations = await context.step.run('get-organisations', async () =>
-    db
-      .select({
-        id: organisationsTable.id,
-        token: organisationsTable.token,
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.tenantId, payload.tenantId))
-  );
+  const organisations = await db
+    .select({
+      id: organisationsTable.id,
+      token: organisationsTable.token,
+      region: organisationsTable.region,
+    })
+    .from(organisationsTable)
+    .where(eq(organisationsTable.tenantId, payload.tenantId));
+
   const token = organisations[0]?.token;
   const organisationId = organisations[0]?.id;
 
