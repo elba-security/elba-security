@@ -13,7 +13,11 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (error instanceof ZendeskError && error.response?.status === 429) {
+            if (!(error instanceof ZendeskError)) {
+              return;
+            }
+
+            if (error.response?.status === 429) {
               const retryAfter = error.response.headers.get('retry-after') || 60;
 
               return {

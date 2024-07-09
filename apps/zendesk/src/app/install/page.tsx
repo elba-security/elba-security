@@ -33,22 +33,21 @@ export default function InstallPage() {
             page.
           </p>
           <p>
-            2. Your subdomain is in your account URL, after <strong>https://</strong> and before{' '}
-            <strong>.zendesk.com</strong>
+            2. Your subdomain is in your account URL. For example, if your account URL is{' '}
+            <strong>https://yourdomain.zendesk.com</strong>
           </p>
         </InstructionsStep>
         <InstructionsStep index={2}>
           <h3>Connect zendesk</h3>
           <Form action={formAction}>
             <FormField isInvalid={Boolean(state.errors?.subDomain?.at(0))}>
-              <FormLabel>SubDomain</FormLabel>
+              <FormLabel>Your Subdomain</FormLabel>
               <Input
                 minLength={1}
                 name="subDomain"
                 placeholder="https://yourdomain.zendesk.com"
                 type="text"
               />
-              <p>https://yourdomain.zendesk.com</p>
               {state.errors?.subDomain?.at(0) ? (
                 <FormErrorMessage>{state.errors.subDomain.at(0)}</FormErrorMessage>
               ) : null}

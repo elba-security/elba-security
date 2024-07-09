@@ -20,9 +20,9 @@ export const getToken = async ({ code, subDomain }: GetTokenParams) => {
     },
     body: new URLSearchParams({
       grant_type: 'authorization_code',
-      scope: 'users:read users:write tickets:read',
-      client_id: `${env.ZENDESK_CLIENT_ID}`,
-      client_secret: `${env.ZENDESK_CLIENT_SECRET}`,
+      scope: 'users:read users:write',
+      client_id: env.ZENDESK_CLIENT_ID,
+      client_secret: env.ZENDESK_CLIENT_SECRET,
       redirect_uri: env.ZENDESK_REDIRECT_URI,
       code,
     }).toString(),

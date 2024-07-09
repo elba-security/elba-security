@@ -3,7 +3,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUser as deleteZendeskUser } from '@/connectors/zendesk/users';
+import { suspendUser as suspendZendeskUser } from '@/connectors/zendesk/users';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 
@@ -14,6 +14,16 @@ export const deleteUser = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: env.ZENDESK_DELETE_USER_CONCURRENCY,
     },
+    cancelOn: [
+      {
+        event: 'zendesk/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'zendesk/app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
     retries: 5,
   },
   { event: 'zendesk/users.delete.requested' },
@@ -34,6 +44,6 @@ export const deleteUser = inngest.createFunction(
     const accessToken = await decrypt(organisation.token);
     const subDomain = organisation.subDomain;
 
-    await deleteZendeskUser({ userId, accessToken, subDomain });
+    await suspendZendeskUser({ userId, accessToken, subDomain });
   }
 );

@@ -19,10 +19,12 @@ const formSchema = z.object({
 export type FormState = {
   errors?: {
     subDomain?: string[] | undefined;
+    organisationId?: string[] | undefined;
+    region?: string[] | undefined;
   };
 };
 
-export const install = (_: FormState, formData: FormData): Promise<FormState> => {
+export const install = (_: FormState, formData: FormData) => {
   unstable_noStore();
   const region = formData.get('region');
 
@@ -51,6 +53,7 @@ export const install = (_: FormState, formData: FormData): Promise<FormState> =>
         errors: fieldErrors,
       };
     }
+
     const state = crypto.randomUUID();
 
     const subDomain = result.data.subDomain;

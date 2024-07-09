@@ -24,7 +24,6 @@ const users: usersConnector.ZendeskUser[] = Array.from({ length: 2 }, (_, i) => 
   name: `name-${i}`,
   email: `user-${i}@foo.bar`,
   active: true,
-  suspended: false,
   role: 'admin',
 }));
 
@@ -92,7 +91,7 @@ describe('synchronize-users', () => {
           email: 'user-0@foo.bar',
           id: '0',
           role: 'admin',
-          url: `${subDomain}/admin/people/team/members`,
+          url: `${subDomain}/admin/people/team/members/0`,
           isSuspendable: true,
         },
         {
@@ -102,7 +101,7 @@ describe('synchronize-users', () => {
           id: '1',
           role: 'admin',
           isSuspendable: true,
-          url: `${subDomain}/admin/people/team/members`,
+          url: `${subDomain}/admin/people/team/members/1`,
         },
       ],
     });
@@ -137,7 +136,7 @@ describe('synchronize-users', () => {
           id: '0',
           role: 'admin',
           isSuspendable: true,
-          url: `${subDomain}/admin/people/team/members`,
+          url: `${subDomain}/admin/people/team/members/0`,
         },
         {
           additionalEmails: [],
@@ -146,7 +145,7 @@ describe('synchronize-users', () => {
           id: '1',
           role: 'admin',
           isSuspendable: true,
-          url: `${subDomain}/admin/people/team/members`,
+          url: `${subDomain}/admin/people/team/members/1`,
         },
       ],
     });

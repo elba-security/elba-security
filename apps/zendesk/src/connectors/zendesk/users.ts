@@ -8,8 +8,7 @@ const zendeskUserSchema = z.object({
   name: z.string(),
   email: z.string(),
   active: z.boolean(), // We only want active users
-  role: z.string(),
-  suspended: z.boolean(),
+  role: z.string(), // admin or agent, end-user should be ignored
 });
 
 export type ZendeskUser = z.infer<typeof zendeskUserSchema>;
@@ -44,6 +43,7 @@ export type DeleteUsersParams = {
 export const getUsers = async ({ accessToken, page, subDomain }: GetUsersParams) => {
   const url = new URL(`${subDomain}/api/v2/users`);
 
+  url.searchParams.append('query', 'is_suspended:false');
   url.searchParams.append('role[]', 'admin');
   url.searchParams.append('role[]', 'agent');
   url.searchParams.append('per_page', String(env.ZENDESK_USERS_SYNC_BATCH_SIZE));
@@ -63,7 +63,6 @@ export const getUsers = async ({ accessToken, page, subDomain }: GetUsersParams)
   const resData: unknown = await response.json();
 
   const { users, next_page: nextPage } = zendeskResponseSchema.parse(resData);
-
   const validUsers: ZendeskUser[] = [];
   const invalidUsers: unknown[] = [];
 
@@ -84,7 +83,7 @@ export const getUsers = async ({ accessToken, page, subDomain }: GetUsersParams)
 };
 
 // Owner of the organization cannot be deleted
-export const deleteUser = async ({ userId, accessToken, subDomain }: DeleteUsersParams) => {
+export const suspendUser = async ({ userId, accessToken, subDomain }: DeleteUsersParams) => {
   const response = await fetch(`${subDomain}/api/v2/users/${userId}`, {
     method: 'PUT',
     headers: {
