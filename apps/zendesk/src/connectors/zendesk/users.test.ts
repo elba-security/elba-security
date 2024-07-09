@@ -3,7 +3,7 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { ZendeskError } from '../common/error';
 import type { ZendeskUser } from './users';
-import { getUsers, deleteUser, getOwnerId } from './users';
+import { getUsers, suspendUser, getOwnerId } from './users';
 
 const validToken = 'token-1234';
 const userId = 'test-user-id';
@@ -19,7 +19,6 @@ const validUsers: ZendeskUser[] = Array.from({ length: 5 }, (_, i) => ({
   name: `name-${i}`,
   email: `user-${i}@foo.bar`,
   active: true,
-  suspended: false,
   role: 'admin',
 }));
 
@@ -73,7 +72,7 @@ describe('users connector', () => {
     });
   });
 
-  describe('deleteUser', () => {
+  describe('suspendUser', () => {
     beforeEach(() => {
       server.use(
         http.put<{ userId: string }>(`${subDomain}/api/v2/users/${userId}`, ({ request }) => {
@@ -87,19 +86,19 @@ describe('users connector', () => {
 
     test('should delete user successfully when token is valid', async () => {
       await expect(
-        deleteUser({ accessToken: validToken, userId, subDomain })
+        suspendUser({ accessToken: validToken, userId, subDomain })
       ).resolves.not.toThrow();
     });
 
     test('should not throw when the user is not found', async () => {
       await expect(
-        deleteUser({ accessToken: validToken, userId, subDomain })
+        suspendUser({ accessToken: validToken, userId, subDomain })
       ).resolves.toBeUndefined();
     });
 
     test('should throw ZendeskError when token is invalid', async () => {
       await expect(
-        deleteUser({ accessToken: 'invalidToken', userId, subDomain })
+        suspendUser({ accessToken: 'invalidToken', userId, subDomain })
       ).rejects.toBeInstanceOf(ZendeskError);
     });
   });

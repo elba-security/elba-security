@@ -23,6 +23,10 @@ export const setupOrganisation = async ({
   const { ownerId } = await getOwnerId({ accessToken, subDomain });
   const encryptedAccessToken = await encrypt(accessToken);
 
+  // TODO: @Guillaume
+  // We can verify the access token to ensure it is valid, if necessary
+  // https://developer.zendesk.com/documentation/integration-services/zis-tutorials/zendesk-app-admin-interface/app-oauth/#verify-the-zendesk-access-token
+
   await db
     .insert(organisationsTable)
     .values({

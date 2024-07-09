@@ -25,7 +25,7 @@ const formatElbaUser = ({
   role: user.role,
   additionalEmails: [],
   isSuspendable: String(user.id) !== ownerId,
-  url: `${subDomain}/admin/people/team/members`,
+  url: `${subDomain}/admin/people/team/members/${user.id}`,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -76,7 +76,7 @@ export const syncUsers = inngest.createFunction(
       const result = await getUsers({ accessToken: token, page, subDomain });
 
       const users = result.validUsers
-        .filter(({ active, suspended }) => active && !suspended)
+        .filter(({ active }) => active)
         .map((user) => formatElbaUser({ user, subDomain, ownerId }));
 
       if (result.invalidUsers.length > 0) {
