@@ -25,7 +25,6 @@
     "@googleapis/admin": "^15.0.0",
     "@googleapis/drive": "^8.7.0",
     "@neondatabase/serverless": "0.9.4",
-    "@sentry/nextjs": "^7.88.0",
     "@t3-oss/env-nextjs": "^0.7.1",
     "drizzle-orm": "^0.29.4",
     "google-auth-library": "^9.6.3",

@@ -14,14 +14,12 @@
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
-    "@sentry/nextjs": "^7.88.0",
     "@types/node": "^20",
     "eslint": "^8",
     "inngest": "3.19.11",
     "typescript": "^5.5.2"
   },
   "peerDependencies": {
-    "@sentry/nextjs": "^7.88.0",
     "inngest": ">=3.19.0"
   }
 }

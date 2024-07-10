@@ -34,14 +34,19 @@ module.exports = {
     'unicorn/filename-case': ['error', { case: 'kebabCase', ignore: ['\\.tsx$'] }],
     'turbo/no-undeclared-env-vars': 'off',
     '@typescript-eslint/prefer-nullish-coalescing': 'off',
-    '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
   },
   overrides: [
+    {
+      files: ['*.{ts,tsx}'],
+      rules: {
+        '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      }
+    },
     {
       files: ['*.test.{ts,tsx}'],
       rules: {
         '@typescript-eslint/unbound-method': 'off',
       },
-    },
+    }
   ],
 };

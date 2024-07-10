@@ -23,7 +23,6 @@
     "@elba-security/schemas": "workspace:*",
     "@elba-security/sdk": "workspace:*",
     "@elba-security/utils": "workspace:*",
-    "@sentry/nextjs": "^7.88.0",
     "date-fns": "^2.30.0",
     "drizzle-orm": "^0.29.4",
     "dropbox": "^10.34.0",

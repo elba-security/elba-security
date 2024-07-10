@@ -6,11 +6,9 @@
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
-    "@sentry/nextjs": "^7.88.0",
     "next": "14.2.4"
   },
   "peerDependencies": {
-    "@sentry/nextjs": "^7.88.0",
     "next": "14.2.4"
   }
 }
