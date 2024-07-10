@@ -67,6 +67,8 @@ export const syncItems = inngest.createFunction(
         })
       );
 
+      console.log(JSON.stringify(itemsPermissions, null, 2));
+
       return { items: itemsPermissions, nextSkipToken: result.nextSkipToken };
     });
 
@@ -109,10 +111,10 @@ export const syncItems = inngest.createFunction(
         parentPermissionIds: permissionIds,
       });
 
-      if (dataProtectionItems.length) {
-        const elba = createElbaClient({ organisationId, region: organisation.region });
-        await elba.dataProtection.updateObjects({ objects: dataProtectionItems });
-      }
+      // if (dataProtectionItems.length) {
+      //   const elba = createElbaClient({ organisationId, region: organisation.region });
+      //   await elba.dataProtection.updateObjects({ objects: dataProtectionItems });
+      // }
     });
 
     if (nextSkipToken) {
@@ -134,25 +136,25 @@ export const syncItems = inngest.createFunction(
       });
     } else {
       // TODO: check and possibly remove promise all
-      await Promise.all([
-        step.sendEvent('items-sync-complete', {
-          name: 'sharepoint/items.sync.completed',
-          data: { organisationId, driveId },
-        }),
-        // TODO: check this logic and understand why it's here
-        // I guess it's to start to listening to webhooks events once the scan is done
-        // Can't it be done at the beginning anyway, would delta conflict with state of the world sync?
-        step.sendEvent('initialize-delta', {
-          name: 'sharepoint/data_protection.initialize_delta.requested',
-          data: {
-            organisationId,
-            siteId,
-            driveId,
-            isFirstSync: true,
-            skipToken: null,
-          },
-        }),
-      ]);
+      // await Promise.all([
+      //   step.sendEvent('items-sync-complete', {
+      //     name: 'sharepoint/items.sync.completed',
+      //     data: { organisationId, driveId },
+      //   }),
+      //   // TODO: check this logic and understand why it's here
+      //   // I guess it's to start to listening to webhooks events once the scan is done
+      //   // Can't it be done at the beginning anyway, would delta conflict with state of the world sync?
+      //   step.sendEvent('initialize-delta', {
+      //     name: 'sharepoint/data_protection.initialize_delta.requested',
+      //     data: {
+      //       organisationId,
+      //       siteId,
+      //       driveId,
+      //       isFirstSync: true,
+      //       skipToken: null,
+      //     },
+      //   }),
+      // ]);
     }
 
     return { status: 'completed' };

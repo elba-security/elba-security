@@ -24,6 +24,7 @@ export const driveItemSchema = z.object({
     })
     .optional(),
   parentReference: z.object({
+    // TODO: needs this?
     id: z.string().optional(),
   }),
 });

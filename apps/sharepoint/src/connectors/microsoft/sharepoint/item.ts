@@ -18,7 +18,7 @@ export const getItem = async ({
   const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/items/${itemId}`);
   url.searchParams.append(
     '$select',
-    'id,folder,name,webUrl,createdBy,parentReference,lastModifiedDateTime'
+    'id,folder,name,webUrl,createdBy,parentReference,lastModifiedDateTime' // TODO: needs parentReference?
   );
 
   const response = await fetch(url, {

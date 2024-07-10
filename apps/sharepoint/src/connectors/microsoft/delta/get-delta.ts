@@ -29,6 +29,7 @@ const deltaSchema = z.object({
     })
     .optional(),
   parentReference: z.object({
+    // TODO: needs this?
     id: z.string().optional(),
   }),
   deleted: z.object({ state: z.string() }).optional(),

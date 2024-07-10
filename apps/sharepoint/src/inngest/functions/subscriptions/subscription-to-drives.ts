@@ -44,15 +44,15 @@ export const subscriptionToDrive = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const changeType = 'updated';
-    const resource = `sites/${siteId}/drives/${driveId}/root`;
-    const clientState = crypto.randomUUID();
+    // const changeType = 'updated';
+    // const resource = `sites/${siteId}/drives/${driveId}/root`;
+    // const clientState = crypto.randomUUID();
 
-    return createSubscription({
-      token: await decrypt(organisation.token),
-      changeType,
-      resource,
-      clientState,
-    });
+    // return createSubscription({
+    //   token: await decrypt(organisation.token),
+    //   changeType,
+    //   resource,
+    //   clientState,
+    // });
   }
 );

@@ -85,26 +85,26 @@ export const initializeDelta = inngest.createFunction(
       },
     });
 
-    await db
-      .insert(sharePointTable)
-      .values({
-        organisationId,
-        siteId,
-        driveId,
-        subscriptionId: data.id,
-        subscriptionExpirationDate: data.expirationDateTime,
-        subscriptionClientState: data.clientState,
-        delta: newDeltaToken,
-      })
-      .onConflictDoUpdate({
-        target: [sharePointTable.organisationId, sharePointTable.driveId],
-        set: {
-          subscriptionId: data.id,
-          subscriptionExpirationDate: data.expirationDateTime,
-          subscriptionClientState: data.clientState,
-          delta: newDeltaToken,
-        },
-      });
+    // await db
+    //   .insert(sharePointTable)
+    //   .values({
+    //     organisationId,
+    //     siteId,
+    //     driveId,
+    //     subscriptionId: data.id,
+    //     subscriptionExpirationDate: data.expirationDateTime,
+    //     subscriptionClientState: data.clientState,
+    //     delta: newDeltaToken,
+    //   })
+    //   .onConflictDoUpdate({
+    //     target: [sharePointTable.organisationId, sharePointTable.driveId],
+    //     set: {
+    //       subscriptionId: data.id,
+    //       subscriptionExpirationDate: data.expirationDateTime,
+    //       subscriptionClientState: data.clientState,
+    //       delta: newDeltaToken,
+    //     },
+    //   });
 
     return { status: 'completed' };
   }
