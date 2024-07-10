@@ -102,7 +102,7 @@ export default function InstallPage() {
                 minLength={1}
                 name="email"
                 placeholder="Please enter your admin email"
-                type="text"
+                type="email"
               />
               {state.errors?.email ? (
                 <FormErrorMessage>{state.errors.email.at(0)}</FormErrorMessage>

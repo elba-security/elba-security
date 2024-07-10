@@ -1,5 +1,5 @@
 import { addMinutes } from 'date-fns';
-import { TableauError } from './commons/error';
+import { TableauError } from '../commons/error';
 
 export type TableauAuthResponse = {
   credentials: {
@@ -23,9 +23,7 @@ export const authenticate = async ({
   domain: string;
   contentUrl: string;
 }): Promise<TableauAuthResponse> => {
-  const authUrl = new URL(`${domain}/api/3.22/auth/signin`);
-
-  const response = await fetch(authUrl, {
+  const response = await fetch(`https://${domain}/api/3.22/auth/signin`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

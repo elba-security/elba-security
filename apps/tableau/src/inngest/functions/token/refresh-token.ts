@@ -7,7 +7,7 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt, decrypt } from '@/common/crypto';
 import { unauthorizedMiddleware } from '@/inngest/middlewares/unauthorized-middleware';
-import { authenticate, getTokenExpirationTimestamp } from '@/connectors/auth';
+import { authenticate, getTokenExpirationTimestamp } from '@/connectors/tableau/auth';
 import { generateToken } from '@/common/jwt';
 
 export const refreshToken = inngest.createFunction(

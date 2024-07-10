@@ -1,5 +1,5 @@
 {
-  "id": "00aba18d-246d-4850-a22b-ca32b0228c23",
+  "id": "345c505d-b1a4-48ca-87ac-7d1374c00f78",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -57,8 +57,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "url": {
-          "name": "url",
+        "domain": {
+          "name": "domain",
           "type": "text",
           "primaryKey": false,
           "notNull": true

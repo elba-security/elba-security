@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { TableauError } from './commons/error';
+import { TableauError } from '../commons/error';
 
 const tableauUserSchema = z.object({
   id: z.string(),
@@ -30,7 +30,7 @@ type GetUsersParams = {
 };
 
 export const getUsers = async ({ token, domain, siteId, page }: GetUsersParams) => {
-  const usersUrl = new URL(`${domain}/api/3.22/sites/${siteId}/users`);
+  const usersUrl = new URL(`https://${domain}/api/3.22/sites/${siteId}/users`);
 
   usersUrl.searchParams.append('pageSize', env.TABLEAU_USERS_SYNC_BATCH_SIZE.toString());
 

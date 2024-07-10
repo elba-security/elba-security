@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS "organisations" (
 	"secret_value" text NOT NULL,
 	"email" text NOT NULL,
 	"site_id" text NOT NULL,
-	"url" text NOT NULL,
+	"domain" text NOT NULL,
 	"token" text NOT NULL,
 	"content_url" text NOT NULL
 );

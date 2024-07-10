@@ -1,11 +1,11 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
+import { TableauError } from '../commons/error';
 import { authenticate } from './auth';
-import { TableauError } from './commons/error';
 
 const validJwt = '1234';
-const domain = 'https://test.tableau.com';
+const domain = 'test.tableau.com';
 const siteId = 'site-1234';
 
 describe('auth connector', () => {
@@ -13,7 +13,7 @@ describe('auth connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.post(`${domain}/api/3.22/auth/signin`, async ({ request }) => {
+        http.post(`https://${domain}/api/3.22/auth/signin`, async ({ request }) => {
           // briefly implement API endpoint behaviour
           const data = (await request.json()) as {
             credentials: {

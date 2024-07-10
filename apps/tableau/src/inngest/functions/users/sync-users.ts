@@ -1,7 +1,7 @@
 import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { type TableauUser, getUsers } from '@/connectors/users';
+import { type TableauUser, getUsers } from '@/connectors/tableau/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';

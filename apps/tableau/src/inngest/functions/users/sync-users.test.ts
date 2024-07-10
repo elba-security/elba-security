@@ -1,7 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/tableau/users';
 import { db } from '@/database/client';
 import type { InsertOrganisation } from '@/database/schema';
 import { organisationsTable } from '@/database/schema';

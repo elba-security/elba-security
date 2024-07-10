@@ -2,11 +2,11 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
+import { TableauError } from '../commons/error';
 import { type TableauUser, getUsers } from './users';
-import { TableauError } from './commons/error';
 
 const validToken = 'token-1234';
-const domain = 'https://test.tableau.com';
+const domain = 'test.tableau.com';
 const siteId = 'site-1234';
 
 const invalidUsers = [
@@ -31,7 +31,7 @@ describe('users connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${domain}/api/3.22/sites/${siteId}/users`, ({ request }) => {
+        http.get(`https://${domain}/api/3.22/sites/${siteId}/users`, ({ request }) => {
           // briefly implement API endpoint behaviour
           if (request.headers.get('X-Tableau-Auth') !== validToken) {
             return new Response(undefined, { status: 401 });

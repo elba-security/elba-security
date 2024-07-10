@@ -1,6 +1,6 @@
 import { encrypt } from '@/common/crypto';
 import { generateToken } from '@/common/jwt';
-import { authenticate, getTokenExpirationTimestamp } from '@/connectors/auth';
+import { authenticate, getTokenExpirationTimestamp } from '@/connectors/tableau/auth';
 import { db } from '../../database/client';
 import { organisationsTable } from '../../database/schema';
 import { inngest } from '../../inngest/client';
@@ -12,7 +12,7 @@ type SetupOrganisationParams = {
   secret: string;
   email: string;
   url: {
-    baseUrl: string;
+    domain: string;
     contentUrl: string;
   };
   region: string;
@@ -23,15 +23,13 @@ export const registerOrganisation = async ({
   secretId,
   secret,
   email,
-  url: { baseUrl: domain, contentUrl },
+  url: { domain, contentUrl },
   region,
 }: SetupOrganisationParams) => {
   const token = await generateToken({ clientId, secretId, secret, email });
 
   const { credentials } = await authenticate({ token, domain, contentUrl });
   const tokenExpiry = getTokenExpirationTimestamp(); // Tableau token expires in 240 minutes.
-
-  const fullDomain = `https://${domain}`;
 
   const encryptedToken = await encrypt(credentials.token);
   const encryptedSecret = await encrypt(secret.toString());
@@ -46,7 +44,7 @@ export const registerOrganisation = async ({
       secretId,
       siteId: credentials.site.id,
       email,
-      domain: fullDomain,
+      domain,
       token: encryptedToken,
       contentUrl,
     })
@@ -59,7 +57,7 @@ export const registerOrganisation = async ({
         secretId,
         siteId: credentials.site.id,
         email,
-        domain: fullDomain,
+        domain,
         token: encryptedToken,
         contentUrl,
       },
@@ -72,7 +70,6 @@ export const registerOrganisation = async ({
         isFirstSync: true,
         organisationId,
         syncStartedAt: Date.now(),
-        page: '1',
       },
     },
     {

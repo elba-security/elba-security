@@ -40,7 +40,6 @@
     "@elba-security/test-utils": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
     "@next/eslint-plugin-next": "^14.2.4",
-    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

@@ -15,33 +15,25 @@ const formSchema = z.object({
   secretId: z.string().min(1, { message: 'The secret id is required' }).trim(),
   secret: z.string().min(1, { message: 'The secret is required' }).trim(),
   email: z.string().min(1, { message: 'The admin email is required' }).trim(),
-  url: z
-    .string()
-    .min(1, { message: 'The url is required' })
-    .refine((url) => {
-      const parsedUrl = new URL(url);
-      return parsedUrl.protocol === 'https:' && /^#\/site\/[^/]+/.test(parsedUrl.hash);
-    })
-    .transform((url, ctx) => {
-      const parsedUrl = new URL(url);
-      const expression = /#\/site\/(?<contentUrl>\w+)/;
-      const matches = expression.exec(parsedUrl.hash);
+  url: z.string().transform((url, ctx) => {
+    const errorMessage = 'The URL is invalid. Please provide a valid Tableau URL.';
+    if (!URL.canParse(url)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: errorMessage });
 
-      //This is adding validation that the contentUrl is present in the URL provided.
-      if (!matches?.groups?.contentUrl) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'The url is invalid. Please provide a valid Tableau URL.',
-        });
+      return z.NEVER;
+    }
 
-        return z.NEVER;
-      }
+    const parsedUrl = new URL(url);
+    const matches = /^#\/site\/(?<contentUrl>[^/]+)/.exec(parsedUrl.hash);
+    //This is adding validation that the contentUrl is present in the URL provided.
+    if (!matches?.groups?.contentUrl) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: errorMessage });
 
-      return {
-        baseUrl: parsedUrl.hostname,
-        contentUrl: matches.groups.contentUrl,
-      };
-    }),
+      return z.NEVER;
+    }
+
+    return { domain: parsedUrl.hostname, contentUrl: matches.groups.contentUrl };
+  }),
   region: z.string().min(1),
 });
 
@@ -104,7 +96,7 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
 
     logger.warn('Could not register organisation', { error });
 
-    if (error instanceof TableauError && error.response?.status === 401) {
+    if (error instanceof TableauError) {
       return {
         errors: {
           clientId: ['The given Client ID seems to be invalid'],
