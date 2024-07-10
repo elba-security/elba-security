@@ -89,15 +89,11 @@ export const syncUsers = inngest.createFunction(
         },
       });
 
-      return {
-        status: 'ongoing',
-      };
+      return { status: 'ongoing' };
     }
 
     await elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() });
 
-    return {
-      status: 'completed',
-    };
+    return { status: 'completed' };
   }
 );

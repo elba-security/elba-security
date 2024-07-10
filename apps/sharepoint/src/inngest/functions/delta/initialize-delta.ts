@@ -70,9 +70,7 @@ export const initializeDelta = inngest.createFunction(
         },
       });
 
-      return {
-        status: 'ongoing',
-      };
+      return { status: 'ongoing' };
     }
 
     if (!newDeltaToken) throw new NonRetriableError('Delta token not found!');
@@ -108,8 +106,6 @@ export const initializeDelta = inngest.createFunction(
         },
       });
 
-    return {
-      status: 'completed',
-    };
+    return { status: 'completed' };
   }
 );

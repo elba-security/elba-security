@@ -93,9 +93,7 @@ export const syncDrives = inngest.createFunction(
         },
       });
 
-      return {
-        status: 'ongoing',
-      };
+      return { status: 'ongoing' };
     }
 
     await step.sendEvent('drives-sync-complete', {
@@ -106,8 +104,6 @@ export const syncDrives = inngest.createFunction(
       },
     });
 
-    return {
-      status: 'completed',
-    };
+    return { status: 'completed' };
   }
 );

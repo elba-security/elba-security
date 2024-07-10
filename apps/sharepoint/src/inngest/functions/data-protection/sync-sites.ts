@@ -91,9 +91,7 @@ export const syncSites = inngest.createFunction(
         },
       });
 
-      return {
-        status: 'ongoing',
-      };
+      return { status: 'ongoing' };
     }
 
     await step.run('elba-permissions-delete', async () => {
@@ -104,8 +102,6 @@ export const syncSites = inngest.createFunction(
       });
     });
 
-    return {
-      status: 'completed',
-    };
+    return { status: 'completed' };
   }
 );
