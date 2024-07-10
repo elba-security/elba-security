@@ -12,10 +12,11 @@ const tableauUserSchema = z.object({
 export type TableauUser = z.infer<typeof tableauUserSchema>;
 
 export type TableauPaginatedResponse<T> = {
+  error?: {
+    code?: string;
+  };
   pagination: {
     pageNumber: string;
-    pageSize: string;
-    totalAvailable: string;
   };
   users: {
     user?: T[];
@@ -35,7 +36,7 @@ export const getUsers = async ({ token, domain, siteId, page }: GetUsersParams) 
   usersUrl.searchParams.append('pageSize', env.TABLEAU_USERS_SYNC_BATCH_SIZE.toString());
 
   if (page) {
-    usersUrl.searchParams.append('pageNumber', page.toString());
+    usersUrl.searchParams.append('pageNumber', page);
   }
 
   const response = await fetch(usersUrl, {
@@ -46,11 +47,24 @@ export const getUsers = async ({ token, domain, siteId, page }: GetUsersParams) 
     },
   });
 
-  if (!response.ok) {
-    throw new TableauError('Could not retrieve users', { response });
-  }
+  let responseData: TableauPaginatedResponse<unknown>;
+  try {
+    responseData = (await response.json()) as TableauPaginatedResponse<unknown>;
+    if (!response.ok) {
+      // Tableau sucks. Tableau will return this error response when the given page number is greater than the total number of pages available
+      if (responseData.error?.code === '400006') {
+        return { validUsers: [] as TableauUser[], invalidUsers: [] as unknown[], nextPage: null };
+      }
 
-  const responseData = (await response.json()) as TableauPaginatedResponse<unknown>;
+      throw new TableauError('Could not retrieve users', { response });
+    }
+  } catch (error) {
+    if (error instanceof TableauError) {
+      throw error;
+    }
+
+    throw new TableauError('Failed to parse response while retrieving users', { response });
+  }
 
   const validUsers: TableauUser[] = [];
   const invalidUsers: unknown[] = [];
@@ -67,9 +81,6 @@ export const getUsers = async ({ token, domain, siteId, page }: GetUsersParams) 
   return {
     validUsers,
     invalidUsers,
-    nextPage:
-      Number(responseData.pagination.totalAvailable) < Number(env.TABLEAU_USERS_SYNC_BATCH_SIZE)
-        ? null
-        : String(Number(responseData.pagination.pageNumber) + 1),
+    nextPage: String(Number(responseData.pagination.pageNumber) + 1),
   };
 };

@@ -1,18 +1,20 @@
 import { addMinutes } from 'date-fns';
+import { z } from 'zod';
 import { TableauError } from '../commons/error';
 
-export type TableauAuthResponse = {
-  credentials: {
-    site: {
-      id: string;
-      contentUrl: string;
-    };
-    user: {
-      id: string;
-    };
-    token: string;
-  };
-};
+const tableauAuthResponseSchema = z.object({
+  credentials: z.object({
+    site: z.object({
+      id: z.string(),
+      contentUrl: z.string(),
+    }),
+    user: z.object({
+      id: z.string(),
+    }),
+    token: z.string(),
+  }),
+});
+type TableauAuthResponse = z.infer<typeof tableauAuthResponseSchema>;
 
 export const authenticate = async ({
   token,
@@ -43,9 +45,8 @@ export const authenticate = async ({
     throw new TableauError('Could not authenticate with Tableau', { response });
   }
 
-  const { credentials } = (await response.json()) as TableauAuthResponse;
-
-  return { credentials };
+  const responseData: unknown = await response.json();
+  return tableauAuthResponseSchema.parse(responseData);
 };
 
 export const getTokenExpirationTimestamp = (): number => {

@@ -54,14 +54,9 @@ export const syncUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        id: organisationsTable.id,
         region: organisationsTable.region,
         domain: organisationsTable.domain,
         siteId: organisationsTable.siteId,
-        clientId: organisationsTable.clientId,
-        secretId: organisationsTable.secretId,
-        secret: organisationsTable.secret,
-        email: organisationsTable.email,
         token: organisationsTable.token,
         contentUrl: organisationsTable.contentUrl,
       })
@@ -72,23 +67,20 @@ export const syncUsers = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const elba = createElbaClient({
-      organisationId,
-      region: organisation.region,
-    });
+    const { region, domain, siteId, token, contentUrl } = organisation;
+
+    const elba = createElbaClient({ organisationId, region });
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({
-        token: await decrypt(organisation.token),
+        token: await decrypt(token),
         page,
-        domain: organisation.domain,
-        siteId: organisation.siteId,
+        domain,
+        siteId,
       });
 
       // format each SaaS users to elba users
-      const users = result.validUsers.map((user) =>
-        formatElbaUser({ user, domain: organisation.domain, contentUrl: organisation.contentUrl })
-      );
+      const users = result.validUsers.map((user) => formatElbaUser({ user, domain, contentUrl }));
       // send the batch of users to elba
 
       await elba.users.update({ users });
@@ -105,9 +97,7 @@ export const syncUsers = inngest.createFunction(
           page: nextPage,
         },
       });
-      return {
-        status: 'ongoing',
-      };
+      return { status: 'ongoing' };
     }
 
     // delete the elba users that has been sent before this sync
@@ -115,8 +105,6 @@ export const syncUsers = inngest.createFunction(
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );
 
-    return {
-      status: 'completed',
-    };
+    return { status: 'completed' };
   }
 );

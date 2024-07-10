@@ -27,7 +27,6 @@ describe('auth connector', () => {
             return new Response(undefined, { status: 401 });
           }
           return Response.json({
-            ok: true,
             credentials: {
               site: {
                 id: 'tableau-site-id',

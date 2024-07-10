@@ -1,7 +1,6 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/common/env';
 import { TableauError } from '../commons/error';
 import { type TableauUser, getUsers } from './users';
 
@@ -9,22 +8,20 @@ const validToken = 'token-1234';
 const domain = 'test.tableau.com';
 const siteId = 'site-1234';
 
-const invalidUsers = [
-  {
-    email: `user-invalid@foo.bar`,
-    fullName: `user-invalid`,
-    siteRole: `userRole-invalid`,
-  },
-];
+const invalidUser = {
+  email: `user-invalid@foo.bar`,
+  fullName: `user-invalid`,
+  siteRole: `userRole-invalid`,
+};
 
-const validUsers: TableauUser[] = Array.from({ length: 50 - invalidUsers.length }, (_, i) => ({
-  id: `user-id-${i}`,
-  email: `user-${i}@foo.bar`,
-  fullName: `user-${i}`,
-  siteRole: `userRole-${i}`,
-}));
+const validUser: TableauUser = {
+  id: 'user-id',
+  email: 'user@foo.bar',
+  fullName: 'user',
+  siteRole: 'userRole',
+};
 
-const users = [...invalidUsers, ...validUsers];
+const users = [invalidUser, validUser];
 
 describe('users connector', () => {
   describe('getUsers', () => {
@@ -38,21 +35,20 @@ describe('users connector', () => {
           }
           const requestedUrl = new URL(request.url);
           const pageParam = requestedUrl.searchParams.get('pageNumber');
-          const pageSize = requestedUrl.searchParams.get('pageSize');
-          const page = pageParam ? Number(pageParam) : 1;
+          const page = pageParam || '1';
 
-          return Response.json({
-            pagination: {
-              pageNumber: page.toString(),
-              pageSize,
-              totalAvailable: users
-                .slice((page - 1) * Number(pageSize), page * Number(pageSize))
-                .length.toString(),
-            },
-            users: {
-              user: users.slice(0, pageSize ? Number(pageSize) : 100), //Default value for Tableau is 100
-            },
-          });
+          if (page === '1') {
+            return Response.json({
+              pagination: {
+                pageNumber: page,
+              },
+              users: {
+                user: users,
+              },
+            });
+          }
+
+          return Response.json({ error: { code: '400006' } }, { status: 400 });
         })
       );
     });
@@ -61,8 +57,8 @@ describe('users connector', () => {
       await expect(
         getUsers({ token: validToken, domain, siteId, page: '1' })
       ).resolves.toStrictEqual({
-        validUsers: validUsers.slice(0, Number(env.TABLEAU_USERS_SYNC_BATCH_SIZE) - 1),
-        invalidUsers,
+        validUsers: [validUser],
+        invalidUsers: [invalidUser],
         nextPage: '2',
       });
     });
@@ -71,8 +67,8 @@ describe('users connector', () => {
       await expect(
         getUsers({ token: validToken, domain, siteId, page: '6' })
       ).resolves.toStrictEqual({
-        validUsers: validUsers.slice(0, Number(env.TABLEAU_USERS_SYNC_BATCH_SIZE) - 1),
-        invalidUsers,
+        validUsers: [],
+        invalidUsers: [],
         nextPage: null,
       });
     });

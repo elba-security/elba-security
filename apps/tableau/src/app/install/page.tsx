@@ -26,7 +26,7 @@ export default function InstallPage() {
       <InstructionsSteps>
         <InstructionsStep index={1}>
           <div>
-            <h3>Step 1: Create a connected app</h3>
+            <h3>Create a connected app</h3>
             <p>Create a connected app from Tableau Servers Settings page.</p>
             <p>1. As a server admin, sign in to Tableau Server.</p>
             <p>
@@ -39,28 +39,23 @@ export default function InstallPage() {
               <b>Note:</b> If you&apos;re using Tableau Server 2023.3 or earlier, click{' '}
               <b>New Connected App</b> button.
             </p>
-            <p>4. In the Create Connected App dialog box</p>
             <p>
-              In the Connected app name text box, enter a name for the connected app and click the
-              Create button.
+              <b>Note:</b> You can ignore <b>Access level</b> and <b>Domain allowlist</b> when
+              configuring a connected app for REST API and Metadata API authorization.
             </p>
             <p>
-              <b>Note:</b> You can ignore <b>Note:</b> and <b>Domain allowlist</b> when configuring
-              a connected app for REST API and Metadata API authorization.
-            </p>
-            <p>
-              5. Next to the connected app&apos;s name, click the actions menu and select Enable.
+              4. Next to the connected app&apos;s name, click the actions menu and select Enable.
               For security purposes, a connected app is set to disabled by default when created.
             </p>
             <p>
-              6. Make note of the connected app&apos;s ID, also known as the client ID, to use
+              5. Make note of the connected app&apos;s ID, also known as the client ID, to use
               below.
             </p>
           </div>
         </InstructionsStep>
         <InstructionsStep index={2}>
           <div>
-            <h3>Step 2: Generate a secret</h3>
+            <h3>Generate a secret</h3>
             <p>
               1. On the detail page of the connected app you created in Step 1, click the{' '}
               <b>Generate New Secret</b> button.

@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS "organisations" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"client_id" text NOT NULL,
 	"secret_id" text NOT NULL,
-	"secret_value" text NOT NULL,
+	"secret" text NOT NULL,
 	"email" text NOT NULL,
 	"site_id" text NOT NULL,
 	"domain" text NOT NULL,

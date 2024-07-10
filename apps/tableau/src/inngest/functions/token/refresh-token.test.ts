@@ -6,7 +6,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt, decrypt } from '@/common/crypto';
 import * as authConnector from '@/connectors/tableau/auth';
-import * as tokenGenerator from '@/common/jwt';
+import * as tokenGenerator from '@/connectors/tableau/jwt';
 import { TableauError } from '@/connectors/commons/error';
 import { refreshToken } from './refresh-token';
 

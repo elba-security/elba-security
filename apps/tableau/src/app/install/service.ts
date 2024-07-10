@@ -1,5 +1,5 @@
 import { encrypt } from '@/common/crypto';
-import { generateToken } from '@/common/jwt';
+import { generateToken } from '@/connectors/tableau/jwt';
 import { authenticate, getTokenExpirationTimestamp } from '@/connectors/tableau/auth';
 import { db } from '../../database/client';
 import { organisationsTable } from '../../database/schema';
@@ -32,7 +32,7 @@ export const registerOrganisation = async ({
   const tokenExpiry = getTokenExpirationTimestamp(); // Tableau token expires in 240 minutes.
 
   const encryptedToken = await encrypt(credentials.token);
-  const encryptedSecret = await encrypt(secret.toString());
+  const encryptedSecret = await encrypt(secret);
 
   await db
     .insert(organisationsTable)

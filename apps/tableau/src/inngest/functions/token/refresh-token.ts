@@ -8,7 +8,7 @@ import { inngest } from '@/inngest/client';
 import { encrypt, decrypt } from '@/common/crypto';
 import { unauthorizedMiddleware } from '@/inngest/middlewares/unauthorized-middleware';
 import { authenticate, getTokenExpirationTimestamp } from '@/connectors/tableau/auth';
-import { generateToken } from '@/common/jwt';
+import { generateToken } from '@/connectors/tableau/jwt';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -40,12 +40,10 @@ export const refreshToken = inngest.createFunction(
     const nextExpiresAt = await step.run('refresh-token', async () => {
       const [organisation] = await db
         .select({
-          id: organisationsTable.id,
-          url: organisationsTable.domain,
+          domain: organisationsTable.domain,
           secret: organisationsTable.secret,
           secretId: organisationsTable.secretId,
           clientId: organisationsTable.clientId,
-          siteId: organisationsTable.siteId,
           email: organisationsTable.email,
           contentUrl: organisationsTable.contentUrl,
         })
@@ -58,15 +56,11 @@ export const refreshToken = inngest.createFunction(
 
       const decryptedSecret = await decrypt(organisation.secret);
 
-      const { secretId, clientId, email } = organisation;
+      const { secretId, clientId, email, domain, contentUrl } = organisation;
 
       const token = await generateToken({ clientId, secretId, email, secret: decryptedSecret });
 
-      const { credentials } = await authenticate({
-        token,
-        domain: organisation.url,
-        contentUrl: organisation.contentUrl,
-      });
+      const { credentials } = await authenticate({ token, domain, contentUrl });
       const nextExpirationTimestamp = getTokenExpirationTimestamp();
 
       const encryptedToken = await encrypt(credentials.token);

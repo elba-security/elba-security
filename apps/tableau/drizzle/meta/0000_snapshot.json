@@ -1,5 +1,5 @@
 {
-  "id": "345c505d-b1a4-48ca-87ac-7d1374c00f78",
+  "id": "75bdc519-a4f1-4d05-baa8-f3f37b2d2df5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -39,8 +39,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "secret_value": {
-          "name": "secret_value",
+        "secret": {
+          "name": "secret",
           "type": "text",
           "primaryKey": false,
           "notNull": true
