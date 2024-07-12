@@ -12,7 +12,9 @@ import { updateItems } from './data-protection/update-items';
 import { subscriptionToDrive } from './subscriptions/subscription-to-drives';
 import { subscriptionRefresh } from './subscriptions/subscription-refresh';
 import { subscriptionRemove } from './subscriptions/subscription-remove';
+import { removeOrganisation } from './organisations/remove-organisation';
 
+// TODO: make sure every functions are here
 export const inngestFunctions = [
   syncUsers,
   scheduleUsersSyncs,
@@ -28,4 +30,5 @@ export const inngestFunctions = [
   subscriptionToDrive,
   subscriptionRefresh,
   subscriptionRemove,
+  removeOrganisation,
 ];

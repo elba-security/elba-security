@@ -11,6 +11,8 @@ export const incomingSubscriptionSchema = z.object({
   clientState: z.string(),
 });
 
+export type IncomingSubscription = z.infer<typeof incomingSubscriptionSchema>;
+
 export const incomingSubscriptionArraySchema = z.object({
   value: z.array(incomingSubscriptionSchema),
 });
@@ -43,6 +45,7 @@ export const createSubscription = async ({
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
+      prefer: 'includesecuritywebhooks',
     },
     body: JSON.stringify({
       changeType,
@@ -64,7 +67,7 @@ export const createSubscription = async ({
 };
 
 export const refreshSubscription = async (encryptToken: string, subscriptionId: string) => {
-  const token = await decrypt(encryptToken);
+  const token = await decrypt(encryptToken); // TODO: move this
 
   const response = await fetch(`${env.MICROSOFT_API_URL}/subscriptions/${subscriptionId}`, {
     method: 'PATCH',

@@ -8,11 +8,7 @@ export const scheduleDataProtectionSyncJobs = inngest.createFunction(
   { cron: env.MICROSOFT_DATA_PROTECTION_CRON_SYNC },
   async ({ step }) => {
     const syncStartedAt = Date.now();
-    const organisations = await db
-      .select({
-        id: organisationsTable.id,
-      })
-      .from(organisationsTable);
+    const organisations = await db.select({ id: organisationsTable.id }).from(organisationsTable);
 
     if (organisations.length > 0) {
       await step.sendEvent(

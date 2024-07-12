@@ -2,17 +2,12 @@ import type { DataProtectionObject, DataProtectionObjectPermission } from '@elba
 import { z } from 'zod';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import {
-  deleteItemPermission,
   getAllItemPermissions,
-  revokeUserFromLinkPermission,
   type MicrosoftDriveItemPermission,
 } from '@/connectors/microsoft/sharepoint/permissions';
 import type { Delta } from '@/connectors/microsoft/delta/get-delta';
-import { MicrosoftError } from '@/common/error';
 import type {
   CombinedLinkPermissions,
-  DeleteItemFunctionParams,
-  Folder,
   ItemWithPermissions,
   ItemsWithPermissionsParsed,
   ParsedDelta,
@@ -48,19 +43,6 @@ export const sharepointMetadata = z.union([
 ]);
 
 export type SharepointMetadata = z.infer<typeof sharepointMetadata>;
-
-export const groupItems = (items: MicrosoftDriveItem[]) =>
-  items.reduce(
-    (acc, item) => {
-      if (item.folder) {
-        acc.folders.push(item);
-      } else {
-        acc.files.push(item);
-      }
-      return acc;
-    },
-    { files: [] as MicrosoftDriveItem[], folders: [] as MicrosoftDriveItem[] }
-  );
 
 export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
   const chunks: T[][] = [];
@@ -176,7 +158,7 @@ export const getItemsWithPermissionsFromChunks = async ({
 
       itemsWithPermissions.push({
         item,
-        permissions: permissions,
+        permissions,
       });
     }
   }
@@ -270,52 +252,6 @@ export const removeInheritedUpdate = (items: ItemWithPermissions[]): ItemsWithPe
   }
 
   return { toUpdate, toDelete };
-};
-
-export const createDeleteItemPermissionFunction = ({
-  token,
-  siteId,
-  driveId,
-  itemId,
-  permissionId,
-  userEmails,
-}: DeleteItemFunctionParams) => {
-  return async () => {
-    try {
-      if (userEmails?.length)
-        await revokeUserFromLinkPermission({
-          token,
-          siteId,
-          driveId,
-          itemId,
-          permissionId,
-          userEmails,
-        });
-      else
-        await deleteItemPermission({
-          token,
-          siteId,
-          driveId,
-          itemId,
-          permissionId,
-        });
-
-      return {
-        status: 204,
-        permissionId,
-        userEmails,
-      };
-    } catch (error) {
-      if (error instanceof MicrosoftError && error.response?.status === 404) {
-        return {
-          status: 404,
-          permissionId,
-          userEmails,
-        };
-      }
-      throw error;
-    }
-  };
 };
 
 export const preparePermissionDeletionArray = (

@@ -8,9 +8,6 @@ import { inngest } from '@/inngest/client';
 export const removeOrganisation = inngest.createFunction(
   {
     id: 'sharepoint-remove-organisation',
-    priority: {
-      run: '600',
-    },
     retries: 5,
   },
   {
@@ -63,7 +60,6 @@ export const removeOrganisation = inngest.createFunction(
 
     await elba.connectionStatus.update({ hasError: true });
 
-    await db.delete(sharePointTable).where(eq(sharePointTable.organisationId, organisationId));
     await db.delete(organisationsTable).where(eq(organisationsTable.id, organisationId));
   }
 );

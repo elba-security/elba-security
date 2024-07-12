@@ -180,7 +180,7 @@ export const deleteItemPermission = async ({
   driveId,
   itemId,
   permissionId,
-}: DeleteItemPermissionParams): Promise<void> => {
+}: DeleteItemPermissionParams) => {
   const url = new URL(
     `${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/items/${itemId}/permissions/${permissionId}`
   );
@@ -193,18 +193,24 @@ export const deleteItemPermission = async ({
   });
 
   if (!response.ok) {
+    if (response.status === 404) {
+      return 'ignored';
+    }
+
     throw new MicrosoftError('Could not delete permission', { response });
   }
+
+  return 'deleted';
 };
 
-export const revokeUserFromLinkPermission = async ({
+export const revokeUsersFromLinkPermission = async ({
   token,
   siteId,
   driveId,
   itemId,
   permissionId,
   userEmails,
-}: RevokeUserFromLinkPermissionParams): Promise<void> => {
+}: RevokeUserFromLinkPermissionParams) => {
   const url = new URL(
     `https://graph.microsoft.com/beta/sites/${siteId}/drives/${driveId}/items/${itemId}/permissions/${permissionId}/revokeGrants`
   );
@@ -237,13 +243,15 @@ export const revokeUserFromLinkPermission = async ({
         );
 
         if (!hasMatchingEmail) {
-          return;
+          return 'ignored';
         }
       }
     }
 
     throw new MicrosoftError('Could not revoke permission', { response });
   }
+
+  return 'deleted';
 };
 
 export const getPermissionDetails = async ({

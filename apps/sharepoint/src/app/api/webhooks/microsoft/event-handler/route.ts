@@ -22,9 +22,12 @@ export async function POST(req: NextRequest) {
 
   const parseResult = incomingSubscriptionArraySchema.safeParse(data);
 
+  console.log({ parseResult });
   if (!parseResult.success) {
-    return NextResponse.json({ message: 'Invalid data' }, { status: 404 });
+    return new NextResponse();
   }
+
+  // TODO: check client state
 
   const { value } = parseResult.data;
 

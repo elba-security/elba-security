@@ -69,8 +69,9 @@ export const updateItems = inngest.createFunction(
 
     const elba = createElbaClient({ organisationId: record.organisationId, region: record.region });
 
+    console.log({ updated, deleted });
     if (updated.length) {
-      itemIdsWithoutPermissions = await step.run('update elba items', async () => {
+      itemIdsWithoutPermissions = await step.run('update-elba-items', async () => {
         const itemsChunks = getChunkedArray<MicrosoftDriveItem>(
           updated,
           env.MICROSOFT_DATA_PROTECTION_ITEM_PERMISSIONS_CHUNK_SIZE
@@ -116,7 +117,7 @@ export const updateItems = inngest.createFunction(
     }
 
     if ([...deleted, ...itemIdsWithoutPermissions].length) {
-      await step.run('remove elba items', async () => {
+      await step.run('remove-elba-items', async () => {
         await elba.dataProtection.deleteObjects({
           ids: [...deleted, ...itemIdsWithoutPermissions],
         });

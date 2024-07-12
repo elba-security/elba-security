@@ -1,71 +1,86 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
 import { inngest } from '@/inngest/client';
-import type { ParsedType, SelectFieldsType, SubscriptionPayload, UpdateItemsData } from './types';
+import { type IncomingSubscription } from '@/connectors/microsoft/subscription/subscriptions';
+// import type { ParsedType } from './types';
 
-export const parsedSchema = z.object({
+export const parsedResourceSchema = z.object({
   siteId: z.string().min(1),
   driveId: z.string().min(1),
 });
 
-export const resourcesSchema = z.object({
-  sites: z.literal('siteId'),
-  drives: z.literal('driveId'),
-});
+// type ParsedType = z.infer<typeof parsedResourceSchema>;
 
-export const selectFields: SelectFieldsType = {
-  sites: 'siteId',
-  drives: 'driveId',
-};
+// type ParsedResouse = z.infer<typeof parsedResourceSchema>;
 
-export const parseResourceString = (resource: string, getFields: SelectFieldsType) => {
-  const dataArray = resource.split('/');
-  const keys = Object.keys(getFields);
+// export const selectFields = {
+//   sites: 'siteId',
+//   drives: 'driveId',
+// };
 
-  const result = keys.reduce<ParsedType>(
-    (acc, el) => {
-      const index = dataArray.indexOf(el);
+// export const parseResourceString = (resource: string) => {
+//   const dataArray = resource.split('/');
+//   const keys = Object.keys(selectFields);
 
-      if (index >= 0) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- temp
-        acc[getFields[el]] = dataArray[index + 1];
-      }
+//   const result = keys.reduce<ParsedType>(
+//     (acc, el) => {
+//       const index = dataArray.indexOf(el);
 
-      return acc;
-    },
-    { siteId: '', driveId: '' }
-  );
+//       if (index >= 0) {
+//         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- temp
+//         acc[selectFields[el]] = dataArray[index + 1];
+//       }
 
-  return parsedSchema.safeParse(result);
-};
+//       return acc;
+//     },
+//     { siteId: '', driveId: '' }
+//   );
 
-export const handleWebhook = async (data: SubscriptionPayload[]) => {
-  if (!data.length) return;
+//   return parsedResourceSchema.safeParse(result);
+// };
 
-  await inngest.send(
-    data.reduce<UpdateItemsData[]>((acc, payload) => {
-      const parsed = parseResourceString(payload.resource, selectFields);
+export const handleWebhook = async (data: IncomingSubscription[]) => {
+  if (!data.length) {
+    return;
+  }
 
-      if (!parsed.success) {
-        logger.error('parseResourceString Error', { resource: payload.resource, selectFields });
-        return acc;
-      }
+  const drives: { subscriptionId: string; tenantId: string; siteId: string; driveId: string }[] =
+    [];
+  for (const payload of data) {
+    const parsedResourceName = /sites\/(?<siteId>[^/]+)\/drives\/(?<driveId>[^/]+)/.exec(
+      payload.resource
+    );
+    const { siteId, driveId } = parsedResourceName?.groups || {};
+    if (!siteId || !driveId) {
+      logger.error('Failed to parse resource name', { resource: payload.resource });
+      continue;
+    }
+    // if (!parsed.success) {
+    //   logger.error('parseResourceString Error', { resource: payload.resource, selectFields });
+    //   continue;
+    // }
 
-      const { subscriptionId, tenantId } = payload;
-      const { siteId, driveId } = parsed.data;
+    drives.push({
+      subscriptionId: payload.subscriptionId,
+      tenantId: payload.tenantId,
+      siteId,
+      driveId,
+    });
+  }
 
-      acc.push({
-        id: `update-items-subscription-${subscriptionId}`,
+  if (drives.length) {
+    await inngest.send(
+      drives.map((drive) => ({
+        // id: `update-items-subscription-${drive.subscriptionId}`, // WHY???? // TODO: remove this
         name: 'sharepoint/update-items.triggered',
         data: {
-          siteId,
-          driveId,
-          subscriptionId,
-          tenantId,
+          siteId: drive.siteId,
+          driveId: drive.driveId,
+          subscriptionId: drive.subscriptionId,
+          tenantId: drive.tenantId,
           skipToken: null,
         },
-      });
-      return acc;
-    }, [])
-  );
+      }))
+    );
+  }
 };

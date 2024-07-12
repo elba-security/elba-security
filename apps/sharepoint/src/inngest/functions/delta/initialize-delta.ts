@@ -13,7 +13,7 @@ export const initializeDelta = inngest.createFunction(
     id: 'sharepoint-initialize-data-protection-delta',
     concurrency: {
       key: 'event.data.siteId',
-      limit: env.MICROSOFT_DATA_PROTECTION_ITEMS_SYNC_CONCURRENCY,
+      limit: env.MICROSOFT_DATA_PROTECTION_ITEMS_SYNC_CONCURRENCY, // TODO: should be 1
     },
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
@@ -73,7 +73,9 @@ export const initializeDelta = inngest.createFunction(
       return { status: 'ongoing' };
     }
 
-    if (!newDeltaToken) throw new NonRetriableError('Delta token not found!');
+    if (!newDeltaToken) {
+      throw new NonRetriableError('Delta token not found!');
+    }
 
     const data = await step.invoke('sharepoint/drives.subscription.triggered', {
       function: subscriptionToDrive,
@@ -85,26 +87,26 @@ export const initializeDelta = inngest.createFunction(
       },
     });
 
-    // await db
-    //   .insert(sharePointTable)
-    //   .values({
-    //     organisationId,
-    //     siteId,
-    //     driveId,
-    //     subscriptionId: data.id,
-    //     subscriptionExpirationDate: data.expirationDateTime,
-    //     subscriptionClientState: data.clientState,
-    //     delta: newDeltaToken,
-    //   })
-    //   .onConflictDoUpdate({
-    //     target: [sharePointTable.organisationId, sharePointTable.driveId],
-    //     set: {
-    //       subscriptionId: data.id,
-    //       subscriptionExpirationDate: data.expirationDateTime,
-    //       subscriptionClientState: data.clientState,
-    //       delta: newDeltaToken,
-    //     },
-    //   });
+    await db
+      .insert(sharePointTable)
+      .values({
+        organisationId,
+        siteId,
+        driveId,
+        subscriptionId: data.id,
+        subscriptionExpirationDate: data.expirationDateTime,
+        subscriptionClientState: data.clientState,
+        delta: newDeltaToken,
+      })
+      .onConflictDoUpdate({
+        target: [sharePointTable.organisationId, sharePointTable.driveId],
+        set: {
+          subscriptionId: data.id,
+          subscriptionExpirationDate: data.expirationDateTime,
+          subscriptionClientState: data.clientState,
+          delta: newDeltaToken,
+        },
+      });
 
     return { status: 'completed' };
   }

@@ -3,6 +3,7 @@ type ClientStateValidate = {
   webhookSubscriptions: { subscriptionId: string; clientState: string }[];
 };
 
+// TODO: move this logic
 export function isClientStateValid({
   dbSubscriptions,
   webhookSubscriptions,

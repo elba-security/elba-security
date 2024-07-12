@@ -80,9 +80,7 @@ export const refreshItem = inngest.createFunction(
         }
       }
 
-      await elba.dataProtection.deleteObjects({
-        ids: [itemId],
-      });
+      await elba.dataProtection.deleteObjects({ ids: [itemId] });
     });
   }
 );

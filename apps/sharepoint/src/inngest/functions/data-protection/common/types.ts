@@ -54,7 +54,3 @@ export type PermissionDeletionResult = CombinedLinkPermissions & {
   itemId: string;
   status?: number;
 };
-
-export type DeleteItemFunctionParams = PermissionDeletionResult & {
-  token: string;
-};
