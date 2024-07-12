@@ -1,43 +1,6 @@
-import { z } from 'zod';
 import { logger } from '@elba-security/logger';
 import { inngest } from '@/inngest/client';
-import { type IncomingSubscription } from '@/connectors/microsoft/subscription/subscriptions';
-// import type { ParsedType } from './types';
-
-export const parsedResourceSchema = z.object({
-  siteId: z.string().min(1),
-  driveId: z.string().min(1),
-});
-
-// type ParsedType = z.infer<typeof parsedResourceSchema>;
-
-// type ParsedResouse = z.infer<typeof parsedResourceSchema>;
-
-// export const selectFields = {
-//   sites: 'siteId',
-//   drives: 'driveId',
-// };
-
-// export const parseResourceString = (resource: string) => {
-//   const dataArray = resource.split('/');
-//   const keys = Object.keys(selectFields);
-
-//   const result = keys.reduce<ParsedType>(
-//     (acc, el) => {
-//       const index = dataArray.indexOf(el);
-
-//       if (index >= 0) {
-//         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- temp
-//         acc[selectFields[el]] = dataArray[index + 1];
-//       }
-
-//       return acc;
-//     },
-//     { siteId: '', driveId: '' }
-//   );
-
-//   return parsedResourceSchema.safeParse(result);
-// };
+import type { IncomingSubscription } from '@/connectors/microsoft/subscription/subscriptions';
 
 export const handleWebhook = async (data: IncomingSubscription[]) => {
   if (!data.length) {

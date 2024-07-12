@@ -26,7 +26,7 @@ export const updateItems = inngest.createFunction(
     retries: 5,
   },
   { event: 'sharepoint/update-items.triggered' },
-  async ({ event, step }) => {
+  async ({ event, step, logger }) => {
     const { siteId, driveId, subscriptionId, tenantId, skipToken } = event.data;
     let itemIdsWithoutPermissions: string[] = [];
 
@@ -69,7 +69,6 @@ export const updateItems = inngest.createFunction(
 
     const elba = createElbaClient({ organisationId: record.organisationId, region: record.region });
 
-    console.log({ updated, deleted });
     if (updated.length) {
       itemIdsWithoutPermissions = await step.run('update-elba-items', async () => {
         const itemsChunks = getChunkedArray<MicrosoftDriveItem>(
@@ -84,7 +83,10 @@ export const updateItems = inngest.createFunction(
           driveId,
         });
 
+        console.log(JSON.stringify({ itemsWithPermissions }, null, 2));
         const { toDelete, toUpdate } = removeInheritedUpdate(itemsWithPermissions);
+
+        console.log(JSON.stringify({ toDelete, toUpdate }, null, 2));
 
         const dataProtectionItems = formatDataProtectionObjects({
           items: toUpdate,
@@ -92,6 +94,8 @@ export const updateItems = inngest.createFunction(
           driveId,
           parentPermissionIds: [], // TODO
         });
+
+        console.log(JSON.stringify({ dataProtectionItems }, null, 2));
 
         if (!dataProtectionItems.length) {
           return itemsWithPermissions.reduce<string[]>(
@@ -136,7 +140,9 @@ export const updateItems = inngest.createFunction(
       return { status: 'ongoing' };
     }
 
-    if (!newDeltaToken) throw new NonRetriableError('Delta token not found!');
+    if (!newDeltaToken) {
+      throw new NonRetriableError('Delta token not found!');
+    }
 
     await db
       .update(sharePointTable)

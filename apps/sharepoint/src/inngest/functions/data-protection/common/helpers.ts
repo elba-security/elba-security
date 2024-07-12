@@ -78,7 +78,7 @@ export const formatPermissions = (permissions: MicrosoftDriveItemPermission[]) =
 
     if (permission.link?.scope === 'users' && permission.grantedToIdentitiesV2?.length) {
       for (const identity of permission.grantedToIdentitiesV2) {
-        if (!identity?.user?.email || identity.user.id) {
+        if (!identity?.user) {
           continue;
         }
         const userId = identity.user.id;
@@ -232,14 +232,16 @@ export const removeInheritedUpdate = (items: ItemWithPermissions[]): ItemsWithPe
   );
 
   for (const { item, permissions } of items) {
-    const parent = itemsPermissions.get(item.id);
-    if (!parent) {
+    const parentId = item.parentReference.id;
+    const parentPermissions = parentId && itemsPermissions.get(parentId);
+    if (!parentPermissions) {
+      console.log(JSON.stringify({ parentId, parentPermissions, item }, null, 2));
       continue;
     }
 
     const nonInheritedPermissions: MicrosoftDriveItemPermission[] = [];
     for (const permission of permissions) {
-      if (!parent.has(permission.id)) {
+      if (!parentPermissions.has(permission.id)) {
         nonInheritedPermissions.push(permission);
       }
     }

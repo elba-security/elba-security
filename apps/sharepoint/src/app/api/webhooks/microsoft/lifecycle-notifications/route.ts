@@ -24,7 +24,8 @@ export async function POST(req: NextRequest) {
   const parseResult = lifecycleEventArraySchema.safeParse(data);
 
   if (!parseResult.success) {
-    return NextResponse.json({ message: 'Invalid data' }, { status: 404 });
+    // TODO: log
+    return new NextResponse();
   }
 
   const { value } = parseResult.data;

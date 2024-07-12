@@ -37,6 +37,7 @@ export const getUsers = async ({ token, tenantId, skipToken }: GetUsersParams) =
   });
 
   if (!response.ok) {
+    console.log({ responseData: await response.clone().text() });
     throw new MicrosoftError('Could not retrieve users', { response });
   }
 

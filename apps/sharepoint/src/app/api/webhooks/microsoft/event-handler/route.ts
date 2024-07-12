@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (!isValid) {
+    // TODO: log
     return NextResponse.json({ message: 'Invalid data' }, { status: 404 });
   }
 
