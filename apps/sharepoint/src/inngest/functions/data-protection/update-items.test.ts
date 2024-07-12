@@ -13,7 +13,7 @@ import * as deltaConnector from '@/connectors/microsoft/delta/get-delta';
 import type { ItemWithPermissions } from './common/types';
 import {
   formatDataProtectionObjects,
-  parsedDeltaState,
+  parseDeltaState,
   removeInheritedUpdate,
 } from './common/helpers';
 import { updateItems } from './update-items';
@@ -166,7 +166,7 @@ describe('update-item-and-permissions', () => {
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    expect(deltaConnector.getDelta).toBeCalledTimes(0);
+    expect(deltaConnector.getDeltaItems).toBeCalledTimes(0);
 
     expect(elba).toBeCalledTimes(0);
 
@@ -199,8 +199,8 @@ describe('update-item-and-permissions', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
-    expect(deltaConnector.getDelta).toBeCalledTimes(1);
-    expect(deltaConnector.getDelta).toBeCalledWith({
+    expect(deltaConnector.getDeltaItems).toBeCalledTimes(1);
+    expect(deltaConnector.getDeltaItems).toBeCalledWith({
       token,
       siteId,
       driveId,
@@ -209,7 +209,7 @@ describe('update-item-and-permissions', () => {
       deltaToken,
     });
 
-    const { deleted, updated } = parsedDeltaState(items);
+    const { deleted, updated } = parseDeltaState(items);
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({

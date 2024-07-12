@@ -5,27 +5,24 @@ import {
   getTokenFromDeltaLinks,
   type MicrosoftDeltaPaginatedResponse,
 } from '../commons/delta-links-parse';
+import type { MicrosoftDriveItem } from '../sharepoint/items';
 
-type GetDelta = {
-  token: string;
-  siteId: string;
-  driveId: string;
-  isFirstSync: boolean | null;
-  skipToken: string | null;
-  deltaToken: string | null;
-};
-
+// TODO: this schema should extend drive item
 const deltaSchema = z.object({
   id: z.string(),
-  name: z.string().optional(),
-  webUrl: z.string().optional(),
-  createdBy: z
+  name: z.string(),
+  webUrl: z.string(),
+  createdBy: z.object({
+    user: z.object({
+      email: z.string().optional(),
+      id: z.string().optional(),
+      displayName: z.string(),
+    }),
+  }),
+  lastModifiedDateTime: z.string(),
+  folder: z
     .object({
-      user: z.object({
-        email: z.string().optional(),
-        id: z.string().optional(),
-        displayName: z.string(),
-      }),
+      childCount: z.number(),
     })
     .optional(),
   parentReference: z.object({
@@ -35,20 +32,31 @@ const deltaSchema = z.object({
   deleted: z.object({ state: z.string() }).optional(),
 });
 
+// const deltaSchema = driveItemSchema.extend({
+//   deleted: z.object({ state: z.string() }).optional(),
+// });
+
 export type Delta = z.infer<typeof deltaSchema>;
 
 // deltaToken appears only on last pagination page.
 // So I should fetch all previous pages and I should get the deltaToken, it should be there in all cases.
 // So if I have no skipToken, I should have deltaToken then.
 
-export const getDelta = async ({
+export const getDeltaItems = async ({
   token,
   siteId,
   driveId,
   isFirstSync,
   skipToken,
   deltaToken,
-}: GetDelta) => {
+}: {
+  token: string;
+  siteId: string;
+  driveId: string;
+  isFirstSync: boolean | null;
+  skipToken: string | null;
+  deltaToken: string | null;
+}) => {
   const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/root/delta`);
 
   if (isFirstSync) {
@@ -74,17 +82,27 @@ export const getDelta = async ({
     throw new MicrosoftError('Could not retrieve delta', { response });
   }
 
+  console.log({ responseData: await response.clone().text() });
   const data = (await response.json()) as MicrosoftDeltaPaginatedResponse<Delta>;
 
   const nextSkipToken = getTokenFromDeltaLinks(data['@odata.nextLink']);
   const newDeltaToken = getTokenFromDeltaLinks(data['@odata.deltaLink']);
 
-  const delta = data.value.reduce<Delta[]>((acc, item) => {
-    const parsed = deltaSchema.safeParse(item);
-    if (parsed.success) acc.push(item);
+  const items: { deleted: string[]; updated: MicrosoftDriveItem[] } = { deleted: [], updated: [] };
+  for (const deltaItem of data.value) {
+    const item = deltaSchema.safeParse(deltaItem);
+    if (item.success) {
+      if (item.data.deleted) {
+        // TODO: log items delete state, check microsoft doc for updated etc
+        items.deleted.push(item.data.id);
+      } else {
+        items.updated.push(item.data);
+      }
+    } else {
+      console.log('Failed to parse delta item', deltaItem);
+      // TODO: log or whatever
+    }
+  }
 
-    return acc;
-  }, []);
-
-  return { delta, nextSkipToken, newDeltaToken };
+  return { items, nextSkipToken, newDeltaToken };
 };

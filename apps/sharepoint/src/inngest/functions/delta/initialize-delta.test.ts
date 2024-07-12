@@ -61,7 +61,7 @@ describe('sync-sites', () => {
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    expect(deltaConnector.getDelta).toBeCalledTimes(0);
+    expect(deltaConnector.getDeltaItems).toBeCalledTimes(0);
 
     expect(step.sendEvent).toBeCalledTimes(0);
   });

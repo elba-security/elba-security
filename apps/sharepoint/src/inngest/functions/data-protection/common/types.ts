@@ -18,11 +18,6 @@ export type Folder = {
   permissions: string[] | [];
 } | null;
 
-export type ParsedDelta = {
-  deleted: string[];
-  updated: MicrosoftDriveItem[];
-};
-
 export type ItemsWithPermissionsParsed = {
   toDelete: string[];
   toUpdate: ItemWithPermissions[];

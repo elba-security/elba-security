@@ -5,14 +5,13 @@ import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable, sharePointTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
-import { getDelta } from '@/connectors/microsoft/delta/get-delta';
+import { getDeltaItems } from '@/connectors/microsoft/delta/get-delta';
 import { createElbaClient } from '@/connectors/elba/client';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import {
   formatDataProtectionObjects,
   getChunkedArray,
   getItemsWithPermissionsFromChunks,
-  parsedDeltaState,
   removeInheritedUpdate,
 } from './common/helpers';
 
@@ -26,9 +25,8 @@ export const updateItems = inngest.createFunction(
     retries: 5,
   },
   { event: 'sharepoint/update-items.triggered' },
-  async ({ event, step, logger }) => {
+  async ({ event, step }) => {
     const { siteId, driveId, subscriptionId, tenantId, skipToken } = event.data;
-    let itemIdsWithoutPermissions: string[] = [];
 
     const [record] = await db
       .select({
@@ -52,8 +50,8 @@ export const updateItems = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with tenantId=${tenantId}`);
     }
 
-    const { delta, nextSkipToken, newDeltaToken } = await step.run('delta paginate', async () => {
-      const result = await getDelta({
+    const { items, nextSkipToken } = await step.run('delta-paginate', async () => {
+      const { newDeltaToken, ...result } = await getDeltaItems({
         token: await decrypt(record.token),
         siteId,
         driveId,
@@ -62,17 +60,33 @@ export const updateItems = inngest.createFunction(
         deltaToken: record.delta,
       });
 
+      if (!newDeltaToken) {
+        throw new NonRetriableError('Delta token not found!');
+      }
+
+      await db
+        .update(sharePointTable)
+        .set({
+          delta: newDeltaToken,
+        })
+        .where(
+          and(
+            eq(sharePointTable.organisationId, record.organisationId),
+            eq(sharePointTable.siteId, siteId),
+            eq(sharePointTable.driveId, driveId),
+            eq(sharePointTable.subscriptionId, subscriptionId)
+          )
+        );
+
       return result;
     });
 
-    const { deleted, updated } = parsedDeltaState(delta);
-
     const elba = createElbaClient({ organisationId: record.organisationId, region: record.region });
 
-    if (updated.length) {
-      itemIdsWithoutPermissions = await step.run('update-elba-items', async () => {
+    if (items.updated.length) {
+      await step.run('update-elba-items', async () => {
         const itemsChunks = getChunkedArray<MicrosoftDriveItem>(
-          updated,
+          items.updated,
           env.MICROSOFT_DATA_PROTECTION_ITEM_PERMISSIONS_CHUNK_SIZE
         );
 
@@ -97,34 +111,15 @@ export const updateItems = inngest.createFunction(
 
         console.log(JSON.stringify({ dataProtectionItems }, null, 2));
 
-        if (!dataProtectionItems.length) {
-          return itemsWithPermissions.reduce<string[]>(
-            (acc, itemWithPermissions) => {
-              if (
-                !itemWithPermissions.permissions.length &&
-                itemWithPermissions.item.name !== 'root' &&
-                !toDelete.includes(itemWithPermissions.item.id)
-              )
-                acc.push(itemWithPermissions.item.id);
-              return acc;
-            },
-            [...toDelete]
-          );
-        }
-
         await elba.dataProtection.updateObjects({
           objects: dataProtectionItems,
         });
-
-        return toDelete;
       });
     }
 
-    if ([...deleted, ...itemIdsWithoutPermissions].length) {
+    if (items.deleted.length) {
       await step.run('remove-elba-items', async () => {
-        await elba.dataProtection.deleteObjects({
-          ids: [...deleted, ...itemIdsWithoutPermissions],
-        });
+        await elba.dataProtection.deleteObjects({ ids: items.deleted });
       });
     }
 
@@ -139,24 +134,6 @@ export const updateItems = inngest.createFunction(
 
       return { status: 'ongoing' };
     }
-
-    if (!newDeltaToken) {
-      throw new NonRetriableError('Delta token not found!');
-    }
-
-    await db
-      .update(sharePointTable)
-      .set({
-        delta: newDeltaToken,
-      })
-      .where(
-        and(
-          eq(sharePointTable.organisationId, record.organisationId),
-          eq(sharePointTable.siteId, siteId),
-          eq(sharePointTable.driveId, driveId),
-          eq(sharePointTable.subscriptionId, subscriptionId)
-        )
-      );
 
     return { status: 'completed' };
   }

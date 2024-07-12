@@ -4,7 +4,7 @@ import { db } from '@/database/client';
 import { organisationsTable, sharePointTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
-import { getDelta } from '@/connectors/microsoft/delta/get-delta';
+import { getDeltaItems } from '@/connectors/microsoft/delta/get-delta';
 import { env } from '@/common/env';
 import { subscriptionToDrive } from '../subscriptions/subscription-to-drives';
 
@@ -46,7 +46,7 @@ export const initializeDelta = inngest.createFunction(
     }
 
     const { nextSkipToken, newDeltaToken } = await step.run('paginate', async () => {
-      const result = await getDelta({
+      const result = await getDeltaItems({
         token: await decrypt(organisation.token),
         siteId,
         driveId,

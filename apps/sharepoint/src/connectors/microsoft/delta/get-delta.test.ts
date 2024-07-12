@@ -3,7 +3,7 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import { getDelta, type Delta } from './get-delta';
+import { getDeltaItems, type Delta } from './get-delta';
 
 const siteId = 'some-site-id';
 const driveId = 'some-drive-id';
@@ -86,7 +86,7 @@ describe('delta connector', () => {
 
     test('should return delta and nextSkipToken when the data is valid and their is another page', async () => {
       await expect(
-        getDelta({
+        getDeltaItems({
           token: validToken,
           siteId,
           driveId,
@@ -103,7 +103,7 @@ describe('delta connector', () => {
 
     test('should return delta and no nextSkipToken and newDeltaToken when the data is valid and their is no next page', async () => {
       await expect(
-        getDelta({
+        getDeltaItems({
           token: validToken,
           siteId,
           driveId,
@@ -120,7 +120,7 @@ describe('delta connector', () => {
 
     test('should return full delta object when data is valid and is not first sync', async () => {
       await expect(
-        getDelta({
+        getDeltaItems({
           token: validToken,
           siteId,
           driveId,
@@ -141,7 +141,7 @@ describe('delta connector', () => {
 
     test('should throws when the token is invalid', async () => {
       await expect(
-        getDelta({
+        getDeltaItems({
           token: 'invalid-token',
           siteId,
           driveId,
@@ -154,7 +154,7 @@ describe('delta connector', () => {
 
     test('should throws when the siteId is invalid', async () => {
       await expect(
-        getDelta({
+        getDeltaItems({
           token: validToken,
           siteId: 'some-invalid-id',
           driveId,
@@ -167,7 +167,7 @@ describe('delta connector', () => {
 
     test('should throws when the driveId is invalid', async () => {
       await expect(
-        getDelta({
+        getDeltaItems({
           token: validToken,
           siteId,
           driveId: 'some-invalid-id',

@@ -10,7 +10,6 @@ import type {
   CombinedLinkPermissions,
   ItemWithPermissions,
   ItemsWithPermissionsParsed,
-  ParsedDelta,
   SharepointDeletePermission,
 } from './types';
 
@@ -205,19 +204,6 @@ export const formatDataProtectionObjects = ({
   }
 
   return objects;
-};
-
-export const parsedDeltaState = (deltaItems: Delta[]): ParsedDelta => {
-  // TODO: fix variable names & types
-  const items: ParsedDelta = { deleted: [], updated: [] };
-  for (const item of deltaItems) {
-    if (item.deleted?.state === 'deleted') {
-      items.deleted.push(item.id);
-    } else {
-      items.updated.push(item as MicrosoftDriveItem); // TODO: fix this
-    }
-  }
-  return items;
 };
 
 // TODO: rename this function
