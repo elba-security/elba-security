@@ -1,8 +1,8 @@
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
+import { getUsers } from '@/connectors/jumpcloud/users';
 import { encrypt } from '@/common/crypto';
-import { getUsers } from '@/connectors/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -15,18 +15,20 @@ export const registerOrganisation = async ({
   apiKey,
   region,
 }: SetupOrganisationParams) => {
-  const encodedApiKey = await encrypt(apiKey);
-
-  await getUsers({ apiKey, after: null, role: 'admin' });
+  await getUsers({ apiKey, after: 0, role: 'admin' });
+  const encryptedApiKey = await encrypt(apiKey);
 
   await db
-    .insert(Organisation)
-    .values({ id: organisationId, region, apiKey: encodedApiKey })
+    .insert(organisationsTable)
+    .values({
+      id: organisationId,
+      apiKey: encryptedApiKey,
+      region,
+    })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
-        region,
-        apiKey: encodedApiKey,
+        apiKey: encryptedApiKey,
       },
     });
 
@@ -38,12 +40,12 @@ export const registerOrganisation = async ({
         isFirstSync: true,
         syncStartedAt: Date.now(),
         role: 'admin',
-        page: null,
+        page: 0,
       },
     },
     // this will cancel scheduled token refresh if it exists
     {
-      name: 'jumpcloud/jumpcloud.elba_app.installed',
+      name: 'jumpcloud/app.installed',
       data: {
         organisationId,
         region,

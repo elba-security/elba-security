@@ -1,19 +1,18 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import * as userConnector from '@/connectors/users';
+import * as userConnector from '@/connectors/jumpcloud/users';
+import type { JumpcloudUser } from '@/connectors/jumpcloud/users';
+import { JumpcloudError } from '@/connectors/common/error';
 import { decrypt } from '@/common/crypto';
-import { JumpcloudError } from '@/connectors/commons/error';
-import { type JumpcloudUser } from '@/connectors/users';
 import { registerOrganisation } from './service';
 
-const apiKey = 'test-access-id';
+const apiKey = 'test-api-key';
 const region = 'us';
 const now = new Date();
-
-const validUsers: JumpcloudUser[] = Array.from({ length: 5 }, (_, i) => ({
+const validUsers: JumpcloudUser[] = Array.from({ length: 2 }, (_, i) => ({
   _id: '0442f541-45d2-487a-9e4b-de03ce4c559e',
   firstname: `firstname-${i}`,
   lastname: `lastname-${i}`,
@@ -22,11 +21,13 @@ const validUsers: JumpcloudUser[] = Array.from({ length: 5 }, (_, i) => ({
   email: `user-${i}@foo.bar`,
 }));
 
+const invalidUsers = [];
 const getUsersData = {
   validUsers,
-  invalidUsers: [],
+  invalidUsers,
   nextPage: null,
 };
+
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
   apiKey,
@@ -54,14 +55,16 @@ describe('registerOrganisation', () => {
         region,
       })
     ).resolves.toBeUndefined();
+
     // check if getUsers was called correctly
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey, after: null, role: 'admin' });
+    expect(getUsers).toBeCalledWith({ apiKey, after: 0, role: 'admin' });
+
     // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
     if (!storedOrganisation) {
       throw new JumpcloudError(`Organisation with ID ${organisation.id} not found.`);
     }
@@ -76,12 +79,12 @@ describe('registerOrganisation', () => {
           isFirstSync: true,
           organisationId: organisation.id,
           syncStartedAt: now.getTime(),
+          page: 0,
           role: 'admin',
-          page: null,
         },
       },
       {
-        name: 'jumpcloud/jumpcloud.elba_app.installed',
+        name: 'jumpcloud/app.installed',
         data: {
           organisationId: organisation.id,
           region,
@@ -94,9 +97,11 @@ describe('registerOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mocked the getUsers function
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
     // pre-insert an organisation to simulate an existing entry
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     await expect(
       registerOrganisation({
@@ -106,15 +111,14 @@ describe('registerOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    // check if getUsers was called correctly
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey, after: null, role: 'admin' });
+    expect(getUsers).toBeCalledWith({ apiKey, after: 0, role: 'admin' });
 
-    // check if the token in the database is updated
+    // check if the apiKey in the database is updated
     const [storedOrganisation] = await db
       .select()
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
 
     if (!storedOrganisation) {
       throw new JumpcloudError(`Organisation with ID ${organisation.id} not found.`);
@@ -130,12 +134,12 @@ describe('registerOrganisation', () => {
           isFirstSync: true,
           organisationId: organisation.id,
           syncStartedAt: now.getTime(),
+          page: 0,
           role: 'admin',
-          page: null,
         },
       },
       {
-        name: 'jumpcloud/jumpcloud.elba_app.installed',
+        name: 'jumpcloud/app.installed',
         data: {
           organisationId: organisation.id,
           region,

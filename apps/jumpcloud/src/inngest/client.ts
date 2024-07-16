@@ -1,7 +1,7 @@
 import { EventSchemas, Inngest } from 'inngest';
-import { sentryMiddleware } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { unauthorizedMiddleware } from './middlewares/unauthorized-middleware';
 
 export const inngest = new Inngest({
   id: 'jumpcloud',
@@ -11,20 +11,18 @@ export const inngest = new Inngest({
         organisationId: string;
         isFirstSync: boolean;
         syncStartedAt: number;
-        page: string | null;
+        page: number;
         role: 'admin' | 'member';
       };
     };
-    'jumpcloud/jumpcloud.elba_app.installed': {
+    'jumpcloud/app.installed': {
       data: {
         organisationId: string;
-        region: string;
       };
     };
-    'jumpcloud/jumpcloud.elba_app.uninstalled': {
+    'jumpcloud/app.uninstalled': {
       data: {
         organisationId: string;
-        region: string;
       };
     };
     'jumpcloud/users.delete.requested': {
@@ -34,6 +32,6 @@ export const inngest = new Inngest({
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware, sentryMiddleware],
+  middleware: [unauthorizedMiddleware, rateLimitMiddleware],
   logger,
 });
