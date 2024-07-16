@@ -67,7 +67,7 @@ export const syncItems = inngest.createFunction(
         })
       );
 
-      console.log(JSON.stringify(itemsPermissions, null, 2));
+      // console.log(JSON.stringify(itemsPermissions, null, 2));
 
       return { items: itemsPermissions, nextSkipToken: result.nextSkipToken };
     });

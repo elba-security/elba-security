@@ -50,33 +50,31 @@ export const updateItems = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with tenantId=${tenantId}`);
     }
 
-    const { items, nextSkipToken } = await step.run('delta-paginate', async () => {
-      const { newDeltaToken, ...result } = await getDeltaItems({
+    const { items, ...tokens } = await step.run('delta-paginate', async () => {
+      const result = await getDeltaItems({
         token: await decrypt(record.token),
         siteId,
         driveId,
-        isFirstSync: false,
         skipToken,
         deltaToken: record.delta,
       });
 
-      if (!newDeltaToken) {
-        throw new NonRetriableError('Delta token not found!');
+      // TODO: move this
+      if ('newDeltaToken' in result) {
+        await db
+          .update(sharePointTable)
+          .set({
+            delta: result.newDeltaToken,
+          })
+          .where(
+            and(
+              eq(sharePointTable.organisationId, record.organisationId),
+              eq(sharePointTable.siteId, siteId),
+              eq(sharePointTable.driveId, driveId),
+              eq(sharePointTable.subscriptionId, subscriptionId)
+            )
+          );
       }
-
-      await db
-        .update(sharePointTable)
-        .set({
-          delta: newDeltaToken,
-        })
-        .where(
-          and(
-            eq(sharePointTable.organisationId, record.organisationId),
-            eq(sharePointTable.siteId, siteId),
-            eq(sharePointTable.driveId, driveId),
-            eq(sharePointTable.subscriptionId, subscriptionId)
-          )
-        );
 
       return result;
     });
@@ -97,10 +95,11 @@ export const updateItems = inngest.createFunction(
           driveId,
         });
 
-        console.log(JSON.stringify({ itemsWithPermissions }, null, 2));
+        // console.log(JSON.stringify({ itemsWithPermissions }, null, 2));
         const { toDelete, toUpdate } = removeInheritedUpdate(itemsWithPermissions);
+        // TODO: handle toDelete? Either update every one of them either remove them
 
-        console.log(JSON.stringify({ toDelete, toUpdate }, null, 2));
+        // console.log(JSON.stringify({ toDelete, toUpdate }, null, 2));
 
         const dataProtectionItems = formatDataProtectionObjects({
           items: toUpdate,
@@ -109,7 +108,7 @@ export const updateItems = inngest.createFunction(
           parentPermissionIds: [], // TODO
         });
 
-        console.log(JSON.stringify({ dataProtectionItems }, null, 2));
+        // console.log(JSON.stringify({ dataProtectionItems }, null, 2));
 
         await elba.dataProtection.updateObjects({ objects: dataProtectionItems });
       });
@@ -121,12 +120,13 @@ export const updateItems = inngest.createFunction(
       });
     }
 
-    if (nextSkipToken) {
+    if ('nextSkipToken' in tokens) {
       await step.sendEvent('sync-next-delta-page', {
         name: 'sharepoint/update-items.triggered',
         data: {
           ...event.data,
-          skipToken: nextSkipToken,
+          skipToken: tokens.nextSkipToken,
+          // TODO: update this logic: what if another job is queued and executed before this one?
         },
       });
 

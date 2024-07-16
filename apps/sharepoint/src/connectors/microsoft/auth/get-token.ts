@@ -1,7 +1,11 @@
+import { z } from 'zod';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 
-type GetTokenResponseData = { access_token: string; expires_in: number };
+const microsoftTokenSchema = z.object({
+  access_token: z.string(),
+  expires_in: z.number(),
+});
 
 export const getToken = async (tenantId: string) => {
   const response = await fetch(`${env.MICROSOFT_AUTH_API_URL}/${tenantId}/oauth2/v2.0/token`, {
@@ -21,10 +25,12 @@ export const getToken = async (tenantId: string) => {
     throw new MicrosoftError('Could not retrieve token', { response });
   }
 
-  const data = (await response.json()) as GetTokenResponseData;
+  const data: unknown = await response.json();
+  const result = microsoftTokenSchema.safeParse(data);
+  if (!result.success) {
+    console.error('Failed to parse token response', { data, error: result.error });
+    throw new Error('Could not parse token');
+  }
 
-  return {
-    token: data.access_token,
-    expiresIn: data.expires_in,
-  };
+  return { token: result.data.access_token, expiresIn: result.data.expires_in };
 };

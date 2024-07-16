@@ -1,14 +1,10 @@
-import { logger } from '@elba-security/logger';
 import { z } from 'zod';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import {
-  getNextSkipTokenFromNextLink,
-  microsoftPaginatedResponseSchema,
-} from '../commons/pagination';
+import { microsoftPaginatedResponseSchema } from '../commons/pagination';
 
 const sharepointUserPermissionSchema = z.object({
-  displayName: z.string(),
+  // displayName: z.string(),
   id: z.string().optional(), // When sharing to a non Microsoft user email address, the id is not present
   email: z.string(),
 });
@@ -22,9 +18,11 @@ const sharepointPermissionSchema = z.object({
       webUrl: z.string().optional(),
     })
     .optional(),
-  grantedToV2: z.object({
-    user: sharepointUserPermissionSchema.optional(),
-  }),
+  grantedToV2: z
+    .object({
+      user: sharepointUserPermissionSchema.optional(),
+    })
+    .optional(),
   grantedToIdentitiesV2: z
     .array(
       z.object({
@@ -34,36 +32,7 @@ const sharepointPermissionSchema = z.object({
     .optional(),
 });
 
-type SharepointPermission = z.infer<typeof sharepointPermissionSchema>;
-
-// TODO: this should be tied to api response!
-// export const validateAndParsePermission = (data: Permission) => {
-//   const result = permissionSchema.safeParse(data);
-
-//   if (!result.success) {
-//     console.error('INVALID permission', data);
-//     return null;
-//   }
-
-//   const grantedToV2ParseResult = grantedToV2Schema.safeParse(result.data.grantedToV2);
-//   const grantedToIdentitiesV2ParseResult = grantedToIdentitiesV2Schema.safeParse(
-//     result.data.grantedToIdentitiesV2
-//   );
-//   if (grantedToV2ParseResult.success) {
-//     return {
-//       ...result.data,
-//       grantedToV2: grantedToV2ParseResult.data,
-//     };
-//   }
-//   if (grantedToIdentitiesV2ParseResult.success) {
-//     return {
-//       ...result.data,
-//       grantedToIdentitiesV2: grantedToIdentitiesV2ParseResult.data,
-//     };
-//   }
-//   logger.warn('Retrieved permission is invalid, or empty permissions array', result);
-//   return null;
-// };
+export type SharepointPermission = z.infer<typeof sharepointPermissionSchema>;
 
 type GetPermissionsParams = {
   token: string;
@@ -145,11 +114,15 @@ export const getItemPermissions = async ({
     if (parsedPermission.success) {
       permissions.push(parsedPermission.data);
     } else {
-      console.error('Failed to parse permission while getting item permissions', permission);
+      console.error('Failed to parse permission while getting item permissions', {
+        permission,
+        error: parsedPermission.error,
+      });
     }
   }
 
-  const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
+  // const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
+  const nextSkipToken = result.data['@odata.nextLink'];
 
   return { permissions, nextSkipToken };
 };
@@ -261,7 +234,10 @@ export const getPermissionDetails = async ({
   const parsedPermission = sharepointPermissionSchema.safeParse(data);
   if (!parsedPermission.success) {
     // TODO
-    console.error('Failed to parse permission while getting permission details', data);
+    console.error('Failed to parse permission while getting permission details', {
+      data,
+      error: parsedPermission.error,
+    });
     throw new Error('Failed to parse permission');
   }
   return parsedPermission.data;

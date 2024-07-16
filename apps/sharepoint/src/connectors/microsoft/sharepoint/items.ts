@@ -1,10 +1,7 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import {
-  getNextSkipTokenFromNextLink,
-  microsoftPaginatedResponseSchema,
-} from '../commons/pagination';
+import { microsoftPaginatedResponseSchema } from '../commons/pagination';
 
 export const driveItemSchema = z.object({
   id: z.string(),
@@ -64,20 +61,19 @@ export const getItems = async ({ token, siteId, driveId, folderId, skipToken }: 
   const result = microsoftPaginatedResponseSchema.safeParse(data);
   if (!result.success) {
     // TODO
-    console.error('Failed to parse paginated items response', data);
+    console.error('Failed to parse paginated items response', { data, error: result.error });
     throw new Error('Could not parse items');
   }
 
-  const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
   const items: MicrosoftDriveItem[] = [];
   for (const item of result.data.value) {
     const parsedItem = driveItemSchema.safeParse(item);
     if (!parsedItem.success) {
-      console.error('Failed to parse item while getting items', item);
+      console.error('Failed to parse item while getting items', { item, error: parsedItem.error });
     } else {
       items.push(parsedItem.data);
     }
   }
 
-  return { items, nextSkipToken };
+  return { items, nextSkipToken: result.data['@odata.nextLink'] };
 };

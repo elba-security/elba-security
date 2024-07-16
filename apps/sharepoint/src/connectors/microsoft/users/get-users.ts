@@ -1,10 +1,7 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import {
-  getNextSkipTokenFromNextLink,
-  microsoftPaginatedResponseSchema,
-} from '../commons/pagination';
+import { microsoftPaginatedResponseSchema } from '../commons/pagination';
 
 const userSchema = z.object({
   id: z.string(),
@@ -60,7 +57,8 @@ export const getUsers = async ({ token, tenantId, skipToken }: GetUsersParams) =
     }
   }
 
-  const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
+  const nextSkipToken = result.data['@odata.nextLink'];
+  // const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
 
   return { validUsers, invalidUsers, nextSkipToken };
 };

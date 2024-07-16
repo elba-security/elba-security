@@ -44,12 +44,11 @@ export const initializeDelta = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with itemId=${organisationId}`);
     }
 
-    const { nextSkipToken, newDeltaToken } = await step.run('paginate', async () => {
+    const tokens = await step.run('paginate', async () => {
       const result = await getDeltaItems({
         token: await decrypt(organisation.token),
         siteId,
         driveId,
-        isFirstSync,
         skipToken,
         deltaToken: null,
       });
@@ -57,7 +56,7 @@ export const initializeDelta = inngest.createFunction(
       return result;
     });
 
-    if (nextSkipToken) {
+    if ('nextSkipToken' in tokens) {
       await step.sendEvent('sync-next-delta-page', {
         name: 'sharepoint/data_protection.initialize_delta.requested',
         data: {
@@ -65,15 +64,11 @@ export const initializeDelta = inngest.createFunction(
           siteId,
           driveId,
           isFirstSync,
-          skipToken: nextSkipToken,
+          skipToken: tokens.nextSkipToken,
         },
       });
 
       return { status: 'ongoing' };
-    }
-
-    if (!newDeltaToken) {
-      throw new NonRetriableError('Delta token not found!');
     }
 
     const data = await step.invoke('sharepoint/drives.subscription.triggered', {
@@ -95,7 +90,7 @@ export const initializeDelta = inngest.createFunction(
         subscriptionId: data.id,
         subscriptionExpirationDate: data.expirationDateTime,
         subscriptionClientState: data.clientState,
-        delta: newDeltaToken,
+        delta: tokens.newDeltaToken,
       })
       .onConflictDoUpdate({
         target: [sharePointTable.organisationId, sharePointTable.driveId],

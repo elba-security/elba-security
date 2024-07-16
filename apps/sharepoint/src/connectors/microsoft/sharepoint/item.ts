@@ -1,6 +1,6 @@
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import type { MicrosoftDriveItem } from './items';
+import { driveItemSchema, type MicrosoftDriveItem } from './items';
 
 type GetItemParams = {
   itemId: string;
@@ -18,7 +18,7 @@ export const getItem = async ({
   const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/items/${itemId}`);
   url.searchParams.append(
     '$select',
-    'id,folder,name,webUrl,createdBy,parentReference,lastModifiedDateTime' // TODO: needs parentReference?
+    Object.keys(driveItemSchema.shape).join(',') // TODO: needs parentReference?
   );
 
   const response = await fetch(url, {
@@ -35,7 +35,7 @@ export const getItem = async ({
     throw new MicrosoftError('Could not retrieve item', { response });
   }
 
-  const item = (await response.json()) as MicrosoftDriveItem;
+  const data: unknown = await response.json(); // TODO
 
-  return item;
+  return driveItemSchema.parse(data); // TODO
 };

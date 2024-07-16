@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
   if (!parseResult.success) {
     // TODO: log
-    return new NextResponse();
+    return new NextResponse('', { status: 202 });
   }
 
   const { value } = parseResult.data;
@@ -40,7 +40,8 @@ export async function POST(req: NextRequest) {
   });
 
   if (!isValid) {
-    return NextResponse.json({ message: 'Invalid data' }, { status: 404 });
+    // TODO: log
+    return new NextResponse('', { status: 202 });
   }
 
   await handleSubscriptionEvent(

@@ -42,16 +42,17 @@ export const getSites = async ({ token, skipToken }: GetSitesParams) => {
   const result = microsoftPaginatedResponseSchema.safeParse(data);
   if (!result.success) {
     // TODO
-    console.error('Failed to parse sites', result);
+    console.error('Failed to parse sites', { data, error: result.error });
     throw new Error('Could not parse sites');
   }
 
-  const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
+  const nextSkipToken = result.data['@odata.nextLink'];
+  // const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
   const siteIds: string[] = [];
   for (const site of result.data.value) {
     const parsedSite = siteSchema.safeParse(site);
     if (!parsedSite.success) {
-      console.error('Failed to parse site while getting sites', site);
+      console.error('Failed to parse site while getting sites', { site, error: parsedSite.error });
     } else {
       siteIds.push(parsedSite.data.id);
     }

@@ -61,9 +61,9 @@ export const createSubscription = async ({
     throw new MicrosoftError('Could not retrieve create subscription', { response });
   }
 
-  const data = (await response.json()) as Subscription;
+  const data: unknown = await response.json();
 
-  return subscriptionSchema.parse(data);
+  return subscriptionSchema.parse(data); // TODO
 };
 
 export const refreshSubscription = async (encryptToken: string, subscriptionId: string) => {
@@ -84,19 +84,23 @@ export const refreshSubscription = async (encryptToken: string, subscriptionId: 
     throw new MicrosoftError('Could not retrieve create subscription', { response });
   }
 
-  const data = (await response.json()) as Subscription;
+  const data: unknown = await response.json();
 
-  return subscriptionSchema.parse(data);
+  return subscriptionSchema.parse(data); // TODO
 };
 
 export const removeSubscription = async (encryptToken: string, subscriptionId: string) => {
   const token = await decrypt(encryptToken);
 
-  await fetch(`${env.MICROSOFT_API_URL}/subscriptions/${subscriptionId}`, {
+  const response = await fetch(`${env.MICROSOFT_API_URL}/subscriptions/${subscriptionId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
   });
+
+  if (!response.ok) {
+    throw new MicrosoftError('Could not remove subscription', { response });
+  }
 };

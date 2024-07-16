@@ -1,98 +1,73 @@
 import { z } from 'zod';
 import { MicrosoftError } from '@/common/error';
 import { env } from '@/common/env';
-import {
-  getTokenFromDeltaLinks,
-  microsoftDeltaPaginatedResponseSchema,
-} from '../commons/delta-links-parse';
-import type { MicrosoftDriveItem } from '../sharepoint/items';
+import { driveItemSchema, type MicrosoftDriveItem } from '../sharepoint/items';
+import { basePaginationSchema } from '../commons/pagination';
 
-// TODO: this schema should extend drive item
-const deltaSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  webUrl: z.string(),
-  createdBy: z.object({
-    user: z.object({
-      email: z.string().optional(),
-      id: z.string().optional(),
-      displayName: z.string(),
-    }),
+const deltaTokenSchema = z
+  .string()
+  .url()
+  .transform((link) => {
+    const url = new URL(link);
+    return url.searchParams.get('token');
+  })
+  .refine((token) => token !== null);
+
+const microsoftDeltaPaginatedResponseSchema = z.union([
+  basePaginationSchema.extend({
+    '@odata.deltaLink': deltaTokenSchema,
   }),
-  lastModifiedDateTime: z.string(),
-  folder: z
-    .object({
-      childCount: z.number(),
-    })
-    .optional(),
-  parentReference: z.object({
-    // TODO: needs this?
-    id: z.string().optional(),
+  basePaginationSchema.extend({
+    '@odata.nextLink': deltaTokenSchema,
   }),
+]);
+
+const deltaSchema = driveItemSchema.extend({
   deleted: z.object({ state: z.string() }).optional(),
 });
 
-// const deltaSchema = driveItemSchema.extend({
-//   deleted: z.object({ state: z.string() }).optional(),
-// });
-
 export type Delta = z.infer<typeof deltaSchema>;
-
-// deltaToken appears only on last pagination page.
-// So I should fetch all previous pages and I should get the deltaToken, it should be there in all cases.
-// So if I have no skipToken, I should have deltaToken then.
 
 export const getDeltaItems = async ({
   token,
   siteId,
   driveId,
-  isFirstSync,
   skipToken,
   deltaToken,
 }: {
   token: string;
   siteId: string;
   driveId: string;
-  isFirstSync: boolean | null;
   skipToken: string | null;
   deltaToken: string | null;
 }) => {
   const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/root/delta`);
 
-  if (isFirstSync) {
-    url.searchParams.append('$select', 'id');
-    url.searchParams.append('$top', String(1000)); // TODO: why?
-  } else {
-    url.searchParams.append('$top', String(env.MICROSOFT_DATA_PROTECTION_SYNC_CHUNK_SIZE));
-  }
-  if (skipToken) {
-    url.searchParams.append('token', skipToken);
-  }
-  if (deltaToken) {
-    url.searchParams.append('token', deltaToken);
-  }
+  url.searchParams.append('token', skipToken || deltaToken || 'latest');
+  url.searchParams.append('$top', '1'); // TODO
+  // url.searchParams.append('$top', String(env.MICROSOFT_DATA_PROTECTION_SYNC_CHUNK_SIZE));
 
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
+      Prefer: 'deltashowremovedasdeleted, deltatraversepermissiongaps, deltashowsharingchanges',
     },
   });
+
+  console.log('------- DELTA RESPONSE -------');
+  console.log(await response.clone().text());
 
   if (!response.ok) {
     throw new MicrosoftError('Could not retrieve delta', { response });
   }
 
-  console.log({ responseData: await response.clone().text() });
   const data: unknown = await response.json();
   const result = microsoftDeltaPaginatedResponseSchema.safeParse(data);
   if (!result.success) {
     // TODO
-    console.error('Failed to parse paginated delta response', data);
+    console.error('Failed to parse paginated delta response', { data, error: result.error });
     throw new Error('Failed to parse delta paginated response');
   }
-
-  const nextSkipToken = getTokenFromDeltaLinks(result.data['@odata.nextLink']);
-  const newDeltaToken = getTokenFromDeltaLinks(result.data['@odata.deltaLink']);
 
   const items: { deleted: string[]; updated: MicrosoftDriveItem[] } = { deleted: [], updated: [] };
   for (const deltaItem of result.data.value) {
@@ -105,10 +80,14 @@ export const getDeltaItems = async ({
         items.updated.push(item.data);
       }
     } else {
-      console.log('Failed to parse delta item', deltaItem);
+      console.log('Failed to parse delta item', { deltaItem, error: item.error });
       // TODO: log or whatever
     }
   }
 
-  return { items, nextSkipToken, newDeltaToken };
+  if ('@odata.nextLink' in result.data) {
+    return { items, nextSkipToken: result.data['@odata.nextLink'] };
+  }
+
+  return { items, newDeltaToken: result.data['@odata.deltaLink'] };
 };

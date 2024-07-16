@@ -40,10 +40,10 @@ export async function POST(req: NextRequest) {
 
   if (!isValid) {
     // TODO: log
-    return NextResponse.json({ message: 'Invalid data' }, { status: 404 });
+    return new NextResponse('', { status: 202 });
   }
 
   await handleWebhook(value);
 
-  return NextResponse.json({}, { status: 202 });
+  return new NextResponse('', { status: 202 });
 }
