@@ -3,6 +3,7 @@ import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 import {
   getNextSkipTokenFromNextLink,
+  microsoftPaginatedResponseSchema,
   type MicrosoftPaginatedResponse,
 } from '../commons/pagination';
 
@@ -21,7 +22,7 @@ export const getSites = async ({ token, skipToken }: GetSitesParams) => {
   const url = new URL(`${env.MICROSOFT_API_URL}/sites`);
   url.searchParams.append('search', '*');
   url.searchParams.append('$top', String(env.MICROSOFT_DATA_PROTECTION_SYNC_CHUNK_SIZE));
-  url.searchParams.append('$select', 'id');
+  url.searchParams.append('$select', Object.keys(siteSchema.shape).join(','));
 
   if (skipToken) {
     url.searchParams.append('$skiptoken', skipToken);
@@ -37,9 +38,24 @@ export const getSites = async ({ token, skipToken }: GetSitesParams) => {
     throw new MicrosoftError('Could not retrieve sites', { response });
   }
 
-  const data = (await response.json()) as MicrosoftPaginatedResponse<MicrosoftSite>;
+  const data: unknown = await response.json();
+  const result = microsoftPaginatedResponseSchema.safeParse(data);
+  if (!result.success) {
+    // TODO
+    console.error('Failed to parse sites', result);
+    throw new Error('Could not parse sites');
+  }
 
-  const nextSkipToken = getNextSkipTokenFromNextLink(data['@odata.nextLink']);
+  const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
+  const siteIds: string[] = [];
+  for (const site of result.data.value) {
+    const parsedSite = siteSchema.safeParse(site);
+    if (!parsedSite.success) {
+      console.error('Failed to parse site while getting sites', site);
+    } else {
+      siteIds.push(parsedSite.data.id);
+    }
+  }
 
-  return { sites: data.value, nextSkipToken };
+  return { siteIds, nextSkipToken };
 };

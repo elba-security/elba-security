@@ -3,7 +3,7 @@ import { MicrosoftError } from '@/common/error';
 import { env } from '@/common/env';
 import {
   getTokenFromDeltaLinks,
-  type MicrosoftDeltaPaginatedResponse,
+  microsoftDeltaPaginatedResponseSchema,
 } from '../commons/delta-links-parse';
 import type { MicrosoftDriveItem } from '../sharepoint/items';
 
@@ -83,13 +83,19 @@ export const getDeltaItems = async ({
   }
 
   console.log({ responseData: await response.clone().text() });
-  const data = (await response.json()) as MicrosoftDeltaPaginatedResponse<Delta>;
+  const data: unknown = await response.json();
+  const result = microsoftDeltaPaginatedResponseSchema.safeParse(data);
+  if (!result.success) {
+    // TODO
+    console.error('Failed to parse paginated delta response', data);
+    throw new Error('Failed to parse delta paginated response');
+  }
 
-  const nextSkipToken = getTokenFromDeltaLinks(data['@odata.nextLink']);
-  const newDeltaToken = getTokenFromDeltaLinks(data['@odata.deltaLink']);
+  const nextSkipToken = getTokenFromDeltaLinks(result.data['@odata.nextLink']);
+  const newDeltaToken = getTokenFromDeltaLinks(result.data['@odata.deltaLink']);
 
   const items: { deleted: string[]; updated: MicrosoftDriveItem[] } = { deleted: [], updated: [] };
-  for (const deltaItem of data.value) {
+  for (const deltaItem of result.data.value) {
     const item = deltaSchema.safeParse(deltaItem);
     if (item.success) {
       if (item.data.deleted) {

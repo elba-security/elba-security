@@ -3,7 +3,7 @@ import { z } from 'zod';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import {
   getAllItemPermissions,
-  type MicrosoftDriveItemPermission,
+  type SharepointPermission,
 } from '@/connectors/microsoft/sharepoint/permissions';
 import type {
   CombinedLinkPermissions,
@@ -50,7 +50,7 @@ export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
   return chunks;
 };
 
-export const formatPermissions = (permissions: MicrosoftDriveItemPermission[]) => {
+export const formatPermissions = (permissions: SharepointPermission[]) => {
   const usersPermissions = new Map<string, UserPermissionMetadata & { userId?: string }>();
   const anyonePermissionIds = new Set<string>();
 
@@ -229,7 +229,7 @@ export const removeInheritedUpdate = (items: ItemWithPermissions[]): ItemsWithPe
 
     // TODO: ignore root folder?
 
-    const nonInheritedPermissions: MicrosoftDriveItemPermission[] = [];
+    const nonInheritedPermissions: SharepointPermission[] = [];
     for (const permission of permissions) {
       if (!parentPermissions || !parentPermissions.has(permission.id)) {
         nonInheritedPermissions.push(permission);

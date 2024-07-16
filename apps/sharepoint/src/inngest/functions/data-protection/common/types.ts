@@ -1,6 +1,6 @@
 import type { DataProtectionObjectPermission } from '@elba-security/sdk';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
-import type { MicrosoftDriveItemPermission } from '@/connectors/microsoft/sharepoint/permissions';
+import type { SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
 import type {
   UserPermissionMetadata,
   AnyonePermissionMetadata,
@@ -9,7 +9,7 @@ import type {
 
 export type ItemWithPermissions = {
   item: MicrosoftDriveItem;
-  permissions: MicrosoftDriveItemPermission[];
+  permissions: SharepointPermission[];
 };
 
 export type Folder = {

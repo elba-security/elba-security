@@ -5,7 +5,7 @@ import { env } from '@/common/env';
 import * as itemsConnector from '@/connectors/microsoft/sharepoint/items';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
-import type { MicrosoftDriveItemPermission } from '@/connectors/microsoft/sharepoint/permissions';
+import type { SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
 import { encrypt } from '@/common/crypto';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
@@ -60,7 +60,7 @@ const groupedItems: MicrosoftDriveItem[] = Array.from({ length: itemsCount }, (_
   };
 });
 
-const mockPermissions = (itemCount: number): MicrosoftDriveItemPermission[] => {
+const mockPermissions = (itemCount: number): SharepointPermission[] => {
   return Array.from({ length: itemCount }, (_, i) => {
     if (i === 0 || i < 2) {
       return {
@@ -216,7 +216,7 @@ describe('sync-items', () => {
       item,
       permissions: permissions.map((permission) =>
         permissionsConnector.validateAndParsePermission(
-          permission as unknown as MicrosoftDriveItemPermission
+          permission as unknown as SharepointPermission
         )
       ),
     }));
@@ -344,7 +344,7 @@ describe('sync-items', () => {
       item,
       permissions: mockPermissions(itemsCount).map((permission) =>
         permissionsConnector.validateAndParsePermission(
-          permission as unknown as MicrosoftDriveItemPermission
+          permission as unknown as SharepointPermission
         )
       ),
     }));
@@ -431,7 +431,7 @@ describe('sync-items', () => {
       item,
       permissions: permissions.map((permission) =>
         permissionsConnector.validateAndParsePermission(
-          permission as unknown as MicrosoftDriveItemPermission
+          permission as unknown as SharepointPermission
         )
       ),
     }));

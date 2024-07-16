@@ -3,7 +3,7 @@ import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 import {
   getNextSkipTokenFromNextLink,
-  type MicrosoftPaginatedResponse,
+  microsoftPaginatedResponseSchema,
 } from '../commons/pagination';
 
 const driveSchema = z.object({
@@ -37,9 +37,24 @@ export const getDrives = async ({ token, siteId, skipToken }: GetDrivesParams) =
     throw new MicrosoftError('Could not retrieve drives', { response });
   }
 
-  const data = (await response.json()) as MicrosoftPaginatedResponse<MicrosoftDrive>;
+  const data: unknown = await response.json();
+  const result = microsoftPaginatedResponseSchema.safeParse(data);
+  if (!result.success) {
+    // TODO
+    console.error('Failed to parse paginated drives response', data);
+    throw new Error('Could not parse drives');
+  }
 
-  const nextSkipToken = getNextSkipTokenFromNextLink(data['@odata.nextLink']);
+  const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
+  const driveIds: string[] = [];
+  for (const drive of result.data.value) {
+    const parsedDrive = driveSchema.safeParse(drive);
+    if (parsedDrive.success) {
+      driveIds.push(parsedDrive.data.id);
+    } else {
+      console.error('Failed to parse drive while getting drives', drive);
+    }
+  }
 
-  return { drives: data.value, nextSkipToken };
+  return { driveIds, nextSkipToken };
 };

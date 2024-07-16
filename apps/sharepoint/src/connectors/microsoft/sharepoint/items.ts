@@ -3,7 +3,7 @@ import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 import {
   getNextSkipTokenFromNextLink,
-  type MicrosoftPaginatedResponse,
+  microsoftPaginatedResponseSchema,
 } from '../commons/pagination';
 
 export const driveItemSchema = z.object({
@@ -44,10 +44,7 @@ export const getItems = async ({ token, siteId, driveId, folderId, skipToken }: 
 
   const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/${urlEnding}`);
   url.searchParams.append('$top', String(env.MICROSOFT_DATA_PROTECTION_ITEM_SYNC_SIZE));
-  url.searchParams.append(
-    '$select',
-    'id,folder,name,webUrl,createdBy,parentReference,lastModifiedDateTime'
-  );
+  url.searchParams.append('$select', Object.keys(driveItemSchema.shape).join(','));
 
   if (skipToken) {
     url.searchParams.append('$skiptoken', skipToken);
@@ -63,9 +60,24 @@ export const getItems = async ({ token, siteId, driveId, folderId, skipToken }: 
     throw new MicrosoftError('Could not retrieve items', { response });
   }
 
-  const data = (await response.json()) as MicrosoftPaginatedResponse<MicrosoftDriveItem>;
+  const data: unknown = await response.json();
+  const result = microsoftPaginatedResponseSchema.safeParse(data);
+  if (!result.success) {
+    // TODO
+    console.error('Failed to parse paginated items response', data);
+    throw new Error('Could not parse items');
+  }
 
-  const nextSkipToken = getNextSkipTokenFromNextLink(data['@odata.nextLink']);
+  const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
+  const items: MicrosoftDriveItem[] = [];
+  for (const item of result.data.value) {
+    const parsedItem = driveItemSchema.safeParse(item);
+    if (!parsedItem.success) {
+      console.error('Failed to parse item while getting items', item);
+    } else {
+      items.push(parsedItem.data);
+    }
+  }
 
-  return { items: data.value.map((item) => driveItemSchema.parse(item)), nextSkipToken };
+  return { items, nextSkipToken };
 };

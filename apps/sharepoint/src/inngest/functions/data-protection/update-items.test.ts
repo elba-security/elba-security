@@ -6,7 +6,7 @@ import { organisationsTable, sharePointTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { env } from '@/common/env';
-import type { MicrosoftDriveItemPermission } from '@/connectors/microsoft/sharepoint/permissions';
+import type { SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
 import type { Delta } from '@/connectors/microsoft/delta/get-delta';
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
 import * as deltaConnector from '@/connectors/microsoft/delta/get-delta';
@@ -80,7 +80,7 @@ const items: Delta[] = Array.from({ length: itemLength }, (_, i) => {
   };
 });
 
-const mockPermissions = (itemCount: number): MicrosoftDriveItemPermission[] => {
+const mockPermissions = (itemCount: number): SharepointPermission[] => {
   return Array.from({ length: itemCount }, (_, i) => {
     if (i === 0 || i < 2) {
       return {
@@ -227,7 +227,7 @@ describe('update-item-and-permissions', () => {
       item,
       permissions: mockPermissions(index <= updatedLength / 2 ? 4 : 6).map((permission) =>
         permissionsConnector.validateAndParsePermission(
-          permission as unknown as MicrosoftDriveItemPermission
+          permission as unknown as SharepointPermission
         )
       ),
     })) as ItemWithPermissions[];

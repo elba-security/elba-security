@@ -4,45 +4,16 @@ import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 import {
   getNextSkipTokenFromNextLink,
-  type MicrosoftPaginatedResponse,
+  microsoftPaginatedResponseSchema,
 } from '../commons/pagination';
 
-const grantedUserSchema = z.object({
+const sharepointUserPermissionSchema = z.object({
   displayName: z.string(),
-  id: z.string(),
+  id: z.string().optional(), // When sharing to a non Microsoft user email address, the id is not present
   email: z.string(),
 });
 
-const grantedToV2Schema = z.object({
-  user: grantedUserSchema,
-});
-
-const grantedToIdentitiesV2Schema = z
-  .array(
-    z
-      .object({
-        user: grantedUserSchema.optional(),
-      })
-      .optional()
-  )
-  .transform((val, ctx) => {
-    if (!val.length) return [];
-
-    const filtered = val.filter((el) => el && Object.keys(el).length);
-
-    if (!filtered.length) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'No user permissions in array',
-      });
-
-      return z.NEVER;
-    }
-
-    return filtered;
-  });
-
-const basePSchema = z.object({
+const sharepointPermissionSchema = z.object({
   id: z.string(),
   roles: z.array(z.string()),
   link: z
@@ -51,46 +22,48 @@ const basePSchema = z.object({
       webUrl: z.string().optional(),
     })
     .optional(),
-  grantedToV2: grantedToV2Schema.optional(),
-  grantedToIdentitiesV2: grantedToIdentitiesV2Schema.optional(),
+  grantedToV2: z.object({
+    user: sharepointUserPermissionSchema.optional(),
+  }),
+  grantedToIdentitiesV2: z
+    .array(
+      z.object({
+        user: sharepointUserPermissionSchema.optional(),
+      })
+    )
+    .optional(),
 });
 
+type SharepointPermission = z.infer<typeof sharepointPermissionSchema>;
+
 // TODO: this should be tied to api response!
-export const validateAndParsePermission = (
-  data: z.infer<typeof basePSchema>
-): // TODO: fix these types
-| (Omit<z.infer<typeof basePSchema>, 'grantedToV2'> & {
-      grantedToV2: z.infer<typeof grantedToV2Schema>;
-    })
-  | (Omit<z.infer<typeof basePSchema>, 'grantedToIdentitiesV2'> & {
-      grantedToIdentitiesV2: z.infer<typeof grantedToIdentitiesV2Schema>;
-    })
-  | null => {
-  const result = basePSchema.safeParse(data);
+// export const validateAndParsePermission = (data: Permission) => {
+//   const result = permissionSchema.safeParse(data);
 
-  if (!result.success) {
-    return null;
-  }
+//   if (!result.success) {
+//     console.error('INVALID permission', data);
+//     return null;
+//   }
 
-  const grantedToV2ParseResult = grantedToV2Schema.safeParse(result.data.grantedToV2);
-  const grantedToIdentitiesV2ParseResult = grantedToIdentitiesV2Schema.safeParse(
-    result.data.grantedToIdentitiesV2
-  );
-  if (grantedToV2ParseResult.success) {
-    return {
-      ...result.data,
-      grantedToV2: grantedToV2ParseResult.data,
-    };
-  }
-  if (grantedToIdentitiesV2ParseResult.success) {
-    return {
-      ...result.data,
-      grantedToIdentitiesV2: grantedToIdentitiesV2ParseResult.data,
-    };
-  }
-  logger.warn('Retrieved permission is invalid, or empty permissions array', result);
-  return null;
-};
+//   const grantedToV2ParseResult = grantedToV2Schema.safeParse(result.data.grantedToV2);
+//   const grantedToIdentitiesV2ParseResult = grantedToIdentitiesV2Schema.safeParse(
+//     result.data.grantedToIdentitiesV2
+//   );
+//   if (grantedToV2ParseResult.success) {
+//     return {
+//       ...result.data,
+//       grantedToV2: grantedToV2ParseResult.data,
+//     };
+//   }
+//   if (grantedToIdentitiesV2ParseResult.success) {
+//     return {
+//       ...result.data,
+//       grantedToIdentitiesV2: grantedToIdentitiesV2ParseResult.data,
+//     };
+//   }
+//   logger.warn('Retrieved permission is invalid, or empty permissions array', result);
+//   return null;
+// };
 
 type GetPermissionsParams = {
   token: string;
@@ -108,8 +81,6 @@ type RevokeUserFromLinkPermissionParams = DeleteItemPermissionParams & {
   userEmails: string[];
 };
 
-export type MicrosoftDriveItemPermission = z.infer<typeof basePSchema>;
-
 // TODO: REFACTOR
 export const getAllItemPermissions = async ({
   token,
@@ -118,7 +89,7 @@ export const getAllItemPermissions = async ({
   itemId,
   skipToken = null,
 }: GetPermissionsParams) => {
-  const permissions: MicrosoftDriveItemPermission[] = [];
+  const permissions: SharepointPermission[] = [];
   let nextSkipToken;
   do {
     const result = await getItemPermissions({
@@ -129,12 +100,7 @@ export const getAllItemPermissions = async ({
       skipToken,
     });
     nextSkipToken = result.nextSkipToken;
-    for (const permission of result.permissions) {
-      const parsedPermission = validateAndParsePermission(permission);
-      if (parsedPermission) {
-        permissions.push(parsedPermission);
-      }
-    }
+    permissions.push(...result.permissions);
   } while (nextSkipToken);
 
   return permissions;
@@ -167,11 +133,25 @@ export const getItemPermissions = async ({
     throw new MicrosoftError('Could not retrieve permissions', { response });
   }
 
-  const data = (await response.json()) as MicrosoftPaginatedResponse<MicrosoftDriveItemPermission>;
+  const data: unknown = await response.json();
+  const result = microsoftPaginatedResponseSchema.safeParse(data);
+  if (!result.success) {
+    throw new Error('Failed to parse page');
+  }
 
-  const nextSkipToken = getNextSkipTokenFromNextLink(data['@odata.nextLink']);
+  const permissions: SharepointPermission[] = [];
+  for (const permission of result.data.value) {
+    const parsedPermission = sharepointPermissionSchema.safeParse(permission);
+    if (parsedPermission.success) {
+      permissions.push(parsedPermission.data);
+    } else {
+      console.error('Failed to parse permission while getting item permissions', permission);
+    }
+  }
 
-  return { permissions: data.value, nextSkipToken };
+  const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
+
+  return { permissions, nextSkipToken };
 };
 
 export const deleteItemPermission = async ({
@@ -239,7 +219,7 @@ export const revokeUsersFromLinkPermission = async ({
       if (permission.link?.scope === 'users' && permission.grantedToIdentitiesV2) {
         const userEmailsSet = new Set(userEmails);
         const hasMatchingEmail = permission.grantedToIdentitiesV2.some(
-          (p) => p.user?.email && userEmailsSet.has(p.user.email)
+          (identity) => identity.user?.email && userEmailsSet.has(identity.user.email)
         );
 
         if (!hasMatchingEmail) {
@@ -276,7 +256,13 @@ export const getPermissionDetails = async ({
     throw new MicrosoftError('Could not get permission', { response });
   }
 
-  const data = (await response.json()) as MicrosoftDriveItemPermission;
+  const data: unknown = await response.json();
 
-  return data;
+  const parsedPermission = sharepointPermissionSchema.safeParse(data);
+  if (!parsedPermission.success) {
+    // TODO
+    console.error('Failed to parse permission while getting permission details', data);
+    throw new Error('Failed to parse permission');
+  }
+  return parsedPermission.data;
 };

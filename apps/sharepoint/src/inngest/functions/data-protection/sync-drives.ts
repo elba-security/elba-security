@@ -46,7 +46,7 @@ export const syncDrives = inngest.createFunction(
 
     const token = await decrypt(organisation.token);
 
-    const { drives, nextSkipToken } = await step.run('paginate', async () => {
+    const { driveIds, nextSkipToken } = await step.run('paginate', async () => {
       const result = await getDrives({
         token,
         siteId,
@@ -56,8 +56,8 @@ export const syncDrives = inngest.createFunction(
       return result;
     });
 
-    if (drives.length) {
-      const eventsWait = drives.map(({ id }) =>
+    if (driveIds.length) {
+      const eventsWait = driveIds.map((id) =>
         step.waitForEvent(`wait-for-items-complete-${id}`, {
           event: 'sharepoint/items.sync.completed',
           timeout: '1d',
@@ -67,7 +67,7 @@ export const syncDrives = inngest.createFunction(
 
       await step.sendEvent(
         'items-sync-triggered',
-        drives.map(({ id }) => ({
+        driveIds.map((id) => ({
           name: 'sharepoint/items.sync.triggered',
           data: {
             siteId,

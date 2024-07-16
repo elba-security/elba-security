@@ -6,7 +6,7 @@ import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
-import type { MicrosoftDriveItemPermission } from '@/connectors/microsoft/sharepoint/permissions';
+import type { SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
 import { env } from '@/common/env';
 import { refreshItem } from './refresh-item';
@@ -42,7 +42,7 @@ const item: MicrosoftDriveItem = {
   lastModifiedDateTime: '2024-02-23T15:50:09Z',
 };
 
-const permissions: MicrosoftDriveItemPermission[] = Array.from({ length: 10 }, (_, i) => {
+const permissions: SharepointPermission[] = Array.from({ length: 10 }, (_, i) => {
   if (i === 0 || i < 2) {
     return {
       id: `permission-id-${i}`,
