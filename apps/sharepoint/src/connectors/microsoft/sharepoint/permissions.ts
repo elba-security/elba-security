@@ -239,7 +239,7 @@ export const revokeUsersFromLinkPermission = async ({
       if (permission.link?.scope === 'users' && permission.grantedToIdentitiesV2) {
         const userEmailsSet = new Set(userEmails);
         const hasMatchingEmail = permission.grantedToIdentitiesV2.some(
-          (p) => p?.user?.email && userEmailsSet.has(p.user.email)
+          (p) => p.user?.email && userEmailsSet.has(p.user.email)
         );
 
         if (!hasMatchingEmail) {

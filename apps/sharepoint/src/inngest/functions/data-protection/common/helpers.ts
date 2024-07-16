@@ -5,7 +5,6 @@ import {
   getAllItemPermissions,
   type MicrosoftDriveItemPermission,
 } from '@/connectors/microsoft/sharepoint/permissions';
-import type { Delta } from '@/connectors/microsoft/delta/get-delta';
 import type {
   CombinedLinkPermissions,
   ItemWithPermissions,
@@ -52,7 +51,7 @@ export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
 };
 
 export const formatPermissions = (permissions: MicrosoftDriveItemPermission[]) => {
-  const usersPermissions = new Map<string, UserPermissionMetadata>();
+  const usersPermissions = new Map<string, UserPermissionMetadata & { userId?: string }>();
   const anyonePermissionIds = new Set<string>();
 
   for (const permission of permissions) {
@@ -61,16 +60,17 @@ export const formatPermissions = (permissions: MicrosoftDriveItemPermission[]) =
     }
 
     if (permission.grantedToV2?.user) {
-      const userId = permission.grantedToV2.user.id;
+      const userEmail = permission.grantedToV2.user.email;
 
-      let userPermissions = usersPermissions.get(userId);
+      let userPermissions = usersPermissions.get(userEmail);
       if (!userPermissions) {
         userPermissions = {
           type: 'user',
+          userId: permission.grantedToV2.user.id,
           email: permission.grantedToV2.user.email,
           linksPermissionIds: [],
         };
-        usersPermissions.set(userId, userPermissions);
+        usersPermissions.set(userEmail, userPermissions);
       }
       userPermissions.directPermissionId = permission.id;
     }
@@ -80,16 +80,17 @@ export const formatPermissions = (permissions: MicrosoftDriveItemPermission[]) =
         if (!identity?.user) {
           continue;
         }
-        const userId = identity.user.id;
+        const userEmail = identity.user.email;
 
-        let userPermissions = usersPermissions.get(userId);
+        let userPermissions = usersPermissions.get(userEmail);
         if (!userPermissions) {
           userPermissions = {
             type: 'user',
+            userId: identity.user.id,
             email: identity.user.email,
             linksPermissionIds: [],
           };
-          usersPermissions.set(userId, userPermissions);
+          usersPermissions.set(userEmail, userPermissions);
         }
         userPermissions.linksPermissionIds.push(permission.id);
       }
@@ -109,11 +110,11 @@ export const formatPermissions = (permissions: MicrosoftDriveItemPermission[]) =
   }
 
   if (usersPermissions.size) {
-    for (const [userId, metadata] of usersPermissions.entries()) {
+    for (const [userEmail, { userId, ...metadata }] of usersPermissions.entries()) {
       elbaPermissions.push({
-        id: `user-${userId}`,
+        id: `user-${userId || userEmail}`,
         type: 'user',
-        email: metadata.email,
+        email: userEmail,
         userId,
         metadata,
       });
@@ -220,20 +221,25 @@ export const removeInheritedUpdate = (items: ItemWithPermissions[]): ItemsWithPe
   for (const { item, permissions } of items) {
     const parentId = item.parentReference.id;
     const parentPermissions = parentId && itemsPermissions.get(parentId);
-    if (!parentPermissions) {
-      console.log(JSON.stringify({ parentId, parentPermissions, item }, null, 2));
-      continue;
-    }
+    // if (!parentPermissions) {
+    //   // TODO: change this logic
+    //   console.error(JSON.stringify({ parentId, parentPermissions, item }, null, 2));
+    //   continue;
+    // }
+
+    // TODO: ignore root folder?
 
     const nonInheritedPermissions: MicrosoftDriveItemPermission[] = [];
     for (const permission of permissions) {
-      if (!parentPermissions.has(permission.id)) {
+      if (!parentPermissions || !parentPermissions.has(permission.id)) {
         nonInheritedPermissions.push(permission);
+      } else {
+        console.warn({ inheritedPermission: permission });
       }
     }
 
     if (nonInheritedPermissions.length) {
-      toUpdate.push({ item, permissions });
+      toUpdate.push({ item, permissions: nonInheritedPermissions });
     } else {
       toDelete.push(item.id);
     }

@@ -111,9 +111,7 @@ export const updateItems = inngest.createFunction(
 
         console.log(JSON.stringify({ dataProtectionItems }, null, 2));
 
-        await elba.dataProtection.updateObjects({
-          objects: dataProtectionItems,
-        });
+        await elba.dataProtection.updateObjects({ objects: dataProtectionItems });
       });
     }
 

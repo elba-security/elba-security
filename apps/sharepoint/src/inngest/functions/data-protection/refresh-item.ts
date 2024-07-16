@@ -55,6 +55,7 @@ export const refreshItem = inngest.createFunction(
       const elba = createElbaClient({ organisationId, region: organisation.region });
 
       const [item, permissions] = await Promise.all([
+        // TODO: get parent permissions
         getItem({ token, siteId, driveId, itemId }),
         getAllItemPermissions({
           token,
@@ -71,6 +72,7 @@ export const refreshItem = inngest.createFunction(
           driveId,
           parentPermissionIds: [], // TODO
         });
+        console.log(JSON.stringify({ dataProtectionItem, item, permissions }));
 
         if (dataProtectionItem.length) {
           await elba.dataProtection.updateObjects({

@@ -5,7 +5,6 @@ import { organisationsTable, sharePointTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { getDeltaItems } from '@/connectors/microsoft/delta/get-delta';
-import { env } from '@/common/env';
 import { subscriptionToDrive } from '../subscriptions/subscription-to-drives';
 
 export const initializeDelta = inngest.createFunction(
@@ -13,7 +12,7 @@ export const initializeDelta = inngest.createFunction(
     id: 'sharepoint-initialize-data-protection-delta',
     concurrency: {
       key: 'event.data.siteId',
-      limit: env.MICROSOFT_DATA_PROTECTION_ITEMS_SYNC_CONCURRENCY, // TODO: should be 1
+      limit: 1,
     },
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
