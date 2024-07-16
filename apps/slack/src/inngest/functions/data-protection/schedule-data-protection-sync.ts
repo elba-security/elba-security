@@ -1,9 +1,10 @@
+import { env } from '@/common/env';
 import { db } from '@/database/client';
 import { inngest } from '@/inngest/client';
 
 export const scheduleDataProtectionSync = inngest.createFunction(
   { id: 'slack-schedule-data-protection-sync', retries: 5 },
-  { cron: 'TZ=Europe/Paris 0 0 * * 0' }, // every sunday at midnight
+  { cron: env.DATA_PROTECTION_SYNC_CRON },
   async ({ step }) => {
     const teams = await step.run('get-teams', async () => {
       return db.query.teamsTable.findMany({

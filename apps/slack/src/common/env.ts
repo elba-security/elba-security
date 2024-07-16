@@ -17,6 +17,7 @@ export const env = createEnv({
     ENCRYPTION_KEY: z.string().length(64),
     DATABASE_PROXY_PORT: z.coerce.number().int().positive().optional(),
     DATABASE_URL: z.string().min(1),
+    DATA_PROTECTION_SYNC_CRON: z.string().min(1),
     SLACK_APP_LEVEL_TOKEN: z.string().min(1),
     SLACK_CLIENT_ID: z.string().min(1),
     SLACK_CLIENT_SECRET: z.string().min(1),

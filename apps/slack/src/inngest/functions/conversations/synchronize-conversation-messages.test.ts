@@ -161,7 +161,7 @@ describe('synchronize-conversation-messages', () => {
     expect(step.waitForEvent).toBeCalledWith('wait-for-thread-message-sync-complete-thread-id', {
       event: 'slack/conversations.sync.thread.messages.completed',
       if: "async.data.teamId == 'team-id' && async.data.conversationId == 'conversation-id' && async.data.threadId == 'thread-id'",
-      timeout: '1d',
+      timeout: '30 days',
     });
 
     expect(step.sendEvent).toBeCalledTimes(2);
@@ -322,7 +322,7 @@ describe('synchronize-conversation-messages', () => {
     expect(step.waitForEvent).toBeCalledWith('wait-for-thread-message-sync-complete-thread-id', {
       event: 'slack/conversations.sync.thread.messages.completed',
       if: "async.data.teamId == 'team-id' && async.data.conversationId == 'conversation-id' && async.data.threadId == 'thread-id'",
-      timeout: '1d',
+      timeout: '30 days',
     });
 
     expect(step.sendEvent).toBeCalledTimes(2);
