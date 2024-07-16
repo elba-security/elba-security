@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { MicrosoftError } from '@/common/error';
 import { env } from '@/common/env';
-import { driveItemSchema, type MicrosoftDriveItem } from '../sharepoint/items';
+import { driveItemSchema } from '../sharepoint/items';
 import { basePaginationSchema } from '../commons/pagination';
 
 const deltaTokenSchema = z
@@ -22,30 +22,34 @@ const microsoftDeltaPaginatedResponseSchema = z.union([
   }),
 ]);
 
-const deltaSchema = driveItemSchema.extend({
+const deltaItemSchema = driveItemSchema.extend({
   deleted: z.object({ state: z.string() }).optional(),
 });
 
-export type Delta = z.infer<typeof deltaSchema>;
+export type DeltaItem = z.infer<typeof deltaItemSchema>;
+
+export type ParsedDeltaItems = { deleted: string[]; updated: DeltaItem[] };
 
 export const getDeltaItems = async ({
   token,
   siteId,
   driveId,
-  skipToken,
   deltaToken,
 }: {
   token: string;
   siteId: string;
   driveId: string;
-  skipToken: string | null;
   deltaToken: string | null;
-}) => {
+}): Promise<
+  { items: ParsedDeltaItems } & ({ nextSkipToken: string } | { newDeltaToken: string })
+> => {
   const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/root/delta`);
 
-  url.searchParams.append('token', skipToken || deltaToken || 'latest');
-  url.searchParams.append('$top', '1'); // TODO
+  // TODO: select fields
+  url.searchParams.append('token', deltaToken || 'latest');
+  url.searchParams.append('$top', '100'); // TODO
   // url.searchParams.append('$top', String(env.MICROSOFT_DATA_PROTECTION_SYNC_CHUNK_SIZE));
+  url.searchParams.append('$select', Object.keys(deltaItemSchema.shape).join(','));
 
   const response = await fetch(url, {
     headers: {
@@ -69,9 +73,9 @@ export const getDeltaItems = async ({
     throw new Error('Failed to parse delta paginated response');
   }
 
-  const items: { deleted: string[]; updated: MicrosoftDriveItem[] } = { deleted: [], updated: [] };
+  const items: ParsedDeltaItems = { deleted: [], updated: [] };
   for (const deltaItem of result.data.value) {
-    const item = deltaSchema.safeParse(deltaItem);
+    const item = deltaItemSchema.safeParse(deltaItem);
     if (item.success) {
       if (item.data.deleted) {
         // TODO: log items delete state, check microsoft doc for updated etc

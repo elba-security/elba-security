@@ -19,6 +19,7 @@ export const updateItems = inngest.createFunction(
   {
     id: 'sharepoint-update-items',
     concurrency: {
+      // TODO: concurrency 1
       key: 'event.data.tenantId',
       limit: env.MICROSOFT_DATA_PROTECTION_ITEMS_SYNC_CONCURRENCY,
     },
@@ -26,7 +27,7 @@ export const updateItems = inngest.createFunction(
   },
   { event: 'sharepoint/update-items.triggered' },
   async ({ event, step }) => {
-    const { siteId, driveId, subscriptionId, tenantId, skipToken } = event.data;
+    const { siteId, driveId, subscriptionId, tenantId } = event.data;
 
     const [record] = await db
       .select({
@@ -55,26 +56,22 @@ export const updateItems = inngest.createFunction(
         token: await decrypt(record.token),
         siteId,
         driveId,
-        skipToken,
         deltaToken: record.delta,
       });
 
-      // TODO: move this
-      if ('newDeltaToken' in result) {
-        await db
-          .update(sharePointTable)
-          .set({
-            delta: result.newDeltaToken,
-          })
-          .where(
-            and(
-              eq(sharePointTable.organisationId, record.organisationId),
-              eq(sharePointTable.siteId, siteId),
-              eq(sharePointTable.driveId, driveId),
-              eq(sharePointTable.subscriptionId, subscriptionId)
-            )
-          );
-      }
+      await db
+        .update(sharePointTable)
+        .set({
+          delta: 'newDeltaToken' in result ? result.newDeltaToken : result.nextSkipToken,
+        })
+        .where(
+          and(
+            eq(sharePointTable.organisationId, record.organisationId),
+            eq(sharePointTable.siteId, siteId),
+            eq(sharePointTable.driveId, driveId),
+            eq(sharePointTable.subscriptionId, subscriptionId)
+          )
+        );
 
       return result;
     });
@@ -123,11 +120,7 @@ export const updateItems = inngest.createFunction(
     if ('nextSkipToken' in tokens) {
       await step.sendEvent('sync-next-delta-page', {
         name: 'sharepoint/update-items.triggered',
-        data: {
-          ...event.data,
-          skipToken: tokens.nextSkipToken,
-          // TODO: update this logic: what if another job is queued and executed before this one?
-        },
+        data: event.data,
       });
 
       return { status: 'ongoing' };

@@ -1,10 +1,7 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import {
-  getNextSkipTokenFromNextLink,
-  microsoftPaginatedResponseSchema,
-} from '../commons/pagination';
+import { microsoftPaginatedResponseSchema } from '../commons/pagination';
 
 const driveSchema = z.object({
   id: z.string(),

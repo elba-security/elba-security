@@ -7,7 +7,7 @@ import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { env } from '@/common/env';
 import type { SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
-import type { Delta } from '@/connectors/microsoft/delta/get-delta';
+import type { DeltaItem } from '@/connectors/microsoft/delta/get-delta';
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
 import * as deltaConnector from '@/connectors/microsoft/delta/get-delta';
 import type { ItemWithPermissions } from './common/types';
@@ -54,7 +54,7 @@ const createTempData = (
   parentReference: {
     id: string | undefined;
   }
-): Delta => ({
+): DeltaItem => ({
   id: `item-id-${i}`,
   name: `$name-${i}`,
   webUrl: `http://webUrl-${i}.somedomain.net`,
@@ -68,7 +68,7 @@ const createTempData = (
   parentReference,
 });
 
-const items: Delta[] = Array.from({ length: itemLength }, (_, i) => {
+const items: DeltaItem[] = Array.from({ length: itemLength }, (_, i) => {
   const parentReference = { id: i === 0 ? undefined : `item-id-${i - 1}` };
 
   if (i < itemLength / 2) {

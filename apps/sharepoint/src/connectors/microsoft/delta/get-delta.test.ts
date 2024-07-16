@@ -3,7 +3,7 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import { getDeltaItems, type Delta } from './get-delta';
+import { getDeltaItems, type DeltaItem } from './get-delta';
 
 const siteId = 'some-site-id';
 const driveId = 'some-drive-id';
@@ -15,7 +15,7 @@ const startSkipToken = 'start-skip-token';
 const endSkipToken = 'end-skip-token';
 const nextSkipToken = 'next-skip-token';
 
-const delta: Delta[] = Array.from({ length: 10 }, (_, i) => ({
+const delta: DeltaItem[] = Array.from({ length: 10 }, (_, i) => ({
   id: `item-id-${i}`,
   name: `item-name-${i}`,
   webUrl: `http://webUrl-1.somedomain-${i}.net`,
@@ -52,11 +52,11 @@ describe('delta connector', () => {
             const top = url.searchParams.get('$top');
             const token = url.searchParams.get('token');
 
-            const selectedKeys = select?.split(',') || ([] as unknown as (keyof Delta)[]);
+            const selectedKeys = select?.split(',') || ([] as unknown as (keyof DeltaItem)[]);
 
             const formattedDelta = selectedKeys.length
               ? delta.map((site) =>
-                  selectedKeys.reduce<Partial<Delta>>((acc, key: keyof Delta) => {
+                  selectedKeys.reduce<Partial<DeltaItem>>((acc, key: keyof DeltaItem) => {
                     return { ...acc, [key]: site[key] };
                   }, {})
                 )

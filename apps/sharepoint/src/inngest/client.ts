@@ -134,7 +134,6 @@ export const inngest = new Inngest({
         siteId: string;
         driveId: string;
         isFirstSync: boolean;
-        skipToken: string | null;
       };
     };
     'sharepoint/update-items.triggered': {
@@ -143,7 +142,6 @@ export const inngest = new Inngest({
         driveId: string;
         subscriptionId: string;
         tenantId: string;
-        skipToken: string | null;
       };
     };
   }>(),
