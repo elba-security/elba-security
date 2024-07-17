@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { LinearError } from '../common/error';
 
@@ -24,6 +25,16 @@ const linearResponseSchema = z.object({
   }),
 });
 
+const ownerIdResponseSchema = z.object({
+  data: z.object({
+    viewer: z.object({
+      id: z.string(),
+    }),
+    organization: z.object({
+      urlKey: z.string(),
+    }),
+  }),
+});
 export type GetUsersParams = {
   accessToken: string;
   afterCursor?: string | null;
@@ -120,4 +131,39 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
   if (!response.ok) {
     throw new LinearError(`Could not suspend user with Id: ${userId}`, { response });
   }
+};
+
+export const getOwnerId = async (accessToken) => {
+  const query = {
+    query: `
+      query { viewer { id } organization { urlKey } }
+    `,
+  };
+
+  const response = await fetch(`${env.LINEAR_API_BASE_URL}/graphql`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(query),
+  });
+
+  if (!response.ok) {
+    throw new LinearError('Could not retrieve users', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = ownerIdResponseSchema.safeParse(resData);
+  if (!result.success) {
+    logger.error('Invalid Zendesk owner id response', { resData });
+    throw new LinearError('Invalid Zendesk owner id response');
+  }
+
+  return {
+    ownerId: result.data.data.viewer.id,
+    workspaceUrl: result.data.data.organization.urlKey,
+  };
 };
