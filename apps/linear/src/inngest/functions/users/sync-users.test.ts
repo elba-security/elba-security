@@ -11,6 +11,8 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   region: 'us',
+  ownerId: 'test-owner-id',
+  workspaceUrl: 'workspace-url',
 };
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
@@ -86,12 +88,16 @@ describe('synchronize-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          isSuspendable: true,
+          url: 'https://linear.app/workspace-url/settings/members',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          isSuspendable: true,
+          url: 'https://linear.app/workspace-url/settings/members',
         },
       ],
     });
@@ -124,12 +130,16 @@ describe('synchronize-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          isSuspendable: true,
+          url: 'https://linear.app/workspace-url/settings/members',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          isSuspendable: true,
+          url: 'https://linear.app/workspace-url/settings/members',
         },
       ],
     });

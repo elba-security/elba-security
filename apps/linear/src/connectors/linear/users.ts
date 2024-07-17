@@ -151,15 +151,15 @@ export const getOwnerId = async (accessToken) => {
   });
 
   if (!response.ok) {
-    throw new LinearError('Could not retrieve users', { response });
+    throw new LinearError('Could not retrieve owner id and workspace url', { response });
   }
 
   const resData: unknown = await response.json();
 
   const result = ownerIdResponseSchema.safeParse(resData);
   if (!result.success) {
-    logger.error('Invalid Zendesk owner id response', { resData });
-    throw new LinearError('Invalid Zendesk owner id response');
+    logger.error('Invalid Linear owner id response', { resData });
+    throw new LinearError('Invalid Linear owner id response');
   }
 
   return {

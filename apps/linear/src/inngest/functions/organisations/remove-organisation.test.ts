@@ -11,6 +11,8 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: 'access-token',
   refreshToken: 'refresh-token',
+  ownerId: 'test-owner-id',
+  workspaceUrl: 'workspace-url',
   region: 'us',
 };
 
