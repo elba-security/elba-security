@@ -49,40 +49,54 @@ export const refreshItem = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with itemId=${organisationId}`);
     }
 
-    await step.run('get-item-permissions', async () => {
-      const token = await decrypt(organisation.token);
+    const token = await decrypt(organisation.token);
 
-      const elba = createElbaClient({ organisationId, region: organisation.region });
+    const elba = createElbaClient({ organisationId, region: organisation.region });
 
-      const [item, permissions] = await Promise.all([
-        // TODO: get parent permissions
-        getItem({ token, siteId, driveId, itemId }),
-        getAllItemPermissions({
+    const result = await step.run('get-item-permissions', async () => {
+      const item = await getItem({ token, siteId, driveId, itemId });
+      if (!item) {
+        return null;
+      }
+
+      const permissions = await getAllItemPermissions({ token, siteId, driveId, itemId });
+      return { item, permissions };
+    });
+
+    if (!result) {
+      await elba.dataProtection.deleteObjects({ ids: [itemId] });
+      return { status: 'deleted' };
+    }
+
+    const { item, permissions } = result;
+    const parentId = item.parentReference.id;
+    let parentPermissionIds: string[] = [];
+    if (parentId) {
+      parentPermissionIds = await step.run('get-parent-permissions', async () => {
+        const parentPermissions = await getAllItemPermissions({
           token,
           siteId,
           driveId,
-          itemId,
-        }),
-      ]);
-
-      if (item !== null && permissions.length) {
-        const dataProtectionItem = formatDataProtectionObjects({
-          items: [{ item, permissions }],
-          siteId,
-          driveId,
-          parentPermissionIds: [], // TODO
+          itemId: parentId,
         });
-        console.log(JSON.stringify({ dataProtectionItem, item, permissions }));
 
-        if (dataProtectionItem.length) {
-          await elba.dataProtection.updateObjects({
-            objects: dataProtectionItem,
-          });
-          return;
-        }
-      }
+        return parentPermissions.map((permission) => permission.id);
+      });
+    }
 
-      await elba.dataProtection.deleteObjects({ ids: [itemId] });
+    const [dataProtectionObject] = formatDataProtectionObjects({
+      driveId,
+      items: [{ item, permissions }],
+      siteId,
+      parentPermissionIds,
     });
+
+    if (!dataProtectionObject) {
+      await elba.dataProtection.deleteObjects({ ids: [itemId] });
+      return { status: 'deleted' };
+    }
+
+    await elba.dataProtection.updateObjects({ objects: [dataProtectionObject] });
+    return { status: 'updated' };
   }
 );

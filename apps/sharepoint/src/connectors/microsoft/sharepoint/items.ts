@@ -40,10 +40,7 @@ export const getItem = async ({
   driveId: string;
 }): Promise<MicrosoftDriveItem | null> => {
   const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/items/${itemId}`);
-  url.searchParams.append(
-    '$select',
-    Object.keys(driveItemSchema.shape).join(',') // TODO: needs parentReference?
-  );
+  url.searchParams.append('$select', Object.keys(driveItemSchema.shape).join(','));
 
   const response = await fetch(url, {
     headers: {
@@ -56,6 +53,7 @@ export const getItem = async ({
   }
 
   if (!response.ok) {
+    console.log(await response.clone().text());
     throw new MicrosoftError('Could not retrieve item', { response });
   }
 

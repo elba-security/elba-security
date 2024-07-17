@@ -77,7 +77,7 @@ export const formatPermissions = (permissions: SharepointPermission[]) => {
 
     if (permission.link?.scope === 'users' && permission.grantedToIdentitiesV2?.length) {
       for (const identity of permission.grantedToIdentitiesV2) {
-        if (!identity?.user) {
+        if (!identity.user) {
           continue;
         }
         const userEmail = identity.user.email;

@@ -58,6 +58,7 @@ export const createSubscription = async ({
   });
 
   if (!response.ok) {
+    console.log(await response.clone().text());
     throw new MicrosoftError('Could not retrieve create subscription', { response });
   }
 
@@ -81,6 +82,7 @@ export const refreshSubscription = async (encryptToken: string, subscriptionId: 
   });
 
   if (!response.ok) {
+    console.log(await response.clone().text());
     throw new MicrosoftError('Could not retrieve create subscription', { response });
   }
 
