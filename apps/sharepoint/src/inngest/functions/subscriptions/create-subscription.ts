@@ -3,11 +3,11 @@ import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { createSubscription } from '@/connectors/microsoft/subscription/subscriptions';
+import { createSubscription as createSharepointSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 
-export const subscriptionToDrive = inngest.createFunction(
+export const createSubscription = inngest.createFunction(
   {
     id: 'sharepoint-subscribe-to-drive',
     concurrency: {
@@ -29,7 +29,7 @@ export const subscriptionToDrive = inngest.createFunction(
     ],
     retries: 5,
   },
-  { event: 'sharepoint/drives.subscription.triggered' },
+  { event: 'sharepoint/subscriptions.create.triggered' },
   async ({ event }) => {
     const { organisationId, siteId, driveId } = event.data;
 
@@ -49,7 +49,7 @@ export const subscriptionToDrive = inngest.createFunction(
     const resource = `sites/${siteId}/drives/${driveId}/root`;
     const clientState = crypto.randomUUID();
 
-    return createSubscription({
+    return createSharepointSubscription({
       token: await decrypt(organisation.token),
       changeType,
       resource,

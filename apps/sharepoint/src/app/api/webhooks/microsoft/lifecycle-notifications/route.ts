@@ -19,17 +19,18 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const data = (await req.json()) as WebhookResponse<object>;
+  const data: unknown = await req.json();
 
   const parseResult = lifecycleEventArraySchema.safeParse(data);
 
   if (!parseResult.success) {
     // TODO: log
-    return new NextResponse('', { status: 202 });
+    return new NextResponse(null, { status: 202 });
   }
 
   const { value } = parseResult.data;
 
+  // TODO
   const updatedValue = value.map((v) => ({ ...v, tenantId: v.organizationId }));
 
   const subscriptionsData = await getSubscriptionsFromDB(updatedValue);
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
 
   if (!isValid) {
     // TODO: log
-    return new NextResponse('', { status: 202 });
+    return new NextResponse(null, { status: 202 });
   }
 
   await handleSubscriptionEvent(
@@ -50,5 +51,5 @@ export async function POST(req: NextRequest) {
     )
   );
 
-  return NextResponse.json({}, { status: 202 });
+  return NextResponse.json(null, { status: 202 });
 }

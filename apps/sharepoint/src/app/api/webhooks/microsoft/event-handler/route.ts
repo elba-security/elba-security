@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { handleWebhook } from '@/app/api/webhooks/microsoft/event-handler/service';
 import { getSubscriptionsFromDB } from '@/common/get-db-subscriptions';
 import { isClientStateValid } from '@/common/validate-client-state';
-import { incomingSubscriptionArraySchema } from '@/connectors/microsoft/subscription/subscriptions';
+import { incomingSubscriptionArraySchema } from '@/connectors/microsoft/subscriptions/subscriptions';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -40,10 +40,10 @@ export async function POST(req: NextRequest) {
 
   if (!isValid) {
     // TODO: log
-    return new NextResponse('', { status: 202 });
+    return new NextResponse(null, { status: 202 });
   }
 
   await handleWebhook(value);
 
-  return new NextResponse('', { status: 202 });
+  return new NextResponse(null, { status: 202 });
 }

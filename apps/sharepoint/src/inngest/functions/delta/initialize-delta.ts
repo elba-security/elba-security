@@ -4,8 +4,8 @@ import { db } from '@/database/client';
 import { organisationsTable, sharePointTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
-import { getDeltaItems } from '@/connectors/microsoft/delta/get-delta';
-import { subscriptionToDrive } from '../subscriptions/subscription-to-drives';
+import { getDeltaItems } from '@/connectors/microsoft/delta/delta';
+import { createSubscription } from '../subscriptions/create-subscription';
 
 export const initializeDelta = inngest.createFunction(
   {
@@ -59,8 +59,8 @@ export const initializeDelta = inngest.createFunction(
       return result.newDeltaToken;
     });
 
-    const data = await step.invoke('sharepoint/drives.subscription.triggered', {
-      function: subscriptionToDrive,
+    const data = await step.invoke('sharepoint/subscriptions.create.triggered', {
+      function: createSubscription,
       data: {
         organisationId,
         siteId,

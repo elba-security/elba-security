@@ -7,9 +7,9 @@ import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { env } from '@/common/env';
 import type { SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
-import type { DeltaItem } from '@/connectors/microsoft/delta/get-delta';
+import type { DeltaItem } from '@/connectors/microsoft/delta/delta';
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
-import * as deltaConnector from '@/connectors/microsoft/delta/get-delta';
+import * as deltaConnector from '@/connectors/microsoft/delta/delta';
 import type { ItemWithPermissions } from './common/types';
 import {
   formatDataProtectionObjects,

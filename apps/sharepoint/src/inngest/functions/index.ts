@@ -9,9 +9,9 @@ import { refreshItem } from './data-protection/refresh-item';
 import { deleteDataProtectionItemPermissions } from './data-protection/delete-item-permissions';
 import { initializeDelta } from './delta/initialize-delta';
 import { updateItems } from './data-protection/update-items';
-import { subscriptionToDrive } from './subscriptions/subscription-to-drives';
-import { subscriptionRefresh } from './subscriptions/subscription-refresh';
-import { subscriptionRemove } from './subscriptions/subscription-remove';
+import { createSubscription } from './subscriptions/create-subscription';
+import { refreshSubscription } from './subscriptions/refresh-subscription';
+import { removeSubscription } from './subscriptions/remove-subscription';
 import { removeOrganisation } from './organisations/remove-organisation';
 
 // TODO: make sure every functions are here
@@ -27,8 +27,8 @@ export const inngestFunctions = [
   deleteDataProtectionItemPermissions,
   initializeDelta,
   updateItems,
-  subscriptionToDrive,
-  subscriptionRefresh,
-  subscriptionRemove,
+  createSubscription,
+  refreshSubscription,
+  removeSubscription,
   removeOrganisation,
 ];

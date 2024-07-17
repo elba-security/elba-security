@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { MicrosoftError } from '@/common/error';
 import { env } from '@/common/env';
 import { driveItemSchema } from '../sharepoint/items';
-import { basePaginationSchema } from '../commons/pagination';
+import { basePaginationSchema } from '../common/pagination';
 
 const deltaTokenSchema = z
   .string()

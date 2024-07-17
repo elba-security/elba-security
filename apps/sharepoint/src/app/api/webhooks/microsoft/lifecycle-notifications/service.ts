@@ -37,7 +37,7 @@ export const handleSubscriptionEvent = async (
   await inngest.send(
     subscriptionEvents.map((subscribe) => ({
       id: `subscribe-event-${subscribe.subscriptionId}`,
-      name: 'sharepoint/subscription.refresh.triggered',
+      name: 'sharepoint/subscriptions.refresh.triggered',
       data: subscribe,
     }))
   );

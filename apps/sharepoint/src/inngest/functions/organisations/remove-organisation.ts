@@ -36,7 +36,7 @@ export const removeOrganisation = inngest.createFunction(
     if (subscriptions.length) {
       const eventsWait = subscriptions.map(({ subscriptionId }) =>
         step.waitForEvent(`wait-for-remove-subscription-complete-${subscriptionId}`, {
-          event: 'sharepoint/subscription.remove.completed',
+          event: 'sharepoint/subscriptions.remove.completed',
           timeout: '1d',
           if: `async.data.organisationId == '${organisationId}' && async.data.subscriptionId == '${subscriptionId}'`,
         })
@@ -45,7 +45,7 @@ export const removeOrganisation = inngest.createFunction(
       await step.sendEvent(
         'subscription-remove-triggered',
         subscriptions.map(({ subscriptionId }) => ({
-          name: 'sharepoint/subscription.remove.triggered',
+          name: 'sharepoint/subscriptions.remove.triggered',
           data: {
             organisationId,
             subscriptionId,

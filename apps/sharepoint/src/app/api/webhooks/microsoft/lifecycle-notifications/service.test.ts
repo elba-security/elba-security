@@ -61,7 +61,7 @@ describe('handleWebhook', () => {
     expect(send).toBeCalledWith(
       subscriptionEvents.map((event) => ({
         id: `subscribe-event-${event.subscriptionId}`,
-        name: 'sharepoint/subscription.refresh.triggered',
+        name: 'sharepoint/subscriptions.refresh.triggered',
         data: event,
       }))
     );

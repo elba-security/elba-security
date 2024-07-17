@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import { microsoftPaginatedResponseSchema } from '../commons/pagination';
+import { microsoftPaginatedResponseSchema } from '../common/pagination';
 
 export const driveItemSchema = z.object({
   id: z.string(),
@@ -26,17 +26,57 @@ export const driveItemSchema = z.object({
   }),
 });
 
-type GetItemsParams = {
+export type MicrosoftDriveItem = z.infer<typeof driveItemSchema>;
+
+export const getItem = async ({
+  token,
+  siteId,
+  driveId,
+  itemId,
+}: {
+  itemId: string;
+  token: string;
+  siteId: string;
+  driveId: string;
+}): Promise<MicrosoftDriveItem | null> => {
+  const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/items/${itemId}`);
+  url.searchParams.append(
+    '$select',
+    Object.keys(driveItemSchema.shape).join(',') // TODO: needs parentReference?
+  );
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new MicrosoftError('Could not retrieve item', { response });
+  }
+
+  const data: unknown = await response.json(); // TODO
+
+  return driveItemSchema.parse(data); // TODO
+};
+
+export const getItems = async ({
+  token,
+  siteId,
+  driveId,
+  folderId,
+  skipToken,
+}: {
   token: string;
   siteId: string;
   driveId: string;
   folderId: string | null;
   skipToken: string | null;
-};
-
-export type MicrosoftDriveItem = z.infer<typeof driveItemSchema>;
-
-export const getItems = async ({ token, siteId, driveId, folderId, skipToken }: GetItemsParams) => {
+}) => {
   const urlEnding = folderId ? `items/${folderId}/children` : 'root/children';
 
   const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/${urlEnding}`);

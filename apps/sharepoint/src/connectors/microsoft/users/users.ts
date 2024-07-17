@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import { microsoftPaginatedResponseSchema } from '../commons/pagination';
+import { microsoftPaginatedResponseSchema } from '../common/pagination';
 
 const userSchema = z.object({
   id: z.string(),

@@ -55,7 +55,7 @@ describe('remove-organisation', () => {
         i + 1,
         `wait-for-remove-subscription-complete-${sharePoint?.subscriptionId}`,
         {
-          event: 'sharepoint/subscription.remove.completed',
+          event: 'sharepoint/subscriptions.remove.completed',
           timeout: '1d',
           if: `async.data.organisationId == '${sharePoint?.organisationId}' && async.data.subscriptionId == '${sharePoint?.subscriptionId}'`,
         }

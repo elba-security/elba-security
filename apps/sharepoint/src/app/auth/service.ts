@@ -2,9 +2,9 @@ import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getToken } from '@/connectors/microsoft/auth/get-token';
+import { getToken } from '@/connectors/microsoft/auth/tokens';
 import { encrypt } from '@/common/crypto';
-import { getUsers } from '@/connectors/microsoft/users/get-users';
+import { getUsers } from '@/connectors/microsoft/users/users';
 
 type SetupOrganisationParams = {
   organisationId: string;

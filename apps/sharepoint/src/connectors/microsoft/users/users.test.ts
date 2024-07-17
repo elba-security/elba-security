@@ -3,8 +3,8 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import { getUsers } from './get-users';
-import type { MicrosoftUser } from './get-users';
+import { getUsers } from './users';
+import type { MicrosoftUser } from './users';
 
 const validToken = 'token-1234';
 const startSkipToken = 'start-skip-token';

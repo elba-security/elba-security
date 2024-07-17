@@ -5,7 +5,7 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { getAllItemPermissions } from '@/connectors/microsoft/sharepoint/permissions';
-import { getItem } from '@/connectors/microsoft/sharepoint/item';
+import { getItem } from '@/connectors/microsoft/sharepoint/items';
 import { createElbaClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
 import { formatDataProtectionObjects } from './common/helpers';

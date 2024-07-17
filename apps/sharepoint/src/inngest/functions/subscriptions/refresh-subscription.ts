@@ -3,9 +3,9 @@ import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable, sharePointTable } from '@/database/schema';
-import { refreshSubscription } from '@/connectors/microsoft/subscription/subscriptions';
+import { refreshSubscription as refreshSharepointSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
 
-export const subscriptionRefresh = inngest.createFunction(
+export const refreshSubscription = inngest.createFunction(
   {
     id: 'sharepoint-subscribe-refresh',
     cancelOn: [
@@ -20,7 +20,7 @@ export const subscriptionRefresh = inngest.createFunction(
     ],
     retries: 5,
   },
-  { event: 'sharepoint/subscription.refresh.triggered' },
+  { event: 'sharepoint/subscriptions.refresh.triggered' },
   async ({ event }) => {
     const { subscriptionId, organisationId } = event.data;
 
@@ -43,7 +43,7 @@ export const subscriptionRefresh = inngest.createFunction(
       );
     }
 
-    const subscription = await refreshSubscription(record.token, subscriptionId);
+    const subscription = await refreshSharepointSubscription(record.token, subscriptionId);
 
     await db
       .update(sharePointTable)

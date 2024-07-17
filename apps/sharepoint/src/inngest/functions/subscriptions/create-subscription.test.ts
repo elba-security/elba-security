@@ -1,11 +1,11 @@
 import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as createSubscriptionConnector from '@/connectors/microsoft/subscription/subscriptions';
+import * as createSubscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
 import { organisationsTable, sharePointTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
-import { subscriptionToDrive } from './subscription-to-drives';
+import { createSubscription } from './create-subscription';
 
 const token = 'test-token';
 const organisationId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
@@ -47,11 +47,11 @@ const subscription = {
 };
 
 const setup = createInngestFunctionMock(
-  subscriptionToDrive,
-  'sharepoint/drives.subscription.triggered'
+  createSubscription,
+  'sharepoint/subscriptions.create.triggered'
 );
 
-describe('drive-subscribe', () => {
+describe('create-subscription', () => {
   beforeEach(async () => {
     await db.insert(organisationsTable).values(organisation);
     await db

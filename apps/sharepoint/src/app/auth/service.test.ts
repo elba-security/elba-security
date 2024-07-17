@@ -3,9 +3,9 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import * as authConnector from '@/connectors/microsoft/auth/get-token';
+import * as authConnector from '@/connectors/microsoft/auth/tokens';
 import * as crypto from '@/common/crypto';
-import * as usersConnector from '@/connectors/microsoft/users/get-users';
+import * as usersConnector from '@/connectors/microsoft/users/users';
 import { setupOrganisation } from './service';
 
 const tenantId = 'some-tenant';

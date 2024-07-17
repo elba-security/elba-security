@@ -4,8 +4,8 @@ import { NonRetriableError } from 'inngest';
 import { organisationsTable, sharePointTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
-import * as refreshSubscriptionConnector from '@/connectors/microsoft/subscription/subscriptions';
-import { subscriptionRefresh } from './subscription-refresh';
+import * as refreshSubscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
+import { refreshSubscription } from './refresh-subscription';
 
 const token = 'test-token';
 const organisationId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
@@ -45,11 +45,11 @@ const subscription = {
 };
 
 const setup = createInngestFunctionMock(
-  subscriptionRefresh,
-  'sharepoint/subscription.refresh.triggered'
+  refreshSubscription,
+  'sharepoint/subscriptions.refresh.triggered'
 );
 
-describe('subscription-refresh', () => {
+describe('refresh-subscription', () => {
   beforeEach(async () => {
     await db.insert(organisationsTable).values(organisation);
     await db

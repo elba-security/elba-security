@@ -1,6 +1,6 @@
 import { logger } from '@elba-security/logger';
 import { inngest } from '@/inngest/client';
-import type { IncomingSubscription } from '@/connectors/microsoft/subscription/subscriptions';
+import type { IncomingSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
 
 export const handleWebhook = async (data: IncomingSubscription[]) => {
   if (!data.length) {

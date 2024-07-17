@@ -2,13 +2,13 @@ import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import { and, eq } from 'drizzle-orm';
-import * as deltaConnector from '@/connectors/microsoft/delta/get-delta';
-import * as createSubscriptionConnector from '@/connectors/microsoft/subscription/subscriptions';
-import type { Subscription } from '@/connectors/microsoft/subscription/subscriptions';
+import * as deltaConnector from '@/connectors/microsoft/delta/delta';
+import * as createSubscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
+import type { Subscription } from '@/connectors/microsoft/subscriptions/subscriptions';
 import { organisationsTable, sharePointTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
-import { subscriptionToDrive } from '../subscriptions/subscription-to-drives';
+import { createSubscription } from '../subscriptions/create-subscription';
 import { initializeDelta } from './initialize-delta';
 
 const token = 'test-token';
@@ -106,8 +106,8 @@ describe('sync-sites', () => {
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
     expect(step.invoke).toBeCalledTimes(1);
-    expect(step.invoke).toBeCalledWith('sharepoint/drives.subscription.triggered', {
-      function: subscriptionToDrive,
+    expect(step.invoke).toBeCalledWith('sharepoint/subscriptions.create.triggered', {
+      function: createSubscription,
       data: {
         organisationId: organisation.id,
         siteId,

@@ -102,7 +102,7 @@ export const inngest = new Inngest({
         permissions: SharepointDeletePermission[];
       };
     };
-    'sharepoint/drives.subscription.triggered': {
+    'sharepoint/subscriptions.create.triggered': {
       data: {
         organisationId: string;
         siteId: string;
@@ -110,19 +110,19 @@ export const inngest = new Inngest({
         isFirstSync: boolean;
       };
     };
-    'sharepoint/subscription.refresh.triggered': {
+    'sharepoint/subscriptions.refresh.triggered': {
       data: {
         subscriptionId: string;
         organisationId: string;
       };
     };
-    'sharepoint/subscription.remove.triggered': {
+    'sharepoint/subscriptions.remove.triggered': {
       data: {
         subscriptionId: string;
         organisationId: string;
       };
     };
-    'sharepoint/subscription.remove.completed': {
+    'sharepoint/subscriptions.remove.completed': {
       data: {
         subscriptionId: string;
         organisationId: string;

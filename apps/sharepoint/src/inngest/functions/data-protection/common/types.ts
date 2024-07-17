@@ -25,6 +25,7 @@ export type ItemsWithPermissionsParsed = {
 
 type ExtractPermissionType<T, U> = T extends { type: U } ? T : never;
 
+// TODO
 export type SharepointDataProtectionPermission =
   | (ExtractPermissionType<DataProtectionObjectPermission, 'anyone'> & {
       metadata: AnyonePermissionMetadata;

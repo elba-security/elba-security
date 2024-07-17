@@ -5,7 +5,7 @@ import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable, sharePointTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
-import { getDeltaItems } from '@/connectors/microsoft/delta/get-delta';
+import { getDeltaItems } from '@/connectors/microsoft/delta/delta';
 import { createElbaClient } from '@/connectors/elba/client';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import {

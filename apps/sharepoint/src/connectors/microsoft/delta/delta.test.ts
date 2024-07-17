@@ -3,7 +3,7 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import { getDeltaItems, type DeltaItem } from './get-delta';
+import { getDeltaItems, type DeltaItem } from './delta';
 
 const siteId = 'some-site-id';
 const driveId = 'some-drive-id';
