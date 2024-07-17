@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import '@elba-security/design-system/dist/styles.css';
 
 export const metadata: Metadata = {
   title: 'Elba x SharePoint',
