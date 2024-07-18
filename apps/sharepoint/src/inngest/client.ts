@@ -54,12 +54,6 @@ export const inngest = new Inngest({
         isFirstSync: boolean;
         folderId: string | null;
         permissionIds: string[];
-        // folder: {
-        //   // TODO: improve this
-        //   id: string | null;
-        //   paginated: boolean;
-        //   permissions: string[] | [];
-        // } | null;
         skipToken: string | null;
       };
     };

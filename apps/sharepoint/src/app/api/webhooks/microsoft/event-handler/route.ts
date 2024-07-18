@@ -27,8 +27,6 @@ export async function POST(req: NextRequest) {
     return new NextResponse();
   }
 
-  // TODO: check client state
-
   const { value } = parseResult.data;
 
   const subscriptionsData = await getSubscriptionsFromDB(value);

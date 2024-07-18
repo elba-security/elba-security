@@ -8,7 +8,7 @@ import { getAllItemPermissions } from '@/connectors/microsoft/sharepoint/permiss
 import { getItem } from '@/connectors/microsoft/sharepoint/items';
 import { createElbaClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
-import { formatDataProtectionObjects } from './common/helpers';
+import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
 
 export const refreshItem = inngest.createFunction(
   {

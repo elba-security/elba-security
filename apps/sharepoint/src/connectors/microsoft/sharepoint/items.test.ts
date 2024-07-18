@@ -21,9 +21,7 @@ const item: MicrosoftDriveItem = {
   webUrl: `http://webUrl-1.somedomain.net`,
   createdBy: {
     user: {
-      displayName: `some-display-name-1`,
       id: `some-user-id-1`,
-      email: `some-user-email-1`,
     },
   },
   lastModifiedDateTime: '2024-02-23T15:50:09Z',
@@ -38,9 +36,7 @@ const items: MicrosoftDriveItem[] = Array.from({ length: 5 }, (_, i) => ({
   webUrl: `http://webUrl-${i}.somedomain.net`,
   createdBy: {
     user: {
-      displayName: `some-display-name-${i}`,
       id: `some-user-id-${i}`,
-      email: `some-user-email-${i}`,
     },
   },
   lastModifiedDateTime: `2016-03-21T20:01:${i}Z`,

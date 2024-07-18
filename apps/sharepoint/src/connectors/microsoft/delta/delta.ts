@@ -45,7 +45,6 @@ export const getDeltaItems = async ({
 > => {
   const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/root/delta`);
 
-  // TODO: select fields
   url.searchParams.append('token', deltaToken || 'latest');
   // url.searchParams.append('$top', '100'); // TODO
   url.searchParams.append('$top', String(env.MICROSOFT_DATA_PROTECTION_SYNC_CHUNK_SIZE));

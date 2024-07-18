@@ -27,7 +27,6 @@ export function GET(request: NextRequest) {
   const url = new URL(env.MICROSOFT_INSTALL_URL);
   url.searchParams.append('client_id', env.MICROSOFT_CLIENT_ID);
   url.searchParams.append('redirect_uri', env.MICROSOFT_REDIRECT_URI);
-  // TODO: check state etc
 
   redirect(url.toString());
 }

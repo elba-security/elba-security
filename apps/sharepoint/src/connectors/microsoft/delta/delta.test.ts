@@ -21,9 +21,7 @@ const deltaItems: DeltaItem[] = Array.from({ length: 2 }, (_, i) => ({
   webUrl: `http://webUrl-1.somedomain-${i}.net`,
   createdBy: {
     user: {
-      displayName: `some-display-name-${i}`,
       id: `some-user-id-${i}`,
-      email: `some-user-email-${i}`,
     },
   },
   lastModifiedDateTime: '2024-01-01T00:00:00Z',

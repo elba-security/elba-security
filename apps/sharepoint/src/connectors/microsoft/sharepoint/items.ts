@@ -9,9 +9,7 @@ export const driveItemSchema = z.object({
   webUrl: z.string(),
   createdBy: z.object({
     user: z.object({
-      email: z.string().optional(),
       id: z.string().optional(),
-      displayName: z.string(),
     }),
   }),
   lastModifiedDateTime: z.string(),

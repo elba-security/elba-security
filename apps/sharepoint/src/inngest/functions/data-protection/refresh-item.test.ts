@@ -1,7 +1,6 @@
 import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as getItemConnector from '@/connectors/microsoft/sharepoint/item';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
@@ -11,6 +10,7 @@ import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permiss
 import { env } from '@/common/env';
 import { refreshItem } from './refresh-item';
 import { formatDataProtectionObjects } from './common/helpers';
+import * as getItemConnector from '@/connectors/microsoft/sharepoint/item';
 
 const token = 'test-token';
 
@@ -31,9 +31,7 @@ const item: MicrosoftDriveItem = {
   webUrl: `http://webUrl-1.somedomain.net`,
   createdBy: {
     user: {
-      displayName: `some-display-name-1`,
       id: `some-user-id-1`,
-      email: `some-user-email-1`,
     },
   },
   parentReference: {

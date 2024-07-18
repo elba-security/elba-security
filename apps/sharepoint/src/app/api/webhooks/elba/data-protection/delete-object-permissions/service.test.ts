@@ -5,6 +5,10 @@ import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import type { SharepointDeletePermission } from '@/inngest/functions/data-protection/common/types';
+import {
+  type AnyonePermissionMetadata,
+  type UserPermissionMetadata,
+} from '@/inngest/functions/data-protection/common/helpers';
 import { POST as handler } from './route';
 
 const token = 'test-token';
@@ -28,7 +32,8 @@ const permissions: SharepointDeletePermission[] = Array.from({ length: count }, 
       id: `some-random-id-${i}`,
       metadata: {
         type: 'anyone',
-      },
+        permissionIds: [],
+      } satisfies AnyonePermissionMetadata,
     };
 
   return {
@@ -42,7 +47,7 @@ const permissions: SharepointDeletePermission[] = Array.from({ length: count }, 
         `user-email-${i * 10000}@someemail.com`,
       ],
       directPermissionId: `some-random-id-${i}`,
-    },
+    } satisfies UserPermissionMetadata,
   };
 });
 

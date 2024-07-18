@@ -58,11 +58,10 @@ const createTempData = (
   id: `item-id-${i}`,
   name: `$name-${i}`,
   webUrl: `http://webUrl-${i}.somedomain.net`,
+  lastModifiedDateTime: '2024-01-01T00:00:00Z',
   createdBy: {
     user: {
-      email: `user-email-${i}@someemail.com`,
       id: `user-id-${i}`,
-      displayName: `user-displayName-${i}`,
     },
   },
   parentReference,

@@ -34,7 +34,6 @@ export const handleWebhook = async (data: IncomingSubscription[]) => {
   if (drives.length) {
     await inngest.send(
       drives.map((drive) => ({
-        // id: `update-items-subscription-${drive.subscriptionId}`, // WHY???? // TODO: remove this
         name: 'sharepoint/update-items.triggered',
         data: {
           siteId: drive.siteId,

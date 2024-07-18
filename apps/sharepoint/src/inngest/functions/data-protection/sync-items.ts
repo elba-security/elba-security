@@ -8,7 +8,7 @@ import { decrypt } from '@/common/crypto';
 import { getItems } from '@/connectors/microsoft/sharepoint/items';
 import { createElbaClient } from '@/connectors/elba/client';
 import { getAllItemPermissions } from '@/connectors/microsoft/sharepoint/permissions';
-import { formatDataProtectionObjects } from './common/helpers'; // TODO: move into elba connector?
+import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
 
 export const syncItems = inngest.createFunction(
   {

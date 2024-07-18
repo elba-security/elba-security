@@ -1,5 +1,5 @@
-import type { DataProtectionObject, DataProtectionObjectPermission } from '@elba-security/sdk';
-import { z } from 'zod';
+// import type { DataProtectionObject, DataProtectionObjectPermission } from '@elba-security/sdk';
+// import { z } from 'zod';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import {
   getAllItemPermissions,
@@ -12,35 +12,35 @@ import type {
   SharepointDeletePermission,
 } from './types';
 
-export const itemMetadataSchema = z.object({
-  siteId: z.string(),
-  driveId: z.string(),
-});
+// export const itemMetadataSchema = z.object({
+//   siteId: z.string(),
+//   driveId: z.string(),
+// });
 
-type ItemMetadata = z.infer<typeof itemMetadataSchema>;
+// type ItemMetadata = z.infer<typeof itemMetadataSchema>;
 
-export const userPermissionMetadataSchema = z.object({
-  type: z.literal('user'),
-  email: z.string(),
-  linksPermissionIds: z.array(z.string()),
-  directPermissionId: z.string().optional(),
-});
+// export const userPermissionMetadataSchema = z.object({
+//   type: z.literal('user'),
+//   email: z.string(),
+//   linksPermissionIds: z.array(z.string()),
+//   directPermissionId: z.string().optional(),
+// });
 
-export type UserPermissionMetadata = z.infer<typeof userPermissionMetadataSchema>;
+// export type UserPermissionMetadata = z.infer<typeof userPermissionMetadataSchema>;
 
-export const anyonePermissionMetadataSchema = z.object({
-  type: z.literal('anyone'),
-  permissionIds: z.array(z.string()),
-});
+// export const anyonePermissionMetadataSchema = z.object({
+//   type: z.literal('anyone'),
+//   permissionIds: z.array(z.string()),
+// });
 
-export type AnyonePermissionMetadata = z.infer<typeof anyonePermissionMetadataSchema>;
+// export type AnyonePermissionMetadata = z.infer<typeof anyonePermissionMetadataSchema>;
 
-export const sharepointMetadata = z.union([
-  userPermissionMetadataSchema,
-  anyonePermissionMetadataSchema,
-]);
+// export const sharepointPermissionMetadata = z.union([
+//   userPermissionMetadataSchema,
+//   anyonePermissionMetadataSchema,
+// ]);
 
-export type SharepointMetadata = z.infer<typeof sharepointMetadata>;
+// export type SharepointPermissionMetadata = z.infer<typeof sharepointPermissionMetadata>;
 
 export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
   const chunks: T[][] = [];
@@ -50,79 +50,79 @@ export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
   return chunks;
 };
 
-export const formatPermissions = (permissions: SharepointPermission[]) => {
-  const usersPermissions = new Map<string, UserPermissionMetadata & { userId?: string }>();
-  const anyonePermissionIds = new Set<string>();
+// export const formatPermissions = (permissions: SharepointPermission[]) => {
+//   const usersPermissions = new Map<string, UserPermissionMetadata & { userId?: string }>();
+//   const anyonePermissionIds = new Set<string>();
 
-  for (const permission of permissions) {
-    if (permission.link?.scope === 'anonymous') {
-      anyonePermissionIds.add(permission.id);
-    }
+//   for (const permission of permissions) {
+//     if (permission.link?.scope === 'anonymous') {
+//       anyonePermissionIds.add(permission.id);
+//     }
 
-    if (permission.grantedToV2?.user) {
-      const userEmail = permission.grantedToV2.user.email;
+//     if (permission.grantedToV2?.user) {
+//       const userEmail = permission.grantedToV2.user.email;
 
-      let userPermissions = usersPermissions.get(userEmail);
-      if (!userPermissions) {
-        userPermissions = {
-          type: 'user',
-          userId: permission.grantedToV2.user.id,
-          email: permission.grantedToV2.user.email,
-          linksPermissionIds: [],
-        };
-        usersPermissions.set(userEmail, userPermissions);
-      }
-      userPermissions.directPermissionId = permission.id;
-    }
+//       let userPermissions = usersPermissions.get(userEmail);
+//       if (!userPermissions) {
+//         userPermissions = {
+//           type: 'user',
+//           userId: permission.grantedToV2.user.id,
+//           email: permission.grantedToV2.user.email,
+//           linksPermissionIds: [],
+//         };
+//         usersPermissions.set(userEmail, userPermissions);
+//       }
+//       userPermissions.directPermissionId = permission.id;
+//     }
 
-    if (permission.link?.scope === 'users' && permission.grantedToIdentitiesV2?.length) {
-      for (const identity of permission.grantedToIdentitiesV2) {
-        if (!identity.user) {
-          continue;
-        }
-        const userEmail = identity.user.email;
+//     if (permission.link?.scope === 'users' && permission.grantedToIdentitiesV2?.length) {
+//       for (const identity of permission.grantedToIdentitiesV2) {
+//         if (!identity.user) {
+//           continue;
+//         }
+//         const userEmail = identity.user.email;
 
-        let userPermissions = usersPermissions.get(userEmail);
-        if (!userPermissions) {
-          userPermissions = {
-            type: 'user',
-            userId: identity.user.id,
-            email: identity.user.email,
-            linksPermissionIds: [],
-          };
-          usersPermissions.set(userEmail, userPermissions);
-        }
-        userPermissions.linksPermissionIds.push(permission.id);
-      }
-    }
-  }
+//         let userPermissions = usersPermissions.get(userEmail);
+//         if (!userPermissions) {
+//           userPermissions = {
+//             type: 'user',
+//             userId: identity.user.id,
+//             email: identity.user.email,
+//             linksPermissionIds: [],
+//           };
+//           usersPermissions.set(userEmail, userPermissions);
+//         }
+//         userPermissions.linksPermissionIds.push(permission.id);
+//       }
+//     }
+//   }
 
-  const elbaPermissions: DataProtectionObjectPermission[] = [];
-  if (anyonePermissionIds.size) {
-    elbaPermissions.push({
-      id: 'anyone',
-      type: 'anyone',
-      metadata: {
-        type: 'anyone',
-        permissionIds: [...anyonePermissionIds],
-      } satisfies AnyonePermissionMetadata,
-    });
-  }
+//   const elbaPermissions: DataProtectionObjectPermission[] = [];
+//   if (anyonePermissionIds.size) {
+//     elbaPermissions.push({
+//       id: 'anyone',
+//       type: 'anyone',
+//       metadata: {
+//         type: 'anyone',
+//         permissionIds: [...anyonePermissionIds],
+//       } satisfies AnyonePermissionMetadata,
+//     });
+//   }
 
-  if (usersPermissions.size) {
-    for (const [userEmail, { userId, ...metadata }] of usersPermissions.entries()) {
-      elbaPermissions.push({
-        id: `user-${userId || userEmail}`,
-        type: 'user',
-        email: userEmail,
-        userId,
-        metadata,
-      });
-    }
-  }
+//   if (usersPermissions.size) {
+//     for (const [userEmail, { userId, ...metadata }] of usersPermissions.entries()) {
+//       elbaPermissions.push({
+//         id: `user-${userId || userEmail}`,
+//         type: 'user',
+//         email: userEmail,
+//         userId,
+//         metadata,
+//       });
+//     }
+//   }
 
-  return elbaPermissions;
-};
+//   return elbaPermissions;
+// };
 
 // TODO: check if we need this
 export const getItemsWithPermissionsFromChunks = async ({
@@ -166,46 +166,46 @@ export const getItemsWithPermissionsFromChunks = async ({
   return itemsWithPermissions;
 };
 
-export const formatDataProtectionObjects = ({
-  items,
-  siteId,
-  driveId,
-  parentPermissionIds,
-}: {
-  items: ItemWithPermissions[];
-  siteId: string;
-  driveId: string;
-  parentPermissionIds: string[];
-}): DataProtectionObject[] => {
-  const objects: DataProtectionObject[] = [];
-  const parentPermissions = new Set(parentPermissionIds);
+// export const formatDataProtectionObjects = ({
+//   items,
+//   siteId,
+//   driveId,
+//   parentPermissionIds,
+// }: {
+//   items: ItemWithPermissions[];
+//   siteId: string;
+//   driveId: string;
+//   parentPermissionIds: string[];
+// }): DataProtectionObject[] => {
+//   const objects: DataProtectionObject[] = [];
+//   const parentPermissions = new Set(parentPermissionIds);
 
-  for (const { item, permissions } of items) {
-    // TODO: is item creator always the owner? - Check with a deleted user
-    if (item.createdBy.user.id) {
-      const ownPermissions = permissions.filter(({ id }) => !parentPermissions.has(id));
-      const formattedPermissions = formatPermissions(ownPermissions);
-      if (formattedPermissions.length) {
-        const object = {
-          id: item.id,
-          name: item.name,
-          url: item.webUrl,
-          ownerId: item.createdBy.user.id,
-          metadata: {
-            siteId,
-            driveId,
-          } satisfies ItemMetadata,
-          updatedAt: item.lastModifiedDateTime,
-          permissions: formattedPermissions,
-        };
+//   for (const { item, permissions } of items) {
+//     // TODO: is item creator always the owner? - Check with a deleted user
+//     if (item.createdBy.user.id) {
+//       const ownPermissions = permissions.filter(({ id }) => !parentPermissions.has(id));
+//       const formattedPermissions = formatPermissions(ownPermissions);
+//       if (formattedPermissions.length) {
+//         const object = {
+//           id: item.id,
+//           name: item.name,
+//           url: item.webUrl,
+//           ownerId: item.createdBy.user.id,
+//           metadata: {
+//             siteId,
+//             driveId,
+//           } satisfies ItemMetadata,
+//           updatedAt: item.lastModifiedDateTime,
+//           permissions: formattedPermissions,
+//         };
 
-        objects.push(object);
-      }
-    }
-  }
+//         objects.push(object);
+//       }
+//     }
+//   }
 
-  return objects;
-};
+//   return objects;
+// };
 
 // TODO: rename this function
 export const removeInheritedUpdate = (items: ItemWithPermissions[]): ItemsWithPermissionsParsed => {

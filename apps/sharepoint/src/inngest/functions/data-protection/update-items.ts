@@ -8,8 +8,8 @@ import { decrypt } from '@/common/crypto';
 import { getDeltaItems } from '@/connectors/microsoft/delta/delta';
 import { createElbaClient } from '@/connectors/elba/client';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
+import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
 import {
-  formatDataProtectionObjects,
   getChunkedArray,
   getItemsWithPermissionsFromChunks,
   removeInheritedUpdate,

@@ -34,9 +34,7 @@ const createTempData = (title: string, i: number): MicrosoftDriveItem => ({
   webUrl: `http://${title}-webUrl-${i}.somedomain.net`,
   createdBy: {
     user: {
-      email: `${title}-user-email-${i}@someemail.com`,
       id: `${title}-user-id-${i}`,
-      displayName: `${title}user-displayName-${i}`,
     },
   },
   parentReference: {

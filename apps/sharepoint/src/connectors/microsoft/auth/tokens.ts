@@ -17,7 +17,7 @@ export const getToken = async (tenantId: string) => {
       client_id: env.MICROSOFT_CLIENT_ID,
       client_secret: env.MICROSOFT_CLIENT_SECRET,
       grant_type: 'client_credentials',
-      scope: 'https://graph.microsoft.com/.default', // TODO????
+      scope: 'https://graph.microsoft.com/.default',
     }),
   });
 

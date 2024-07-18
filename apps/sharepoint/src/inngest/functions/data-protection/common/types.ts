@@ -1,11 +1,16 @@
 import type { DataProtectionObjectPermission } from '@elba-security/sdk';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import type { SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
-import type {
-  UserPermissionMetadata,
-  AnyonePermissionMetadata,
-  SharepointMetadata,
-} from './helpers';
+import {
+  type AnyonePermissionMetadata,
+  type UserPermissionMetadata,
+  type PermissionMetadata,
+} from '@/connectors/elba/data-protection';
+// import type {
+//   UserPermissionMetadata,
+//   AnyonePermissionMetadata,
+//   SharepointPermissionMetadata,
+// } from './helpers';
 
 export type ItemWithPermissions = {
   item: MicrosoftDriveItem;
@@ -36,7 +41,7 @@ export type SharepointDataProtectionPermission =
 
 export type SharepointDeletePermission = {
   id: string;
-  metadata: SharepointMetadata;
+  metadata: PermissionMetadata;
 };
 
 export type CombinedLinkPermissions = {
