@@ -4,6 +4,7 @@ import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable, sharePointTable } from '@/database/schema';
 import { refreshSubscription as refreshSharepointSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
+import { decrypt } from '@/common/crypto';
 
 export const refreshSubscription = inngest.createFunction(
   {
@@ -43,7 +44,8 @@ export const refreshSubscription = inngest.createFunction(
       );
     }
 
-    const subscription = await refreshSharepointSubscription(record.token, subscriptionId);
+    const token = await decrypt(record.token);
+    const subscription = await refreshSharepointSubscription({ token, subscriptionId });
 
     await db
       .update(sharePointTable)

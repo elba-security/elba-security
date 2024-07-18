@@ -54,7 +54,7 @@ describe('drives connector', () => {
       );
     });
 
-    test('should return drives and nextSkipToken when the token is valid and their is another page', async () => {
+    test('should return drives and nextSkipToken when the token is valid and there is another page', async () => {
       await expect(
         getDrives({ token: validToken, siteId, skipToken: startSkipToken })
       ).resolves.toStrictEqual({
@@ -63,7 +63,7 @@ describe('drives connector', () => {
       });
     });
 
-    test('should return drives and no nextSkipToken when the token is valid and their is no other page', async () => {
+    test('should return drives and no nextSkipToken when the token is valid and there is no other page', async () => {
       await expect(
         getDrives({ token: validToken, siteId, skipToken: endSkipToken })
       ).resolves.toStrictEqual({

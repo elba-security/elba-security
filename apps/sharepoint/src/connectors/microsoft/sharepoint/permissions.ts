@@ -4,7 +4,6 @@ import { MicrosoftError } from '@/common/error';
 import { microsoftPaginatedResponseSchema } from '../common/pagination';
 
 const sharepointUserPermissionSchema = z.object({
-  // displayName: z.string(),
   id: z.string().optional(), // When sharing to a non Microsoft user email address, the id is not present
   email: z.string(),
 });

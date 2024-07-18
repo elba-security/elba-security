@@ -50,7 +50,7 @@ describe('sites connector', () => {
       );
     });
 
-    test('should return sites and nextSkipToken when the token is valid and their is another page', async () => {
+    test('should return sites and nextSkipToken when the token is valid and there is another page', async () => {
       await expect(
         getSites({ token: validToken, skipToken: startSkipToken })
       ).resolves.toStrictEqual({
@@ -59,7 +59,7 @@ describe('sites connector', () => {
       });
     });
 
-    test('should return sites and no nextSkipToken when the token is valid and their is no other page', async () => {
+    test('should return sites and no nextSkipToken when the token is valid and there is no other page', async () => {
       await expect(getSites({ token: validToken, skipToken: endSkipToken })).resolves.toStrictEqual(
         {
           sites,

@@ -47,8 +47,8 @@ export const getDeltaItems = async ({
 
   // TODO: select fields
   url.searchParams.append('token', deltaToken || 'latest');
-  url.searchParams.append('$top', '100'); // TODO
-  // url.searchParams.append('$top', String(env.MICROSOFT_DATA_PROTECTION_SYNC_CHUNK_SIZE));
+  // url.searchParams.append('$top', '100'); // TODO
+  url.searchParams.append('$top', String(env.MICROSOFT_DATA_PROTECTION_SYNC_CHUNK_SIZE));
   url.searchParams.append('$select', Object.keys(deltaItemSchema.shape).join(','));
 
   const response = await fetch(url, {

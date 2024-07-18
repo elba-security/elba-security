@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { addDays } from 'date-fns';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import { decrypt } from '@/common/crypto';
 
 export const incomingSubscriptionSchema = z.object({
   subscriptionId: z.string(),
@@ -23,13 +22,6 @@ const subscriptionSchema = z.object({
   clientState: z.string(),
 });
 
-type CreateSubscriptionParams = {
-  token: string;
-  changeType: string;
-  resource: string;
-  clientState: string;
-};
-
 export type Subscription = z.infer<typeof subscriptionSchema>;
 
 export const createSubscription = async ({
@@ -37,7 +29,12 @@ export const createSubscription = async ({
   changeType,
   resource,
   clientState,
-}: CreateSubscriptionParams) => {
+}: {
+  token: string;
+  changeType: string;
+  resource: string;
+  clientState: string;
+}) => {
   const url = new URL(`${env.MICROSOFT_API_URL}/subscriptions`);
 
   const response = await fetch(url, {
@@ -67,9 +64,13 @@ export const createSubscription = async ({
   return subscriptionSchema.parse(data); // TODO
 };
 
-export const refreshSubscription = async (encryptToken: string, subscriptionId: string) => {
-  const token = await decrypt(encryptToken); // TODO: move this
-
+export const refreshSubscription = async ({
+  token,
+  subscriptionId,
+}: {
+  token: string;
+  subscriptionId: string;
+}) => {
   const response = await fetch(`${env.MICROSOFT_API_URL}/subscriptions/${subscriptionId}`, {
     method: 'PATCH',
     headers: {
@@ -91,9 +92,13 @@ export const refreshSubscription = async (encryptToken: string, subscriptionId: 
   return subscriptionSchema.parse(data); // TODO
 };
 
-export const removeSubscription = async (encryptToken: string, subscriptionId: string) => {
-  const token = await decrypt(encryptToken);
-
+export const removeSubscription = async ({
+  token,
+  subscriptionId,
+}: {
+  token: string;
+  subscriptionId: string;
+}) => {
   const response = await fetch(`${env.MICROSOFT_API_URL}/subscriptions/${subscriptionId}`, {
     method: 'DELETE',
     headers: {

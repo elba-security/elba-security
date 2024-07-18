@@ -1,9 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 import { inngest } from '@/inngest/client';
-import type { SubscriptionPayload, WebhookResponse } from './types';
+import { type IncomingSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
+import type { WebhookResponse } from './types';
 import { handleWebhook } from './service';
 
-const data: WebhookResponse<SubscriptionPayload> = {
+const data: WebhookResponse<IncomingSubscription> = {
   value: [
     {
       subscriptionId: 'subscription-id-0',
@@ -20,7 +21,7 @@ const data: WebhookResponse<SubscriptionPayload> = {
   ],
 };
 
-const invalidData: WebhookResponse<SubscriptionPayload> = {
+const invalidData: WebhookResponse<IncomingSubscription> = {
   value: [
     {
       subscriptionId: 'subscription-id-0',
@@ -47,7 +48,6 @@ describe('handleWebhook', () => {
     expect(send).toBeCalledWith(
       data.value.map((payload, index) => {
         return {
-          id: `update-items-subscription-${payload.subscriptionId}`,
           name: 'sharepoint/update-items.triggered',
           data: {
             siteId: `siteId-${index}`,
@@ -70,7 +70,6 @@ describe('handleWebhook', () => {
 
     expect(send).toBeCalledWith([
       {
-        id: `update-items-subscription-subscription-id-0`,
         name: 'sharepoint/update-items.triggered',
         data: {
           siteId: 'siteId-0',

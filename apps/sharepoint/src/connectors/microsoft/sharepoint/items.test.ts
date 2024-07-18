@@ -217,7 +217,7 @@ describe('items connector', () => {
       );
     });
 
-    test('should return items and nextSkipToken when the token is valid and their is another page', async () => {
+    test('should return items and nextSkipToken when the token is valid and there is another page', async () => {
       await expect(
         getItems({ token: validToken, siteId, driveId, folderId: null, skipToken: startSkipToken })
       ).resolves.toStrictEqual({
@@ -226,7 +226,7 @@ describe('items connector', () => {
       });
     });
 
-    test('should return items and no nextSkipToken when the token is valid and their is no other page', async () => {
+    test('should return items and no nextSkipToken when the token is valid and there is no other page', async () => {
       await expect(
         getItems({ token: validToken, siteId, driveId, folderId, skipToken: endSkipToken })
       ).resolves.toStrictEqual({

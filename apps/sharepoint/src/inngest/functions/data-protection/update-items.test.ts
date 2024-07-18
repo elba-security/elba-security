@@ -153,7 +153,7 @@ describe('update-item-and-permissions', () => {
   test('should abort sync when there is no data in db', async () => {
     const elba = spyOnElba();
 
-    vi.spyOn(deltaConnector, 'getDelta').mockResolvedValue({
+    vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
       delta: [],
       nextSkipToken: null,
       newDeltaToken: null,
@@ -178,7 +178,7 @@ describe('update-item-and-permissions', () => {
     const elba = spyOnElba();
     let callCount = 0;
 
-    vi.spyOn(deltaConnector, 'getDelta').mockResolvedValue({
+    vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
       delta: items,
       nextSkipToken: skipToken,
       newDeltaToken: deltaToken,
@@ -257,7 +257,7 @@ describe('update-item-and-permissions', () => {
     const skipToken = null;
     const newDeltaToken = 'new-delta-token';
 
-    vi.spyOn(deltaConnector, 'getDelta').mockResolvedValue({
+    vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
       delta: items,
       nextSkipToken: skipToken,
       newDeltaToken,
@@ -289,7 +289,7 @@ describe('update-item-and-permissions', () => {
   });
 
   test('should throw NonRetriableError when there is no next page and no Delta token', async () => {
-    vi.spyOn(deltaConnector, 'getDelta').mockResolvedValue({
+    vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
       delta: items,
       nextSkipToken: null,
       newDeltaToken: null,
@@ -303,7 +303,7 @@ describe('update-item-and-permissions', () => {
   test('should continue the sync when there is a next page', async () => {
     const nextSkipToken = 'some-token';
 
-    vi.spyOn(deltaConnector, 'getDelta').mockResolvedValue({
+    vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
       delta: items,
       nextSkipToken,
       newDeltaToken: null,

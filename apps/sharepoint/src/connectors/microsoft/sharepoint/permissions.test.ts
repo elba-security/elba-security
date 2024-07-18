@@ -34,7 +34,6 @@ const permissions: SharepointPermission[] = Array.from({ length: 5 }, (_, i) => 
   link: { scope: 'users' },
   grantedToV2: {
     user: {
-      displayName: `some-display-name-${i}`,
       id: `some-user-id-${i}`,
       email: `some-user-email-${i}`,
     },
@@ -42,7 +41,6 @@ const permissions: SharepointPermission[] = Array.from({ length: 5 }, (_, i) => 
   grantedToIdentitiesV2: [
     {
       user: {
-        displayName: `some-display-name-${i}`,
         id: `some-user-id-${i}`,
         email: `some-user-email-${i}`,
       },
@@ -90,7 +88,7 @@ describe('permissions connector', () => {
       );
     });
 
-    test('should return permissions and nextSkipToken when the data is valid and their is another page', async () => {
+    test('should return permissions and nextSkipToken when the data is valid and there is another page', async () => {
       await expect(
         getItemPermissions({
           token: validToken,
@@ -105,7 +103,7 @@ describe('permissions connector', () => {
       });
     });
 
-    test('should return permissions and no nextSkipToken when the data is valid and their is no other page', async () => {
+    test('should return permissions and no nextSkipToken when the data is valid and there is no other page', async () => {
       await expect(
         getItemPermissions({
           token: validToken,

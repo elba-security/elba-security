@@ -83,10 +83,10 @@ describe('remove-subscription', () => {
     await expect(result).resolves.toBeUndefined();
 
     expect(removeSubscriptionConnector.removeSubscription).toBeCalledTimes(1);
-    expect(removeSubscriptionConnector.removeSubscription).toBeCalledWith(
-      organisation.token,
-      sharePoint.subscriptionId
-    );
+    expect(removeSubscriptionConnector.removeSubscription).toBeCalledWith({
+      subscriptionId: 'some-subscription-id',
+      token: 'test-token',
+    });
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('remove-subscription-completed', {

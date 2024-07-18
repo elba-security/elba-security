@@ -92,7 +92,7 @@ describe('delete-object', () => {
 
   test('should abort deletation when organisation is not registered', async () => {
     vi.spyOn(deleteItemPermissionConnector, 'deleteItemPermission').mockResolvedValue();
-    vi.spyOn(deleteItemPermissionConnector, 'revokeUserFromLinkPermission').mockResolvedValue();
+    vi.spyOn(deleteItemPermissionConnector, 'revokeUsersFromLinkPermission').mockResolvedValue();
 
     const [result, { step }] = setup({
       ...setupData,
@@ -103,12 +103,12 @@ describe('delete-object', () => {
 
     expect(step.run).toBeCalledTimes(0);
     expect(deleteItemPermissionConnector.deleteItemPermission).toBeCalledTimes(0);
-    expect(deleteItemPermissionConnector.revokeUserFromLinkPermission).toBeCalledTimes(0);
+    expect(deleteItemPermissionConnector.revokeUsersFromLinkPermission).toBeCalledTimes(0);
   });
 
   test('should delete object when item exists and return deleted permissions', async () => {
     vi.spyOn(deleteItemPermissionConnector, 'deleteItemPermission').mockResolvedValue();
-    vi.spyOn(deleteItemPermissionConnector, 'revokeUserFromLinkPermission').mockResolvedValue();
+    vi.spyOn(deleteItemPermissionConnector, 'revokeUsersFromLinkPermission').mockResolvedValue();
 
     const [result, { step }] = setup(setupData);
 
@@ -129,25 +129,25 @@ describe('delete-object', () => {
 
     expect(step.run).toBeCalledTimes(permissionDeletionArray.length);
 
-    const { revokeUserFromLinkPermissions, deleteItemPermissions } =
+    const { revokeUsersFromLinkPermissions, deleteItemPermissions } =
       permissionDeletionArray.reduce<{
-        revokeUserFromLinkPermissions: CombinedLinkPermissions[];
+        revokeUsersFromLinkPermissions: CombinedLinkPermissions[];
         deleteItemPermissions: CombinedLinkPermissions[];
       }>(
         (acc, el) => {
-          if (el.userEmails?.length) acc.revokeUserFromLinkPermissions.push(el);
+          if (el.userEmails?.length) acc.revokeUsersFromLinkPermissions.push(el);
           else acc.deleteItemPermissions.push(el);
 
           return acc;
         },
-        { revokeUserFromLinkPermissions: [], deleteItemPermissions: [] }
+        { revokeUsersFromLinkPermissions: [], deleteItemPermissions: [] }
       );
 
     expect(deleteItemPermissionConnector.deleteItemPermission).toBeCalledTimes(
       deleteItemPermissions.length
     );
-    expect(deleteItemPermissionConnector.revokeUserFromLinkPermission).toBeCalledTimes(
-      revokeUserFromLinkPermissions.length
+    expect(deleteItemPermissionConnector.revokeUsersFromLinkPermission).toBeCalledTimes(
+      revokeUsersFromLinkPermissions.length
     );
 
     for (let i = 0; i < deleteItemPermissions.length; i++) {
@@ -161,9 +161,9 @@ describe('delete-object', () => {
       });
     }
 
-    for (let i = 0; i < revokeUserFromLinkPermissions.length; i++) {
-      const permission = revokeUserFromLinkPermissions[i];
-      expect(deleteItemPermissionConnector.revokeUserFromLinkPermission).nthCalledWith(i + 1, {
+    for (let i = 0; i < revokeUsersFromLinkPermissions.length; i++) {
+      const permission = revokeUsersFromLinkPermissions[i];
+      expect(deleteItemPermissionConnector.revokeUsersFromLinkPermission).nthCalledWith(i + 1, {
         token,
         itemId,
         siteId,
@@ -200,7 +200,7 @@ describe('delete-object', () => {
         return Promise.resolve();
       }
     );
-    vi.spyOn(deleteItemPermissionConnector, 'revokeUserFromLinkPermission').mockResolvedValue();
+    vi.spyOn(deleteItemPermissionConnector, 'revokeUsersFromLinkPermission').mockResolvedValue();
 
     const [result, { step }] = setup({
       ...setupData,

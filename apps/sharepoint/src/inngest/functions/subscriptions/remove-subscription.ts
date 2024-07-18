@@ -4,6 +4,7 @@ import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable, sharePointTable } from '@/database/schema';
 import { removeSubscription as removeSharepointSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
+import { decrypt } from '@/common/crypto';
 
 export const removeSubscription = inngest.createFunction(
   {
@@ -43,7 +44,8 @@ export const removeSubscription = inngest.createFunction(
       );
     }
 
-    await removeSharepointSubscription(record.token, subscriptionId);
+    const token = await decrypt(record.token);
+    await removeSharepointSubscription({ token, subscriptionId });
 
     await step.sendEvent('remove-subscription-completed', {
       name: 'sharepoint/subscriptions.remove.completed',

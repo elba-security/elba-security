@@ -88,9 +88,9 @@ describe('refresh-subscription', () => {
     await expect(result).resolves.toBeUndefined();
 
     expect(refreshSubscriptionConnector.refreshSubscription).toBeCalledTimes(1);
-    expect(refreshSubscriptionConnector.refreshSubscription).toBeCalledWith(
-      organisation.token,
-      sharePoint.subscriptionId
-    );
+    expect(refreshSubscriptionConnector.refreshSubscription).toBeCalledWith({
+      subscriptionId: 'some-subscription-id',
+      token: 'test-token',
+    });
   });
 });
