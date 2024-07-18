@@ -1,33 +1,37 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUsers } from '@/connectors/users';
+import { deleteUsers as deleteDocusignUsers } from '@/connectors/docusign/users';
+import { decrypt } from '@/common/crypto';
 
-export const deleteSourceUsers = inngest.createFunction(
+export const deleteUsers = inngest.createFunction(
   { id: 'delete-users' },
   { event: 'docusign/users.delete.requested' },
   async ({ event }) => {
-    const { userId } = event.data;
+    const { organisationId, userIds } = event.data;
 
     const [organisation] = await db
       .select({
-        token: Organisation.accessToken,
-        apiBaseURI: Organisation.apiBaseURI,
+        accessToken: organisationsTable.accessToken,
+        accountId: organisationsTable.accountId,
+        apiBaseUri: organisationsTable.apiBaseUri,
       })
-      .from(Organisation)
-      .where(eq(Organisation.accountId, userId));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
+
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation`);
     }
 
-    const result = await deleteUsers({
-      userId,
-      token: organisation.token,
-      apiBaseURI: organisation.apiBaseURI,
-    });
+    const accessToken = await decrypt(organisation.accessToken);
 
-    return result;
+    await deleteDocusignUsers({
+      accessToken,
+      apiBaseUri: organisation.apiBaseUri,
+      users: userIds.map((userId) => ({ userId })),
+      accountId: organisation.accountId,
+    });
   }
 );

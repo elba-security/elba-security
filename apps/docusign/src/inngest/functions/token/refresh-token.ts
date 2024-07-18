@@ -1,12 +1,14 @@
 import { subMinutes } from 'date-fns/subMinutes';
 import { addSeconds } from 'date-fns/addSeconds';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
+import { failureRetry } from '@elba-security/inngest';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getRefreshToken } from '@/connectors/auth';
-import { env } from '@/env';
+import { encrypt, decrypt } from '@/common/crypto';
+import { unauthorizedMiddleware } from '@/inngest/middlewares/unauthorized-middleware';
+import { getRefreshToken } from '@/connectors/docusign/auth';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -17,53 +19,59 @@ export const refreshToken = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'docusign/docusign.elba_app.uninstalled',
+        event: 'docusign/app.installed',
         match: 'data.organisationId',
       },
       {
-        event: 'docusign/docusign.elba_app.installed',
+        event: 'docusign/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
-    retries: env.TOKEN_REFRESH_MAX_RETRY,
+    onFailure: failureRetry(),
+    middleware: [unauthorizedMiddleware],
+    retries: 5,
   },
-  { event: 'docusign/docusign.token.refresh.requested' },
+  { event: 'docusign/token.refresh.requested' },
   async ({ event, step }) => {
     const { organisationId, expiresAt } = event.data;
 
-    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 5));
+    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 30));
 
     const nextExpiresAt = await step.run('refresh-token', async () => {
       const [organisation] = await db
         .select({
-          refreshToken: Organisation.refreshToken,
+          refreshToken: organisationsTable.refreshToken,
         })
-        .from(Organisation)
-        .where(and(eq(Organisation.id, organisationId)));
+        .from(organisationsTable)
+        .where(eq(organisationsTable.id, organisationId));
 
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
 
+      const refreshTokenInfo = await decrypt(organisation.refreshToken);
+
       const {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
         expiresIn,
-      } = await getRefreshToken(organisation.refreshToken);
+      } = await getRefreshToken(refreshTokenInfo);
 
+      const encryptedAccessToken = await encrypt(newAccessToken);
+      const encryptedRefreshToken = await encrypt(newRefreshToken);
       await db
-        .update(Organisation)
+        .update(organisationsTable)
         .set({
-          accessToken: newAccessToken,
-          refreshToken: newRefreshToken,
+          accessToken: encryptedAccessToken,
+          refreshToken: encryptedRefreshToken,
         })
-        .where(eq(Organisation.id, organisationId));
+        .where(eq(organisationsTable.id, organisationId));
 
       return addSeconds(new Date(), expiresIn);
     });
 
     await step.sendEvent('next-refresh', {
-      name: 'docusign/docusign.token.refresh.requested',
+      name: 'docusign/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: new Date(nextExpiresAt).getTime(),
