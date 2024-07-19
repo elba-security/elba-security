@@ -19,11 +19,8 @@ const organisation = {
 
 const syncStartedAt = Date.now();
 const isFirstSync = false;
-const siteCount = 5;
 
-const sites: MicrosoftSite[] = Array.from({ length: siteCount }, (_, i) => ({
-  id: `site-id-${i}`,
-}));
+const sites: MicrosoftSite[] = [{ id: 'site-id-1' }, { id: 'site-id-2' }];
 
 const setupData = {
   organisationId: organisation.id,
@@ -42,7 +39,7 @@ describe('sync-sites', () => {
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(sitesConnector, 'getSites').mockResolvedValue({
       nextSkipToken: null,
-      sites: [],
+      siteIds: [],
     });
 
     const [result, { step }] = setup({
@@ -65,7 +62,7 @@ describe('sync-sites', () => {
 
     vi.spyOn(sitesConnector, 'getSites').mockResolvedValue({
       nextSkipToken,
-      sites,
+      siteIds: sites.map(({ id }) => id),
     });
 
     const [result, { step }] = setup(setupData);
@@ -78,7 +75,7 @@ describe('sync-sites', () => {
       skipToken,
     });
 
-    expect(step.waitForEvent).toBeCalledTimes(siteCount);
+    expect(step.waitForEvent).toBeCalledTimes(sites.length);
 
     for (let i = 0; i < sites.length; i++) {
       const site = sites[i];
@@ -120,7 +117,7 @@ describe('sync-sites', () => {
     const skipToken = 'skip-token';
     vi.spyOn(sitesConnector, 'getSites').mockResolvedValue({
       nextSkipToken,
-      sites,
+      siteIds: sites.map(({ id }) => id),
     });
     const [result, { step }] = setup({
       ...setupData,
@@ -135,7 +132,7 @@ describe('sync-sites', () => {
       skipToken,
     });
 
-    expect(step.waitForEvent).toBeCalledTimes(siteCount);
+    expect(step.waitForEvent).toBeCalledTimes(sites.length);
 
     for (let i = 0; i < sites.length; i++) {
       const site = sites[i];

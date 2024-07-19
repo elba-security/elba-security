@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
+import { enrichError, serializeLogObject } from '@elba-security/logger/src/serialize';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -9,7 +10,7 @@ import {
   deleteItemPermission,
   revokeUsersFromLinkPermission,
 } from '@/connectors/microsoft/sharepoint/permissions';
-import { preparePermissionDeletionArray } from './common/helpers';
+import { parsePermissionsToDelete } from './common/helpers';
 import { type CombinedLinkPermissions } from './common/types';
 
 export const deleteDataProtectionItemPermissions = inngest.createFunction(
@@ -54,12 +55,11 @@ export const deleteDataProtectionItemPermissions = inngest.createFunction(
 
     const token = await decrypt(organisation.token);
 
-    // TODO: better naming
-    const permissionDeletionArray = preparePermissionDeletionArray(permissions);
+    const permissionsToDelete = parsePermissionsToDelete(permissions);
 
     const permissionDeletionResults = await Promise.allSettled(
-      permissionDeletionArray.map(({ permissionId, userEmails }) =>
-        step.run('delete-item-permissions', async () => {
+      permissionsToDelete.map(({ permissionId, userEmails }) =>
+        step.run(`delete-item-permissions-${permissionId}`, async () => {
           if (userEmails?.length) {
             return revokeUsersFromLinkPermission({
               token,
@@ -86,7 +86,7 @@ export const deleteDataProtectionItemPermissions = inngest.createFunction(
     const ignoredPermissions: CombinedLinkPermissions[] = [];
     const unexpectedFailedPermissions: (CombinedLinkPermissions & { reason: unknown })[] = [];
     for (const [index, permissionDeletionResult] of permissionDeletionResults.entries()) {
-      const { permissionId, userEmails } = permissionDeletionArray[index]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion -- can't be undefined
+      const { permissionId, userEmails } = permissionsToDelete[index]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion -- can't be undefined
       if (permissionDeletionResult.status === 'rejected') {
         unexpectedFailedPermissions.push({
           permissionId,

@@ -11,9 +11,7 @@ const startSkipToken = 'start-skip-token';
 const endSkipToken = 'end-skip-token';
 const nextSkipToken = 'next-skip-token';
 
-const sites: MicrosoftSite[] = Array.from({ length: env.SITES_SYNC_BATCH_SIZE }, (_, i) => ({
-  id: `site-id-${i}`,
-}));
+const sites: MicrosoftSite[] = [{ id: 'site-id-1' }, { id: 'site-id-2' }];
 
 describe('sites connector', () => {
   describe('getSites', () => {
@@ -54,7 +52,7 @@ describe('sites connector', () => {
       await expect(
         getSites({ token: validToken, skipToken: startSkipToken })
       ).resolves.toStrictEqual({
-        sites,
+        siteIds: sites.map(({ id }) => id),
         nextSkipToken,
       });
     });
@@ -62,7 +60,7 @@ describe('sites connector', () => {
     test('should return sites and no nextSkipToken when the token is valid and there is no other page', async () => {
       await expect(getSites({ token: validToken, skipToken: endSkipToken })).resolves.toStrictEqual(
         {
-          sites,
+          siteIds: sites.map(({ id }) => id),
           nextSkipToken: null,
         }
       );

@@ -56,7 +56,7 @@ export const createSubscription = async ({
 
   if (!response.ok) {
     console.log(await response.clone().text());
-    throw new MicrosoftError('Could not retrieve create subscription', { response });
+    throw new MicrosoftError('Could not create subscription', { response });
   }
 
   const data: unknown = await response.json();
@@ -84,7 +84,7 @@ export const refreshSubscription = async ({
 
   if (!response.ok) {
     console.log(await response.clone().text());
-    throw new MicrosoftError('Could not retrieve create subscription', { response });
+    throw new MicrosoftError('Could not refresh subscription', { response });
   }
 
   const data: unknown = await response.json();

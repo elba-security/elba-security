@@ -5,34 +5,24 @@ import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { MicrosoftError } from '@/common/error';
-import * as deleteItemPermissionConnector from '@/connectors/microsoft/sharepoint/permissions';
+import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
+import {
+  type UserPermissionMetadata,
+  type AnyonePermissionMetadata,
+} from '@/connectors/elba/data-protection';
 import { deleteDataProtectionItemPermissions } from './delete-item-permissions';
-import type { CombinedLinkPermissions, SharepointDeletePermission } from './common/types';
-import { preparePermissionDeletionArray } from './common/helpers';
+import { type SharepointDeletePermission } from './common/types';
 
 const token = 'test-token';
-
 const siteId = 'some-site-id';
 const driveId = 'some-drive-id';
 const itemId = 'some-item-id';
-const notFoundPermission: SharepointDeletePermission = {
-  id: `some-not-found-permission-id`,
-  metadata: {
-    type: 'user',
-    email: `user-email-14454@someemail.com`,
-    directPermissionId: `some-not-found-permission-id`,
-    linksPermissionIds: [],
-  },
-};
 
-const unexpectedFailedPermission: SharepointDeletePermission = {
-  id: `some-unexpected-failed-permission-id`,
-  metadata: {
-    type: 'user',
-    email: `user-email-14454@someemail.com`,
-    directPermissionId: `some-unexpected-failed-permission-id`,
-    linksPermissionIds: [],
-  },
+const permissionCommon = {
+  driveId,
+  itemId,
+  siteId,
+  token,
 };
 
 const organisation = {
@@ -42,33 +32,33 @@ const organisation = {
   region: 'us',
 };
 
-const count = 5;
-
-const permissions: SharepointDeletePermission[] = Array.from({ length: count }, (_, i) => {
-  if (i === 1)
-    return {
-      id: `some-random-id-${i}`,
-      metadata: {
-        type: 'anyone',
-      },
-    };
-
-  return {
-    id: `some-random-id-${i}`,
+const permissions: SharepointDeletePermission[] = [
+  {
+    id: 'anyone-permission',
+    metadata: {
+      type: 'anyone',
+      permissionIds: ['anyone-permission-id-1', 'anyone-permission-id-2'],
+    } satisfies AnyonePermissionMetadata,
+  },
+  {
+    id: 'permission-user',
     metadata: {
       type: 'user',
-      email: `user-email-${i}@someemail.com`,
-      linksPermissionIds: [
-        `user-email-${i}@someemail.com`,
-        `user-email-${i * 1000}@someemail.com`,
-        `user-email-${i * 10000}@someemail.com`,
-      ],
-      directPermissionId: `some-random-id-${i}`,
-    },
-  };
-});
-
-const failedPermissionArray = [notFoundPermission, unexpectedFailedPermission];
+      email: 'user1@org',
+      linksPermissionIds: ['user-link-permission-id-1', 'user-link-permission-id-2'],
+      directPermissionId: 'user-permission-id-1',
+    } satisfies UserPermissionMetadata,
+  },
+  {
+    id: 'permission-user',
+    metadata: {
+      type: 'user',
+      email: 'user2@org',
+      linksPermissionIds: ['user-link-permission-id-1', 'user-link-permission-id-3'],
+      directPermissionId: 'user-permission-id-2',
+    } satisfies UserPermissionMetadata,
+  },
+];
 
 const setupData = {
   id: itemId,
@@ -91,8 +81,8 @@ describe('delete-object', () => {
   });
 
   test('should abort deletation when organisation is not registered', async () => {
-    vi.spyOn(deleteItemPermissionConnector, 'deleteItemPermission').mockResolvedValue();
-    vi.spyOn(deleteItemPermissionConnector, 'revokeUsersFromLinkPermission').mockResolvedValue();
+    vi.spyOn(permissionsConnector, 'deleteItemPermission').mockResolvedValue('deleted');
+    vi.spyOn(permissionsConnector, 'revokeUsersFromLinkPermission').mockResolvedValue('deleted');
 
     const [result, { step }] = setup({
       ...setupData,
@@ -102,154 +92,133 @@ describe('delete-object', () => {
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(step.run).toBeCalledTimes(0);
-    expect(deleteItemPermissionConnector.deleteItemPermission).toBeCalledTimes(0);
-    expect(deleteItemPermissionConnector.revokeUsersFromLinkPermission).toBeCalledTimes(0);
+    expect(permissionsConnector.deleteItemPermission).toBeCalledTimes(0);
+    expect(permissionsConnector.revokeUsersFromLinkPermission).toBeCalledTimes(0);
   });
 
-  test('should delete object when item exists and return deleted permissions', async () => {
-    vi.spyOn(deleteItemPermissionConnector, 'deleteItemPermission').mockResolvedValue();
-    vi.spyOn(deleteItemPermissionConnector, 'revokeUsersFromLinkPermission').mockResolvedValue();
+  test('should successfully delete item permissions', async () => {
+    vi.spyOn(permissionsConnector, 'deleteItemPermission')
+      .mockResolvedValueOnce('ignored')
+      .mockResolvedValue('deleted');
+    vi.spyOn(permissionsConnector, 'revokeUsersFromLinkPermission')
+      .mockResolvedValueOnce('ignored')
+      .mockResolvedValue('deleted');
 
     const [result, { step }] = setup(setupData);
 
-    const permissionDeletionArray = preparePermissionDeletionArray(permissions);
-
-    await expect(result).resolves.toStrictEqual({
-      deletedPermissions: permissionDeletionArray.map((el) => ({
-        siteId,
-        driveId,
-        itemId,
-        status: 204,
-        userEmails: undefined,
-        ...el,
-      })),
-      notFoundPermissions: [],
+    await expect(result).resolves.toEqual({
+      deletedPermissions: [
+        { permissionId: 'anyone-permission-id-2' },
+        { permissionId: 'user-permission-id-1' },
+        { permissionId: 'user-permission-id-2' },
+        { permissionId: 'user-link-permission-id-2', userEmails: ['user1@org'] },
+        { permissionId: 'user-link-permission-id-3', userEmails: ['user2@org'] },
+      ],
+      ignoredPermissions: [
+        { permissionId: 'anyone-permission-id-1' },
+        { permissionId: 'user-link-permission-id-1', userEmails: ['user1@org', 'user2@org'] },
+      ],
       unexpectedFailedPermissions: [],
     });
 
-    expect(step.run).toBeCalledTimes(permissionDeletionArray.length);
+    expect(step.run).toBeCalledTimes(7);
 
-    const { revokeUsersFromLinkPermissions, deleteItemPermissions } =
-      permissionDeletionArray.reduce<{
-        revokeUsersFromLinkPermissions: CombinedLinkPermissions[];
-        deleteItemPermissions: CombinedLinkPermissions[];
-      }>(
-        (acc, el) => {
-          if (el.userEmails?.length) acc.revokeUsersFromLinkPermissions.push(el);
-          else acc.deleteItemPermissions.push(el);
+    expect(permissionsConnector.deleteItemPermission).toBeCalledTimes(4);
+    expect(permissionsConnector.deleteItemPermission).toHaveBeenNthCalledWith(1, {
+      ...permissionCommon,
+      permissionId: 'anyone-permission-id-1',
+    });
+    expect(permissionsConnector.deleteItemPermission).toHaveBeenNthCalledWith(2, {
+      ...permissionCommon,
+      permissionId: 'anyone-permission-id-2',
+    });
+    expect(permissionsConnector.deleteItemPermission).toHaveBeenNthCalledWith(3, {
+      ...permissionCommon,
+      permissionId: 'user-permission-id-1',
+    });
+    expect(permissionsConnector.deleteItemPermission).toHaveBeenNthCalledWith(4, {
+      ...permissionCommon,
+      permissionId: 'user-permission-id-2',
+    });
 
-          return acc;
-        },
-        { revokeUsersFromLinkPermissions: [], deleteItemPermissions: [] }
-      );
-
-    expect(deleteItemPermissionConnector.deleteItemPermission).toBeCalledTimes(
-      deleteItemPermissions.length
-    );
-    expect(deleteItemPermissionConnector.revokeUsersFromLinkPermission).toBeCalledTimes(
-      revokeUsersFromLinkPermissions.length
-    );
-
-    for (let i = 0; i < deleteItemPermissions.length; i++) {
-      const permission = deleteItemPermissions[i];
-      expect(deleteItemPermissionConnector.deleteItemPermission).nthCalledWith(i + 1, {
-        token,
-        itemId,
-        siteId,
-        driveId,
-        permissionId: permission?.permissionId,
-      });
-    }
-
-    for (let i = 0; i < revokeUsersFromLinkPermissions.length; i++) {
-      const permission = revokeUsersFromLinkPermissions[i];
-      expect(deleteItemPermissionConnector.revokeUsersFromLinkPermission).nthCalledWith(i + 1, {
-        token,
-        itemId,
-        siteId,
-        driveId,
-        permissionId: permission?.permissionId,
-        userEmails: permission?.userEmails,
-      });
-    }
+    expect(permissionsConnector.revokeUsersFromLinkPermission).toBeCalledTimes(3);
+    expect(permissionsConnector.revokeUsersFromLinkPermission).toHaveBeenNthCalledWith(1, {
+      ...permissionCommon,
+      permissionId: 'user-link-permission-id-1',
+      userEmails: ['user1@org', 'user2@org'],
+    });
+    expect(permissionsConnector.revokeUsersFromLinkPermission).toHaveBeenNthCalledWith(2, {
+      ...permissionCommon,
+      permissionId: 'user-link-permission-id-2',
+      userEmails: ['user1@org'],
+    });
+    expect(permissionsConnector.revokeUsersFromLinkPermission).toHaveBeenNthCalledWith(3, {
+      ...permissionCommon,
+      permissionId: 'user-link-permission-id-3',
+      userEmails: ['user2@org'],
+    });
   });
 
-  test('should not found permission and unexpected failed permission', async () => {
-    vi.spyOn(deleteItemPermissionConnector, 'deleteItemPermission').mockImplementation(
-      ({ permissionId }) => {
-        if (
-          notFoundPermission.metadata.type === 'user' &&
-          permissionId === notFoundPermission.metadata.directPermissionId
-        ) {
-          return Promise.reject(
-            new MicrosoftError('Could not delete item permission', {
-              response: new Response(undefined, { status: 404 }),
-            })
-          );
-        }
-        if (
-          unexpectedFailedPermission.metadata.type === 'user' &&
-          permissionId === unexpectedFailedPermission.metadata.directPermissionId
-        ) {
-          return Promise.reject(
-            new MicrosoftError('Could not delete item permission', {
-              response: new Response(undefined, { status: 500 }),
-            })
-          );
-        }
-        return Promise.resolve();
-      }
-    );
-    vi.spyOn(deleteItemPermissionConnector, 'revokeUsersFromLinkPermission').mockResolvedValue();
+  test('should ignore failed permissions', async () => {
+    vi.spyOn(permissionsConnector, 'deleteItemPermission')
+      .mockRejectedValueOnce(new MicrosoftError('Unknown permission error'))
+      .mockResolvedValue('deleted');
+    vi.spyOn(permissionsConnector, 'revokeUsersFromLinkPermission')
+      .mockRejectedValueOnce(new MicrosoftError('Unknown users link permission error'))
+      .mockResolvedValue('deleted');
 
-    const [result, { step }] = setup({
-      ...setupData,
-      permissions: failedPermissionArray,
-    });
+    const [result, { step }] = setup(setupData);
 
-    await expect(result).resolves.toStrictEqual({
-      deletedPermissions: [],
-      notFoundPermissions: [
-        {
-          siteId,
-          driveId,
-          itemId,
-          status: 404,
-          userEmails: undefined,
-          permissionId:
-            notFoundPermission.metadata.type === 'user' &&
-            notFoundPermission.metadata.directPermissionId,
-        },
+    await expect(result).resolves.toEqual({
+      deletedPermissions: [
+        { permissionId: 'anyone-permission-id-2' },
+        { permissionId: 'user-permission-id-1' },
+        { permissionId: 'user-permission-id-2' },
+        { permissionId: 'user-link-permission-id-2', userEmails: ['user1@org'] },
+        { permissionId: 'user-link-permission-id-3', userEmails: ['user2@org'] },
       ],
+      ignoredPermissions: [],
       unexpectedFailedPermissions: [
-        {
-          siteId,
-          driveId,
-          itemId,
-          status: 500,
-          userEmails: undefined,
-          permissionId:
-            unexpectedFailedPermission.metadata.type === 'user' &&
-            unexpectedFailedPermission.metadata.directPermissionId,
-        },
+        { permissionId: 'anyone-permission-id-1' },
+        { permissionId: 'user-link-permission-id-1', userEmails: ['user1@org', 'user2@org'] },
       ],
     });
 
-    expect(step.run).toBeCalledTimes(failedPermissionArray.length);
-    expect(deleteItemPermissionConnector.deleteItemPermission).toBeCalledTimes(
-      failedPermissionArray.length
-    );
+    expect(step.run).toBeCalledTimes(7);
 
-    for (let i = 0; i < failedPermissionArray.length; i++) {
-      const permission = failedPermissionArray[i];
-      expect(deleteItemPermissionConnector.deleteItemPermission).nthCalledWith(i + 1, {
-        token,
-        itemId,
-        siteId,
-        driveId,
-        permissionId:
-          permission?.metadata.type === 'user' && permission.metadata.directPermissionId,
-      });
-    }
+    expect(permissionsConnector.deleteItemPermission).toBeCalledTimes(4);
+    expect(permissionsConnector.deleteItemPermission).toHaveBeenNthCalledWith(1, {
+      ...permissionCommon,
+      permissionId: 'anyone-permission-id-1',
+    });
+    expect(permissionsConnector.deleteItemPermission).toHaveBeenNthCalledWith(2, {
+      ...permissionCommon,
+      permissionId: 'anyone-permission-id-2',
+    });
+    expect(permissionsConnector.deleteItemPermission).toHaveBeenNthCalledWith(3, {
+      ...permissionCommon,
+      permissionId: 'user-permission-id-1',
+    });
+    expect(permissionsConnector.deleteItemPermission).toHaveBeenNthCalledWith(4, {
+      ...permissionCommon,
+      permissionId: 'user-permission-id-2',
+    });
+
+    expect(permissionsConnector.revokeUsersFromLinkPermission).toBeCalledTimes(3);
+    expect(permissionsConnector.revokeUsersFromLinkPermission).toHaveBeenNthCalledWith(1, {
+      ...permissionCommon,
+      permissionId: 'user-link-permission-id-1',
+      userEmails: ['user1@org', 'user2@org'],
+    });
+    expect(permissionsConnector.revokeUsersFromLinkPermission).toHaveBeenNthCalledWith(2, {
+      ...permissionCommon,
+      permissionId: 'user-link-permission-id-2',
+      userEmails: ['user1@org'],
+    });
+    expect(permissionsConnector.revokeUsersFromLinkPermission).toHaveBeenNthCalledWith(3, {
+      ...permissionCommon,
+      permissionId: 'user-link-permission-id-3',
+      userEmails: ['user2@org'],
+    });
   });
 });

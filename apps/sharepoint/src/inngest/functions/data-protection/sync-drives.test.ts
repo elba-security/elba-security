@@ -19,11 +19,7 @@ const organisation = {
 const siteId = 'some-site-id';
 const isFirstSync = false;
 
-const driveCount = 5;
-
-const drives: MicrosoftDrive[] = Array.from({ length: driveCount }, (_, i) => ({
-  id: `drive-id-${i}`,
-}));
+const drives: MicrosoftDrive[] = [{ id: 'drive-id-1' }, { id: 'drive-id-2' }];
 
 const setupData = {
   siteId,
@@ -42,7 +38,7 @@ describe('sync-drives', () => {
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(drivesConnector, 'getDrives').mockResolvedValue({
       nextSkipToken: null,
-      drives,
+      driveIds: drives.map(({ id }) => id),
     });
 
     const [result, { step }] = setup({
@@ -65,7 +61,7 @@ describe('sync-drives', () => {
 
     vi.spyOn(drivesConnector, 'getDrives').mockResolvedValue({
       nextSkipToken,
-      drives,
+      driveIds: drives.map(({ id }) => id),
     });
     const [result, { step }] = setup(setupData);
 
@@ -78,7 +74,7 @@ describe('sync-drives', () => {
       skipToken,
     });
 
-    expect(step.waitForEvent).toBeCalledTimes(driveCount);
+    expect(step.waitForEvent).toBeCalledTimes(drives.length);
 
     for (let i = 0; i < drives.length; i++) {
       const drive = drives[i];
@@ -99,7 +95,8 @@ describe('sync-drives', () => {
           siteId,
           driveId: id,
           isFirstSync,
-          folder: null,
+          folderId: null,
+          permissionIds: [],
           skipToken,
           organisationId: organisation.id,
         },
@@ -123,7 +120,7 @@ describe('sync-drives', () => {
 
     vi.spyOn(drivesConnector, 'getDrives').mockResolvedValue({
       nextSkipToken,
-      drives,
+      driveIds: drives.map(({ id }) => id),
     });
     const [result, { step }] = setup({ ...setupData, skipToken });
 
@@ -136,7 +133,7 @@ describe('sync-drives', () => {
       skipToken,
     });
 
-    expect(step.waitForEvent).toBeCalledTimes(driveCount);
+    expect(step.waitForEvent).toBeCalledTimes(drives.length);
 
     for (let i = 0; i < drives.length; i++) {
       const drive = drives[i];
@@ -157,7 +154,8 @@ describe('sync-drives', () => {
           siteId,
           driveId: id,
           isFirstSync,
-          folder: null,
+          folderId: null,
+          permissionIds: [],
           skipToken: nextSkipToken,
           organisationId: organisation.id,
         },

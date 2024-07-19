@@ -10,7 +10,6 @@ const sharepointUserPermissionSchema = z.object({
 
 const sharepointPermissionSchema = z.object({
   id: z.string(),
-  roles: z.array(z.string()),
   link: z
     .object({
       scope: z.string().optional(),
@@ -49,7 +48,6 @@ type RevokeUserFromLinkPermissionParams = DeleteItemPermissionParams & {
   userEmails: string[];
 };
 
-// TODO: REFACTOR
 export const getAllItemPermissions = async ({
   token,
   siteId,
@@ -200,7 +198,7 @@ export const revokeUsersFromLinkPermission = async ({
       }
     }
 
-    throw new MicrosoftError('Could not revoke permission', { response });
+    throw new MicrosoftError('Could not revoke users link permission', { response });
   }
 
   return 'deleted';

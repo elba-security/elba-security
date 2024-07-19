@@ -8,7 +8,7 @@ import type { SharepointDeletePermission } from '@/inngest/functions/data-protec
 import {
   type AnyonePermissionMetadata,
   type UserPermissionMetadata,
-} from '@/inngest/functions/data-protection/common/helpers';
+} from '@/connectors/elba/data-protection';
 import { POST as handler } from './route';
 
 const token = 'test-token';

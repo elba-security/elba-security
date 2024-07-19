@@ -1,12 +1,11 @@
 import { http } from 'msw';
 import { z } from 'zod';
-import { describe, expect, test, beforeEach, vi } from 'vitest';
+import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import type { SharepointPermission } from './permissions';
-import { getAllItemPermissions, getItemPermissions } from './permissions';
 import * as getPermissionsConnector from './permissions';
+import type { SharepointPermission } from './permissions';
 
 const validToken = 'token-1234';
 const startSkipToken = 'start-skip-token';
@@ -28,9 +27,9 @@ const dataSchema = z.object({
     .min(1),
 });
 
-const permissions: SharepointPermission[] = Array.from({ length: 5 }, (_, i) => ({
+// TODO: anyone
+const permissions: SharepointPermission[] = Array.from({ length: 2 }, (_, i) => ({
   id: `permission-id-${i}`,
-  roles: ['write'],
   link: { scope: 'users' },
   grantedToV2: {
     user: {
@@ -49,7 +48,7 @@ const permissions: SharepointPermission[] = Array.from({ length: 5 }, (_, i) => 
 }));
 
 describe('permissions connector', () => {
-  describe('getAllItemPermissions', () => {
+  describe('getItemPermissions', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
@@ -90,7 +89,7 @@ describe('permissions connector', () => {
 
     test('should return permissions and nextSkipToken when the data is valid and there is another page', async () => {
       await expect(
-        getItemPermissions({
+        getPermissionsConnector.getItemPermissions({
           token: validToken,
           siteId,
           driveId,
@@ -105,7 +104,7 @@ describe('permissions connector', () => {
 
     test('should return permissions and no nextSkipToken when the data is valid and there is no other page', async () => {
       await expect(
-        getItemPermissions({
+        getPermissionsConnector.getItemPermissions({
           token: validToken,
           siteId,
           driveId,
@@ -120,7 +119,7 @@ describe('permissions connector', () => {
 
     test('should throws when the token is invalid', async () => {
       await expect(
-        getItemPermissions({
+        getPermissionsConnector.getItemPermissions({
           token: 'invalid-token',
           siteId,
           driveId,
@@ -132,7 +131,7 @@ describe('permissions connector', () => {
 
     test('should throws when the siteId is invalid', async () => {
       await expect(
-        getItemPermissions({
+        getPermissionsConnector.getItemPermissions({
           token: validToken,
           siteId: 'invalid-siteId',
           driveId,
@@ -144,7 +143,7 @@ describe('permissions connector', () => {
 
     test('should throws when the driveId is invalid', async () => {
       await expect(
-        getItemPermissions({
+        getPermissionsConnector.getItemPermissions({
           token: validToken,
           siteId,
           driveId: 'invalid-driveId',
@@ -156,7 +155,7 @@ describe('permissions connector', () => {
 
     test('should throws when the itemId is invalid', async () => {
       await expect(
-        getItemPermissions({
+        getPermissionsConnector.getItemPermissions({
           token: validToken,
           siteId,
           driveId,
@@ -164,27 +163,6 @@ describe('permissions connector', () => {
           skipToken: null,
         })
       ).rejects.toBeInstanceOf(MicrosoftError);
-    });
-
-    test('should run getAllItemPermissions', async () => {
-      vi.spyOn(getPermissionsConnector, 'getAllItemPermissions').mockResolvedValue({
-        permissions,
-        nextSkipToken: null,
-      });
-
-      await expect(
-        getAllItemPermissions({
-          token: validToken,
-          siteId,
-          driveId,
-          itemId,
-        })
-      ).resolves.toStrictEqual({
-        permissions,
-        nextSkipToken: null,
-      });
-
-      expect(getAllItemPermissions).toBeCalledTimes(1);
     });
   });
 
@@ -206,7 +184,7 @@ describe('permissions connector', () => {
               return new Response(undefined, { status: 404 });
             }
 
-            return Response.json({ status: 200 });
+            return new Response(undefined, { status: 200 });
           }
         )
       );
@@ -260,7 +238,7 @@ describe('permissions connector', () => {
       ).rejects.toBeInstanceOf(MicrosoftError);
     });
 
-    test('should throws when the itemId is invalid', async () => {
+    test('should be ignored when itemId is not found', async () => {
       await expect(
         getPermissionsConnector.deleteItemPermission({
           token: validToken,
@@ -269,7 +247,7 @@ describe('permissions connector', () => {
           itemId: 'invalid-itemId',
           permissionId,
         })
-      ).rejects.toBeInstanceOf(MicrosoftError);
+      ).resolves.toStrictEqual('ignored');
     });
 
     test('should throws when the permissionId is invalid', async () => {
@@ -285,7 +263,7 @@ describe('permissions connector', () => {
     });
   });
 
-  describe('revokeUserFromLinkPermission', () => {
+  describe('revokeUsersFromLinkPermission', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
@@ -308,7 +286,7 @@ describe('permissions connector', () => {
               return new Response(undefined, { status: 500 });
             }
 
-            return Response.json({ status: 200 });
+            return new Response(undefined, { status: 200 });
           }
         )
       );
@@ -316,7 +294,7 @@ describe('permissions connector', () => {
 
     test('should resolves when the token and data is valid', () => {
       expect(
-        getPermissionsConnector.revokeUserFromLinkPermission({
+        getPermissionsConnector.revokeUsersFromLinkPermission({
           token: validToken,
           siteId,
           driveId,
@@ -329,7 +307,7 @@ describe('permissions connector', () => {
 
     test('should throws when the token is invalid', async () => {
       await expect(
-        getPermissionsConnector.revokeUserFromLinkPermission({
+        getPermissionsConnector.revokeUsersFromLinkPermission({
           token: 'invalid-token',
           siteId,
           driveId,
@@ -342,7 +320,7 @@ describe('permissions connector', () => {
 
     test('should throws when the siteId is invalid', async () => {
       await expect(
-        getPermissionsConnector.revokeUserFromLinkPermission({
+        getPermissionsConnector.revokeUsersFromLinkPermission({
           token: validToken,
           siteId: 'invalid-siteId',
           driveId,
@@ -355,7 +333,7 @@ describe('permissions connector', () => {
 
     test('should throws when the driveId is invalid', async () => {
       await expect(
-        getPermissionsConnector.revokeUserFromLinkPermission({
+        getPermissionsConnector.revokeUsersFromLinkPermission({
           token: validToken,
           siteId,
           driveId: 'invalid-driveId',
@@ -368,7 +346,7 @@ describe('permissions connector', () => {
 
     test('should throws when the itemId is invalid', async () => {
       await expect(
-        getPermissionsConnector.revokeUserFromLinkPermission({
+        getPermissionsConnector.revokeUsersFromLinkPermission({
           token: validToken,
           siteId,
           driveId,
@@ -381,7 +359,7 @@ describe('permissions connector', () => {
 
     test('should throws when the permissionId is invalid', async () => {
       await expect(
-        getPermissionsConnector.revokeUserFromLinkPermission({
+        getPermissionsConnector.revokeUsersFromLinkPermission({
           token: validToken,
           siteId,
           driveId,
@@ -394,7 +372,7 @@ describe('permissions connector', () => {
 
     test('should throws when the no user emails is invalid', async () => {
       await expect(
-        getPermissionsConnector.revokeUserFromLinkPermission({
+        getPermissionsConnector.revokeUsersFromLinkPermission({
           token: validToken,
           siteId,
           driveId,

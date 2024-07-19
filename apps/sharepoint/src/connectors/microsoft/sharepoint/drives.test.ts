@@ -12,9 +12,7 @@ const nextSkipToken = 'next-skip-token';
 
 const siteId = 'some-site-id';
 
-const drives: MicrosoftDrive[] = Array.from({ length: env.SITES_SYNC_BATCH_SIZE }, (_, i) => ({
-  id: `drive-id-${i}`,
-}));
+const drives: MicrosoftDrive[] = [{ id: 'drive-id-1' }, { id: 'drive-id-2' }];
 
 describe('drives connector', () => {
   describe('getDrives', () => {
@@ -35,20 +33,13 @@ describe('drives connector', () => {
 
           const selectedKeys = select?.split(',') || ([] as unknown as (keyof MicrosoftDrive)[]);
 
-          const formattedDrives = drives.map((site) =>
-            selectedKeys.reduce<Partial<MicrosoftDrive>>((acc, key: keyof MicrosoftDrive) => {
-              acc[key] = site[key];
-              return acc;
-            }, {})
-          );
-
           const nextPageUrl = new URL(url);
           nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
 
           return Response.json({
             '@odata.nextLink':
               skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
-            value: formattedDrives.slice(0, top ? Number(top) : 0),
+            value: drives.slice(0, top ? Number(top) : 0),
           });
         })
       );
@@ -58,7 +49,7 @@ describe('drives connector', () => {
       await expect(
         getDrives({ token: validToken, siteId, skipToken: startSkipToken })
       ).resolves.toStrictEqual({
-        drives,
+        driveIds: drives.map(({ id }) => id),
         nextSkipToken,
       });
     });
@@ -67,7 +58,7 @@ describe('drives connector', () => {
       await expect(
         getDrives({ token: validToken, siteId, skipToken: endSkipToken })
       ).resolves.toStrictEqual({
-        drives,
+        driveIds: drives.map(({ id }) => id),
         nextSkipToken: null,
       });
     });

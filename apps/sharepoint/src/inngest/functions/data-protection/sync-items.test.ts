@@ -63,7 +63,6 @@ const mockPermissions = (itemCount: number): SharepointPermission[] => {
     if (i === 0 || i < 2) {
       return {
         id: `permission-id-${i}`,
-        roles: ['write'],
         grantedToV2: {
           user: {
             displayName: `some-display-name-${i}`,
@@ -77,7 +76,6 @@ const mockPermissions = (itemCount: number): SharepointPermission[] => {
     if (i === 2) {
       return {
         id: `permission-id-${i}`,
-        roles: ['write'],
         link: { scope: 'anonymous' },
         grantedToIdentitiesV2: [],
       };
@@ -85,7 +83,6 @@ const mockPermissions = (itemCount: number): SharepointPermission[] => {
 
     return {
       id: `permission-id-${i}`,
-      roles: ['write'],
       link: { scope: 'users' },
       grantedToIdentitiesV2: [
         {

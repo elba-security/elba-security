@@ -1,9 +1,9 @@
-import { http } from 'msw';
-import { describe, expect, test, beforeEach } from 'vitest';
-import { addDays } from 'date-fns';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/common/env';
+import { addDays } from 'date-fns';
+import { http } from 'msw';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { MicrosoftError } from '@/common/error';
+import { env } from '@/common/env';
 import {
   createSubscription,
   refreshSubscription,
@@ -99,13 +99,13 @@ describe('subscription connector', () => {
               return new Response(undefined, { status: 400 });
             }
 
-            return undefined;
+            return new Response();
           }
         )
       );
     });
 
-    test('should refresh the subscription when the token is valid', async () => {
+    test('should remove the subscription when the token is valid', async () => {
       await expect(
         removeSubscription({ token: validToken, subscriptionId })
       ).resolves.toBeUndefined();

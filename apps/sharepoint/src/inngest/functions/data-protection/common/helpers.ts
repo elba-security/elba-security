@@ -1,5 +1,3 @@
-// import type { DataProtectionObject, DataProtectionObjectPermission } from '@elba-security/sdk';
-// import { z } from 'zod';
 import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import {
   getAllItemPermissions,
@@ -12,36 +10,6 @@ import type {
   SharepointDeletePermission,
 } from './types';
 
-// export const itemMetadataSchema = z.object({
-//   siteId: z.string(),
-//   driveId: z.string(),
-// });
-
-// type ItemMetadata = z.infer<typeof itemMetadataSchema>;
-
-// export const userPermissionMetadataSchema = z.object({
-//   type: z.literal('user'),
-//   email: z.string(),
-//   linksPermissionIds: z.array(z.string()),
-//   directPermissionId: z.string().optional(),
-// });
-
-// export type UserPermissionMetadata = z.infer<typeof userPermissionMetadataSchema>;
-
-// export const anyonePermissionMetadataSchema = z.object({
-//   type: z.literal('anyone'),
-//   permissionIds: z.array(z.string()),
-// });
-
-// export type AnyonePermissionMetadata = z.infer<typeof anyonePermissionMetadataSchema>;
-
-// export const sharepointPermissionMetadata = z.union([
-//   userPermissionMetadataSchema,
-//   anyonePermissionMetadataSchema,
-// ]);
-
-// export type SharepointPermissionMetadata = z.infer<typeof sharepointPermissionMetadata>;
-
 export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
   const chunks: T[][] = [];
   for (let i = 0; i < array.length; i += batchSize) {
@@ -50,81 +18,7 @@ export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
   return chunks;
 };
 
-// export const formatPermissions = (permissions: SharepointPermission[]) => {
-//   const usersPermissions = new Map<string, UserPermissionMetadata & { userId?: string }>();
-//   const anyonePermissionIds = new Set<string>();
-
-//   for (const permission of permissions) {
-//     if (permission.link?.scope === 'anonymous') {
-//       anyonePermissionIds.add(permission.id);
-//     }
-
-//     if (permission.grantedToV2?.user) {
-//       const userEmail = permission.grantedToV2.user.email;
-
-//       let userPermissions = usersPermissions.get(userEmail);
-//       if (!userPermissions) {
-//         userPermissions = {
-//           type: 'user',
-//           userId: permission.grantedToV2.user.id,
-//           email: permission.grantedToV2.user.email,
-//           linksPermissionIds: [],
-//         };
-//         usersPermissions.set(userEmail, userPermissions);
-//       }
-//       userPermissions.directPermissionId = permission.id;
-//     }
-
-//     if (permission.link?.scope === 'users' && permission.grantedToIdentitiesV2?.length) {
-//       for (const identity of permission.grantedToIdentitiesV2) {
-//         if (!identity.user) {
-//           continue;
-//         }
-//         const userEmail = identity.user.email;
-
-//         let userPermissions = usersPermissions.get(userEmail);
-//         if (!userPermissions) {
-//           userPermissions = {
-//             type: 'user',
-//             userId: identity.user.id,
-//             email: identity.user.email,
-//             linksPermissionIds: [],
-//           };
-//           usersPermissions.set(userEmail, userPermissions);
-//         }
-//         userPermissions.linksPermissionIds.push(permission.id);
-//       }
-//     }
-//   }
-
-//   const elbaPermissions: DataProtectionObjectPermission[] = [];
-//   if (anyonePermissionIds.size) {
-//     elbaPermissions.push({
-//       id: 'anyone',
-//       type: 'anyone',
-//       metadata: {
-//         type: 'anyone',
-//         permissionIds: [...anyonePermissionIds],
-//       } satisfies AnyonePermissionMetadata,
-//     });
-//   }
-
-//   if (usersPermissions.size) {
-//     for (const [userEmail, { userId, ...metadata }] of usersPermissions.entries()) {
-//       elbaPermissions.push({
-//         id: `user-${userId || userEmail}`,
-//         type: 'user',
-//         email: userEmail,
-//         userId,
-//         metadata,
-//       });
-//     }
-//   }
-
-//   return elbaPermissions;
-// };
-
-// TODO: check if we need this
+// TODO: get rid of this
 export const getItemsWithPermissionsFromChunks = async ({
   itemsChunks,
   token,
@@ -166,48 +60,6 @@ export const getItemsWithPermissionsFromChunks = async ({
   return itemsWithPermissions;
 };
 
-// export const formatDataProtectionObjects = ({
-//   items,
-//   siteId,
-//   driveId,
-//   parentPermissionIds,
-// }: {
-//   items: ItemWithPermissions[];
-//   siteId: string;
-//   driveId: string;
-//   parentPermissionIds: string[];
-// }): DataProtectionObject[] => {
-//   const objects: DataProtectionObject[] = [];
-//   const parentPermissions = new Set(parentPermissionIds);
-
-//   for (const { item, permissions } of items) {
-//     // TODO: is item creator always the owner? - Check with a deleted user
-//     if (item.createdBy.user.id) {
-//       const ownPermissions = permissions.filter(({ id }) => !parentPermissions.has(id));
-//       const formattedPermissions = formatPermissions(ownPermissions);
-//       if (formattedPermissions.length) {
-//         const object = {
-//           id: item.id,
-//           name: item.name,
-//           url: item.webUrl,
-//           ownerId: item.createdBy.user.id,
-//           metadata: {
-//             siteId,
-//             driveId,
-//           } satisfies ItemMetadata,
-//           updatedAt: item.lastModifiedDateTime,
-//           permissions: formattedPermissions,
-//         };
-
-//         objects.push(object);
-//       }
-//     }
-//   }
-
-//   return objects;
-// };
-
-// TODO: rename this function
 export const removeInheritedUpdate = (items: ItemWithPermissions[]): ItemsWithPermissionsParsed => {
   const toUpdate: ItemWithPermissions[] = [];
   const toDelete: string[] = [];
@@ -221,15 +73,8 @@ export const removeInheritedUpdate = (items: ItemWithPermissions[]): ItemsWithPe
   for (const { item, permissions } of items) {
     const parentId = item.parentReference.id;
     const parentPermissions = parentId && itemsPermissions.get(parentId);
-    // if (!parentPermissions) {
-    //   // TODO: change this logic
-    //   console.error(JSON.stringify({ parentId, parentPermissions, item }, null, 2));
-    //   continue;
-    // }
-
-    // TODO: ignore root folder?
-
     const nonInheritedPermissions: SharepointPermission[] = [];
+
     for (const permission of permissions) {
       if (!parentPermissions || !parentPermissions.has(permission.id)) {
         nonInheritedPermissions.push(permission);
@@ -248,7 +93,7 @@ export const removeInheritedUpdate = (items: ItemWithPermissions[]): ItemsWithPe
   return { toUpdate, toDelete };
 };
 
-export const preparePermissionDeletionArray = (
+export const parsePermissionsToDelete = (
   permissions: SharepointDeletePermission[]
 ): CombinedLinkPermissions[] => {
   // TODO: rename variables

@@ -49,9 +49,8 @@ describe('sync-sites', () => {
 
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
-      delta: [],
-      nextSkipToken: null,
-      newDeltaToken: null,
+      items: { deleted: [], updated: [] },
+      newDeltaToken: 'new-delta-token',
     });
 
     const [result, { step }] = setup({
@@ -66,36 +65,9 @@ describe('sync-sites', () => {
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should continue the sync when there is a next page', async () => {
-    const nextSkipToken = 'next-skip-token';
-
-    vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
-      delta: [],
-      nextSkipToken,
-      newDeltaToken: null,
-    });
-
-    const [result] = setup(setupData);
-
-    await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
-  });
-
-  test('should throw NonRetriableError when no newDeltaToken and no skipToken', async () => {
-    vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
-      delta: [],
-      nextSkipToken: null,
-      newDeltaToken: null,
-    });
-
-    const [result] = setup(setupData);
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-  });
-
   test('should finalize the sync and insert/update data in db', async () => {
     vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
-      delta: [],
-      nextSkipToken: null,
+      items: { deleted: [], updated: [] },
       newDeltaToken: deltaToken,
     });
     vi.spyOn(createSubscriptionConnector, 'createSubscription').mockResolvedValue(subscriptionData);
