@@ -1,0 +1,42 @@
+@tailwind base;
+
+@layer base {
+  a {
+    @apply hover:underline text-blue-500;
+  }
+  h1 {
+    @apply text-4xl mb-6;
+  }
+  h2 {
+    @apply text-3xl mb-5;
+  }
+  h3 {
+    @apply text-2xl mb-4;
+  }
+  h4,
+  h5,
+  h6 {
+    @apply text-base mb-2;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-gray-900 font-extrabold;
+  }
+  p {
+    @apply my-2;
+  }
+  body {
+    @apply text-gray-600;
+  }
+  html,
+  body {
+    @apply h-full;
+  }
+}
+
+@tailwind components;
+@tailwind utilities;

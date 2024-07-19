@@ -1,5 +1,5 @@
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
@@ -20,10 +20,10 @@ export const setupOrganisation = async ({
   const encryptedToken = await encrypt(token);
 
   await db
-    .insert(Organisation)
+    .insert(organisationsTable)
     .values({ id: organisationId, token: encryptedToken, region })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
         token: encryptedToken,
       },

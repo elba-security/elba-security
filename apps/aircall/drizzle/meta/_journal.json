@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1715850338177,
+      "tag": "0000_smart_kitty_pryde",
+      "breakpoints": true
+    }
+  ]
+}

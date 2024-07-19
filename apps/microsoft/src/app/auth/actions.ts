@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { getRedirectUrl } from '@elba-security/sdk';
 import { RedirectType, redirect } from 'next/navigation';
 import { isRedirectError } from 'next/dist/client/components/redirect';
+import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 import { env } from '@/env';
 import { setupOrganisation } from './service';
 
@@ -25,6 +26,7 @@ export const checkAppInstallation = async ({
   tenant,
   adminConsent,
 }: CheckAppInstallationParams) => {
+  unstable_noStore();
   const organisationId = cookies().get('organisation_id')?.value;
   const region = cookies().get('region')?.value;
   try {

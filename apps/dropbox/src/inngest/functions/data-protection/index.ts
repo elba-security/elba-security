@@ -1,4 +1,4 @@
-export * from './schedule-folders-and-files-sync';
+// export * from './schedule-folders-and-files-sync';
 export * from './start-shared-links-sync';
 export * from './sync-shared-links';
 export * from './start-folders-and-files-sync';

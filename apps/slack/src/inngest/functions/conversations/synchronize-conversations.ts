@@ -101,7 +101,7 @@ export const synchronizeConversations = inngest.createFunction(
       const eventsToWait = conversationsToInsert.map(({ id: conversationId }) =>
         step.waitForEvent(`wait-for-message-complete-${conversationId}`, {
           event: 'slack/conversations.sync.messages.completed',
-          timeout: '1 day',
+          timeout: '30 days',
           if: `async.data.teamId == '${teamId}' && async.data.conversationId == '${conversationId}'`,
         })
       );

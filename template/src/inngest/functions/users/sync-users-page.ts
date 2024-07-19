@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { type MySaasUser, getUsers } from '@/connectors/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { env } from '@/env';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
@@ -50,9 +50,9 @@ export const syncUsersPage = inngest.createFunction(
     // retrieve the SaaS organisation token
     const token = await step.run('get-token', async () => {
       const [organisation] = await db
-        .select({ token: Organisation.token })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisationId));
+        .select({ token: organisationsTable.token })
+        .from(organisationsTable)
+        .where(eq(organisationsTable.id, organisationId));
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }

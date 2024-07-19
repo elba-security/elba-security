@@ -11,8 +11,21 @@ export const hexStringFromArrayBuffer = (buffer: Uint8Array) => {
   return [...buffer].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
-export const encryptText = async (data: string, key: string) => {
-  const ivArrayBuffer = crypto.getRandomValues(new Uint8Array(16));
+export const encryptText = async ({
+  data,
+  key,
+  iv,
+}: {
+  data: string;
+  key: string;
+  iv?: string;
+}) => {
+  let ivArrayBuffer: Uint8Array;
+  if (iv) {
+    ivArrayBuffer = arrayBufferFromHexString(iv);
+  } else {
+    ivArrayBuffer = crypto.getRandomValues(new Uint8Array(16));
+  }
   const keyArrayBuffer = arrayBufferFromHexString(key);
 
   const secretKey = await crypto.subtle.importKey(
@@ -49,7 +62,7 @@ export const encryptText = async (data: string, key: string) => {
   return `${ivHex}${tagHex}${encryptedHex}`;
 };
 
-export const decryptText = async (data: string, key: string) => {
+export const decryptText = async ({ data, key }: { data: string; key: string }) => {
   const [ivHex, tagHex, encryptedHex] = [
     data.substring(0, 32),
     data.substring(32, 64),

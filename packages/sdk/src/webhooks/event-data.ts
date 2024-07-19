@@ -1,29 +1,31 @@
 import { type infer as zInfer, type ZodSchema } from 'zod';
 import {
+  authenticationRefreshObjectRequestedWebhookDataSchema,
   dataProtectionContentRequestedWebhookDataSchema,
-  dataProtectionStartSyncRequestedWebhookDataSchema,
-  dataProtectionObjectDeletedWebhookDataSchema,
   dataProtectionDeleteObjectPermissionsRequestedDataSchema,
+  dataProtectionObjectDeletedWebhookDataSchema,
   dataProtectionRefreshObjectRequestedWebhookDataSchema,
-  thirdPartyAppsStartSyncRequestedWebhookDataSchema,
-  thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
+  dataProtectionStartSyncRequestedWebhookDataSchema,
   thirdPartyAppsDeleteObjectRequestedWebhookDataSchema,
-  usersDeleteUserRequestedWebhookDataSchema,
+  thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
+  thirdPartyAppsStartSyncRequestedWebhookDataSchema,
+  usersDeleteUsersRequestedWebhookDataSchema,
 } from '@elba-security/schemas';
 import { ElbaError } from '../error';
 
 const eventDataSchema = {
-  'third_party_apps.start_sync_requested': thirdPartyAppsStartSyncRequestedWebhookDataSchema,
-  'third_party_apps.refresh_object_requested':
-    thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
-  'third_party_apps.delete_object_requested': thirdPartyAppsDeleteObjectRequestedWebhookDataSchema,
-  'data_protection.start_sync_requested': dataProtectionStartSyncRequestedWebhookDataSchema,
+  'authentication.refresh_object_requested': authenticationRefreshObjectRequestedWebhookDataSchema,
   'data_protection.content_requested': dataProtectionContentRequestedWebhookDataSchema,
-  'data_protection.object_deleted': dataProtectionObjectDeletedWebhookDataSchema,
-  'data_protection.refresh_object_requested': dataProtectionRefreshObjectRequestedWebhookDataSchema,
   'data_protection.delete_object_permissions_requested':
     dataProtectionDeleteObjectPermissionsRequestedDataSchema,
-  'users.delete_user_requested': usersDeleteUserRequestedWebhookDataSchema,
+  'data_protection.object_deleted': dataProtectionObjectDeletedWebhookDataSchema,
+  'data_protection.refresh_object_requested': dataProtectionRefreshObjectRequestedWebhookDataSchema,
+  'data_protection.start_sync_requested': dataProtectionStartSyncRequestedWebhookDataSchema,
+  'third_party_apps.delete_object_requested': thirdPartyAppsDeleteObjectRequestedWebhookDataSchema,
+  'third_party_apps.refresh_object_requested':
+    thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
+  'third_party_apps.start_sync_requested': thirdPartyAppsStartSyncRequestedWebhookDataSchema,
+  'users.delete_users_requested': usersDeleteUsersRequestedWebhookDataSchema,
 } as const satisfies Record<string, ZodSchema>;
 
 export type WebhookEvent = keyof typeof eventDataSchema;

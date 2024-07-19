@@ -1,11 +1,11 @@
 {
-  "id": "992dec7a-91ad-4440-a74d-42fca333b20d",
+  "id": "d6423785-8272-4daf-a5bf-2605b76a57f6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "organisation": {
-      "name": "organisation",
+    "organisations": {
+      "name": "organisations",
       "schema": "",
       "columns": {
         "id": {
@@ -14,26 +14,32 @@
           "primaryKey": true,
           "notNull": true
         },
+        "access_id": {
+          "name": "access_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "access_key": {
+          "name": "access_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_region": {
+          "name": "source_region",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "region": {
           "name": "region",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "accessId": {
-          "name": "accessId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "accessKey": {
-          "name": "accessKey",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sourceRegion": {
-          "name": "sourceRegion",
           "type": "text",
           "primaryKey": false,
           "notNull": true

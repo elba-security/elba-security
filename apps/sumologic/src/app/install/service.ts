@@ -1,8 +1,8 @@
-import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
-import { getUsers } from '@/connectors/users';
+import { getOwnerId } from '../../connectors/sumologic/users';
+import { db } from '../../database/client';
+import { organisationsTable } from '../../database/schema';
+import { inngest } from '../../inngest/client';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -11,7 +11,6 @@ type SetupOrganisationParams = {
   sourceRegion: string;
   region: string;
 };
-
 export const registerOrganisation = async ({
   organisationId,
   accessId,
@@ -19,22 +18,28 @@ export const registerOrganisation = async ({
   sourceRegion,
   region,
 }: SetupOrganisationParams) => {
+  const { ownerId } = await getOwnerId({ accessId, accessKey, sourceRegion });
 
   const encodedAccessId = await encrypt(accessId);
-  const encodedAccessKey = await encrypt(accessKey);
 
-  await getUsers({accessId, accessKey, sourceRegion})
-  
   await db
-    .insert(Organisation)
-    .values({ id: organisationId, region, accessId: encodedAccessId, accessKey: encodedAccessKey, sourceRegion })
+    .insert(organisationsTable)
+    .values({
+      id: organisationId,
+      region,
+      accessId: encodedAccessId,
+      accessKey,
+      sourceRegion,
+      ownerId,
+    })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
         region,
         accessId: encodedAccessId,
-        accessKey: encodedAccessKey,
-        sourceRegion
+        accessKey,
+        sourceRegion,
+        ownerId,
       },
     });
 
@@ -42,18 +47,16 @@ export const registerOrganisation = async ({
     {
       name: 'sumologic/users.sync.requested',
       data: {
-        organisationId,
         isFirstSync: true,
+        organisationId,
         syncStartedAt: Date.now(),
         page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
-      name: 'sumologic/sumologic.elba_app.installed',
+      name: 'sumologic/app.installed',
       data: {
         organisationId,
-        region,
       },
     },
   ]);

@@ -6,7 +6,7 @@ This endpoint enables updating information about data protection objects associa
 
 This method allows for updating details of data protection objects
 
-```
+```text
 POST /api/rest/data-protection/objects
 ```
 
@@ -36,7 +36,7 @@ Supported attributes:
 
 Example requests:
 
-#### CURL:
+#### CURL
 
 ```shell
 curl
@@ -92,7 +92,7 @@ curl
   }'
 ```
 
-#### Elba SDK:
+#### Elba SDK
 
 ```javascript
 elba.dataProtection.updateObjects({ objects });
@@ -106,9 +106,9 @@ Example success response:
 }
 ```
 
-### Type of permissions:
+### Type of permissions
 
-> [!NOTE]  
+> [!NOTE]
 > There are three types of permissions
 
 1. `user` - this permission accepts two different types of object below
