@@ -47,7 +47,7 @@ describe('setupOrganisation', () => {
   });
 
   test('should setup organisation when the code is valid and the organisation is not registered', async () => {
-    // mock inngest client, only inngest.send should be used
+    // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mock the getToken function to return a predefined token
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
@@ -102,7 +102,7 @@ describe('setupOrganisation', () => {
   });
 
   test('should setup organisation when the code is valid and the organisation is already registered', async () => {
-    // mock inngest client, only inngest.send should be used
+    // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // pre-insert an organisation to simulate an existing entry
     await db.insert(organisationsTable).values(organisation);
@@ -160,7 +160,7 @@ describe('setupOrganisation', () => {
   });
 
   test('should not setup the organisation when the code is invalid', async () => {
-    // mock inngest client
+    // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const error = new Error('invalid code');
     // mock getToken to reject with a dumb error for an invalid code
