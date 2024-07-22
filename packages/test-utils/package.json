@@ -4,23 +4,37 @@
   "private": true,
   "main": "src/index.ts",
   "scripts": {
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "type-check": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./vitest/global-setup": "./src/vitest/global-setup.ts",
+    "./vitest/setup-database": "./src/vitest/setup-database.ts",
+    "./vitest/setup-msw-handlers": "./src/vitest/setup-msw-handlers.ts"
   },
   "dependencies": {
     "@elba-security/api-client": "workspace:*",
-    "typescript": "^5",
-    "zod": "^3.22.4"
+    "typescript": "^5.5.2",
+    "zod": "^3.23.8"
   },
   "peerDependencies": {
-    "msw": ">=2.0.0",
-    "inngest": ">=3.12.0",
     "@elba-security/sdk": "workspace:*",
-    "vitest": ">=1.0.0"
+    "drizzle-orm": ">=0.31.0",
+    "inngest": ">=3.19.0",
+    "msw": ">=2.3.0",
+    "postgres": ">=3.4.0",
+    "testcontainers": ">=10.10.0",
+    "vitest": ">=1.6.0"
   },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
-    "inngest": "3.14.2",
-    "eslint": "^8"
+    "@types/node": "^20",
+    "eslint": "^8",
+    "inngest": "3.19.11",
+    "msw": "^2.3.1",
+    "testcontainers": "^10.10.0",
+    "typescript": "^5.5.2"
   }
 }

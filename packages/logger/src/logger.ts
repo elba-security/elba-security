@@ -1,20 +1,16 @@
-import * as Sentry from '@sentry/nextjs';
-import { enrichError, serializeLogObject } from './serialize';
+import { serializeLogObject } from './serialize';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 export type LoggerOptions = {
   env?: string;
-  enableSentry: boolean;
 };
 
 export class Logger {
   env: string;
-  enableSentry: boolean;
 
-  constructor({ env, enableSentry }: LoggerOptions) {
+  constructor({ env }: LoggerOptions) {
     this.env = env || 'unknown';
-    this.enableSentry = enableSentry;
   }
 
   private prepareLogMessage(message: string, info?: object): object {
@@ -72,34 +68,5 @@ export class Logger {
         stack: e?.stack,
       });
     }
-
-    if (this.enableSentry && !isSkipSentryError(info)) {
-      const customProperties = {
-        message,
-        error: info instanceof Error ? enrichError(info) : undefined,
-        ...info,
-      };
-      Sentry.setContext('Custom Properties', customProperties);
-      Sentry.captureException(customProperties);
-    }
-  }
-}
-
-export const isSkipSentryError = (error: any) => {
-  let currentError = error;
-  while (currentError) {
-    if (currentError instanceof SkipSentryError) {
-      return true;
-    }
-    currentError = currentError.cause;
-  }
-
-  return false;
-};
-
-export class SkipSentryError extends Error {
-  constructor(...errorArgs: ConstructorParameters<typeof Error>) {
-    super(...errorArgs);
-    Object.defineProperty(this, 'name', { value: 'SkipSentryError' });
   }
 }

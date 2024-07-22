@@ -38,6 +38,7 @@ export const formatFilesToAdd = ({
 
     const isFile = file['.tag'] === 'file';
 
+    // IF the  folder doesn't have shared_folder_id, ignore it
     if (!isFile && !file.shared_folder_id) {
       return [];
     }

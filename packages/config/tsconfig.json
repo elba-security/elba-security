@@ -1,8 +1,0 @@
-{
-  "extends": "@elba-security/tsconfig/base.json",
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules"],
-  "compilerOptions": {
-    "allowJs": true
-  }
-}

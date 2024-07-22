@@ -26,10 +26,11 @@ type SynchronizeUsers = {
 export const synchronizeUsers = inngest.createFunction(
   {
     id: 'slack-synchronize-users',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     retries: 5,
+    concurrency: {
+      limit: 1,
+      key: 'event.data.teamId + "-" + event.data.isFirstSync',
+    },
   },
   { event: 'slack/users.sync.requested' },
   async ({
@@ -80,7 +81,9 @@ export const synchronizeUsers = inngest.createFunction(
     }
 
     const elbaClient = createElbaClient(elbaOrganisationId, elbaRegion);
-    await elbaClient.users.update({ users });
+    await step.run('update-users', async () => {
+      await elbaClient.users.update({ users });
+    });
 
     if (nextCursor) {
       await step.sendEvent('next-pagination-cursor', {
@@ -93,7 +96,9 @@ export const synchronizeUsers = inngest.createFunction(
         },
       });
     } else {
-      await elbaClient.users.delete({ syncedBefore: syncStartedAt });
+      await step.run('delete-users', async () => {
+        await elbaClient.users.delete({ syncedBefore: syncStartedAt });
+      });
     }
 
     return { users, nextCursor };

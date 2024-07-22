@@ -10,12 +10,10 @@ export type CreateElbaMiddlewareOptions = {
 export const createElbaMiddleware =
   ({ webhookSecret }: CreateElbaMiddlewareOptions): NextMiddleware =>
   async (request) => {
-    if (request.nextUrl.pathname.startsWith('/api/webhook/elba')) {
-      try {
-        await validateWebhookRequestSignature(request, webhookSecret);
-      } catch (error) {
-        logger.error('Could not validate webhook request signature', { error, request });
-        return new NextResponse(null, { status: 401, statusText: 'unauthorized' });
-      }
+    try {
+      await validateWebhookRequestSignature(request, webhookSecret);
+    } catch (error) {
+      logger.error('Could not validate webhook request signature', { error, request });
+      return new NextResponse(null, { status: 401, statusText: 'unauthorized' });
     }
   };

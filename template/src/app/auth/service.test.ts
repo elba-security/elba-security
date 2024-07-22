@@ -10,7 +10,8 @@ import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import * as authConnector from '@/connectors/auth';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
+import { decrypt } from '@/common/crypto';
 import { inngest } from '@/inngest/client';
 import { setupOrganisation } from './service';
 
@@ -55,14 +56,12 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith(code);
 
     // verify the organisation token is set in the database
-    await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        token,
-        region,
-      },
-    ]);
+    const [storedOrganisation] = await db
+      .select()
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
+    expect(storedOrganisation.region).toBe(region);
+    await expect(decrypt(storedOrganisation.token)).resolves(token);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
@@ -83,7 +82,7 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // pre-insert an organisation to simulate an existing entry
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     // mock getToken as above
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(token);
@@ -102,16 +101,11 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith(code);
 
     // check if the token in the database is updated
-    await expect(
-      db
-        .select({ token: Organisation.token })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        token,
-      },
-    ]);
+    const [storedOrganisation] = await db
+      .select()
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
+    await expect(decrypt(storedOrganisation.token)).resolves(token);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
@@ -150,7 +144,7 @@ describe('setupOrganisation', () => {
 
     // ensure no organisation is added or updated in the database
     await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toHaveLength(0);
 
     // ensure no sync users event is sent

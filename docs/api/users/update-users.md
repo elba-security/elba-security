@@ -6,28 +6,30 @@ This endpoint is used to add multiple users to a specified organisation in the E
 
 This method allows for the addition of multiple users to an organisation using their unique identifiers and other personal details.
 
-```
+```text
 POST /api/rest/users
 ```
 
 Supported attributes:
 
-| Attribute                   | Type   | Required | Description                                       |
-| --------------------------- | ------ | -------- | ------------------------------------------------- |
-| `organisationId` **(uuid)** | string | Yes      | Unique identifier for the organisation.           |
-| `users`                     | array  | Yes      | Array of user objects to be added.                |
-| `users[].id`                | string | Yes      | Unique identifier for the user.                   |
-| `users[].email`             | string | Yes      | Email address of the user.                        |
-| `users[].displayName`       | string | Yes      | Display name of the user.                         |
-| `users[].additionalEmails`  | array  | No       | List of additional email addresses.               |
-| `users[].role`              | string | No       | User role                                         |
-| `users[].authMethod`        | string | No       | User auth method - `"mfa"`, `"password"`, `"sso"` |
+| Attribute                   | Type    | Required | Description                                       |
+| --------------------------- | ------- | -------- | ------------------------------------------------- |
+| `organisationId` **(uuid)** | string  | Yes      | Unique identifier for the organisation.           |
+| `users`                     | array   | Yes      | Array of user objects to be added.                |
+| `users[].id`                | string  | Yes      | Unique identifier for the user.                   |
+| `users[].email`             | string  | Yes      | Email address of the user.                        |
+| `users[].displayName`       | string  | Yes      | Display name of the user.                         |
+| `users[].additionalEmails`  | array   | No       | List of additional email addresses.               |
+| `users[].role`              | string  | No       | User role                                         |
+| `users[].authMethod`        | string  | No       | User auth method - `"mfa"`, `"password"`, `"sso"` |
+| `users[].isSuspendable`     | boolean | No       | Whether the user can be suspended / deleted       |
+| `users[].url`               | string  | No       | URL pointing to the user profile                  |
 
 If successful and the organisation is found, returns [`200`](rest/index.md#status-codes) and the following response attributes:
 
 Example requests:
 
-#### CURL:
+#### CURL
 
 ```shell
 curl --request POST \
@@ -47,7 +49,7 @@ curl --request POST \
   }'
 ```
 
-#### elba SDK:
+#### elba SDK
 
 ```javascript
 elba.users.update({ users });

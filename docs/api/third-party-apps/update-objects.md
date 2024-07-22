@@ -31,7 +31,7 @@ Supported attributes:
 
 Example requests:
 
-#### CURL:
+#### CURL
 
 ```shell
 curl
@@ -67,7 +67,7 @@ curl
   }'
 ```
 
-#### elba SDK:
+#### elba SDK
 
 ```javascript
 elba.thirdPartyApps.updateObjects({ apps: thirdPartyApps });

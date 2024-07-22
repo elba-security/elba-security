@@ -34,14 +34,20 @@ type SynchronizeConversationMessagesCompleted = {
 export const synchronizeConversationMessages = inngest.createFunction(
   {
     id: 'slack-synchronize-conversation-messages',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     concurrency: {
       limit: env.SLACK_SYNC_CONVERSATIONS_MESSAGES_CONCURRENCY,
-      key: 'event.data.teamId',
+      key: 'event.data.teamId + "-" + event.data.isFirstSync',
     },
     retries: env.SLACK_SYNC_CONVERSATIONS_MESSAGES_RETRY,
+    onFailure: async ({ step, event }) => {
+      await step.sendEvent('failed', {
+        name: 'slack/conversations.sync.messages.completed',
+        data: {
+          conversationId: event.data.event.data.conversationId,
+          teamId: event.data.event.data.teamId,
+        },
+      });
+    },
   },
   {
     event: 'slack/conversations.sync.messages.requested',
@@ -81,58 +87,67 @@ export const synchronizeConversationMessages = inngest.createFunction(
       return result;
     });
 
-    const { messages, nextCursor } = await step.run('get-messages', async () => {
-      const token = await decrypt(conversation.team.token);
-      const slackClient = new SlackAPIClient(token);
-      const { messages: responseMessages, response_metadata: responseMetadata } =
-        await slackClient.conversations.history({
-          channel: conversationId,
-          limit: env.SLACK_CONVERSATIONS_HISTORY_BATCH_SIZE,
-          cursor,
-        });
+    const { objects, threadIds, nextCursor } = await step.run(
+      'get-data-protection-objects',
+      async () => {
+        const token = await decrypt(conversation.team.token);
+        const slackClient = new SlackAPIClient(token);
+        const { messages, response_metadata: responseMetadata } =
+          await slackClient.conversations.history({
+            channel: conversationId,
+            limit: env.SLACK_CONVERSATIONS_HISTORY_BATCH_SIZE,
+            cursor,
+          });
 
-      if (!responseMessages) {
-        throw new Error('An error occurred while listing slack conversations');
+        if (!messages) {
+          throw new Error('An error occurred while listing slack conversations');
+        }
+
+        const dpObjects: DataProtectionObject[] = [];
+        const threads: string[] = [];
+        for (const message of messages) {
+          if (message.thread_ts) {
+            threads.push(message.thread_ts);
+          }
+
+          const result = slackMessageSchema.safeParse(message);
+          if (message.type !== 'message' || message.team !== teamId || !result.success) {
+            continue;
+          }
+
+          const object = formatDataProtectionObject({
+            teamId,
+            teamUrl: conversation.team.url,
+            conversationId,
+            conversationName: conversation.name,
+            isConversationSharedExternally: conversation.isSharedExternally,
+            message: result.data,
+          });
+
+          dpObjects.push(object);
+        }
+
+        return {
+          objects: dpObjects,
+          threadIds: threads,
+          nextCursor: responseMetadata?.next_cursor,
+        };
       }
-
-      return { messages: responseMessages, nextCursor: responseMetadata?.next_cursor };
-    });
-
-    const objects: DataProtectionObject[] = [];
-    const threadIds: string[] = [];
-    for (const message of messages) {
-      if (message.thread_ts) {
-        threadIds.push(message.thread_ts);
-      }
-
-      const result = slackMessageSchema.safeParse(message);
-      if (message.type !== 'message' || message.team !== teamId || !result.success) {
-        continue;
-      }
-
-      const object = formatDataProtectionObject({
-        teamId,
-        teamUrl: conversation.team.url,
-        conversationId,
-        conversationName: conversation.name,
-        isConversationSharedExternally: conversation.isSharedExternally,
-        message: result.data,
-      });
-
-      objects.push(object);
-    }
-
-    const elbaClient = createElbaClient(
-      conversation.team.elbaOrganisationId,
-      conversation.team.elbaRegion
     );
-    await elbaClient.dataProtection.updateObjects({ objects });
+
+    await step.run('update-data-protection-objects', async () => {
+      const elbaClient = createElbaClient(
+        conversation.team.elbaOrganisationId,
+        conversation.team.elbaRegion
+      );
+      return elbaClient.dataProtection.updateObjects({ objects });
+    });
 
     if (threadIds.length) {
       const eventsToWait = threadIds.map(async (threadId) => {
         return step.waitForEvent(`wait-for-thread-message-sync-complete-${threadId}`, {
           event: 'slack/conversations.sync.thread.messages.completed',
-          timeout: '1d',
+          timeout: '30 days',
           if: `async.data.teamId == '${teamId}' && async.data.conversationId == '${conversationId}' && async.data.threadId == '${threadId}'`,
         });
       });

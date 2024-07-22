@@ -12,12 +12,14 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
+import { encrypt } from '@/common/crypto';
 import { syncUsersPage } from './sync-users-page';
 
+const token = 'test-token';
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  token: 'test-token',
+  token: await encrypt(token),
   region: 'us',
 };
 const syncStartedAt = Date.now();
@@ -50,7 +52,7 @@ describe('sync-users', () => {
 
   test('should continue the sync when there is a next page', async () => {
     // setup the test with an organisation
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     // mock the getUser function that returns SaaS users page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       nextPage: 1,
@@ -81,7 +83,7 @@ describe('sync-users', () => {
   });
 
   test('should finalize the sync when there is a no next page', async () => {
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
     // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       nextPage: null,

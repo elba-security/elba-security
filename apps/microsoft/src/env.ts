@@ -33,7 +33,7 @@ export const env = z
     DATABASE_PROXY_PORT: z.coerce.number().int().positive().optional(),
     REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
     THIRD_PARTY_APPS_SYNC_CRON: z.string().default('0 0 * * *'),
-    THIRD_PARTY_APPS_SYNC_BATCH_SIZE: z.coerce.number().positive().default(100),
+    THIRD_PARTY_APPS_SYNC_BATCH_SIZE: z.coerce.number().positive().default(10),
     THIRD_PARTY_APPS_SYNC_MAX_RETRY: zEnvRetry(),
     THIRD_PARTY_APPS_REVOKE_APP_PERMISSION_MAX_RETRY: zEnvRetry(),
     THIRD_PARTY_APPS_REFRESH_APP_PERMISSION_MAX_RETRY: zEnvRetry(),

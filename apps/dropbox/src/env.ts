@@ -21,7 +21,6 @@ export const env = z
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     DATABASE_URL: z.string().min(1),
     VERCEL_ENV: z.string().optional(),
-    ELBA_REGION: z.string(),
     DROPBOX_TOKEN_REFRESH_RETRIES: zEnvRetry().default(5),
     DROPBOX_USER_SYNC_RETRIES: zEnvRetry().default(5),
     DROPBOX_USER_SYNC_CONCURRENCY: zEnvInt().default(2),
@@ -34,6 +33,6 @@ export const env = z
     DROPBOX_REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry().default(5),
     DROPBOX_LIST_FILE_MEMBERS_LIMIT: zEnvInt().default(300), // UInt32(min=1, max=300)
     DROPBOX_LIST_FOLDER_MEMBERS_LIMIT: zEnvInt().default(1000), // UInt32(min=1, max=1000)
-    DROPBOX_LIST_FOLDER_BATCH_SIZE: zEnvInt().default(500), // UInt32(min=1, max=1000)
+    DROPBOX_LIST_FOLDER_BATCH_SIZE: zEnvInt().default(400), // UInt32(min=1, max=1000)
   })
   .parse(process.env);

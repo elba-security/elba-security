@@ -79,7 +79,7 @@ describe('refresh-token', () => {
     expect(step.sleepUntil).toBeCalledTimes(1);
     expect(step.sleepUntil).toBeCalledWith(
       'wait-before-expiration',
-      new Date(expiresAt - 5 * 60 * 1000)
+      new Date(expiresAt - 30 * 60 * 1000)
     );
 
     expect(step.sendEvent).toBeCalledTimes(1);

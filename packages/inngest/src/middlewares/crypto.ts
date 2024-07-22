@@ -248,10 +248,10 @@ export class ElbaEncryptionService extends EncryptionService {
   }
 
   encrypt(value: unknown): Promise<string> {
-    return encryptText(JSON.stringify(value), this.key);
+    return encryptText({ data: JSON.stringify(value), key: this.key });
   }
 
-  async decrypt(value: string): Promise<unknown> {
-    return JSON.parse(await decryptText(value, this.key)) as Promise<unknown>;
+  async decrypt(data: string): Promise<unknown> {
+    return JSON.parse(await decryptText({ data, key: this.key })) as Promise<unknown>;
   }
 }
