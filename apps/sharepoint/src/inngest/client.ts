@@ -67,12 +67,7 @@ export const inngest = new Inngest({
       data: {
         organisationId: string;
         driveId: string;
-      };
-    };
-    'sharepoint/folder_items.sync.completed': {
-      data: {
-        organisationId: string;
-        folderId: string;
+        folderId: string | null;
       };
     };
     'sharepoint/data_protection.refresh_object.requested': {
@@ -122,7 +117,7 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'sharepoint/data_protection.initialize_delta.requested': {
+    'sharepoint/delta.initialize.requested': {
       data: {
         organisationId: string;
         siteId: string;
@@ -130,6 +125,7 @@ export const inngest = new Inngest({
         isFirstSync: boolean;
       };
     };
+    // TODO
     'sharepoint/update-items.triggered': {
       data: {
         siteId: string;

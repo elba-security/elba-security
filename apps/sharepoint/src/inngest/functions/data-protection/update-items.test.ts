@@ -185,7 +185,7 @@ describe('update-item-and-permissions', () => {
       objects: [
         {
           id: 'item-id-1',
-          metadata: { driveId: 'some-drive-id', siteId: 'some-site-id' },
+          metadata: { driveId, siteId },
           name: 'item-name-1',
           ownerId: 'user-id-1',
           permissions: [
@@ -200,7 +200,7 @@ describe('update-item-and-permissions', () => {
         },
         {
           id: 'item-id-2',
-          metadata: { driveId: 'some-drive-id', siteId: 'some-site-id' },
+          metadata: { driveId, siteId },
           name: 'item-name-2',
           ownerId: 'user-id-1',
           permissions: [
@@ -215,7 +215,7 @@ describe('update-item-and-permissions', () => {
         },
         {
           id: 'item-id-3',
-          metadata: { driveId: 'some-drive-id', siteId: 'some-site-id' },
+          metadata: { driveId, siteId },
           name: 'item-name-3',
           ownerId: 'user-id-1',
           permissions: [

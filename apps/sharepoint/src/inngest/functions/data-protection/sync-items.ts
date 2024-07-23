@@ -76,14 +76,14 @@ export const syncItems = inngest.createFunction(
     if (folders.length) {
       const eventsToWait = folders.map(async ({ item }) =>
         step.waitForEvent(`wait-for-folders-complete-${item.id}`, {
-          event: 'sharepoint/folder_items.sync.completed',
+          event: 'sharepoint/items.sync.completed',
           timeout: '1d',
-          if: `async.data.organisationId == '${organisationId}' && async.data.folderId == '${item.id}'`,
+          if: `async.data.organisationId == '${organisationId}' && async.data.siteId == '${siteId}' && async.data.folderId == '${item.id}'`,
         })
       );
 
       await step.sendEvent(
-        'items.sync.triggered',
+        'sync-folders-items',
         folders.map(({ item, permissions }) => ({
           name: 'sharepoint/items.sync.triggered',
           data: {
@@ -103,7 +103,7 @@ export const syncItems = inngest.createFunction(
 
     // TODO: Check if parents permissions should only contains permissions ids or links ids as well
     // TODO: rename steps
-    await step.run('get-permissions-update-elba', async () => {
+    await step.run('update-elba-objects', async () => {
       const dataProtectionItems = formatDataProtectionObjects({
         items,
         siteId,
@@ -129,29 +129,19 @@ export const syncItems = inngest.createFunction(
       return { status: 'ongoing' };
     }
 
-    if (folderId) {
-      await step.sendEvent('folders-sync-complete', {
-        name: 'sharepoint/folder_items.sync.completed',
-        data: { organisationId, folderId },
-      });
-    } else {
-      // TODO: check and possibly remove promise all
-      await step.sendEvent('items-sync-complete', {
-        name: 'sharepoint/items.sync.completed',
-        data: { organisationId, driveId },
-      });
+    await step.sendEvent('sync-complete', {
+      name: 'sharepoint/items.sync.completed',
+      data: { organisationId, folderId, driveId },
+    });
 
-      // TODO: check this logic and understand why it's here
-      // I guess it's to start to listening to webhooks events once the scan is done
-      // Can't it be done at the beginning anyway, would delta conflict with state of the world sync?
+    if (!folderId) {
       await step.sendEvent('initialize-delta', {
-        name: 'sharepoint/data_protection.initialize_delta.requested',
+        name: 'sharepoint/delta.initialize.requested',
         data: {
           organisationId,
           siteId,
           driveId,
-          isFirstSync: true,
-          skipToken: null,
+          isFirstSync,
         },
       });
     }

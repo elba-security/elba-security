@@ -10,8 +10,6 @@ import { encrypt } from '@/common/crypto';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { syncItems } from './sync-items';
-import { formatDataProtectionObjects, groupItems, removeInheritedSync } from './common/helpers';
-import type { ItemWithPermissions } from './common/types';
 
 const token = 'test-token';
 
@@ -23,85 +21,58 @@ const organisation = {
 };
 const siteId = 'some-site-id';
 const driveId = 'some-drive-id';
-const folderId = 'some-folder-id';
-const isFirstSync = false;
+const folderId = null;
+const isFirstSync = true;
 
-const itemsCount = 10;
-
-const createTempData = (title: string, i: number): MicrosoftDriveItem => ({
-  id: `${title}-id-${i}`,
-  name: `${title}-name-${i}`,
-  webUrl: `http://${title}-webUrl-${i}.somedomain.net`,
-  createdBy: {
-    user: {
-      id: `${title}-user-id-${i}`,
+const items: MicrosoftDriveItem[] = [
+  {
+    name: 'item-name-1',
+    id: 'item-id-1',
+    createdBy: {
+      user: {
+        id: 'user-id-1',
+      },
+    },
+    webUrl: 'https://sharepoint.local/item1',
+    lastModifiedDateTime: '2024-01-01T00:00:00Z',
+    parentReference: {
+      id: 'parent-id-1',
+    },
+    folder: { childCount: 1 },
+  },
+  {
+    name: 'item-name-2',
+    id: 'item-id-2',
+    createdBy: {
+      user: {
+        id: 'user-id-1',
+      },
+    },
+    webUrl: 'https://sharepoint.local/item2',
+    lastModifiedDateTime: '2024-01-01T00:00:00Z',
+    parentReference: {
+      id: 'parent-id-1',
     },
   },
-  parentReference: {
-    id: `${title}-parent-id-${i}`,
-  },
-  lastModifiedDateTime: `2024-02-23T15:50:0${i}Z`,
-});
+];
 
-const groupedItems: MicrosoftDriveItem[] = Array.from({ length: itemsCount }, (_, i) => {
-  const parentReference = { id: i === 0 ? undefined : `item-id-${i - 1}` };
-  if (i < itemsCount / 2) {
-    return {
-      ...createTempData('item', i),
-      parentReference,
-    };
-  }
-  return {
-    ...createTempData('folder', i),
-    folder: { childCount: i },
-    parentReference,
-  };
-});
+const createPermission = (n: number): SharepointPermission[] =>
+  Array.from({ length: n }, (_, i) => ({
+    id: `permission-id-${i + 1}`,
+    link: { scope: 'anonymous' },
+  }));
 
-const mockPermissions = (itemCount: number): SharepointPermission[] => {
-  return Array.from({ length: itemCount }, (_, i) => {
-    if (i === 0 || i < 2) {
-      return {
-        id: `permission-id-${i}`,
-        grantedToV2: {
-          user: {
-            displayName: `some-display-name-${i}`,
-            id: `some-user-id-${i}`,
-            email: `user-email-${i}@someemail.com`,
-          },
-        },
-      };
-    }
-
-    if (i === 2) {
-      return {
-        id: `permission-id-${i}`,
-        link: { scope: 'anonymous' },
-        grantedToIdentitiesV2: [],
-      };
-    }
-
-    return {
-      id: `permission-id-${i}`,
-      link: { scope: 'users' },
-      grantedToIdentitiesV2: [
-        {
-          user: {
-            displayName: `some-display-name-${i}`,
-            id: `some-user-id-${i}`,
-            email: `user-email-${i}@someemail.com`,
-          },
-        },
-      ],
-    };
-  });
-};
+const itemPermissions = new Map([
+  ['item-id-1', createPermission(2)],
+  ['item-id-2', createPermission(1)],
+]);
 
 const setupData = {
   siteId,
   driveId,
   isFirstSync,
-  folder: null,
+  folderId,
+  permissionIds: ['permission-id-1'],
   skipToken: null,
   organisationId: organisation.id,
 };
@@ -116,7 +87,7 @@ describe('sync-items', () => {
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(itemsConnector, 'getItems').mockResolvedValue({
       nextSkipToken: null,
-      items: groupedItems,
+      items,
     });
 
     const [result, { step }] = setup({
@@ -135,91 +106,28 @@ describe('sync-items', () => {
 
   test('should continue the sync when there is a next page', async () => {
     const nextSkipToken = 'next-skip-token';
-    const skipToken = null;
-    const defaultEventsCount = 1;
     const elba = spyOnElba();
-    const permissions = mockPermissions(itemsCount);
 
-    vi.spyOn(itemsConnector, 'getItems').mockResolvedValue({
-      items: groupedItems,
-      nextSkipToken,
-    });
-    vi.spyOn(permissionsConnector, 'getAllItemPermissions').mockResolvedValue({
-      permissions,
-      nextSkipToken: skipToken,
-    });
+    vi.spyOn(itemsConnector, 'getItems').mockResolvedValue({ items, nextSkipToken });
+    vi.spyOn(permissionsConnector, 'getAllItemPermissions').mockImplementation(({ itemId }) =>
+      Promise.resolve(itemPermissions.get(itemId) || [])
+    );
 
     const [result, { step }] = setup(setupData);
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
     expect(step.run).toBeCalledTimes(2);
+    expect(step.run).toHaveBeenNthCalledWith(1, 'paginate', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(2, 'update-elba-objects', expect.any(Function));
 
     expect(itemsConnector.getItems).toBeCalledTimes(1);
     expect(itemsConnector.getItems).toBeCalledWith({
       token,
       siteId,
       driveId,
-      folderId: null,
-      skipToken,
-    });
-
-    const { folders, files } = groupItems(groupedItems);
-
-    if (folders.length) {
-      expect(step.sendEvent).toBeCalledTimes(defaultEventsCount + 1);
-      expect(step.sendEvent).toBeCalledWith(
-        'items.sync.triggered',
-        folders.map(({ id }) => ({
-          name: 'sharepoint/items.sync.triggered',
-          data: {
-            siteId,
-            driveId,
-            isFirstSync,
-            folder: { id, paginated: false, permissions: [] },
-            skipToken: null,
-            organisationId: organisation.id,
-          },
-        }))
-      );
-
-      expect(step.waitForEvent).toBeCalledTimes(folders.length);
-
-      for (let i = 0; i < folders.length; i++) {
-        const folder = folders[i];
-
-        expect(step.waitForEvent).nthCalledWith(i + 1, `wait-for-folders-complete-${folder?.id}`, {
-          event: 'sharepoint/folder_items.sync.completed',
-          if: `async.data.organisationId == '${organisation.id}' && async.data.folderId == '${folder?.id}'`,
-          timeout: '1d',
-        });
-      }
-    }
-
-    expect(permissionsConnector.getAllItemPermissions).toBeCalledTimes(groupedItems.length);
-
-    for (const item of [...folders, ...files]) {
-      expect(permissionsConnector.getAllItemPermissions).toBeCalledWith({
-        token,
-        siteId,
-        driveId,
-        itemId: item.id,
-      });
-    }
-
-    const itemsWithPermissionsResult = [...folders, ...files].map((item) => ({
-      item,
-      permissions: permissions.map((permission) =>
-        permissionsConnector.validateAndParsePermission(
-          permission as unknown as SharepointPermission
-        )
-      ),
-    }));
-
-    const dataProtectionItems = formatDataProtectionObjects({
-      itemsWithPermissions: itemsWithPermissionsResult as unknown as ItemWithPermissions[],
-      siteId,
-      driveId,
+      folderId,
+      skipToken: null,
     });
 
     expect(elba).toBeCalledTimes(1);
@@ -234,123 +142,78 @@ describe('sync-items', () => {
 
     expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
     expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith({
-      objects: dataProtectionItems,
+      objects: [
+        {
+          id: 'item-id-1',
+          metadata: { driveId: 'some-drive-id', siteId: 'some-site-id' },
+          name: 'item-name-1',
+          ownerId: 'user-id-1',
+          permissions: [
+            {
+              id: 'anyone',
+              metadata: { permissionIds: ['permission-id-2'], type: 'anyone' },
+              type: 'anyone',
+            },
+          ],
+          updatedAt: '2024-01-01T00:00:00Z',
+          url: 'https://sharepoint.local/item1',
+        },
+      ],
     });
 
-    expect(step.sendEvent).toBeCalledWith('sync-next-items-page', {
+    expect(step.sendEvent).toBeCalledTimes(2);
+    expect(step.sendEvent).toHaveBeenNthCalledWith(1, 'sync-folders-items', [
+      {
+        name: 'sharepoint/items.sync.triggered',
+        data: {
+          driveId,
+          folderId: 'item-id-1',
+          isFirstSync,
+          organisationId: organisation.id,
+          permissionIds: ['permission-id-1', 'permission-id-2'],
+          siteId,
+          skipToken: null,
+        },
+      },
+    ]);
+    expect(step.sendEvent).toHaveBeenNthCalledWith(2, 'sync-next-items-page', {
       name: 'sharepoint/items.sync.triggered',
       data: {
-        siteId,
         driveId,
+        folderId,
         isFirstSync,
-        folder: { id: null, paginated: false, permissions: [] },
-        skipToken: nextSkipToken,
         organisationId: organisation.id,
+        permissionIds: ['permission-id-1'],
+        siteId,
+        skipToken: nextSkipToken,
       },
     });
   });
 
   test('should finalize the sync when there is no next page', async () => {
     const nextSkipToken = null;
-    const skipToken = 'skip-token';
-    const defaultEventsCount = 1;
     const elba = spyOnElba();
-    let callCount = 1;
 
-    vi.spyOn(itemsConnector, 'getItems').mockResolvedValue({
-      items: groupedItems,
-      nextSkipToken,
-    });
+    vi.spyOn(itemsConnector, 'getItems').mockResolvedValue({ items, nextSkipToken });
+    vi.spyOn(permissionsConnector, 'getAllItemPermissions').mockImplementation(({ itemId }) =>
+      Promise.resolve(itemPermissions.get(itemId) || [])
+    );
 
-    vi.spyOn(permissionsConnector, 'getAllItemPermissions').mockImplementation(() => {
-      const itemCount = callCount === itemsCount + 1 ? itemsCount / 2 : itemsCount;
-      callCount++;
-
-      return Promise.resolve({
-        permissions: mockPermissions(itemCount),
-        nextSkipToken: skipToken,
-      });
-    });
-
-    const [result, { step }] = setup({
-      ...setupData,
-      folder: { id: 'some-folder-id', paginated: false, permissions: ['some-permission-id'] },
-      skipToken,
-    });
+    const [result, { step }] = setup(setupData);
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
     expect(step.run).toBeCalledTimes(2);
+    expect(step.run).toHaveBeenNthCalledWith(1, 'paginate', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(2, 'update-elba-objects', expect.any(Function));
 
     expect(itemsConnector.getItems).toBeCalledTimes(1);
     expect(itemsConnector.getItems).toBeCalledWith({
       token,
       siteId,
       driveId,
-      folderId: 'some-folder-id',
-      skipToken,
-    });
-
-    const { folders, files } = groupItems(groupedItems);
-
-    if (folders.length) {
-      expect(step.sendEvent).toBeCalledTimes(defaultEventsCount + 1);
-      expect(step.sendEvent).toBeCalledWith(
-        'items.sync.triggered',
-        folders.map(({ id }) => ({
-          name: 'sharepoint/items.sync.triggered',
-          data: {
-            siteId,
-            driveId,
-            isFirstSync,
-            folder: { id, paginated: false, permissions: [] },
-            skipToken: null,
-            organisationId: organisation.id,
-          },
-        }))
-      );
-
-      expect(step.waitForEvent).toBeCalledTimes(folders.length);
-
-      for (let i = 0; i < folders.length; i++) {
-        const folder = folders[i];
-
-        expect(step.waitForEvent).nthCalledWith(i + 1, `wait-for-folders-complete-${folder?.id}`, {
-          event: 'sharepoint/folder_items.sync.completed',
-          if: `async.data.organisationId == '${organisation.id}' && async.data.folderId == '${folder?.id}'`,
-          timeout: '1d',
-        });
-      }
-    }
-
-    // One additional call to get parent folder permissions if we have one
-    expect(permissionsConnector.getAllItemPermissions).toBeCalledTimes(groupedItems.length + 1);
-
-    for (const item of [...folders, ...files]) {
-      expect(permissionsConnector.getAllItemPermissions).toBeCalledWith({
-        token,
-        siteId,
-        driveId,
-        itemId: item.id,
-      });
-    }
-
-    const itemsWithPermissionsResult = [...folders, ...files].map((item) => ({
-      item,
-      permissions: mockPermissions(itemsCount).map((permission) =>
-        permissionsConnector.validateAndParsePermission(
-          permission as unknown as SharepointPermission
-        )
-      ),
-    }));
-
-    const dataProtectionItems = formatDataProtectionObjects({
-      itemsWithPermissions: removeInheritedSync(
-        mockPermissions(itemsCount / 2).map((permission) => permission.id),
-        itemsWithPermissionsResult as ItemWithPermissions[]
-      ),
-      siteId,
-      driveId,
+      folderId,
+      skipToken: null,
     });
 
     expect(elba).toBeCalledTimes(1);
@@ -365,98 +228,55 @@ describe('sync-items', () => {
 
     expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
     expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith({
-      objects: dataProtectionItems,
+      objects: [
+        {
+          id: 'item-id-1',
+          metadata: { driveId: 'some-drive-id', siteId: 'some-site-id' },
+          name: 'item-name-1',
+          ownerId: 'user-id-1',
+          permissions: [
+            {
+              id: 'anyone',
+              metadata: { permissionIds: ['permission-id-2'], type: 'anyone' },
+              type: 'anyone',
+            },
+          ],
+          updatedAt: '2024-01-01T00:00:00Z',
+          url: 'https://sharepoint.local/item1',
+        },
+      ],
     });
 
-    expect(step.sendEvent).toBeCalledWith('folders-sync-complete', {
-      name: 'sharepoint/folder_items.sync.completed',
-      data: {
-        organisationId: organisation.id,
-        folderId,
+    expect(step.sendEvent).toBeCalledTimes(3);
+    expect(step.sendEvent).toHaveBeenNthCalledWith(1, 'sync-folders-items', [
+      {
+        name: 'sharepoint/items.sync.triggered',
+        data: {
+          driveId,
+          folderId: 'item-id-1',
+          isFirstSync,
+          organisationId: organisation.id,
+          permissionIds: ['permission-id-1', 'permission-id-2'],
+          siteId,
+          skipToken: null,
+        },
       },
-    });
-  });
-
-  test('should call elba.dataProtection.updateObjects', async () => {
-    const nextSkipToken = null;
-    const skipToken = 'skip-token';
-    const elba = spyOnElba();
-    const permissions = mockPermissions(itemsCount);
-
-    vi.spyOn(itemsConnector, 'getItems').mockResolvedValue({
-      items: groupedItems.filter((item) => !item.folder),
-      nextSkipToken,
-    });
-    vi.spyOn(permissionsConnector, 'getAllItemPermissions').mockResolvedValue({
-      permissions,
-      nextSkipToken: skipToken,
-    });
-
-    const [result, { step }] = setup({ ...setupData, folder: null, skipToken });
-
-    await expect(result).resolves.toStrictEqual({ status: 'completed' });
-
-    expect(step.run).toBeCalledTimes(2);
-
-    expect(itemsConnector.getItems).toBeCalledTimes(1);
-    expect(itemsConnector.getItems).toBeCalledWith({
-      token,
-      siteId,
-      driveId,
-      folderId: null,
-      skipToken,
-    });
-
-    const { files } = groupItems(groupedItems);
-
-    expect(step.waitForEvent).toBeCalledTimes(0);
-
-    expect(permissionsConnector.getAllItemPermissions).toBeCalledTimes(files.length);
-
-    for (const item of [...files]) {
-      expect(permissionsConnector.getAllItemPermissions).toBeCalledWith({
-        token,
-        siteId,
-        driveId,
-        itemId: item.id,
-      });
-    }
-
-    const itemsWithPermissionsResult = [...files].map((item) => ({
-      item,
-      permissions: permissions.map((permission) =>
-        permissionsConnector.validateAndParsePermission(
-          permission as unknown as SharepointPermission
-        )
-      ),
-    }));
-
-    const dataProtectionItems = formatDataProtectionObjects({
-      itemsWithPermissions: itemsWithPermissionsResult as unknown as ItemWithPermissions[],
-      siteId,
-      driveId,
-    });
-
-    expect(elba).toBeCalledTimes(1);
-    expect(elba).toBeCalledWith({
-      organisationId: organisation.id,
-      region: organisation.region,
-      apiKey: env.ELBA_API_KEY,
-      baseUrl: env.ELBA_API_BASE_URL,
-    });
-
-    const elbaInstance = elba.mock.results[0]?.value;
-
-    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
-    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith({
-      objects: dataProtectionItems,
-    });
-
-    expect(step.sendEvent).toBeCalledWith('items-sync-complete', {
+    ]);
+    expect(step.sendEvent).toHaveBeenNthCalledWith(2, 'sync-complete', {
       name: 'sharepoint/items.sync.completed',
       data: {
-        organisationId: organisation.id,
         driveId,
+        folderId,
+        organisationId: organisation.id,
+      },
+    });
+    expect(step.sendEvent).toHaveBeenNthCalledWith(3, 'initialize-delta', {
+      name: 'sharepoint/delta.initialize.requested',
+      data: {
+        driveId,
+        isFirstSync,
+        organisationId: organisation.id,
+        siteId,
       },
     });
   });

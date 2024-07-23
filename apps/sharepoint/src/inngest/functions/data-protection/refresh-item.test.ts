@@ -76,10 +76,7 @@ const permissions: SharepointPermission[] = [
 const setupData = {
   id: itemId,
   organisationId: organisation.id,
-  metadata: {
-    siteId,
-    driveId,
-  },
+  metadata: { siteId, driveId },
 };
 
 const setup = createInngestFunctionMock(
