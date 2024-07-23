@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { organisationsTable, sharePointTable } from '@/database/schema';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { getDeltaItems } from '@/connectors/microsoft/delta/delta';
@@ -70,7 +70,7 @@ export const initializeDelta = inngest.createFunction(
     });
 
     await db
-      .insert(sharePointTable)
+      .insert(subscriptionsTable)
       .values({
         organisationId,
         siteId,
@@ -81,7 +81,7 @@ export const initializeDelta = inngest.createFunction(
         delta: newDeltaToken,
       })
       .onConflictDoUpdate({
-        target: [sharePointTable.organisationId, sharePointTable.driveId],
+        target: [subscriptionsTable.organisationId, subscriptionsTable.driveId],
         set: {
           subscriptionId: data.id,
           subscriptionExpirationDate: data.expirationDateTime,

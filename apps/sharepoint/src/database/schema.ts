@@ -8,9 +8,8 @@ export const organisationsTable = pgTable('organisations', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// TODO: rename to subscriptions
-export const sharePointTable = pgTable(
-  'sharepoint',
+export const subscriptionsTable = pgTable(
+  'subscriptions',
   {
     organisationId: uuid('organisation_id')
       .references(() => organisationsTable.id, { onDelete: 'cascade' })

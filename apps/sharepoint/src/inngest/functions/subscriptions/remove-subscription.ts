@@ -2,7 +2,7 @@ import { and, eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
-import { organisationsTable, sharePointTable } from '@/database/schema';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { removeSubscription as removeSharepointSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
 import { decrypt } from '@/common/crypto';
 
@@ -29,12 +29,12 @@ export const removeSubscription = inngest.createFunction(
       .select({
         token: organisationsTable.token,
       })
-      .from(sharePointTable)
-      .innerJoin(organisationsTable, eq(sharePointTable.organisationId, organisationsTable.id))
+      .from(subscriptionsTable)
+      .innerJoin(organisationsTable, eq(subscriptionsTable.organisationId, organisationsTable.id))
       .where(
         and(
-          eq(sharePointTable.organisationId, organisationId),
-          eq(sharePointTable.subscriptionId, subscriptionId)
+          eq(subscriptionsTable.organisationId, organisationId),
+          eq(subscriptionsTable.subscriptionId, subscriptionId)
         )
       );
 

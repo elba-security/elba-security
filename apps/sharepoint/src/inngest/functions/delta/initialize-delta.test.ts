@@ -5,7 +5,7 @@ import { and, eq } from 'drizzle-orm';
 import * as deltaConnector from '@/connectors/microsoft/delta/delta';
 import * as createSubscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
 import type { Subscription } from '@/connectors/microsoft/subscriptions/subscriptions';
-import { organisationsTable, sharePointTable } from '@/database/schema';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { createSubscription } from '../subscriptions/create-subscription';
@@ -90,16 +90,16 @@ describe('sync-sites', () => {
 
     const [record] = await db
       .select({
-        subscriptionId: sharePointTable.subscriptionId,
-        subscriptionExpirationDate: sharePointTable.subscriptionExpirationDate,
-        delta: sharePointTable.delta,
+        subscriptionId: subscriptionsTable.subscriptionId,
+        subscriptionExpirationDate: subscriptionsTable.subscriptionExpirationDate,
+        delta: subscriptionsTable.delta,
       })
-      .from(sharePointTable)
+      .from(subscriptionsTable)
       .where(
         and(
-          eq(sharePointTable.organisationId, organisation.id),
-          eq(sharePointTable.siteId, siteId),
-          eq(sharePointTable.driveId, driveId)
+          eq(subscriptionsTable.organisationId, organisation.id),
+          eq(subscriptionsTable.siteId, siteId),
+          eq(subscriptionsTable.driveId, driveId)
         )
       );
 

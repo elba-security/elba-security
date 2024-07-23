@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { createElbaClient } from '@/connectors/elba/client';
-import { organisationsTable, sharePointTable } from '@/database/schema';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 
 export const removeOrganisation = inngest.createFunction(
@@ -28,10 +28,10 @@ export const removeOrganisation = inngest.createFunction(
 
     const subscriptions = await db
       .select({
-        subscriptionId: sharePointTable.subscriptionId,
+        subscriptionId: subscriptionsTable.subscriptionId,
       })
-      .from(sharePointTable)
-      .where(eq(sharePointTable.organisationId, organisationId));
+      .from(subscriptionsTable)
+      .where(eq(subscriptionsTable.organisationId, organisationId));
 
     if (subscriptions.length) {
       const eventsWait = subscriptions.map(({ subscriptionId }) =>

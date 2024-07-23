@@ -2,24 +2,14 @@ import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import { and, eq } from 'drizzle-orm';
-import { organisationsTable, sharePointTable } from '@/database/schema';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { env } from '@/common/env';
 import type { SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
-import type { DeltaItem } from '@/connectors/microsoft/delta/delta';
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
 import * as deltaConnector from '@/connectors/microsoft/delta/delta';
-import type { ItemWithPermissions } from './common/types';
-import {
-  formatDataProtectionObjects,
-  parseDeltaState,
-  removeInheritedUpdate,
-} from './common/helpers';
 import { updateItems } from './update-items';
-
-const updatedCount = 5;
-const deletedCount = 2;
 
 const token = 'test-token';
 const organisationId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c92';
@@ -37,85 +27,65 @@ const organisation = {
   region: 'us',
 };
 
-const sharePoint = {
+const deltaItems: deltaConnector.ParsedDeltaItems = {
+  deleted: ['item-id-5'],
+  updated: [
+    {
+      id: 'item-id-1',
+      name: 'item-name-1',
+      parentReference: { id: 'root' },
+      createdBy: { user: { id: 'user-id-1' } },
+      lastModifiedDateTime: '2024-01-01T00:00:00Z',
+      webUrl: 'https://sharepoint.local/item-1',
+    },
+    {
+      id: 'item-id-2',
+      name: 'item-name-2',
+      parentReference: { id: 'item-id-1' },
+      createdBy: { user: { id: 'user-id-1' } },
+      lastModifiedDateTime: '2024-01-01T00:00:00Z',
+      webUrl: 'https://sharepoint.local/item-2',
+    },
+    {
+      id: 'item-id-3',
+      name: 'item-name-3',
+      parentReference: { id: 'item-id-2' },
+      createdBy: { user: { id: 'user-id-1' } },
+      lastModifiedDateTime: '2024-01-01T00:00:00Z',
+      webUrl: 'https://sharepoint.local/item-3',
+    },
+    {
+      id: 'item-id-4',
+      name: 'item-name-4',
+      parentReference: { id: 'item-id-2' },
+      createdBy: { user: { id: 'user-id-1' } },
+      lastModifiedDateTime: '2024-01-01T00:00:00Z',
+      webUrl: 'https://sharepoint.local/item-4',
+    },
+  ],
+};
+
+const createPermission = (n: number): SharepointPermission[] =>
+  Array.from({ length: n }, (_, i) => ({
+    id: `permission-id-${i + 1}`,
+    link: { scope: 'anonymous' },
+  }));
+
+const itemPermissions = new Map([
+  ['item-id-1', createPermission(1)],
+  ['item-id-2', createPermission(2)],
+  ['item-id-3', createPermission(3)],
+  ['item-id-4', createPermission(2)],
+]);
+
+const subscription = {
   organisationId,
   siteId,
   driveId,
   subscriptionId,
   subscriptionClientState: clientState,
-  subscriptionExpirationDate: '2024-04-25 00:00:00.000000',
+  subscriptionExpirationDate: '2024-04-25T00:00:00Z',
   delta: deltaToken,
-};
-
-const itemLength = updatedCount + deletedCount;
-
-const createTempData = (
-  i: number,
-  parentReference: {
-    id: string | undefined;
-  }
-): DeltaItem => ({
-  id: `item-id-${i}`,
-  name: `$name-${i}`,
-  webUrl: `http://webUrl-${i}.somedomain.net`,
-  lastModifiedDateTime: '2024-01-01T00:00:00Z',
-  createdBy: {
-    user: {
-      id: `user-id-${i}`,
-    },
-  },
-  parentReference,
-});
-
-const items: DeltaItem[] = Array.from({ length: itemLength }, (_, i) => {
-  const parentReference = { id: i === 0 ? undefined : `item-id-${i - 1}` };
-
-  if (i < itemLength / 2) {
-    return createTempData(i, parentReference);
-  }
-  return {
-    ...createTempData(i, parentReference),
-    deleted: { state: 'deleted' },
-  };
-});
-
-const mockPermissions = (itemCount: number): SharepointPermission[] => {
-  return Array.from({ length: itemCount }, (_, i) => {
-    if (i === 0 || i < 2) {
-      return {
-        id: `permission-id-${i}`,
-        grantedToV2: {
-          user: {
-            displayName: `some-display-name-${i}`,
-            id: `some-user-id-${i}`,
-            email: `user-email-${i}@someemail.com`,
-          },
-        },
-      };
-    }
-
-    if (i === 2) {
-      return {
-        id: `permission-id-${i}`,
-        link: { scope: 'anonymous' },
-        grantedToIdentitiesV2: [],
-      };
-    }
-
-    return {
-      id: `permission-id-${i}`,
-      link: { scope: 'users' },
-      grantedToIdentitiesV2: [
-        {
-          user: {
-            displayName: `some-display-name-${i}`,
-            id: `some-user-id-${i}`,
-            email: `user-email-${i}@someemail.com`,
-          },
-        },
-      ],
-    };
-  });
 };
 
 const setupData = {
@@ -123,7 +93,6 @@ const setupData = {
   driveId,
   subscriptionId,
   tenantId,
-  skipToken: null,
 };
 
 const setup = createInngestFunctionMock(updateItems, 'sharepoint/update-items.triggered');
@@ -132,16 +101,15 @@ describe('update-item-and-permissions', () => {
   beforeEach(async () => {
     await db.insert(organisationsTable).values(organisation);
     await db
-      .insert(sharePointTable)
-      .values(sharePoint)
+      .insert(subscriptionsTable)
+      .values(subscription)
       .onConflictDoUpdate({
-        target: [sharePointTable.organisationId, sharePointTable.driveId],
-
+        target: [subscriptionsTable.organisationId, subscriptionsTable.driveId],
         set: {
-          subscriptionId: sharePoint.subscriptionId,
-          subscriptionExpirationDate: sharePoint.subscriptionExpirationDate,
-          subscriptionClientState: sharePoint.subscriptionClientState,
-          delta: sharePoint.delta,
+          subscriptionId: subscription.subscriptionId,
+          subscriptionExpirationDate: subscription.subscriptionExpirationDate,
+          subscriptionClientState: subscription.subscriptionClientState,
+          delta: subscription.delta,
         },
       });
   });
@@ -150,9 +118,8 @@ describe('update-item-and-permissions', () => {
     const elba = spyOnElba();
 
     vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
-      delta: [],
-      nextSkipToken: null,
-      newDeltaToken: null,
+      items: { deleted: [], updated: [] },
+      newDeltaToken: 'token',
     });
 
     const [result, { step }] = setup({
@@ -169,43 +136,39 @@ describe('update-item-and-permissions', () => {
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should run elba udate and elba delete when there is updated and deleted items', async () => {
-    const skipToken = null;
+  test('should update and delete elba data protection objects', async () => {
     const elba = spyOnElba();
-    let callCount = 0;
 
     vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
-      delta: items,
-      nextSkipToken: skipToken,
-      newDeltaToken: deltaToken,
+      items: deltaItems,
+      newDeltaToken: 'new-delta-token',
     });
 
-    vi.spyOn(permissionsConnector, 'getAllItemPermissions').mockImplementation(() => {
-      callCount++;
-
-      const itemCount = callCount <= itemLength / 2 ? 4 : 6;
-
-      return Promise.resolve({
-        permissions: mockPermissions(itemCount),
-        nextSkipToken: skipToken,
-      });
-    });
+    vi.spyOn(permissionsConnector, 'getAllItemPermissions').mockImplementation(({ itemId }) =>
+      Promise.resolve(itemPermissions.get(itemId) || [])
+    );
 
     const [result, { step }] = setup(setupData);
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
+
+    expect(step.run).toBeCalledTimes(4);
+    expect(step.run).toHaveBeenNthCalledWith(1, 'fetch-delta-items', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(
+      2,
+      'get-items-permissions-chunk-1',
+      expect.any(Function)
+    );
+    expect(step.run).toHaveBeenNthCalledWith(3, 'update-elba-objects', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(4, 'remove-elba-objects', expect.any(Function));
 
     expect(deltaConnector.getDeltaItems).toBeCalledTimes(1);
     expect(deltaConnector.getDeltaItems).toBeCalledWith({
       token,
       siteId,
       driveId,
-      isFirstSync: false,
-      skipToken,
       deltaToken,
     });
-
-    const { deleted, updated } = parseDeltaState(items);
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
@@ -217,45 +180,67 @@ describe('update-item-and-permissions', () => {
 
     const elbaInstance = elba.mock.results[0]?.value;
 
-    const updatedLength = updated.length;
-
-    const updateItemsWithPermissionsResult = updated.map((item, index) => ({
-      item,
-      permissions: mockPermissions(index <= updatedLength / 2 ? 4 : 6).map((permission) =>
-        permissionsConnector.validateAndParsePermission(
-          permission as unknown as SharepointPermission
-        )
-      ),
-    })) as ItemWithPermissions[];
-
-    const { toDelete, toUpdate } = removeInheritedUpdate(updateItemsWithPermissionsResult);
-
-    const updateDataProtectionItems = formatDataProtectionObjects({
-      itemsWithPermissions: toUpdate,
-      siteId,
-      driveId,
-    });
-
     expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
     expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith({
-      objects: updateDataProtectionItems,
+      objects: [
+        {
+          id: 'item-id-1',
+          metadata: { driveId: 'some-drive-id', siteId: 'some-site-id' },
+          name: 'item-name-1',
+          ownerId: 'user-id-1',
+          permissions: [
+            {
+              id: 'anyone',
+              metadata: { permissionIds: ['permission-id-1'], type: 'anyone' },
+              type: 'anyone',
+            },
+          ],
+          updatedAt: '2024-01-01T00:00:00Z',
+          url: 'https://sharepoint.local/item-1',
+        },
+        {
+          id: 'item-id-2',
+          metadata: { driveId: 'some-drive-id', siteId: 'some-site-id' },
+          name: 'item-name-2',
+          ownerId: 'user-id-1',
+          permissions: [
+            {
+              id: 'anyone',
+              metadata: { permissionIds: ['permission-id-2'], type: 'anyone' },
+              type: 'anyone',
+            },
+          ],
+          updatedAt: '2024-01-01T00:00:00Z',
+          url: 'https://sharepoint.local/item-2',
+        },
+        {
+          id: 'item-id-3',
+          metadata: { driveId: 'some-drive-id', siteId: 'some-site-id' },
+          name: 'item-name-3',
+          ownerId: 'user-id-1',
+          permissions: [
+            {
+              id: 'anyone',
+              metadata: { permissionIds: ['permission-id-3'], type: 'anyone' },
+              type: 'anyone',
+            },
+          ],
+          updatedAt: '2024-01-01T00:00:00Z',
+          url: 'https://sharepoint.local/item-3',
+        },
+      ],
     });
 
     expect(elbaInstance?.dataProtection.deleteObjects).toBeCalledTimes(1);
     expect(elbaInstance?.dataProtection.deleteObjects).toBeCalledWith({
-      ids: [...deleted, ...toDelete],
+      ids: ['item-id-5', 'item-id-4'],
     });
-
-    expect(step.run).toBeCalledTimes(3);
   });
 
   test('should update delta token in db', async () => {
-    const skipToken = null;
     const newDeltaToken = 'new-delta-token';
-
     vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
-      delta: items,
-      nextSkipToken: skipToken,
+      items: { deleted: [], updated: [] },
       newDeltaToken,
     });
 
@@ -263,20 +248,21 @@ describe('update-item-and-permissions', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
-    expect(step.run).toBeCalledTimes(3);
+    expect(step.run).toBeCalledTimes(1);
+    expect(step.run).toHaveBeenNthCalledWith(1, 'fetch-delta-items', expect.any(Function));
 
     const [record] = await db
       .select({
-        delta: sharePointTable.delta,
+        delta: subscriptionsTable.delta,
       })
-      .from(sharePointTable)
-      .innerJoin(organisationsTable, eq(sharePointTable.organisationId, organisationsTable.id))
+      .from(subscriptionsTable)
+      .innerJoin(organisationsTable, eq(subscriptionsTable.organisationId, organisationsTable.id))
       .where(
         and(
           eq(organisationsTable.tenantId, tenantId),
-          eq(sharePointTable.siteId, siteId),
-          eq(sharePointTable.driveId, driveId),
-          eq(sharePointTable.subscriptionId, subscriptionId)
+          eq(subscriptionsTable.siteId, siteId),
+          eq(subscriptionsTable.driveId, driveId),
+          eq(subscriptionsTable.subscriptionId, subscriptionId)
         )
       );
 
@@ -284,32 +270,19 @@ describe('update-item-and-permissions', () => {
     expect(record?.delta).toBe(newDeltaToken);
   });
 
-  test('should throw NonRetriableError when there is no next page and no Delta token', async () => {
-    vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
-      delta: items,
-      nextSkipToken: null,
-      newDeltaToken: null,
-    });
-
-    const [result] = setup(setupData);
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-  });
-
   test('should continue the sync when there is a next page', async () => {
-    const nextSkipToken = 'some-token';
-
+    const nextSkipToken = 'next-skip-token';
     vi.spyOn(deltaConnector, 'getDeltaItems').mockResolvedValue({
-      delta: items,
+      items: { deleted: [], updated: [] },
       nextSkipToken,
-      newDeltaToken: null,
     });
 
     const [result, { step }] = setup(setupData);
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
-    expect(step.run).toBeCalledTimes(3);
+    expect(step.run).toBeCalledTimes(1);
+    expect(step.run).toHaveBeenNthCalledWith(1, 'fetch-delta-items', expect.any(Function));
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-next-delta-page', {
@@ -319,8 +292,25 @@ describe('update-item-and-permissions', () => {
         driveId,
         subscriptionId,
         tenantId,
-        skipToken: nextSkipToken,
       },
     });
+
+    const [record] = await db
+      .select({
+        delta: subscriptionsTable.delta,
+      })
+      .from(subscriptionsTable)
+      .innerJoin(organisationsTable, eq(subscriptionsTable.organisationId, organisationsTable.id))
+      .where(
+        and(
+          eq(organisationsTable.tenantId, tenantId),
+          eq(subscriptionsTable.siteId, siteId),
+          eq(subscriptionsTable.driveId, driveId),
+          eq(subscriptionsTable.subscriptionId, subscriptionId)
+        )
+      );
+
+    expect(record).toBeDefined();
+    expect(record?.delta).toBe(nextSkipToken);
   });
 });

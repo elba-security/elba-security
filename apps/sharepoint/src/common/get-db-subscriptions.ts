@@ -1,6 +1,6 @@
 import { and, eq, or } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { organisationsTable, sharePointTable } from '../database/schema';
+import { organisationsTable, subscriptionsTable } from '../database/schema';
 
 export const getSubscriptionsFromDB = async (
   subscriptions: { tenantId: string; subscriptionId: string }[]
@@ -8,17 +8,17 @@ export const getSubscriptionsFromDB = async (
   const conditions = subscriptions.map((sub) =>
     and(
       eq(organisationsTable.tenantId, sub.tenantId),
-      eq(sharePointTable.subscriptionId, sub.subscriptionId)
+      eq(subscriptionsTable.subscriptionId, sub.subscriptionId)
     )
   );
 
   return db
     .select({
       tenantId: organisationsTable.tenantId,
-      subscriptionClientState: sharePointTable.subscriptionClientState,
-      subscriptionId: sharePointTable.subscriptionId,
+      subscriptionClientState: subscriptionsTable.subscriptionClientState,
+      subscriptionId: subscriptionsTable.subscriptionId,
     })
-    .from(sharePointTable)
-    .innerJoin(organisationsTable, eq(sharePointTable.organisationId, organisationsTable.id))
+    .from(subscriptionsTable)
+    .innerJoin(organisationsTable, eq(subscriptionsTable.organisationId, organisationsTable.id))
     .where(or(...conditions));
 };

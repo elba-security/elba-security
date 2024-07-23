@@ -18,49 +18,9 @@ export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
   return chunks;
 };
 
-// TODO: get rid of this
-export const getItemsWithPermissionsFromChunks = async ({
-  itemsChunks,
-  token,
-  siteId,
-  driveId,
-}: {
-  itemsChunks: MicrosoftDriveItem[][];
-  token: string;
-  siteId: string;
-  driveId: string;
-}) => {
-  const itemsWithPermissions: ItemWithPermissions[] = [];
-
-  for (const itemsChunk of itemsChunks) {
-    const itemPermissionsChunks = await Promise.all(
-      itemsChunk.map((item) =>
-        getAllItemPermissions({
-          token,
-          siteId,
-          driveId,
-          itemId: item.id,
-        })
-      )
-    );
-
-    for (let e = 0; e < itemPermissionsChunks.length; e++) {
-      const item = itemsChunk[e];
-      const permissions = itemPermissionsChunks[e];
-
-      if (!item || !permissions) continue;
-
-      itemsWithPermissions.push({
-        item,
-        permissions,
-      });
-    }
-  }
-
-  return itemsWithPermissions;
-};
-
-export const removeInheritedUpdate = (items: ItemWithPermissions[]): ItemsWithPermissionsParsed => {
+export const parseItemsInheritedPermissions = (
+  items: ItemWithPermissions[]
+): ItemsWithPermissionsParsed => {
   const toUpdate: ItemWithPermissions[] = [];
   const toDelete: string[] = [];
   const itemsPermissions = new Map(

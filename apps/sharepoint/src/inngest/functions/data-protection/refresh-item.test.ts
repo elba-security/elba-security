@@ -39,7 +39,6 @@ const item: MicrosoftDriveItem = {
   lastModifiedDateTime: itemLastModifiedAt,
 };
 
-// TODO
 const permissions: SharepointPermission[] = [
   {
     id: 'permission-id-1',

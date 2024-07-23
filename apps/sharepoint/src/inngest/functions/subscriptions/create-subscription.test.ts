@@ -2,7 +2,7 @@ import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as createSubscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
-import { organisationsTable, sharePointTable } from '@/database/schema';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { createSubscription } from './create-subscription';
@@ -55,10 +55,10 @@ describe('create-subscription', () => {
   beforeEach(async () => {
     await db.insert(organisationsTable).values(organisation);
     await db
-      .insert(sharePointTable)
+      .insert(subscriptionsTable)
       .values(sharePoint)
       .onConflictDoUpdate({
-        target: [sharePointTable.organisationId, sharePointTable.driveId],
+        target: [subscriptionsTable.organisationId, subscriptionsTable.driveId],
 
         set: {
           subscriptionId: sharePoint.subscriptionId,

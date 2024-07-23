@@ -1,5 +1,5 @@
 {
-  "id": "eb3fe3a8-86cf-4173-8bd7-9539ced56c90",
+  "id": "83bf81c3-a839-4162-a23b-2f3d2107eaef",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -45,8 +45,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "sharepoint": {
-      "name": "sharepoint",
+    "subscriptions": {
+      "name": "subscriptions",
       "schema": "",
       "columns": {
         "organisation_id": {
@@ -101,12 +101,16 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "sharepoint_organisation_id_organisations_id_fk": {
-          "name": "sharepoint_organisation_id_organisations_id_fk",
-          "tableFrom": "sharepoint",
+        "subscriptions_organisation_id_organisations_id_fk": {
+          "name": "subscriptions_organisation_id_organisations_id_fk",
+          "tableFrom": "subscriptions",
           "tableTo": "organisations",
-          "columnsFrom": ["organisation_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organisation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -116,7 +120,10 @@
         "unic_drive": {
           "name": "unic_drive",
           "nullsNotDistinct": false,
-          "columns": ["organisation_id", "drive_id"]
+          "columns": [
+            "organisation_id",
+            "drive_id"
+          ]
         }
       }
     }
