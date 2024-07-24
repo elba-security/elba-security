@@ -11,7 +11,7 @@ import {
   type AnyonePermissionMetadata,
 } from '@/connectors/elba/data-protection';
 import { deleteDataProtectionItemPermissions } from './delete-item-permissions';
-import { type SharepointDeletePermission } from './common/types';
+import { type ElbaPermissionToDelete } from './common/types';
 
 const token = 'test-token';
 const siteId = 'some-site-id';
@@ -32,7 +32,7 @@ const organisation = {
   region: 'us',
 };
 
-const permissions: SharepointDeletePermission[] = [
+const permissions: ElbaPermissionToDelete[] = [
   {
     id: 'anyone-permission',
     metadata: {

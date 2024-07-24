@@ -1,14 +1,5 @@
-import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
-import {
-  getAllItemPermissions,
-  type SharepointPermission,
-} from '@/connectors/microsoft/sharepoint/permissions';
-import type {
-  CombinedLinkPermissions,
-  ItemWithPermissions,
-  ItemsWithPermissionsParsed,
-  SharepointDeletePermission,
-} from './types';
+import { type SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
+import type { PermissionToDelete, ItemWithPermissions, ElbaPermissionToDelete } from './types';
 
 export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
   const chunks: T[][] = [];
@@ -18,9 +9,7 @@ export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
   return chunks;
 };
 
-export const parseItemsInheritedPermissions = (
-  items: ItemWithPermissions[]
-): ItemsWithPermissionsParsed => {
+export const parseItemsInheritedPermissions = (items: ItemWithPermissions[]) => {
   const toUpdate: ItemWithPermissions[] = [];
   const toDelete: string[] = [];
   const itemsPermissions = new Map(
@@ -38,8 +27,6 @@ export const parseItemsInheritedPermissions = (
     for (const permission of permissions) {
       if (!parentPermissions || !parentPermissions.has(permission.id)) {
         nonInheritedPermissions.push(permission);
-      } else {
-        console.warn({ inheritedPermission: permission });
       }
     }
 
@@ -54,25 +41,24 @@ export const parseItemsInheritedPermissions = (
 };
 
 export const parsePermissionsToDelete = (
-  permissions: SharepointDeletePermission[]
-): CombinedLinkPermissions[] => {
-  // TODO: rename variables
-  const permissionDeletionArray: CombinedLinkPermissions[] = [];
-  const combinedLinkPermissions = new Map<string, string[]>();
+  permissions: ElbaPermissionToDelete[]
+): PermissionToDelete[] => {
+  const permissionIds: string[] = [];
+  const userLinkPermissionIds = new Map<string, string[]>();
 
   for (const { metadata } of permissions) {
     if (metadata.type === 'user') {
       if (metadata.directPermissionId) {
-        permissionDeletionArray.push({ permissionId: metadata.directPermissionId });
+        permissionIds.push(metadata.directPermissionId);
       }
 
       if (metadata.linksPermissionIds.length) {
         for (const permissionId of metadata.linksPermissionIds) {
-          let linkPermission = combinedLinkPermissions.get(permissionId);
+          let linkPermission = userLinkPermissionIds.get(permissionId);
 
           if (!linkPermission) {
             linkPermission = [];
-            combinedLinkPermissions.set(permissionId, linkPermission);
+            userLinkPermissionIds.set(permissionId, linkPermission);
           }
 
           linkPermission.push(metadata.email);
@@ -81,15 +67,13 @@ export const parsePermissionsToDelete = (
     }
 
     if (metadata.type === 'anyone') {
-      permissionDeletionArray.push(
-        ...metadata.permissionIds.map((permissionId) => ({ permissionId }))
-      );
+      permissionIds.push(...metadata.permissionIds);
     }
   }
 
   return [
-    ...permissionDeletionArray,
-    ...[...combinedLinkPermissions.entries()].map(([permissionId, userEmails]) => ({
+    ...permissionIds.map((permissionId) => ({ permissionId })),
+    ...[...userLinkPermissionIds.entries()].map(([permissionId, userEmails]) => ({
       permissionId,
       userEmails,
     })),

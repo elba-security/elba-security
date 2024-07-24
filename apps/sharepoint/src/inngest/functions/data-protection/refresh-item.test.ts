@@ -9,7 +9,7 @@ import type { SharepointPermission } from '@/connectors/microsoft/sharepoint/per
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
 import { env } from '@/common/env';
 import * as itemsConnector from '@/connectors/microsoft/sharepoint/items';
-import { refreshItem } from './refresh-item';
+import { refreshDataProtectionObject } from './refresh-item';
 
 const token = 'test-token';
 
@@ -80,7 +80,7 @@ const setupData = {
 };
 
 const setup = createInngestFunctionMock(
-  refreshItem,
+  refreshDataProtectionObject,
   'sharepoint/data_protection.refresh_object.requested'
 );
 

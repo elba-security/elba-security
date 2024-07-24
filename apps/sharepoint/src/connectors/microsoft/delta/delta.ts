@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { MicrosoftError } from '@/common/error';
 import { env } from '@/common/env';
 import { driveItemSchema } from '../sharepoint/items';
@@ -56,9 +57,6 @@ export const getDeltaItems = async ({
     },
   });
 
-  console.log('------- DELTA RESPONSE -------');
-  console.log(await response.clone().text());
-
   if (!response.ok) {
     throw new MicrosoftError('Could not retrieve delta', { response });
   }
@@ -66,8 +64,7 @@ export const getDeltaItems = async ({
   const data: unknown = await response.json();
   const result = microsoftDeltaPaginatedResponseSchema.safeParse(data);
   if (!result.success) {
-    // TODO
-    console.error('Failed to parse paginated delta response', { data, error: result.error });
+    logger.error('Failed to parse paginated delta response', { data, error: result.error });
     throw new Error('Failed to parse delta paginated response');
   }
 
@@ -76,14 +73,12 @@ export const getDeltaItems = async ({
     const item = deltaItemSchema.safeParse(deltaItem);
     if (item.success) {
       if (item.data.deleted) {
-        // TODO: log items delete state, check microsoft doc for updated etc
         items.deleted.push(item.data.id);
       } else {
         items.updated.push(item.data);
       }
     } else {
-      console.log('Failed to parse delta item', { deltaItem, error: item.error });
-      // TODO: log or whatever
+      logger.error('Failed to parse delta item', { deltaItem, error: item.error });
     }
   }
 

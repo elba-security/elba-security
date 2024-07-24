@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 import { microsoftPaginatedResponseSchema } from '../common/pagination';
@@ -37,18 +38,16 @@ export const getSites = async ({ token, skipToken }: GetSitesParams) => {
   const data: unknown = await response.json();
   const result = microsoftPaginatedResponseSchema.safeParse(data);
   if (!result.success) {
-    // TODO
-    console.error('Failed to parse sites', { data, error: result.error });
+    logger.error('Failed to parse sites', { data, error: result.error });
     throw new Error('Could not parse sites');
   }
 
   const nextSkipToken = result.data['@odata.nextLink'];
-  // const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
   const siteIds: string[] = [];
   for (const site of result.data.value) {
     const parsedSite = siteSchema.safeParse(site);
     if (!parsedSite.success) {
-      console.error('Failed to parse site while getting sites', { site, error: parsedSite.error });
+      logger.error('Failed to parse site while getting sites', { site, error: parsedSite.error });
     } else {
       siteIds.push(parsedSite.data.id);
     }

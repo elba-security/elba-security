@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 import { microsoftPaginatedResponseSchema } from '../common/pagination';
@@ -111,14 +112,13 @@ export const getItemPermissions = async ({
     if (parsedPermission.success) {
       permissions.push(parsedPermission.data);
     } else {
-      console.error('Failed to parse permission while getting item permissions', {
+      logger.error('Failed to parse permission while getting item permissions', {
         permission,
         error: parsedPermission.error,
       });
     }
   }
 
-  // const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
   const nextSkipToken = result.data['@odata.nextLink'];
 
   return { permissions, nextSkipToken };
@@ -230,8 +230,7 @@ export const getPermissionDetails = async ({
 
   const parsedPermission = sharepointPermissionSchema.safeParse(data);
   if (!parsedPermission.success) {
-    // TODO
-    console.error('Failed to parse permission while getting permission details', {
+    logger.error('Failed to parse permission while getting permission details', {
       data,
       error: parsedPermission.error,
     });

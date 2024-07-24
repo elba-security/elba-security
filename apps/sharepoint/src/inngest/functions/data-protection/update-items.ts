@@ -12,17 +12,16 @@ import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
 import { getAllItemPermissions } from '@/connectors/microsoft/sharepoint/permissions';
 import { getChunkedArray, parseItemsInheritedPermissions } from './common/helpers';
 
-export const updateItems = inngest.createFunction(
+export const syncDeltaItems = inngest.createFunction(
   {
-    id: 'sharepoint-update-items',
+    id: 'sync-delta-items',
     concurrency: {
-      // TODO: concurrency 1
       key: 'event.data.tenantId',
       limit: env.MICROSOFT_DATA_PROTECTION_ITEMS_SYNC_CONCURRENCY,
     },
     retries: 5,
   },
-  { event: 'sharepoint/update-items.triggered' },
+  { event: 'sharepoint/delta.sync.triggered' },
   async ({ event, step }) => {
     const { siteId, driveId, subscriptionId, tenantId } = event.data;
 
@@ -125,7 +124,7 @@ export const updateItems = inngest.createFunction(
 
     if ('nextSkipToken' in tokens) {
       await step.sendEvent('sync-next-delta-page', {
-        name: 'sharepoint/update-items.triggered',
+        name: 'sharepoint/delta.sync.triggered',
         data: event.data,
       });
 

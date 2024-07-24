@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 import { microsoftPaginatedResponseSchema } from '../common/pagination';
@@ -37,20 +38,18 @@ export const getDrives = async ({ token, siteId, skipToken }: GetDrivesParams) =
   const data: unknown = await response.json();
   const result = microsoftPaginatedResponseSchema.safeParse(data);
   if (!result.success) {
-    // TODO
-    console.error('Failed to parse paginated drives response', { data, errror: result.error });
+    logger.error('Failed to parse paginated drives response', { data, errror: result.error });
     throw new Error('Could not parse drives');
   }
 
   const nextSkipToken = result.data['@odata.nextLink'];
-  // const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
   const driveIds: string[] = [];
   for (const drive of result.data.value) {
     const parsedDrive = driveSchema.safeParse(drive);
     if (parsedDrive.success) {
       driveIds.push(parsedDrive.data.id);
     } else {
-      console.error('Failed to parse drive while getting drives', {
+      logger.error('Failed to parse drive while getting drives', {
         drive,
         error: parsedDrive.error,
       });

@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { enrichError, serializeLogObject } from '@elba-security/logger/src/serialize';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -11,7 +10,7 @@ import {
   revokeUsersFromLinkPermission,
 } from '@/connectors/microsoft/sharepoint/permissions';
 import { parsePermissionsToDelete } from './common/helpers';
-import { type CombinedLinkPermissions } from './common/types';
+import { type PermissionToDelete } from './common/types';
 
 export const deleteDataProtectionItemPermissions = inngest.createFunction(
   {
@@ -82,9 +81,9 @@ export const deleteDataProtectionItemPermissions = inngest.createFunction(
       )
     );
 
-    const deletedPermissions: CombinedLinkPermissions[] = [];
-    const ignoredPermissions: CombinedLinkPermissions[] = [];
-    const unexpectedFailedPermissions: (CombinedLinkPermissions & { reason: unknown })[] = [];
+    const deletedPermissions: PermissionToDelete[] = [];
+    const ignoredPermissions: PermissionToDelete[] = [];
+    const unexpectedFailedPermissions: (PermissionToDelete & { reason: unknown })[] = [];
     for (const [index, permissionDeletionResult] of permissionDeletionResults.entries()) {
       const { permissionId, userEmails } = permissionsToDelete[index]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion -- can't be undefined
       if (permissionDeletionResult.status === 'rejected') {

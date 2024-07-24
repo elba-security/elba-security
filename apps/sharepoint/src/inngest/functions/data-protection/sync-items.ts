@@ -101,7 +101,6 @@ export const syncItems = inngest.createFunction(
       await Promise.all(eventsToWait);
     }
 
-    // TODO: rename steps
     await step.run('update-elba-objects', async () => {
       const dataProtectionItems = formatDataProtectionObjects({
         items,

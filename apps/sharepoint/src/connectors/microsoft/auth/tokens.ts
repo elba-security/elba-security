@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 
@@ -28,7 +29,7 @@ export const getToken = async (tenantId: string) => {
   const data: unknown = await response.json();
   const result = microsoftTokenSchema.safeParse(data);
   if (!result.success) {
-    console.error('Failed to parse token response', { data, error: result.error });
+    logger.error('Failed to parse token response', { data, error: result.error });
     throw new Error('Could not parse token');
   }
 

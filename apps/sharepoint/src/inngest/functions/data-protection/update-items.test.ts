@@ -9,7 +9,7 @@ import { env } from '@/common/env';
 import type { SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
 import * as deltaConnector from '@/connectors/microsoft/delta/delta';
-import { updateItems } from './update-items';
+import { syncDeltaItems } from './update-items';
 
 const token = 'test-token';
 const organisationId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c92';
@@ -95,7 +95,7 @@ const setupData = {
   tenantId,
 };
 
-const setup = createInngestFunctionMock(updateItems, 'sharepoint/update-items.triggered');
+const setup = createInngestFunctionMock(syncDeltaItems, 'sharepoint/delta.sync.triggered');
 
 describe('update-item-and-permissions', () => {
   beforeEach(async () => {
@@ -286,7 +286,7 @@ describe('update-item-and-permissions', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-next-delta-page', {
-      name: 'sharepoint/update-items.triggered',
+      name: 'sharepoint/delta.sync.triggered',
       data: {
         siteId,
         driveId,

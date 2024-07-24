@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 import { microsoftPaginatedResponseSchema } from '../common/pagination';
@@ -50,13 +51,17 @@ export const getItem = async ({
   }
 
   if (!response.ok) {
-    console.log(await response.clone().text());
     throw new MicrosoftError('Could not retrieve item', { response });
   }
 
-  const data: unknown = await response.json(); // TODO
+  const data: unknown = await response.json();
+  const result = driveItemSchema.safeParse(data);
+  if (!result.success) {
+    logger.error('Failed to parse item', { data, error: result.error });
+    throw new Error('Could not parse item while getting item');
+  }
 
-  return driveItemSchema.parse(data); // TODO
+  return result.data;
 };
 
 export const getItems = async ({
@@ -95,8 +100,7 @@ export const getItems = async ({
   const data: unknown = await response.json();
   const result = microsoftPaginatedResponseSchema.safeParse(data);
   if (!result.success) {
-    // TODO
-    console.error('Failed to parse paginated items response', { data, error: result.error });
+    logger.error('Failed to parse paginated items response', { data, error: result.error });
     throw new Error('Could not parse items');
   }
 
@@ -104,7 +108,7 @@ export const getItems = async ({
   for (const item of result.data.value) {
     const parsedItem = driveItemSchema.safeParse(item);
     if (!parsedItem.success) {
-      console.error('Failed to parse item while getting items', { item, error: parsedItem.error });
+      logger.error('Failed to parse item while getting items', { item, error: parsedItem.error });
     } else {
       items.push(parsedItem.data);
     }

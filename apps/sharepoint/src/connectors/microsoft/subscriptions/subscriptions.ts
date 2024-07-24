@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { addDays } from 'date-fns';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 
@@ -55,13 +56,17 @@ export const createSubscription = async ({
   });
 
   if (!response.ok) {
-    console.log(await response.clone().text());
     throw new MicrosoftError('Could not create subscription', { response });
   }
 
   const data: unknown = await response.json();
+  const result = subscriptionSchema.safeParse(data);
+  if (!result.success) {
+    logger.error('Failed to parse created subscription', { data, error: result.error });
+    throw new Error('Could not parse created subscription');
+  }
 
-  return subscriptionSchema.parse(data); // TODO
+  return result.data;
 };
 
 export const refreshSubscription = async ({
@@ -83,13 +88,17 @@ export const refreshSubscription = async ({
   });
 
   if (!response.ok) {
-    console.log(await response.clone().text());
     throw new MicrosoftError('Could not refresh subscription', { response });
   }
 
   const data: unknown = await response.json();
+  const result = subscriptionSchema.safeParse(data);
+  if (!result.success) {
+    logger.error('Failed to parse refreshed subscription', { data, error: result.error });
+    throw new Error('Could not parse refreshed subscription');
+  }
 
-  return subscriptionSchema.parse(data); // TODO
+  return result.data;
 };
 
 export const removeSubscription = async ({

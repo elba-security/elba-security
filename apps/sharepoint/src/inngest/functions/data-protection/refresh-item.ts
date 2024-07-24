@@ -10,9 +10,9 @@ import { createElbaClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
 import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
 
-export const refreshItem = inngest.createFunction(
+export const refreshDataProtectionObject = inngest.createFunction(
   {
-    id: 'sharepoint-refresh-data-protection-objects',
+    id: 'sharepoint-refresh-data-protection-object',
     concurrency: {
       key: 'event.data.organisationId',
       limit: env.MICROSOFT_DATA_PROTECTION_REFRESH_DELETE_CONCURRENCY,

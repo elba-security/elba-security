@@ -1,7 +1,7 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
-import type { SharepointDeletePermission } from './functions/data-protection/common/types';
+import type { ElbaPermissionToDelete } from './functions/data-protection/common/types';
 
 export const inngest = new Inngest({
   id: 'sharepoint',
@@ -88,7 +88,7 @@ export const inngest = new Inngest({
           siteId: string;
           driveId: string;
         };
-        permissions: SharepointDeletePermission[];
+        permissions: ElbaPermissionToDelete[];
       };
     };
     'sharepoint/subscriptions.create.triggered': {
@@ -125,8 +125,7 @@ export const inngest = new Inngest({
         isFirstSync: boolean;
       };
     };
-    // TODO
-    'sharepoint/update-items.triggered': {
+    'sharepoint/delta.sync.triggered': {
       data: {
         siteId: string;
         driveId: string;

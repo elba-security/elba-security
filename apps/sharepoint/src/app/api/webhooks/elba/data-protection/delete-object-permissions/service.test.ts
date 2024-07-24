@@ -4,7 +4,7 @@ import { inngest } from '@/inngest/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
-import type { SharepointDeletePermission } from '@/inngest/functions/data-protection/common/types';
+import type { ElbaPermissionToDelete } from '@/inngest/functions/data-protection/common/types';
 import {
   type AnyonePermissionMetadata,
   type UserPermissionMetadata,
@@ -26,7 +26,7 @@ const driveId = 'some-drive-id';
 
 const count = 5;
 
-const permissions: SharepointDeletePermission[] = Array.from({ length: count }, (_, i) => {
+const permissions: ElbaPermissionToDelete[] = Array.from({ length: count }, (_, i) => {
   if (i === 1)
     return {
       id: `some-random-id-${i}`,

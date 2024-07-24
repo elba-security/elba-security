@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
 import { microsoftPaginatedResponseSchema } from '../common/pagination';
@@ -34,14 +35,13 @@ export const getUsers = async ({ token, tenantId, skipToken }: GetUsersParams) =
   });
 
   if (!response.ok) {
-    console.log({ responseData: await response.clone().text() });
     throw new MicrosoftError('Could not retrieve users', { response });
   }
 
   const data: unknown = await response.json();
   const result = microsoftPaginatedResponseSchema.safeParse(data);
   if (!result.success) {
-    console.error('Failed to parse users', data);
+    logger.error('Failed to parse users', { data, error: result.error });
     throw new Error('Could not parse users');
   }
 
@@ -58,7 +58,6 @@ export const getUsers = async ({ token, tenantId, skipToken }: GetUsersParams) =
   }
 
   const nextSkipToken = result.data['@odata.nextLink'];
-  // const nextSkipToken = getNextSkipTokenFromNextLink(result.data['@odata.nextLink']);
 
   return { validUsers, invalidUsers, nextSkipToken };
 };

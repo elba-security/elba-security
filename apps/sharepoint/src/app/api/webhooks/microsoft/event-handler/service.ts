@@ -8,7 +8,7 @@ export const handleWebhookEvents = async (subscriptions: ValidSubscriptions) => 
 
   await inngest.send(
     subscriptions.map(({ tenantId, subscriptionId, siteId, driveId }) => ({
-      name: 'sharepoint/update-items.triggered',
+      name: 'sharepoint/delta.sync.triggered',
       data: {
         siteId,
         driveId,

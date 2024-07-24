@@ -32,7 +32,7 @@ describe('handleWebhookEvents', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith(
       data.map(({ subscriptionId, tenantId, siteId, driveId }) => ({
-        name: 'sharepoint/update-items.triggered',
+        name: 'sharepoint/delta.sync.triggered',
         data: {
           driveId,
           siteId,

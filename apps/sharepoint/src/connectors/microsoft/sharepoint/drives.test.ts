@@ -27,12 +27,8 @@ describe('drives connector', () => {
             return new Response(undefined, { status: 401 });
           }
           const url = new URL(request.url);
-          const select = url.searchParams.get('$select');
           const top = url.searchParams.get('$top');
           const skipToken = url.searchParams.get('$skiptoken');
-
-          const selectedKeys = select?.split(',') || ([] as unknown as (keyof MicrosoftDrive)[]);
-
           const nextPageUrl = new URL(url);
           nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
 
