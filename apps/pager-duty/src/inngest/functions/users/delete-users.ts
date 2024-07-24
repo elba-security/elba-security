@@ -1,30 +1,37 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUsers } from '@/connectors/users';
+import { deleteUser as deletePagerdutyUser } from '@/connectors/pagerduty/users';
+import { decrypt } from '@/common/crypto';
+import { env } from '@/common/env';
 
-export const deleteSourceUsers = inngest.createFunction(
-  { id: 'delete-users' },
+export const deleteUser = inngest.createFunction(
+  {
+    id: 'pagerduty-delete-users',
+    concurrency: {
+      key: 'event.data.organisationId',
+      limit: env.PAGERDUTY_DELETE_USER_CONCURRENCY,
+    },
+    retries: 5,
+  },
   { event: 'pagerduty/users.delete.requested' },
   async ({ event }) => {
     const { userId, organisationId } = event.data;
 
     const [organisation] = await db
       .select({
-        token: Organisation.accessToken,
+        token: organisationsTable.accessToken,
       })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisationId));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
 
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve ${userId}`);
     }
+    const accessToken = await decrypt(organisation.token);
 
-    await deleteUsers({
-      userId,
-      token: organisation.token,
-    });
+    await deletePagerdutyUser({ userId, accessToken });
   }
 );

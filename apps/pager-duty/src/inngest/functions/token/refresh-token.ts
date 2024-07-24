@@ -1,13 +1,14 @@
 import { subMinutes } from 'date-fns/subMinutes';
 import { addSeconds } from 'date-fns/addSeconds';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
+import { failureRetry } from '@elba-security/inngest';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getRefreshToken } from '@/connectors/auth';
-import { env } from '@/env';
-import { encrypt } from '@/common/crypto';
+import { getRefreshToken } from '@/connectors/pagerduty/auth';
+import { encrypt, decrypt } from '@/common/crypto';
+import { unauthorizedMiddleware } from '@/inngest/middlewares/unauthorized-middleware';
 
 export const refreshToken = inngest.createFunction(
   {
@@ -18,55 +19,60 @@ export const refreshToken = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'pagerduty/pagerduty.elba_app.uninstalled',
+        event: 'pagerduty/app.installed',
         match: 'data.organisationId',
       },
       {
-        event: 'pagerduty/pagerduty.elba_app.installed',
+        event: 'pagerduty/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
-    retries: env.TOKEN_REFRESH_MAX_RETRY,
+    onFailure: failureRetry(),
+    middleware: [unauthorizedMiddleware],
+    retries: 5,
   },
-  { event: 'pagerduty/pagerduty.token.refresh.requested' },
+  { event: 'pagerduty/token.refresh.requested' },
   async ({ event, step }) => {
     const { organisationId, expiresAt } = event.data;
 
-    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 5));
+    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 1439));
 
     const nextExpiresAt = await step.run('refresh-token', async () => {
       const [organisation] = await db
         .select({
-          refreshToken: Organisation.refreshToken,
+          refreshToken: organisationsTable.refreshToken,
         })
-        .from(Organisation)
-        .where(and(eq(Organisation.id, organisationId)));
+        .from(organisationsTable)
+        .where(eq(organisationsTable.id, organisationId));
 
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
       }
 
+      const refreshTokenInfo = await decrypt(organisation.refreshToken);
+
       const {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
         expiresIn,
-      } = await getRefreshToken(organisation.refreshToken);
-      
-      const encodedNewAccessToken = await encrypt(newAccessToken);
-      const encodedNewRefreshToken = await encrypt(newRefreshToken);
+      } = await getRefreshToken(refreshTokenInfo);
+
+      const encryptedAccessToken = await encrypt(newAccessToken);
+      const encryptedRefreshToken = await encrypt(newRefreshToken);
+
       await db
-        .update(Organisation)
+        .update(organisationsTable)
         .set({
-          accessToken: encodedNewAccessToken,
-          refreshToken: encodedNewRefreshToken,
+          accessToken: encryptedAccessToken,
+          refreshToken: encryptedRefreshToken,
         })
-        .where(eq(Organisation.id, organisationId));
+        .where(eq(organisationsTable.id, organisationId));
 
       return addSeconds(new Date(), expiresIn);
     });
 
     await step.sendEvent('next-refresh', {
-      name: 'pagerduty/pagerduty.token.refresh.requested',
+      name: 'pagerduty/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: new Date(nextExpiresAt).getTime(),

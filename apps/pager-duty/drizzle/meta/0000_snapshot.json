@@ -1,11 +1,11 @@
 {
-  "id": "039d1614-108d-4b6e-8cfe-d794be3d60d6",
+  "id": "d4312f4e-185b-4106-9adb-bd03ac3f88e5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "organisation": {
-      "name": "organisation",
+    "organisations": {
+      "name": "organisations",
       "schema": "",
       "columns": {
         "id": {
@@ -20,14 +20,27 @@
           "primaryKey": false,
           "notNull": true
         },
-        "accessToken": {
-          "name": "accessToken",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "access_token": {
+          "name": "access_token",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "refreshToken": {
-          "name": "refreshToken",
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subdomain": {
+          "name": "subdomain",
           "type": "text",
           "primaryKey": false,
           "notNull": true

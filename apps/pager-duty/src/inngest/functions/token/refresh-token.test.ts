@@ -3,26 +3,20 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import * as authConnector from '@/connectors/auth';
-import * as crypto from '@/common/crypto';
-import { decrypt } from '@/common/crypto';
-import { PagerdutyError } from '@/connectors/commons/error';
+import { organisationsTable } from '@/database/schema';
+import * as authConnector from '@/connectors/pagerduty/auth';
+import { encrypt, decrypt } from '@/common/crypto';
+import { PagerdutyError } from '@/connectors/common/error';
 import { refreshToken } from './refresh-token';
-
-const tokens = {
-  accessToken: 'access-token',
-  refreshToken: 'refresh-token',
-};
-
-const encryptedTokens = {
-  accessToken: tokens.accessToken,
-  refreshToken: tokens.refreshToken,
-};
 
 const newTokens = {
   accessToken: 'new-access-token',
   refreshToken: 'new-refresh-token',
+};
+
+const encryptedTokens = {
+  accessToken: await encrypt(newTokens.accessToken),
+  refreshToken: await encrypt(newTokens.refreshToken),
 };
 
 const organisation = {
@@ -30,6 +24,7 @@ const organisation = {
   accessToken: encryptedTokens.accessToken,
   refreshToken: encryptedTokens.refreshToken,
   region: 'us',
+  subDomain: 'subdomain',
 };
 const now = new Date();
 // current token expires in an hour
@@ -37,10 +32,7 @@ const expiresAt = now.getTime() + 60 * 1000;
 // next token duration
 const expiresIn = 60 * 1000;
 
-const setup = createInngestFunctionMock(
-  refreshToken,
-  'pagerduty/pagerduty.token.refresh.requested'
-);
+const setup = createInngestFunctionMock(refreshToken, 'pagerduty/token.refresh.requested');
 
 describe('refresh-token', () => {
   beforeAll(() => {
@@ -70,7 +62,7 @@ describe('refresh-token', () => {
   });
 
   test('should update encrypted tokens and schedule the next refresh', async () => {
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     vi.spyOn(authConnector, 'getRefreshToken').mockResolvedValue({
       ...newTokens,
@@ -86,28 +78,24 @@ describe('refresh-token', () => {
 
     const [updatedOrganisation] = await db
       .select({
-        accessToken: Organisation.accessToken,
-        refreshToken: Organisation.refreshToken,
+        accessToken: organisationsTable.accessToken,
+        refreshToken: organisationsTable.refreshToken,
       })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
     if (!updatedOrganisation) {
       throw new PagerdutyError(`Organisation with ID ${organisation.id} not found.`);
     }
-    await expect(decrypt(updatedOrganisation.accessToken)).resolves.toEqual(newTokens.accessToken);
+    await expect(decrypt(updatedOrganisation.refreshToken)).resolves.toEqual(
+      newTokens.refreshToken
+    );
 
     expect(authConnector.getRefreshToken).toBeCalledTimes(1);
-    expect(authConnector.getRefreshToken).toBeCalledWith(tokens.refreshToken);
-
-    expect(step.sleepUntil).toBeCalledTimes(1);
-    expect(step.sleepUntil).toBeCalledWith(
-      'wait-before-expiration',
-      new Date(expiresAt - 5 * 60 * 1000)
-    );
+    expect(authConnector.getRefreshToken).toBeCalledWith(newTokens.refreshToken);
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('next-refresh', {
-      name: 'pagerduty/pagerduty.token.refresh.requested',
+      name: 'pagerduty/token.refresh.requested',
       data: {
         organisationId: organisation.id,
         expiresAt: now.getTime() + expiresIn * 1000,

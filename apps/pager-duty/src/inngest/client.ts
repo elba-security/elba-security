@@ -1,10 +1,9 @@
 import { EventSchemas, Inngest } from 'inngest';
-import { sentryMiddleware } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 
 export const inngest = new Inngest({
-  id: 'slack',
+  id: 'pagerduty',
   schemas: new EventSchemas().fromRecord<{
     'pagerduty/users.sync.requested': {
       data: {
@@ -14,22 +13,20 @@ export const inngest = new Inngest({
         page: string | null;
       };
     };
-    'pagerduty/pagerduty.elba_app.installed': {
+    'pagerduty/app.installed': {
       data: {
         organisationId: string;
-        region: string;
       };
     };
-    'pagerduty/pagerduty.token.refresh.requested': {
+    'pagerduty/app.uninstalled': {
+      data: {
+        organisationId: string;
+      };
+    };
+    'pagerduty/token.refresh.requested': {
       data: {
         organisationId: string;
         expiresAt: number;
-      };
-    };
-    'pagerduty/pagerduty.elba_app.uninstalled': {
-      data: {
-        organisationId: string;
-        region: string;
       };
     };
     'pagerduty/users.delete.requested': {
@@ -39,6 +36,6 @@ export const inngest = new Inngest({
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware, sentryMiddleware],
+  middleware: [rateLimitMiddleware],
   logger,
 });

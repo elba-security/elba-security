@@ -6,7 +6,7 @@ This endpoint enables the removal of users from a specified organisation in the 
 
 This method supports the deletion of users from an organisation by specifying either a list of user IDs or a `syncedBefore` timestamp. Note that `ids` and `syncedBefore` should not be provided simultaneously.
 
-```
+```text
 DELETE /api/rest/users
 ```
 
@@ -28,7 +28,7 @@ If successful, returns [`200`](rest/index.md#status-codes) and the following res
 
 Example request for deletion by user `ids`:
 
-#### CURL:
+#### CURL
 
 ```shell
 curl --request DELETE \
@@ -55,7 +55,7 @@ curl
   }'
 ```
 
-#### elba SDK:
+#### elba SDK
 
 ##### Delete the elba users that has been sent before this sync
 

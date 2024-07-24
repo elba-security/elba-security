@@ -140,12 +140,12 @@ describe('synchronize-conversations', () => {
     expect(step.waitForEvent).toBeCalledWith('wait-for-message-complete-channel-id-1', {
       event: 'slack/conversations.sync.messages.completed',
       if: "async.data.teamId == 'team-id' && async.data.conversationId == 'channel-id-1'",
-      timeout: '1 day',
+      timeout: '30 days',
     });
     expect(step.waitForEvent).toBeCalledWith('wait-for-message-complete-channel-id-2', {
       event: 'slack/conversations.sync.messages.completed',
       if: "async.data.teamId == 'team-id' && async.data.conversationId == 'channel-id-2'",
-      timeout: '1 day',
+      timeout: '30 days',
     });
 
     expect(step.sendEvent).toBeCalledTimes(2);
@@ -328,12 +328,12 @@ describe('synchronize-conversations', () => {
     expect(step.waitForEvent).toBeCalledWith('wait-for-message-complete-channel-id-1', {
       event: 'slack/conversations.sync.messages.completed',
       if: "async.data.teamId == 'team-id' && async.data.conversationId == 'channel-id-1'",
-      timeout: '1 day',
+      timeout: '30 days',
     });
     expect(step.waitForEvent).toBeCalledWith('wait-for-message-complete-channel-id-2', {
       event: 'slack/conversations.sync.messages.completed',
       if: "async.data.teamId == 'team-id' && async.data.conversationId == 'channel-id-2'",
-      timeout: '1 day',
+      timeout: '30 days',
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);

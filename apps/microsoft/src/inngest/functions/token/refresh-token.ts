@@ -2,6 +2,7 @@ import { subMinutes } from 'date-fns/subMinutes';
 import { addSeconds } from 'date-fns/addSeconds';
 import { and, eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
+import { failureRetry } from '@elba-security/inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -27,12 +28,15 @@ export const refreshToken = inngest.createFunction(
       },
     ],
     retries: env.TOKEN_REFRESH_MAX_RETRY,
+    // TODO: improve 401 filtering before re-applying
+    // middleware: [unauthorizedMiddleware],
+    onFailure: failureRetry(),
   },
   { event: 'microsoft/token.refresh.requested' },
   async ({ event, step }) => {
     const { organisationId, expiresAt } = event.data;
 
-    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 5));
+    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 30));
 
     const nextExpiresAt = await step.run('refresh-token', async () => {
       const [organisation] = await db

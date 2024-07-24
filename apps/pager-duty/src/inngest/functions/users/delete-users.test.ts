@@ -1,57 +1,41 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
-import { Organisation } from '@/database/schema';
+import * as usersConnector from '@/connectors/pagerduty/users';
+import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
-import { deleteSourceUsers } from './delete-users';
+import { deleteUser } from './delete-users';
 
-const userId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
+const userId = 'user-id';
 const accessToken = 'test-access-token';
 const refreshToken = 'test-refresh-token';
-
-// Mock data for organisation and user
 const organisation = {
-  id: userId,
+  id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt(accessToken),
   refreshToken: await encrypt(refreshToken),
   region: 'us',
+  subDomain: 'subdomain',
 };
 
-// Setup function mock for Inngest
-const setup = createInngestFunctionMock(deleteSourceUsers, 'pagerduty/users.delete.requested');
+const setup = createInngestFunctionMock(deleteUser, 'pagerduty/users.delete.requested');
 
-describe('deleteSourceUsers', () => {
+describe('deleteUser', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  test('should throw NonRetriableError when organisation is not found', async () => {
-    // Mock database response to simulate no organisation found
-    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
+  test('should delete users', async () => {
+    vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
+    await db.insert(organisationsTable).values(organisation);
 
     const [result] = setup({ userId, organisationId: organisation.id });
 
-    // Assert that the function throws a NonRetriableError
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-    await expect(result).rejects.toHaveProperty('message', `Could not retrieve ${userId}`);
-  });
-
-  test.only('should delete user', async () => {
-    // Mock database response to return organisation details
-    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
-    await db.insert(Organisation).values(organisation);
-
-    const [result] = setup({ userId, organisationId: organisation.id });
-
-    // Assert the function resolves successfully
     await expect(result).resolves.toStrictEqual(undefined);
 
-    expect(usersConnector.deleteUsers).toBeCalledTimes(1);
-    expect(usersConnector.deleteUsers).toBeCalledWith({
+    expect(usersConnector.deleteUser).toBeCalledTimes(1);
+    expect(usersConnector.deleteUser).toBeCalledWith({
       userId,
-      token: organisation.accessToken,
+      accessToken,
     });
   });
 });

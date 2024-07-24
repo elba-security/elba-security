@@ -1,0 +1,52 @@
+.dwd {
+  max-width: 56rem;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  color: #717180;
+  padding: 1rem 0;
+}
+
+.title {
+  font-weight: 500;
+  font-size: 2rem;
+  color: #111127;
+}
+
+.description {
+  margin: 0.5rem 0;
+}
+
+.center {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.button {
+  color: white;
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  background-color: #6164d6;
+  border: none;
+  font-size: 1rem;
+  cursor: inherit;
+}
+
+.status {
+  border-radius: 0.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.loading {
+  background-color: #ffebed;
+  color: #ff4822;
+}
+
+.activated {
+  background-color: #defcec;
+  color: #00c45a;
+}

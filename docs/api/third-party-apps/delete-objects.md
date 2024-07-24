@@ -4,7 +4,7 @@ This endpoint is designed to remove specific app associations with a user within
 
 ### DELETE
 
-```
+```text
 DELETE /api/rest/third-party-apps/objects
 ```
 
@@ -19,7 +19,7 @@ Supported attributes:
 
 Example requests:
 
-#### CURL:
+#### CURL
 
 ```shell
 curl
@@ -38,7 +38,7 @@ curl
   }'
 ```
 
-#### elba SDK:
+#### elba SDK
 
 ##### Delete the elba third party apps that has been sent before this sync
 

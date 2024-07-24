@@ -12,7 +12,7 @@ export const deleteThirdPartyAppsObject = async ({
   appId,
   metadata,
 }: DeleteThirdPartyAppsObjectParams) => {
-  const { permissionId } = appUserMetadataSchema.parse(metadata);
+  const { permissionId, oauthGrantIds } = appUserMetadataSchema.parse(metadata);
 
   await inngest.send({
     name: 'microsoft/third_party_apps.revoke_app_permission.requested',
@@ -20,6 +20,7 @@ export const deleteThirdPartyAppsObject = async ({
       organisationId,
       appId,
       permissionId,
+      oauthGrantIds,
     },
   });
 };
