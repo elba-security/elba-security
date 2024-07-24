@@ -29,7 +29,7 @@ export const initializeDelta = inngest.createFunction(
     ],
     retries: 5,
   },
-  { event: 'sharepoint/data_protection.initialize_delta.requested' },
+  { event: 'sharepoint/delta.initialize.requested' },
   async ({ event, step }) => {
     const { organisationId, siteId, driveId, isFirstSync } = event.data;
 
@@ -59,7 +59,7 @@ export const initializeDelta = inngest.createFunction(
       return result.newDeltaToken;
     });
 
-    const data = await step.invoke('sharepoint/subscriptions.create.triggered', {
+    const data = await step.invoke('create-subscription', {
       function: createSubscription,
       data: {
         organisationId,

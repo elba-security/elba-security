@@ -37,10 +37,7 @@ const setupData = {
   skipToken: null,
 };
 
-const setup = createInngestFunctionMock(
-  initializeDelta,
-  'sharepoint/data_protection.initialize_delta.requested'
-);
+const setup = createInngestFunctionMock(initializeDelta, 'sharepoint/delta.initialize.requested');
 
 describe('sync-sites', () => {
   beforeEach(async () => {
@@ -78,7 +75,7 @@ describe('sync-sites', () => {
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
     expect(step.invoke).toBeCalledTimes(1);
-    expect(step.invoke).toBeCalledWith('sharepoint/subscriptions.create.triggered', {
+    expect(step.invoke).toBeCalledWith('create-subscription', {
       function: createSubscription,
       data: {
         organisationId: organisation.id,

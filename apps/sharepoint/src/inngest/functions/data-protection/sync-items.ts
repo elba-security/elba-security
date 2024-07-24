@@ -101,7 +101,6 @@ export const syncItems = inngest.createFunction(
       await Promise.all(eventsToWait);
     }
 
-    // TODO: Check if parents permissions should only contains permissions ids or links ids as well
     // TODO: rename steps
     await step.run('update-elba-objects', async () => {
       const dataProtectionItems = formatDataProtectionObjects({

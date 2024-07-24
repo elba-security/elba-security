@@ -9,7 +9,7 @@ import { env } from '@/common/env';
 
 export const createSubscription = inngest.createFunction(
   {
-    id: 'sharepoint-subscribe-to-drive',
+    id: 'sharepoint-create-subscription',
     concurrency: {
       key: 'event.data.siteId',
       limit: env.MICROSOFT_CREATE_SUBSCRIPTION_CONCURRENCY,
@@ -44,7 +44,6 @@ export const createSubscription = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    // TODO: are we subscribing after every time? It could create subscriptions conflicts
     const changeType = 'updated';
     const resource = `sites/${siteId}/drives/${driveId}/root`;
     const clientState = crypto.randomUUID();

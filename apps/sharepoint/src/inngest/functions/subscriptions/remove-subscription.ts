@@ -8,7 +8,7 @@ import { decrypt } from '@/common/crypto';
 
 export const removeSubscription = inngest.createFunction(
   {
-    id: 'sharepoint-subscribe-remove',
+    id: 'sharepoint-remove-subscription',
     cancelOn: [
       {
         event: 'sharepoint/app.uninstalled',

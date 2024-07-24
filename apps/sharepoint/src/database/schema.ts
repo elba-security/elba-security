@@ -1,3 +1,4 @@
+import { type InferSelectModel } from 'drizzle-orm';
 import { uuid, text, timestamp, pgTable, unique } from 'drizzle-orm/pg-core';
 
 export const organisationsTable = pgTable('organisations', {
@@ -7,6 +8,8 @@ export const organisationsTable = pgTable('organisations', {
   token: text('token').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export type Organisation = InferSelectModel<typeof organisationsTable>;
 
 export const subscriptionsTable = pgTable(
   'subscriptions',
@@ -26,3 +29,5 @@ export const subscriptionsTable = pgTable(
     unq: unique('unic_drive').on(t.organisationId, t.driveId),
   })
 );
+
+export type Subscription = InferSelectModel<typeof subscriptionsTable>;

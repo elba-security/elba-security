@@ -1,94 +1,54 @@
 import { describe, expect, test, vi } from 'vitest';
 import { inngest } from '@/inngest/client';
-import { type IncomingSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
-import type { WebhookResponse } from './types';
-import { handleWebhook } from './service';
+import { type ValidSubscriptions } from '@/common/subscriptions';
+import { handleWebhookEvents } from './service';
 
-const data: WebhookResponse<IncomingSubscription> = {
-  value: [
-    {
-      subscriptionId: 'subscription-id-0',
-      resource: 'sites/siteId-0/drives/driveId-0/root',
-      tenantId: 'b783626c-d5f5-40a5-9490-90a947e22e42',
-      clientState: 'some-state',
-    },
-    {
-      subscriptionId: 'subscription-id-1',
-      resource: 'sites/siteId-1/drives/driveId-1/root',
-      tenantId: 'b783626c-d5f5-40a5-9490-90a947e11e31',
-      clientState: 'some-state',
-    },
-  ],
-};
+const data: ValidSubscriptions = [
+  {
+    subscriptionId: 'subscription-id-1',
+    organisationId: 'organisation-id-1',
+    tenantId: 'tenant-id-1',
+    clientState: 'state-1',
+    driveId: 'driveId-1',
+    siteId: 'siteId-1',
+  },
+  {
+    subscriptionId: 'subscription-id-2',
+    organisationId: 'organisation-id-2',
+    tenantId: 'tenant-id-2',
+    clientState: 'state-2',
+    driveId: 'driveId-2',
+    siteId: 'siteId-2',
+  },
+];
 
-const invalidData: WebhookResponse<IncomingSubscription> = {
-  value: [
-    {
-      subscriptionId: 'subscription-id-0',
-      resource: 'sites/siteId-0/drives/driveId-0/root',
-      tenantId: 'b783626c-d5f5-40a5-9490-90a947e22e42',
-      clientState: 'some-state',
-    },
-    {
-      subscriptionId: 'subscription-id-1',
-      resource: 'sites/siteId/root',
-      tenantId: 'b783626c-d5f5-40a5-9490-90a947e11e31',
-      clientState: 'some-state',
-    },
-  ],
-};
-
-describe('handleWebhook', () => {
+describe('handleWebhookEvents', () => {
   test('should send an event when the payload is correct', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
 
-    await expect(handleWebhook(data.value)).resolves.toBeUndefined();
+    await expect(handleWebhookEvents(data)).resolves.toBeUndefined();
 
-    expect(send).toBeCalledWith(
-      data.value.map((payload, index) => {
-        return {
-          name: 'sharepoint/update-items.triggered',
-          data: {
-            siteId: `siteId-${index}`,
-            driveId: `driveId-${index}`,
-            subscriptionId: payload.subscriptionId,
-            tenantId: payload.tenantId,
-            skipToken: null,
-          },
-        };
-      })
-    );
     expect(send).toBeCalledTimes(1);
-  });
-
-  test('should send an event with valid resources', async () => {
-    // @ts-expect-error -- this is a mock
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-
-    await expect(handleWebhook(invalidData.value)).resolves.toBeUndefined();
-
-    expect(send).toBeCalledWith([
-      {
+    expect(send).toBeCalledWith(
+      data.map(({ subscriptionId, tenantId, siteId, driveId }) => ({
         name: 'sharepoint/update-items.triggered',
         data: {
-          siteId: 'siteId-0',
-          driveId: 'driveId-0',
-          subscriptionId: 'subscription-id-0',
-          tenantId: 'b783626c-d5f5-40a5-9490-90a947e22e42',
+          driveId,
+          siteId,
           skipToken: null,
+          subscriptionId,
+          tenantId,
         },
-      },
-    ]);
-
-    expect(send).toBeCalledTimes(1);
+      }))
+    );
   });
 
   test('should not send an event when no data is provided', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
 
-    await expect(handleWebhook([])).resolves.toBeUndefined();
+    await expect(handleWebhookEvents([])).resolves.toBeUndefined();
 
     expect(send).toBeCalledTimes(0);
   });
