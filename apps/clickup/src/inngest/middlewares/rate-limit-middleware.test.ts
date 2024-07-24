@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { RetryAfterError } from 'inngest';
-import { ClickUpError } from '@/connectors/commons/error';
+import { ClickUpError } from '@/connectors/common/error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
 describe('rate-limit middleware', () => {
@@ -16,7 +16,7 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should not transform the output when the error is not about ClickUp rate limit', () => {
+  test('should not transform the output when the error is not about Clickup rate limit', () => {
     expect(
       rateLimitMiddleware
         .init()
@@ -30,15 +30,13 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should transform the output error to RetryAfterError when the error is about ClickUp rate limit', () => {
-    const rateLimitReset = '1700137003';
-
+  test('should transform the output error to RetryAfterError when the error is about Clickup rate limit', () => {
     const rateLimitError = new ClickUpError('foo bar', {
+      // @ts-expect-error this is a mock
       response: {
-        // @ts-expect-error -- this is a mock
-        headers: { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': rateLimitReset },
+        status: 429,
+        headers: new Headers({ 'retry-after': '10' }),
       },
-      request: { method: 'GET', url: 'http://foo.bar', headers: {} },
     });
 
     const context = {
@@ -58,9 +56,7 @@ describe('rate-limit middleware', () => {
       .onFunctionRun({ fn: { name: 'foo' } })
       .transformOutput(context);
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect(result?.result.error.retryAfter).toStrictEqual(
-      new Date(Number(rateLimitReset) * 1000).toISOString()
-    );
+    expect(result?.result.error.retryAfter).toStrictEqual('10');
     expect(result).toMatchObject({
       foo: 'bar',
       baz: {

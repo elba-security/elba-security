@@ -6,5 +6,6 @@ export class ClickUpError extends Error {
   constructor(message: string, { response }: ClickUpErrorOptions = {}) {
     super(message);
     this.response = response;
+    this.name = 'ClickUpError';
   }
 }

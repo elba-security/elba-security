@@ -1,26 +1,27 @@
 import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { ClickupUserSchema, getUsers } from '@/connectors/clickup/users';
+import { type ClickUpUser, getUsers } from '@/connectors/clickup/users';
 import { db } from '@/database/client';
-import {z} from 'zod'
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUser = (user: z.infer<typeof ClickupUserSchema>): User => ({
-  id: user.id,
-  displayName: user.username,
+const formatElbaUser = ({ teamId, user }: { teamId: string; user: ClickUpUser }): User => ({
+  id: String(user.id),
+  displayName: user.username || user.email,
   email: user.email,
   role: user.role,
   authMethod: undefined,
   additionalEmails: [],
+  isSuspendable: user.role !== 'owner',
+  url: `https://app.clickup.com/${teamId}/settings/team/${teamId}/users`,
 });
 
-export const syncUsersPage = inngest.createFunction(
+export const syncUsers = inngest.createFunction(
   {
-    id: 'clickup-sync-users-page',
+    id: 'clickup-sync-users',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },
@@ -42,28 +43,35 @@ export const syncUsersPage = inngest.createFunction(
   },
   { event: 'clickup/users.sync.requested' },
   async ({ event, step, logger }) => {
-    const { organisationId, teamId } = event.data
+    const { organisationId } = event.data;
 
-    const organisation = await step.run('get-organisation', async () => {
-      const [result] = await db
-        .select({
-          accessToken: Organisation.accessToken,
-          region: Organisation.region,
-        })
-        .from(Organisation)
-        .where(eq(Organisation.id, organisationId));
-      if (!result) {
-        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-      }
-      return result;
-    });
+    const [organisation] = await db
+      .select({
+        accessToken: organisationsTable.accessToken,
+        teamId: organisationsTable.teamId,
+        region: organisationsTable.region,
+      })
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
+
+    if (!organisation) {
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+    }
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.accessToken);
 
     await step.run('list-users', async () => {
-      const result = await getUsers(token, teamId);
-      const users = result.validUsers.map(formatElbaUser);
+      const result = await getUsers({
+        token,
+        teamId: organisation.teamId,
+      });
+      const users = result.validUsers.map((user) =>
+        formatElbaUser({
+          teamId: organisation.teamId,
+          user,
+        })
+      );
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
@@ -72,22 +80,9 @@ export const syncUsersPage = inngest.createFunction(
         });
       }
 
-      logger.debug('Sending batch of users to elba: ', {
-        organisationId,
-        users,
-      });
-      if(users.length > 0) {
+      if (users.length > 0) {
         await elba.users.update({ users });
-       }
-    });
-
-    // Signal the completion of user sync for this team
-    await step.sendEvent('clickup/users.sync.completed', {
-      name: 'clickup/users.sync.completed',
-      data: {
-        organisationId,
-        teamId,
-      },
+      }
     });
 
     return {

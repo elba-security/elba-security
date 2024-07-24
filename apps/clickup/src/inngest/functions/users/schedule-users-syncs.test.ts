@@ -1,12 +1,13 @@
 import { expect, test, describe, beforeAll, vi, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { scheduleUsersSyncs } from './schedule-users-syncs';
 
 export const organisations = [
   {
-    id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+    id: '00000000-0000-0000-0000-000000000001',
+    teamId: 'team-id',
     accessToken: 'access-token',
     region: 'us',
   },
@@ -32,7 +33,7 @@ describe('schedule-users-syncs', () => {
   });
 
   test('should schedule jobs when there are organisations', async () => {
-    await db.insert(Organisation).values(organisations)
+    await db.insert(organisationsTable).values(organisations);
     const [result, { step }] = setup();
     await expect(result).resolves.toStrictEqual({
       organisations: organisations.map(({ id }) => ({ id })),
@@ -40,12 +41,12 @@ describe('schedule-users-syncs', () => {
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
       'sync-organisations-users',
-      organisations.map(({ id, region }) => ({
-        name: 'clickup/users.start_sync.requested',
+      organisations.map(({ id }) => ({
+        name: 'clickup/users.sync.requested',
         data: {
           organisationId: id,
           syncStartedAt: Date.now(),
-          isFirstSync: true
+          isFirstSync: true,
         },
       }))
     );

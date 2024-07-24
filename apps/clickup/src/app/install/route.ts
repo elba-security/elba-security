@@ -4,6 +4,7 @@ import { type NextRequest } from 'next/server';
 import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { env } from '@/common/env';
 
+export const preferredRegion = 'fra1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
@@ -25,10 +26,13 @@ export function GET(request: NextRequest) {
   cookies().set('region', region);
   cookies().set('state', state);
 
-  const redirectUrl = new URL(`${env.CLICKUP_API_INSTALL_URL}`);
+  const redirectUrl = new URL(env.CLICKUP_API_INSTALL_URL);
   redirectUrl.searchParams.append('client_id', env.CLICKUP_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.CLICKUP_REDIRECT_URI);
   redirectUrl.searchParams.append('response_type', 'code');
+  redirectUrl.searchParams.append('state', state);
+
+  cookies().set('redirect_url', redirectUrl.toString());
 
   redirect(redirectUrl.toString());
 }

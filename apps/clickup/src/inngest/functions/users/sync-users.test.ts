@@ -3,24 +3,25 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/clickup/users';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
 import * as crypto from '@/common/crypto';
-import {z} from 'zod'
-import { ClickupUserSchema } from '@/connectors/clickup/users';
 import { env } from '@/common/env';
-import { syncUsersPage } from './sync-users-page';
+import { organisationsTable } from '@/database/schema';
+import { syncUsers } from './sync-users';
 
 const region = 'us';
 const accessToken = 'access-token';
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const teamId = 'test-id';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+  id: organisationId,
   accessToken,
+  teamId,
   region,
 };
 const validUsers: usersConnector.ClickUpUser[] = [
   {
-    id: 'test-id',
+    id: 10,
     username: 'test-username',
     email: 'test-user-@foo.bar',
     role: 'test-role',
@@ -31,48 +32,46 @@ const invalidUsers = [];
 
 const elbaUsers = [
   {
-    id: 'test-id',
+    id: '10',
     role: 'test-role',
     additionalEmails: [],
     authMethod: undefined,
     displayName: 'test-username',
     email: 'test-user-@foo.bar',
+    isSuspendable: true,
+    url: 'https://app.clickup.com/test-id/settings/team/test-id/users',
   },
 ];
 
-const syncStartedAt = Date.now();
+const setup = createInngestFunctionMock(syncUsers, 'clickup/users.sync.requested');
 
-const setup = createInngestFunctionMock(syncUsersPage, 'clickup/users.sync.requested');
-
-describe('sync-users-page', () => {
+describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {
-    // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
-      teamId: 'test-id',
+      syncStartedAt: new Date().getTime(),
+      isFirstSync: false,
     });
-    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    // check that the function is not sending other event
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
   test('should sync when organisation is registered', async () => {
     const elba = spyOnElba();
 
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     // @ts-expect-error -- this is a mock
     vi.spyOn(crypto, 'decrypt').mockResolvedValue(undefined);
-    
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers,
-      invalidUsers
+      invalidUsers,
     });
-    const [result, { step }] = setup({
+    const [result] = setup({
       organisationId: organisation.id,
-      teamId: 'test-id',
+      syncStartedAt: new Date().getTime(),
+      isFirstSync: false,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
@@ -84,21 +83,12 @@ describe('sync-users-page', () => {
     expect(elba).toBeCalledWith({
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
-      organisationId: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+      organisationId,
       region: 'us',
     });
 
     const elbaInstance = elba.mock.results[0]?.value;
     expect(elbaInstance?.users.update).toBeCalledTimes(1);
     expect(elbaInstance?.users.update).toBeCalledWith({ users: elbaUsers });
-
-    expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('clickup/users.sync.completed', {
-      name: 'clickup/users.sync.completed',
-      data: {
-        organisationId: organisation.id,
-        teamId: 'test-id',
-      },
-    });
   });
 });

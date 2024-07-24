@@ -21,8 +21,5 @@ export const env = z
     CLICKUP_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
     CLICKUP_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     CLICKUP_USERS_SYNC_BATCH_SIZE: zEnvInt().default(2),
-    
-    
-    
   })
   .parse(process.env);

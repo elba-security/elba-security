@@ -1,27 +1,16 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { unauthorizedMiddleware } from './middlewares/unauthorized-middleware';
 
 export const inngest = new Inngest({
   id: 'clickup',
   schemas: new EventSchemas().fromRecord<{
-    'clickup/users.start_sync.requested': {
+    'clickup/users.sync.requested': {
       data: {
         organisationId: string;
         syncStartedAt: number;
         isFirstSync: boolean;
-      };
-    };
-    'clickup/users.sync.requested': {
-      data: {
-        organisationId: string;
-        teamId: string;
-      };
-    };
-    'clickup/users.sync.completed': {
-      data: {
-        organisationId: string;
-        teamId: string;
       };
     };
     'clickup/app.installed': {
@@ -41,6 +30,6 @@ export const inngest = new Inngest({
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [rateLimitMiddleware, unauthorizedMiddleware],
   logger,
 });

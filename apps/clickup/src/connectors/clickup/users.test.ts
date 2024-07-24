@@ -2,7 +2,7 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { ClickUpError } from '../commons/error';
+import { ClickUpError } from '../common/error';
 import { getUsers, deleteUser } from './users';
 
 const validToken = 'token-1234';
@@ -12,22 +12,23 @@ const userId = 'test-user-id';
 const usersApiResponse = [
   {
     user: {
-      id: 'test-id',
+      id: 10,
       username: 'test-username',
       email: 'test-user-@foo.bar',
       role: 1,
+      date_joined: '1721810909456',
     },
   },
 ];
 
 const validUsers = [
   {
-    id: 'test-id',
+    id: 10,
     username: 'test-username',
     email: 'test-user-@foo.bar',
     role: 'owner',
   },
-]
+];
 
 const invalidUsers = [];
 
@@ -71,12 +72,20 @@ describe('getUsers', () => {
   });
 
   test('should fetch users when token is valid', async () => {
-    const result = await getUsers(validToken, teamId);
+    const result = await getUsers({
+      token: validToken,
+      teamId,
+    });
     expect(result).toEqual({ validUsers, invalidUsers });
   });
 
   test('should throw ClickUpError when token is invalid', async () => {
-    await expect(getUsers('invalidToken', teamId)).rejects.toThrowError(ClickUpError);
+    await expect(
+      getUsers({
+        token: 'invalidToken',
+        teamId,
+      })
+    ).rejects.toThrowError(ClickUpError);
   });
 });
 
@@ -93,10 +102,22 @@ describe('deleteUser', () => {
   });
 
   test('should delete user successfully when token are valid', async () => {
-    await expect(deleteUser(validToken, teamId, userId)).resolves.not.toThrow();
+    await expect(
+      deleteUser({
+        token: validToken,
+        teamId,
+        userId,
+      })
+    ).resolves.not.toThrow();
   });
 
   test('should throw ClickUpError when token is invalid', async () => {
-    await expect(deleteUser('invalidToken', teamId, userId)).rejects.toThrowError(ClickUpError);
+    await expect(
+      deleteUser({
+        token: 'invalidToken',
+        teamId,
+        userId,
+      })
+    ).rejects.toThrowError(ClickUpError);
   });
 });

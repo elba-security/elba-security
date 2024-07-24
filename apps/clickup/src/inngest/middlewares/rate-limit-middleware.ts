@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { ClickUpError } from '@/connectors/commons/error';
+import { ClickUpError } from '@/connectors/common/error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
@@ -13,14 +13,12 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (
-              error instanceof ClickUpError &&
-              error.response?.headers['x-ratelimit-remaining'] === '0' &&
-              error.response.headers['x-ratelimit-reset']
-            ) {
-              const retryAfter = new Date(
-                Number(error.response.headers['x-ratelimit-reset']) * 1000
-              );
+            if (!(error instanceof ClickUpError)) {
+              return;
+            }
+
+            if (error.response?.status === 429) {
+              const retryAfter = error.response.headers.get('retry-after') || 60;
 
               return {
                 ...context,
@@ -28,7 +26,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                   ...result,
                   error: new RetryAfterError(
                     `ClickUp rate limit reached by '${fn.name}'`,
-                    retryAfter,
+                    `${retryAfter}s`,
                     { cause: error }
                   ),
                 },

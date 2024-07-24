@@ -2,7 +2,7 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '../../common/env';
-import { ClickUpError } from '../commons/error';
+import { ClickUpError } from '../common/error';
 import { getAccessToken } from './auth';
 
 const validAuthCode = 'valid-code';
@@ -23,8 +23,8 @@ describe('getAccessToken', () => {
     );
   });
 
-  test('should not throw when authorization code is valid', async () => {	
-      await expect(getAccessToken(validAuthCode)).resolves.toStrictEqual(accessToken); 
+  test('should not throw when authorization code is valid', async () => {
+    await expect(getAccessToken(validAuthCode)).resolves.toStrictEqual(accessToken);
   });
 
   test('should throw an error when authorization code is invalid', async () => {

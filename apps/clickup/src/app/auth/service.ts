@@ -1,7 +1,8 @@
 import { getAccessToken } from '@/connectors/clickup/auth';
-import { getTeamIds } from '@/connectors/clickup/team';
-import { db, Organisation } from '@/database';
 import { inngest } from '@/inngest/client';
+import { organisationsTable } from '@/database/schema';
+import { db } from '@/database/client';
+import { getTeamIds } from '@/connectors/clickup/teams';
 import { encrypt } from '../../common/crypto';
 
 type SetupOrganisationParams = {
@@ -16,16 +17,25 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const accessToken = await getAccessToken(code);
+  const teamIds = await getTeamIds(accessToken);
+
+  if (teamIds.length > 1) {
+    return {
+      hasMultipleWorkspaces: true,
+    };
+  }
+
   const encodedToken = await encrypt(accessToken);
   await db
-    .insert(Organisation)
+    .insert(organisationsTable)
     .values({
       id: organisationId,
       accessToken: encodedToken,
+      teamId: teamIds[0].id,
       region,
     })
     .onConflictDoUpdate({
-      target: [Organisation.id],
+      target: [organisationsTable.id],
       set: {
         id: organisationId,
         accessToken: encodedToken,
@@ -35,11 +45,11 @@ export const setupOrganisation = async ({
 
   await inngest.send([
     {
-      name: 'clickup/users.start_sync.requested',
+      name: 'clickup/users.sync.requested',
       data: {
-        isFirstSync: true,
         organisationId,
         syncStartedAt: Date.now(),
+        isFirstSync: true,
       },
     },
     {
@@ -48,5 +58,5 @@ export const setupOrganisation = async ({
         organisationId,
       },
     },
-]);
+  ]);
 };
