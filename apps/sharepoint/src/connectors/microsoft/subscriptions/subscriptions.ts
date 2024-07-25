@@ -50,7 +50,10 @@ export const createSubscription = async ({
       notificationUrl: `${env.WEBHOOK_URL}/api/webhooks/microsoft/event-handler`,
       lifecycleNotificationUrl: `${env.WEBHOOK_URL}/api/webhooks/microsoft/lifecycle-notifications`,
       resource,
-      expirationDateTime: addDays(new Date(), Number(env.SUBSCRIBE_EXPIRATION_DAYS)).toISOString(),
+      expirationDateTime: addDays(
+        new Date(),
+        Number(env.SUBSCRIPTION_EXPIRATION_DAYS)
+      ).toISOString(),
       clientState,
     }),
   });
@@ -83,7 +86,10 @@ export const refreshSubscription = async ({
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
-      expirationDateTime: addDays(new Date(), Number(env.SUBSCRIBE_EXPIRATION_DAYS)).toISOString(),
+      expirationDateTime: addDays(
+        new Date(),
+        Number(env.SUBSCRIPTION_EXPIRATION_DAYS)
+      ).toISOString(),
     }),
   });
 

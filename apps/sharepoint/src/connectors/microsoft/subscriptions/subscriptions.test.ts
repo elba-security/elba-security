@@ -21,7 +21,7 @@ const clientState = 'some-client-state';
 const subscription: Subscription = {
   id: 'subscription-id',
   clientState,
-  expirationDateTime: addDays(new Date(), Number(env.SUBSCRIBE_EXPIRATION_DAYS)).toISOString(),
+  expirationDateTime: addDays(new Date(), Number(env.SUBSCRIPTION_EXPIRATION_DAYS)).toISOString(),
 };
 
 describe('subscription connector', () => {
