@@ -83,7 +83,7 @@ describe('sync-sites', () => {
       expect(step.waitForEvent).nthCalledWith(i + 1, `wait-for-drives-complete-${site?.id}`, {
         event: 'sharepoint/drives.sync.completed',
         if: `async.data.organisationId == '${organisation.id}' && async.data.siteId == '${site?.id}'`,
-        timeout: '1d',
+        timeout: '30d',
       });
     }
 
@@ -140,7 +140,7 @@ describe('sync-sites', () => {
       expect(step.waitForEvent).nthCalledWith(i + 1, `wait-for-drives-complete-${site?.id}`, {
         event: 'sharepoint/drives.sync.completed',
         if: `async.data.organisationId == '${organisation.id}' && async.data.siteId == '${site?.id}'`,
-        timeout: '1d',
+        timeout: '30d',
       });
     }
 

@@ -59,7 +59,7 @@ export const syncSites = inngest.createFunction(
       const eventsWait = siteIds.map((id) =>
         step.waitForEvent(`wait-for-drives-complete-${id}`, {
           event: 'sharepoint/drives.sync.completed',
-          timeout: '1d',
+          timeout: '30d',
           if: `async.data.organisationId == '${organisationId}' && async.data.siteId == '${id}'`,
         })
       );

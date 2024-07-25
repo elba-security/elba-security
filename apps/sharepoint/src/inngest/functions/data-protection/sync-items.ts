@@ -67,8 +67,6 @@ export const syncItems = inngest.createFunction(
         })
       );
 
-      // console.log(JSON.stringify(itemsPermissions, null, 2));
-
       return { items: itemsPermissions, nextSkipToken: result.nextSkipToken };
     });
 
@@ -77,8 +75,8 @@ export const syncItems = inngest.createFunction(
       const eventsToWait = folders.map(async ({ item }) =>
         step.waitForEvent(`wait-for-folders-complete-${item.id}`, {
           event: 'sharepoint/items.sync.completed',
-          timeout: '1d',
-          if: `async.data.organisationId == '${organisationId}' && async.data.siteId == '${siteId}' && async.data.folderId == '${item.id}'`,
+          timeout: '30d',
+          if: `async.data.organisationId == '${organisationId}' && async.data.driveId == '${driveId}' && async.data.folderId == '${item.id}'`,
         })
       );
 
