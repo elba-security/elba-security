@@ -37,5 +37,7 @@ export const slackEventHandler = async (context: SlackWebhookHandlerContext) => 
     return { message: 'Ignored: unhandled slack event type', type };
   }
 
+  context.logger.info('Handling Slack event', { type, teamId: payload.team_id });
+
   return eventHandler(payload as never, context);
 };

@@ -1,23 +1,21 @@
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { inngest } from '../../client';
+import { organisationsTable } from '@/database/schema';
+import { inngest } from '@/inngest/client';
 
-export const scheduleUsersSynchronize = inngest.createFunction(
-  { id: 'schedule-users-syncs' },
-  { cron: env.USERS_SYNC_CRON },
+export const scheduleUsersSync = inngest.createFunction(
+  { id: 'launchdarkly-schedule-users-sync' },
+  { cron: env.LAUNCHDARKLY_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({
-        id: Organisation.id,
-        region: Organisation.region,
-        apiKey: Organisation.apiKey,
+        id: organisationsTable.id,
       })
-      .from(Organisation);
+      .from(organisationsTable);
 
     if (organisations.length > 0) {
       await step.sendEvent(
-        'synchronize-users',
+        'launchdarkly-synchronize-users',
         organisations.map(({ id }) => ({
           name: 'launchdarkly/users.sync.requested',
           data: {

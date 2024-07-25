@@ -1,37 +1,41 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import * as usersConnector from '@/connectors/users';
-import { Organisation } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
+import * as usersConnector from '@/connectors/launchdarkly/users';
+import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
-import { deleteSourceUsers } from './delete-users';
+import * as crypto from '@/common/crypto';
+import { deleteUser } from './delete-users';
 
-const userId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
-const apiKey = 'test-access-token';
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const userId = 'user-id-1';
+const apiKey = 'test-api-key';
 
-// Mock data for organisation and user
 const organisation = {
-  id: userId,
-  apiKey: await encrypt(apiKey),
+  id: organisationId,
+  apiKey,
   region: 'us',
 };
 
-// Setup function mock for Inngest
-const setup = createInngestFunctionMock(deleteSourceUsers, 'launchdarkly/users.delete.requested');
+const setup = createInngestFunctionMock(deleteUser, 'launchdarkly/users.delete.requested');
 
-describe('deleteSourceUsers', () => {
+describe('deleteSourceUser', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  test.only('should delete user', async () => {
-    // Mock database response to return organisation details
+  test('should delete user', async () => {
+    vi.spyOn(crypto, 'decrypt')
+      .mockResolvedValueOnce('test-api-key')
+      .mockResolvedValueOnce('test-api-secret');
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     const [result] = setup({ userId, organisationId: organisation.id });
 
-    // Assert the function resolves successfully
     await expect(result).resolves.toStrictEqual(undefined);
 
     expect(usersConnector.deleteUser).toBeCalledTimes(1);

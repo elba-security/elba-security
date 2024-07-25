@@ -8,11 +8,20 @@ This recipe is for integrations that have an app installed in a SaaS instance wh
 
 When an admin is redirected from elba to an integration he land on the install page. The search params `organisation_id` and `region` must always be appended in the URL. The following example heavily relies on the new Next.js & React APIs: the page is a client component rendering a form that will call a server action on submit. Once the form is validated, the client will either redirect the user or display the errors bellow the form's fields.
 
-> This recipe is CSS free. We don't expect the integrations to contain any stylesheet or components library. We will provide those UI elements in the near future.
+> This recipe is CSS free. We don't expect the integrations to contain any stylesheet or custom components library.
 
 ```tsx
-// /app/install/page.ts
+// /app/(setup)/install/page.ts
 'use client';
+import {
+  Form,
+  FormField,
+  FormLabel,
+  FormErrorMessage,
+  Input,
+  InstructionsStep,
+  InstructionsSteps,
+} from '@elba-security/design-system';
 import { useFormState } from 'react-dom';
 import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -33,38 +42,74 @@ export default function InstallPage() {
   }, [state.redirectUrl]);
 
   return (
-    <form action={formAction}>
-      <div role="group">
-        <label htmlFor="domain">Domain</label>
-        <input
-          id="domain"
-          minLength={1}
-          name="domain"
-          placeholder="https://mycompany.{SaaS}.com"
-          type="text"
-        />
-        {state.errors?.domain?.at(0) ? <span>{state.errors.domain.at(0)}</span> : null}
-      </div>
+    <>
+      <h1>Setup MySaas</h1>
+      <InstructionsSteps>
+        <InstructionsStep index={1}>
+          <h3>
+            Navigate to <i>security</i> page
+          </h3>
+          <p>In your MySaaS admin account, go to the setting page.</p>
+          <p>
+            In the left menu, click on <strong>Security</strong> to navigate to the Security page.
+          </p>
+        </InstructionsStep>
+        <InstructionsStep index={2}>
+          <h3>Generate an OAuth Client</h3>
+          <p>In the Security page, you will have to create a new OAuth client.</p>
+          <p>
+            Click on <strong>Generate OAuth Client</strong>.
+          </p>
+          <p>
+            Copy the <strong>Client Id</strong> and the <strong>Client Secret</strong>.
+          </p>
+        </InstructionsStep>
+        <InstructionsStep index={3}>
+          <Form action={formAction}>
+            <FormField>
+              <FormLabel>Domain</FormLabel>
+              <Input
+                minLength={1}
+                name="domain"
+                placeholder="https://mycompany.{SaaS}.com"
+                type="text"
+              />
+              {state.errors?.domain?.at(0) ? (
+                <FormErrorMessage>{state.errors.domain.at(0)}</FormErrorMessage>
+              ) : null}
+            </FormField>
 
-      <div role="group">
-        <label htmlFor="clientId">Client id</label>
-        <input minLength={1} name="clientId" placeholder="1234abds.xecr123" type="text" />
-        {state.errors?.clientId?.at(0) ? <span>{state.errors.clientId.at(0)}</span> : null}
-      </div>
+            <FormField>
+              <FormLabel>Client id</FormLabel>
+              <Input minLength={1} name="clientId" placeholder="1234abds.xecr123" type="text" />
+              {state.errors?.clientId?.at(0) ? (
+                <FormErrorMessage>{state.errors.clientId.at(0)}</FormErrorMessage>
+              ) : null}
+            </FormField>
 
-      <div role="group">
-        <label htmlFor="clientId">Client secret</label>
-        <input minLength={1} name="clientSecret" placeholder="1234abdefcghi56789" type="text" />
-        {state.errors?.clientSecret?.at(0) ? <span>{state.errors.clientSecret.at(0)}</span> : null}
-      </div>
+            <FormField>
+              <FormLabel>Client secret</FormLabel>
+              <Input
+                minLength={1}
+                name="clientSecret"
+                placeholder="1234abdefcghi56789"
+                type="text"
+              />
+              {state.errors?.clientSecret?.at(0) ? (
+                <FormErrorMessage>{state.errors.clientSecret.at(0)}</FormErrorMessage>
+              ) : null}
+            </FormField>
 
-      {organisationId !== null && (
-        <input name="organisationId" type="hidden" value={organisationId} />
-      )}
-      {region !== null && <input name="region" type="hidden" value={region} />}
+            {organisationId !== null && (
+              <input name="organisationId" type="hidden" value={organisationId} />
+            )}
+            {region !== null && <input name="region" type="hidden" value={region} />}
 
-      <button type="submit">Install</button>
-    </form>
+            <SubmitButton>Install</SubmitButton>
+          </Form>
+        </InstructionsStep>
+      </InstructionsSteps>
+    </>
   );
 }
 ```
@@ -78,12 +123,13 @@ This server action returns a redirectUrl in case the installation has been attem
 If the form fields have invalid values, the function will return all the errors related to those fields so the client is able to display them.
 
 ```ts
-// /app/install/actions.ts
+// /app/(setup)/install/actions.ts
 'use server';
 import { logger } from '@elba-security/logger';
 import { z } from 'zod';
 import { env } from '@/env';
 import { registerOrganisation } from './service';
+import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 
 const formSchema = z.object({
   domain: z.string().url(),
@@ -104,6 +150,7 @@ export type FormState = {
 };
 
 export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
+  unstable_noStore();
   const result = formSchema.safeParse({
     domain: formData.get('domain'),
     clientId: formData.get('clientId'),

@@ -34,8 +34,15 @@ module.exports = {
     'import/no-default-export': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+    '@typescript-eslint/prefer-nullish-coalescing': 'off',
   },
   overrides: [
+    {
+      files: ['*.{ts,tsx}'],
+      rules: {
+        '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      }
+    },
     {
       files: ['*.test.{ts,tsx}'],
       rules: {

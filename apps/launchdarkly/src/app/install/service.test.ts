@@ -1,37 +1,38 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import * as userConnector from '@/connectors/users';
-import { type LaunchdarklyUser } from '@/connectors/users';
+import * as userConnector from '@/connectors/launchdarkly/users';
 import { decrypt } from '@/common/crypto';
-import { LaunchdarklyError } from '@/connectors/commons/error';
+import type { LaunchdarklyUser } from '@/connectors/launchdarkly/users';
+import { LaunchdarklyError } from '@/connectors/common/error';
 import { registerOrganisation } from './service';
 
-const apiKey = 'test-personal-token';
+const apiKey = 'test-api-token';
 const region = 'us';
 const now = new Date();
-
-const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
-  apiKey,
-  region,
-};
-
 const validUsers: LaunchdarklyUser[] = Array.from({ length: 2 }, (_, i) => ({
   _id: `${i}`,
-  firstName: `firstname-${i}`,
-  lastName: `lastname-${i}`,
+  role: `Account Administrator`,
+  firstName: `firstName-${i}`,
+  lastName: `lastN_name-${i}`,
   email: `user-${i}@foo.bar`,
-  role: 'owner',
   mfa: 'disabled',
+  _pendingInvite: false,
 }));
 
+const invalidUsers = [];
 const getUsersData = {
   validUsers,
-  invalidUsers: [],
+  invalidUsers,
   nextPage: null,
+};
+
+const organisation = {
+  id: '00000000-0000-0000-0000-000000000001',
+  apiKey,
+  region,
 };
 
 describe('registerOrganisation', () => {
@@ -56,14 +57,13 @@ describe('registerOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    // check if getUsers was called correctly
     expect(getUsers).toBeCalledTimes(1);
     expect(getUsers).toBeCalledWith({ apiKey });
-    // verify the organisation token is set in the database
+
     const [storedOrganisation] = await db
       .select()
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
     if (!storedOrganisation) {
       throw new LaunchdarklyError(`Organisation with ID ${organisation.id} not found.`);
     }
@@ -85,7 +85,6 @@ describe('registerOrganisation', () => {
         name: 'launchdarkly/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
     ]);
@@ -97,8 +96,9 @@ describe('registerOrganisation', () => {
     // mocked the getUsers function
     // @ts-expect-error -- this is a mock
     vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
+    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
     // pre-insert an organisation to simulate an existing entry
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     await expect(
       registerOrganisation({
@@ -108,11 +108,14 @@ describe('registerOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
+    expect(getUsers).toBeCalledTimes(1);
+    expect(getUsers).toBeCalledWith({ apiKey });
+
     // check if the apiKey in the database is updated
     const [storedOrganisation] = await db
       .select()
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
 
     if (!storedOrganisation) {
       throw new LaunchdarklyError(`Organisation with ID ${organisation.id} not found.`);
@@ -135,7 +138,6 @@ describe('registerOrganisation', () => {
         name: 'launchdarkly/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
     ]);

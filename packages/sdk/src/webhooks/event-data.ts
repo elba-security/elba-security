@@ -9,7 +9,7 @@ import {
   thirdPartyAppsDeleteObjectRequestedWebhookDataSchema,
   thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
   thirdPartyAppsStartSyncRequestedWebhookDataSchema,
-  usersDeleteUserRequestedWebhookDataSchema,
+  usersDeleteUsersRequestedWebhookDataSchema,
 } from '@elba-security/schemas';
 import { ElbaError } from '../error';
 
@@ -25,7 +25,7 @@ const eventDataSchema = {
   'third_party_apps.refresh_object_requested':
     thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
   'third_party_apps.start_sync_requested': thirdPartyAppsStartSyncRequestedWebhookDataSchema,
-  'users.delete_user_requested': usersDeleteUserRequestedWebhookDataSchema,
+  'users.delete_users_requested': usersDeleteUsersRequestedWebhookDataSchema,
 } as const satisfies Record<string, ZodSchema>;
 
 export type WebhookEvent = keyof typeof eventDataSchema;

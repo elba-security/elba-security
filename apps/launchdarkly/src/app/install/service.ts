@@ -1,8 +1,8 @@
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
-import { getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/launchdarkly/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -15,21 +15,22 @@ export const registerOrganisation = async ({
   apiKey,
   region,
 }: SetupOrganisationParams) => {
-  const encodedapiKey = await encrypt(apiKey);
+  const encodedApiKey = await encrypt(apiKey);
 
   await getUsers({ apiKey });
+
   await db
-    .insert(Organisation)
+    .insert(organisationsTable)
     .values({
       id: organisationId,
       region,
-      apiKey: encodedapiKey,
+      apiKey: encodedApiKey,
     })
     .onConflictDoUpdate({
-      target: Organisation.id,
+      target: organisationsTable.id,
       set: {
         region,
-        apiKey: encodedapiKey,
+        apiKey: encodedApiKey,
       },
     });
 
@@ -43,12 +44,10 @@ export const registerOrganisation = async ({
         page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
       name: 'launchdarkly/app.installed',
       data: {
         organisationId,
-        region,
       },
     },
   ]);

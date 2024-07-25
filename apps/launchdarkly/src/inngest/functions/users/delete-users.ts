@@ -1,18 +1,29 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUser } from '@/connectors/users';
+import { deleteUser as deleteLaunchdarklyUser } from '@/connectors/launchdarkly/users';
+import { env } from '@/common/env';
 import { decrypt } from '@/common/crypto';
 
-export const deleteSourceUsers = inngest.createFunction(
+export const deleteUser = inngest.createFunction(
   {
-    id: 'delete-users',
+    id: 'launchdarkly-delete-user',
     concurrency: {
       key: 'event.data.organisationId',
-      limit: 1,
+      limit: env.LAUNCHDARKLY_DELETE_USER_CONCURRENCY,
     },
+    cancelOn: [
+      {
+        event: 'launchdarkly/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'launchdarkly/app.uninstalled',
+        match: 'data.organisationId',
+      },
+    ],
     retries: 5,
   },
   { event: 'launchdarkly/users.delete.requested' },
@@ -21,19 +32,20 @@ export const deleteSourceUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        apiKey: Organisation.apiKey,
+        apiKey: organisationsTable.apiKey,
       })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisationId));
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
 
     if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve ${userId}`);
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
-    const apiKey = await decrypt(organisation.apiKey);
 
-    await deleteUser({
+    const decryptedApiKey = await decrypt(organisation.apiKey);
+
+    await deleteLaunchdarklyUser({
       userId,
-      apiKey,
+      apiKey: decryptedApiKey,
     });
   }
 );
