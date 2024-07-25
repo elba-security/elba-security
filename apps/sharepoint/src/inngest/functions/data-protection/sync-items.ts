@@ -30,6 +30,14 @@ export const syncItems = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
+    onFailure: async ({ event, step }) => {
+      const { organisationId, driveId, folderId } = event.data.event.data;
+
+      await step.sendEvent('items-sync-failed', {
+        name: 'sharepoint/items.sync.completed',
+        data: { organisationId, driveId, folderId },
+      });
+    },
     retries: 5,
   },
   { event: 'sharepoint/items.sync.triggered' },

@@ -27,6 +27,14 @@ export const syncDrives = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
+    onFailure: async ({ event, step }) => {
+      const { organisationId, siteId } = event.data.event.data;
+
+      await step.sendEvent('drives-sync-failed', {
+        name: 'sharepoint/drives.sync.completed',
+        data: { organisationId, siteId },
+      });
+    },
     retries: 5,
   },
   { event: 'sharepoint/drives.sync.triggered' },
@@ -98,10 +106,7 @@ export const syncDrives = inngest.createFunction(
 
     await step.sendEvent('drives-sync-complete', {
       name: 'sharepoint/drives.sync.completed',
-      data: {
-        organisationId,
-        siteId,
-      },
+      data: { organisationId, siteId },
     });
 
     return { status: 'completed' };
