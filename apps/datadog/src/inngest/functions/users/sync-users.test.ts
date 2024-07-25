@@ -96,6 +96,7 @@ describe('synchronize-users', () => {
           email: 'user-0@foo.bar',
           id: 'id-0',
           authMethod: 'password',
+          isSuspendable: true,
         },
         {
           additionalEmails: [],
@@ -103,6 +104,7 @@ describe('synchronize-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           authMethod: 'password',
+          isSuspendable: true,
         },
       ],
     });
@@ -136,6 +138,7 @@ describe('synchronize-users', () => {
           email: 'user-0@foo.bar',
           id: 'id-0',
           authMethod: 'password',
+          isSuspendable: true,
         },
         {
           additionalEmails: [],
@@ -143,6 +146,7 @@ describe('synchronize-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           authMethod: 'password',
+          isSuspendable: true,
         },
       ],
     });

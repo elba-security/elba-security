@@ -18,6 +18,7 @@ const organisation = {
   organizationUri,
   region: 'us',
 };
+
 const users: usersConnector.CalendlyUser[] = Array.from({ length: 2 }, (_, i) => ({
   uri: `https://test-uri/organization_memberships/00000000-0000-0000-0000-00000000009${i}`,
   user: {
@@ -91,6 +92,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '00000000-0000-0000-0000-000000000090',
           role: 'user',
+          isSuspendable: true,
         },
         {
           additionalEmails: [],
@@ -98,6 +100,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           role: 'user',
           id: '00000000-0000-0000-0000-000000000091',
+          isSuspendable: true,
         },
       ],
     });
@@ -131,6 +134,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           role: 'user',
           id: '00000000-0000-0000-0000-000000000090',
+          isSuspendable: true,
         },
         {
           additionalEmails: [],
@@ -138,13 +142,13 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           role: 'user',
           id: '00000000-0000-0000-0000-000000000091',
+          isSuspendable: true,
         },
       ],
     });
     const syncBeforeAtISO = new Date(syncedBefore).toISOString();
     expect(elbaInstance?.users.delete).toBeCalledTimes(1);
     expect(elbaInstance?.users.delete).toBeCalledWith({ syncedBefore: syncBeforeAtISO });
-    // the function should not send another event that continue the pagination
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 });

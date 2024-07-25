@@ -27,6 +27,7 @@ const formatElbaUser = (user: DatadogUser): User => ({
   email: user.attributes.email,
   authMethod: formatElbaUserAuthMethod(user),
   additionalEmails: [],
+  isSuspendable: true,
 });
 
 export const syncUsers = inngest.createFunction(

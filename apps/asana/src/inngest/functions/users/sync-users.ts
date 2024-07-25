@@ -15,6 +15,7 @@ const formatElbaUser = (user: AsanaUser): User => ({
   displayName: user.name,
   email: user.email,
   additionalEmails: [],
+  isSuspendable: true,
 });
 
 export const syncUsers = inngest.createFunction(

@@ -77,6 +77,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '0',
           role: 'Account Administrator',
+          isSuspendable: true,
         },
         {
           additionalEmails: [],
@@ -84,6 +85,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: '1',
           role: 'Account Administrator',
+          isSuspendable: true,
         },
       ],
     });
@@ -129,6 +131,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '0',
           role: 'Account Administrator',
+          isSuspendable: true,
         },
         {
           additionalEmails: [],
@@ -136,6 +139,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: '1',
           role: 'Account Administrator',
+          isSuspendable: true,
         },
       ],
     });
