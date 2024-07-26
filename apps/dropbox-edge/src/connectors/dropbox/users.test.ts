@@ -4,20 +4,19 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { DropboxError } from '../common/error';
 import { getAuthenticatedAdmin, getCurrentUserAccount, getUsers, suspendUser } from './users';
-import type { AuthenticatedAdmin } from './users';
 
 const validToken = 'token-1234';
 const nextCursor = 'next-cursor-1';
 const endCursor = 'end-cursor-1';
 const teamMemberId = 'team-member-id';
 
-const adminProfile: AuthenticatedAdmin = {
+const adminProfile = (isActive = true) => ({
   admin_profile: {
     team_member_id: 'team-member-id',
     membership_type: { '.tag': 'full' },
-    status: { '.tag': 'active' },
+    status: { '.tag': isActive ? 'active' : 'suspended' },
   },
-};
+});
 
 const currentUserAccount = {
   team: {
@@ -46,7 +45,7 @@ const createMembers = (startIndex = 0, length = 5) => {
 
 describe('users connector', () => {
   describe('getAuthenticatedAdmin', () => {
-    beforeEach(() => {
+    const setup = ({ isActive = true }: { isActive?: boolean }) => {
       server.use(
         http.post(
           `${env.DROPBOX_API_BASE_URL}/2/team/token/get_authenticated_admin`,
@@ -54,19 +53,28 @@ describe('users connector', () => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(undefined, { status: 401 });
             }
-            return Response.json(adminProfile);
+            return Response.json(adminProfile(isActive));
           }
         )
       );
-    });
+    };
 
     test('should return the admin details', async () => {
+      setup({});
       await expect(getAuthenticatedAdmin(validToken)).resolves.toStrictEqual({
         teamMemberId: 'team-member-id',
       });
     });
 
+    test('should throw error when the admin is not active', async () => {
+      setup({
+        isActive: false,
+      });
+      await expect(getAuthenticatedAdmin(validToken)).rejects.toBeInstanceOf(Error);
+    });
+
     test('should throws when the access token is invalid', async () => {
+      setup({});
       await expect(getAuthenticatedAdmin('invalid-access-token')).rejects.toBeInstanceOf(
         DropboxError
       );
