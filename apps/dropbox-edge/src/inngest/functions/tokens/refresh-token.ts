@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { subMinutes } from 'date-fns';
 import { failureRetry } from '@elba-security/inngest';
 import { inngest } from '@/inngest/client';
-import { encrypt } from '@/common/crypto';
+import { decrypt, encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getRefreshToken } from '@/connectors/dropbox/auth';
@@ -35,7 +35,6 @@ export const refreshToken = inngest.createFunction(
     const { organisationId, expiresAt } = event.data;
 
     await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 30));
-
     const [organisation] = await db
       .select({
         accessToken: organisationsTable.accessToken,
@@ -49,20 +48,17 @@ export const refreshToken = inngest.createFunction(
     }
 
     const nextExpiresAt = await step.run('get-refresh-token', async () => {
-      const {
-        refreshToken: newRefreshToken,
-        accessToken: newAccessToken,
-        expiresIn,
-      } = await getRefreshToken(organisation.refreshToken);
+      const decryptedAccessToken = await decrypt(organisation.refreshToken);
 
-      const encryptedNewAccessToken = await encrypt(newAccessToken);
-      const encryptedNewRefreshToken = await encrypt(newRefreshToken);
+      const { accessToken: newAccessToken, expiresIn } =
+        await getRefreshToken(decryptedAccessToken);
+
+      const encryptedAccessToken = await encrypt(newAccessToken);
 
       await db
         .update(organisationsTable)
         .set({
-          accessToken: encryptedNewAccessToken,
-          refreshToken: encryptedNewRefreshToken,
+          accessToken: encryptedAccessToken,
         })
         .where(eq(organisationsTable.id, organisationId));
 

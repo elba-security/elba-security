@@ -55,7 +55,7 @@ describe('unauthorized middleware', () => {
   });
 
   test('should transform the output error to NonRetriableError and remove the organisation when the error is about Dropbox authorization', async () => {
-    const unauthorizedError = new DropboxError('foo bar', {
+    const unauthorizedError = await DropboxError.fromResponse('foo bar', {
       response: new Response('', {
         status: 401,
         statusText: 'Unauthorized',

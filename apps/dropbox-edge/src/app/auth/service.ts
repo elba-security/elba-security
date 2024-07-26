@@ -20,17 +20,16 @@ export const setupOrganisation = async ({
   const { accessToken, refreshToken, expiresIn } = await getToken(code);
 
   const { teamMemberId } = await getAuthenticatedAdmin(accessToken);
-
   const { rootNamespaceId } = await getCurrentUserAccount({ accessToken, teamMemberId });
 
-  const encryptedToken = await encrypt(accessToken);
+  const encryptedAccessToken = await encrypt(accessToken);
   const encryptedRefreshToken = await encrypt(refreshToken);
 
   await db
     .insert(organisationsTable)
     .values({
       id: organisationId,
-      accessToken: encryptedToken,
+      accessToken: encryptedAccessToken,
       refreshToken: encryptedRefreshToken,
       rootNamespaceId,
       adminTeamMemberId: teamMemberId,
@@ -39,7 +38,7 @@ export const setupOrganisation = async ({
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
-        accessToken: encryptedToken,
+        accessToken: encryptedAccessToken,
         refreshToken: encryptedRefreshToken,
         rootNamespaceId,
         adminTeamMemberId: teamMemberId,
