@@ -14,7 +14,7 @@ import { getChunkedArray, parseItemsInheritedPermissions } from './common/helper
 
 export const syncDeltaItems = inngest.createFunction(
   {
-    id: 'sync-delta-items',
+    id: 'sharepoint-sync-delta-items',
     concurrency: {
       key: 'event.data.tenantId',
       limit: env.MICROSOFT_DATA_PROTECTION_ITEMS_SYNC_CONCURRENCY,
