@@ -27,12 +27,13 @@ export function GET(request: NextRequest) {
   cookies().set('region', region);
   cookies().set('state', state);
 
-  const redirectUrl = new URL(`${env.DROPBOX_APP_INSTALL_URL}`);
+  const redirectUrl = new URL(env.DROPBOX_APP_INSTALL_URL);
   redirectUrl.searchParams.append('client_id', env.DROPBOX_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.DROPBOX_REDIRECT_URI);
   redirectUrl.searchParams.append('token_access_type', 'offline');
   redirectUrl.searchParams.append('response_type', 'code');
   redirectUrl.searchParams.append('state', state);
+  redirectUrl.searchParams.append('token_access_type', 'offline');
 
   redirect(redirectUrl.toString());
 }

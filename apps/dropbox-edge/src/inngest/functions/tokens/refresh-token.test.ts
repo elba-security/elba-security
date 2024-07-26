@@ -5,7 +5,6 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt, decrypt } from '@/common/crypto';
-import { DropboxError } from '@/connectors/common/error';
 import * as authConnector from '@/connectors/dropbox/auth';
 import { refreshToken } from './refresh-token';
 
@@ -85,9 +84,11 @@ describe('refresh-token', () => {
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisation.id));
+
     if (!updatedOrganisation) {
-      throw new DropboxError(`Organisation with ID ${organisation.id} not found.`);
+      throw new Error('Organisation not found');
     }
+
     await expect(decrypt(updatedOrganisation.refreshToken)).resolves.toEqual(
       newTokens.refreshToken
     );
