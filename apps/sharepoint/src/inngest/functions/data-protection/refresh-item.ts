@@ -84,7 +84,9 @@ export const refreshDataProtectionObject = inngest.createFunction(
       });
     }
 
-    const [dataProtectionObject] = formatDataProtectionObjects({
+    const {
+      toUpdate: [dataProtectionObject],
+    } = formatDataProtectionObjects({
       driveId,
       items: [{ item, permissions }],
       siteId,

@@ -108,16 +108,16 @@ export const syncItems = inngest.createFunction(
     }
 
     await step.run('update-elba-objects', async () => {
-      const dataProtectionItems = formatDataProtectionObjects({
+      const { toUpdate: dataProtectionObjects } = formatDataProtectionObjects({
         items,
         siteId,
         driveId,
         parentPermissionIds: permissionIds,
       });
 
-      if (dataProtectionItems.length) {
+      if (dataProtectionObjects.length) {
         const elba = createElbaClient({ organisationId, region: organisation.region });
-        await elba.dataProtection.updateObjects({ objects: dataProtectionItems });
+        await elba.dataProtection.updateObjects({ objects: dataProtectionObjects });
       }
     });
 

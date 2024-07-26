@@ -117,33 +117,38 @@ export const formatDataProtectionObjects = ({
   siteId: string;
   driveId: string;
   parentPermissionIds: string[];
-}): DataProtectionObject[] => {
-  const objects: DataProtectionObject[] = [];
+}): { toDelete: string[]; toUpdate: DataProtectionObject[] } => {
+  const toDelete: string[] = [];
+  const toUpdate: DataProtectionObject[] = [];
   const parentPermissions = new Set(parentPermissionIds);
 
   for (const { item, permissions } of items) {
-    // TODO: is item creator always the owner? - Check with a deleted user
-    if (item.createdBy.user.id) {
-      const ownPermissions = permissions.filter(({ id }) => !parentPermissions.has(id));
-      const formattedPermissions = formatDataProtectionPermissions(ownPermissions);
-      if (formattedPermissions.length) {
-        const object = {
-          id: item.id,
-          name: item.name,
-          url: item.webUrl,
-          ownerId: item.createdBy.user.id,
-          metadata: {
-            siteId,
-            driveId,
-          } satisfies ObjectMetadata,
-          updatedAt: item.lastModifiedDateTime,
-          permissions: formattedPermissions,
-        };
+    if (!item.createdBy.user.id) {
+      toDelete.push(item.id);
+      continue;
+    }
 
-        objects.push(object);
-      }
+    const ownPermissions = permissions.filter(({ id }) => !parentPermissions.has(id));
+    const formattedPermissions = formatDataProtectionPermissions(ownPermissions);
+    if (formattedPermissions.length) {
+      const object = {
+        id: item.id,
+        name: item.name,
+        url: item.webUrl,
+        ownerId: item.createdBy.user.id,
+        metadata: {
+          siteId,
+          driveId,
+        } satisfies ObjectMetadata,
+        updatedAt: item.lastModifiedDateTime,
+        permissions: formattedPermissions,
+      };
+
+      toUpdate.push(object);
+    } else {
+      toDelete.push(item.id);
     }
   }
 
-  return objects;
+  return { toDelete, toUpdate };
 };

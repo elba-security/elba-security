@@ -9,7 +9,7 @@ import { env } from '@/common/env';
 import type { SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
 import * as deltaConnector from '@/connectors/microsoft/delta/delta';
-import { syncDeltaItems } from './update-items';
+import { syncDeltaItems } from './sync-delta-items';
 
 const token = 'test-token';
 const organisationId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c92';

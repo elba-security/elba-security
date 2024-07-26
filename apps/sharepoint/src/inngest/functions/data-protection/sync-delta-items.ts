@@ -96,23 +96,26 @@ export const syncDeltaItems = inngest.createFunction(
       })
     );
 
-    const { toDelete, toUpdate: itemsToUpdate } = parseItemsInheritedPermissions(
-      itemsPermissionsChunks.flat()
-    );
-    const itemIdsToDelete = [...items.deleted, ...toDelete];
+    const parsedItems = parseItemsInheritedPermissions(itemsPermissionsChunks.flat());
+
+    const dataProtectionObjects = formatDataProtectionObjects({
+      items: parsedItems.toUpdate,
+      siteId,
+      driveId,
+      parentPermissionIds: [],
+    });
+
+    const itemIdsToDelete = [
+      ...items.deleted,
+      ...parsedItems.toDelete,
+      ...dataProtectionObjects.toDelete,
+    ];
 
     const elba = createElbaClient({ organisationId: record.organisationId, region: record.region });
 
-    if (itemsToUpdate.length) {
+    if (dataProtectionObjects.toUpdate.length) {
       await step.run('update-elba-objects', async () => {
-        const dataProtectionItems = formatDataProtectionObjects({
-          items: itemsToUpdate,
-          siteId,
-          driveId,
-          parentPermissionIds: [],
-        });
-
-        return elba.dataProtection.updateObjects({ objects: dataProtectionItems });
+        return elba.dataProtection.updateObjects({ objects: dataProtectionObjects.toUpdate });
       });
     }
 

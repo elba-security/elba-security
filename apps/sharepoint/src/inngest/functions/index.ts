@@ -8,7 +8,7 @@ import { scheduleDataProtectionSyncJobs } from './data-protection/schedule-sync-
 import { refreshDataProtectionObject } from './data-protection/refresh-item';
 import { deleteDataProtectionItemPermissions } from './data-protection/delete-item-permissions';
 import { initializeDelta } from './delta/initialize-delta';
-import { syncDeltaItems } from './data-protection/update-items';
+import { syncDeltaItems } from './data-protection/sync-delta-items';
 import { createSubscription } from './subscriptions/create-subscription';
 import { refreshSubscription } from './subscriptions/refresh-subscription';
 import { removeSubscription } from './subscriptions/remove-subscription';
