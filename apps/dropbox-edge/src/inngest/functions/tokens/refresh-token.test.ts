@@ -29,9 +29,9 @@ const organisation = {
 
 const now = new Date();
 // current token expires in an 4 hour
-const expiresAt = now.getTime() + 240 * 1000;
-// next token duration
-const expiresIn = 240 * 1000;
+const expiresIn = 14400; // in seconds
+
+const expiresAt = now.getTime() + expiresIn * 1000;
 
 const setup = createInngestFunctionMock(refreshToken, 'dropbox/token.refresh.requested');
 
@@ -63,6 +63,7 @@ describe('refresh-token', () => {
   });
 
   test('should update encrypted tokens and schedule the next refresh', async () => {
+    vi.setSystemTime(now);
     await db.insert(organisationsTable).values(organisation);
 
     vi.spyOn(authConnector, 'getRefreshToken').mockResolvedValue({
@@ -98,10 +99,10 @@ describe('refresh-token', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('next-refresh', {
-      name: 'box/token.refresh.requested',
+      name: 'dropbox/token.refresh.requested',
       data: {
         organisationId: organisation.id,
-        expiresAt: now.getTime() + expiresIn * 1000,
+        expiresAt,
       },
     });
   });

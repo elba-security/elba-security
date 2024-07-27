@@ -24,8 +24,7 @@ export class DropboxError extends Error {
     } catch (e) {
       errorText = response.statusText;
     }
-
-    throw new DropboxError(message, response, errorText);
+    return new DropboxError(message, response, errorText);
   }
 
   logError() {

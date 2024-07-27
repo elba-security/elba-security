@@ -1,6 +1,6 @@
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
-import { subMinutes } from 'date-fns';
+import { addSeconds, subMinutes } from 'date-fns';
 import { failureRetry } from '@elba-security/inngest';
 import { inngest } from '@/inngest/client';
 import { decrypt, encrypt } from '@/common/crypto';
@@ -35,6 +35,7 @@ export const refreshToken = inngest.createFunction(
     const { organisationId, expiresAt } = event.data;
 
     await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 30));
+
     const [organisation] = await db
       .select({
         accessToken: organisationsTable.accessToken,
@@ -47,7 +48,7 @@ export const refreshToken = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const nextExpiresAt = await step.run('get-refresh-token', async () => {
+    const nextExpiresIn = await step.run('get-refresh-token', async () => {
       const decryptedAccessToken = await decrypt(organisation.refreshToken);
 
       const { accessToken: newAccessToken, expiresIn } =
@@ -69,12 +70,8 @@ export const refreshToken = inngest.createFunction(
       name: 'dropbox/token.refresh.requested',
       data: {
         organisationId,
-        expiresAt: new Date(nextExpiresAt).getTime(),
+        expiresAt: addSeconds(new Date(), nextExpiresIn).getTime(),
       },
     });
-
-    return {
-      status: 'completed',
-    };
   }
 );

@@ -67,7 +67,6 @@ describe('auth connector', () => {
     test('should return the token when the refresh token is valid', async () => {
       await expect(getRefreshToken(token.refresh_token)).resolves.toStrictEqual({
         accessToken: token.access_token,
-        refreshToken: token.refresh_token,
         expiresIn: token.expires_in,
       });
     });
