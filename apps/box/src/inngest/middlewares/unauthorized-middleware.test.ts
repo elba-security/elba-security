@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { BoxError } from '@/connectors/common/error';
+import { BoxError } from '@/connectors/box/common/error';
 import { encrypt } from '@/common/crypto';
 import { unauthorizedMiddleware } from './unauthorized-middleware';
 

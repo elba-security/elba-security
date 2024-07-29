@@ -1,6 +1,6 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
-import { BoxError } from '@/connectors/common/error';
+import { BoxError } from '@/connectors/box/common/error';
 
 const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),
