@@ -2,7 +2,7 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { AsanaError } from '../common/error';
+import { AsanaError } from './common/error';
 import { getToken, getWorkspaceIds, getRefreshToken } from './auth';
 
 const validCode = '1234';

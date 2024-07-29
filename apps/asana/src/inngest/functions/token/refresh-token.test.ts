@@ -6,7 +6,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as authConnector from '@/connectors/asana/auth';
 import { encrypt, decrypt } from '@/common/crypto';
-import { AsanaError } from '@/connectors/common/error';
+import { AsanaError } from '@/connectors/asana/common/error';
 import { refreshToken } from './refresh-token';
 
 const newTokens = {

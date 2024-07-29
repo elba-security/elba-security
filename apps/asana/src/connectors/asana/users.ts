@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { AsanaError } from '../common/error';
+import { AsanaError } from './common/error';
 
 const asanaUserSchema = z.object({
   gid: z.string(),
