@@ -1,6 +1,6 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
-import { AircallError } from '@/connectors/common/error';
+import { AircallError } from '@/connectors/aircall/common/error';
 
 const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),

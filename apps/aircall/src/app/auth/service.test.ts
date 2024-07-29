@@ -5,7 +5,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
-import { AircallError } from '@/connectors/common/error';
+import { AircallError } from '@/connectors/aircall/common/error';
 import { setupOrganisation } from './service';
 
 const code = 'some-code';

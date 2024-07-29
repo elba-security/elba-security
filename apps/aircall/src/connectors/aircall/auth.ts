@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { AircallError } from '../common/error';
+import { AircallError } from './common/error';
 
 const tokenResponseSchema = z.object({
   access_token: z.string(),
