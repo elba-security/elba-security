@@ -18,7 +18,11 @@ export const env = z
     DROPBOX_REDIRECT_URI: z.string().url(),
     DROPBOX_DELETE_USER_CONCURRENCY: zEnvInt().default(1),
     DROPBOX_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
+    DROPBOX_DATA_PROTECTION_SYNC_CRON: z.string().default('0 0 * * 3,5'),
+    DROPBOX_LIST_FOLDER_BATCH_SIZE: zEnvInt().default(300),
     DROPBOX_SYNC_USERS_BATCH_SIZE: zEnvInt().default(400),
+    DROPBOX_LIST_FILE_MEMBERS_LIMIT: zEnvInt().default(200),
+    DROPBOX_LIST_FOLDER_MEMBERS_LIMIT: zEnvInt().default(1000),
     VERCEL_ENV: z.string().min(1).optional(),
     ENCRYPTION_KEY: z.string().min(1),
   })
