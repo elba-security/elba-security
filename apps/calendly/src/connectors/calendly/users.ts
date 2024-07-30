@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { CalendlyError } from '../common/error';
+import { CalendlyError } from './common/error';
 
 const calendlyUserSchema = z.object({
   user: z.object({

@@ -4,7 +4,7 @@ import * as authConnector from '@/connectors/calendly/auth';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { CalendlyError } from '@/connectors/common/error';
+import { CalendlyError } from '@/connectors/calendly/common/error';
 import { decrypt } from '@/common/crypto';
 import { setupOrganisation } from './service';
 
