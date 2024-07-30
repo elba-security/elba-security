@@ -1,13 +1,11 @@
-import { NextResponse } from 'next/server';
-import { parseWebhookEventData } from '@elba-security/sdk';
+import { createWebhookRoute } from '@elba-security/nextjs';
 import { startDataProtectionSync } from './service';
 
-export async function POST(request: Request) {
-  const data: unknown = await request.json();
+export const preferredRegion = 'fra1';
+export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
-  const { organisationId } = parseWebhookEventData('data_protection.start_sync_requested', data);
-
-  await startDataProtectionSync(organisationId);
-
-  return new NextResponse();
-}
+export const POST = createWebhookRoute(
+  'data_protection.start_sync_requested',
+  startDataProtectionSync
+);

@@ -16,7 +16,7 @@ describe('webhook startDataProtectionSync', () => {
 
   test('should request data protection sync when metadata is valid', async () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
-    await expect(startDataProtectionSync(organisationId)).resolves.toBeUndefined();
+    await expect(startDataProtectionSync({ organisationId })).resolves.toBeUndefined();
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({

@@ -1,6 +1,6 @@
 import { inngest } from '@/inngest/client';
 
-export const startDataProtectionSync = async (organisationId: string) => {
+export const startDataProtectionSync = async ({ organisationId }: { organisationId: string }) => {
   await inngest.send({
     name: 'confluence/data_protection.spaces.sync.requested',
     data: {

@@ -10,7 +10,7 @@ describe('asana/users.delete.requested', () => {
   it('should send request to delete user', async () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
-    await deleteUsers({ userIds: [userId1, userId2], organisationId });
+    await deleteUsers({ ids: [userId1, userId2], organisationId });
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
