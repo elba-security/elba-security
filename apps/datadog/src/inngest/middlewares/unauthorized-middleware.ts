@@ -1,6 +1,6 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
-import { DatadogError } from '@/connectors/common/error';
+import { DatadogError } from '@/connectors/datadog/common/error';
 
 const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { DatadogError } from '../common/error';
+import { DatadogError } from './common/error';
 import { getDatadogRegionAPIBaseURL } from './regions';
 
 const datadogUserSchema = z.object({
