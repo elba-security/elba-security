@@ -6,9 +6,9 @@
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
-    "next": "14.2.4"
+    "next": "catalog:"
   },
   "peerDependencies": {
-    "next": "14.2.4"
+    "next": "catalog:"
   }
 }

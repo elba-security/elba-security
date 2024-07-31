@@ -10,8 +10,8 @@
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
-    "@types/node": "^20",
-    "eslint": "^8",
-    "typescript": "^5.5.2"
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:"
   }
 }
