@@ -24,7 +24,7 @@
     "pnpm": ">=9.5.0"
   },
   "name": "elba-security",
-  "packageManager": "pnpm@8.10.2",
+  "packageManager": "pnpm@9.5.0",
   "lint-staged": {
     "!(template/**/*)*.{js,jsx,ts,tsx}": "eslint --fix",
     "*.{js,jsx,ts,tsx,json,css,md}": "prettier --write"
