@@ -1,5 +1,5 @@
 {
-  "id": "bdcb5bb6-7de1-4fd1-8bdd-d2eca3e1cb73",
+  "id": "c8e6bbe3-b230-4a08-b8f5-59f640bd9dfb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -14,8 +14,14 @@
           "primaryKey": true,
           "notNull": true
         },
-        "account_id": {
-          "name": "account_id",
+        "api_token": {
+          "name": "api_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region": {
+          "name": "region",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -26,18 +32,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "region": {
-          "name": "region",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "api_key": {
-          "name": "api_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {},

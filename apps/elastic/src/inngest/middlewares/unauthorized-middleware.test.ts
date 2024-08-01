@@ -1,11 +1,24 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { NonRetriableError } from 'inngest';
-import { ElasticError } from '@/connectors/elastic/common/error';
+import { db } from '@/database/client';
+import { organisationsTable } from '@/database/schema';
+import { encrypt } from '@/common/crypto';
+import { ElasticError } from '@/connectors/common/error';
 import { unauthorizedMiddleware } from './unauthorized-middleware';
 
-const organisationId = '45a76301-f1dd-4a77-b12f-9d7d3fca3c90';
+const apiKey = 'test-access-token';
+
+const organisation = {
+  id: '00000000-0000-0000-0000-000000000001',
+  apiKey: await encrypt(apiKey),
+  region: 'us',
+};
 
 describe('unauthorized middleware', () => {
+  beforeEach(async () => {
+    await db.insert(organisationsTable).values(organisation);
+  });
+
   test('should not transform the output when their is no error', async () => {
     const send = vi.fn().mockResolvedValue(undefined);
     await expect(
@@ -22,9 +35,8 @@ describe('unauthorized middleware', () => {
     expect(send).toBeCalledTimes(0);
   });
 
-  test('should not transform the output when the error is not about github authorization', async () => {
+  test('should not transform the output when the error is not about Elastic authorization', async () => {
     const send = vi.fn().mockResolvedValue(undefined);
-
     await expect(
       unauthorizedMiddleware
         // @ts-expect-error -- this is a mock
@@ -41,7 +53,7 @@ describe('unauthorized middleware', () => {
     expect(send).toBeCalledTimes(0);
   });
 
-  test('should transform the output error to NonRetriableError and send an uninstall event when the error is about github authorization', async () => {
+  test('should transform the output error to NonRetriableError and remove the organisation when the error is about Elastic authorization', async () => {
     const unauthorizedError = new ElasticError('foo bar', {
       // @ts-expect-error this is a mock
       response: {
@@ -59,16 +71,22 @@ describe('unauthorized middleware', () => {
         error: unauthorizedError,
       },
     };
-    const send = vi.fn().mockResolvedValue(undefined);
 
+    const send = vi.fn().mockResolvedValue(undefined);
     const result = await unauthorizedMiddleware
       // @ts-expect-error -- this is a mock
       .init({ client: { send } })
       .onFunctionRun({
         // @ts-expect-error -- this is a mock
         fn: { name: 'foo' },
-        // @ts-expect-error -- this is a mock
-        ctx: { event: { data: { organisationId, region: 'us' } } },
+        ctx: {
+          // @ts-expect-error -- this is a mock
+          event: {
+            data: {
+              organisationId: organisation.id,
+            },
+          },
+        },
       })
       .transformOutput(context);
     expect(result?.result.error).toBeInstanceOf(NonRetriableError);
@@ -87,7 +105,7 @@ describe('unauthorized middleware', () => {
     expect(send).toBeCalledWith({
       name: 'elastic/app.uninstalled',
       data: {
-        organisationId,
+        organisationId: organisation.id,
       },
     });
   });

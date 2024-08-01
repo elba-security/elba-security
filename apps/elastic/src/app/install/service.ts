@@ -1,37 +1,31 @@
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
-import { getAccountId } from '@/connectors/elastic/account';
+import { getOrganizationId } from '@/connectors/elastic/organization';
+import { db } from '../../database/client';
+import { organisationsTable } from '../../database/schema';
+import { inngest } from '../../inngest/client';
 
 type SetupOrganisationParams = {
   organisationId: string;
   apiKey: string;
   region: string;
 };
-
 export const registerOrganisation = async ({
   organisationId,
   apiKey,
   region,
 }: SetupOrganisationParams) => {
-  const encodedapiKey = await encrypt(apiKey);
+  await getOrganizationId({ apiKey });
 
-  const { accountId } = await getAccountId({ apiKey });
+  const encodedToken = await encrypt(apiKey);
 
   await db
     .insert(organisationsTable)
-    .values({
-      id: organisationId,
-      accountId,
-      region,
-      apiKey: encodedapiKey,
-    })
+    .values({ id: organisationId, region, apiKey: encodedToken })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
-        accountId,
-        apiKey: encodedapiKey,
+        region,
+        apiKey: encodedToken,
       },
     });
 
@@ -39,13 +33,11 @@ export const registerOrganisation = async ({
     {
       name: 'elastic/users.sync.requested',
       data: {
-        organisationId,
         isFirstSync: true,
+        organisationId,
         syncStartedAt: Date.now(),
-        page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
       name: 'elastic/app.installed',
       data: {

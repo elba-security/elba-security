@@ -1,8 +1,8 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { ElasticError } from '@/connectors/elastic/common/error';
+import { ElasticError } from '@/connectors/common/error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
-  name: 'elastic-rate-limit',
+  name: 'rate-limit',
   init: () => {
     return {
       onFunctionRun: ({ fn }) => {
@@ -13,17 +13,27 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            // Check if the error is a rate limit error (HTTP Status 429)
             if (error instanceof ElasticError && error.response?.status === 429) {
-              // Extract rate limit headers
-              const interval = error.response.headers.get('x-ratelimit-interval');
+              const rateLimitReset = error.response.headers.get('X-RateLimit-Reset') || 60;
+
+              let retryAfter = 60;
+
+              if (rateLimitReset) {
+                const resetDate = new Date(rateLimitReset);
+                const currentTime = new Date();
+                retryAfter = Math.max(
+                  0,
+                  Math.floor((resetDate.getTime() - currentTime.getTime()) / 1000)
+                );
+              }
+
               return {
                 ...context,
                 result: {
                   ...result,
                   error: new RetryAfterError(
-                    `Rate limit exceeded for '${fn.name}'. Retry after ${interval} seconds.`,
-                    `${interval}s`,
+                    `API rate limit reached by '${fn.name}', retry after ${retryAfter} seconds.`,
+                    `${retryAfter}s`,
                     {
                       cause: error,
                     }

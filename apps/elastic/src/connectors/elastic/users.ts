@@ -1,9 +1,10 @@
 import { z } from 'zod';
-import { ElasticError } from './common/error';
+import { env } from '@/common/env';
+import { ElasticError } from '../common/error';
 
 const elasticUserSchema = z.object({
   user_id: z.string(),
-  name: z.string().optional(),
+  name: z.string(),
   email: z.string(),
   role_assignments: z
     .object({
@@ -29,25 +30,23 @@ export type ElasticUser = z.infer<typeof elasticUserSchema>;
 
 const elasticResponseSchema = z.object({
   members: z.array(z.unknown()),
-  from: z.number().optional(),
 });
 
 export type GetUsersParams = {
   apiKey: string;
-  accountId: string;
-  afterToken?: string | null;
+  organizationId: string;
 };
 
-export const getUsers = async ({ apiKey, accountId, afterToken }: GetUsersParams) => {
-  const endpoint = new URL(
-    `https://api.elastic-cloud.com/api/v1/organizations/${accountId}/members`
-  );
+export type DeleteUsersParams = {
+  userId: string;
+  organizationId: string;
+  apiKey: string;
+};
 
-  if (afterToken) {
-    endpoint.searchParams.append('from', String(afterToken));
-  }
+export const getAllUsers = async ({ apiKey, organizationId }: GetUsersParams) => {
+  const url = new URL(`${env.ELASTIC_API_BASE_URL}/api/v1/organizations/${organizationId}/members`);
 
-  const response = await fetch(endpoint.toString(), {
+  const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
       Authorization: `ApiKey ${apiKey}`,
@@ -56,40 +55,32 @@ export const getUsers = async ({ apiKey, accountId, afterToken }: GetUsersParams
   });
 
   if (!response.ok) {
-    throw new ElasticError('API request failed', { response });
+    throw new ElasticError('Could not retrieve Elastic users', { response });
   }
 
-  const data: unknown = await response.json();
-
-  const { members, from } = elasticResponseSchema.parse(data);
+  const resData: unknown = await response.json();
+  const { members } = elasticResponseSchema.parse(resData);
 
   const validUsers: ElasticUser[] = [];
   const invalidUsers: unknown[] = [];
 
-  for (const node of members) {
-    const result = elasticUserSchema.safeParse(node);
-    if (result.success) {
-      validUsers.push(result.data);
+  for (const user of members) {
+    const userResult = elasticUserSchema.safeParse(user);
+    if (userResult.success) {
+      validUsers.push(userResult.data);
     } else {
-      invalidUsers.push(node);
+      invalidUsers.push(user);
     }
   }
 
   return {
     validUsers,
     invalidUsers,
-    nextPage: from ? (from + 1).toString() : null,
   };
 };
 
-export type DeleteUsersParams = {
-  userId: string;
-  accountId: string;
-  apiKey: string;
-};
-
-export const deleteUser = async ({ userId, accountId, apiKey }: DeleteUsersParams) => {
-  const url = `https://api.elastic-cloud.com/api/v1/organizations/${accountId}/members/${userId}`;
+export const deleteUser = async ({ apiKey, userId, organizationId }: DeleteUsersParams) => {
+  const url = `${env.ELASTIC_API_BASE_URL}/api/v1/organizations/${organizationId}/members/${userId}`;
 
   const response = await fetch(url, {
     method: 'DELETE',
@@ -98,26 +89,8 @@ export const deleteUser = async ({ userId, accountId, apiKey }: DeleteUsersParam
       Authorization: `ApiKey ${apiKey}`,
     },
   });
-  const elasticErrorDataSchema = z.object({
-    errors: z.array(
-      z.object({
-        code: z.string().nullish(),
-        message: z.string().nullish(),
-      })
-    ),
-  });
 
-  if (response.status === 400) {
-    const errorDataResult = elasticErrorDataSchema.safeParse(await response.json());
-    if (
-      errorDataResult.success &&
-      errorDataResult.data.errors.at(0)?.code === 'organization.membership_not_found'
-    ) {
-      return;
-    }
-  }
-
-  if (!response.ok) {
+  if (!response.ok && response.status !== 404) {
     throw new ElasticError(`Could not delete user with Id: ${userId}`, { response });
   }
 };

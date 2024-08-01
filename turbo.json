@@ -12,6 +12,9 @@
     "test": {
       "cache": true
     },
+    "type-check": {
+      "cache": true
+    },
     "dev": {
       "cache": false,
       "persistent": true

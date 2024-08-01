@@ -129,6 +129,7 @@ import { logger } from '@elba-security/logger';
 import { z } from 'zod';
 import { env } from '@/env';
 import { registerOrganisation } from './service';
+import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 
 const formSchema = z.object({
   domain: z.string().url(),
@@ -149,6 +150,7 @@ export type FormState = {
 };
 
 export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
+  unstable_noStore();
   const result = formSchema.safeParse({
     domain: formData.get('domain'),
     clientId: formData.get('clientId'),

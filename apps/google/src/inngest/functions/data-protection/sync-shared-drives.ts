@@ -67,7 +67,6 @@ export const syncDataProtectionSharedDrives = inngest.createFunction(
           const managerPermissions = await listAllGoogleSharedDriveManagerPermissions({
             auth: authClient,
             fileId: sharedDriveId,
-            useDomainAdminAccess: true,
             pageSize: 100, // Set pageSize to max value
           });
 

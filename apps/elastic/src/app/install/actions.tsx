@@ -1,18 +1,17 @@
 'use server';
 import { logger } from '@elba-security/logger';
 import { z } from 'zod';
-import { getRedirectUrl } from '@elba-security/sdk';
 import { RedirectType, redirect } from 'next/navigation';
+import { getRedirectUrl } from '@elba-security/sdk';
 import { isRedirectError } from 'next/dist/client/components/redirect';
-import { ElasticError } from '@/connectors/elastic/common/error';
-import { env } from '@/env';
+import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
+import { ElasticError } from '@/connectors/common/error';
+import { env } from '@/common/env';
 import { registerOrganisation } from './service';
 
 const formSchema = z.object({
   organisationId: z.string().uuid(),
-  apiKey: z.string().min(1, {
-    message: 'API Key is required',
-  }),
+  apiKey: z.string().min(1, { message: 'The api key is required' }).trim(),
   region: z.string().min(1),
 });
 
@@ -23,17 +22,17 @@ export type FormState = {
 };
 
 export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
+  unstable_noStore();
   const region = formData.get('region');
   try {
     const result = formSchema.safeParse({
       apiKey: formData.get('apiKey'),
       organisationId: formData.get('organisationId'),
-      region,
+      region: formData.get('region'),
     });
 
     if (!result.success) {
       const { fieldErrors } = result.error.flatten();
-      //  elba should had given us a valid organisationId and region, so we let elba handle this error case
       if (fieldErrors.organisationId || fieldErrors.region) {
         redirect(
           getRedirectUrl({
@@ -45,7 +44,6 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
           RedirectType.replace
         );
       }
-
       return {
         errors: fieldErrors,
       };
@@ -71,7 +69,7 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
     if (error instanceof ElasticError && error.response?.status === 401) {
       return {
         errors: {
-          apiKey: ['The given API key seems to be invalid'],
+          apiKey: ['The given API Key seems to be invalid'],
         },
       };
     }

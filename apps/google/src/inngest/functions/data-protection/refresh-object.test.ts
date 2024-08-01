@@ -133,12 +133,7 @@ describe('refresh-data-protection-object', () => {
     const elba = spyOnElba();
     const serviceAccountClientSpy = spyOnGoogleServiceAccountClient();
 
-    vi.spyOn(googleFiles, 'getGoogleFile').mockImplementation(() => {
-      // eslint-disable-next-line prefer-promise-reject-errors -- this is a mock
-      return Promise.reject({
-        code: 404,
-      });
-    });
+    vi.spyOn(googleFiles, 'getGoogleFile').mockResolvedValue(null);
 
     vi.spyOn(googlePermissions, 'listAllGoogleFileNonInheritedPermissions');
 

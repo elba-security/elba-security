@@ -5,5 +5,5 @@ export { SetupLayout as default } from '@elba-security/design-system';
 
 export const metadata: Metadata = {
   title: 'Connect elba to Elastic',
-  description: "Official elba's Elastic integration",
+  description: "elba's Elastic integration",
 };

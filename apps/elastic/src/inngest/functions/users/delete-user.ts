@@ -3,37 +3,37 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import * as usersConnector from '@/connectors/elastic/users';
+import { deleteUser as deleteSourceUser } from '@/connectors/elastic/users';
+import { getOrganizationId } from '@/connectors/elastic/organization';
 import { decrypt } from '@/common/crypto';
-import { env } from '@/env';
+import { env } from '@/common/env';
 
 export const deleteUser = inngest.createFunction(
   {
-    id: 'elastic-delete-user',
+    id: 'elastic-delete-users',
     concurrency: {
       key: 'event.data.organisationId',
       limit: env.ELASTIC_DELETE_USER_CONCURRENCY,
     },
     cancelOn: [
       {
-        event: 'elastic/app.uninstalled',
+        event: 'elastic/app.installed',
         match: 'data.organisationId',
       },
       {
-        event: 'elastic/app.installed',
+        event: 'elastic/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
     retries: 5,
   },
   { event: 'elastic/users.delete.requested' },
-  async ({ event }) => {
+  async ({ event, step }) => {
     const { userId, organisationId } = event.data;
 
     const [organisation] = await db
       .select({
         apiKey: organisationsTable.apiKey,
-        accountId: organisationsTable.accountId,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -41,13 +41,16 @@ export const deleteUser = inngest.createFunction(
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve ${userId}`);
     }
-    const apiKey = await decrypt(organisation.apiKey);
-    const accountId = organisation.accountId;
+    const decryptedApiKey = await decrypt(organisation.apiKey);
 
-    await usersConnector.deleteUser({
+    const { organizationId } = await step.run('get-organization-id', async () => {
+      return getOrganizationId({ apiKey: decryptedApiKey });
+    });
+
+    await deleteSourceUser({
       userId,
-      accountId,
-      apiKey,
+      apiKey: decryptedApiKey,
+      organizationId,
     });
   }
 );

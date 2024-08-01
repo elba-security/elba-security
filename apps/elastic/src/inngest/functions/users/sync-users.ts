@@ -1,24 +1,24 @@
-import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
+import { type User } from '@elba-security/sdk';
 import { NonRetriableError } from 'inngest';
+import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
-import { getUsers } from '@/connectors/elastic/users';
+import { type ElasticUser, getAllUsers } from '@/connectors/elastic/users';
+import { getOrganizationId } from '@/connectors/elastic/organization';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { type ElasticUser } from '@/connectors/elastic/users';
 import { decrypt } from '@/common/crypto';
-import { getElbaClient } from '@/connectors/elba/client';
+import { createElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUserRole = (role: ElasticUser['role_assignments']): string => {
   // Even if the role properties are arrays, only one role is assigned to each user.
   const organisationRole = role?.organization?.at(0);
   if (organisationRole) {
-    return organisationRole.role_id.replaceAll('-', ' ');
+    return organisationRole.role_id.replace(/-/g, ' ');
   }
   const deploymentRole = role?.deployment?.at(0);
   if (deploymentRole) {
-    return deploymentRole.role_id.replaceAll('-', ' ');
+    return deploymentRole.role_id.replace(/-/g, ' ');
   }
   return 'member';
 };
@@ -29,13 +29,15 @@ const formatElbaUser = (user: ElasticUser): User => ({
   email: user.email,
   role: formatElbaUserRole(user.role_assignments),
   additionalEmails: [],
+  url: 'https://cloud.elastic.co/account/members',
+  isSuspendable: true,
 });
 
 export const syncUsers = inngest.createFunction(
   {
     id: 'elastic-sync-users',
     priority: {
-      run: 'event.data.isFirstSync ? 600 : -600',
+      run: 'event.data.isFirstSync ? 600 : 0',
     },
     concurrency: {
       key: 'event.data.organisationId',
@@ -43,11 +45,11 @@ export const syncUsers = inngest.createFunction(
     },
     cancelOn: [
       {
-        event: 'elastic/app.uninstalled',
+        event: 'elastic/app.installed',
         match: 'data.organisationId',
       },
       {
-        event: 'elastic/app.installed',
+        event: 'elastic/app.uninstalled',
         match: 'data.organisationId',
       },
     ],
@@ -55,12 +57,11 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'elastic/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, syncStartedAt } = event.data;
 
     const [organisation] = await db
       .select({
         apiKey: organisationsTable.apiKey,
-        accountId: organisationsTable.accountId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -70,15 +71,19 @@ export const syncUsers = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const elba = getElbaClient({ organisationId, region: organisation.region });
+    const elba = createElbaClient({
+      organisationId,
+      region: organisation.region,
+    });
 
-    const nextPage = await step.run('list-users', async () => {
-      const apiKey = await decrypt(organisation.apiKey);
-      const result = await getUsers({
-        apiKey,
-        accountId: organisation.accountId,
-        afterToken: page,
-      });
+    const decryptedApiKey = await decrypt(organisation.apiKey);
+
+    const { organizationId } = await step.run('get-organization-id', async () => {
+      return getOrganizationId({ apiKey: decryptedApiKey });
+    });
+
+    await step.run('list-all-users', async () => {
+      const result = await getAllUsers({ apiKey: decryptedApiKey, organizationId });
 
       const users = result.validUsers.map(formatElbaUser);
 
@@ -88,26 +93,12 @@ export const syncUsers = inngest.createFunction(
           invalidUsers: result.invalidUsers,
         });
       }
-      await elba.users.update({ users });
 
-      return result.nextPage;
+      if (users.length > 0) {
+        await elba.users.update({ users });
+      }
     });
 
-    // if there is a next page enqueue a new sync user event
-    if (nextPage) {
-      await step.sendEvent('synchronize-users', {
-        name: 'elastic/users.sync.requested',
-        data: {
-          ...event.data,
-          page: nextPage,
-        },
-      });
-      return {
-        status: 'ongoing',
-      };
-    }
-
-    // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );
