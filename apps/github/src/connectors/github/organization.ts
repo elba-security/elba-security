@@ -106,6 +106,7 @@ export const getPaginatedOrganizationMembers = async (
 
 const OrganizationInstallationSchema = z.object({
   id: z.number(),
+  app_id: z.number(),
   app_slug: z.string(),
   created_at: z.string(),
   permissions: z.record(z.enum(['read', 'write'])),
@@ -142,7 +143,10 @@ export const getPaginatedOrganizationInstallations = async (
   for (const installation of installations) {
     const result = OrganizationInstallationSchema.safeParse(installation);
     if (result.success) {
-      validInstallations.push(result.data);
+      // We filter out our own app
+      if (result.data.app_id !== Number(env.GITHUB_APP_ID)) {
+        validInstallations.push(result.data);
+      }
     } else {
       invalidInstallations.push(installation);
     }
