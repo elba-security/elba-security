@@ -143,10 +143,7 @@ export const getPaginatedOrganizationInstallations = async (
   for (const installation of installations) {
     const result = OrganizationInstallationSchema.safeParse(installation);
     if (result.success) {
-      // We filter out our own app
-      if (result.data.app_id !== Number(env.GITHUB_APP_ID)) {
-        validInstallations.push(result.data);
-      }
+      validInstallations.push(result.data);
     } else {
       invalidInstallations.push(installation);
     }

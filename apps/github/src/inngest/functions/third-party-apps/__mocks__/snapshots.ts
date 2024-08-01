@@ -32,6 +32,9 @@ export const elbaApps = [
         scopes: ['foo:read', 'baz:write'],
       },
     ],
+    metadata: {
+      installationId: 1000,
+    },
   },
   {
     description: 'app-description-101',
@@ -66,6 +69,9 @@ export const elbaApps = [
         scopes: ['foo:read', 'baz:write'],
       },
     ],
+    metadata: {
+      installationId: 1001,
+    },
   },
   {
     description: 'app-description-102',
@@ -100,6 +106,9 @@ export const elbaApps = [
         scopes: ['foo:read', 'baz:write'],
       },
     ],
+    metadata: {
+      installationId: 1002,
+    },
   },
   {
     description: 'app-description-103',
@@ -134,6 +143,9 @@ export const elbaApps = [
         scopes: ['foo:read', 'baz:write'],
       },
     ],
+    metadata: {
+      installationId: 1003,
+    },
   },
   {
     description: 'app-description-104',
@@ -168,5 +180,8 @@ export const elbaApps = [
         scopes: ['foo:read', 'baz:write'],
       },
     ],
+    metadata: {
+      installationId: 1004,
+    },
   },
 ];

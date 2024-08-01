@@ -21,11 +21,15 @@ const formatElbaApp = (
 ): ThirdPartyAppsObject => {
   const scopes = formatElbaAppScopes(installation.permissions);
   return {
-    id: `${installation.id}`,
+    id: String(installation.app_id),
     url: app.html_url,
     name: app.name,
     publisherName: app.owner?.name ?? undefined,
     description: app.description ?? undefined,
+    metadata: {
+      // unused now, but will be usefull for future remediation feature
+      installationId: installation.id,
+    },
     users: adminIds.map((id) => ({
       id,
       scopes,
