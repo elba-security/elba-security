@@ -33,14 +33,12 @@ const permissions: SharepointPermission[] = Array.from({ length: 2 }, (_, i) => 
   link: { scope: 'users' },
   grantedToV2: {
     user: {
-      id: `some-user-id-${i}`,
       email: `some-user-email-${i}`,
     },
   },
   grantedToIdentitiesV2: [
     {
       user: {
-        id: `some-user-id-${i}`,
         email: `some-user-email-${i}`,
       },
     },
@@ -480,7 +478,7 @@ describe('permissions connector', () => {
       ).rejects.toBeInstanceOf(MicrosoftError);
     });
 
-    test('should ', async () => {
+    test('should return the permission details properly', async () => {
       await expect(
         getPermissionsConnector.getPermissionDetails({
           token: validToken,

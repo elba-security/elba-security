@@ -48,7 +48,6 @@ const permissions: SharepointPermission[] = [
     id: 'permission-id-2',
     grantedToV2: {
       user: {
-        id: 'user-id-1',
         email: 'user1@org.local',
       },
     },
@@ -59,13 +58,11 @@ const permissions: SharepointPermission[] = [
     grantedToIdentitiesV2: [
       {
         user: {
-          id: 'user-id-1',
           email: 'user1@org.local',
         },
       },
       {
         user: {
-          id: 'user-id-2',
           email: 'user2@org.local',
         },
       },
@@ -168,7 +165,7 @@ describe('refresh-object', () => {
             },
             {
               email: 'user1@org.local',
-              id: 'user-user-id-1',
+              id: 'user-user1@org.local',
               metadata: {
                 directPermissionId: 'permission-id-2',
                 email: 'user1@org.local',
@@ -176,18 +173,16 @@ describe('refresh-object', () => {
                 type: 'user',
               },
               type: 'user',
-              userId: 'user-id-1',
             },
             {
               email: 'user2@org.local',
-              id: 'user-user-id-2',
+              id: 'user-user2@org.local',
               metadata: {
                 email: 'user2@org.local',
                 linksPermissionIds: ['permission-id-3'],
                 type: 'user',
               },
               type: 'user',
-              userId: 'user-id-2',
             },
           ],
           updatedAt: itemLastModifiedAt,
@@ -253,7 +248,7 @@ describe('refresh-object', () => {
           permissions: [
             {
               email: 'user1@org.local',
-              id: 'user-user-id-1',
+              id: 'user-user1@org.local',
               metadata: {
                 directPermissionId: 'permission-id-2',
                 email: 'user1@org.local',
@@ -261,18 +256,16 @@ describe('refresh-object', () => {
                 type: 'user',
               },
               type: 'user',
-              userId: 'user-id-1',
             },
             {
               email: 'user2@org.local',
-              id: 'user-user-id-2',
+              id: 'user-user2@org.local',
               metadata: {
                 email: 'user2@org.local',
                 linksPermissionIds: ['permission-id-3'],
                 type: 'user',
               },
               type: 'user',
-              userId: 'user-id-2',
             },
           ],
           updatedAt: itemLastModifiedAt,

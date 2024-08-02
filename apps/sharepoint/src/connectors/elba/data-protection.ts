@@ -34,7 +34,7 @@ export const permissionMetadataSchema = z.union([
 export type PermissionMetadata = z.infer<typeof permissionMetadataSchema>;
 
 const formatDataProtectionPermissions = (permissions: SharepointPermission[]) => {
-  const usersPermissions = new Map<string, UserPermissionMetadata & { userId?: string }>();
+  const usersPermissions = new Map<string, UserPermissionMetadata>();
   const anyonePermissionIds = new Set<string>();
 
   for (const permission of permissions) {
@@ -49,7 +49,6 @@ const formatDataProtectionPermissions = (permissions: SharepointPermission[]) =>
       if (!userPermissions) {
         userPermissions = {
           type: 'user',
-          userId: permission.grantedToV2.user.id,
           email: permission.grantedToV2.user.email,
           linksPermissionIds: [],
         };
@@ -69,7 +68,6 @@ const formatDataProtectionPermissions = (permissions: SharepointPermission[]) =>
         if (!userPermissions) {
           userPermissions = {
             type: 'user',
-            userId: identity.user.id,
             email: identity.user.email,
             linksPermissionIds: [],
           };
@@ -93,12 +91,11 @@ const formatDataProtectionPermissions = (permissions: SharepointPermission[]) =>
   }
 
   if (usersPermissions.size) {
-    for (const [userEmail, { userId, ...metadata }] of usersPermissions.entries()) {
+    for (const [userEmail, metadata] of usersPermissions.entries()) {
       elbaPermissions.push({
-        id: `user-${userId || userEmail}`,
+        id: `user-${userEmail}`,
         type: 'user',
         email: userEmail,
-        userId,
         metadata,
       });
     }
