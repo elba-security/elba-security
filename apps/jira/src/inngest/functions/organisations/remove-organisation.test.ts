@@ -11,13 +11,14 @@ import { removeOrganisation } from './remove-organisation';
 const apiToken = 'test-access-token';
 const domain = 'test-domain';
 const email = 'test@email';
-
+const ownerId = 'test-owner-id';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   apiToken: await encrypt(apiToken),
   region: 'us',
   domain,
   email,
+  ownerId,
 };
 const setup = createInngestFunctionMock(removeOrganisation, 'jira/app.uninstalled');
 

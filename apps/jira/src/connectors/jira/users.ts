@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { JiraError } from '../common/error';
 
@@ -27,6 +28,16 @@ export type DeleteUsersParams = {
   email: string;
   apiToken: string;
 };
+
+export type GetOwnerIdParams = {
+  domain: string;
+  email: string;
+  apiToken: string;
+};
+
+const ownerIdResponseSchema = z.object({
+  accountId: z.string(),
+});
 
 export const getUsers = async ({ apiToken, domain, email, page }: GetUsersParams) => {
   const url = new URL(`https://${domain}.atlassian.net/rest/api/3/users/search`);
@@ -90,4 +101,33 @@ export const deleteUser = async ({ apiToken, domain, email, userId }: DeleteUser
   if (!response.ok && response.status !== 404) {
     throw new JiraError(`Could not delete user with Id: ${userId}`, { response });
   }
+};
+
+export const getOwnerId = async ({ apiToken, domain, email }: GetOwnerIdParams) => {
+  const url = new URL(`https://${domain}.atlassian.net/rest/api/3/myself`);
+  const encodedToken = btoa(`${email}:${apiToken}`);
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Basic ${encodedToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new JiraError('Could not retrieve owner id', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = ownerIdResponseSchema.safeParse(resData);
+  if (!result.success) {
+    logger.error('Invalid Jira owner id response', { resData });
+    throw new JiraError('Invalid Jira owner id response');
+  }
+
+  return {
+    ownerId: String(result.data.accountId),
+  };
 };

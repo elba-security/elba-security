@@ -10,6 +10,7 @@ const userId = 'user-id';
 const apiToken = 'test-access-token';
 const domain = 'test-domain';
 const email = 'test@email';
+const ownerId = 'test-owner-id';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -17,6 +18,7 @@ const organisation = {
   region: 'us',
   domain,
   email,
+  ownerId,
 };
 
 const setup = createInngestFunctionMock(deleteUser, 'jira/users.delete.requested');

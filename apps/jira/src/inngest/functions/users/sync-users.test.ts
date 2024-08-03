@@ -10,13 +10,14 @@ import { syncUsers } from './sync-users';
 const apiToken = 'test-access-token';
 const domain = 'test-domain';
 const email = 'test@email';
-
+const ownerId = 'test-owner-id';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   apiToken: await encrypt(apiToken),
   region: 'us',
   domain,
   email,
+  ownerId,
 };
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
@@ -91,12 +92,16 @@ describe('synchronize-users', () => {
           displayName: 'displayName-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          isSuspendable: true,
+          url: 'https://test-domain.atlassian.net/jira/people/id-0',
         },
         {
           additionalEmails: [],
           displayName: 'displayName-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          isSuspendable: true,
+          url: 'https://test-domain.atlassian.net/jira/people/id-1',
         },
       ],
     });
@@ -129,12 +134,16 @@ describe('synchronize-users', () => {
           displayName: 'displayName-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          isSuspendable: true,
+          url: 'https://test-domain.atlassian.net/jira/people/id-0',
         },
         {
           additionalEmails: [],
           displayName: 'displayName-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          isSuspendable: true,
+          url: 'https://test-domain.atlassian.net/jira/people/id-1',
         },
       ],
     });
