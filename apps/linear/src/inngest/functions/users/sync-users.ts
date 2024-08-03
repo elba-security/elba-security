@@ -10,11 +10,21 @@ import { decrypt } from '@/common/crypto';
 import { type LinearUser } from '@/connectors/linear/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUser = (user: LinearUser): User => ({
+const formatElbaUser = ({
+  user,
+  workspaceUrl,
+  ownerId,
+}: {
+  user: LinearUser;
+  workspaceUrl: string;
+  ownerId: string;
+}): User => ({
   id: user.id,
   displayName: user.name,
   email: user.email,
   additionalEmails: [],
+  isSuspendable: user.id !== ownerId,
+  url: `https://linear.app/${workspaceUrl}/settings/members`,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -47,6 +57,8 @@ export const syncUsers = inngest.createFunction(
       .select({
         token: organisationsTable.accessToken,
         region: organisationsTable.region,
+        ownerId: organisationsTable.ownerId,
+        workspaceUrl: organisationsTable.workspaceUrl,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -56,11 +68,15 @@ export const syncUsers = inngest.createFunction(
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.token);
+    const ownerId = organisation.ownerId;
+    const workspaceUrl = organisation.workspaceUrl;
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ accessToken: token, afterCursor: page });
 
-      const users = result.validUsers.filter(({ active }) => active).map(formatElbaUser);
+      const users = result.validUsers
+        .filter(({ active }) => active)
+        .map((user) => formatElbaUser({ user, ownerId, workspaceUrl }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
