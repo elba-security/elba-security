@@ -1,6 +1,6 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
-import { StatsigError } from '@/connectors/statsig/common/error';
+import { StatsigError } from '@/connectors/common/error';
 
 const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),

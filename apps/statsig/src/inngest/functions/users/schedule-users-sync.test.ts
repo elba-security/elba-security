@@ -9,12 +9,12 @@ const now = Date.now();
 
 const setup = createInngestFunctionMock(scheduleUsersSync);
 
-const encodedPersonalKey = await encrypt('test-personal-key');
+const encodedPersonalToken = await encrypt('test-personal-key');
 
 export const organisations = Array.from({ length: 2 }, (_, i) => ({
   id: `00000000-0000-0000-0000-00000000000${i}`,
   region: 'us',
-  apiKey: encodedPersonalKey,
+  apiKey: encodedPersonalToken,
 }));
 
 describe('statsig-schedule-users-sync', () => {
@@ -50,6 +50,7 @@ describe('statsig-schedule-users-sync', () => {
           organisationId: id,
           syncStartedAt: now,
           isFirstSync: false,
+          page: null,
         },
       }))
     );

@@ -6,7 +6,7 @@ import { inngest } from '@/inngest/client';
 import * as userConnector from '@/connectors/statsig/users';
 import { decrypt } from '@/common/crypto';
 import type { StatsigUser } from '@/connectors/statsig/users';
-import { StatsigError } from '@/connectors/commons/error';
+import { StatsigError } from '@/connectors/common/error';
 import { registerOrganisation } from './service';
 
 const apiKey = 'test-api-key';
@@ -23,6 +23,7 @@ const invalidUsers = [];
 const getUsersData = {
   validUsers,
   invalidUsers,
+  nextPage: null,
 };
 
 const organisation = {
@@ -54,7 +55,7 @@ describe('registerOrganisation', () => {
     ).resolves.toBeUndefined();
 
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey, page: null });
+    expect(getUsers).toBeCalledWith({ apiKey });
 
     const [storedOrganisation] = await db
       .select()
@@ -89,11 +90,11 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-
+    // mocked the getUsers function
     // @ts-expect-error -- this is a mock
     vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
-
+    // pre-insert an organisation to simulate an existing entry
     await db.insert(organisationsTable).values(organisation);
 
     await expect(
@@ -105,8 +106,9 @@ describe('registerOrganisation', () => {
     ).resolves.toBeUndefined();
 
     expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey, page: null });
+    expect(getUsers).toBeCalledWith({ apiKey });
 
+    // check if the apiKey in the database is updated
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)
@@ -117,6 +119,7 @@ describe('registerOrganisation', () => {
     }
     expect(storedOrganisation.region).toBe(region);
     await expect(decrypt(storedOrganisation.apiKey)).resolves.toEqual(apiKey);
+    // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
