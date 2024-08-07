@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1720012853572,
+      "tag": "0000_tense_sunfire",
+      "breakpoints": true
+    }
+  ]
+}
