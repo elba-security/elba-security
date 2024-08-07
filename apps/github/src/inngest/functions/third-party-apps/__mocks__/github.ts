@@ -1,8 +1,9 @@
 /* eslint-disable camelcase -- test conveniency */
 
 export const githubInstallations = Array.from({ length: 5 }, (_, i) => ({
-  id: 100 + i,
+  id: 1000 + i,
   created_at: '2023-12-06T15:02:11.538Z',
+  app_id: 100 + i,
   app_slug: `app-${i}`,
   permissions: {
     foo: 'read' as const,
@@ -11,7 +12,8 @@ export const githubInstallations = Array.from({ length: 5 }, (_, i) => ({
   suspended_at: null,
 }));
 
-export const githubApps = githubInstallations.map(({ id, app_slug }) => ({
+export const githubApps = githubInstallations.map(({ app_id: id, app_slug }) => ({
+  id,
   name: `app-name-${id}`,
   app_slug,
   description: `app-description-${id}`,
