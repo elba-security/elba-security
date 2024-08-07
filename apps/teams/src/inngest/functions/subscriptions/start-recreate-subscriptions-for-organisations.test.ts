@@ -7,16 +7,18 @@ import { db } from '@/database/client';
 
 const token = 'token';
 const encryptedToken = await encrypt(token);
+const organisationId = '12449650-9738-4a9c-8db0-1e4ef5a6a9e8';
+const tenantId = 'tenant-id';
 const organisations = [
   {
-    id: '12449650-9738-4a9c-8db0-1e4ef5a6a9e8',
-    tenantId: 'tenant-id',
+    id: organisationId,
+    tenantId,
     region: 'us',
     token: encryptedToken,
   },
   {
-    id: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
-    tenantId: 'tenant-id',
+    id: '92449650-9738-4a9c-8db0-1e4ef5a6a9e8',
+    tenantId,
     region: 'eu',
     token: encryptedToken,
   },
@@ -36,7 +38,7 @@ describe('startReconnectSubscriptions', () => {
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should start subscriptions reconnection if have organisations', async () => {
+  test('should start subscriptions reconnection for all configured tenants', async () => {
     await db.insert(organisationsTable).values(organisations);
 
     const [result, { step }] = setup({});
@@ -44,14 +46,14 @@ describe('startReconnectSubscriptions', () => {
     await expect(result).resolves.toBeUndefined();
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith(
-      'recreate-subscriptions',
-      organisations.map((organisation) => ({
+    expect(step.sendEvent).toBeCalledWith('recreate-subscriptions', [
+      {
         name: 'teams/subscriptions.recreate.requested',
         data: {
-          organisationId: organisation.id,
+          organisationId,
+          tenantId,
         },
-      }))
-    );
+      },
+    ]);
   });
 });

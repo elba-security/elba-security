@@ -77,17 +77,16 @@ describe('sync-channels', () => {
 
     const channelsToInsert = validChannels.map((channel) => ({
       organisationId: organisation.id,
-      id: `${organisation.id}:${channel.id}`,
       membershipType: channel.membershipType,
       displayName: channel.displayName,
-      channelId: channel.id,
+      id: channel.id,
     }));
 
     await db
       .insert(channelsTable)
       .values(channelsToInsert)
       .onConflictDoUpdate({
-        target: [channelsTable.id],
+        target: [channelsTable.id, channelsTable.organisationId],
         set: {
           displayName: sql`excluded.display_name`,
         },
