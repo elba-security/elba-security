@@ -5,7 +5,7 @@ import { RedirectType, redirect } from 'next/navigation';
 import { getRedirectUrl } from '@elba-security/sdk';
 import { isRedirectError } from 'next/dist/client/components/redirect';
 import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
-import { DatadogError } from '@/connectors/common/error';
+import { DatadogError } from '@/connectors/datadog/common/error';
 import { env } from '@/common/env';
 import { DATADOG_REGIONS } from '@/connectors/datadog/regions';
 import { registerOrganisation } from './service';

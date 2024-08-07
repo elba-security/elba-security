@@ -1,6 +1,6 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
-import { CalendlyError } from '@/connectors/common/error';
+import { CalendlyError } from '@/connectors/calendly/common/error';
 
 const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),

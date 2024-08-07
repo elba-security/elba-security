@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
-import { CalendlyError } from '../common/error';
+import { CalendlyError } from './common/error';
 
 const tokenResponseSchema = z.object({
   access_token: z.string(),

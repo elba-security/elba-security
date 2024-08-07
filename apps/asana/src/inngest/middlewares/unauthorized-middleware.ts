@@ -1,6 +1,6 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
-import { AsanaError } from '@/connectors/common/error';
+import { AsanaError } from '@/connectors/asana/common/error';
 
 const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),
