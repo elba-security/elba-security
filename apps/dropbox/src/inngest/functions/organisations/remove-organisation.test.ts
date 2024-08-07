@@ -4,12 +4,13 @@ import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { env } from '@/env';
-import { removeOrganisation } from './remove-organisation';
 import { organisations } from '@/database';
 import { insertOrganisations } from '@/test-utils/token';
+import { removeOrganisation } from './remove-organisation';
+
 const organisationId = '00000000-0000-0000-0000-000000000001';
 
-const setup = createInngestFunctionMock(removeOrganisation, 'dropbox/elba_app.uninstall.requested');
+const setup = createInngestFunctionMock(removeOrganisation, 'dropbox/app.uninstall.requested');
 
 describe('remove-organisation', () => {
   test("should not remove given organisation when it's not registered", async () => {

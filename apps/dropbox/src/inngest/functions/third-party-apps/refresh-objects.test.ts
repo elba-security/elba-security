@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { memberLinkedApps, membersLinkedAppFirstPage } from './__mocks__/member-linked-apps';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { refreshThirdPartyAppsObject } from './refresh-objects';
+import { NonRetriableError } from 'inngest';
 import { insertOrganisations } from '@/test-utils/token';
 import { db, organisations } from '@/database';
 import * as crypto from '@/common/crypto';
-import { NonRetriableError } from 'inngest';
+import { memberLinkedApps, membersLinkedAppFirstPage } from './__mocks__/member-linked-apps';
+import { refreshThirdPartyAppsObject } from './refresh-objects';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 
@@ -15,8 +15,8 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('@/connectors/dropbox/dbx-access', () => {
-  const actual = vi.importActual('dropbox');
+vi.mock('@/connectors/dropbox/dbx-access', async () => {
+  const actual = await vi.importActual('dropbox');
   return {
     ...actual,
     DBXAccess: vi.fn(() => {
@@ -42,10 +42,10 @@ describe('third-party-apps-refresh-objects', () => {
   });
 
   test('should abort sync when organisation is not registered', async () => {
-    mocks.teamLinkedAppsListMemberLinkedAppsMock.mockImplementation(() => {});
+    mocks.teamLinkedAppsListMemberLinkedAppsMock.mockImplementation(() => ({}));
 
     const elba = spyOnElba();
-    const [result, { step }] = await setup({
+    const [result, { step }] = setup({
       organisationId: '00000000-0000-0000-0000-000000000010',
       userId: 'team-member-id',
       appId: 'app-id',
@@ -69,7 +69,7 @@ describe('third-party-apps-refresh-objects', () => {
       };
     });
 
-    const [result] = await setup({
+    const [result] = setup({
       organisationId,
       userId: 'team-member-id',
       appId: 'app-id',
@@ -119,7 +119,7 @@ describe('third-party-apps-refresh-objects', () => {
       };
     });
 
-    const [result] = await setup({
+    const [result] = setup({
       organisationId,
       userId: 'team-member-id',
       appId: 'app-id',
@@ -177,7 +177,7 @@ describe('third-party-apps-refresh-objects', () => {
       };
     });
 
-    const [result] = await setup({
+    const [result] = setup({
       organisationId,
       userId: 'team-member-id',
       appId: 'app-id',

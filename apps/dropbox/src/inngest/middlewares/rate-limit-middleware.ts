@@ -1,5 +1,5 @@
-import { DropboxResponseError } from 'dropbox';
 import { InngestMiddleware, RetryAfterError } from 'inngest';
+import { DBXResponseError } from '@/connectors/dropbox/dbx-error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
@@ -12,23 +12,19 @@ export const rateLimitMiddleware = new InngestMiddleware({
               result: { error, ...result },
               ...context
             } = ctx;
-
-            if (
-              error instanceof DropboxResponseError &&
-              error.error.error['.tag'] === 'too_many_requests'
-            ) {
-              const { error: innerError } = error;
-              const {
-                error: { retry_after: retryAfter },
-              } = innerError;
+            if (error instanceof DBXResponseError && error.status === 429) {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- safe to assume that the error object has the retry_after property
+              const retryAfter: unknown = error.error?.error?.retry_after;
 
               return {
                 ...context,
                 result: {
                   ...result,
                   error: new RetryAfterError(
-                    `Dropbox rate limit reached by '${fn.name}'`,
-                    Number(retryAfter) * 1000,
+                    `Dropbox rate limit reached by '${fn.name}', it will be retried after ${Number(
+                      retryAfter
+                    )} seconds.`,
+                    Number(!retryAfter ? 60 : retryAfter) * 1000,
                     {
                       cause: error,
                     }

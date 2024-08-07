@@ -1,12 +1,12 @@
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { expect, test, describe, vi, beforeEach } from 'vitest';
-import { scheduleDataProtectionSyncJobs } from './schedule-folders-and-files-sync';
 import { insertOrganisations } from '@/test-utils/token';
+import { scheduleDataProtectionSyncJobs } from './schedule-folders-and-files-sync';
 
 const setup = createInngestFunctionMock(scheduleDataProtectionSyncJobs);
 
 describe('scheduleDataProtectionSyncJobs', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.setSystemTime(new Date('2024-01-20T10:00:00.007Z'));
     vi.clearAllMocks();
   });

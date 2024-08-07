@@ -33,6 +33,9 @@ export const env = z
     DROPBOX_REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry().default(5),
     DROPBOX_LIST_FILE_MEMBERS_LIMIT: zEnvInt().default(300), // UInt32(min=1, max=300)
     DROPBOX_LIST_FOLDER_MEMBERS_LIMIT: zEnvInt().default(1000), // UInt32(min=1, max=1000)
-    DROPBOX_LIST_FOLDER_BATCH_SIZE: zEnvInt().default(400), // UInt32(min=1, max=1000)
+    DROPBOX_LIST_FOLDER_BATCH_SIZE: zEnvInt().default(50), // UInt32(min=1, max=1000)
+    DROPBOX_USERS_SYNC_CRON: z.string().default('0 0 * * 1-5'),
+    DROPBOX_THIRD_PARTY_APPS_SYNC_CRON: z.string().default('0 0 * * 3'),
+    DROPBOX_DATA_PROTECTION_SYNC_CRON: z.string().default('0 0 * * 3'),
   })
   .parse(process.env);

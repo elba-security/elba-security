@@ -1,6 +1,6 @@
-import { DBXAccess } from './dbx-access';
 import { formatThirdPartyObjects } from '../utils/format-apps';
-import { DBXAppsOption } from '../types';
+import type { DBXAppsOption } from '../types';
+import { DBXAccess } from './dbx-access';
 
 export class DBXApps {
   private teamMemberId?: string;
@@ -34,12 +34,12 @@ export class DBXApps {
     const {
       result: { linked_api_apps: apps },
     } = await this.dbx.teamLinkedAppsListMemberLinkedApps({
-      team_member_id: teamMemberId!,
+      team_member_id: teamMemberId,
     });
 
     const thirdPartyAppsMap = formatThirdPartyObjects([
       {
-        team_member_id: teamMemberId!,
+        team_member_id: teamMemberId,
         linked_api_apps: apps,
       },
     ]);
@@ -57,7 +57,7 @@ export class DBXApps {
     appId: string;
   }) => {
     return this.dbx.teamLinkedAppsRevokeLinkedApp({
-      team_member_id: teamMemberId!,
+      team_member_id: teamMemberId,
       app_id: appId,
     });
   };

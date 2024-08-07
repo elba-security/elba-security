@@ -1,7 +1,7 @@
 import { expect, test, describe, vi, afterAll } from 'vitest';
-import { scheduleAppsSync } from './schedule-apps-sync';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { insertOrganisations } from '@/test-utils/token';
+import { scheduleAppsSync } from './schedule-apps-sync';
 
 const setup = createInngestFunctionMock(scheduleAppsSync);
 
@@ -17,7 +17,7 @@ describe('schedule-third-party-apps-sync-jobs', () => {
   });
 
   test('should not schedule any jobs when there are no organisations', async () => {
-    const [result, { step }] = await setup();
+    const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({ organisations: [] });
     expect(step.sendEvent).toBeCalledTimes(0);
@@ -26,9 +26,10 @@ describe('schedule-third-party-apps-sync-jobs', () => {
   test('should schedule third party apps sync jobs for available organisations', async () => {
     await insertOrganisations(3);
     vi.setSystemTime('2023-01-13T22:02:52.744Z');
-    const [result, { step }] = await setup();
+    const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
+      // eslint-disable-next-line -- this is a mock
       organisations: expect.arrayContaining(
         selectedOrganisations.map((organisationId) => ({
           organisationId,

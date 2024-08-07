@@ -1,5 +1,5 @@
-import { DBXAccess } from './dbx-access';
 import { formatUsers } from '../utils';
+import { DBXAccess } from './dbx-access';
 
 const DROPBOX_BD_USERS_BATCH_SIZE = 1000;
 

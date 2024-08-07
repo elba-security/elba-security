@@ -1,10 +1,11 @@
-import { FunctionHandler, inngest } from '@/inngest/client';
-import { InputArgWithTrigger } from '@/inngest/types';
-import { getOrganisationAccessDetails } from '../common/data';
+import { NonRetriableError } from 'inngest';
+import type { FunctionHandler } from '@/inngest/client';
+import { inngest } from '@/inngest/client';
+import type { InputArgWithTrigger } from '@/inngest/types';
 import { DBXFiles, getElba } from '@/connectors';
 import { decrypt } from '@/common/crypto';
-import { FileOrFolder } from '@/connectors/types';
-import { NonRetriableError } from 'inngest';
+import type { FileOrFolder } from '@/connectors/types';
+import { getOrganisationAccessDetails } from '../common/data';
 
 const handler: FunctionHandler = async ({
   event,
@@ -52,9 +53,10 @@ const handler: FunctionHandler = async ({
     })) as FileOrFolder;
 
     if (!fileMetadata.path_lower) {
-      return await elba.dataProtection.deleteObjects({
+      await elba.dataProtection.deleteObjects({
         ids: [sourceObjectId],
       });
+      return;
     }
 
     const sharedLinks = await dbx.fetchSharedLinksByPath({
@@ -62,10 +64,16 @@ const handler: FunctionHandler = async ({
       path,
     });
 
-    const folderOrFileToAdd = await dbx.fetchMetadataMembersAndMapDetails({
-      foldersAndFiles: [fileMetadata],
-      sharedLinks,
-    });
+    const folderOrFileToAdd =
+      fileMetadata['.tag'] === 'folder'
+        ? await dbx.fetchFoldersMetadataMembersAndMapDetails({
+            folders: [fileMetadata],
+            sharedLinks,
+          })
+        : await dbx.fetchFilesMetadataMembersAndMapDetails({
+            files: [fileMetadata],
+            sharedLinks,
+          });
 
     await elba.dataProtection.updateObjects({
       objects: folderOrFileToAdd,
@@ -81,7 +89,7 @@ export const refreshObject = inngest.createFunction(
     },
     retries: 10,
     concurrency: {
-      limit: 10,
+      limit: 5,
       key: 'event.data.organisationId',
     },
   },

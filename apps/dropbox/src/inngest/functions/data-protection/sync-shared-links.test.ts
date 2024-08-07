@@ -1,18 +1,19 @@
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { DropboxResponseError } from 'dropbox';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { NonRetriableError } from 'inngest';
+import { insertOrganisations } from '@/test-utils/token';
+import * as crypto from '@/common/crypto';
 import {
   teamMemberOnceSecondPageWithoutPagination,
   teamMemberOneFirstPage,
 } from './__mocks__/shared-links';
 import { synchronizeSharedLinks } from './sync-shared-links';
-import { insertOrganisations } from '@/test-utils/token';
-import * as crypto from '@/common/crypto';
-import { NonRetriableError } from 'inngest';
 
 const RETRY_AFTER = '300';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const teamMemberId = 'team-member-id-1';
+const syncStartedAt = 1609459200000;
 
 const setup = createInngestFunctionMock(
   synchronizeSharedLinks,
@@ -48,9 +49,12 @@ describe('fetch-shared-links', () => {
 
   test('should abort sync when organisation is not registered', async () => {
     mocks.sharingListSharedLinksMock.mockResolvedValue({});
-    const [result, { step }] = await setup({
+    const [result, { step }] = setup({
       organisationId: '00000000-0000-0000-0000-000000000010',
-      teamMemberId: 'team-member-id',
+      teamMemberId,
+      isPersonal: false,
+      isFirstSync: false,
+      syncStartedAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -79,7 +83,7 @@ describe('fetch-shared-links', () => {
       teamMemberId,
       isPersonal: false,
       isFirstSync: false,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(DropboxResponseError);
@@ -95,7 +99,7 @@ describe('fetch-shared-links', () => {
       teamMemberId,
       isPersonal: false,
       isFirstSync: false,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -105,9 +109,9 @@ describe('fetch-shared-links', () => {
       data: {
         isFirstSync: false,
         isPersonal: false,
-        organisationId: '00000000-0000-0000-0000-000000000001',
-        syncStartedAt: '2021-01-01T00:00:00.000Z',
-        teamMemberId: 'team-member-id-1',
+        organisationId,
+        syncStartedAt,
+        teamMemberId,
         cursor: 'has-more-cursor',
       },
       name: 'dropbox/data_protection.shared_links.sync_page.requested',
@@ -125,7 +129,7 @@ describe('fetch-shared-links', () => {
       isPersonal: false,
       cursor: 'has-more-cursor',
       isFirstSync: false,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -136,9 +140,9 @@ describe('fetch-shared-links', () => {
         cursor: 'has-more-cursor',
         isFirstSync: false,
         isPersonal: false,
-        organisationId: '00000000-0000-0000-0000-000000000001',
-        syncStartedAt: '2021-01-01T00:00:00.000Z',
-        teamMemberId: 'team-member-id-1',
+        organisationId,
+        syncStartedAt,
+        teamMemberId,
       },
       name: 'dropbox/data_protection.synchronize_shared_links.sync_page.completed',
     });

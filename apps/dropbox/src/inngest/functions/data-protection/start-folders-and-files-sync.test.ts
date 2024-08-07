@@ -1,15 +1,16 @@
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { DropboxResponseError } from 'dropbox';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { NonRetriableError } from 'inngest';
+import { insertOrganisations } from '@/test-utils/token';
+import * as crypto from '@/common/crypto';
 import { membersList } from '../users/__mocks__/dropbox';
 import { pathJobEvents } from './__mocks__/path-jobs-events';
 import { startFolderAndFileSync } from './start-folders-and-files-sync';
-import { insertOrganisations } from '@/test-utils/token';
-import * as crypto from '@/common/crypto';
-import { NonRetriableError } from 'inngest';
 
 const RETRY_AFTER = '300';
 const organisationId = '00000000-0000-0000-0000-000000000001';
+const syncStartedAt = 1609459200000;
 
 const elbaOptions = {
   baseUrl: 'https://api.elba.io',
@@ -30,8 +31,8 @@ const mocks = vi.hoisted(() => {
 });
 
 // Mock Dropbox sdk
-vi.mock('@/connectors/dropbox/dbx-access.ts', () => {
-  const actual = vi.importActual('dropbox');
+vi.mock('@/connectors/dropbox/dbx-access.ts', async () => {
+  const actual = await vi.importActual('dropbox');
   return {
     ...actual,
     DBXAccess: vi.fn(() => {
@@ -54,8 +55,10 @@ describe('run-user-sync-jobs', () => {
 
   test('should abort sync when organisation is not registered', async () => {
     mocks.teamMembersListV2Mock.mockResolvedValue({});
-    const [result, { step }] = await setup({
+    const [result, { step }] = setup({
       organisationId: '00000000-0000-0000-0000-000000000010',
+      isFirstSync: false,
+      syncStartedAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -82,7 +85,7 @@ describe('run-user-sync-jobs', () => {
     const [result] = setup({
       organisationId,
       isFirstSync: true,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(DropboxResponseError);
@@ -102,7 +105,7 @@ describe('run-user-sync-jobs', () => {
     const [result, { step }] = setup({
       organisationId,
       isFirstSync: false,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -125,7 +128,7 @@ describe('run-user-sync-jobs', () => {
     const [result, { step }] = setup({
       organisationId,
       isFirstSync: false,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -138,7 +141,7 @@ describe('run-user-sync-jobs', () => {
         cursor: 'cursor-1',
         isFirstSync: false,
         organisationId,
-        syncStartedAt: '2021-01-01T00:00:00.000Z',
+        syncStartedAt,
       },
       name: 'dropbox/data_protection.folder_and_files.start.sync_page.requested',
     });
@@ -159,7 +162,7 @@ describe('run-user-sync-jobs', () => {
     const [result, { step }] = setup({
       organisationId,
       isFirstSync: false,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -172,7 +175,7 @@ describe('run-user-sync-jobs', () => {
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-folder-and-files', pathJobEvents);
 
-    await expect(step.run).toBeCalledTimes(2);
-    await expect(elbaInstance?.dataProtection.deleteObjects).toBeCalledTimes(1);
+    expect(step.run).toBeCalledTimes(2);
+    expect(elbaInstance?.dataProtection.deleteObjects).toBeCalledTimes(1);
   });
 });

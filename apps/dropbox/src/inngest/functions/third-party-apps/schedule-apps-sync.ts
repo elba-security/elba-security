@@ -1,9 +1,10 @@
 import { inngest } from '@/inngest/client';
+import { env } from '@/env';
 import { getOrganisationsToSync } from '../common/data';
 
 export const scheduleAppsSync = inngest.createFunction(
   { id: 'dropbox-schedule-apps-syncs' },
-  { cron: '0 0 * * 3' },
+  { cron: env.DROPBOX_THIRD_PARTY_APPS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await getOrganisationsToSync();
     const syncStartedAt = Date.now();

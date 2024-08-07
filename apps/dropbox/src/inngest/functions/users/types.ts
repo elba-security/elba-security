@@ -1,3 +1,3 @@
-import { team } from 'dropbox';
+import type { team } from 'dropbox';
 
 export type TeamMembers = team.MembersListV2Result['members'];

@@ -1,15 +1,16 @@
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { DropboxResponseError } from 'dropbox';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { NonRetriableError } from 'inngest';
+import { insertOrganisations } from '@/test-utils/token';
+import * as crypto from '@/common/crypto';
 import { membersList } from '../users/__mocks__/dropbox';
 import { sharedLinksEvents } from './__mocks__/shared-links-events';
 import { startSharedLinkSync } from './start-shared-links-sync';
-import { insertOrganisations } from '@/test-utils/token';
-import * as crypto from '@/common/crypto';
-import { NonRetriableError } from 'inngest';
 
 const RETRY_AFTER = '300';
 const organisationId = '00000000-0000-0000-0000-000000000001';
+const syncStartedAt = 1609459200000;
 
 const setup = createInngestFunctionMock(
   startSharedLinkSync,
@@ -22,8 +23,8 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('@/connectors/dropbox/dbx-access.ts', () => {
-  const actual = vi.importActual('dropbox');
+vi.mock('@/connectors/dropbox/dbx-access.ts', async () => {
+  const actual = await vi.importActual('dropbox');
   return {
     ...actual,
     DBXAccess: vi.fn(() => {
@@ -45,8 +46,10 @@ describe('run-user-sync-jobs', () => {
 
   test('should abort sync when organisation is not registered', async () => {
     mocks.teamMembersListV2Mock.mockResolvedValue({});
-    const [result, { step }] = await setup({
+    const [result, { step }] = setup({
       organisationId: '00000000-0000-0000-0000-000000000010',
+      isFirstSync: false,
+      syncStartedAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -73,7 +76,7 @@ describe('run-user-sync-jobs', () => {
     const [result] = setup({
       organisationId,
       isFirstSync: true,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).rejects.toBeInstanceOf(DropboxResponseError);
@@ -93,7 +96,7 @@ describe('run-user-sync-jobs', () => {
     const [result, { step }] = setup({
       organisationId,
       isFirstSync: true,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -103,7 +106,7 @@ describe('run-user-sync-jobs', () => {
     sharedLinksEvents.forEach((link) => {
       expect(step.waitForEvent).toBeCalledWith(`wait-sync-shared-links`, {
         event: 'dropbox/data_protection.synchronize_shared_links.sync_page.completed',
-        timeout: '1 day',
+        timeout: '1day',
         if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${link.teamMemberId}' && async.data.isPersonal == ${link.isPersonal}`,
       });
     });
@@ -120,8 +123,8 @@ describe('run-user-sync-jobs', () => {
     expect(step.sendEvent).toBeCalledWith('start-folder-and-files-sync', {
       data: {
         isFirstSync: true,
-        organisationId: '00000000-0000-0000-0000-000000000001',
-        syncStartedAt: '2021-01-01T00:00:00.000Z',
+        organisationId,
+        syncStartedAt,
       },
       name: 'dropbox/data_protection.folder_and_files.start.sync_page.requested',
     });
@@ -141,7 +144,7 @@ describe('run-user-sync-jobs', () => {
     const [result, { step }] = setup({
       organisationId,
       isFirstSync: true,
-      syncStartedAt: '2021-01-01T00:00:00.000Z',
+      syncStartedAt,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -151,7 +154,7 @@ describe('run-user-sync-jobs', () => {
     sharedLinksEvents.forEach((link) => {
       expect(step.waitForEvent).toBeCalledWith(`wait-sync-shared-links`, {
         event: 'dropbox/data_protection.synchronize_shared_links.sync_page.completed',
-        timeout: '1 day',
+        timeout: '1day',
         if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${link.teamMemberId}' && async.data.isPersonal == ${link.isPersonal}`,
       });
     });
@@ -168,8 +171,8 @@ describe('run-user-sync-jobs', () => {
     expect(step.sendEvent).toBeCalledWith('start-shared-link-sync', {
       data: {
         isFirstSync: true,
-        organisationId: '00000000-0000-0000-0000-000000000001',
-        syncStartedAt: '2021-01-01T00:00:00.000Z',
+        organisationId,
+        syncStartedAt,
         cursor: 'cursor-1',
       },
       name: 'dropbox/data_protection.shared_link.start.sync_page.requested',

@@ -1,9 +1,10 @@
-import { inngest } from '@/inngest/client';
-import { getOrganisationAccessDetails } from '../common/data';
-import { DBXUsers, getElba } from '@/connectors';
-import { InputArgWithTrigger } from '@/inngest/types';
-import { decrypt } from '@/common/crypto';
 import { NonRetriableError } from 'inngest';
+import { inngest } from '@/inngest/client';
+import { DBXUsers, getElba } from '@/connectors';
+import type { InputArgWithTrigger } from '@/inngest/types';
+import { decrypt } from '@/common/crypto';
+import { getOrganisationAccessDetails } from '../common/data';
+import { deleteSharedLinks } from './data';
 
 const handler: Parameters<typeof inngest.createFunction>[2] = async ({
   event,
@@ -36,10 +37,6 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({
     return dbxUsers.fetchUsers(cursor);
   });
 
-  if (!team) {
-    throw new Error(`Users not found for the organisation  with ID: ${organisationId}`);
-  }
-
   const fileSyncJobs = team.members.map(({ id: teamMemberId }) => {
     return {
       ...event.data,
@@ -48,6 +45,14 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({
   });
 
   if (team.members.length > 0) {
+    const waitForEvent = fileSyncJobs.map((fileSyncJob) =>
+      step.waitForEvent(`wait-folder-and-file-sync-${fileSyncJob.teamMemberId}`, {
+        event: 'dropbox/data_protection.folder_and_files.sync_page.completed',
+        timeout: '1day',
+        if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${fileSyncJob.teamMemberId}'`,
+      })
+    );
+
     await step.sendEvent(
       'sync-folder-and-files',
       fileSyncJobs.map((fileSyncJob) => ({
@@ -55,22 +60,27 @@ const handler: Parameters<typeof inngest.createFunction>[2] = async ({
         data: fileSyncJob,
       }))
     );
+
+    await Promise.all(waitForEvent);
   }
 
   if (team.hasMore) {
-    return await step.sendEvent('start-folder-and-files-sync', {
+    await step.sendEvent('start-folder-and-files-sync', {
       name: 'dropbox/data_protection.folder_and_files.start.sync_page.requested',
       data: {
         ...event.data,
         cursor: team.nextCursor,
       },
     });
+    return;
   }
 
   await step.run('delete-objects', async () => {
     await elba.dataProtection.deleteObjects({
       syncedBefore: new Date(syncStartedAt).toISOString(),
     });
+
+    await deleteSharedLinks(organisationId);
   });
 };
 

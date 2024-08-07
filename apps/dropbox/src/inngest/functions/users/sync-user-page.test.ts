@@ -1,11 +1,11 @@
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { DropboxResponseError } from 'dropbox';
 import { afterAll, afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { NonRetriableError } from 'inngest';
 import { insertOrganisations, insertTestAccessToken } from '@/test-utils/token';
+import * as crypto from '@/common/crypto';
 import { elbaUsers, membersList } from './__mocks__/dropbox';
 import { syncUserPage } from './sync-user-page';
-import * as crypto from '@/common/crypto';
-import { NonRetriableError } from 'inngest';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const syncStartedAt = 1707068979946;
@@ -19,8 +19,8 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('@/connectors/dropbox/dbx-access', () => {
-  const actual = vi.importActual('dropbox');
+vi.mock('@/connectors/dropbox/dbx-access', async () => {
+  const actual = await vi.importActual('dropbox');
   return {
     ...actual,
     DBXAccess: vi.fn(() => {
@@ -52,7 +52,7 @@ describe('syncUserPage', () => {
     mocks.teamMembersListV2.mockResolvedValue({});
 
     const elba = spyOnElba();
-    const [result, { step }] = await setup({
+    const [result, { step }] = setup({
       organisationId: '00000000-0000-0000-0000-000000000010',
       teamMemberId: 'team-member-id',
       appId: 'app-id',
