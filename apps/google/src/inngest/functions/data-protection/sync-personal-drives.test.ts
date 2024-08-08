@@ -63,12 +63,12 @@ describe('sync-data-protection-personal-drives', () => {
     expect(step.waitForEvent).toBeCalledWith('sync-personal-drive-user-id-1-completed', {
       event: 'google/data_protection.sync.drive.completed',
       if: "async.data.organisationId == '00000000-0000-0000-0000-000000000000' && async.data.managerUserId == 'user-id-1' && async.data.driveId == null",
-      timeout: '1day',
+      timeout: '30 days',
     });
     expect(step.waitForEvent).toBeCalledWith('sync-personal-drive-user-id-2-completed', {
       event: 'google/data_protection.sync.drive.completed',
       if: "async.data.organisationId == '00000000-0000-0000-0000-000000000000' && async.data.managerUserId == 'user-id-2' && async.data.driveId == null",
-      timeout: '1day',
+      timeout: '30 days',
     });
 
     expect(step.sendEvent).toBeCalledTimes(2);

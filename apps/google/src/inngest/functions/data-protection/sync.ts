@@ -51,7 +51,7 @@ export const syncDataProtection = inngest.createFunction(
       step.waitForEvent(`sync-${driveType}-drives`, {
         event: `google/data_protection.sync.drives.${driveType}.completed`,
         if: `async.data.organisationId == '${organisationId}'`,
-        timeout: '1day',
+        timeout: '30 days',
       })
     );
 
