@@ -10,12 +10,12 @@ import { decrypt } from '@/common/crypto';
 import { type AsanaUser } from '@/connectors/asana/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUser = (user: AsanaUser): User => ({
+const formatElbaUser = ({ user, ownerId }: { user: AsanaUser; ownerId: string }): User => ({
   id: user.gid,
   displayName: user.name,
   email: user.email,
   additionalEmails: [],
-  isSuspendable: true,
+  isSuspendable: user.gid !== ownerId,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -47,6 +47,7 @@ export const syncUsers = inngest.createFunction(
     const [organisation] = await db
       .select({
         token: organisationsTable.accessToken,
+        ownerId: organisationsTable.ownerId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -57,11 +58,12 @@ export const syncUsers = inngest.createFunction(
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.token);
+    const ownerId = organisation.ownerId;
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ accessToken: token, page });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers.map((user) => formatElbaUser({ user, ownerId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

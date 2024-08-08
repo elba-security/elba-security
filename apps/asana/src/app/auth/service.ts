@@ -2,6 +2,7 @@ import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/asana/auth';
+import { getOwnerId } from '@/connectors/asana/users';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
@@ -17,6 +18,7 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn } = await getToken(code);
+  const { ownerId } = await getOwnerId({ accessToken });
 
   const encryptedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
@@ -27,6 +29,7 @@ export const setupOrganisation = async ({
       id: organisationId,
       accessToken: encryptedAccessToken,
       refreshToken: encodedRefreshToken,
+      ownerId,
       region,
     })
     .onConflictDoUpdate({
@@ -34,6 +37,7 @@ export const setupOrganisation = async ({
       set: {
         accessToken: encryptedAccessToken,
         refreshToken: encodedRefreshToken,
+        ownerId,
         region,
       },
     });

@@ -1,5 +1,5 @@
 {
-  "id": "299a3c5a-9e1c-41cc-a66e-8b87e3d9c49e",
+  "id": "a35b2a65-60c0-4db7-abdc-06e24ab06c20",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -29,6 +29,12 @@
         },
         "access_token": {
           "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "owner_id": {
+          "name": "owner_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
