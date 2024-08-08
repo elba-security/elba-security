@@ -42,12 +42,12 @@ describe('sync-data-protection', () => {
     expect(step.waitForEvent).toBeCalledWith('sync-personal-drives', {
       event: 'google/data_protection.sync.drives.personal.completed',
       if: "async.data.organisationId == '00000000-0000-0000-0000-000000000000'",
-      timeout: '1day',
+      timeout: '30 days',
     });
     expect(step.waitForEvent).toBeCalledWith('sync-shared-drives', {
       event: 'google/data_protection.sync.drives.shared.completed',
       if: "async.data.organisationId == '00000000-0000-0000-0000-000000000000'",
-      timeout: '1day',
+      timeout: '30 days',
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);

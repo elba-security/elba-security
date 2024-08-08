@@ -69,7 +69,7 @@ export const syncDataProtectionPersonalDrives = inngest.createFunction(
         step.waitForEvent(`sync-personal-drive-${user.id}-completed`, {
           event: 'google/data_protection.sync.drive.completed',
           if: `async.data.organisationId == '${organisationId}' && async.data.managerUserId == '${user.id}' && async.data.driveId == null`,
-          timeout: '1day',
+          timeout: '30 days',
         })
       );
 
