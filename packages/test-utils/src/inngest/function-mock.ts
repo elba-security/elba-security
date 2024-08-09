@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- needed for efficient type extraction */
-import type { Mock } from 'vitest';
-import { vi } from 'vitest';
 import { StepError, NonRetriableError, RetryAfterError } from 'inngest';
-import type { GetEvents, InngestFunction } from 'inngest';
+import type { EventPayload, GetEvents, InngestFunction } from 'inngest';
+import { type Mock, vi } from 'vitest';
 
 type AnyInngestFunction = InngestFunction.Any;
 
@@ -17,7 +16,7 @@ type ExtractInngestClient<F extends AnyInngestFunction> = F extends InngestFunct
   ? Client
   : never;
 
-type ExtractFunctionEventTriggers<F> = F extends InngestFunction<
+export type ExtractFunctionEventTriggers<F> = F extends InngestFunction<
   any,
   any,
   any,
@@ -28,6 +27,11 @@ type ExtractFunctionEventTriggers<F> = F extends InngestFunction<
   ? Triggers[number]['event']
   : never;
 
+export type ExtractFunctionEvents<
+  F extends AnyInngestFunction,
+  E extends ExtractFunctionEventTriggers<F> = ExtractFunctionEventTriggers<F>,
+> = GetEvents<ExtractInngestClient<F>, true>[E];
+
 type MockSetupReturns<
   F extends AnyInngestFunction,
   EventName extends ExtractFunctionEventTriggers<F> | undefined,
@@ -37,9 +41,15 @@ type MockSetupReturns<
     event: {
       ts: number;
       data: EventName extends ExtractFunctionEventTriggers<F>
-        ? GetEvents<ExtractInngestClient<F>>[EventName & string]['data']
+        ? ExtractFunctionEvents<F, EventName & string>['data']
         : never;
     };
+    events: {
+      ts: number;
+      data: EventName extends ExtractFunctionEventTriggers<F>
+        ? ExtractFunctionEvents<F, EventName & string>['data']
+        : never;
+    }[];
     step: {
       run: Mock<unknown[], unknown>;
       sendEvent: Mock<unknown[], unknown>;
@@ -52,12 +62,13 @@ type MockSetupReturns<
 
 type MockSetup<
   F extends AnyInngestFunction,
+  Data extends
+    | ExtractFunctionEvents<F, EventName & string>['data']
+    | ExtractFunctionEvents<F, EventName & string>[],
   EventName extends ExtractFunctionEventTriggers<F> | undefined,
 > = EventName extends string
   ? // signature for event function
-    (
-      data: GetEvents<ExtractInngestClient<F>>[EventName & string]['data']
-    ) => MockSetupReturns<F, EventName>
+    (data: Data) => MockSetupReturns<F, EventName>
   : // signature for cron function
     () => MockSetupReturns<F, EventName>;
 
@@ -66,13 +77,16 @@ const emptyLog = () => void 0;
 export const createInngestFunctionMock =
   <
     F extends AnyInngestFunction,
-    EventName extends ExtractFunctionEventTriggers<F> | undefined = undefined,
+    Data extends
+      | ExtractFunctionEvents<F, EventName & string>['data']
+      | ExtractFunctionEvents<F, EventName & string>[],
+    EventName extends ExtractFunctionEventTriggers<F> | undefined = ExtractFunctionEventTriggers<F>,
   >(
     func: F,
     eventName?: EventName
-  ): MockSetup<F, EventName> =>
+  ): MockSetup<F, Data, EventName> =>
   // @ts-expect-error -- this is a mock
-  (data?: GetEvents<ExtractInngestClient<F>>[EventName & string]['data']) => {
+  (data?: Data) => {
     const step = {
       run: vi.fn().mockImplementation(async (name: string, stepHandler: () => Promise<unknown>) => {
         try {
@@ -86,7 +100,21 @@ export const createInngestFunctionMock =
           throw error;
         }
       }),
-      sendEvent: vi.fn().mockResolvedValue(undefined),
+      sendEvent: vi
+        .fn()
+        .mockImplementation(
+          async (
+            id: string,
+            eventPayload: EventPayload | EventPayload[]
+          ): Promise<{ ids: string[] }> => {
+            return Promise.resolve({
+              ids: Array.from(
+                { length: Array.isArray(eventPayload) ? eventPayload.length : 1 },
+                (_, index) => `${id}-${index + 1}`
+              ),
+            });
+          }
+        ),
       waitForEvent: vi.fn().mockResolvedValue(undefined),
       sleepUntil: vi.fn().mockResolvedValue(undefined),
       invoke: vi
@@ -100,12 +128,17 @@ export const createInngestFunctionMock =
         ),
     };
     const ts = Date.now();
+    let event: unknown, events: unknown[];
+    if (Array.isArray(data)) {
+      event = data[0];
+      events = data;
+    } else {
+      event = { name: eventName, ts, data };
+      events = [event];
+    }
     const context = {
-      event: {
-        name: eventName,
-        ts,
-        data,
-      },
+      event,
+      events,
       step,
       logger: {
         info: emptyLog,
