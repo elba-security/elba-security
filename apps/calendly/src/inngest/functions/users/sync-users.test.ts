@@ -93,6 +93,7 @@ describe('sync-users', () => {
           id: '00000000-0000-0000-0000-000000000090',
           role: 'user',
           isSuspendable: true,
+          url: 'https://calendly.com/app/admin/users',
         },
         {
           additionalEmails: [],
@@ -101,6 +102,7 @@ describe('sync-users', () => {
           role: 'user',
           id: '00000000-0000-0000-0000-000000000091',
           isSuspendable: true,
+          url: 'https://calendly.com/app/admin/users',
         },
       ],
     });
@@ -135,6 +137,7 @@ describe('sync-users', () => {
           role: 'user',
           id: '00000000-0000-0000-0000-000000000090',
           isSuspendable: true,
+          url: 'https://calendly.com/app/admin/users',
         },
         {
           additionalEmails: [],
@@ -143,6 +146,7 @@ describe('sync-users', () => {
           role: 'user',
           id: '00000000-0000-0000-0000-000000000091',
           isSuspendable: true,
+          url: 'https://calendly.com/app/admin/users',
         },
       ],
     });

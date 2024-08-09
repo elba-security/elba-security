@@ -22,7 +22,8 @@ const formatElbaUser = (user: CalendlyUser): User => ({
   email: user.user.email,
   role: user.role,
   additionalEmails: [],
-  isSuspendable: true,
+  isSuspendable: user.role !== 'owner',
+  url: 'https://calendly.com/app/admin/users',
 });
 
 export const syncUsers = inngest.createFunction(
