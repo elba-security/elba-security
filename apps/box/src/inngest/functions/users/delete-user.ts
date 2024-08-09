@@ -22,7 +22,7 @@ export const deleteUser = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        token: organisationsTable.accessToken,
+        accessToken: organisationsTable.accessToken,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -30,11 +30,11 @@ export const deleteUser = inngest.createFunction(
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve ${userId}`);
     }
-    const token = await decrypt(organisation.token);
+    const accessToken = await decrypt(organisation.accessToken);
 
     await deleteBoxUser({
       userId,
-      token,
+      accessToken,
     });
   }
 );

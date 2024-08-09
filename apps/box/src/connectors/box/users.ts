@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { BoxError } from '../common/error';
 
@@ -19,20 +20,22 @@ const boxResponseSchema = z.object({
 });
 
 export type GetUsersParams = {
-  token: string;
+  accessToken: string;
   nextPage?: string | null;
 };
 
 export type DeleteUserParams = {
   userId: string;
-  token: string;
+  accessToken: string;
 };
 
-const count = env.BOX_USERS_SYNC_BATCH_SIZE;
+const ownerIdResponseSchema = z.object({
+  id: z.string(),
+});
 
-export const getUsers = async ({ token, nextPage }: GetUsersParams) => {
+export const getUsers = async ({ accessToken, nextPage }: GetUsersParams) => {
   const url = new URL(`${env.BOX_API_BASE_URL}/2.0/users`);
-  url.searchParams.append('limit', String(count));
+  url.searchParams.append('limit', String(env.BOX_USERS_SYNC_BATCH_SIZE));
 
   if (nextPage) {
     url.searchParams.append('offset', String(nextPage));
@@ -42,7 +45,7 @@ export const getUsers = async ({ token, nextPage }: GetUsersParams) => {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 
@@ -75,18 +78,49 @@ export const getUsers = async ({ token, nextPage }: GetUsersParams) => {
   };
 };
 
-export const deleteUser = async ({ userId, token }: DeleteUserParams) => {
+export const deleteUser = async ({ userId, accessToken }: DeleteUserParams) => {
   const url = `${env.BOX_API_BASE_URL}/2.0/users/${userId}`;
 
   const response = await fetch(url, {
-    method: 'DELETE',
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${accessToken}`,
     },
+    body: JSON.stringify({
+      status: 'inactive',
+    }),
   });
 
   if (!response.ok && response.status !== 404) {
-    throw new BoxError(`Could not delete user with Id: ${userId}`, { response });
+    throw new BoxError(`Could not deactivate user with Id: ${userId}`, { response });
   }
+};
+
+export const getOwnerId = async ({ accessToken }: { accessToken: string }) => {
+  const url = new URL(`${env.BOX_API_BASE_URL}/2.0/users/me`);
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new BoxError('Could not retrieve owner id', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = ownerIdResponseSchema.safeParse(resData);
+  if (!result.success) {
+    logger.error('Invalid Box owner id response', { resData });
+    throw new BoxError('Invalid Box owner id response');
+  }
+
+  return {
+    ownerId: String(result.data.id),
+  };
 };
