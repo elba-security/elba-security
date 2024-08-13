@@ -6,11 +6,19 @@ import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 import { getOrganisation } from '@/database/organisations';
 
-const formatElbaUser = (user: DropboxTeamMember): User => ({
+const formatElbaUser = ({
+  adminTeamMemberId,
+  user,
+}: {
+  adminTeamMemberId: string;
+  user: DropboxTeamMember;
+}): User => ({
   id: user.profile.team_member_id,
   displayName: user.profile.name.display_name,
   email: user.profile.email,
   additionalEmails: user.profile.secondary_emails.map((email) => email.email),
+  isSuspendable: user.profile.team_member_id !== adminTeamMemberId,
+  url: 'https://www.dropbox.com/team/admin/members',
 });
 
 export const syncUsers = inngest.createFunction(
@@ -59,7 +67,9 @@ export const syncUsers = inngest.createFunction(
       }
 
       if (validUsers.length > 0) {
-        const users = validUsers.map(formatElbaUser);
+        const users = validUsers.map((user) =>
+          formatElbaUser({ adminTeamMemberId: organisation.adminTeamMemberId, user })
+        );
         await elba.users.update({ users });
       }
 
