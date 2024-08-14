@@ -69,12 +69,14 @@ describe('sync-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: '0',
+          isSuspendable: true,
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: '1',
+          isSuspendable: true,
         },
       ],
     });
@@ -119,12 +121,14 @@ describe('sync-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: '0',
+          isSuspendable: true,
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: '1',
+          isSuspendable: true,
         },
       ],
     });

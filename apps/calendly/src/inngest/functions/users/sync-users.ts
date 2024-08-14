@@ -22,6 +22,7 @@ const formatElbaUser = (user: CalendlyUser): User => ({
   email: user.user.email,
   role: user.role,
   additionalEmails: [],
+  isSuspendable: true,
 });
 
 export const syncUsers = inngest.createFunction(

@@ -67,7 +67,6 @@ export const syncDataProtectionSharedDrives = inngest.createFunction(
           const managerPermissions = await listAllGoogleSharedDriveManagerPermissions({
             auth: authClient,
             fileId: sharedDriveId,
-            useDomainAdminAccess: true,
             pageSize: 100, // Set pageSize to max value
           });
 
@@ -162,7 +161,7 @@ export const syncDataProtectionSharedDrives = inngest.createFunction(
         step.waitForEvent(`sync-shared-drive-${sharedDriveId}-completed`, {
           event: 'google/data_protection.sync.drive.completed',
           if: `async.data.organisationId == '${organisationId}' && async.data.managerUserId == '${managerUserId}' && async.data.driveId == '${sharedDriveId}'`,
-          timeout: '1day',
+          timeout: '30 days',
         })
       );
 

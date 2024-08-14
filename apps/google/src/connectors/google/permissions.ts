@@ -34,10 +34,14 @@ const googleFilePermissionFields = [
 
 const googleSharedDriveManagerPermissionFields = ['emailAddress', 'id', 'role', 'type'];
 
-export const deleteGooglePermission = async (
-  deletePermissionParams: drive.Params$Resource$Permissions$Delete
-) => {
-  return new drive.Drive({}).permissions.delete(deletePermissionParams);
+export const deleteGooglePermission = async ({
+  supportsAllDrives = true,
+  ...deletePermissionParams
+}: drive.Params$Resource$Permissions$Delete) => {
+  return new drive.Drive({}).permissions.delete({
+    ...deletePermissionParams,
+    supportsAllDrives,
+  });
 };
 
 const listPermissions = async <T>(
