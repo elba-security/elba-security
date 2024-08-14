@@ -945,8 +945,8 @@ importers:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
-        specifier: 3.19.11
-        version: 3.19.11(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4)(typescript@5.5.3)
+        specifier: 3.22.2
+        version: 3.22.2(hono@4.3.2)(next@14.2.4)(typescript@5.5.3)
       next:
         specifier: 14.2.4
         version: 14.2.4(react-dom@18.2.0)(react@18.2.0)
