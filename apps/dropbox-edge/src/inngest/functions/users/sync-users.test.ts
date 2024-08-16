@@ -99,12 +99,16 @@ describe('synchronize-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.com',
           id: 'id-0',
+          isSuspendable: true,
+          url: 'https://www.dropbox.com/team/admin/members',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.com',
           id: 'id-1',
+          isSuspendable: true,
+          url: 'https://www.dropbox.com/team/admin/members',
         },
       ],
     });
@@ -138,12 +142,16 @@ describe('synchronize-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.com',
           id: 'id-0',
+          isSuspendable: true,
+          url: 'https://www.dropbox.com/team/admin/members',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.com',
           id: 'id-1',
+          isSuspendable: true,
+          url: 'https://www.dropbox.com/team/admin/members',
         },
       ],
     });
