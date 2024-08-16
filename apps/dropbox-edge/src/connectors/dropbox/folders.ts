@@ -22,8 +22,8 @@ export const getFoldersPermissions = async ({
 }) => {
   const permissions: FolderFilePermissions = new Map();
   await Promise.all(
-    folders.map(async ({ id: folderId, shared_folder_id: shareFolderId }: Folder) => {
-      if (!shareFolderId) {
+    folders.map(async ({ id: folderId, sharing_info: sharingInfo }: Folder) => {
+      if (!sharingInfo) {
         throw new Error('Missing shared_folder_id');
       }
 
@@ -50,7 +50,7 @@ export const getFoldersPermissions = async ({
               nextCursor
                 ? { cursor: nextCursor }
                 : {
-                    shared_folder_id: shareFolderId,
+                    shared_folder_id: sharingInfo.shared_folder_id,
                     limit: env.DROPBOX_LIST_FOLDER_MEMBERS_LIMIT,
                   }
             ),
@@ -105,9 +105,9 @@ export const getFoldersMetadata = async ({
   >();
 
   const metadataResult = await Promise.all(
-    folders.map(async ({ shared_folder_id: shareFolderId }: Folder) => {
-      if (!shareFolderId) {
-        throw new Error('Missing shared_folder_id');
+    folders.map(async ({ sharing_info: sharingInfo }: Folder) => {
+      if (!sharingInfo) {
+        throw new Error('Missing sharing folder Info');
       }
 
       const response = await fetch(`${env.DROPBOX_API_BASE_URL}/2/sharing/get_folder_metadata`, {
@@ -118,7 +118,7 @@ export const getFoldersMetadata = async ({
           'Dropbox-API-Select-User': teamMemberId,
         },
         body: JSON.stringify({
-          shared_folder_id: shareFolderId,
+          shared_folder_id: sharingInfo.shared_folder_id,
           actions: [],
         }),
       });
@@ -167,12 +167,16 @@ export const getFoldersMetadataMembersAndMapDetails = async ({
   ]);
 
   const mappedResult = folders.map((entry) => {
+    if (!entry.sharing_info) {
+      throw new Error('Sharing info not found');
+    }
+
     const permissions = foldersPermissions.get(entry.id);
-    const metadata = foldersMetadata.get(entry.shared_folder_id);
+    const metadata = foldersMetadata.get(entry.sharing_info.shared_folder_id);
 
     if (sharedLinks.length > 0 && permissions) {
       permissions.anyone = sharedLinks.filter(({ id }) => {
-        const isSharedFolder = id === `ns:${entry.shared_folder_id}`; // if the folder is shared with anyone the id will be ns:shared_folder_id
+        const isSharedFolder = id === `ns:${entry.sharing_info?.shared_folder_id}`; // if the folder is shared with anyone the id will be ns:shared_folder_id
         const isDirectEntry = id === entry.id; // if the folder is not shared with anyone, shared link id will be the folder id
         return isSharedFolder || isDirectEntry;
       });

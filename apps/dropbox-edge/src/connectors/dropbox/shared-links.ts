@@ -97,13 +97,15 @@ export const getSharedLinks = async ({
 export const getSharedLinksOnRefresh = async ({
   accessToken,
   teamMemberId,
-  isAdmin,
+  isPersonal,
   pathRoot,
+  path,
 }: {
   accessToken: string;
   teamMemberId: string;
-  isAdmin: boolean;
+  isPersonal: boolean;
   pathRoot: string | null;
+  path: string;
 }) => {
   const validSharedLinks: SharedLink[] = [];
   let hasNextCursor: boolean;
@@ -113,7 +115,7 @@ export const getSharedLinksOnRefresh = async ({
     'Content-Type': 'application/json',
     Authorization: `Bearer ${accessToken}`,
     'Dropbox-API-Select-User': teamMemberId,
-    ...(isAdmin && {
+    ...(!isPersonal && {
       'Dropbox-API-Path-Root': `{".tag": "root", "root": "${pathRoot}"}`,
     }),
   };
@@ -124,6 +126,7 @@ export const getSharedLinksOnRefresh = async ({
       headers,
       body: JSON.stringify({
         cursor: nextCursor,
+        path,
       }),
     });
 
@@ -143,7 +146,10 @@ export const getSharedLinksOnRefresh = async ({
         continue;
       }
 
-      validSharedLinks.push(linkResult.data);
+      validSharedLinks.push({
+        ...linkResult.data,
+        id: path,
+      });
     }
 
     nextCursor = cursor;

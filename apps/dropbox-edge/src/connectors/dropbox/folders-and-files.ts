@@ -19,6 +19,7 @@ export const fileSchema = z.object({
   path_lower: z.string().optional(),
   server_modified: z.string(),
   content_hash: z.string().optional(),
+  has_explicit_shared_members: z.boolean().optional(),
 });
 
 export type File = z.infer<typeof fileSchema>;

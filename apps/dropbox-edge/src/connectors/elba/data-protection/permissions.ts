@@ -8,7 +8,9 @@ export type FolderAndFilePermissions = {
   display_name?: string;
   type: DataProtectionPermission['type'];
   role: UserRole;
-  metadata?: unknown;
+  metadata?: {
+    sharedLinks?: string[];
+  };
 };
 
 export const formatPermissions = ({ users, invitees, anyone }: GeneralFolderFilePermissions) => {

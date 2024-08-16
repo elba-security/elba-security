@@ -266,7 +266,6 @@ export const getFilesMetadataMembersAndMapDetails = async ({
 
     if (metadata && permissions) {
       const formattedPermissions = formatPermissions(permissions);
-
       return {
         ...entry,
         metadata,

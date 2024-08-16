@@ -50,16 +50,23 @@ export const syncFoldersAndFiles = inngest.createFunction(
       ),
     });
 
+    const hasSharedLinks = (fileId: string) => sharedLinks.find((link) => link.id === fileId);
+
     const { folders, files } = foldersAndFiles.reduce<{
       folders: Folder[];
       files: File[];
     }>(
       (acc, entry) => {
+        // Ignore folders that are not shared
         if (entry['.tag'] === 'folder' && entry.sharing_info?.shared_folder_id) {
           acc.folders.push(entry);
         }
 
-        if (entry['.tag'] === 'file') {
+        // Ignore files that are not shared
+        if (
+          entry['.tag'] === 'file' &&
+          (entry.has_explicit_shared_members || hasSharedLinks(entry.id))
+        ) {
           acc.files.push(entry);
         }
 

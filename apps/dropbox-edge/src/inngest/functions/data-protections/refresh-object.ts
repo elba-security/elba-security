@@ -56,22 +56,25 @@ export const refreshObject = inngest.createFunction(
       accessToken: decryptedAccessToken,
       teamMemberId: ownerId,
       pathRoot,
-      isAdmin: !isPersonal,
+      isPersonal,
+      path,
     });
+
+    const entityDetails = {
+      accessToken: decryptedAccessToken,
+      teamMemberId: ownerId,
+      sharedLinks,
+    };
 
     const folderOrFileToAdd =
       fileMetadata['.tag'] === 'folder'
         ? await getFoldersMetadataMembersAndMapDetails({
-            accessToken: decryptedAccessToken,
-            teamMemberId: ownerId,
+            ...entityDetails,
             folders: [fileMetadata],
-            sharedLinks,
           })
         : await getFilesMetadataMembersAndMapDetails({
-            accessToken: decryptedAccessToken,
-            teamMemberId: ownerId,
+            ...entityDetails,
             files: [fileMetadata],
-            sharedLinks,
           });
 
     await elba.dataProtection.updateObjects({

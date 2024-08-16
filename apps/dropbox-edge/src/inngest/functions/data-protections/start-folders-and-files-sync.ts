@@ -2,7 +2,7 @@ import { decrypt } from '@/common/crypto';
 import { getUsers } from '@/connectors/dropbox/users';
 import { createElbaClient } from '@/connectors/elba/client';
 import { getOrganisation } from '@/database/organisations';
-// import { deleteSharedLinks } from '@/database/shared-links';
+import { deleteSharedLinks } from '@/database/shared-links';
 import { inngest } from '@/inngest/client';
 
 export const startFolderAndFileSync = inngest.createFunction(
@@ -71,7 +71,7 @@ export const startFolderAndFileSync = inngest.createFunction(
       await elba.dataProtection.deleteObjects({
         syncedBefore: new Date(syncStartedAt).toISOString(),
       });
-      // await deleteSharedLinks(organisationId);
+      await deleteSharedLinks(organisationId);
     });
   }
 );
