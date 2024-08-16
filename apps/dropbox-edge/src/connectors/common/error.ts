@@ -20,7 +20,7 @@ export class DropboxError extends Error {
   ): Promise<DropboxError> {
     let errorText: string | null = null;
     try {
-      errorText = await response.text();
+      errorText = await response.clone().text();
     } catch (e) {
       errorText = response.statusText;
     }
