@@ -42,15 +42,6 @@ export const syncItems = inngest.createFunction(
     const { siteId, driveId, isFirstSync, folderId, permissionIds, skipToken, organisationId } =
       event.data;
 
-    if (!isFirstSync) {
-      await step.sendEvent('sync-ignored', {
-        name: 'sharepoint/items.sync.completed',
-        data: { organisationId, folderId, driveId },
-      });
-
-      return { status: 'ignored' };
-    }
-
     const [organisation] = await db
       .select({
         token: organisationsTable.token,
