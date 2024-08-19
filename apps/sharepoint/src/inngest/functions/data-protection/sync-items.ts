@@ -14,7 +14,7 @@ export const syncItems = inngest.createFunction(
   {
     id: 'sharepoint-sync-items',
     concurrency: {
-      key: 'event.data.organisationId + "-" + event.data.isFirstSync',
+      key: 'event.data.organisationId',
       limit: env.MICROSOFT_DATA_PROTECTION_ITEMS_SYNC_CONCURRENCY,
     },
     cancelOn: [
