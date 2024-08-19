@@ -14,9 +14,6 @@ export const createSubscription = inngest.createFunction(
       key: 'event.data.siteId',
       limit: env.MICROSOFT_CREATE_SUBSCRIPTION_CONCURRENCY,
     },
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     cancelOn: [
       {
         event: 'sharepoint/app.uninstalled',

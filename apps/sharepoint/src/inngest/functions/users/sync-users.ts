@@ -18,9 +18,6 @@ const formatElbaUser = (user: MicrosoftUser): User => ({
 export const syncUsers = inngest.createFunction(
   {
     id: 'sharepoint-sync-users',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     concurrency: {
       key: 'event.data.organisationId',
       limit: 1,

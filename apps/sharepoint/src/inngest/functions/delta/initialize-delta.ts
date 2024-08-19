@@ -14,9 +14,6 @@ export const initializeDelta = inngest.createFunction(
       key: 'event.data.siteId',
       limit: 1,
     },
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     cancelOn: [
       {
         event: 'sharepoint/app.uninstalled',
