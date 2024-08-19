@@ -10,9 +10,6 @@ import { env } from '@/common/env';
 export const syncDrives = inngest.createFunction(
   {
     id: 'sharepoint-sync-drives',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     concurrency: {
       key: 'event.data.organisationId',
       limit: env.MICROSOFT_DATA_PROTECTION_SYNC_CONCURRENCY,

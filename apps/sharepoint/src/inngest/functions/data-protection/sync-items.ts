@@ -13,9 +13,6 @@ import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
 export const syncItems = inngest.createFunction(
   {
     id: 'sharepoint-sync-items',
-    priority: {
-      run: 'event.data.isFirstSync ? 600 : 0',
-    },
     concurrency: {
       key: 'event.data.organisationId',
       limit: env.MICROSOFT_DATA_PROTECTION_ITEMS_SYNC_CONCURRENCY,
@@ -44,6 +41,15 @@ export const syncItems = inngest.createFunction(
   async ({ event, step }) => {
     const { siteId, driveId, isFirstSync, folderId, permissionIds, skipToken, organisationId } =
       event.data;
+
+    if (!isFirstSync) {
+      await step.sendEvent('sync-ignored', {
+        name: 'sharepoint/items.sync.completed',
+        data: { organisationId, folderId, driveId },
+      });
+
+      return { status: 'ignored' };
+    }
 
     const [organisation] = await db
       .select({
