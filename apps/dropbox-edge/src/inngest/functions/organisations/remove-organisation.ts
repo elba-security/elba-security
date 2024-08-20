@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { organisationsTable, sharedLinksTable } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { createElbaClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
 
@@ -42,8 +42,6 @@ export const removeOrganisation = inngest.createFunction(
 
     await elba.connectionStatus.update({ hasError: true });
 
-    // Delete Shared Links(If exist)
-    await db.delete(sharedLinksTable).where(eq(organisationsTable.id, organisationId));
     await db.delete(organisationsTable).where(eq(organisationsTable.id, organisationId));
   }
 );

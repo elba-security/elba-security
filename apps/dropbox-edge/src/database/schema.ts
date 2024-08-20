@@ -18,7 +18,12 @@ export const sharedLinksTable = pgTable(
   {
     id: text('id').notNull(),
     url: text('url').notNull(),
-    organisationId: uuid('organisation_id').notNull(),
+    organisationId: uuid('organisation_id')
+      .references(() => organisationsTable.id, {
+        onDelete: 'cascade',
+        onUpdate: 'restrict',
+      })
+      .notNull(),
     teamMemberId: text('team_member_id').notNull(),
     linkAccessLevel: text('link_access_level').notNull(),
     pathLower: text('path_lower').notNull(),

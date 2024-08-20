@@ -16,7 +16,8 @@ export const usersTable = pgTable(
     id: text('id').notNull(),
     organisationId: uuid('organisation_id')
       .notNull()
-      .references(() => organisationsTable.id, { onDelete: 'cascade' }),
+      .references(() => organisationsTable.id, { onDelete: 'cascade' })
+      .notNull(),
     lastSyncAt: timestamp('last_sync_at').notNull(),
     publicName: text('public_name').notNull(),
     displayName: text('display_name'),
