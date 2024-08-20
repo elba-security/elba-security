@@ -105,7 +105,7 @@ const teamMemberSchema = z.object({
       display_name: z.string().min(1),
     }),
     status: z.object({
-      '.tag': z.string(), // z.union([z.literal('active'), z.literal('suspended')]),
+      '.tag': z.union([z.literal('active'), z.literal('suspended')]),
     }),
     secondary_emails: z
       .array(
