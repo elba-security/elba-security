@@ -818,7 +818,7 @@ importers:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
 
-  apps/dropbox-edge:
+  apps/dropbox:
     dependencies:
       '@elba-security/config':
         specifier: workspace:*
