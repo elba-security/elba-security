@@ -832,6 +832,9 @@ importers:
       '@elba-security/nextjs':
         specifier: workspace:*
         version: link:../../packages/nextjs
+      '@elba-security/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       '@elba-security/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
