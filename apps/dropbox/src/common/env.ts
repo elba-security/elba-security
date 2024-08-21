@@ -11,7 +11,7 @@ export const env = z
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
-    DROPBOX_API_BASE_URL: z.string().url().default('https://api.dropboxapi.com/2'),
+    DROPBOX_API_BASE_URL: z.string().url().default('https://api.dropboxapi.com'),
     DROPBOX_APP_INSTALL_URL: z.string().url().default('https://www.dropbox.com/oauth2/authorize'),
     DROPBOX_CLIENT_ID: z.string(),
     DROPBOX_CLIENT_SECRET: z.string(),
