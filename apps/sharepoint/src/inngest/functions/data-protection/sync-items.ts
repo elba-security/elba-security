@@ -26,7 +26,7 @@ export const syncItems = inngest.createFunction(
         match: 'data.organisationId',
       },
       {
-        event: 'sharepoint/app.uninstalled',
+        event: 'sharepoint/app.installed',
         match: 'data.organisationId',
       },
     ],
