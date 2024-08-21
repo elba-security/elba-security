@@ -31,6 +31,7 @@ export class DropboxError extends Error {
     const errorDetails = {
       status: this.response.status,
       statusText: this.response.statusText,
+      source: this.response.url,
       cause: this.cause,
     };
     // eslint-disable-next-line -- ignore-no-console
