@@ -26,7 +26,7 @@ export const unauthorizedMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (!(error instanceof DropboxError) || error.response?.status !== 401) {
+            if (!(error instanceof DropboxError) || error.response.status !== 401) {
               return;
             }
 
