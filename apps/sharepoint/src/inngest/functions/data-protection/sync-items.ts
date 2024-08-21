@@ -3,12 +3,15 @@ import { NonRetriableError } from 'inngest';
 import { env } from '@/common/env';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
-import { getItems } from '@/connectors/microsoft/sharepoint/items';
 import { createElbaClient } from '@/connectors/elba/client';
 import { getAllItemPermissions } from '@/connectors/microsoft/sharepoint/permissions';
 import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
+import { getDeltaItems } from '@/connectors/microsoft/delta/delta';
+import { createSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
+import { type MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
+import { parseItemsInheritedPermissions } from './common/helpers';
 
 export const syncItems = inngest.createFunction(
   {
@@ -28,19 +31,18 @@ export const syncItems = inngest.createFunction(
       },
     ],
     onFailure: async ({ event, step }) => {
-      const { organisationId, driveId, folderId } = event.data.event.data;
+      const { organisationId, driveId } = event.data.event.data;
 
       await step.sendEvent('items-sync-failed', {
         name: 'sharepoint/items.sync.completed',
-        data: { organisationId, driveId, folderId },
+        data: { organisationId, driveId },
       });
     },
     retries: 5,
   },
   { event: 'sharepoint/items.sync.triggered' },
   async ({ event, step }) => {
-    const { siteId, driveId, isFirstSync, folderId, permissionIds, skipToken, organisationId } =
-      event.data;
+    const { siteId, driveId, skipToken, organisationId } = event.data;
 
     const [organisation] = await db
       .select({
@@ -56,96 +58,121 @@ export const syncItems = inngest.createFunction(
 
     const token = await decrypt(organisation.token);
 
-    const { items, nextSkipToken } = await step.run('paginate', async () => {
-      const result = await getItems({ token, siteId, driveId, folderId, skipToken });
-
-      const itemsPermissions = await Promise.all(
-        result.items.map(async (item) => {
-          const permissions = await getAllItemPermissions({
-            token,
-            siteId,
-            driveId,
-            itemId: item.id,
-          });
-
-          return { item, permissions };
-        })
-      );
-
-      return { items: itemsPermissions, nextSkipToken: result.nextSkipToken };
-    });
-
-    const folders = items.filter(({ item }) => item.folder?.childCount);
-    if (folders.length) {
-      const eventsToWait = folders.map(async ({ item }) =>
-        step.waitForEvent(`wait-for-folders-complete-${item.id}`, {
-          event: 'sharepoint/items.sync.completed',
-          timeout: '30d',
-          if: `async.data.organisationId == '${organisationId}' && async.data.driveId == '${driveId}' && async.data.folderId == '${item.id}'`,
-        })
-      );
-
-      await step.sendEvent(
-        'sync-folders-items',
-        folders.map(({ item, permissions }) => ({
-          name: 'sharepoint/items.sync.triggered',
-          data: {
-            siteId,
-            driveId,
-            isFirstSync,
-            folderId: item.id,
-            permissionIds: permissions.map(({ id }) => id),
-            skipToken: null,
-            organisationId,
-          },
-        }))
-      );
-
-      await Promise.all(eventsToWait);
-    }
-
-    await step.run('update-elba-objects', async () => {
-      const { toUpdate: dataProtectionObjects } = formatDataProtectionObjects({
-        items,
+    // TODO: make sure to handle force resync from microsoft
+    const { items, ...tokens } = await step.run('get-items', async () =>
+      getDeltaItems({
+        token,
         siteId,
         driveId,
-        parentPermissionIds: permissionIds,
-      });
+        deltaToken: skipToken,
+      })
+    );
 
-      if (dataProtectionObjects.length) {
-        const elba = createElbaClient({ organisationId, region: organisation.region });
-        await elba.dataProtection.updateObjects({ objects: dataProtectionObjects });
+    const itemIds = new Set<string>();
+    const sharedItems: MicrosoftDriveItem[] = [];
+    for (const item of items.updated) {
+      if (item.shared) {
+        sharedItems.push(item);
+        itemIds.add(item.id);
+        if (item.parentReference.id) {
+          itemIds.add(item.parentReference.id);
+        }
       }
-    });
+    }
 
-    if (nextSkipToken) {
+    const permissions = await step.run('get-permissions', async () =>
+      Promise.all(
+        [...itemIds.values()].map(async (itemId) => {
+          const itemPermissions = await getAllItemPermissions({ token, siteId, driveId, itemId });
+          return [itemId, itemPermissions] as const;
+        })
+      )
+    );
+
+    const itemIdsPermissions = new Map(
+      permissions.map(([itemId, itemPermissions]) => [
+        itemId,
+        new Map(itemPermissions.map((permission) => [permission.id, permission])),
+      ])
+    );
+
+    const parsedItems = parseItemsInheritedPermissions(sharedItems, itemIdsPermissions);
+
+    const elba = createElbaClient({ organisationId, region: organisation.region });
+
+    if (items.deleted.length) {
+      await step.run('delete-elba-objects', async () =>
+        elba.dataProtection.deleteObjects({
+          ids: items.deleted,
+        })
+      );
+    }
+
+    if (parsedItems.toUpdate.length) {
+      await step.run('update-elba-objects', async () => {
+        const { toUpdate: dataProtectionObjects } = formatDataProtectionObjects({
+          items: parsedItems.toUpdate,
+          siteId,
+          driveId,
+          parentPermissionIds: [],
+        });
+
+        if (dataProtectionObjects.length) {
+          await elba.dataProtection.updateObjects({ objects: dataProtectionObjects });
+        }
+      });
+    }
+
+    if ('nextSkipToken' in tokens) {
       await step.sendEvent('sync-next-items-page', {
         name: 'sharepoint/items.sync.triggered',
         data: {
           ...event.data,
-          skipToken: nextSkipToken,
+          skipToken: tokens.nextSkipToken,
         },
       });
 
       return { status: 'ongoing' };
     }
 
-    await step.sendEvent('sync-complete', {
-      name: 'sharepoint/items.sync.completed',
-      data: { organisationId, folderId, driveId },
-    });
+    await step.run('create-subscription', async () => {
+      const {
+        id: subscriptionId,
+        expirationDateTime,
+        clientState,
+      } = await createSubscription({
+        token,
+        changeType: 'updated',
+        resource: `sites/${siteId}/drives/${driveId}/root`,
+        clientState: crypto.randomUUID(),
+      });
 
-    if (!folderId) {
-      await step.sendEvent('initialize-delta', {
-        name: 'sharepoint/delta.initialize.requested',
-        data: {
+      await db
+        .insert(subscriptionsTable)
+        .values({
           organisationId,
           siteId,
           driveId,
-          isFirstSync,
-        },
-      });
-    }
+          subscriptionId,
+          subscriptionExpirationDate: expirationDateTime,
+          subscriptionClientState: clientState,
+          delta: tokens.newDeltaToken,
+        })
+        .onConflictDoUpdate({
+          target: [subscriptionsTable.organisationId, subscriptionsTable.driveId],
+          set: {
+            subscriptionId,
+            subscriptionExpirationDate: expirationDateTime,
+            subscriptionClientState: clientState,
+            delta: tokens.newDeltaToken,
+          },
+        });
+    });
+
+    await step.sendEvent('items-sync-completed', {
+      name: 'sharepoint/items.sync.completed',
+      data: { organisationId, driveId },
+    });
 
     return { status: 'completed' };
   }

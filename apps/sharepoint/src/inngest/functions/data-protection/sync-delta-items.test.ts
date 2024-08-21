@@ -37,6 +37,7 @@ const deltaItems: deltaConnector.ParsedDeltaItems = {
       createdBy: { user: { id: 'user-id-1' } },
       lastModifiedDateTime: '2024-01-01T00:00:00Z',
       webUrl: 'https://sharepoint.local/item-1',
+      shared: {},
     },
     {
       id: 'item-id-2',
@@ -45,6 +46,7 @@ const deltaItems: deltaConnector.ParsedDeltaItems = {
       createdBy: { user: { id: 'user-id-1' } },
       lastModifiedDateTime: '2024-01-01T00:00:00Z',
       webUrl: 'https://sharepoint.local/item-2',
+      shared: {},
     },
     {
       id: 'item-id-3',
@@ -53,6 +55,7 @@ const deltaItems: deltaConnector.ParsedDeltaItems = {
       createdBy: { user: { id: 'user-id-1' } },
       lastModifiedDateTime: '2024-01-01T00:00:00Z',
       webUrl: 'https://sharepoint.local/item-3',
+      shared: {},
     },
     {
       id: 'item-id-4',
@@ -61,6 +64,15 @@ const deltaItems: deltaConnector.ParsedDeltaItems = {
       createdBy: { user: { id: 'user-id-1' } },
       lastModifiedDateTime: '2024-01-01T00:00:00Z',
       webUrl: 'https://sharepoint.local/item-4',
+      shared: {},
+    },
+    {
+      id: 'item-id-6',
+      name: 'item-name-6',
+      parentReference: { id: 'root' },
+      createdBy: { user: { id: 'user-id-1' } },
+      lastModifiedDateTime: '2024-01-01T00:00:00Z',
+      webUrl: 'https://sharepoint.local/item-6',
     },
   ],
 };
@@ -76,6 +88,7 @@ const itemPermissions = new Map([
   ['item-id-2', createPermission(2)],
   ['item-id-3', createPermission(3)],
   ['item-id-4', createPermission(2)],
+  ['item-id-6', createPermission(3)],
 ]);
 
 const subscription = {
@@ -154,11 +167,7 @@ describe('update-item-and-permissions', () => {
 
     expect(step.run).toBeCalledTimes(4);
     expect(step.run).toHaveBeenNthCalledWith(1, 'fetch-delta-items', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(
-      2,
-      'get-items-permissions-chunk-1',
-      expect.any(Function)
-    );
+    expect(step.run).toHaveBeenNthCalledWith(2, 'get-permissions', expect.any(Function));
     expect(step.run).toHaveBeenNthCalledWith(3, 'update-elba-objects', expect.any(Function));
     expect(step.run).toHaveBeenNthCalledWith(4, 'remove-elba-objects', expect.any(Function));
 
@@ -233,7 +242,7 @@ describe('update-item-and-permissions', () => {
 
     expect(elbaInstance?.dataProtection.deleteObjects).toBeCalledTimes(1);
     expect(elbaInstance?.dataProtection.deleteObjects).toBeCalledWith({
-      ids: ['item-id-5', 'item-id-4'],
+      ids: ['item-id-5', 'item-id-4', 'item-id-6'],
     });
   });
 
@@ -248,8 +257,9 @@ describe('update-item-and-permissions', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
-    expect(step.run).toBeCalledTimes(1);
+    expect(step.run).toBeCalledTimes(2);
     expect(step.run).toHaveBeenNthCalledWith(1, 'fetch-delta-items', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(2, 'get-permissions', expect.any(Function));
 
     const [record] = await db
       .select({
@@ -281,8 +291,9 @@ describe('update-item-and-permissions', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
-    expect(step.run).toBeCalledTimes(1);
+    expect(step.run).toBeCalledTimes(2);
     expect(step.run).toHaveBeenNthCalledWith(1, 'fetch-delta-items', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(2, 'get-permissions', expect.any(Function));
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-next-delta-page', {

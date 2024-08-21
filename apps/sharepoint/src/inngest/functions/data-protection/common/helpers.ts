@@ -1,31 +1,22 @@
 import { type SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
+import { type MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import type { PermissionToDelete, ItemWithPermissions, ElbaPermissionToDelete } from './types';
 
-export const getChunkedArray = <T>(array: T[], batchSize: number): T[][] => {
-  const chunks: T[][] = [];
-  for (let i = 0; i < array.length; i += batchSize) {
-    chunks.push(array.slice(i, i + Number(batchSize)));
-  }
-  return chunks;
-};
-
-export const parseItemsInheritedPermissions = (items: ItemWithPermissions[]) => {
+export const parseItemsInheritedPermissions = (
+  items: MicrosoftDriveItem[],
+  itemsPermissions: Map<string, Map<string, SharepointPermission>>
+) => {
   const toUpdate: ItemWithPermissions[] = [];
   const toDelete: string[] = [];
-  const itemsPermissions = new Map(
-    items.map(({ item: { id: itemId }, permissions }) => [
-      itemId,
-      new Set(permissions.map(({ id: permissionId }) => permissionId)),
-    ])
-  );
 
-  for (const { item, permissions } of items) {
+  for (const item of items) {
     const parentId = item.parentReference.id;
+    const permissions = itemsPermissions.get(item.id) || new Map<string, SharepointPermission>();
     const parentPermissions = parentId && itemsPermissions.get(parentId);
     const nonInheritedPermissions: SharepointPermission[] = [];
 
-    for (const permission of permissions) {
-      if (!parentPermissions || !parentPermissions.has(permission.id)) {
+    for (const [permissionId, permission] of permissions.entries()) {
+      if (!parentPermissions || !parentPermissions.has(permissionId)) {
         nonInheritedPermissions.push(permission);
       }
     }

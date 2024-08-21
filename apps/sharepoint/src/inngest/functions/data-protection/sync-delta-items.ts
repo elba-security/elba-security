@@ -7,10 +7,10 @@ import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { getDeltaItems } from '@/connectors/microsoft/delta/delta';
 import { createElbaClient } from '@/connectors/elba/client';
-import type { MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
 import { getAllItemPermissions } from '@/connectors/microsoft/sharepoint/permissions';
-import { getChunkedArray, parseItemsInheritedPermissions } from './common/helpers';
+import { type MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
+import { parseItemsInheritedPermissions } from './common/helpers';
 
 export const syncDeltaItems = inngest.createFunction(
   {
@@ -47,9 +47,10 @@ export const syncDeltaItems = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with tenantId=${tenantId}`);
     }
 
+    const token = await decrypt(record.token);
     const { items, ...tokens } = await step.run('fetch-delta-items', async () => {
       const result = await getDeltaItems({
-        token: await decrypt(record.token),
+        token,
         siteId,
         driveId,
         deltaToken: record.delta,
@@ -72,31 +73,35 @@ export const syncDeltaItems = inngest.createFunction(
       return result;
     });
 
-    const itemsChunks = getChunkedArray<MicrosoftDriveItem>(
-      items.updated,
-      env.MICROSOFT_DATA_PROTECTION_ITEM_PERMISSIONS_CHUNK_SIZE
+    const sharedItems: MicrosoftDriveItem[] = [];
+    const itemIds = new Set<string>();
+    for (const item of items.updated) {
+      if (item.shared) {
+        sharedItems.push(item);
+        itemIds.add(item.id);
+        if (item.parentReference.id) {
+          itemIds.add(item.parentReference.id);
+        }
+      }
+    }
+
+    const permissions = await step.run('get-permissions', async () => {
+      return Promise.all(
+        [...itemIds.values()].map(async (itemId) => {
+          const itemPermissions = await getAllItemPermissions({ token, siteId, driveId, itemId });
+          return [itemId, itemPermissions] as const;
+        })
+      );
+    });
+
+    const itemIdsPermissions = new Map(
+      permissions.map(([itemId, itemPermissions]) => [
+        itemId,
+        new Map(itemPermissions.map((permission) => [permission.id, permission])),
+      ])
     );
 
-    const itemsPermissionsChunks = await Promise.all(
-      itemsChunks.map(async (itemsChunk, i) => {
-        return step.run(`get-items-permissions-chunk-${i + 1}`, () => {
-          return Promise.all(
-            itemsChunk.map(async (item) => {
-              const permissions = await getAllItemPermissions({
-                token: await decrypt(record.token),
-                siteId,
-                driveId,
-                itemId: item.id,
-              });
-
-              return { item, permissions };
-            })
-          );
-        });
-      })
-    );
-
-    const parsedItems = parseItemsInheritedPermissions(itemsPermissionsChunks.flat());
+    const parsedItems = parseItemsInheritedPermissions(items.updated, itemIdsPermissions);
 
     const dataProtectionObjects = formatDataProtectionObjects({
       items: parsedItems.toUpdate,

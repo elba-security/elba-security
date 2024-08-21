@@ -66,7 +66,7 @@ export const syncDrives = inngest.createFunction(
         step.waitForEvent(`wait-for-items-complete-${id}`, {
           event: 'sharepoint/items.sync.completed',
           timeout: '30d',
-          if: `async.data.organisationId == '${organisationId}' && async.data.driveId == '${id}' && async.data.folderId == null`,
+          if: `async.data.organisationId == '${organisationId}' && async.data.driveId == '${id}'`,
         })
       );
 
@@ -78,8 +78,6 @@ export const syncDrives = inngest.createFunction(
             siteId,
             driveId: id,
             isFirstSync,
-            folderId: null,
-            permissionIds: [],
             skipToken: null,
             organisationId,
           },

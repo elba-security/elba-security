@@ -91,7 +91,7 @@ export const syncSites = inngest.createFunction(
       return { status: 'ongoing' };
     }
 
-    await step.run('elba-permissions-delete', async () => {
+    await step.run('delete-elba-objects-synced-before', async () => {
       const elba = createElbaClient({ organisationId, region: organisation.region });
 
       await elba.dataProtection.deleteObjects({

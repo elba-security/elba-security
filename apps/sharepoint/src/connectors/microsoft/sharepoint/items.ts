@@ -22,6 +22,7 @@ export const driveItemSchema = z.object({
   parentReference: z.object({
     id: z.string().optional(),
   }),
+  shared: z.object({}).optional(),
 });
 
 export type MicrosoftDriveItem = z.infer<typeof driveItemSchema>;

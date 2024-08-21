@@ -62,16 +62,16 @@ describe('delta connector', () => {
             const nextPageUrl = new URL(url);
             nextPageUrl.searchParams.set(
               'token',
-              token === 'latest' || token === endSkipToken ? deltaToken : nextSkipToken
+              token === endSkipToken ? deltaToken : nextSkipToken
             );
 
             const addToken =
-              token === endSkipToken || token === 'latest'
+              token === endSkipToken
                 ? { '@odata.deltaLink': decodeURIComponent(nextPageUrl.toString()) }
                 : { '@odata.nextLink': decodeURIComponent(nextPageUrl.toString()) };
 
             return Response.json({
-              value: formattedDelta.slice(0, token === 'latest' ? 0 : Number(top)),
+              value: formattedDelta.slice(0, Number(top)),
               ...addToken,
             });
           }
@@ -103,20 +103,6 @@ describe('delta connector', () => {
         })
       ).resolves.toStrictEqual({
         items: { deleted: [deltaItems[0]?.id], updated: [deltaItems[1]] },
-        newDeltaToken: deltaToken,
-      });
-    });
-
-    test('should return newDeltaToken and no delta items when no token is provided', async () => {
-      await expect(
-        getDeltaItems({
-          token: validToken,
-          siteId,
-          driveId,
-          deltaToken: null,
-        })
-      ).resolves.toStrictEqual({
-        items: { deleted: [], updated: [] },
         newDeltaToken: deltaToken,
       });
     });

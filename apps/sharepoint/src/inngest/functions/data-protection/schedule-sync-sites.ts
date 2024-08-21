@@ -4,7 +4,7 @@ import { organisationsTable } from '@/database/schema';
 import { env } from '@/common/env';
 
 export const scheduleDataProtectionSyncJobs = inngest.createFunction(
-  { id: 'sharepoint-schedule-folders-and-files-sync' },
+  { id: 'sharepoint-schedule-data-protection-sync' },
   { cron: env.MICROSOFT_DATA_PROTECTION_CRON_SYNC },
   async ({ step }) => {
     const syncStartedAt = Date.now();

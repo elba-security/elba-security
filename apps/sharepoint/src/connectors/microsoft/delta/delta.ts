@@ -46,14 +46,18 @@ export const getDeltaItems = async ({
 > => {
   const url = new URL(`${env.MICROSOFT_API_URL}/sites/${siteId}/drives/${driveId}/root/delta`);
 
-  url.searchParams.append('token', deltaToken || 'latest');
+  if (deltaToken) {
+    url.searchParams.append('token', deltaToken);
+  }
+
   url.searchParams.append('$top', String(env.MICROSOFT_DATA_PROTECTION_SYNC_CHUNK_SIZE));
   url.searchParams.append('$select', Object.keys(deltaItemSchema.shape).join(','));
 
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
-      Prefer: 'deltashowremovedasdeleted, deltatraversepermissiongaps, deltashowsharingchanges',
+      Prefer:
+        'hierarchicalsharing, deltashowremovedasdeleted, deltatraversepermissiongaps, deltashowsharingchanges',
     },
   });
 
@@ -69,16 +73,24 @@ export const getDeltaItems = async ({
   }
 
   const items: ParsedDeltaItems = { deleted: [], updated: [] };
+  const uniqueItems = new Map<string, DeltaItem>();
   for (const deltaItem of result.data.value) {
     const item = deltaItemSchema.safeParse(deltaItem);
     if (item.success) {
-      if (item.data.deleted) {
-        items.deleted.push(item.data.id);
-      } else {
-        items.updated.push(item.data);
-      }
+      // From the docs: https://learn.microsoft.com/en-us/graph/api/driveitem-delta?view=graph-rest-1.0&tabs=http#remarks
+      // "The same item may appear more than once in a delta feed, for various reasons.
+      // You should use the last occurrence you see."
+      uniqueItems.set(item.data.id, item.data);
     } else {
       logger.error('Failed to parse delta item', { deltaItem, error: item.error });
+    }
+  }
+
+  for (const item of uniqueItems.values()) {
+    if (item.deleted) {
+      items.deleted.push(item.id);
+    } else {
+      items.updated.push(item);
     }
   }
 

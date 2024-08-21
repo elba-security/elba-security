@@ -52,8 +52,6 @@ export const inngest = new Inngest({
         driveId: string;
         organisationId: string;
         isFirstSync: boolean;
-        folderId: string | null;
-        permissionIds: string[];
         skipToken: string | null;
       };
     };
@@ -67,7 +65,6 @@ export const inngest = new Inngest({
       data: {
         organisationId: string;
         driveId: string;
-        folderId: string | null;
       };
     };
     'sharepoint/data_protection.refresh_object.requested': {
