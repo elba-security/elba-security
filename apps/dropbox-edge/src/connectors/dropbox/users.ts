@@ -172,6 +172,11 @@ export const getUsers = async ({
     const userResult = teamMemberSchema.safeParse(member);
 
     if (userResult.success) {
+      // Only active users are valid
+      if (userResult.data.profile.status['.tag'] !== 'active') {
+        continue;
+      }
+
       validUsers.push(userResult.data);
     } else {
       invalidUsers.push(member);
