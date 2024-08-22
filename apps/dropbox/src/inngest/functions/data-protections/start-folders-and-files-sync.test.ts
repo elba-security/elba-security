@@ -137,7 +137,7 @@ describe('startFolderAndFileSync', () => {
       cursor: null,
     });
 
-    await expect(result).resolves.toBeUndefined();
+    await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
     expect(usersConnector.getUsers).toBeCalledTimes(1);
     expect(usersConnector.getUsers).toBeCalledWith({

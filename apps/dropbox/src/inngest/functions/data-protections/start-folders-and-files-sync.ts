@@ -58,13 +58,14 @@ export const startFolderAndFileSync = inngest.createFunction(
     }
 
     if (nextCursor) {
-      return await step.sendEvent('start-folder-and-files-sync', {
+      await step.sendEvent('start-folder-and-files-sync', {
         name: 'dropbox/data_protection.folder_and_files.start.sync.requested',
         data: {
           ...event.data,
           cursor: nextCursor,
         },
       });
+      return { status: 'ongoing' };
     }
 
     await step.run('delete-objects', async () => {

@@ -77,13 +77,14 @@ export const startSharedLinksSync = inngest.createFunction(
     }
 
     if (nextCursor) {
-      return await step.sendEvent('start-shared-link-sync', {
+      await step.sendEvent('start-shared-link-sync', {
         name: 'dropbox/data_protection.shared_links.start.sync.requested',
         data: {
           ...event.data,
           cursor: nextCursor,
         },
       });
+      return { status: 'ongoing' };
     }
 
     // Once all the shared links are fetched,

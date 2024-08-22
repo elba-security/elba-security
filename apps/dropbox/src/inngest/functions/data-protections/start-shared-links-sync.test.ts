@@ -150,7 +150,7 @@ describe('startSharedLinksSync', () => {
       cursor: null,
     });
 
-    await expect(result).resolves.toBeUndefined();
+    await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
     expect(step.waitForEvent).toBeCalledTimes(4);
 
     sharedLinkJobs.forEach((job) => {
