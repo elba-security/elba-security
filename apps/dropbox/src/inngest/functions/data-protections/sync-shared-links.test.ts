@@ -72,7 +72,7 @@ describe('syncSharedLinks', () => {
 
     const [result, { step }] = setup(setupArgs);
 
-    await expect(result).resolves.toBeUndefined();
+    await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-shared-links-next-page', {

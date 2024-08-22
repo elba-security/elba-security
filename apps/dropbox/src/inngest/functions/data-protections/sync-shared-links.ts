@@ -42,13 +42,14 @@ export const syncSharedLinks = inngest.createFunction(
     }
 
     if (nextCursor) {
-      return await step.sendEvent('sync-shared-links-next-page', {
+      await step.sendEvent('sync-shared-links-next-page', {
         name: 'dropbox/data_protection.shared_links.sync.requested',
         data: {
           ...event.data,
           cursor: nextCursor,
         },
       });
+      return { status: 'ongoing' };
     }
 
     await step.sendEvent(`wait-for-shared-links-to-be-fetched`, {

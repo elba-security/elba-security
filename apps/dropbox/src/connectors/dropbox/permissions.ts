@@ -28,15 +28,17 @@ export const removePermission = async ({
   };
 
   if (metadata?.sharedLinks && metadata.sharedLinks.length > 0) {
-    return metadata.sharedLinks.map(async (sharedLink: string) => {
-      return fetch(`${env.DROPBOX_API_BASE_URL}/2/sharing/revoke_shared_link`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          url: sharedLink,
-        }),
-      });
-    });
+    return Promise.all(
+      metadata.sharedLinks.map(async (sharedLink: string) => {
+        return fetch(`${env.DROPBOX_API_BASE_URL}/2/sharing/revoke_shared_link`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            url: sharedLink,
+          }),
+        });
+      })
+    );
   }
 
   if (type === 'folder') {

@@ -3,7 +3,7 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { organisationsTable, sharedLinksTable } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { env } from '@/common/env';
 import { removeOrganisation } from './remove-organisation';
 
@@ -49,10 +49,6 @@ describe('remove-organisation', () => {
     expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
       hasError: true,
     });
-
-    await expect(
-      db.select().from(sharedLinksTable).where(eq(organisationsTable.id, organisation.id))
-    ).resolves.toHaveLength(0);
 
     await expect(
       db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))

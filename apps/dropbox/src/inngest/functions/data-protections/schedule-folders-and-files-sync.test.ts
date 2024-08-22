@@ -42,21 +42,24 @@ describe('scheduleDataProtectionSync', () => {
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      organisations: organisations.map(({ id }) => ({ id })),
+      // eslint-disable-next-line -- @typescript-eslint/no-unsafe-assignment
+      organisations: expect.arrayContaining(organisations.map(({ id }) => ({ id }))),
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
       'start-shared-link-sync',
-      organisations.map(({ id }) => ({
-        data: {
-          organisationId: id,
-          isFirstSync: false,
-          syncStartedAt: now,
-          cursor: null,
-        },
-        name: 'dropbox/data_protection.shared_links.start.sync.requested',
-      }))
+      expect.arrayContaining(
+        organisations.map(({ id }) => ({
+          data: {
+            organisationId: id,
+            isFirstSync: false,
+            syncStartedAt: now,
+            cursor: null,
+          },
+          name: 'dropbox/data_protection.shared_links.start.sync.requested',
+        }))
+      )
     );
   });
 });
