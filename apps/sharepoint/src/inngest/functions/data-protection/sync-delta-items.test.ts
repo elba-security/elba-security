@@ -257,9 +257,8 @@ describe('update-item-and-permissions', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
-    expect(step.run).toBeCalledTimes(2);
+    expect(step.run).toBeCalledTimes(1);
     expect(step.run).toHaveBeenNthCalledWith(1, 'fetch-delta-items', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(2, 'get-permissions', expect.any(Function));
 
     const [record] = await db
       .select({
@@ -291,9 +290,8 @@ describe('update-item-and-permissions', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
-    expect(step.run).toBeCalledTimes(2);
+    expect(step.run).toBeCalledTimes(1);
     expect(step.run).toHaveBeenNthCalledWith(1, 'fetch-delta-items', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(2, 'get-permissions', expect.any(Function));
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-next-delta-page', {

@@ -265,7 +265,7 @@ describe('sync-items', () => {
     expect(subscriptionsConnector.createSubscription).toBeCalledWith({
       changeType: 'updated',
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- convenience
-      clientState: expect.any(String), //
+      clientState: expect.any(String),
       resource: 'sites/some-site-id/drives/some-drive-id/root',
       token: 'test-token',
     });

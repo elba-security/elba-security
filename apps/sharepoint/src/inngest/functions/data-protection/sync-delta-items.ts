@@ -8,7 +8,10 @@ import { decrypt } from '@/common/crypto';
 import { getDeltaItems } from '@/connectors/microsoft/delta/delta';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
-import { getAllItemPermissions } from '@/connectors/microsoft/sharepoint/permissions';
+import {
+  getAllItemPermissions,
+  type SharepointPermission,
+} from '@/connectors/microsoft/sharepoint/permissions';
 import { type MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
 import { parseItemsInheritedPermissions } from './common/helpers';
 
@@ -85,14 +88,17 @@ export const syncDeltaItems = inngest.createFunction(
       }
     }
 
-    const permissions = await step.run('get-permissions', async () => {
-      return Promise.all(
-        [...itemIds.values()].map(async (itemId) => {
-          const itemPermissions = await getAllItemPermissions({ token, siteId, driveId, itemId });
-          return [itemId, itemPermissions] as const;
-        })
-      );
-    });
+    let permissions: [string, SharepointPermission[]][] = [];
+    if (itemIds.size) {
+      permissions = await step.run('get-permissions', async () => {
+        return Promise.all(
+          [...itemIds.values()].map(async (itemId) => {
+            const itemPermissions = await getAllItemPermissions({ token, siteId, driveId, itemId });
+            return [itemId, itemPermissions] as const;
+          })
+        );
+      });
+    }
 
     const itemIdsPermissions = new Map(
       permissions.map(([itemId, itemPermissions]) => [

@@ -6,7 +6,10 @@ import { db } from '@/database/client';
 import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
-import { getAllItemPermissions } from '@/connectors/microsoft/sharepoint/permissions';
+import {
+  getAllItemPermissions,
+  type SharepointPermission,
+} from '@/connectors/microsoft/sharepoint/permissions';
 import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
 import { getDeltaItems } from '@/connectors/microsoft/delta/delta';
 import { createSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
@@ -60,12 +63,7 @@ export const syncItems = inngest.createFunction(
 
     // TODO: make sure to handle force resync from microsoft
     const { items, ...tokens } = await step.run('get-items', async () =>
-      getDeltaItems({
-        token,
-        siteId,
-        driveId,
-        deltaToken: skipToken,
-      })
+      getDeltaItems({ token, siteId, driveId, deltaToken: skipToken })
     );
 
     const itemIds = new Set<string>();
@@ -80,14 +78,17 @@ export const syncItems = inngest.createFunction(
       }
     }
 
-    const permissions = await step.run('get-permissions', async () =>
-      Promise.all(
-        [...itemIds.values()].map(async (itemId) => {
-          const itemPermissions = await getAllItemPermissions({ token, siteId, driveId, itemId });
-          return [itemId, itemPermissions] as const;
-        })
-      )
-    );
+    let permissions: [string, SharepointPermission[]][] = [];
+    if (itemIds.size) {
+      permissions = await step.run('get-permissions', async () =>
+        Promise.all(
+          [...itemIds.values()].map(async (itemId) => {
+            const itemPermissions = await getAllItemPermissions({ token, siteId, driveId, itemId });
+            return [itemId, itemPermissions] as const;
+          })
+        )
+      );
+    }
 
     const itemIdsPermissions = new Map(
       permissions.map(([itemId, itemPermissions]) => [
