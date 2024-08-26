@@ -54,15 +54,14 @@ describe('auth connector', () => {
           const searchParams = new URLSearchParams(body);
 
           const grantType = searchParams.get('grant_type');
-          const token = searchParams.get('refresh_token');
+          const refreshToken = searchParams.get('refresh_token');
 
-          if (grantType !== 'refresh_token' || token !== validRefreshToken) {
+          if (grantType !== 'refresh_token' || refreshToken !== validRefreshToken) {
             return new Response(undefined, { status: 401 });
           }
 
           return Response.json({
             access_token: accessToken,
-            refresh_token: validRefreshToken,
             instance_url: instanceUrl,
           });
         })
@@ -72,7 +71,6 @@ describe('auth connector', () => {
     test('should return the new access token when the refreshToken is valid', async () => {
       await expect(getRefreshToken(validRefreshToken)).resolves.toStrictEqual({
         accessToken,
-        refreshToken: validRefreshToken,
         instanceUrl,
       });
     });
