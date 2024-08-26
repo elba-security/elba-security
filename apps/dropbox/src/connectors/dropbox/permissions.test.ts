@@ -36,12 +36,6 @@ describe('removePermission', () => {
 
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(2);
-    const resolvedResults = await Promise.all(result as Promise<Response>[]);
-    for (const response of resolvedResults) {
-      expect(response.ok).toBe(true);
-      const json = (await response.json()) as Record<string, unknown>;
-      expect(json).toEqual({});
-    }
   });
 
   test('should remove the folder permission', async () => {

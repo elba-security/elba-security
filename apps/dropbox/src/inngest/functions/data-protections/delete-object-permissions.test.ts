@@ -164,7 +164,7 @@ describe('deleteObjectPermissions', () => {
     });
   });
 
-  test.only('should revoke the leftover shared link', async () => {
+  test('should revoke the leftover shared link', async () => {
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(permissionsConnector, 'removePermission').mockResolvedValue(new Response());
     vi.spyOn(sharedLinksConnector, 'getSharedLinksByPath').mockResolvedValue([
