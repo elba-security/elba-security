@@ -94,7 +94,7 @@ export const getSharedLinks = async ({
   };
 };
 
-export const getSharedLinksOnRefresh = async ({
+export const getSharedLinksByPath = async ({
   accessToken,
   teamMemberId,
   isPersonal,

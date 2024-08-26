@@ -70,7 +70,7 @@ describe('refreshObject', () => {
       },
     });
 
-    vi.spyOn(sharedLinksConnector, 'getSharedLinksOnRefresh');
+    vi.spyOn(sharedLinksConnector, 'getSharedLinksByPath');
 
     const [result] = setup({
       organisationId: organisation.id,
@@ -92,7 +92,7 @@ describe('refreshObject', () => {
       baseUrl: env.ELBA_API_BASE_URL,
     });
     const elbaInstance = elba.mock.results.at(0)?.value;
-    expect(sharedLinksConnector.getSharedLinksOnRefresh).toBeCalledTimes(0);
+    expect(sharedLinksConnector.getSharedLinksByPath).toBeCalledTimes(0);
     expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(0);
     expect(elbaInstance?.dataProtection.deleteObjects).toBeCalledTimes(1);
     expect(elbaInstance?.dataProtection.deleteObjects).toBeCalledWith({
@@ -116,7 +116,7 @@ describe('refreshObject', () => {
       path_display: '/folder-1',
     });
 
-    vi.spyOn(sharedLinksConnector, 'getSharedLinksOnRefresh').mockResolvedValue([
+    vi.spyOn(sharedLinksConnector, 'getSharedLinksByPath').mockResolvedValue([
       {
         id: 'ns:000001',
         url: 'https://www.dropbox.com/folder-1',
