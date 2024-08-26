@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest/components/NonRetriableError';
 import * as crypto from '@/common/crypto';
 import * as permissionsConnector from '@/connectors/dropbox/permissions';
+import * as sharedLinksConnector from '@/connectors/dropbox/shared-links';
 import { encrypt } from '@/common/crypto';
 import { organisationsTable, type Organisation } from '@/database/schema';
 import { db } from '@/database/client';
@@ -36,6 +37,7 @@ describe('deleteObjectPermissions', () => {
 
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(permissionsConnector, 'removePermission').mockResolvedValue(new Response());
+    vi.spyOn(sharedLinksConnector, 'getSharedLinksByPath').mockResolvedValue([]);
     const [result] = setup({
       objectId: 'object-id',
       organisationId: '00000000-0000-0000-0000-000000000010',
@@ -68,6 +70,7 @@ describe('deleteObjectPermissions', () => {
   ])('should remove the team members from $type', async ({ type, objectId, email }) => {
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(permissionsConnector, 'removePermission').mockResolvedValue(new Response());
+    vi.spyOn(sharedLinksConnector, 'getSharedLinksByPath').mockResolvedValue([]);
 
     const [result] = setup({
       objectId,
@@ -120,7 +123,7 @@ describe('deleteObjectPermissions', () => {
     }
   });
 
-  test.only('should revoke the shared link', async () => {
+  test('should revoke the shared link', async () => {
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(permissionsConnector, 'removePermission').mockResolvedValue(new Response());
 
@@ -156,6 +159,75 @@ describe('deleteObjectPermissions', () => {
         id: 'permission-id',
         metadata: {
           sharedLinks: ['https://www.dropbox.com/sh/1', 'https://www.dropbox.com/sh/2'],
+        },
+      },
+    });
+  });
+
+  test.only('should revoke the leftover shared link', async () => {
+    await db.insert(organisationsTable).values(organisation);
+    vi.spyOn(permissionsConnector, 'removePermission').mockResolvedValue(new Response());
+    vi.spyOn(sharedLinksConnector, 'getSharedLinksByPath').mockResolvedValue([
+      {
+        id: 'shared-link-id',
+        url: 'https://www.dropbox.com/sh/2',
+        linkAccessLevel: 'viewer',
+        pathLower: 'path-lower',
+      },
+    ]);
+
+    const [result, { step }] = setup({
+      objectId: 'object-id',
+      organisationId: organisation.id,
+      metadata: {
+        type: 'folder',
+        isPersonal: false,
+        ownerId: 'owner-id',
+      },
+      permission: {
+        id: 'permission-id',
+        metadata: {
+          sharedLinks: ['https://www.dropbox.com/sh/1', 'https://www.dropbox.com/sh/2'],
+        },
+      },
+    });
+
+    await expect(result).resolves.toBeUndefined();
+
+    expect(permissionsConnector.removePermission).toBeCalledTimes(1);
+    expect(permissionsConnector.removePermission).toBeCalledWith({
+      accessToken: 'valid-token',
+      adminTeamMemberId: 'admin-team-member-id',
+      metadata: {
+        isPersonal: false,
+        ownerId: 'owner-id',
+        type: 'folder',
+      },
+      objectId: 'object-id',
+      permission: {
+        id: 'permission-id',
+        metadata: {
+          sharedLinks: ['https://www.dropbox.com/sh/1', 'https://www.dropbox.com/sh/2'],
+        },
+      },
+    });
+
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith('delete-leftover-shared-links', {
+      name: 'dropbox/data_protection.delete_object_permission.requested',
+      data: {
+        objectId: 'object-id',
+        organisationId: '00000000-0000-0000-0000-000000000001',
+        metadata: {
+          type: 'folder',
+          isPersonal: false,
+          ownerId: 'owner-id',
+        },
+        permission: {
+          id: 'permission-id',
+          metadata: {
+            sharedLinks: ['https://www.dropbox.com/sh/2'],
+          },
         },
       },
     });

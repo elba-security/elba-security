@@ -2,7 +2,7 @@ import { decrypt } from '@/common/crypto';
 import { getFilesMetadataMembersAndMapDetails } from '@/connectors/dropbox/files';
 import { getFoldersMetadataMembersAndMapDetails } from '@/connectors/dropbox/folders';
 import { getFolderOrFileMetadataByPath } from '@/connectors/dropbox/folders-and-files';
-import { getSharedLinksOnRefresh } from '@/connectors/dropbox/shared-links';
+import { getSharedLinksByPath } from '@/connectors/dropbox/shared-links';
 import { createElbaClient } from '@/connectors/elba/client';
 import { getOrganisation } from '@/database/organisations';
 import { inngest } from '@/inngest/client';
@@ -52,7 +52,7 @@ export const refreshObject = inngest.createFunction(
       return;
     }
 
-    const sharedLinks = await getSharedLinksOnRefresh({
+    const sharedLinks = await getSharedLinksByPath({
       accessToken: decryptedAccessToken,
       teamMemberId: ownerId,
       pathRoot,
