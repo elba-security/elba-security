@@ -1,17 +1,10 @@
-import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
-import { eq } from 'drizzle-orm';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { inngest } from '@/inngest/client';
+import { expect, test, describe, vi } from 'vitest';
 import * as authConnector from '@/connectors/bitbucket/auth';
-import * as crypto from '@/common/crypto';
-import { BitbucketError } from '@/connectors/common/error';
 import * as workspaceConnector from '@/connectors/bitbucket/workspaces';
-import { setupOrganisation } from './service';
+import { getWorkspacesAndStoreToken } from './service';
 
 const code = 'code';
 const region = 'us';
-const now = new Date();
 const accessToken = 'access-token';
 const refreshToken = 'refresh-token';
 const workspaceId = 'workspace-id';
@@ -32,16 +25,16 @@ const getTokenData = {
   expiresIn,
 };
 
-describe('setupOrganisation', () => {
-  beforeAll(() => {
-    vi.setSystemTime(now);
-  });
+// Mock cookies function
+const mockSet = vi.fn();
+vi.mock('next/headers', () => ({
+  cookies: () => ({
+    set: mockSet,
+  }),
+}));
 
-  afterAll(() => {
-    vi.useRealTimers();
-  });
-
-  test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
+describe('getWorkspacesAndStoreToken', () => {
+  test('should obtain the access token & fetch workspaces', async () => {
     const getAccessToken = vi
       .spyOn(authConnector, 'getAccessToken')
       .mockResolvedValue(getTokenData);
@@ -52,139 +45,85 @@ describe('setupOrganisation', () => {
       },
     ]);
 
-    // @ts-expect-error -- this is a mock
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    const result = await getWorkspacesAndStoreToken({
+      organisationId: organisation.id,
+      code,
+      region,
+    });
+
+    expect(getAccessToken).toHaveBeenCalledTimes(1);
+    expect(getAccessToken).toHaveBeenCalledWith(code);
+    expect(getWorkspaces).toHaveBeenCalledTimes(1);
+    expect(getWorkspaces).toHaveBeenCalledWith(accessToken);
+    expect(mockSet).toHaveBeenCalledTimes(1);
+    expect(mockSet).toHaveBeenCalledWith({
+      name: 'bitbucketToken',
+      value: JSON.stringify({
+        organisationId: organisation.id,
+        accessToken,
+        refreshToken,
+        expiresAt: expiresIn,
+        region,
+      }),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 3600,
+    });
+    expect(result).toEqual({ workspaces: [{ uuid: workspaceId, name: workspaceName }] });
+  });
+
+  test('should throw an error if getAccessToken fails', async () => {
+    vi.spyOn(authConnector, 'getAccessToken').mockRejectedValue(
+      new Error('Failed to get access token')
+    );
 
     await expect(
-      setupOrganisation({
+      getWorkspacesAndStoreToken({
         organisationId: organisation.id,
         code,
         region,
       })
-    ).resolves.toBeUndefined();
-
-    expect(getAccessToken).toBeCalledTimes(1);
-    expect(getAccessToken).toBeCalledWith(code);
-
-    expect(getWorkspaces).toBeCalledTimes(1);
-    expect(getWorkspaces).toBeCalledWith(accessToken);
-
-    const [storedOrganisation] = await db
-      .select()
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisation.id));
-
-    if (!storedOrganisation) {
-      throw new BitbucketError(`Organisation with ID ${organisation.id} not found.`);
-    }
-
-    expect(storedOrganisation.region).toBe(region);
-    await expect(crypto.decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
-
-    expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith([
-      {
-        name: 'bitbucket/users.sync.requested',
-        data: {
-          organisationId: organisation.id,
-          syncStartedAt: Date.now(),
-          isFirstSync: true,
-          page: null,
-        },
-      },
-      {
-        name: 'bitbucket/app.installed',
-        data: {
-          organisationId: organisation.id,
-        },
-      },
-      {
-        name: 'bitbucket/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: now.getTime() + 60 * 1000,
-        },
-      },
-    ]);
+    ).rejects.toThrow('Failed to get access token');
   });
 
-  test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
-    // @ts-expect-error -- this is a mock
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-
-    const getAccessToken = vi
-      .spyOn(authConnector, 'getAccessToken')
-      .mockResolvedValue(getTokenData);
-
-    await db.insert(organisationsTable).values(organisation);
-
+  test('should throw an error if getWorkspaces fails', async () => {
+    vi.spyOn(authConnector, 'getAccessToken').mockResolvedValue(getTokenData);
+    vi.spyOn(workspaceConnector, 'getWorkspaces').mockRejectedValue(
+      new Error('Failed to get workspaces')
+    );
     await expect(
-      setupOrganisation({
+      getWorkspacesAndStoreToken({
         organisationId: organisation.id,
         code,
         region,
       })
-    ).resolves.toBeUndefined();
-
-    expect(getAccessToken).toBeCalledTimes(1);
-    expect(getAccessToken).toBeCalledWith(code);
-
-    const [storedOrganisation] = await db
-      .select()
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisation.id));
-
-    if (!storedOrganisation) {
-      throw new BitbucketError(`Organisation with ID ${organisation.id} not found.`);
-    }
-    expect(storedOrganisation.region).toBe(region);
-    await expect(crypto.decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
-
-    expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith([
-      {
-        name: 'bitbucket/users.sync.requested',
-        data: {
-          organisationId: organisation.id,
-          syncStartedAt: Date.now(),
-          isFirstSync: true,
-          page: null,
-        },
-      },
-      {
-        name: 'bitbucket/app.installed',
-        data: {
-          organisationId: organisation.id,
-        },
-      },
-      {
-        name: 'bitbucket/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: now.getTime() + 60 * 1000,
-        },
-      },
-    ]);
+    ).rejects.toThrow('Failed to get workspaces');
   });
 
-  test('should not setup the organisation when the organisation id is invalid', async () => {
-    // @ts-expect-error -- this is a mock
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    const wrongId = 'wrong-id';
-    const error = new Error(`invalid input syntax for type uuid: "${wrongId}"`);
+  test('should set secure cookie in production environment', async () => {
+    const originalEnv = process.env;
+    vi.stubEnv('NODE_ENV', 'production');
 
-    await expect(
-      setupOrganisation({
-        organisationId: wrongId,
-        code,
-        region,
+    vi.spyOn(authConnector, 'getAccessToken').mockResolvedValue(getTokenData);
+    vi.spyOn(workspaceConnector, 'getWorkspaces').mockResolvedValue([
+      {
+        uuid: workspaceId,
+        name: workspaceName,
+      },
+    ]);
+    await getWorkspacesAndStoreToken({
+      organisationId: organisation.id,
+      code,
+      region,
+    });
+
+    expect(mockSet).toHaveBeenCalledWith(
+      expect.objectContaining({
+        secure: true,
       })
-    ).rejects.toThrowError(error);
+    );
 
-    await expect(
-      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
-    ).resolves.toHaveLength(0);
-
-    expect(send).toBeCalledTimes(0);
+    process.env = originalEnv;
   });
 });

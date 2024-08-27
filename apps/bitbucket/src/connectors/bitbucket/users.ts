@@ -11,6 +11,7 @@ export const bitbucketUserSchema = z.object({
   user: z.object({
     display_name: z.string(),
     uuid: z.string(),
+    type: z.literal('user'), // user
   }),
   workspace: z.object({
     slug: z.string(),
