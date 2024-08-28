@@ -15,6 +15,7 @@ const formatElbaUser = (user: ZoomUser): User => ({
   displayName: user.display_name,
   email: user.email,
   additionalEmails: [],
+  isSuspendable: true,
 });
 
 export const syncUsers = inngest.createFunction(

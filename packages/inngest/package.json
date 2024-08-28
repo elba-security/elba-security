@@ -16,10 +16,10 @@
     "@elba-security/tsconfig": "workspace:*",
     "@types/node": "^20",
     "eslint": "^8",
-    "inngest": "3.19.11",
+    "inngest": "3.22.2",
     "typescript": "^5.5.2"
   },
   "peerDependencies": {
-    "inngest": ">=3.19.0"
+    "inngest": ">=3.22.2"
   }
 }

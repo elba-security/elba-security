@@ -140,21 +140,18 @@ describe('sync-data-protection-shared-drives', () => {
       auth: serviceAccountClientSpy.mock.results[0]?.value,
       fileId: 'shared-drive-id-1',
       pageSize: 100,
-      useDomainAdminAccess: true,
     });
     expect(googlePermissions.listAllGoogleSharedDriveManagerPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
       auth: serviceAccountClientSpy.mock.results[0]?.value,
       fileId: 'shared-drive-id-2',
       pageSize: 100,
-      useDomainAdminAccess: true,
     });
     expect(googlePermissions.listAllGoogleSharedDriveManagerPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
       auth: serviceAccountClientSpy.mock.results[0]?.value,
       fileId: 'shared-drive-id-3',
       pageSize: 100,
-      useDomainAdminAccess: true,
     });
 
     expect(googleMembers.listAllGoogleMembers).toBeCalledTimes(1);
@@ -172,17 +169,17 @@ describe('sync-data-protection-shared-drives', () => {
     expect(step.waitForEvent).toBeCalledWith('sync-shared-drive-shared-drive-id-1-completed', {
       event: 'google/data_protection.sync.drive.completed',
       if: "async.data.organisationId == '00000000-0000-0000-0000-000000000000' && async.data.managerUserId == 'user-id-1' && async.data.driveId == 'shared-drive-id-1'",
-      timeout: '1day',
+      timeout: '30 days',
     });
     expect(step.waitForEvent).toBeCalledWith('sync-shared-drive-shared-drive-id-2-completed', {
       event: 'google/data_protection.sync.drive.completed',
       if: "async.data.organisationId == '00000000-0000-0000-0000-000000000000' && async.data.managerUserId == 'user-id-2' && async.data.driveId == 'shared-drive-id-2'",
-      timeout: '1day',
+      timeout: '30 days',
     });
     expect(step.waitForEvent).toBeCalledWith('sync-shared-drive-shared-drive-id-3-completed', {
       event: 'google/data_protection.sync.drive.completed',
       if: "async.data.organisationId == '00000000-0000-0000-0000-000000000000' && async.data.managerUserId == 'user-id-3' && async.data.driveId == 'shared-drive-id-3'",
-      timeout: '1day',
+      timeout: '30 days',
     });
 
     expect(step.sendEvent).toBeCalledTimes(2);
@@ -363,21 +360,18 @@ describe('sync-data-protection-shared-drives', () => {
       auth: serviceAccountClientSpy.mock.results[0]?.value,
       fileId: 'shared-drive-id-1',
       pageSize: 100,
-      useDomainAdminAccess: true,
     });
     expect(googlePermissions.listAllGoogleSharedDriveManagerPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
       auth: serviceAccountClientSpy.mock.results[0]?.value,
       fileId: 'shared-drive-id-2',
       pageSize: 100,
-      useDomainAdminAccess: true,
     });
     expect(googlePermissions.listAllGoogleSharedDriveManagerPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
       auth: serviceAccountClientSpy.mock.results[0]?.value,
       fileId: 'shared-drive-id-3',
       pageSize: 100,
-      useDomainAdminAccess: true,
     });
 
     expect(googleMembers.listAllGoogleMembers).toBeCalledTimes(1);
@@ -395,17 +389,17 @@ describe('sync-data-protection-shared-drives', () => {
     expect(step.waitForEvent).toBeCalledWith('sync-shared-drive-shared-drive-id-1-completed', {
       event: 'google/data_protection.sync.drive.completed',
       if: "async.data.organisationId == '00000000-0000-0000-0000-000000000000' && async.data.managerUserId == 'user-id-1' && async.data.driveId == 'shared-drive-id-1'",
-      timeout: '1day',
+      timeout: '30 days',
     });
     expect(step.waitForEvent).toBeCalledWith('sync-shared-drive-shared-drive-id-2-completed', {
       event: 'google/data_protection.sync.drive.completed',
       if: "async.data.organisationId == '00000000-0000-0000-0000-000000000000' && async.data.managerUserId == 'user-id-2' && async.data.driveId == 'shared-drive-id-2'",
-      timeout: '1day',
+      timeout: '30 days',
     });
     expect(step.waitForEvent).toBeCalledWith('sync-shared-drive-shared-drive-id-3-completed', {
       event: 'google/data_protection.sync.drive.completed',
       if: "async.data.organisationId == '00000000-0000-0000-0000-000000000000' && async.data.managerUserId == 'user-id-3' && async.data.driveId == 'shared-drive-id-3'",
-      timeout: '1day',
+      timeout: '30 days',
     });
 
     expect(step.sendEvent).toBeCalledTimes(2);
