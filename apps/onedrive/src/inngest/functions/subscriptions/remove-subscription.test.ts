@@ -88,7 +88,7 @@ describe('remove-subscription', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('remove-subscription-completed', {
-      name: 'sharepoint/subscriptions.remove.completed',
+      name: 'onedrive/subscriptions.remove.completed',
       data: {
         subscriptionId,
         organisationId,

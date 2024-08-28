@@ -23,7 +23,7 @@ export const removeOrganisation = inngest.createFunction(
       .where(eq(organisationsTable.id, organisationId));
 
     if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisation}`);
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
     const subscriptions = await db
