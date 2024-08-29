@@ -8,10 +8,12 @@ import { deleteUser } from './delete-user';
 
 const userId = 'user-id';
 const accessToken = 'test-access-token';
+const authUserId = 12345;
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt(accessToken),
+  authUserId: String(authUserId),
   region: 'us',
 };
 

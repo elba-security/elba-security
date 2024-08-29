@@ -4,11 +4,12 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { AircallError } from '../common/error';
 import type { AircallUser } from './users';
-import { deleteUser, getUsers } from './users';
+import { deleteUser, getUsers, getAuthUser } from './users';
 
 const userId = 'user-1234';
 const validToken = 'token-1234';
 const nextPageLink = `${env.AIRCALL_API_BASE_URL}/v1/users?page=2`;
+const authUserId = 12345;
 
 const validUsers: AircallUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: i,
@@ -106,6 +107,36 @@ describe('users connector', () => {
       await expect(deleteUser({ token: 'invalidToken', userId })).rejects.toBeInstanceOf(
         AircallError
       );
+    });
+  });
+
+  describe('getAuthUser', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.AIRCALL_API_BASE_URL}/v1/integrations/me`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          const returnData = {
+            integration: {
+              id: authUserId,
+            },
+          };
+
+          return Response.json(returnData);
+        })
+      );
+    });
+
+    test('should return auth user id when the token is valid', async () => {
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+        authUserId: String(authUserId),
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getAuthUser('foo-bar')).rejects.toBeInstanceOf(AircallError);
     });
   });
 });

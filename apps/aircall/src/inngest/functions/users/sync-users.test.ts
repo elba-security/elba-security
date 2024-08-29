@@ -7,10 +7,12 @@ import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { syncUsers } from './sync-users';
 
+const authUserId = 12345;
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   region: 'us',
+  authUserId: String(authUserId),
 };
 
 const syncStartedAt = Date.now();
@@ -86,6 +88,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '0',
           isSuspendable: true,
+          url: 'https://dashboard.aircall.io/users/0/general',
         },
         {
           additionalEmails: [],
@@ -93,6 +96,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: '1',
           isSuspendable: true,
+          url: 'https://dashboard.aircall.io/users/1/general',
         },
       ],
     });
@@ -126,6 +130,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '0',
           isSuspendable: true,
+          url: 'https://dashboard.aircall.io/users/0/general',
         },
         {
           additionalEmails: [],
@@ -133,6 +138,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: '1',
           isSuspendable: true,
+          url: 'https://dashboard.aircall.io/users/1/general',
         },
       ],
     });
