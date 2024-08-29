@@ -17,6 +17,7 @@ const validUsers: ZoomUser[] = Array.from({ length: 5 }, (_, i) => ({
   last_name: `last_name-${i}`,
   display_name: `display_name-${i}`,
   email: `user-${i}@foo.bar`,
+  role_id: '2',
 }));
 
 const invalidUsers = [];

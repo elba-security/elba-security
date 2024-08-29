@@ -22,6 +22,7 @@ const users: usersConnector.ZoomUser[] = Array.from({ length: 2 }, (_, i) => ({
   last_name: `last_name-${i}`,
   display_name: `display_name-${i}`,
   email: `user-${i}@foo.bar`,
+  role_id: '2',
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'zoom/users.sync.requested');
@@ -88,6 +89,7 @@ describe('synchronize-users', () => {
           email: 'user-0@foo.bar',
           id: 'id-0',
           isSuspendable: true,
+          url: 'https://zoom.us/user/id-0/profile',
         },
         {
           additionalEmails: [],
@@ -95,6 +97,7 @@ describe('synchronize-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           isSuspendable: true,
+          url: 'https://zoom.us/user/id-1/profile',
         },
       ],
     });
@@ -128,6 +131,7 @@ describe('synchronize-users', () => {
           email: 'user-0@foo.bar',
           id: 'id-0',
           isSuspendable: true,
+          url: 'https://zoom.us/user/id-0/profile',
         },
         {
           additionalEmails: [],
@@ -135,6 +139,7 @@ describe('synchronize-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           isSuspendable: true,
+          url: 'https://zoom.us/user/id-1/profile',
         },
       ],
     });

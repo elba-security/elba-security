@@ -8,6 +8,7 @@ const zoomUserSchema = z.object({
   last_name: z.string(),
   display_name: z.string(),
   email: z.string(),
+  role_id: z.string(),
 });
 
 export type ZoomUser = z.infer<typeof zoomUserSchema>;

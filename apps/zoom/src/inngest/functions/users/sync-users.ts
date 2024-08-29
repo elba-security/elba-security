@@ -10,12 +10,20 @@ import { decrypt } from '@/common/crypto';
 import { type ZoomUser } from '@/connectors/zoom/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
+enum ZoomUserRole {
+  Owner = '0',
+  Admin = '1',
+}
+
 const formatElbaUser = (user: ZoomUser): User => ({
   id: user.id,
   displayName: user.display_name,
   email: user.email,
   additionalEmails: [],
-  isSuspendable: true,
+  isSuspendable:
+    (user.role_id as ZoomUserRole) !== ZoomUserRole.Owner &&
+    (user.role_id as ZoomUserRole) !== ZoomUserRole.Admin,
+  url: `https://zoom.us/user/${user.id}/profile`,
 });
 
 export const syncUsers = inngest.createFunction(
