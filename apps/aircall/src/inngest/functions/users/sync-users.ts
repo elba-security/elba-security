@@ -10,14 +10,16 @@ import { type AircallUser } from '@/connectors/aircall/users';
 import { createElbaClient } from '@/connectors/elba/client';
 import { decrypt } from '@/common/crypto';
 
-const formatElbaUser = ({ user, authUserId }: { user: AircallUser; authUserId: string }): User => ({
-  id: String(user.id),
-  displayName: user.name,
-  email: user.email,
-  additionalEmails: [],
-  isSuspendable: String(user.id) !== authUserId,
-  url: `https://dashboard.aircall.io/users/${user.id}/general`,
-});
+const formatElbaUser = ({ user, authUserId }: { user: AircallUser; authUserId: string }): User => {
+  return {
+    id: String(user.id),
+    displayName: user.name,
+    email: user.email,
+    additionalEmails: [],
+    isSuspendable: String(user.id) !== authUserId,
+    url: `https://dashboard.aircall.io/users/${user.id}/general`,
+  };
+};
 
 export const syncUsers = inngest.createFunction(
   {

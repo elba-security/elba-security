@@ -88,9 +88,11 @@ export const deleteUser = async ({ userId, token }: DeleteUsersParams) => {
   }
 };
 
-const authUserIdResponseSchema = z.object({
+const authUserResponseSchema = z.object({
   integration: z.object({
-    id: z.number(),
+    user: z.object({
+      id: z.number(),
+    }),
   }),
 });
 
@@ -112,13 +114,14 @@ export const getAuthUser = async (accessToken: string) => {
 
   const resData: unknown = await response.json();
 
-  const result = authUserIdResponseSchema.safeParse(resData);
+  const result = authUserResponseSchema.safeParse(resData);
+
   if (!result.success) {
     logger.error('Invalid Aircall auth user response', { resData });
     throw new AircallError('Invalid Aircall auth user response');
   }
 
   return {
-    authUserId: String(result.data.integration.id),
+    authUserId: String(result.data.integration.user.id),
   };
 };

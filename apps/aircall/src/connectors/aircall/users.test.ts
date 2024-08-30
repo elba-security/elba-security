@@ -120,7 +120,9 @@ describe('users connector', () => {
 
           const returnData = {
             integration: {
-              id: authUserId,
+              user: {
+                id: authUserId,
+              },
             },
           };
 
