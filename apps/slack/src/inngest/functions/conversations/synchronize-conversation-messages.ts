@@ -149,23 +149,22 @@ export const synchronizeConversationMessages = inngest.createFunction(
     });
 
     if (threadIds.length) {
-      const eventsToWait = threadIds.map(async (threadId) => {
-        return step.waitForEvent(`wait-for-thread-message-sync-complete-${threadId}`, {
-          event: 'slack/conversations.sync.thread.messages.completed',
-          timeout: '30 days',
-          if: `async.data.teamId == '${teamId}' && async.data.conversationId == '${conversationId}' && async.data.threadId == '${threadId}'`,
-        });
-      });
-
-      await step.sendEvent(
-        'start-conversation-thread-messages-synchronization',
-        threadIds.map((threadId) => ({
-          name: 'slack/conversations.sync.thread.messages.requested',
-          data: { teamId, conversationId, threadId, isFirstSync },
-        }))
-      );
-
-      await Promise.all(eventsToWait);
+      await Promise.all([
+        ...threadIds.map(async (threadId) => {
+          return step.waitForEvent(`wait-for-thread-message-sync-complete-${threadId}`, {
+            event: 'slack/conversations.sync.thread.messages.completed',
+            timeout: '30 days',
+            if: `async.data.teamId == '${teamId}' && async.data.conversationId == '${conversationId}' && async.data.threadId == '${threadId}'`,
+          });
+        }),
+        step.sendEvent(
+          'start-conversation-thread-messages-synchronization',
+          threadIds.map((threadId) => ({
+            name: 'slack/conversations.sync.thread.messages.requested',
+            data: { teamId, conversationId, threadId, isFirstSync },
+          }))
+        ),
+      ]);
     }
 
     if (nextCursor) {
