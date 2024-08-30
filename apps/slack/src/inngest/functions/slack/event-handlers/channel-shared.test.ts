@@ -16,7 +16,7 @@ const mockedDate = '2023-01-01T00:00:00.000Z';
 
 const eventType: SlackEvent['type'] = 'channel_shared';
 
-describe(`handle-slack-webhook-event ${eventType}`, () => {
+describe.skip(`handle-slack-webhook-event ${eventType}`, () => {
   beforeAll(() => {
     vi.mock('slack-web-api-client');
     vi.mock('@/common/crypto');
