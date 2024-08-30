@@ -81,7 +81,7 @@ export const syncDataProtectionDrive = inngest.createFunction(
               corpora: 'drive',
             }
           : {
-              q: `"${managerUserId}" in owners and mimeType != 'application/vnd.google-apps.folder'`,
+              q: `"me" in owners and mimeType != 'application/vnd.google-apps.folder'`,
             }),
       });
     });
