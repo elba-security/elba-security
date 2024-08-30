@@ -20,8 +20,7 @@ const organisation = {
   tenantId: 'tenant-id',
   region: 'us',
 };
-const siteId = 'some-site-id';
-const driveId = 'some-drive-id';
+const userId = 'some-user-id';
 const isFirstSync = true;
 
 const items: MicrosoftDriveItem[] = [
@@ -33,7 +32,7 @@ const items: MicrosoftDriveItem[] = [
         id: 'user-id-1',
       },
     },
-    webUrl: 'https://sharepoint.local/item1',
+    webUrl: 'https://onedrive.local/item1',
     lastModifiedDateTime: '2024-01-01T00:00:00Z',
     parentReference: {
       id: 'parent-id-1',
@@ -49,7 +48,7 @@ const items: MicrosoftDriveItem[] = [
         id: 'user-id-1',
       },
     },
-    webUrl: 'https://sharepoint.local/item2',
+    webUrl: 'https://onedrive.local/item2',
     lastModifiedDateTime: '2024-01-01T00:00:00Z',
     parentReference: {
       id: 'parent-id-1',
@@ -72,14 +71,13 @@ const itemPermissions = new Map([
 ]);
 
 const setupData = {
-  siteId,
-  driveId,
+  userId,
   isFirstSync,
   skipToken: null,
   organisationId: organisation.id,
 };
 
-const setup = createInngestFunctionMock(syncItems, 'sharepoint/items.sync.triggered');
+const setup = createInngestFunctionMock(syncItems, 'onedrive/items.sync.triggered');
 
 describe('sync-items', () => {
   beforeEach(async () => {
@@ -146,8 +144,7 @@ describe('sync-items', () => {
     expect(deltaConnector.getDeltaItems).toBeCalledTimes(1);
     expect(deltaConnector.getDeltaItems).toBeCalledWith({
       token,
-      siteId,
-      driveId,
+      userId,
       deltaToken: null,
     });
 
@@ -166,7 +163,7 @@ describe('sync-items', () => {
       objects: [
         {
           id: 'item-id-1',
-          metadata: { driveId: 'some-drive-id', siteId: 'some-site-id' },
+          metadata: { userId: 'some-user-id' },
           name: 'item-name-1',
           ownerId: 'user-id-1',
           permissions: [
@@ -177,19 +174,18 @@ describe('sync-items', () => {
             },
           ],
           updatedAt: '2024-01-01T00:00:00Z',
-          url: 'https://sharepoint.local/item1',
+          url: 'https://onedrive.local/item1',
         },
       ],
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toHaveBeenNthCalledWith(1, 'sync-next-items-page', {
-      name: 'sharepoint/items.sync.triggered',
+      name: 'onedrive/items.sync.triggered',
       data: {
-        driveId,
+        userId,
         isFirstSync,
         organisationId: organisation.id,
-        siteId,
         skipToken: nextSkipToken,
       },
     });
@@ -226,8 +222,7 @@ describe('sync-items', () => {
     expect(deltaConnector.getDeltaItems).toBeCalledTimes(1);
     expect(deltaConnector.getDeltaItems).toBeCalledWith({
       token,
-      siteId,
-      driveId,
+      userId,
       deltaToken: null,
     });
 
@@ -246,7 +241,7 @@ describe('sync-items', () => {
       objects: [
         {
           id: 'item-id-1',
-          metadata: { driveId: 'some-drive-id', siteId: 'some-site-id' },
+          metadata: { userId: 'some-user-id' },
           name: 'item-name-1',
           ownerId: 'user-id-1',
           permissions: [
@@ -257,7 +252,7 @@ describe('sync-items', () => {
             },
           ],
           updatedAt: '2024-01-01T00:00:00Z',
-          url: 'https://sharepoint.local/item1',
+          url: 'https://onedrive.local/item1',
         },
       ],
     });
@@ -267,15 +262,15 @@ describe('sync-items', () => {
       changeType: 'updated',
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- convenience
       clientState: expect.any(String),
-      resource: 'sites/some-site-id/drives/some-drive-id/root',
+      resource: 'users/some-user-id/drive/root',
       token: 'test-token',
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toHaveBeenNthCalledWith(1, 'items-sync-completed', {
-      name: 'sharepoint/items.sync.completed',
+      name: 'onedrive/items.sync.completed',
       data: {
-        driveId,
+        userId,
         organisationId: organisation.id,
       },
     });

@@ -16,8 +16,7 @@ const organisation = {
 };
 
 const itemId = 'some-item-id';
-const siteId = 'some-site-id';
-const driveId = 'some-drive-id';
+const userId = 'some-user-id';
 
 describe('refreshObject', () => {
   beforeEach(async () => {
@@ -33,8 +32,7 @@ describe('refreshObject', () => {
         id: itemId,
         organisationId: organisation.id,
         metadata: {
-          siteId,
-          driveId,
+          userId,
         },
       },
     });
@@ -47,8 +45,7 @@ describe('refreshObject', () => {
         id: itemId,
         organisationId: organisation.id,
         metadata: {
-          siteId,
-          driveId,
+          userId,
         },
       },
     });

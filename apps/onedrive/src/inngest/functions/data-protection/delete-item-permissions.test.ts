@@ -14,14 +14,12 @@ import { deleteDataProtectionItemPermissions } from './delete-item-permissions';
 import { type ElbaPermissionToDelete } from './common/types';
 
 const token = 'test-token';
-const siteId = 'some-site-id';
-const driveId = 'some-drive-id';
+const userId = 'some-user-id';
 const itemId = 'some-item-id';
 
 const permissionCommon = {
-  driveId,
+  userId,
   itemId,
-  siteId,
   token,
 };
 
@@ -64,8 +62,7 @@ const setupData = {
   id: itemId,
   organisationId: organisation.id,
   metadata: {
-    siteId,
-    driveId,
+    userId,
   },
   permissions,
 };

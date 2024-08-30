@@ -8,12 +8,12 @@ import { db } from '@/database/client';
 import { syncOrganisationMembers } from './sync-organisation-members';
 
 const token = 'test-token';
-const tenantId = 'some-tenant-id';
+const tenantId = 'tenant-id';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   token: await encrypt(token),
-  tenantId: 'tenant-id',
+  tenantId,
   region: 'us',
 };
 
@@ -75,6 +75,7 @@ describe('sync-sites', () => {
     expect(usersConnector.getOrganisationUserIds).toBeCalledTimes(1);
     expect(usersConnector.getOrganisationUserIds).toBeCalledWith({
       token,
+      tenantId,
       skipToken,
     });
 

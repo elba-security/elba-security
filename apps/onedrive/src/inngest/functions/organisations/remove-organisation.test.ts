@@ -3,7 +3,7 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema'; // oneDriveTable
+import { organisationsTable, subscriptionsTable } from '@/database/schema'; // oneDriveTable
 import { env } from '@/common/env';
 import { encrypt } from '@/common/crypto';
 import { removeOrganisation } from './remove-organisation';
@@ -17,8 +17,7 @@ const organisation = {
 
 const oneDrives = Array.from({ length: 5 }, (_, i) => ({
   organisationId: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
-  siteId: `site-id-${i}`,
-  driveId: `drive-id-${i}`,
+  userId: `user-id-${i}`,
   subscriptionId: `subscription-id-${i}`,
   subscriptionClientState: `some-random-client-state-${i}`,
   subscriptionExpirationDate: `2024-04-25 00:00:0${i}.000000`,
@@ -40,7 +39,7 @@ describe('remove-organisation', () => {
   test("should remove given organisation when it's registered", async () => {
     const elba = spyOnElba();
     await db.insert(organisationsTable).values(organisation);
-    // await db.insert(oneDriveTable).values(oneDrives);
+    await db.insert(subscriptionsTable).values(oneDrives);
 
     const [result, { step }] = setup({ organisationId: organisation.id });
 
@@ -56,7 +55,7 @@ describe('remove-organisation', () => {
         `wait-for-remove-subscription-complete-${oneDrive?.subscriptionId}`,
         {
           event: 'onedrive/subscriptions.remove.completed',
-          timeout: '1d',
+          timeout: '30d',
           if: `async.data.organisationId == '${oneDrive?.organisationId}' && async.data.subscriptionId == '${oneDrive?.subscriptionId}'`,
         }
       );

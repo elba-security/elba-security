@@ -32,7 +32,7 @@ const validUsers: (MicrosoftUser & { userType: string })[] = Array.from(
   })
 );
 
-const userIds = validUsers.filter((user) => user.userType === 'Member');
+const userIds = validUsers.filter((user) => user.userType === 'Member').map(({ id }) => id);
 
 const users = [...validUsers, ...invalidUsers];
 
@@ -54,7 +54,18 @@ describe('auth connector', () => {
         const filter = url.searchParams.get('$filter');
 
         const selectedKeys = select?.split(',') || ([] as unknown as (keyof MicrosoftUser)[]);
-        const formattedUsers = users.map((user) =>
+
+        let filteredUsers = users;
+
+        if (filter) {
+          const [field, _, param] = filter.split(' ');
+
+          if (field && param) {
+            filteredUsers = users.filter((user) => `'${user[field]}'` === param);
+          }
+        }
+
+        const formattedUsers = filteredUsers.map((user) =>
           selectedKeys.reduce<Partial<MicrosoftUser>>((acc, key: keyof MicrosoftUser) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- convenience
             acc[key] = user[key];
@@ -62,23 +73,13 @@ describe('auth connector', () => {
           }, {})
         );
 
-        let responceUsers = formattedUsers;
-
-        if (filter) {
-          const [field, _, param] = filter.split(' ');
-
-          if (field && param) {
-            responceUsers = formattedUsers.filter((user) => user[field] === param);
-          }
-        }
-
         const nextPageUrl = new URL(url);
         nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
 
         return Response.json({
           '@odata.nextLink':
             skipToken === endSkipToken ? null : decodeURIComponent(nextPageUrl.toString()),
-          value: responceUsers.slice(0, top ? Number(top) : 0),
+          value: formattedUsers.slice(0, top ? Number(top) : 0),
         });
       })
     );
@@ -90,7 +91,7 @@ describe('auth connector', () => {
         getUsers({ tenantId, token: validToken, skipToken: startSkipToken })
       ).resolves.toStrictEqual({
         invalidUsers,
-        validUsers,
+        validUsers: validUsers.map(({ userType: _userType, ...user }) => ({ ...user })),
         nextSkipToken,
       });
     });
@@ -100,7 +101,7 @@ describe('auth connector', () => {
         getUsers({ tenantId, token: validToken, skipToken: endSkipToken })
       ).resolves.toStrictEqual({
         invalidUsers,
-        validUsers,
+        validUsers: validUsers.map(({ userType: _userType, ...user }) => ({ ...user })),
         nextSkipToken: null,
       });
     });
@@ -130,7 +131,7 @@ describe('auth connector', () => {
 
     test('should return userIds and no nextSkipToken when the token is valid and there is no other page', async () => {
       await expect(
-        getUsers({ tenantId, token: validToken, skipToken: endSkipToken })
+        getOrganisationUserIds({ tenantId, token: validToken, skipToken: endSkipToken })
       ).resolves.toStrictEqual({
         userIds,
         nextSkipToken: null,
@@ -139,13 +140,17 @@ describe('auth connector', () => {
 
     test('should throws when the token is invalid', async () => {
       await expect(
-        getUsers({ tenantId, token: 'invalid-token', skipToken: endSkipToken })
+        getOrganisationUserIds({ tenantId, token: 'invalid-token', skipToken: endSkipToken })
       ).rejects.toBeInstanceOf(MicrosoftError);
     });
 
     test('should throws when the tenantId is invalid', async () => {
       await expect(
-        getUsers({ tenantId: 'invalid-tenant-id', token: validToken, skipToken: endSkipToken })
+        getOrganisationUserIds({
+          tenantId: 'invalid-tenant-id',
+          token: validToken,
+          skipToken: endSkipToken,
+        })
       ).rejects.toBeInstanceOf(MicrosoftError);
     });
   });

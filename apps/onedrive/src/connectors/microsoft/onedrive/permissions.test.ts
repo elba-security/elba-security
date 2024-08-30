@@ -33,14 +33,12 @@ const permissions: OnedrivePermission[] = Array.from({ length: 2 }, (_, i) => ({
   link: { scope: 'users' },
   grantedToV2: {
     user: {
-      id: `some-user-id-${i}`,
       email: `some-user-email-${i}`,
     },
   },
   grantedToIdentitiesV2: [
     {
       user: {
-        id: `some-user-id-${i}`,
         email: `some-user-email-${i}`,
       },
     },

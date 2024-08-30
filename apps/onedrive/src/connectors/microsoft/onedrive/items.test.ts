@@ -234,7 +234,7 @@ describe('items connector', () => {
         getItems({
           token: validToken,
           userId,
-          folderId: 'invalid-siteId',
+          folderId: 'invalid-folderId',
           skipToken: endSkipToken,
         })
       ).rejects.toBeInstanceOf(MicrosoftError);

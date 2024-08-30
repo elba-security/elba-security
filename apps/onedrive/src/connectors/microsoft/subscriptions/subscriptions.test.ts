@@ -13,7 +13,7 @@ import {
 
 const validToken = 'token-1234';
 const changeType = 'updated';
-const resource = `sites/siteId/drives/driveId/root`;
+const resource = `users/userId/drive/root`;
 const invalidToken = 'invalid-token';
 const subscriptionId = 'subscription-id';
 const clientState = 'some-client-state';
