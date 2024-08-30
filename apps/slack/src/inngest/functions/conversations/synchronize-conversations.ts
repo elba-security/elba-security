@@ -35,10 +35,6 @@ export const synchronizeConversations = inngest.createFunction(
     },
     step,
   }) => {
-    if (!isFirstSync) {
-      return { status: 'ignored' };
-    }
-
     const { token, elbaOrganisationId, elbaRegion } = await step.run('get-team', async () => {
       const result = await db.query.teamsTable.findFirst({
         where: eq(teamsTable.id, teamId),

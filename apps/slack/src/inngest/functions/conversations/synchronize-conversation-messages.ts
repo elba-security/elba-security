@@ -58,14 +58,6 @@ export const synchronizeConversationMessages = inngest.createFunction(
     },
     step,
   }) => {
-    if (!isFirstSync) {
-      await step.sendEvent('ignored', {
-        name: 'slack/conversations.sync.messages.completed',
-        data: { teamId, conversationId },
-      });
-      return { status: 'ignored' };
-    }
-
     const conversation = await step.run('get-conversation', async () => {
       const result = await db.query.conversationsTable.findFirst({
         where: and(
