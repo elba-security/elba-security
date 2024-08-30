@@ -53,28 +53,27 @@ export const syncSites = inngest.createFunction(
     });
 
     if (siteIds.length) {
-      const eventsWait = siteIds.map((id) =>
-        step.waitForEvent(`wait-for-drives-complete-${id}`, {
-          event: 'sharepoint/drives.sync.completed',
-          timeout: '30d',
-          if: `async.data.organisationId == '${organisationId}' && async.data.siteId == '${id}'`,
-        })
-      );
-
-      await step.sendEvent(
-        'drives-sync-triggered',
-        siteIds.map((id) => ({
-          name: 'sharepoint/drives.sync.triggered',
-          data: {
-            siteId: id,
-            isFirstSync,
-            skipToken: null,
-            organisationId,
-          },
-        }))
-      );
-
-      await Promise.all(eventsWait);
+      await Promise.all([
+        ...siteIds.map((id) =>
+          step.waitForEvent(`wait-for-drives-complete-${id}`, {
+            event: 'sharepoint/drives.sync.completed',
+            timeout: '30d',
+            if: `async.data.organisationId == '${organisationId}' && async.data.siteId == '${id}'`,
+          })
+        ),
+        step.sendEvent(
+          'drives-sync-triggered',
+          siteIds.map((id) => ({
+            name: 'sharepoint/drives.sync.triggered',
+            data: {
+              siteId: id,
+              isFirstSync,
+              skipToken: null,
+              organisationId,
+            },
+          }))
+        ),
+      ]);
     }
 
     if (nextSkipToken) {

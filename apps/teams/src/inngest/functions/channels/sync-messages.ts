@@ -115,21 +115,20 @@ export const syncMessages = inngest.createFunction(
       return { nextSkipToken: messages.nextSkipToken, syncedMessages: selectedMessagesFields };
     });
 
-    if (syncedMessages.length) {
-      const messagesToSyncReplies = syncedMessages.filter((message) =>
-        Boolean(message['replies@odata.nextLink'])
-      );
+    const messagesToSyncReplies = syncedMessages.filter((message) =>
+      Boolean(message['replies@odata.nextLink'])
+    );
 
-      const eventsWait = messagesToSyncReplies.map(async ({ id }) => {
-        return step.waitForEvent(`wait-for-replies-complete-${id}`, {
-          event: 'teams/replies.sync.completed',
-          timeout: '1d',
-          if: `async.data.organisationId == '${organisationId}' && async.data.messageId == '${id}'`,
-        });
-      });
-
-      if (messagesToSyncReplies.length) {
-        await step.sendEvent(
+    if (messagesToSyncReplies.length) {
+      await Promise.all([
+        ...messagesToSyncReplies.map(async ({ id }) => {
+          return step.waitForEvent(`wait-for-replies-complete-${id}`, {
+            event: 'teams/replies.sync.completed',
+            timeout: '1d',
+            if: `async.data.organisationId == '${organisationId}' && async.data.messageId == '${id}'`,
+          });
+        }),
+        step.sendEvent(
           'start-replies-sync',
           messagesToSyncReplies.map((message) => {
             const urlParams = new URLSearchParams(message['replies@odata.nextLink']?.split('$')[1]);
@@ -148,10 +147,8 @@ export const syncMessages = inngest.createFunction(
               },
             };
           })
-        );
-      }
-
-      await Promise.all(eventsWait);
+        ),
+      ]);
     }
 
     if (nextSkipToken) {

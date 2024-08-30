@@ -65,31 +65,30 @@ export const syncDataProtectionPersonalDrives = inngest.createFunction(
     });
 
     if (users.length) {
-      const eventsToWait = users.map((user) =>
-        step.waitForEvent(`sync-personal-drive-${user.id}-completed`, {
-          event: 'google/data_protection.sync.drive.completed',
-          if: `async.data.organisationId == '${organisationId}' && async.data.managerUserId == '${user.id}' && async.data.driveId == null`,
-          timeout: '30 days',
-        })
-      );
-
-      await step.sendEvent(
-        'sync-personal-drives',
-        users.map((user) => ({
-          name: 'google/data_protection.sync.drive.requested',
-          data: {
-            driveId: null,
-            isFirstSync,
-            managerEmail: user.email,
-            managerUserId: user.id,
-            organisationId,
-            pageToken: null,
-            region,
-          },
-        }))
-      );
-
-      await Promise.all(eventsToWait);
+      await Promise.all([
+        ...users.map((user) =>
+          step.waitForEvent(`sync-personal-drive-${user.id}-completed`, {
+            event: 'google/data_protection.sync.drive.completed',
+            if: `async.data.organisationId == '${organisationId}' && async.data.managerUserId == '${user.id}' && async.data.driveId == null`,
+            timeout: '30 days',
+          })
+        ),
+        step.sendEvent(
+          'sync-personal-drives',
+          users.map((user) => ({
+            name: 'google/data_protection.sync.drive.requested',
+            data: {
+              driveId: null,
+              isFirstSync,
+              managerEmail: user.email,
+              managerUserId: user.id,
+              organisationId,
+              pageToken: null,
+              region,
+            },
+          }))
+        ),
+      ]);
     }
 
     if (nextPage) {
