@@ -32,29 +32,28 @@ export const startFolderAndFileSync = inngest.createFunction(
     });
 
     if (validUsers.length > 0) {
-      const waitForEvent = validUsers.map(({ profile }) =>
-        step.waitForEvent(`wait-folder-and-file-sync-${profile.team_member_id}`, {
-          event: 'dropbox/data_protection.folder_and_files.sync.completed',
-          timeout: '1day',
-          if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${profile.team_member_id}'`,
-        })
-      );
-
-      await step.sendEvent(
-        'sync-folder-and-files',
-        validUsers.map((user) => ({
-          name: 'dropbox/data_protection.folder_and_files.sync.requested',
-          data: {
-            organisationId,
-            teamMemberId: user.profile.team_member_id,
-            syncStartedAt,
-            isFirstSync: false,
-            cursor: null,
-          },
-        }))
-      );
-
-      await Promise.all(waitForEvent);
+      await Promise.all([
+        ...validUsers.map(({ profile }) =>
+          step.waitForEvent(`wait-folder-and-file-sync-${profile.team_member_id}`, {
+            event: 'dropbox/data_protection.folder_and_files.sync.completed',
+            timeout: '1day',
+            if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${profile.team_member_id}'`,
+          })
+        ),
+        step.sendEvent(
+          'sync-folder-and-files',
+          validUsers.map((user) => ({
+            name: 'dropbox/data_protection.folder_and_files.sync.requested',
+            data: {
+              organisationId,
+              teamMemberId: user.profile.team_member_id,
+              syncStartedAt,
+              isFirstSync: false,
+              cursor: null,
+            },
+          }))
+        ),
+      ]);
     }
 
     if (nextCursor) {
