@@ -10,31 +10,43 @@ export const elbaApps = [
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-0',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1000,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-1',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1000,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-2',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1000,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-3',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1000,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-4',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1000,
+        },
       },
     ],
-    metadata: {
-      installationId: 1000,
-    },
   },
   {
     description: 'app-description-101',
@@ -47,31 +59,43 @@ export const elbaApps = [
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-0',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1001,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-1',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1001,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-2',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1001,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-3',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1001,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-4',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1001,
+        },
       },
     ],
-    metadata: {
-      installationId: 1001,
-    },
   },
   {
     description: 'app-description-102',
@@ -84,31 +108,43 @@ export const elbaApps = [
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-0',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1002,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-1',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1002,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-2',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1002,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-3',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1002,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-4',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1002,
+        },
       },
     ],
-    metadata: {
-      installationId: 1002,
-    },
   },
   {
     description: 'app-description-103',
@@ -121,31 +157,43 @@ export const elbaApps = [
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-0',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1003,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-1',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1003,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-2',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1003,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-3',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1003,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-4',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1003,
+        },
       },
     ],
-    metadata: {
-      installationId: 1003,
-    },
   },
   {
     description: 'app-description-104',
@@ -158,30 +206,42 @@ export const elbaApps = [
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-0',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1004,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-1',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1004,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-2',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1004,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-3',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1004,
+        },
       },
       {
         createdAt: '2023-12-06T15:02:11.538Z',
         id: 'admin-id-4',
         scopes: ['foo:read', 'baz:write'],
+        metadata: {
+          installationId: 1004,
+        },
       },
     ],
-    metadata: {
-      installationId: 1004,
-    },
   },
 ];

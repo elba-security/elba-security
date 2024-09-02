@@ -26,14 +26,14 @@ const formatElbaApp = (
     name: app.name,
     publisherName: app.owner?.name ?? undefined,
     description: app.description ?? undefined,
-    metadata: {
-      // unused now, but will be usefull for future remediation feature
-      installationId: installation.id,
-    },
     users: adminIds.map((id) => ({
       id,
       scopes,
       createdAt: installation.created_at,
+      metadata: {
+        // unused now, but will be usefull for future remediation feature
+        installationId: installation.id,
+      },
     })),
   };
 };
