@@ -56,24 +56,22 @@ export const startSharedLinksSync = inngest.createFunction(
         ];
       });
 
-      const eventsToWait = sharedLinkJobs.map(
-        async (sharedLinkJob) =>
-          await step.waitForEvent(`wait-sync-shared-links`, {
+      await Promise.all([
+        ...sharedLinkJobs.map((sharedLinkJob) =>
+          step.waitForEvent(`wait-sync-shared-links`, {
             event: 'dropbox/data_protection.shared_links.sync.completed',
             timeout: '1 day',
             if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${sharedLinkJob.teamMemberId}' && async.data.isPersonal == ${sharedLinkJob.isPersonal}`,
           })
-      );
-
-      await step.sendEvent(
-        'sync-shared-links',
-        sharedLinkJobs.map((sharedLinkJob) => ({
-          name: 'dropbox/data_protection.shared_links.sync.requested',
-          data: sharedLinkJob,
-        }))
-      );
-
-      await Promise.all(eventsToWait);
+        ),
+        step.sendEvent(
+          'sync-shared-links',
+          sharedLinkJobs.map((sharedLinkJob) => ({
+            name: 'dropbox/data_protection.shared_links.sync.requested',
+            data: sharedLinkJob,
+          }))
+        ),
+      ]);
     }
 
     if (nextCursor) {
