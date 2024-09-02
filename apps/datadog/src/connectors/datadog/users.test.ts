@@ -105,7 +105,7 @@ describe('users connector', () => {
   describe('deleteUser', () => {
     beforeEach(() => {
       server.use(
-        http.delete<{ testId: string }>(
+        http.patch<{ testId: string }>(
           `https://api.datadoghq.eu/api/v2/users/:userId`,
           ({ request }) => {
             const url = new URL(request.url.toString());

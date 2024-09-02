@@ -87,11 +87,20 @@ export const deleteUser = async ({ apiKey, appKey, sourceRegion, userId }: Delet
   const url = new URL(`${getDatadogRegionAPIBaseURL(sourceRegion)}/api/v2/users/${userId}`);
 
   const response = await fetch(url.toString(), {
-    method: 'DELETE',
+    method: 'PATCH',
     headers: {
       'DD-API-KEY': apiKey,
       'DD-APPLICATION-KEY': appKey,
     },
+    body: JSON.stringify({
+      data: {
+        attributes: {
+          disabled: true,
+        },
+        id: userId,
+        type: 'users',
+      },
+    }),
   });
 
   if (!response.ok && response.status !== 404) {

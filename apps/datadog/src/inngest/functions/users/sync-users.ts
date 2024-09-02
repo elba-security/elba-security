@@ -8,6 +8,7 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
+import { getDatadogRegionURL } from '@/connectors/datadog/regions';
 
 const formatElbaUserAuthMethod = (user: DatadogUser) => {
   if (user.attributes.mfa_enabled) {
@@ -21,13 +22,26 @@ const formatElbaUserDisplayName = (user: DatadogUser) => {
   }
   return user.attributes.name;
 };
-const formatElbaUser = (user: DatadogUser): User => ({
+
+const formatElbaUserURL = ({ user, sourceRegion }: { user: DatadogUser; sourceRegion: string }) => {
+  const url = getDatadogRegionURL(sourceRegion);
+  return `${url}/organization-settings/users?user_id=${user.id}`;
+};
+
+const formatElbaUser = ({
+  user,
+  sourceRegion,
+}: {
+  user: DatadogUser;
+  sourceRegion: string;
+}): User => ({
   id: user.id,
   displayName: formatElbaUserDisplayName(user),
   email: user.attributes.email,
   authMethod: formatElbaUserAuthMethod(user),
   additionalEmails: [],
   isSuspendable: true,
+  url: formatElbaUserURL({ user, sourceRegion }),
 });
 
 export const syncUsers = inngest.createFunction(
@@ -89,7 +103,7 @@ export const syncUsers = inngest.createFunction(
 
       const users = result.validUsers
         .filter(({ attributes }) => attributes.status === 'Active')
-        .map(formatElbaUser);
+        .map((user) => formatElbaUser({ user, sourceRegion }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
