@@ -2,7 +2,7 @@ import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/harvest/auth';
-import { getOwnerId, getCompanyDomain } from '@/connectors/harvest/users';
+import { getAuthUser, getCompanyDomain } from '@/connectors/harvest/users';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
@@ -18,8 +18,8 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn } = await getToken(code);
-  const { ownerId } = await getOwnerId({ accessToken });
-  const { companyDomain } = await getCompanyDomain({ accessToken });
+  const { authUserId } = await getAuthUser(accessToken);
+  const { companyDomain } = await getCompanyDomain(accessToken);
 
   const encryptedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
@@ -30,7 +30,7 @@ export const setupOrganisation = async ({
       id: organisationId,
       accessToken: encryptedAccessToken,
       refreshToken: encodedRefreshToken,
-      ownerId,
+      authUserId,
       companyDomain,
       region,
     })
@@ -40,7 +40,7 @@ export const setupOrganisation = async ({
         accessToken: encryptedAccessToken,
         refreshToken: encodedRefreshToken,
         region,
-        ownerId,
+        authUserId,
         companyDomain,
       },
     });

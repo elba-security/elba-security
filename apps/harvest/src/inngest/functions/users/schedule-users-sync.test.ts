@@ -13,7 +13,7 @@ export const organisations = Array.from({ length: 5 }, (_, i) => ({
   accessToken: `test-access-token${i}`,
   refreshToken: `test-refresh-token${i}`,
   region: `us`,
-  ownerId: 'test-owner-id',
+  authUserId: 'test-owner-id',
   companyDomain: 'test-company-domain',
 }));
 

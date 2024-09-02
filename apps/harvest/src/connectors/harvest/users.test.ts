@@ -4,7 +4,7 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { HarvestError } from '../common/error';
 import type { HarvestUser } from './users';
-import { getUsers, deleteUser, getOwnerId, getCompanyDomain } from './users';
+import { getUsers, deleteUser, getAuthUser, getCompanyDomain } from './users';
 
 const validToken = 'token-1234';
 const userId = 'test-user-id';
@@ -108,13 +108,11 @@ describe('users connector', () => {
     });
 
     test('should return owner id successfully when token is valid', async () => {
-      await expect(getOwnerId({ accessToken: validToken })).resolves.not.toThrow();
+      await expect(getAuthUser(validToken)).resolves.not.toThrow();
     });
 
     test('should throw HarvestError when token is invalid', async () => {
-      await expect(getOwnerId({ accessToken: 'invalidToken' })).rejects.toBeInstanceOf(
-        HarvestError
-      );
+      await expect(getAuthUser('invalidToken')).rejects.toBeInstanceOf(HarvestError);
     });
   });
 
@@ -132,13 +130,11 @@ describe('users connector', () => {
     });
 
     test('should return company domain successfully when token is valid', async () => {
-      await expect(getCompanyDomain({ accessToken: validToken })).resolves.not.toThrow();
+      await expect(getCompanyDomain(validToken)).resolves.not.toThrow();
     });
 
     test('should throw HarvestError when token is invalid', async () => {
-      await expect(getCompanyDomain({ accessToken: 'invalidToken' })).rejects.toBeInstanceOf(
-        HarvestError
-      );
+      await expect(getCompanyDomain('invalidToken')).rejects.toBeInstanceOf(HarvestError);
     });
   });
 });

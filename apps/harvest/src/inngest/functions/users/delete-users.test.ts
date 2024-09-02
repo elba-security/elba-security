@@ -15,7 +15,7 @@ const organisation = {
   accessToken: await encrypt(accessToken),
   refreshToken: await encrypt(refreshToken),
   region: 'us',
-  ownerId: 'test-owner-id',
+  authUserId: 'test-owner-id',
   companyDomain: 'test-company-domain',
 };
 

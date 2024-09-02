@@ -16,13 +16,14 @@ const formatElbaUserDisplayName = (user: HarvestUser) => {
   }
   return user.email;
 };
+
 const formatElbaUser = ({
   user,
-  ownerId,
+  authUserId,
   companyDomain,
 }: {
   user: HarvestUser;
-  ownerId: string;
+  authUserId: string;
   companyDomain: string;
 }): User => ({
   id: String(user.id),
@@ -31,7 +32,7 @@ const formatElbaUser = ({
   role: user.access_roles.includes('administrator') ? 'administrator' : 'member',
   additionalEmails: [],
   url: `https://${companyDomain}/people/${user.id}/edit`,
-  isSuspendable: String(user.id) !== ownerId,
+  isSuspendable: String(user.id) !== authUserId,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -63,7 +64,7 @@ export const syncUsers = inngest.createFunction(
     const [organisation] = await db
       .select({
         accessToken: organisationsTable.accessToken,
-        ownerId: organisationsTable.ownerId,
+        authUserId: organisationsTable.authUserId,
         companyDomain: organisationsTable.companyDomain,
         region: organisationsTable.region,
       })
@@ -75,14 +76,14 @@ export const syncUsers = inngest.createFunction(
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const accessToken = await decrypt(organisation.accessToken);
-    const ownerId = organisation.ownerId;
+    const authUserId = organisation.authUserId;
     const companyDomain = organisation.companyDomain;
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ accessToken, page });
 
       const users = result.validUsers.map((user) =>
-        formatElbaUser({ user, ownerId, companyDomain })
+        formatElbaUser({ user, authUserId, companyDomain })
       );
 
       if (result.invalidUsers.length > 0) {
@@ -112,9 +113,9 @@ export const syncUsers = inngest.createFunction(
       };
     }
 
-    await step.run('finalize', () =>
-      elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
-    );
+    await step.run('finalize', () => {
+      return elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() });
+    });
 
     return {
       status: 'completed',

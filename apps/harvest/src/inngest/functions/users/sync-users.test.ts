@@ -12,7 +12,7 @@ const organisation = {
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
   region: 'us',
-  ownerId: 'test-owner-id',
+  authUserId: 'test-owner-id',
   companyDomain: 'test-company-domain',
 };
 const syncStartedAt = Date.now();

@@ -28,6 +28,7 @@ export function GET(request: NextRequest) {
   const redirectUrl = new URL(`${env.HARVEST_APP_INSTALL_URL}/oauth2/authorize`);
   redirectUrl.searchParams.append('client_id', env.HARVEST_CLIENT_ID);
   redirectUrl.searchParams.append('response_type', 'code');
+  redirectUrl.searchParams.append('redirect_uri', env.HARVEST_REDIRECT_URI);
   redirectUrl.searchParams.append('state', state);
 
   redirect(redirectUrl.toString());

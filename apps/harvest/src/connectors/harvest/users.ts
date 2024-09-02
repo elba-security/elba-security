@@ -9,6 +9,9 @@ const harvestUserSchema = z.object({
   last_name: z.string(),
   email: z.string(),
   access_roles: z.array(z.string()),
+  is_active: z.boolean(),
+  created_at: z.string(),
+  updated_at: z.string(),
 });
 
 export type HarvestUser = z.infer<typeof harvestUserSchema>;
@@ -29,10 +32,6 @@ export type DeleteUsersParams = {
   accessToken: string;
   userId: string;
 };
-
-const ownerIdResponseSchema = z.object({
-  id: z.number(),
-});
 
 const companyDomainResponseSchema = z.object({
   full_domain: z.string(),
@@ -63,6 +62,13 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   for (const user of users) {
     const userResult = harvestUserSchema.safeParse(user);
     if (userResult.success) {
+      const isInvited = userResult.data.created_at === userResult.data.updated_at;
+
+      // Ignore inactive & invited users
+      if (!userResult.data.is_active || isInvited) {
+        continue;
+      }
+
       validUsers.push(userResult.data);
     } else {
       invalidUsers.push(user);
@@ -77,7 +83,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
 };
 
 export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => {
-  const response = await fetch(`${env.HARVEST_API_BASE_URL}/users/${parseInt(userId)}`, {
+  const response = await fetch(`${env.HARVEST_API_BASE_URL}/users/${userId}`, {
     method: 'PATCH',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -91,7 +97,11 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
   }
 };
 
-export const getOwnerId = async ({ accessToken }: { accessToken: string }) => {
+const authUserResponseSchema = z.object({
+  id: z.number(),
+});
+
+export const getAuthUser = async (accessToken: string) => {
   const url = new URL(`${env.HARVEST_API_BASE_URL}/users/me`);
 
   const response = await fetch(url.toString(), {
@@ -107,18 +117,19 @@ export const getOwnerId = async ({ accessToken }: { accessToken: string }) => {
 
   const resData: unknown = await response.json();
 
-  const result = ownerIdResponseSchema.safeParse(resData);
+  const result = authUserResponseSchema.safeParse(resData);
+
   if (!result.success) {
-    logger.error('Invalid Harvest owner id response', { resData });
-    throw new HarvestError('Invalid Harvest owner id response');
+    logger.error('Invalid Harvest auth user response', { resData });
+    throw new HarvestError('Invalid Harvest auth user response');
   }
 
   return {
-    ownerId: String(result.data.id),
+    authUserId: String(result.data.id),
   };
 };
 
-export const getCompanyDomain = async ({ accessToken }: { accessToken: string }) => {
+export const getCompanyDomain = async (accessToken: string) => {
   const url = new URL(`${env.HARVEST_API_BASE_URL}/company`);
 
   const response = await fetch(url.toString(), {
