@@ -17,6 +17,21 @@ const formatElbaUserDisplayName = (user: HarvestUser) => {
   return user.email;
 };
 
+const findUserRole = (user: HarvestUser) => {
+  if (user.access_roles.includes('administrator')) {
+    return 'administrator';
+  }
+
+  if (user.access_roles.includes('manager')) {
+    // Users with the manager role can additionally be granted one or more of these roles
+    // Elba accepts only one role, so we prioritize the roles in the following order:
+    // DOC: https://help.getharvest.com/api-v2/users-api/users/users
+    return 'manager';
+  }
+
+  return 'member';
+};
+
 const formatElbaUser = ({
   user,
   authUserId,
@@ -29,7 +44,7 @@ const formatElbaUser = ({
   id: String(user.id),
   displayName: formatElbaUserDisplayName(user),
   email: user.email,
-  role: user.access_roles.includes('administrator') ? 'administrator' : 'member',
+  role: findUserRole(user),
   additionalEmails: [],
   url: `https://${companyDomain}/people/${user.id}/edit`,
   isSuspendable: String(user.id) !== authUserId,
