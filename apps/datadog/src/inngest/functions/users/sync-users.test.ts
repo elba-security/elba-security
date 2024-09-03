@@ -9,14 +9,16 @@ import { syncUsers } from './sync-users';
 
 const apiKey = 'test-access-token';
 const appKey = 'test-appKey';
+const authUserId = 'test-authUserId';
 const sourceRegion = 'EU1';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   apiKey: await encrypt(apiKey),
-  region: 'us',
   appKey,
+  authUserId,
   sourceRegion,
+  region: 'us',
 };
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();

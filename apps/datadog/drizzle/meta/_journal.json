@@ -8,6 +8,13 @@
       "when": 1716895208307,
       "tag": "0000_colorful_maestro",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1725314992598,
+      "tag": "0001_secret_kid_colt",
+      "breakpoints": true
     }
   ]
 }

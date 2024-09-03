@@ -75,11 +75,28 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
 
     logger.warn('Could not register organisation', { error });
 
-    if (error instanceof DatadogError && error.response?.status === 401) {
+    // Datadog return 403, if any of the above input invalid
+    if (error instanceof DatadogError && error.response?.status === 403) {
+      const errorText = await error.response.text();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- we trust the response.text on error
+      const errorResult: {
+        status: string;
+        code: string;
+      } = JSON.parse(errorText);
+
+      // On invalid API Key or App Key, error contains status property, { status: 'error', errors: [ 'Forbidden' ], ... }
+      if (errorResult.status === 'error') {
+        return {
+          errors: {
+            apiKey: ['The given API Token seems to be invalid'],
+            appKey: ['The given API App Key seems to be invalid'],
+          },
+        };
+      }
+
+      // On invalid region, error contains only, { errors: [ 'Forbidden' ] }
       return {
         errors: {
-          apiKey: ['The given API Token seems to be invalid'],
-          appKey: ['The given API App Key seems to be invalid'],
           sourceRegion: ['The given Source Region seems to be invalid'],
         },
       };

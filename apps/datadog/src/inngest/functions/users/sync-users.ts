@@ -31,16 +31,18 @@ const formatElbaUserURL = ({ user, sourceRegion }: { user: DatadogUser; sourceRe
 const formatElbaUser = ({
   user,
   sourceRegion,
+  authUserId,
 }: {
   user: DatadogUser;
   sourceRegion: string;
+  authUserId: string;
 }): User => ({
   id: user.id,
   displayName: formatElbaUserDisplayName(user),
   email: user.attributes.email,
   authMethod: formatElbaUserAuthMethod(user),
   additionalEmails: [],
-  isSuspendable: true,
+  isSuspendable: authUserId !== user.id,
   url: formatElbaUserURL({ user, sourceRegion }),
 });
 
@@ -75,6 +77,7 @@ export const syncUsers = inngest.createFunction(
         apiKey: organisationsTable.apiKey,
         appKey: organisationsTable.appKey,
         sourceRegion: organisationsTable.sourceRegion,
+        authUserId: organisationsTable.authUserId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -101,9 +104,9 @@ export const syncUsers = inngest.createFunction(
         page,
       });
 
-      const users = result.validUsers
-        .filter(({ attributes }) => attributes.status === 'Active')
-        .map((user) => formatElbaUser({ user, sourceRegion }));
+      const users = result.validUsers.map((user) =>
+        formatElbaUser({ user, sourceRegion, authUserId: organisation.authUserId })
+      );
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

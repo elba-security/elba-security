@@ -5,6 +5,7 @@ import { getDatadogRegionAPIBaseURL } from './regions';
 
 const datadogUserSchema = z.object({
   id: z.string().min(1),
+  type: z.string().min(1),
   attributes: z.object({
     name: z.string(),
     email: z.string(),
@@ -69,6 +70,11 @@ export const getUsers = async ({ apiKey, appKey, sourceRegion, page = 0 }: GetUs
   for (const user of data) {
     const result = datadogUserSchema.safeParse(user);
     if (result.success) {
+      // We are only interested in active users
+      if (result.data.type !== 'users' || result.data.attributes.status !== 'Active') {
+        continue;
+      }
+
       validUsers.push(result.data);
     } else {
       invalidUsers.push(user);
@@ -80,6 +86,46 @@ export const getUsers = async ({ apiKey, appKey, sourceRegion, page = 0 }: GetUs
     validUsers,
     invalidUsers,
     nextPage: (page + 1) * pageSize < totalFilteredCount ? page + 1 : null,
+  };
+};
+
+type GetAuthUser = {
+  apiKey: string;
+  appKey: string;
+  sourceRegion: string;
+};
+
+const authUserResponseSchema = z.object({
+  data: z.object({
+    id: z.string(),
+  }),
+});
+
+export const getAuthUser = async ({ apiKey, appKey, sourceRegion }: GetAuthUser) => {
+  const url = new URL(`${getDatadogRegionAPIBaseURL(sourceRegion)}/api/v2/current_user`);
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      'DD-API-KEY': apiKey,
+      'DD-APPLICATION-KEY': appKey,
+    },
+  });
+
+  if (!response.ok) {
+    throw new DatadogError('Could not retrieve Datadog users', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = authUserResponseSchema.safeParse(resData);
+
+  if (!result.success) {
+    throw new DatadogError('Could not retrieve Datadog users', { response });
+  }
+
+  return {
+    authUserId: result.data.data.id,
   };
 };
 

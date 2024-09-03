@@ -9,6 +9,7 @@ import { deleteUser } from './delete-user';
 const userId = 'user-id';
 const apiKey = 'test-access-token';
 const appKey = 'test-appKey';
+const authUserId = 'test-authUserId';
 const sourceRegion = 'EU';
 
 const organisation = {
@@ -16,6 +17,7 @@ const organisation = {
   apiKey: await encrypt(apiKey),
   region: 'us',
   appKey,
+  authUserId,
   sourceRegion,
 };
 

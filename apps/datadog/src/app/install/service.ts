@@ -1,8 +1,8 @@
 import { encrypt } from '@/common/crypto';
-import { getUsers } from '../../connectors/datadog/users';
-import { db } from '../../database/client';
-import { organisationsTable } from '../../database/schema';
-import { inngest } from '../../inngest/client';
+import { getAuthUser, getUsers } from '@/connectors/datadog/users';
+import { db } from '@/database/client';
+import { organisationsTable } from '@/database/schema';
+import { inngest } from '@/inngest/client';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -20,17 +20,24 @@ export const registerOrganisation = async ({
 }: SetupOrganisationParams) => {
   await getUsers({ apiKey, appKey, sourceRegion, page: 0 });
 
+  const { authUserId } = await getAuthUser({
+    apiKey,
+    appKey,
+    sourceRegion,
+  });
+
   const encodedtoken = await encrypt(apiKey);
 
   await db
     .insert(organisationsTable)
-    .values({ id: organisationId, region, apiKey: encodedtoken, appKey, sourceRegion })
+    .values({ id: organisationId, region, apiKey: encodedtoken, appKey, authUserId, sourceRegion })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
         region,
         apiKey: encodedtoken,
         appKey,
+        authUserId,
         sourceRegion,
       },
     });
