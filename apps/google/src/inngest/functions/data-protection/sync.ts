@@ -47,30 +47,29 @@ export const syncDataProtection = inngest.createFunction(
 
     const driveTypes = ['personal', 'shared'] as const;
 
-    const eventsToWait = driveTypes.map((driveType) =>
-      step.waitForEvent(`sync-${driveType}-drives`, {
-        event: `google/data_protection.sync.drives.${driveType}.completed`,
-        if: `async.data.organisationId == '${organisationId}'`,
-        timeout: '1day',
-      })
-    );
-
-    await step.sendEvent(
-      'sync-drives',
-      driveTypes.map((driveType) => ({
-        name: `google/data_protection.sync.drives.${driveType}.requested`,
-        data: {
-          organisationId,
-          region,
-          googleAdminEmail,
-          googleCustomerId,
-          isFirstSync,
-          pageToken: null,
-        },
-      }))
-    );
-
-    await Promise.all(eventsToWait);
+    await Promise.all([
+      ...driveTypes.map((driveType) =>
+        step.waitForEvent(`sync-${driveType}-drives`, {
+          event: `google/data_protection.sync.drives.${driveType}.completed`,
+          if: `async.data.organisationId == '${organisationId}'`,
+          timeout: '30 days',
+        })
+      ),
+      step.sendEvent(
+        'sync-drives',
+        driveTypes.map((driveType) => ({
+          name: `google/data_protection.sync.drives.${driveType}.requested`,
+          data: {
+            organisationId,
+            region,
+            googleAdminEmail,
+            googleCustomerId,
+            isFirstSync,
+            pageToken: null,
+          },
+        }))
+      ),
+    ]);
 
     const elba = getElbaClient({ organisationId, region });
     await elba.dataProtection.deleteObjects({ syncedBefore: syncStartedAt });

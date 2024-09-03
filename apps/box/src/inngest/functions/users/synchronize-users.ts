@@ -16,6 +16,7 @@ const formatElbaUser = (user: BoxUser): User => ({
   displayName: user.name,
   email: user.login,
   additionalEmails: [],
+  isSuspendable: true,
 });
 
 export const synchronizeUsers = inngest.createFunction(

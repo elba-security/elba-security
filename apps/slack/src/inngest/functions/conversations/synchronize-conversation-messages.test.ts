@@ -37,7 +37,7 @@ describe('synchronize-conversation-messages', () => {
           ts: '1700000001.000000',
           user: 'user',
           text: 'text1',
-          thread_ts: 'thread-id',
+          thread_ts: '1700000001.000000',
         },
         {
           type: 'message',
@@ -90,7 +90,7 @@ describe('synchronize-conversation-messages', () => {
     await expect(result).resolves.toStrictEqual({
       objects: 2,
       nextCursor: 'next-cursor',
-      threadIds: ['thread-id'],
+      threadIds: ['1700000001.000000'],
     });
 
     expect(crypto.decrypt).toBeCalledTimes(1);
@@ -158,11 +158,14 @@ describe('synchronize-conversation-messages', () => {
     });
 
     expect(step.waitForEvent).toBeCalledTimes(1);
-    expect(step.waitForEvent).toBeCalledWith('wait-for-thread-message-sync-complete-thread-id', {
-      event: 'slack/conversations.sync.thread.messages.completed',
-      if: "async.data.teamId == 'team-id' && async.data.conversationId == 'conversation-id' && async.data.threadId == 'thread-id'",
-      timeout: '30 days',
-    });
+    expect(step.waitForEvent).toBeCalledWith(
+      'wait-for-thread-message-sync-complete-1700000001.000000',
+      {
+        event: 'slack/conversations.sync.thread.messages.completed',
+        if: "async.data.teamId == 'team-id' && async.data.conversationId == 'conversation-id' && async.data.threadId == '1700000001.000000'",
+        timeout: '30 days',
+      }
+    );
 
     expect(step.sendEvent).toBeCalledTimes(2);
     expect(step.sendEvent).toBeCalledWith('start-conversation-thread-messages-synchronization', [
@@ -171,7 +174,7 @@ describe('synchronize-conversation-messages', () => {
           conversationId: 'conversation-id',
           isFirstSync: true,
           teamId: 'team-id',
-          threadId: 'thread-id',
+          threadId: '1700000001.000000',
         },
         name: 'slack/conversations.sync.thread.messages.requested',
       },
@@ -199,7 +202,7 @@ describe('synchronize-conversation-messages', () => {
           ts: '1700000001.000000',
           user: 'user',
           text: 'text1',
-          thread_ts: 'thread-id',
+          thread_ts: '1700000001.000000',
         },
         {
           type: 'message',
@@ -250,7 +253,7 @@ describe('synchronize-conversation-messages', () => {
     await expect(result).resolves.toStrictEqual({
       objects: 2,
       nextCursor: undefined,
-      threadIds: ['thread-id'],
+      threadIds: ['1700000001.000000'],
     });
 
     expect(crypto.decrypt).toBeCalledTimes(1);
@@ -319,11 +322,14 @@ describe('synchronize-conversation-messages', () => {
     });
 
     expect(step.waitForEvent).toBeCalledTimes(1);
-    expect(step.waitForEvent).toBeCalledWith('wait-for-thread-message-sync-complete-thread-id', {
-      event: 'slack/conversations.sync.thread.messages.completed',
-      if: "async.data.teamId == 'team-id' && async.data.conversationId == 'conversation-id' && async.data.threadId == 'thread-id'",
-      timeout: '30 days',
-    });
+    expect(step.waitForEvent).toBeCalledWith(
+      'wait-for-thread-message-sync-complete-1700000001.000000',
+      {
+        event: 'slack/conversations.sync.thread.messages.completed',
+        if: "async.data.teamId == 'team-id' && async.data.conversationId == 'conversation-id' && async.data.threadId == '1700000001.000000'",
+        timeout: '30 days',
+      }
+    );
 
     expect(step.sendEvent).toBeCalledTimes(2);
     expect(step.sendEvent).toBeCalledWith('start-conversation-thread-messages-synchronization', [
@@ -332,7 +338,7 @@ describe('synchronize-conversation-messages', () => {
           conversationId: 'conversation-id',
           isFirstSync: false,
           teamId: 'team-id',
-          threadId: 'thread-id',
+          threadId: '1700000001.000000',
         },
         name: 'slack/conversations.sync.thread.messages.requested',
       },

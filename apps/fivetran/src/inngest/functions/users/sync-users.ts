@@ -24,6 +24,7 @@ const formatElbaUser = (user: FivetranUser): User => ({
   email: user.email,
   role: user.role || undefined,
   additionalEmails: [],
+  isSuspendable: true,
 });
 
 export const synchronizeUsers = inngest.createFunction(

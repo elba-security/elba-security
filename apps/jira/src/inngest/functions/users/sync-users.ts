@@ -14,6 +14,7 @@ const formatElbaUser = (user: JiraUser): User => ({
   displayName: user.displayName,
   email: user.emailAddress,
   additionalEmails: [],
+  isSuspendable: true,
 });
 
 export const syncUsers = inngest.createFunction(
