@@ -21,6 +21,7 @@ const organisation = {
 
 const users: usersConnector.FrontappUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
+  username: `username-${i}`,
   email: `user-${i}@foo.bar`,
   first_name: `first_name-${i}`,
   last_name: `last_name-${i}`,
@@ -92,7 +93,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: 'id-0',
           role: 'member',
-          url: 'https://app.frontapp.com/settings/global/teammates',
+          url: 'https://app.frontapp.com/settings/global/teammates/edit/username-0/overview',
         },
         {
           additionalEmails: [],
@@ -100,7 +101,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           role: 'member',
-          url: 'https://app.frontapp.com/settings/global/teammates',
+          url: 'https://app.frontapp.com/settings/global/teammates/edit/username-1/overview',
         },
       ],
     });
@@ -134,7 +135,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: 'id-0',
           role: 'member',
-          url: 'https://app.frontapp.com/settings/global/teammates',
+          url: 'https://app.frontapp.com/settings/global/teammates/edit/username-0/overview',
         },
         {
           additionalEmails: [],
@@ -142,7 +143,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           role: 'member',
-          url: 'https://app.frontapp.com/settings/global/teammates',
+          url: 'https://app.frontapp.com/settings/global/teammates/edit/username-1/overview',
         },
       ],
     });

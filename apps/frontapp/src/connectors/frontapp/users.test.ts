@@ -12,6 +12,7 @@ const nextPage = `${env.FRONTAPP_API_BASE_URL}/teammates?limit=${env.FRONTAPP_US
 
 const validUsers: FrontappUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
+  username: `username-${i}`,
   email: `user-${i}@foo.bar`,
   first_name: `first_name-${i}`,
   last_name: `last_name-${i}`,

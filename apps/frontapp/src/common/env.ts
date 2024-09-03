@@ -13,7 +13,7 @@ export const env = z
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
-    FRONTAPP_APP_INSTALL_URL: z.string().url('https://auth.frontapp.com/oauth'),
+    FRONTAPP_APP_INSTALL_URL: z.string().url('https://app.frontapp.com/oauth'),
     FRONTAPP_API_BASE_URL: z.string().url('https://api2.frontapp.com'),
     FRONTAPP_CLIENT_ID: z.string().min(1),
     FRONTAPP_CLIENT_SECRET: z.string().min(1),

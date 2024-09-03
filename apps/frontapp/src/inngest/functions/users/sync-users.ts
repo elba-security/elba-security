@@ -21,9 +21,9 @@ const formatElbaUser = (user: FrontappUser): User => ({
   id: user.id,
   displayName: formatElbaUserDisplayName(user),
   email: user.email,
-  role: user.is_admin ? 'admin' : 'member',
+  role: user.is_admin ? 'admin' : 'member', //  it is not a good choice to define roles based on the is_admin field, however since  there are only two roles in the system, we can use this field to determine the role of the user
   additionalEmails: [],
-  url: 'https://app.frontapp.com/settings/global/teammates',
+  url: `https://app.frontapp.com/settings/global/teammates/edit/${user.username}/overview`,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -72,9 +72,7 @@ export const syncUsers = inngest.createFunction(
         page,
       });
 
-      const users = result.validUsers
-        .filter(({ is_blocked: isBlocked }) => !isBlocked)
-        .map(formatElbaUser);
+      const users = result.validUsers.map(formatElbaUser);
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

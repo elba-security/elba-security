@@ -30,7 +30,7 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should transform the output error to RetryAfterError when the error is about Doppler rate limit', () => {
+  test('should transform the output error to RetryAfterError when the error is about Frontapp rate limit', () => {
     const rateLimitError = new FrontappError('foo bar', {
       // @ts-expect-error this is a mock
       response: {

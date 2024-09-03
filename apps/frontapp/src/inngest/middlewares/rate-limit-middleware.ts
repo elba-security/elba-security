@@ -18,11 +18,8 @@ export const rateLimitMiddleware = new InngestMiddleware({
             }
 
             if (error.response?.status === 429) {
-              let retryAfter = 60;
-              const retryAfterHeader = error.response.headers.get('Retry-After');
-              if (retryAfterHeader) {
-                retryAfter = parseInt(retryAfterHeader, 10);
-              }
+              const retryAfter = error.response.headers.get('retry-after') || 60;
+
               return {
                 ...context,
                 result: {

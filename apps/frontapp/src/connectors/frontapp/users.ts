@@ -4,6 +4,7 @@ import { FrontappError } from '../common/error';
 
 const frontappUserSchema = z.object({
   id: z.string(),
+  username: z.string(),
   email: z.string(),
   first_name: z.string(),
   last_name: z.string(),
@@ -28,6 +29,8 @@ export type GetUsersParams = {
 export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   const url = new URL(`${env.FRONTAPP_API_BASE_URL}/teammates`);
 
+  // TODO: We are not sure of the limit, because it is not documented, we should check with Frontapp support
+  // https://dev.frontapp.com/reference/list-teammates
   url.searchParams.append('limit', `${env.FRONTAPP_USERS_SYNC_BATCH_SIZE}`);
 
   const response = await fetch(page ?? url.toString(), {
@@ -52,6 +55,10 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   for (const user of result._results) {
     const userResult = frontappUserSchema.safeParse(user);
     if (userResult.success) {
+      if (userResult.data.is_blocked) {
+        continue;
+      }
+
       validUsers.push(userResult.data);
     } else {
       invalidUsers.push(user);
