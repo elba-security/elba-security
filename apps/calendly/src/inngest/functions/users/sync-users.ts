@@ -16,13 +16,19 @@ const extractUUID = (user: CalendlyUser): string => {
   const match = regex.exec(user.uri);
   return match?.groups?.uuid ? match.groups.uuid : user.user.email;
 };
-const formatElbaUser = (user: CalendlyUser): User => ({
+const formatElbaUser = ({
+  user,
+  authUserUri,
+}: {
+  user: CalendlyUser;
+  authUserUri: string;
+}): User => ({
   id: extractUUID(user),
   displayName: user.user.name,
   email: user.user.email,
   role: user.role,
   additionalEmails: [],
-  isSuspendable: user.role !== 'owner',
+  isSuspendable: user.user.uri !== authUserUri,
   url: 'https://calendly.com/app/admin/users',
 });
 
@@ -55,6 +61,7 @@ export const syncUsers = inngest.createFunction(
     const [organisation] = await db
       .select({
         token: organisationsTable.accessToken,
+        authUserUri: organisationsTable.authUserUri,
         region: organisationsTable.region,
         organizationUri: organisationsTable.organizationUri,
       })
@@ -66,6 +73,7 @@ export const syncUsers = inngest.createFunction(
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.token);
+    const authUserUri = organisation.authUserUri;
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({
@@ -74,7 +82,7 @@ export const syncUsers = inngest.createFunction(
         page,
       });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers.map((user) => formatElbaUser({ user, authUserUri }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
