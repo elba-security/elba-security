@@ -17,7 +17,7 @@ const accountInfo = z.object({
   base_uri: z.string(),
 });
 
-const getAccountIdResponseData = z.object({
+const getAuthUserResponseData = z.object({
   sub: z.string(),
   accounts: z.array(accountInfo),
 });
@@ -89,7 +89,7 @@ export const getRefreshToken = async (refreshToken: string) => {
   };
 };
 
-export const getAccountId = async (accessToken: string) => {
+export const getAuthUser = async (accessToken: string) => {
   // DOC: https://developers.docusign.com/platform/auth/reference/user-info/
   const response = await fetch(`${env.DOCUSIGN_APP_INSTALL_URL}/oauth/userinfo`, {
     method: 'GET',
@@ -104,7 +104,7 @@ export const getAccountId = async (accessToken: string) => {
   }
 
   const data: unknown = await response.json();
-  const result = getAccountIdResponseData.safeParse(data);
+  const result = getAuthUserResponseData.safeParse(data);
 
   if (!result.success || !result.data.accounts.length) {
     throw new DocusignError('Could not retrieve account id', { response });
@@ -116,6 +116,7 @@ export const getAccountId = async (accessToken: string) => {
     throw new DocusignError('Could not retrieve account id or base URI', { response });
   }
 
+  // We need to identify if the auth user is an admin or not
   const { isAdmin } = await getUser({
     apiBaseUri: baseAccount.base_uri,
     accessToken,
@@ -128,6 +129,7 @@ export const getAccountId = async (accessToken: string) => {
   }
 
   return {
+    authUserId: result.data.sub,
     accountId: baseAccount.account_id,
     apiBaseUri: baseAccount.base_uri,
   };

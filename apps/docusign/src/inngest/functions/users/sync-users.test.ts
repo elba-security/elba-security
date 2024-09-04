@@ -12,16 +12,12 @@ const newTokens = {
   refreshToken: 'new-refresh-token',
 };
 
-const encryptedTokens = {
-  accessToken: await encrypt(newTokens.accessToken),
-  refreshToken: await encrypt(newTokens.refreshToken),
-};
-
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  accessToken: encryptedTokens.accessToken,
-  refreshToken: encryptedTokens.refreshToken,
+  accessToken: await encrypt(newTokens.accessToken),
+  refreshToken: await encrypt(newTokens.refreshToken),
   accountId: '00000000-0000-0000-0000-000000000010',
+  authUserId: '00000000-0000-0000-0000-000000000011',
   apiBaseUri: 'test-url',
   region: 'us',
 };
