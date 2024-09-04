@@ -21,19 +21,11 @@ const frontappResponseSchema = z.object({
   }),
 });
 
-export type GetUsersParams = {
-  accessToken: string;
-  page?: string | null;
-};
-
-export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
+export const getUsers = async (accessToken: string) => {
   const url = new URL(`${env.FRONTAPP_API_BASE_URL}/teammates`);
 
-  // TODO: We are not sure of the limit, because it is not documented, we should check with Frontapp support
-  // https://dev.frontapp.com/reference/list-teammates
-  url.searchParams.append('limit', `${env.FRONTAPP_USERS_SYNC_BATCH_SIZE}`);
-
-  const response = await fetch(page ?? url.toString(), {
+  // At the moment it doesn't support pagination, however, the response contains a `_pagination` property,
+  const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
       Accept: 'application/json',
@@ -65,9 +57,14 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
     }
   }
 
+  if (result._pagination.next) {
+    throw new FrontappError('Frontapp list teammates API started to support pagination', {
+      response,
+    });
+  }
+
   return {
     validUsers,
     invalidUsers,
-    nextPage: result._pagination.next,
   };
 };

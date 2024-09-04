@@ -50,7 +50,7 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'frontapp/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, syncStartedAt } = event.data;
 
     const [organisation] = await db
       .select({
@@ -66,11 +66,10 @@ export const syncUsers = inngest.createFunction(
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.token);
 
-    const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({
-        accessToken: token,
-        page,
-      });
+    await step.run('list-users', async () => {
+      // Teammates API doesn't support pagination (it is verified with support team)
+      // https://dev.frontapp.com/reference/list-teammates
+      const result = await getUsers(token);
 
       const users = result.validUsers.map(formatElbaUser);
 
@@ -83,22 +82,7 @@ export const syncUsers = inngest.createFunction(
       if (users.length > 0) {
         await elba.users.update({ users });
       }
-
-      return result.nextPage;
     });
-
-    if (nextPage) {
-      await step.sendEvent('sync-users', {
-        name: 'frontapp/users.sync.requested',
-        data: {
-          ...event.data,
-          page: nextPage,
-        },
-      });
-      return {
-        status: 'ongoing',
-      };
-    }
 
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })

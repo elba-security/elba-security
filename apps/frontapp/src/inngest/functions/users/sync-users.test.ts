@@ -9,7 +9,6 @@ import { syncUsers } from './sync-users';
 
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
-const nextPage = '1';
 const organizationUri = 'some-org-uri';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -36,14 +35,12 @@ describe('sync-users', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: null,
     });
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt: Date.now(),
-      page: null,
     });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
@@ -60,30 +57,17 @@ describe('sync-users', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage,
     });
 
-    const [result, { step }] = setup({
+    const [result] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: nextPage,
     });
 
-    await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
+    await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
     const elbaInstance = elba.mock.results[0]?.value;
-    expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('sync-users', {
-      name: 'frontapp/users.sync.requested',
-      data: {
-        organisationId: organisation.id,
-        isFirstSync: false,
-        syncStartedAt,
-        page: nextPage,
-      },
-    });
-
     expect(elbaInstance?.users.update).toBeCalledTimes(1);
     expect(elbaInstance?.users.update).toBeCalledWith({
       users: [
@@ -105,7 +89,7 @@ describe('sync-users', () => {
         },
       ],
     });
-    expect(elbaInstance?.users.delete).not.toBeCalled();
+    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
   });
 
   test('should finalize the sync when there is a no next page', async () => {
@@ -114,14 +98,12 @@ describe('sync-users', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: null,
     });
 
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
       syncStartedAt,
-      page: null,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
