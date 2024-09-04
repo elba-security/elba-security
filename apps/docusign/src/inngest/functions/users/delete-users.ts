@@ -5,9 +5,17 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUsers as deleteDocusignUsers } from '@/connectors/docusign/users';
 import { decrypt } from '@/common/crypto';
+import { env } from '@/common/env';
 
 export const deleteUsers = inngest.createFunction(
-  { id: 'delete-users' },
+  {
+    id: 'docusign-delete-users',
+    concurrency: {
+      key: 'event.data.organisationId',
+      limit: env.DOCUSIGN_DELETE_USER_CONCURRENCY,
+    },
+    retries: 5,
+  },
   { event: 'docusign/users.delete.requested' },
   async ({ event }) => {
     const { organisationId, userIds } = event.data;

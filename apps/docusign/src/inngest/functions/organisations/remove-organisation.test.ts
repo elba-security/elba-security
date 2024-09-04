@@ -10,6 +10,7 @@ import { removeOrganisation } from './remove-organisation';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accountId: '00000000-0000-0000-0000-000000000005',
+  authUserId: '00000000-0000-0000-0000-000000000006',
   apiBaseUri: 'some url',
   accessToken: 'access-token',
   refreshToken: 'refresh-token',

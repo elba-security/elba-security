@@ -18,6 +18,7 @@ const expiresIn = 3600;
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accountId: '00000000-0000-0000-0000-000000000010',
+  authUserId: '00000000-0000-0000-0000-000000000011',
   accessToken: 'access-token',
   refreshToken: 'refresh-token',
   apiBaseUri: 'https://api.docusign.net',
@@ -31,6 +32,7 @@ const getTokenData = {
 };
 
 const getAccountData = {
+  authUserId: organisation.authUserId,
   accountId: organisation.accountId,
   apiBaseUri: organisation.apiBaseUri,
 };
@@ -48,7 +50,7 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
-    const getAccountId = vi.spyOn(authConnector, 'getAccountId').mockResolvedValue(getAccountData);
+    const getAuthUser = vi.spyOn(authConnector, 'getAuthUser').mockResolvedValue(getAccountData);
 
     await expect(
       setupOrganisation({
@@ -61,7 +63,7 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
-    expect(getAccountId).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledTimes(1);
 
     const [storedOrganisation] = await db
       .select()
@@ -107,7 +109,7 @@ describe('setupOrganisation', () => {
     await db.insert(organisationsTable).values(organisation);
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
-    vi.spyOn(authConnector, 'getAccountId').mockResolvedValue(getAccountData);
+    vi.spyOn(authConnector, 'getAuthUser').mockResolvedValue(getAccountData);
 
     await expect(
       setupOrganisation({
@@ -162,7 +164,7 @@ describe('setupOrganisation', () => {
     const error = new Error('invalid code');
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockRejectedValue(error);
-    const getAccount = vi.spyOn(authConnector, 'getAccountId').mockResolvedValue(getAccountData);
+    const getAccount = vi.spyOn(authConnector, 'getAuthUser').mockResolvedValue(getAccountData);
 
     await expect(
       setupOrganisation({

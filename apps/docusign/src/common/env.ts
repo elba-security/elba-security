@@ -10,6 +10,7 @@ export const env = z
     DOCUSIGN_REDIRECT_URI: z.string().url(),
     DOCUSIGN_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     DOCUSIGN_USERS_SYNC_BATCH_SIZE: zEnvInt().default(2),
+    DOCUSIGN_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
     ENCRYPTION_KEY: z.string().min(1),
     ELBA_API_KEY: z.string().min(1),
     ELBA_API_BASE_URL: z.string().url(),

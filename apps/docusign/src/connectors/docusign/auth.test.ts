@@ -4,7 +4,7 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import * as userConnector from '@/connectors/docusign/users';
 import { DocusignError } from '../common/error';
-import { getAccountId, getRefreshToken, getToken } from './auth';
+import { getAuthUser, getRefreshToken, getToken } from './auth';
 
 const validCode = '1234';
 const accessToken = 'access-token-1234';
@@ -84,7 +84,7 @@ describe('auth connector', () => {
     });
   });
 
-  describe('getAccountId', () => {
+  describe('getAuthUser', () => {
     beforeEach(() => {
       server.use(
         http.get(`${env.DOCUSIGN_APP_INSTALL_URL}/oauth/userinfo`, () => {
@@ -108,8 +108,9 @@ describe('auth connector', () => {
         isAdmin: 'True',
       });
 
-      await expect(getAccountId(accessToken)).resolves.toStrictEqual({
+      await expect(getAuthUser(accessToken)).resolves.toStrictEqual({
         accountId: '00000000-0000-0000-0000-000000000010',
+        authUserId: '00000000-0000-0000-0000-000000000001',
         apiBaseUri: 'https://api.docusign.net',
       });
 

@@ -1,7 +1,7 @@
 import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { getToken, getAccountId } from '@/connectors/docusign/auth';
+import { getToken, getAuthUser } from '@/connectors/docusign/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
@@ -17,7 +17,7 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn } = await getToken(code);
-  const { accountId, apiBaseUri } = await getAccountId(accessToken);
+  const { authUserId, accountId, apiBaseUri } = await getAuthUser(accessToken);
 
   const encodedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
@@ -28,6 +28,7 @@ export const setupOrganisation = async ({
       id: organisationId,
       accessToken: encodedAccessToken,
       refreshToken: encodedRefreshToken,
+      authUserId,
       accountId,
       apiBaseUri,
       region,
@@ -35,6 +36,7 @@ export const setupOrganisation = async ({
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
+        authUserId,
         accountId,
         accessToken: encodedAccessToken,
         refreshToken: encodedRefreshToken,
