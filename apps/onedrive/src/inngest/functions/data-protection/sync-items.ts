@@ -85,10 +85,10 @@ export const syncItems = inngest.createFunction(
           [...itemIds.values()].map(async (itemId) => {
             const itemPermissions = await getAllItemPermissions({ token, userId, itemId });
 
-            const result = itemPermissions.filter(
+            const filteredPermissions = itemPermissions.filter(
               (permission) => !permission.roles.includes('owner')
             );
-            return [itemId, result] as const;
+            return [itemId, filteredPermissions] as const;
           })
         )
       );
