@@ -11,12 +11,15 @@ const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const nextPage = '1';
 const organizationUri = 'some-org-uri';
+const authUserUri = 'https://api.calendly.com/users/AAAAAAAAAAAAAAAA';
+
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
   organizationUri,
   region: 'us',
+  authUserUri,
 };
 
 const users: usersConnector.CalendlyUser[] = Array.from({ length: 2 }, (_, i) => ({
@@ -24,6 +27,7 @@ const users: usersConnector.CalendlyUser[] = Array.from({ length: 2 }, (_, i) =>
   user: {
     name: `name-${i}`,
     email: `user-${i}@foo.bar`,
+    uri: `https://test-uri/users/00000000-0000-0000-0000-00000000009${i}`,
   },
   role: 'user',
 }));
@@ -93,6 +97,7 @@ describe('sync-users', () => {
           id: '00000000-0000-0000-0000-000000000090',
           role: 'user',
           isSuspendable: true,
+          url: 'https://calendly.com/app/admin/users',
         },
         {
           additionalEmails: [],
@@ -101,6 +106,7 @@ describe('sync-users', () => {
           role: 'user',
           id: '00000000-0000-0000-0000-000000000091',
           isSuspendable: true,
+          url: 'https://calendly.com/app/admin/users',
         },
       ],
     });
@@ -135,6 +141,7 @@ describe('sync-users', () => {
           role: 'user',
           id: '00000000-0000-0000-0000-000000000090',
           isSuspendable: true,
+          url: 'https://calendly.com/app/admin/users',
         },
         {
           additionalEmails: [],
@@ -143,6 +150,7 @@ describe('sync-users', () => {
           role: 'user',
           id: '00000000-0000-0000-0000-000000000091',
           isSuspendable: true,
+          url: 'https://calendly.com/app/admin/users',
         },
       ],
     });

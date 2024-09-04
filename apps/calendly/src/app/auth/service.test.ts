@@ -1,6 +1,7 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import * as authConnector from '@/connectors/calendly/auth';
+import * as usersConnector from '@/connectors/calendly/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -14,11 +15,17 @@ const refreshToken = 'some refresh token';
 const expiresIn = 60;
 const region = 'us';
 const now = new Date();
+const authUserUri = 'https://api.calendly.com/users/AAAAAAAAAAAAAAAA';
+
 const getTokenData = {
   accessToken,
   refreshToken,
   expiresIn,
   organizationUri: 'some organization_uri',
+};
+
+const getAuthUserData = {
+  authUserUri: String(authUserUri),
 };
 
 const organisation = {
@@ -27,6 +34,7 @@ const organisation = {
   refreshToken,
   organizationUri: 'some organization_uri',
   region,
+  authUserUri,
 };
 
 describe('setupOrganisation', () => {
@@ -42,6 +50,7 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
 
     await expect(
       setupOrganisation({
@@ -53,6 +62,9 @@ describe('setupOrganisation', () => {
 
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
+
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith(accessToken);
 
     const [storedOrganisation] = await db
       .select()
@@ -97,6 +109,8 @@ describe('setupOrganisation', () => {
     await db.insert(organisationsTable).values(organisation);
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
+
     await expect(
       setupOrganisation({
         organisationId: organisation.id,
@@ -107,6 +121,9 @@ describe('setupOrganisation', () => {
 
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
+
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith(accessToken);
 
     const [storedOrganisation] = await db
       .select()
