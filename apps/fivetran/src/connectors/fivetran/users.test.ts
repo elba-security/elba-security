@@ -4,13 +4,13 @@ import { expect, test, describe, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { FivetranError } from '../common/error';
-import { type FivetranUser, getUsers, deleteUser, getOwnerId } from './users';
+import { type FivetranUser, getUsers, deleteUser, getAuthUser } from './users';
 
 const nextCursor = 'next-cursor';
 const apiKey = 'test-api-key';
 const apiSecret = 'test-api-secret';
 const userId = 'test-user-id';
-const ownerId = 'test-owner-id';
+const authUserId = 'test-auth-user-id';
 const validUsers: FivetranUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `${i}`,
   role: `Account Administrator`,
@@ -129,7 +129,7 @@ describe('users connector', () => {
 
         return Response.json({
           data: {
-            user_id: ownerId,
+            user_id: authUserId,
           },
         });
       };
@@ -137,14 +137,14 @@ describe('users connector', () => {
     });
 
     test('should return owner id the key is valid', async () => {
-      await expect(getOwnerId({ apiKey, apiSecret })).resolves.toStrictEqual({
-        ownerId,
+      await expect(getAuthUser({ apiKey, apiSecret })).resolves.toStrictEqual({
+        authUserId,
       });
     });
 
     test('should throws when the key is invalid', async () => {
       await expect(
-        getOwnerId({
+        getAuthUser({
           apiKey: 'foo-id',
           apiSecret: 'foo-id',
         })

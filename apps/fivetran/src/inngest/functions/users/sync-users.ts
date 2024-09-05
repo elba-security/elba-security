@@ -18,13 +18,19 @@ const formatElbaUserDisplayName = (user: FivetranUser) => {
   return user.email;
 };
 
-const formatElbaUser = ({ user, ownerId }: { user: FivetranUser; ownerId: string }): User => ({
+const formatElbaUser = ({
+  user,
+  authUserId,
+}: {
+  user: FivetranUser;
+  authUserId: string;
+}): User => ({
   id: user.id,
   displayName: formatElbaUserDisplayName(user),
   email: user.email,
   role: user.role || undefined,
   additionalEmails: [],
-  isSuspendable: user.id !== ownerId,
+  isSuspendable: user.id !== authUserId,
   url: `https://fivetran.com/dashboard/account/users-permissions/users/${user.id}/destinations`,
 });
 
@@ -58,7 +64,7 @@ export const synchronizeUsers = inngest.createFunction(
       .select({
         apiKey: organisationsTable.apiKey,
         apiSecret: organisationsTable.apiSecret,
-        ownerId: organisationsTable.ownerId,
+        authUserId: organisationsTable.authUserId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -68,9 +74,10 @@ export const synchronizeUsers = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const decryptedApiKey = await decrypt(organisation.apiKey);
-    const decryptedApiSecret = await decrypt(organisation.apiSecret);
-    const ownerId = organisation.ownerId;
+    const { apiKey, apiSecret, authUserId } = organisation;
+
+    const decryptedApiKey = await decrypt(apiKey);
+    const decryptedApiSecret = await decrypt(apiSecret);
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
 
@@ -81,7 +88,7 @@ export const synchronizeUsers = inngest.createFunction(
         cursor: page,
       });
 
-      const users = result.validUsers.map((user) => formatElbaUser({ user, ownerId }));
+      const users = result.validUsers.map((user) => formatElbaUser({ user, authUserId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
@@ -110,7 +117,6 @@ export const synchronizeUsers = inngest.createFunction(
       };
     }
 
-    // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

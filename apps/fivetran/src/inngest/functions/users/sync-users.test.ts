@@ -9,15 +9,15 @@ import { synchronizeUsers } from './sync-users';
 
 const nextPage = '1';
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
   apiKey: 'test-api-key',
   apiSecret: 'test-api-secret',
   region: 'us',
-  ownerId: 'test-owner-id',
+  authUserId: '0',
 };
 
 const users: usersConnector.FivetranUser[] = Array.from({ length: 2 }, (_, i) => ({
-  id: `${i}`,
+  id: String(i),
   role: `Account Administrator`,
   given_name: `given_name-${i}`,
   family_name: `family_name-${i}`,
@@ -78,7 +78,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '0',
           role: 'Account Administrator',
-          isSuspendable: true,
+          isSuspendable: false,
           url: 'https://fivetran.com/dashboard/account/users-permissions/users/0/destinations',
         },
         {
@@ -92,7 +92,7 @@ describe('sync-users', () => {
         },
       ],
     });
-    // check that the function deletes users that were synced before
+
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
       name: 'fivetran/users.sync.requested',
@@ -134,7 +134,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '0',
           role: 'Account Administrator',
-          isSuspendable: true,
+          isSuspendable: false,
           url: 'https://fivetran.com/dashboard/account/users-permissions/users/0/destinations',
         },
         {

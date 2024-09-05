@@ -34,11 +34,6 @@ export type DeleteUsersParams = {
   apiSecret: string;
 };
 
-export type GetOwnerIdParams = {
-  apiKey: string;
-  apiSecret: string;
-};
-
 const ownerIdResponseSchema = z.object({
   data: z.object({
     user_id: z.string(),
@@ -46,14 +41,16 @@ const ownerIdResponseSchema = z.object({
 });
 
 export const getUsers = async ({ apiKey, apiSecret, cursor }: GetUsersParams) => {
-  const endpoint = new URL(`${env.FIVETRAN_API_BASE_URL}/users`);
+  const url = new URL(`${env.FIVETRAN_API_BASE_URL}/users`);
   const encodedKey = btoa(`${apiKey}:${apiSecret}`);
 
+  url.searchParams.append('limit', String(env.FIVETRAN_SYNC_USERS_BATCH_SIZE));
+
   if (cursor) {
-    endpoint.searchParams.append('cursor', String(cursor));
+    url.searchParams.append('cursor', String(cursor));
   }
 
-  const response = await fetch(endpoint.toString(), {
+  const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
       Authorization: `Basic ${encodedKey}`,
@@ -111,7 +108,12 @@ export const deleteUser = async ({ userId, apiKey, apiSecret }: DeleteUsersParam
   }
 };
 
-export const getOwnerId = async ({ apiKey, apiSecret }: GetOwnerIdParams) => {
+export type GetAuthUser = {
+  apiKey: string;
+  apiSecret: string;
+};
+
+export const getAuthUser = async ({ apiKey, apiSecret }: GetAuthUser) => {
   const url = new URL(`${env.FIVETRAN_API_BASE_URL}/account/info`);
   const encodedKey = btoa(`${apiKey}:${apiSecret}`);
 
@@ -136,6 +138,6 @@ export const getOwnerId = async ({ apiKey, apiSecret }: GetOwnerIdParams) => {
   }
 
   return {
-    ownerId: String(result.data.data.user_id),
+    authUserId: String(result.data.data.user_id),
   };
 };

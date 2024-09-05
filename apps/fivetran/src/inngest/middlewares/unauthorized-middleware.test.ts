@@ -9,6 +9,7 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   apiKey: 'test-api-key',
   apiSecret: 'test-api-secret',
+  authUserId: 'test-auth-user-id',
   region: 'us',
   ownerId: 'test-owner-id',
 };

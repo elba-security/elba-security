@@ -10,13 +10,13 @@ const organisationId = '00000000-0000-0000-0000-000000000001';
 const userId = 'user-id-1';
 const apiKey = 'test-api-key';
 const apiSecret = 'test-api-secret';
-const ownerId = 'test-owner-id';
+const authUserId = 'test-auth-user-id';
 
 const organisation = {
   id: organisationId,
   apiKey,
   apiSecret,
-  ownerId,
+  authUserId,
   region: 'us',
 };
 
