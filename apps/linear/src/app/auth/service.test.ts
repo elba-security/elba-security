@@ -22,7 +22,7 @@ const getTokenData = {
 };
 
 const authUserId = 'test-auth-user-id';
-const workspaceUrlKey = 'test-workspace-url';
+const workspaceUrlKey = 'test-workspace-url-key';
 const getAuthUserData = {
   authUserId,
   workspaceUrlKey,

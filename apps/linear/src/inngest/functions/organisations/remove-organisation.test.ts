@@ -12,7 +12,7 @@ const organisation = {
   accessToken: 'access-token',
   refreshToken: 'refresh-token',
   authUserId: 'test-auth-user-id',
-  workspaceUrlKey: 'workspace-url',
+  workspaceUrlKey: 'workspace-url-key',
   region: 'us',
 };
 

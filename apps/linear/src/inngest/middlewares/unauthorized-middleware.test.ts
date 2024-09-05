@@ -11,7 +11,7 @@ const organisation = {
   accessToken: 'access-token',
   region: 'us',
   authUserId: 'test-auth-user-id',
-  workspaceUrlKey: 'workspace-url',
+  workspaceUrlKey: 'workspace-url-key',
 };
 
 describe('unauthorized middleware', () => {

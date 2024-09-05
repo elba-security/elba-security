@@ -12,7 +12,7 @@ const nextCursor = '1';
 const userId = 'test-id';
 
 const authUserId = 'test-auth-user-id';
-const workspaceUrlKey = 'test-workspace-url';
+const workspaceUrlKey = 'test-workspace-url-key';
 
 const validUsers: LinearUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,

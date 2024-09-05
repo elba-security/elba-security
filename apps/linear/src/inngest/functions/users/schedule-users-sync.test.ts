@@ -13,7 +13,7 @@ export const organisations = Array.from({ length: 5 }, (_, i) => ({
   accessToken: `test-access-token${i}`,
   region: `us`,
   authUserId: `test-auth-user-id-${i}`,
-  workspaceUrlKey: `workspace-url-${i}`,
+  workspaceUrlKey: `workspace-url-key-${i}`,
 }));
 
 describe('schedule-users-syncs', () => {
