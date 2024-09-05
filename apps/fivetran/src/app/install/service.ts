@@ -1,7 +1,7 @@
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/users';
+import { getOwnerId } from '@/connectors/fivetran/users';
 import { encrypt } from '@/common/crypto';
 
 type SetupOrganisationParams = {
@@ -17,9 +17,11 @@ export const registerOrganisation = async ({
   apiSecret,
   region,
 }: SetupOrganisationParams) => {
-  await getUsers({ apiKey, apiSecret });
+  const { ownerId } = await getOwnerId({ apiKey, apiSecret });
+
   const encryptedApiKey = await encrypt(apiKey);
   const encryptedApiSecret = await encrypt(apiSecret);
+
   await db
     .insert(organisationsTable)
     .values({
@@ -27,12 +29,14 @@ export const registerOrganisation = async ({
       apiKey: encryptedApiKey,
       apiSecret: encryptedApiSecret,
       region,
+      ownerId,
     })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
         apiKey: encryptedApiKey,
         apiSecret: encryptedApiSecret,
+        ownerId,
       },
     });
 

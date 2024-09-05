@@ -1,6 +1,7 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
-import { FivetranError } from './commons/error';
+import { FivetranError } from '../common/error';
 
 const fivetranUserSchema = z.object({
   id: z.string(),
@@ -32,6 +33,17 @@ export type DeleteUsersParams = {
   apiKey: string;
   apiSecret: string;
 };
+
+export type GetOwnerIdParams = {
+  apiKey: string;
+  apiSecret: string;
+};
+
+const ownerIdResponseSchema = z.object({
+  data: z.object({
+    user_id: z.string(),
+  }),
+});
 
 export const getUsers = async ({ apiKey, apiSecret, cursor }: GetUsersParams) => {
   const endpoint = new URL(`${env.FIVETRAN_API_BASE_URL}/users`);
@@ -97,4 +109,33 @@ export const deleteUser = async ({ userId, apiKey, apiSecret }: DeleteUsersParam
   if (!response.ok && response.status !== 404) {
     throw new FivetranError(`Could not delete user with Id: ${userId}`, { response });
   }
+};
+
+export const getOwnerId = async ({ apiKey, apiSecret }: GetOwnerIdParams) => {
+  const url = new URL(`${env.FIVETRAN_API_BASE_URL}/account/info`);
+  const encodedKey = btoa(`${apiKey}:${apiSecret}`);
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Basic ${encodedKey}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new FivetranError('Could not retrieve owner id', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = ownerIdResponseSchema.safeParse(resData);
+  if (!result.success) {
+    logger.error('Invalid Fivetran owner id response', { resData });
+    throw new FivetranError('Invalid Fivetran owner id response');
+  }
+
+  return {
+    ownerId: String(result.data.data.user_id),
+  };
 };

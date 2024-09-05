@@ -3,13 +3,14 @@ import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { type FivetranUser, getUsers, deleteUser } from './users';
-import { FivetranError } from './commons/error';
+import { FivetranError } from '../common/error';
+import { type FivetranUser, getUsers, deleteUser, getOwnerId } from './users';
 
 const nextCursor = 'next-cursor';
 const apiKey = 'test-api-key';
 const apiSecret = 'test-api-secret';
 const userId = 'test-user-id';
+const ownerId = 'test-owner-id';
 const validUsers: FivetranUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `${i}`,
   role: `Account Administrator`,
@@ -114,6 +115,40 @@ describe('users connector', () => {
       await expect(deleteUser({ apiKey: 'invalidKey', userId, apiSecret })).rejects.toBeInstanceOf(
         FivetranError
       );
+    });
+  });
+
+  describe('getOwnerId', () => {
+    beforeEach(() => {
+      const resolver: ResponseResolver = ({ request }) => {
+        const encodedKey = btoa(`${apiKey}:${apiSecret}`);
+
+        if (request.headers.get('Authorization') !== `Basic ${encodedKey}`) {
+          return new Response(undefined, { status: 401 });
+        }
+
+        return Response.json({
+          data: {
+            user_id: ownerId,
+          },
+        });
+      };
+      server.use(http.get(`${env.FIVETRAN_API_BASE_URL}/account/info`, resolver));
+    });
+
+    test('should return owner id the key is valid', async () => {
+      await expect(getOwnerId({ apiKey, apiSecret })).resolves.toStrictEqual({
+        ownerId,
+      });
+    });
+
+    test('should throws when the key is invalid', async () => {
+      await expect(
+        getOwnerId({
+          apiKey: 'foo-id',
+          apiSecret: 'foo-id',
+        })
+      ).rejects.toBeInstanceOf(FivetranError);
     });
   });
 });

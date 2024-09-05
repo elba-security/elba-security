@@ -1,0 +1,1 @@
+ALTER TABLE "organisations" ADD COLUMN "owner_id" text NOT NULL;

@@ -4,6 +4,7 @@ export const organisationsTable = pgTable('organisations', {
   id: uuid('id').primaryKey(),
   apiKey: text('api_key').notNull(),
   apiSecret: text('api_secret').notNull(),
+  ownerId: text('owner_id').notNull(),
   region: text('region').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

@@ -16,6 +16,7 @@ const organisation = {
   apiKey,
   apiSecret,
   region: 'us',
+  ownerId: 'test-owner-id',
 };
 
 const setup = createInngestFunctionMock(removeOrganisation, 'fivetran/app.uninstalled');

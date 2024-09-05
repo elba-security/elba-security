@@ -2,11 +2,11 @@ import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
-import { getUsers } from '@/connectors/users';
+import { getUsers } from '@/connectors/fivetran/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { type FivetranUser } from '@/connectors/users';
+import { type FivetranUser } from '@/connectors/fivetran/users';
 import { createElbaClient } from '@/connectors/elba/client';
 import { decrypt } from '@/common/crypto';
 
@@ -18,13 +18,14 @@ const formatElbaUserDisplayName = (user: FivetranUser) => {
   return user.email;
 };
 
-const formatElbaUser = (user: FivetranUser): User => ({
+const formatElbaUser = ({ user, ownerId }: { user: FivetranUser; ownerId: string }): User => ({
   id: user.id,
   displayName: formatElbaUserDisplayName(user),
   email: user.email,
   role: user.role || undefined,
   additionalEmails: [],
-  isSuspendable: true,
+  isSuspendable: user.id !== ownerId,
+  url: `https://fivetran.com/dashboard/account/users-permissions/users/${user.id}/destinations`,
 });
 
 export const synchronizeUsers = inngest.createFunction(
@@ -57,6 +58,7 @@ export const synchronizeUsers = inngest.createFunction(
       .select({
         apiKey: organisationsTable.apiKey,
         apiSecret: organisationsTable.apiSecret,
+        ownerId: organisationsTable.ownerId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -68,6 +70,7 @@ export const synchronizeUsers = inngest.createFunction(
 
     const decryptedApiKey = await decrypt(organisation.apiKey);
     const decryptedApiSecret = await decrypt(organisation.apiSecret);
+    const ownerId = organisation.ownerId;
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
 
@@ -78,7 +81,7 @@ export const synchronizeUsers = inngest.createFunction(
         cursor: page,
       });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers.map((user) => formatElbaUser({ user, ownerId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

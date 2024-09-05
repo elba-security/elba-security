@@ -1,7 +1,7 @@
 import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/fivetran/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
@@ -13,6 +13,7 @@ const organisation = {
   apiKey: 'test-api-key',
   apiSecret: 'test-api-secret',
   region: 'us',
+  ownerId: 'test-owner-id',
 };
 
 const users: usersConnector.FivetranUser[] = Array.from({ length: 2 }, (_, i) => ({
@@ -78,6 +79,7 @@ describe('sync-users', () => {
           id: '0',
           role: 'Account Administrator',
           isSuspendable: true,
+          url: 'https://fivetran.com/dashboard/account/users-permissions/users/0/destinations',
         },
         {
           additionalEmails: [],
@@ -85,6 +87,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: '1',
           role: 'Account Administrator',
+          url: 'https://fivetran.com/dashboard/account/users-permissions/users/1/destinations',
           isSuspendable: true,
         },
       ],
@@ -132,6 +135,7 @@ describe('sync-users', () => {
           id: '0',
           role: 'Account Administrator',
           isSuspendable: true,
+          url: 'https://fivetran.com/dashboard/account/users-permissions/users/0/destinations',
         },
         {
           additionalEmails: [],
@@ -140,6 +144,7 @@ describe('sync-users', () => {
           id: '1',
           role: 'Account Administrator',
           isSuspendable: true,
+          url: 'https://fivetran.com/dashboard/account/users-permissions/users/1/destinations',
         },
       ],
     });
