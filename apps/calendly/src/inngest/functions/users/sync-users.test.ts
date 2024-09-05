@@ -11,7 +11,7 @@ const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const nextPage = '1';
 const organizationUri = 'some-org-uri';
-const authUserUri = 'https://api.calendly.com/users/AAAAAAAAAAAAAAAA';
+const authUserUri = 'https://test-uri/users/00000000-0000-0000-0000-000000000091';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -22,14 +22,16 @@ const organisation = {
   authUserUri,
 };
 
-const users: usersConnector.CalendlyUser[] = Array.from({ length: 2 }, (_, i) => ({
+const roles = ['owner', 'admin', 'user'];
+
+const users: usersConnector.CalendlyUser[] = Array.from({ length: 3 }, (_, i) => ({
   uri: `https://test-uri/organization_memberships/00000000-0000-0000-0000-00000000009${i}`,
+  role: roles[i] ?? 'user',
   user: {
     name: `name-${i}`,
     email: `user-${i}@foo.bar`,
     uri: `https://test-uri/users/00000000-0000-0000-0000-00000000009${i}`,
   },
-  role: 'user',
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'calendly/users.sync.requested');
@@ -95,16 +97,25 @@ describe('sync-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: '00000000-0000-0000-0000-000000000090',
-          role: 'user',
-          isSuspendable: true,
+          role: 'owner',
+          isSuspendable: false,
           url: 'https://calendly.com/app/admin/users',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
-          role: 'user',
+          role: 'admin',
           id: '00000000-0000-0000-0000-000000000091',
+          isSuspendable: false,
+          url: 'https://calendly.com/app/admin/users',
+        },
+        {
+          additionalEmails: [],
+          displayName: 'name-2',
+          email: 'user-2@foo.bar',
+          role: 'user',
+          id: '00000000-0000-0000-0000-000000000092',
           isSuspendable: true,
           url: 'https://calendly.com/app/admin/users',
         },
@@ -138,17 +149,26 @@ describe('sync-users', () => {
           additionalEmails: [],
           displayName: 'name-0',
           email: 'user-0@foo.bar',
-          role: 'user',
+          role: 'owner',
           id: '00000000-0000-0000-0000-000000000090',
-          isSuspendable: true,
+          isSuspendable: false,
           url: 'https://calendly.com/app/admin/users',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
-          role: 'user',
+          role: 'admin',
           id: '00000000-0000-0000-0000-000000000091',
+          isSuspendable: false,
+          url: 'https://calendly.com/app/admin/users',
+        },
+        {
+          additionalEmails: [],
+          displayName: 'name-2',
+          email: 'user-2@foo.bar',
+          role: 'user',
+          id: '00000000-0000-0000-0000-000000000092',
           isSuspendable: true,
           url: 'https://calendly.com/app/admin/users',
         },

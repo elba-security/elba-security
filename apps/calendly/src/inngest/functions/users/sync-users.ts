@@ -28,7 +28,7 @@ const formatElbaUser = ({
   email: user.user.email,
   role: user.role,
   additionalEmails: [],
-  isSuspendable: user.user.uri !== authUserUri,
+  isSuspendable: user.user.uri !== authUserUri && user.role !== 'owner',
   url: 'https://calendly.com/app/admin/users',
 });
 
