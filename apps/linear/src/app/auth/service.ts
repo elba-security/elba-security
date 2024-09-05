@@ -1,7 +1,7 @@
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/linear/auth';
-import { getOwnerId } from '@/connectors/linear/users';
+import { getAuthUser } from '@/connectors/linear/users';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
@@ -17,7 +17,7 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const { accessToken } = await getToken(code);
-  const { ownerId, workspaceUrl } = await getOwnerId(accessToken);
+  const { authUserId, workspaceUrlKey } = await getAuthUser(accessToken);
   const encryptedAccessToken = await encrypt(accessToken);
 
   await db
@@ -25,8 +25,8 @@ export const setupOrganisation = async ({
     .values({
       id: organisationId,
       accessToken: encryptedAccessToken,
-      ownerId,
-      workspaceUrl,
+      authUserId,
+      workspaceUrlKey,
       region,
     })
     .onConflictDoUpdate({
@@ -34,8 +34,8 @@ export const setupOrganisation = async ({
       set: {
         accessToken: encryptedAccessToken,
         region,
-        ownerId,
-        workspaceUrl,
+        authUserId,
+        workspaceUrlKey,
       },
     });
 

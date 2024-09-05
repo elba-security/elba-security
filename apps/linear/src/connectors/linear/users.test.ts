@@ -4,15 +4,15 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { LinearError } from '../common/error';
 import type { LinearUser } from './users';
-import { getUsers, deleteUser, getOwnerId } from './users';
+import { getUsers, deleteUser, getAuthUser } from './users';
 
 const validToken = 'token-1234';
 const endCursor = '2';
 const nextCursor = '1';
 const userId = 'test-id';
 
-const ownerId = 'test-owner-id';
-const workspaceUrl = 'test-workspace-url';
+const authUserId = 'test-auth-user-id';
+const workspaceUrlKey = 'test-workspace-url';
 
 const validUsers: LinearUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
@@ -105,7 +105,7 @@ describe('users connector', () => {
     });
   });
 
-  describe('getOwnerId', () => {
+  describe('getAuthUser', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
@@ -116,23 +116,23 @@ describe('users connector', () => {
 
           return Response.json({
             data: {
-              viewer: { id: ownerId },
-              organization: { urlKey: workspaceUrl },
+              viewer: { id: authUserId },
+              organization: { urlKey: workspaceUrlKey },
             },
           });
         })
       );
     });
 
-    test('should return ownerId and workspace url when the token is valid', async () => {
-      await expect(getOwnerId(validToken)).resolves.toStrictEqual({
-        ownerId,
-        workspaceUrl,
+    test('should return authUserId and workspace url when the token is valid', async () => {
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+        authUserId,
+        workspaceUrlKey,
       });
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(getOwnerId('foo-bar')).rejects.toBeInstanceOf(LinearError);
+      await expect(getAuthUser('foo-bar')).rejects.toBeInstanceOf(LinearError);
     });
   });
 });

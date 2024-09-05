@@ -25,7 +25,7 @@ const linearResponseSchema = z.object({
   }),
 });
 
-const ownerIdResponseSchema = z.object({
+const authUserIdResponseSchema = z.object({
   data: z.object({
     viewer: z.object({
       id: z.string(),
@@ -133,7 +133,7 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
   }
 };
 
-export const getOwnerId = async (accessToken) => {
+export const getAuthUser = async (accessToken) => {
   const query = {
     query: `
       query { viewer { id } organization { urlKey } }
@@ -151,19 +151,19 @@ export const getOwnerId = async (accessToken) => {
   });
 
   if (!response.ok) {
-    throw new LinearError('Could not retrieve owner id and workspace url', { response });
+    throw new LinearError('Could not retrieve auth-user id and workspace url', { response });
   }
 
   const resData: unknown = await response.json();
 
-  const result = ownerIdResponseSchema.safeParse(resData);
+  const result = authUserIdResponseSchema.safeParse(resData);
   if (!result.success) {
-    logger.error('Invalid Linear owner id response', { resData });
-    throw new LinearError('Invalid Linear owner id response');
+    logger.error('Invalid Linear auth-user id response', { resData });
+    throw new LinearError('Invalid Linear auth-user id response');
   }
 
   return {
-    ownerId: result.data.data.viewer.id,
-    workspaceUrl: result.data.data.organization.urlKey,
+    authUserId: result.data.data.viewer.id,
+    workspaceUrlKey: result.data.data.organization.urlKey,
   };
 };

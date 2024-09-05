@@ -10,8 +10,8 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: 'access-token',
   region: 'us',
-  ownerId: 'test-owner-id',
-  workspaceUrl: 'workspace-url',
+  authUserId: 'test-auth-user-id',
+  workspaceUrlKey: 'workspace-url',
 };
 
 describe('unauthorized middleware', () => {
