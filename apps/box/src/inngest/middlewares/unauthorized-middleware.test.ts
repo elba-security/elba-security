@@ -12,6 +12,7 @@ const organisation = {
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
   region: 'us',
+  authUserId: 'test-auth-user-id',
 };
 
 describe('unauthorized middleware', () => {

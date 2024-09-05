@@ -11,12 +11,13 @@ import { type BoxUser } from '@/connectors/box/users';
 import { createElbaClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
 
-const formatElbaUser = (user: BoxUser): User => ({
+const formatElbaUser = ({ user, authUserId }: { user: BoxUser; authUserId: string }): User => ({
   id: user.id,
   displayName: user.name,
   email: user.login,
   additionalEmails: [],
-  isSuspendable: true,
+  isSuspendable: String(user.id) !== authUserId,
+  url: `https://app.box.com/master/users/${user.id}`,
 });
 
 export const synchronizeUsers = inngest.createFunction(
@@ -47,7 +48,8 @@ export const synchronizeUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        token: organisationsTable.accessToken,
+        accessToken: organisationsTable.accessToken,
+        authUserId: organisationsTable.authUserId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -57,14 +59,15 @@ export const synchronizeUsers = inngest.createFunction(
     }
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
+    const accessToken = await decrypt(organisation.accessToken);
+    const authUserId = organisation.authUserId;
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ token, nextPage: page });
+      const result = await getUsers({ accessToken, nextPage: page });
 
       const users = result.validUsers
         .filter((user) => user.status === 'active')
-        .map(formatElbaUser);
+        .map((user) => formatElbaUser({ user, authUserId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

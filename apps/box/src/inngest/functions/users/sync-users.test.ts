@@ -5,12 +5,13 @@ import * as usersConnector from '@/connectors/box/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
-import { synchronizeUsers } from './synchronize-users';
+import { synchronizeUsers } from './sync-users';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
+  authUserId: 'test-auth-user-id',
   region: 'us',
 };
 const syncStartedAt = Date.now();
@@ -91,6 +92,7 @@ describe('synchronize-users', () => {
           email: 'user-0@foo.bar',
           id: 'id-0',
           isSuspendable: true,
+          url: 'https://app.box.com/master/users/id-0',
         },
         {
           additionalEmails: [],
@@ -98,6 +100,7 @@ describe('synchronize-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           isSuspendable: true,
+          url: 'https://app.box.com/master/users/id-1',
         },
       ],
     });
@@ -132,6 +135,7 @@ describe('synchronize-users', () => {
           email: 'user-0@foo.bar',
           id: 'id-0',
           isSuspendable: true,
+          url: 'https://app.box.com/master/users/id-0',
         },
         {
           additionalEmails: [],
@@ -139,6 +143,7 @@ describe('synchronize-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           isSuspendable: true,
+          url: 'https://app.box.com/master/users/id-1',
         },
       ],
     });

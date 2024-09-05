@@ -9,11 +9,13 @@ import { deleteUser } from './delete-user';
 const userId = 'user-id-1';
 const accessToken = 'test-access-token';
 const refreshToken = 'test-refresh-token';
+const authUserId = 'test-auth-user-id';
 
 const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   accessToken: await encrypt(accessToken),
   refreshToken: await encrypt(refreshToken),
+  authUserId,
   region: 'us',
 };
 
@@ -35,7 +37,7 @@ describe('deleteUser', () => {
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     expect(usersConnector.deleteUser).toBeCalledWith({
       userId,
-      token: accessToken,
+      accessToken,
     });
   });
 });
