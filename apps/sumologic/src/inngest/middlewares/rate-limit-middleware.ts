@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { SumologicError } from '@/connectors/commons/error';
+import { SumologicError } from '@/connectors/common/error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
@@ -13,17 +13,24 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            // Check if the error is a rate limit error (HTTP Status 429)
-            if (error instanceof SumologicError && error.response?.status === 429) {
-              const retryAfter = 60; // Default retry after 60 seconds
+            if (!(error instanceof SumologicError)) {
+              return;
+            }
+
+            if (error.response?.status === 429) {
+              const retryAfter = error.response.headers.get('retry-after') || 60;
 
               return {
                 ...context,
                 result: {
                   ...result,
-                  error: new RetryAfterError(`Rate limit exceeded for '${fn.name}'`, retryAfter, {
-                    cause: error,
-                  }),
+                  error: new RetryAfterError(
+                    `API rate limit reached by '${fn.name}', retry after ${retryAfter} seconds.`,
+                    `${retryAfter}s`,
+                    {
+                      cause: error,
+                    }
+                  ),
                 },
               };
             }
