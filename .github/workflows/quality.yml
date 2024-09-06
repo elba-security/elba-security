@@ -37,6 +37,12 @@ jobs:
       - name: Lint apps and packages
         run: pnpm lint
 
+      - name: Clear tsbuildinfo if retry
+        if: ${{ github.run_attempt > 3 }}
+        run: |
+          find . -name "tsconfig.tsbuildinfo" -type f -delete
+          echo "Cleared all tsconfig.tsbuildinfo files"
+
       - name: Type-check apps and packages
         run: pnpm type-check
 
