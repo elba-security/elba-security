@@ -98,23 +98,22 @@ export const synchronizeConversations = inngest.createFunction(
           });
       });
 
-      const eventsToWait = conversationsToInsert.map(({ id: conversationId }) =>
-        step.waitForEvent(`wait-for-message-complete-${conversationId}`, {
-          event: 'slack/conversations.sync.messages.completed',
-          timeout: '30 days',
-          if: `async.data.teamId == '${teamId}' && async.data.conversationId == '${conversationId}'`,
-        })
-      );
-
-      await step.sendEvent(
-        'start-conversations-messages-synchronization',
-        conversationsToInsert.map(({ id: conversationId }) => ({
-          name: 'slack/conversations.sync.messages.requested',
-          data: { teamId, conversationId, isFirstSync },
-        }))
-      );
-
-      await Promise.all(eventsToWait);
+      await Promise.all([
+        ...conversationsToInsert.map(({ id: conversationId }) =>
+          step.waitForEvent(`wait-for-message-complete-${conversationId}`, {
+            event: 'slack/conversations.sync.messages.completed',
+            timeout: '30 days',
+            if: `async.data.teamId == '${teamId}' && async.data.conversationId == '${conversationId}'`,
+          })
+        ),
+        step.sendEvent(
+          'start-conversations-messages-synchronization',
+          conversationsToInsert.map(({ id: conversationId }) => ({
+            name: 'slack/conversations.sync.messages.requested',
+            data: { teamId, conversationId, isFirstSync },
+          }))
+        ),
+      ]);
     }
 
     if (nextCursor) {
