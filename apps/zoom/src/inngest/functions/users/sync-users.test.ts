@@ -11,17 +11,28 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
+  authUserId: 'auth-user-id',
   region: 'us',
 };
+
+const roles: Record<number, string> = {
+  0: '0',
+  1: '1',
+  2: '2',
+  3: '1',
+};
+
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const nextPage = '1';
-const users: usersConnector.ZoomUser[] = Array.from({ length: 2 }, (_, i) => ({
+const users: usersConnector.ZoomUser[] = Array.from({ length: 4 }, (_, i) => ({
   id: `id-${i}`,
   first_name: `first_name-${i}`,
   last_name: `last_name-${i}`,
   display_name: `display_name-${i}`,
   email: `user-${i}@foo.bar`,
+  role_id: !roles[i] ? '2' : roles[i],
+  status: 'active',
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'zoom/users.sync.requested');
@@ -87,14 +98,32 @@ describe('synchronize-users', () => {
           displayName: 'display_name-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
-          isSuspendable: true,
+          isSuspendable: false,
+          url: 'https://zoom.us/user/id-0/profile',
         },
         {
           additionalEmails: [],
           displayName: 'display_name-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          isSuspendable: false,
+          url: 'https://zoom.us/user/id-1/profile',
+        },
+        {
+          additionalEmails: [],
+          displayName: 'display_name-2',
+          email: 'user-2@foo.bar',
+          id: 'id-2',
           isSuspendable: true,
+          url: 'https://zoom.us/user/id-2/profile',
+        },
+        {
+          additionalEmails: [],
+          displayName: 'display_name-3',
+          email: 'user-3@foo.bar',
+          id: 'id-3',
+          isSuspendable: false,
+          url: 'https://zoom.us/user/id-3/profile',
         },
       ],
     });
@@ -127,14 +156,32 @@ describe('synchronize-users', () => {
           displayName: 'display_name-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
-          isSuspendable: true,
+          isSuspendable: false,
+          url: 'https://zoom.us/user/id-0/profile',
         },
         {
           additionalEmails: [],
           displayName: 'display_name-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          isSuspendable: false,
+          url: 'https://zoom.us/user/id-1/profile',
+        },
+        {
+          additionalEmails: [],
+          displayName: 'display_name-2',
+          email: 'user-2@foo.bar',
+          id: 'id-2',
           isSuspendable: true,
+          url: 'https://zoom.us/user/id-2/profile',
+        },
+        {
+          additionalEmails: [],
+          displayName: 'display_name-3',
+          email: 'user-3@foo.bar',
+          id: 'id-3',
+          isSuspendable: false,
+          url: 'https://zoom.us/user/id-3/profile',
         },
       ],
     });
