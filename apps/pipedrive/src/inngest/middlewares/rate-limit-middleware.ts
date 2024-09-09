@@ -1,52 +1,35 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { PipedriveError } from '@/connectors/commons/error';
+import { PipedriveError } from '@/connectors/common/error';
 
-/**
- * This middleware, `rateLimitMiddleware`, is designed for use with the Inngest serverless framework.
- * It aims to handle rate limiting scenarios encountered when interacting with external SaaS APIs.
- * The middleware checks for specific errors (instances of PipedriveError) that indicate a rate limit has been reached,
- * and it responds by creating a RetryAfterError. This error includes the retry time based on the 'Retry-After' header
- * provided by the SaaS service, enabling the function to delay its next execution attempt accordingly.
- *
- * Key Features:
- * - Intercepts function output to check for rate limit errors.
- * - Handles PipedriveError, specifically looking for a 'Retry-After' header in the error response.
- * - Generates a RetryAfterError to reschedule the function run, preventing immediate retries that could violate the SaaS's rate limits.
- *
- * Note: This is a generic middleware template and might require adjustments to fit specific SaaS APIs' error handling and rate limiting schemes.
- */
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
   init: () => {
     return {
       onFunctionRun: ({ fn }) => {
-
         return {
           transformOutput: (ctx) => {
             const {
               result: { error, ...result },
               ...context
             } = ctx;
-            const retryAfter =
-              error instanceof PipedriveError && error.response?.headers.get('x-rate-limit-reset');
 
-            if (!retryAfter) {
-              return;
+            if (error instanceof PipedriveError && error.response?.status === 429) {
+              const retryAfter = error.response.headers.get('retry-after') || 60;
+
+              return {
+                ...context,
+                result: {
+                  ...result,
+                  error: new RetryAfterError(
+                    `Rate limit exceeded for '${fn.name}'. Retry after ${retryAfter} seconds.`,
+                    `${retryAfter}s`,
+                    {
+                      cause: error,
+                    }
+                  ),
+                },
+              };
             }
-
-            return {
-              ...context,
-              result: {
-                ...result,
-                error: new RetryAfterError(
-                  `Pipedrive rate limit reached by '${fn.name}'`,
-                  retryAfter,
-                  {
-                    cause: error,
-                  }
-                ),
-              },
-            };
           },
         };
       },
