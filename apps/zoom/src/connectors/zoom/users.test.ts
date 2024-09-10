@@ -4,7 +4,7 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { ZoomError } from '../common/error';
 import type { ZoomUser } from './users';
-import { getUsers, deactivateUser } from './users';
+import { getUsers, deactivateUser, getAuthUser } from './users';
 
 const validToken = 'token-1234';
 const endPage = '2';
@@ -17,13 +17,14 @@ const validUsers: ZoomUser[] = Array.from({ length: 5 }, (_, i) => ({
   last_name: `last_name-${i}`,
   display_name: `display_name-${i}`,
   email: `user-${i}@foo.bar`,
+  role_id: '2',
+  status: 'active',
 }));
 
 const invalidUsers = [];
 
 describe('users connector', () => {
   describe('getUsers', () => {
-    // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
         http.get(`${env.ZOOM_API_BASE_URL}/users`, ({ request }) => {
@@ -96,6 +97,32 @@ describe('users connector', () => {
       await expect(deactivateUser({ accessToken: 'invalidToken', userId })).rejects.toBeInstanceOf(
         ZoomError
       );
+    });
+  });
+
+  describe('getAuthUsers', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.ZOOM_API_BASE_URL}/users/me`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          return Response.json({
+            id: 'current-auth-user-id',
+          });
+        })
+      );
+    });
+
+    test('should return the current authenticated user', async () => {
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+        authUserId: 'current-auth-user-id',
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getAuthUser('foo-bar')).rejects.toBeInstanceOf(ZoomError);
     });
   });
 });
