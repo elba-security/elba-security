@@ -5,6 +5,7 @@ export const organisationsTable = pgTable('organisations', {
   id: uuid('id').primaryKey(),
   region: text('region').notNull(),
   accessToken: text('access_token').notNull(),
+  authUserId: text('auth_user_id').notNull(),
 });
 
 export type SelectOrganisation = InferSelectModel<typeof organisationsTable>;

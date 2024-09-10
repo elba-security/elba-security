@@ -15,6 +15,7 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt(accessToken),
   refreshToken: await encrypt(refreshToken),
+  authUserId: 'auth-user-id',
   region: 'us',
 };
 

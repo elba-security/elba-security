@@ -4,6 +4,7 @@ import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/zoom/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
+import { getAuthUser } from '@/connectors/zoom/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -18,6 +19,8 @@ export const setupOrganisation = async ({
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn } = await getToken(code);
 
+  const { authUserId } = await getAuthUser(accessToken);
+
   const encodedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
 
@@ -27,6 +30,7 @@ export const setupOrganisation = async ({
       id: organisationId,
       accessToken: encodedAccessToken,
       refreshToken: encodedRefreshToken,
+      authUserId,
       region,
     })
     .onConflictDoUpdate({
@@ -34,6 +38,7 @@ export const setupOrganisation = async ({
       set: {
         accessToken: encodedAccessToken,
         refreshToken: encodedRefreshToken,
+        authUserId,
         region,
       },
     });
@@ -48,7 +53,6 @@ export const setupOrganisation = async ({
         page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
       name: 'zoom/app.installed',
       data: {
