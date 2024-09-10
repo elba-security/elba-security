@@ -1,6 +1,7 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import * as authConnector from '@/connectors/linear/auth';
+import * as usersConnector from '@/connectors/linear/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -20,10 +21,19 @@ const getTokenData = {
   expiresIn,
 };
 
+const authUserId = 'test-auth-user-id';
+const workspaceUrlKey = 'test-workspace-url-key';
+const getAuthUserData = {
+  authUserId,
+  workspaceUrlKey,
+};
+
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken,
   refreshToken,
+  authUserId,
+  workspaceUrlKey,
   region,
 };
 
@@ -37,11 +47,11 @@ describe('setupOrganisation', () => {
   });
 
   test('should setup organisation when the code is valid and the organisation is not registered', async () => {
-    // mock inngest client, only inngest.send should be used
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mock the getToken function to return a predefined token
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
 
     // assert the function resolves without returning a value
     await expect(
@@ -56,6 +66,8 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith(accessToken);
     // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
@@ -90,7 +102,6 @@ describe('setupOrganisation', () => {
   });
 
   test('should setup organisation when the code is valid and the organisation is already registered', async () => {
-    // mock inngest client, only inngest.send should be used
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // pre-insert an organisation to simulate an existing entry
@@ -98,6 +109,7 @@ describe('setupOrganisation', () => {
 
     // mock getToken as above
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
 
     // assert the function resolves without returning a value
     await expect(
@@ -111,6 +123,9 @@ describe('setupOrganisation', () => {
     // verify getToken usage
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
+
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith(accessToken);
 
     // check if the token in the database is updated
     const [storedOrganisation] = await db
@@ -145,7 +160,6 @@ describe('setupOrganisation', () => {
   });
 
   test('should not setup the organisation when the code is invalid', async () => {
-    // mock inngest client
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const error = new Error('invalid code');

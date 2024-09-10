@@ -11,6 +11,8 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   region: 'us',
+  authUserId: 'test-auth-user-id',
+  workspaceUrlKey: 'workspace-url-key',
 };
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
@@ -87,6 +89,7 @@ describe('synchronize-users', () => {
           email: 'user-0@foo.bar',
           id: 'id-0',
           isSuspendable: true,
+          url: 'https://linear.app/workspace-url-key/settings/members',
         },
         {
           additionalEmails: [],
@@ -94,6 +97,7 @@ describe('synchronize-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           isSuspendable: true,
+          url: 'https://linear.app/workspace-url-key/settings/members',
         },
       ],
     });
@@ -127,6 +131,7 @@ describe('synchronize-users', () => {
           email: 'user-0@foo.bar',
           id: 'id-0',
           isSuspendable: true,
+          url: 'https://linear.app/workspace-url-key/settings/members',
         },
         {
           additionalEmails: [],
@@ -134,6 +139,7 @@ describe('synchronize-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           isSuspendable: true,
+          url: 'https://linear.app/workspace-url-key/settings/members',
         },
       ],
     });
