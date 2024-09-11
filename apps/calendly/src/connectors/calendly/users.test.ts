@@ -4,19 +4,21 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { CalendlyError } from '../common/error';
 import type { CalendlyUser } from './users';
-import { getUsers, deleteUser } from './users';
+import { getUsers, deleteUser, getAuthUser } from './users';
 
 const validToken = 'token-1234';
 const endPageToken = '3';
 const nextPageToken = '2';
 const userId = 'test-user-id';
 const organizationUri = 'some-organization-uri';
+const authUserUri = 'https://api.calendly.com/users/AAAAAAAAAAAAAAAA';
 
 const validUsers: CalendlyUser[] = Array.from({ length: 5 }, (_, i) => ({
   uri: `uri-${i}`,
   user: {
     name: `name-${i}`,
     email: `user-${i}@foo.bar`,
+    uri: `https://test-uri/users/00000000-0000-0000-0000-00000000009${i}`,
   },
   role: 'user',
 }));
@@ -99,6 +101,36 @@ describe('users connector', () => {
       await expect(deleteUser({ accessToken: 'invalidToken', userId })).rejects.toBeInstanceOf(
         CalendlyError
       );
+    });
+  });
+
+  describe('getAuthUser', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.CALENDLY_API_BASE_URL}/users/me`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          const returnData = {
+            resource: {
+              uri: authUserUri,
+            },
+          };
+
+          return Response.json(returnData);
+        })
+      );
+    });
+
+    test('should return auth user id when the token is valid', async () => {
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+        authUserUri: String(authUserUri),
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getAuthUser('foo-bar')).rejects.toBeInstanceOf(CalendlyError);
     });
   });
 });

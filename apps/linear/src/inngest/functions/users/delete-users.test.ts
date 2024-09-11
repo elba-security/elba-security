@@ -16,6 +16,8 @@ const organisation = {
   accessToken: await encrypt(accessToken),
   refreshToken: await encrypt(refreshToken),
   region: 'us',
+  authUserId: 'test-auth-user-id',
+  workspaceUrlKey: 'workspace-url-key',
 };
 
 // Setup function mock for Inngest

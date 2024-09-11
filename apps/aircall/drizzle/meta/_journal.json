@@ -8,6 +8,13 @@
       "when": 1715850338177,
       "tag": "0000_smart_kitty_pryde",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1724924387762,
+      "tag": "0001_fearless_molly_hayes",
+      "breakpoints": true
     }
   ]
 }

@@ -10,12 +10,21 @@ import { decrypt } from '@/common/crypto';
 import { type ZoomUser } from '@/connectors/zoom/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUser = (user: ZoomUser): User => ({
+enum ZoomUserRole {
+  Owner = '0',
+  Admin = '1',
+}
+
+const formatElbaUser = ({ authUserId, user }: { authUserId: string; user: ZoomUser }): User => ({
   id: user.id,
   displayName: user.display_name,
   email: user.email,
   additionalEmails: [],
-  isSuspendable: true,
+  isSuspendable:
+    authUserId !== user.id &&
+    (user.role_id as ZoomUserRole) !== ZoomUserRole.Owner &&
+    (user.role_id as ZoomUserRole) !== ZoomUserRole.Admin,
+  url: `https://zoom.us/user/${user.id}/profile`,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -48,6 +57,7 @@ export const syncUsers = inngest.createFunction(
       .select({
         token: organisationsTable.accessToken,
         region: organisationsTable.region,
+        authUserId: organisationsTable.authUserId,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -61,7 +71,12 @@ export const syncUsers = inngest.createFunction(
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ accessToken: token, page });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers.map((user) => {
+        return formatElbaUser({
+          authUserId: organisation.authUserId,
+          user,
+        });
+      });
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

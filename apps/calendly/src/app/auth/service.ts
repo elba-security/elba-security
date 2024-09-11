@@ -2,6 +2,7 @@ import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/calendly/auth';
+import { getAuthUser } from '@/connectors/calendly/users';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
@@ -17,6 +18,7 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn, organizationUri } = await getToken(code);
+  const { authUserUri } = await getAuthUser(accessToken);
 
   const encryptedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
@@ -29,6 +31,7 @@ export const setupOrganisation = async ({
       refreshToken: encodedRefreshToken,
       region,
       organizationUri,
+      authUserUri,
     })
     .onConflictDoUpdate({
       target: organisationsTable.id,
@@ -37,6 +40,7 @@ export const setupOrganisation = async ({
         refreshToken: encodedRefreshToken,
         region,
         organizationUri,
+        authUserUri,
       },
     });
 

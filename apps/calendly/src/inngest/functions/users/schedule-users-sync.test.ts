@@ -14,6 +14,7 @@ export const organisations = Array.from({ length: 5 }, (_, i) => ({
   refreshToken: `test-refresh-token${i}`,
   organizationUri: `some organization_uri-${i}`,
   region: `us`,
+  authUserUri: 'https://api.calendly.com/users/AAAAAAAAAAAAAAAA',
 }));
 
 describe('schedule-users-syncs', () => {
