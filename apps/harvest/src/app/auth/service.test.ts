@@ -53,7 +53,7 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
-    const getOwnerId = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
+    const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
     const getCompanyDomain = vi
       .spyOn(usersConnector, 'getCompanyDomain')
       .mockResolvedValue(getCompanyDomainData);
@@ -69,10 +69,10 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
-    expect(getOwnerId).toBeCalledTimes(1);
-    expect(getOwnerId).toBeCalledWith({ accessToken });
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith('some token');
     expect(getCompanyDomain).toBeCalledTimes(1);
-    expect(getCompanyDomain).toBeCalledWith({ accessToken });
+    expect(getCompanyDomain).toBeCalledWith('some token');
 
     const [storedOrganisation] = await db
       .select()

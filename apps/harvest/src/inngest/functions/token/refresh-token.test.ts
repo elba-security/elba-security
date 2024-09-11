@@ -3,7 +3,7 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { type Organisation, organisationsTable } from '@/database/schema';
 import * as authConnector from '@/connectors/harvest/auth';
 import { encrypt, decrypt } from '@/common/crypto';
 import { HarvestError } from '@/connectors/common/error';
@@ -19,14 +19,15 @@ const encryptedTokens = {
   refreshToken: await encrypt(newTokens.refreshToken),
 };
 
-const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+const organisation: Omit<Organisation, 'createdAt'> = {
+  id: '00000000-0000-0000-0000-000000000001',
   accessToken: encryptedTokens.accessToken,
   refreshToken: encryptedTokens.refreshToken,
   region: 'us',
-  ownerId: 'test-owner-id',
+  authUserId: 'test-owner-id',
   companyDomain: 'test-company-domain',
 };
+
 const now = new Date();
 // current token expires in an hour
 const expiresAt = now.getTime() + 60 * 1000;

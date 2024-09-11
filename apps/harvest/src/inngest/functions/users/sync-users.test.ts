@@ -24,6 +24,9 @@ const users: usersConnector.HarvestUser[] = Array.from({ length: 2 }, (_, i) => 
   last_name: `last_name-${i}`,
   email: `user-${i}@foo.bar`,
   access_roles: ['member'],
+  is_active: true,
+  created_at: '2021-01-01T00:00:00Z',
+  updated_at: `2021-01-0${i + 1}T00:00:00Z`,
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'harvest/users.sync.requested');

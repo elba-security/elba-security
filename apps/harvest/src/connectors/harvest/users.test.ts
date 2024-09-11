@@ -14,12 +14,15 @@ const endPage = 'https://api.harvestapp.com/v2/users?page=3&per_page=2000&ref=la
 const nextPage =
   'https://api.harvestapp.com/v2/users?cursor=eyJhZnRlciI6eyJpZCI6NDAwN319&per_page=2000&ref=next_cursor';
 
-const validUsers: HarvestUser[] = Array.from({ length: 5 }, (_, i) => ({
+const validUsers: HarvestUser[] = Array.from({ length: 3 }, (_, i) => ({
   id: i,
   first_name: `first_name-${i}`,
   last_name: `last_name-${i}`,
   email: `user-${i}@foo.bar`,
   access_roles: ['member'],
+  is_active: true,
+  created_at: '2021-01-01T00:00:00Z',
+  updated_at: `2021-01-0${i + 1}T00:00:00Z`,
 }));
 
 const invalidUsers = [];
@@ -45,17 +48,59 @@ describe('users connector', () => {
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
       await expect(getUsers({ accessToken: validToken, page: nextPage })).resolves.toStrictEqual({
-        validUsers,
         invalidUsers,
         nextPage,
+        validUsers: [
+          {
+            access_roles: ['member'],
+            created_at: '2021-01-01T00:00:00Z',
+            email: 'user-1@foo.bar',
+            first_name: 'first_name-1',
+            id: 1,
+            is_active: true,
+            last_name: 'last_name-1',
+            updated_at: '2021-01-02T00:00:00Z',
+          },
+          {
+            access_roles: ['member'],
+            created_at: '2021-01-01T00:00:00Z',
+            email: 'user-2@foo.bar',
+            first_name: 'first_name-2',
+            id: 2,
+            is_active: true,
+            last_name: 'last_name-2',
+            updated_at: '2021-01-03T00:00:00Z',
+          },
+        ],
       });
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
       await expect(getUsers({ accessToken: validToken, page: endPage })).resolves.toStrictEqual({
-        validUsers,
         invalidUsers,
         nextPage: null,
+        validUsers: [
+          {
+            access_roles: ['member'],
+            created_at: '2021-01-01T00:00:00Z',
+            email: 'user-1@foo.bar',
+            first_name: 'first_name-1',
+            id: 1,
+            is_active: true,
+            last_name: 'last_name-1',
+            updated_at: '2021-01-02T00:00:00Z',
+          },
+          {
+            access_roles: ['member'],
+            created_at: '2021-01-01T00:00:00Z',
+            email: 'user-2@foo.bar',
+            first_name: 'first_name-2',
+            id: 2,
+            is_active: true,
+            last_name: 'last_name-2',
+            updated_at: '2021-01-03T00:00:00Z',
+          },
+        ],
       });
     });
 
