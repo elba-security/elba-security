@@ -1,11 +1,12 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { rateLimitMiddleware } from '@elba-security/inngest';
 import type {
   DataProtectionObjectMetadata,
   PageObjectPermissionMetadata,
   SpaceObjectPermissionMetadata,
 } from '@/connectors/elba/data-protection/metadata';
-import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { getRetryAfter } from '@/connectors/confluence/common/retry-after';
 
 export const inngest = new Inngest({
   id: 'confluence',
@@ -93,6 +94,6 @@ export const inngest = new Inngest({
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [rateLimitMiddleware({ getRetryAfter })],
   logger,
 });

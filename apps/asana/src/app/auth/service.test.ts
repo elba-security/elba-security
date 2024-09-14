@@ -4,7 +4,7 @@ import * as authConnector from '@/connectors/asana/auth';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { AsanaError } from '@/connectors/common/error';
+import { AsanaError } from '@/connectors/asana/common/error';
 import { decrypt } from '@/common/crypto';
 import { setupOrganisation } from './service';
 

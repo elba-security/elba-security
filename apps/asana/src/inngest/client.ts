@@ -1,6 +1,7 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
-import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { rateLimitMiddleware } from '@elba-security/inngest';
+import { getRetryAfter } from '@/connectors/asana/common/retry-after';
 
 export const inngest = new Inngest({
   id: 'asana',
@@ -36,6 +37,6 @@ export const inngest = new Inngest({
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [rateLimitMiddleware({ getRetryAfter })],
   logger,
 });
