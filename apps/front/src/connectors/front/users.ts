@@ -6,8 +6,8 @@ const frontUserSchema = z.object({
   id: z.string(),
   username: z.string(),
   email: z.string(),
-  first_name: z.string(),
-  last_name: z.string(),
+  first_name: z.string().min(1),
+  last_name: z.string().min(1),
   is_admin: z.boolean(),
   is_blocked: z.boolean(),
 });
@@ -25,6 +25,9 @@ export const getUsers = async (accessToken: string) => {
   const url = new URL(`${env.FRONT_API_BASE_URL}/teammates`);
 
   // At the moment it doesn't support pagination, however, the response contains a `_pagination` property,
+  // The API return all the users including `invited  users but we don't have any flag to filter them out.
+  // however, Invited user may not have 'first_name' and 'last_name' fields, therefore we can filter them out based on that. but it's not a reliable way.
+  // because sometime admin can update the user's first_name and last_name fields despite of the 'pending' status.
   const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
