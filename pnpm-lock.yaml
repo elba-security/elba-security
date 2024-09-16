@@ -1015,7 +1015,7 @@ importers:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
 
-  apps/frontapp:
+  apps/front:
     dependencies:
       '@elba-security/config':
         specifier: workspace:*
@@ -7222,7 +7222,7 @@ packages:
     dependencies:
       escape-string-regexp: 1.0.5
       eslint: 8.57.0
-      ignore: 5.2.4
+      ignore: 5.3.1
     dev: true
 
   /eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.15.0)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0):
