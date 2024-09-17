@@ -2,7 +2,7 @@ import { expect, test, describe, beforeAll, vi, afterAll } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { scheduleUsersSynchronize } from './schedule-users-synchronize';
+import { scheduleUsersSynchronize } from './schedule-users-sync';
 
 const now = Date.now();
 
@@ -12,6 +12,7 @@ export const organisations = Array.from({ length: 5 }, (_, i) => ({
   id: `00000000-0000-0000-0000-00000000000${i}`,
   accessToken: `test-access-token${i}`,
   refreshToken: `test-refresh-token${i}`,
+  authUserId: 'test-auth-user-id',
   region: `us`,
 }));
 
