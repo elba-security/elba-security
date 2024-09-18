@@ -1,0 +1,1 @@
+ALTER TABLE "organisations" ADD COLUMN "auth-user_id" text NOT NULL;
