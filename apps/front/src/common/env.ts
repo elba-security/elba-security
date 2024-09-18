@@ -18,8 +18,6 @@ export const env = z
     FRONT_CLIENT_ID: z.string().min(1),
     FRONT_CLIENT_SECRET: z.string().min(1),
     FRONT_REDIRECT_URI: z.string().url(),
-    FRONT_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
-    FRONT_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),
     FRONT_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
   })
   .parse(process.env);
