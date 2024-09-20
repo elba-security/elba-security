@@ -10,6 +10,7 @@ const datadogUserSchema = z.object({
     name: z.string(),
     email: z.string(),
     status: z.string().min(1),
+    service_account: z.boolean(),
     mfa_enabled: z.boolean(),
   }),
 });
@@ -71,7 +72,11 @@ export const getUsers = async ({ apiKey, appKey, sourceRegion, page = 0 }: GetUs
     const result = datadogUserSchema.safeParse(user);
     if (result.success) {
       // We are only interested in active users
-      if (result.data.type !== 'users' || result.data.attributes.status !== 'Active') {
+      if (
+        result.data.type !== 'users' ||
+        result.data.attributes.status !== 'Active' ||
+        result.data.attributes.service_account
+      ) {
         continue;
       }
 

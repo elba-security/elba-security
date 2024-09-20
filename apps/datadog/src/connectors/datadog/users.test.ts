@@ -23,6 +23,7 @@ const validUsers: DatadogUser[] = Array.from({ length: 5 }, (_, i) => ({
     email: `user-${i}@foo.bar`,
     status: 'Active',
     mfa_enabled: false,
+    service_account: i === 4,
   },
 }));
 
@@ -69,7 +70,7 @@ describe('users connector', () => {
       await expect(
         getUsers({ apiKey: validApiKey, appKey: validAppKey, sourceRegion, page: nextPage })
       ).resolves.toStrictEqual({
-        validUsers,
+        validUsers: validUsers.slice(0, 4),
         invalidUsers,
         nextPage: nextPage + 1,
       });
@@ -84,7 +85,7 @@ describe('users connector', () => {
           page: endPage,
         })
       ).resolves.toStrictEqual({
-        validUsers,
+        validUsers: validUsers.slice(0, 4),
         invalidUsers,
         nextPage: null,
       });

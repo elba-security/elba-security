@@ -32,6 +32,7 @@ const users: usersConnector.DatadogUser[] = Array.from({ length: 2 }, (_, i) => 
     sourceRegion: 'EU',
     mfa_enabled: false,
     status: 'Active',
+    service_account: false,
   },
 }));
 
