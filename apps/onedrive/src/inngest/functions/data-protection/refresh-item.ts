@@ -12,7 +12,7 @@ import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
 
 export const refreshDataProtectionObject = inngest.createFunction(
   {
-    id: 'onedrive-refresh-data-protection-objects',
+    id: 'onedrive-refresh-data-protection-object',
     concurrency: {
       key: 'event.data.organisationId',
       limit: env.MICROSOFT_DATA_PROTECTION_REFRESH_DELETE_CONCURRENCY,

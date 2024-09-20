@@ -91,12 +91,7 @@ export const syncDeltaItems = inngest.createFunction(
         return Promise.all(
           [...itemIds.values()].map(async (itemId) => {
             const itemPermissions = await getAllItemPermissions({ token, userId, itemId });
-
-            const filteredPermissions = itemPermissions.filter(
-              (permission) => !permission.roles.includes('owner')
-            );
-
-            return [itemId, filteredPermissions] as const;
+            return [itemId, itemPermissions] as const;
           })
         );
       });

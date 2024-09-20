@@ -1,7 +1,7 @@
 import { syncUsers } from './users/sync-users';
 import { scheduleUsersSyncs } from './users/schedule-users-syncs';
 import { refreshToken } from './token/refresh-token';
-import { syncOrganisationMembers } from './data-protection/sync-organisation-members';
+import { syncDataProtection } from './data-protection/sync';
 import { syncItems } from './data-protection/sync-items';
 import { scheduleDataProtectionSyncJobs } from './data-protection/schedule-data-protection-sync';
 import { refreshDataProtectionObject } from './data-protection/refresh-item';
@@ -22,6 +22,6 @@ export const inngestFunctions = [
   scheduleUsersSyncs,
   syncDeltaItems,
   syncItems,
-  syncOrganisationMembers,
+  syncDataProtection,
   syncUsers,
 ];

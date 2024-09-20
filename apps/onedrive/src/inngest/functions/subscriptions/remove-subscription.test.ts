@@ -22,7 +22,7 @@ const organisation = {
   region: 'us',
 };
 
-const sharePoint = {
+const subscription = {
   organisationId,
   userId,
   subscriptionId,
@@ -32,7 +32,7 @@ const sharePoint = {
 };
 
 const setupData = {
-  subscriptionId: sharePoint.subscriptionId,
+  subscriptionId: subscription.subscriptionId,
   organisationId: organisation.id,
 };
 
@@ -46,15 +46,15 @@ describe('remove-subscription', () => {
     await db.insert(organisationsTable).values(organisation);
     await db
       .insert(subscriptionsTable)
-      .values(sharePoint)
+      .values(subscription)
       .onConflictDoUpdate({
         target: [subscriptionsTable.organisationId, subscriptionsTable.userId],
 
         set: {
-          subscriptionId: sharePoint.subscriptionId,
-          subscriptionExpirationDate: sharePoint.subscriptionExpirationDate,
-          subscriptionClientState: sharePoint.subscriptionClientState,
-          delta: sharePoint.delta,
+          subscriptionId: subscription.subscriptionId,
+          subscriptionExpirationDate: subscription.subscriptionExpirationDate,
+          subscriptionClientState: subscription.subscriptionClientState,
+          delta: subscription.delta,
         },
       });
   });

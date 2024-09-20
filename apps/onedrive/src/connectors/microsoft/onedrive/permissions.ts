@@ -10,7 +10,6 @@ const onedriveUserPermissionSchema = z.object({
 
 const onedrivePermissionSchema = z.object({
   id: z.string(),
-  roles: z.array(z.string()),
   link: z
     .object({
       scope: z.string().optional(),

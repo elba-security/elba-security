@@ -8,7 +8,7 @@ import { createElbaClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
 import { getOrganisationUserIds } from '@/connectors/microsoft/users/users';
 
-export const syncOrganisationMembers = inngest.createFunction(
+export const syncDataProtection = inngest.createFunction(
   {
     id: 'onedrive-synchronize-data-protection-objects',
     concurrency: {
@@ -80,7 +80,7 @@ export const syncOrganisationMembers = inngest.createFunction(
     }
 
     if (nextSkipToken) {
-      await step.sendEvent('sync-next-sites-page', {
+      await step.sendEvent('sync-next-page', {
         name: 'onedrive/data_protection.sync.requested',
         data: {
           organisationId,

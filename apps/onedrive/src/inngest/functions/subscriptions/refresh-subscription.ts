@@ -8,7 +8,7 @@ import { decrypt } from '@/common/crypto';
 
 export const refreshSubscription = inngest.createFunction(
   {
-    id: 'onedrive-subscribe-refresh',
+    id: 'onedrive-refresh-subscription',
     cancelOn: [
       {
         event: 'onedrive/app.uninstalled',

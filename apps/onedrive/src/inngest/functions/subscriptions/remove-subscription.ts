@@ -8,7 +8,7 @@ import { decrypt } from '@/common/crypto';
 
 export const removeSubscription = inngest.createFunction(
   {
-    id: 'onedrive-subscribe-remove',
+    id: 'onedrive-remove-subscription',
     cancelOn: [
       {
         event: 'onedrive/app.uninstalled',

@@ -29,7 +29,6 @@ const dataSchema = z.object({
 // TODO: anyone
 const permissions: OnedrivePermission[] = Array.from({ length: 2 }, (_, i) => ({
   id: `permission-id-${i}`,
-  roles: ['write'],
   link: { scope: 'users' },
   grantedToV2: {
     user: {

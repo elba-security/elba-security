@@ -60,7 +60,6 @@ const items: MicrosoftDriveItem[] = [
 const createPermission = (n: number): OnedrivePermission[] =>
   Array.from({ length: n }, (_, i) => ({
     id: `permission-id-${i + 1}`,
-    roles: ['writer'],
     link: { scope: 'anonymous' },
   }));
 

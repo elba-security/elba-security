@@ -12,7 +12,7 @@ export const scheduleDataProtectionSyncJobs = inngest.createFunction(
 
     if (organisations.length > 0) {
       await step.sendEvent(
-        'start-sync-sites',
+        'start-sync-members',
         organisations.map(({ id }) => ({
           name: 'onedrive/data_protection.sync.requested',
           data: {

@@ -5,7 +5,7 @@ import * as usersConnector from '@/connectors/microsoft/users/users';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
-import { syncOrganisationMembers } from './sync-organisation-members';
+import { syncDataProtection } from './sync';
 
 const token = 'test-token';
 const tenantId = 'tenant-id';
@@ -30,11 +30,11 @@ const setupData = {
 };
 
 const setup = createInngestFunctionMock(
-  syncOrganisationMembers,
+  syncDataProtection,
   'onedrive/data_protection.sync.requested'
 );
 
-describe('sync-sites', () => {
+describe('sync-data-protection', () => {
   beforeEach(async () => {
     await db.insert(organisationsTable).values(organisation);
   });
@@ -105,7 +105,7 @@ describe('sync-sites', () => {
       }))
     );
 
-    expect(step.sendEvent).toBeCalledWith('sync-next-sites-page', {
+    expect(step.sendEvent).toBeCalledWith('sync-next-page', {
       name: 'onedrive/data_protection.sync.requested',
       data: {
         organisationId: organisation.id,

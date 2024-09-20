@@ -67,7 +67,7 @@ describe('scheduleDataProtectionSyncJobs', () => {
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('start-sync-sites', [
+    expect(step.sendEvent).toBeCalledWith('start-sync-members', [
       {
         data: {
           isFirstSync: false,

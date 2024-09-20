@@ -12,7 +12,7 @@
     "test:watch": "vitest",
     "type-check": "tsc --noEmit",
     "database:up": "docker-compose -p onedrive --profile edge --env-file=.env.local up -d",
-    "database:down": "docker-compose -p onedrive --env-file=.env.local down --volumes",
+    "database:down": "docker-compose -p onedrive down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
     "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
   },

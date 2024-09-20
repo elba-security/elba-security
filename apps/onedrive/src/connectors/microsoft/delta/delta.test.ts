@@ -60,16 +60,16 @@ describe('delta connector', () => {
             const nextPageUrl = new URL(url);
             nextPageUrl.searchParams.set(
               'token',
-              token === 'latest' || token === endSkipToken ? deltaToken : nextSkipToken
+              token === endSkipToken ? deltaToken : nextSkipToken
             );
 
             const addToken =
-              token === endSkipToken || token === 'latest'
+              token === endSkipToken
                 ? { '@odata.deltaLink': decodeURIComponent(nextPageUrl.toString()) }
                 : { '@odata.nextLink': decodeURIComponent(nextPageUrl.toString()) };
 
             return Response.json({
-              value: formattedDelta.slice(0, token === 'latest' ? 0 : Number(top)),
+              value: formattedDelta.slice(0, Number(top)),
               ...addToken,
             });
           }

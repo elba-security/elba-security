@@ -22,7 +22,7 @@ const organisation = {
   region: 'us',
 };
 
-const oneDrive = {
+const databaseSubscription = {
   organisationId,
   userId,
   subscriptionId,
@@ -32,14 +32,14 @@ const oneDrive = {
 };
 
 const setupData = {
-  subscriptionId: oneDrive.subscriptionId,
+  subscriptionId: databaseSubscription.subscriptionId,
   organisationId: organisation.id,
 };
 
 const subscription = {
   id: subscriptionId,
   clientState,
-  expirationDateTime: oneDrive.subscriptionExpirationDate,
+  expirationDateTime: databaseSubscription.subscriptionExpirationDate,
 };
 
 const setup = createInngestFunctionMock(
@@ -52,15 +52,15 @@ describe('refresh-subscription', () => {
     await db.insert(organisationsTable).values(organisation);
     await db
       .insert(subscriptionsTable)
-      .values(oneDrive)
+      .values(databaseSubscription)
       .onConflictDoUpdate({
         target: [subscriptionsTable.organisationId, subscriptionsTable.userId],
 
         set: {
-          subscriptionId: oneDrive.subscriptionId,
-          subscriptionExpirationDate: oneDrive.subscriptionExpirationDate,
-          subscriptionClientState: oneDrive.subscriptionClientState,
-          delta: oneDrive.delta,
+          subscriptionId: databaseSubscription.subscriptionId,
+          subscriptionExpirationDate: databaseSubscription.subscriptionExpirationDate,
+          subscriptionClientState: databaseSubscription.subscriptionClientState,
+          delta: databaseSubscription.delta,
         },
       });
   });

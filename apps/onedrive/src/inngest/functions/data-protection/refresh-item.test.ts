@@ -42,12 +42,10 @@ const item: MicrosoftDriveItem = {
 const permissions: OnedrivePermission[] = [
   {
     id: 'permission-id-1',
-    roles: ['writer'],
     link: { scope: 'anonymous' },
   },
   {
     id: 'permission-id-2',
-    roles: ['writer'],
     grantedToV2: {
       user: {
         email: 'user1@org.local',
@@ -56,7 +54,6 @@ const permissions: OnedrivePermission[] = [
   },
   {
     id: 'permission-id-3',
-    roles: ['writer'],
     link: { scope: 'users' },
     grantedToIdentitiesV2: [
       {
