@@ -3,37 +3,22 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import * as userConnector from '@/connectors/users';
-import type { FivetranUser } from '@/connectors/users';
-import { FivetranError } from '@/connectors/commons/error';
+import * as userConnector from '@/connectors/fivetran/users';
+import { FivetranError } from '@/connectors/common/error';
 import { decrypt } from '@/common/crypto';
 import { registerOrganisation } from './service';
 
 const apiKey = 'test-api-key';
 const apiSecret = 'test-api-secret';
 const region = 'us';
+const authUserId = 'test-auth-user-id';
 const now = new Date();
-const validUsers: FivetranUser[] = Array.from({ length: 2 }, (_, i) => ({
-  id: `${i}`,
-  given_name: `given_name-${i}`,
-  family_name: `family_name-${i}`,
-  role: 'Account Administrator',
-  active: true,
-  email: `user${i}@foo.bar`,
-  invited: false,
-}));
-
-const invalidUsers = [];
-const getUsersData = {
-  validUsers,
-  invalidUsers,
-  nextPage: null,
-};
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+  id: '00000000-0000-0000-0000-000000000001',
   apiKey,
   apiSecret,
+  authUserId,
   region,
 };
 
@@ -49,7 +34,9 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
+    const getAuthUser = vi.spyOn(userConnector, 'getAuthUser').mockResolvedValue({
+      authUserId,
+    });
 
     await expect(
       registerOrganisation({
@@ -60,11 +47,9 @@ describe('registerOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    // check if getUsers was called correctly
-    expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey, apiSecret });
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith({ apiKey, apiSecret });
 
-    // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)
@@ -100,11 +85,12 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
     // @ts-expect-error -- this is a mock
-    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
-    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
-    // pre-insert an organisation to simulate an existing entry
+    vi.spyOn(userConnector, 'getAuthUser').mockResolvedValue(undefined);
+    const getAuthUser = vi.spyOn(userConnector, 'getAuthUser').mockResolvedValue({
+      authUserId,
+    });
+
     await db.insert(organisationsTable).values(organisation);
 
     await expect(
@@ -116,10 +102,9 @@ describe('registerOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ apiKey, apiSecret });
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith({ apiKey, apiSecret });
 
-    // check if the apiKey in the database is updated
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)
@@ -131,7 +116,7 @@ describe('registerOrganisation', () => {
     expect(storedOrganisation.region).toBe(region);
     await expect(decrypt(storedOrganisation.apiKey)).resolves.toEqual(apiKey);
     await expect(decrypt(storedOrganisation.apiSecret)).resolves.toEqual(apiSecret);
-    // verify that the user/sync event is sent
+
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {

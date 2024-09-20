@@ -11,12 +11,14 @@ import { removeOrganisation } from './remove-organisation';
 const apiKey = 'test-access-token';
 const appKey = 'test-appKey';
 const sourceRegion = 'EU';
+const authUserId = 'test-authUserId';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   apiKey: await encrypt(apiKey),
   region: 'us',
   appKey,
+  authUserId,
   sourceRegion,
 };
 const setup = createInngestFunctionMock(removeOrganisation, 'datadog/app.uninstalled');

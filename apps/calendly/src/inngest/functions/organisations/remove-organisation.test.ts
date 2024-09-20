@@ -13,6 +13,7 @@ const organisation = {
   refreshToken: 'refresh-token',
   organizationUri: 'some organization_uri',
   region: 'us',
+  authUserUri: 'https://api.calendly.com/users/AAAAAAAAAAAAAAAA',
 };
 
 const setup = createInngestFunctionMock(removeOrganisation, 'calendly/app.uninstalled');

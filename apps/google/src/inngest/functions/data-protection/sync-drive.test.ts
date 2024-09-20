@@ -71,7 +71,7 @@ describe('sync-data-protection-drive', () => {
       auth: serviceAccountClientSpy.mock.results[0]?.value,
       pageSize: 250,
       pageToken: undefined,
-      q: '"user-id-1" in owners and mimeType != \'application/vnd.google-apps.folder\'',
+      q: '"me" in owners and mimeType != \'application/vnd.google-apps.folder\'',
     });
 
     expect(step.run).toBeCalledWith('list-files-permissions', expect.any(Function));

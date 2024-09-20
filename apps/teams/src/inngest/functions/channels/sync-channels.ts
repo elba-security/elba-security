@@ -101,30 +101,29 @@ export const syncChannels = inngest.createFunction(
         }))
       );
 
-      const eventsWait = channels.map(async ({ id }) => {
-        return step.waitForEvent(`wait-for-messages-complete-${id}`, {
-          event: 'teams/messages.sync.completed',
-          timeout: '1d',
-          if: `async.data.organisationId == '${organisationId}' && async.data.channelId == '${id}'`,
-        });
-      });
-
-      await step.sendEvent(
-        'start-messages-sync',
-        channels.map((channel) => ({
-          name: 'teams/messages.sync.requested',
-          data: {
-            channelId: channel.id,
-            organisationId,
-            teamId,
-            teamName,
-            channelName: channel.displayName,
-            membershipType: channel.membershipType,
-          },
-        }))
-      );
-
-      await Promise.all(eventsWait);
+      await Promise.all([
+        ...channels.map(async ({ id }) => {
+          return step.waitForEvent(`wait-for-messages-complete-${id}`, {
+            event: 'teams/messages.sync.completed',
+            timeout: '1d',
+            if: `async.data.organisationId == '${organisationId}' && async.data.channelId == '${id}'`,
+          });
+        }),
+        step.sendEvent(
+          'start-messages-sync',
+          channels.map((channel) => ({
+            name: 'teams/messages.sync.requested',
+            data: {
+              channelId: channel.id,
+              organisationId,
+              teamId,
+              teamName,
+              channelName: channel.displayName,
+              membershipType: channel.membershipType,
+            },
+          }))
+        ),
+      ]);
     }
 
     await step.sendEvent('channels-sync-complete', {

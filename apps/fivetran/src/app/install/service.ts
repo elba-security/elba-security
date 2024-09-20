@@ -1,7 +1,7 @@
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/users';
+import { getAuthUser } from '@/connectors/fivetran/users';
 import { encrypt } from '@/common/crypto';
 
 type SetupOrganisationParams = {
@@ -17,9 +17,11 @@ export const registerOrganisation = async ({
   apiSecret,
   region,
 }: SetupOrganisationParams) => {
-  await getUsers({ apiKey, apiSecret });
+  const { authUserId } = await getAuthUser({ apiKey, apiSecret });
+
   const encryptedApiKey = await encrypt(apiKey);
   const encryptedApiSecret = await encrypt(apiSecret);
+
   await db
     .insert(organisationsTable)
     .values({
@@ -27,12 +29,14 @@ export const registerOrganisation = async ({
       apiKey: encryptedApiKey,
       apiSecret: encryptedApiSecret,
       region,
+      authUserId,
     })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
         apiKey: encryptedApiKey,
         apiSecret: encryptedApiSecret,
+        authUserId,
       },
     });
 
@@ -46,7 +50,6 @@ export const registerOrganisation = async ({
         page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
       name: 'fivetran/app.installed',
       data: {

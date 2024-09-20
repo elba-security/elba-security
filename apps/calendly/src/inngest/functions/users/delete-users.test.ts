@@ -15,6 +15,7 @@ const organisation = {
   refreshToken: await encrypt(refreshToken),
   organizationUri: 'some organization_uri',
   region: 'us',
+  authUserUri: 'https://api.calendly.com/users/AAAAAAAAAAAAAAAA',
 };
 
 const setup = createInngestFunctionMock(deleteUser, 'calendly/users.delete.requested');

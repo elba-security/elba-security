@@ -3,7 +3,7 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { DatadogError } from '../common/error';
 import type { DatadogUser } from './users';
-import { getUsers, deleteUser } from './users';
+import { getUsers, deleteUser, getAuthUser } from './users';
 
 const validApiKey = 'apiKey-1234';
 const validAppKey = 'appKey-1234';
@@ -17,6 +17,7 @@ const totalFilteredCount = 41;
 
 const validUsers: DatadogUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
+  type: 'users',
   attributes: {
     name: `name-${i}`,
     email: `user-${i}@foo.bar`,
@@ -105,7 +106,7 @@ describe('users connector', () => {
   describe('deleteUser', () => {
     beforeEach(() => {
       server.use(
-        http.delete<{ testId: string }>(
+        http.patch<{ testId: string }>(
           `https://api.datadoghq.eu/api/v2/users/:userId`,
           ({ request }) => {
             const url = new URL(request.url.toString());
@@ -149,5 +150,40 @@ describe('users connector', () => {
         deleteUser({ apiKey: 'invalidApiKey', appKey, sourceRegion, userId: testId })
       ).rejects.toBeInstanceOf(DatadogError);
     });
+  });
+});
+
+describe('getAuthUser', () => {
+  beforeEach(() => {
+    server.use(
+      http.get(`https://api.datadoghq.eu/api/v2/current_user`, ({ request }) => {
+        if (request.headers.get('DD-API-KEY') !== validApiKey) {
+          return new Response(undefined, { status: 401 });
+        }
+
+        if (request.headers.get('DD-APPLICATION-KEY') !== validAppKey) {
+          return new Response(undefined, { status: 401 });
+        }
+        return Response.json({
+          data: {
+            id: 'current-user-id',
+          },
+        });
+      })
+    );
+  });
+
+  test('should return the user id when the token is valid', async () => {
+    await expect(
+      getAuthUser({ apiKey: validApiKey, appKey: validAppKey, sourceRegion })
+    ).resolves.toStrictEqual({
+      authUserId: 'current-user-id',
+    });
+  });
+
+  test('should throw DatadogError when token is invalid', async () => {
+    await expect(
+      getAuthUser({ apiKey: 'invalidApiKey', appKey, sourceRegion })
+    ).rejects.toBeInstanceOf(DatadogError);
   });
 });

@@ -9,6 +9,7 @@ import { registerOrganisation } from './service';
 
 const apiKey = 'test-apiKey';
 const appKey = 'test-appKey';
+const authUserId = 'test-authUserId';
 const sourceRegion = 'EU';
 const region = 'us';
 const now = new Date();
@@ -17,6 +18,7 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   apiKey,
   appKey,
+  authUserId,
   sourceRegion,
   region,
 };
@@ -41,9 +43,12 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
     // @ts-expect-error -- this is a mock
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
+    const getAuthUser = vi.spyOn(userConnector, 'getAuthUser').mockResolvedValue({
+      authUserId,
+    });
+
     vi.spyOn(crypto, 'encrypt').mockResolvedValue(apiKey);
     await expect(
       registerOrganisation({
@@ -56,6 +61,9 @@ describe('registerOrganisation', () => {
     ).resolves.toBeUndefined();
     expect(getUsers).toBeCalledTimes(1);
     expect(getUsers).toBeCalledWith({ apiKey, appKey, sourceRegion, page: 0 });
+
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith({ apiKey, appKey, sourceRegion });
 
     await expect(
       db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
@@ -91,10 +99,8 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
     // @ts-expect-error -- this is a mock
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
-    // pre-insert an organisation to simulate an existing entry
     await db.insert(organisationsTable).values(organisation);
     await expect(
       registerOrganisation({
@@ -109,7 +115,6 @@ describe('registerOrganisation', () => {
     expect(getUsers).toBeCalledTimes(1);
     expect(getUsers).toBeCalledWith({ apiKey, appKey, sourceRegion, page: 0 });
 
-    // check if the apiKey in the database is updated
     await expect(
       db
         .select({
@@ -122,7 +127,6 @@ describe('registerOrganisation', () => {
         apiKey,
       },
     ]);
-    // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
@@ -146,13 +150,15 @@ describe('registerOrganisation', () => {
   test('should not setup the organisation when the organisation id is invalid', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
+
     // @ts-expect-error -- this is a mock
     vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
+    vi.spyOn(userConnector, 'getAuthUser').mockResolvedValue({
+      authUserId,
+    });
     const wrongId = 'xfdhg-dsf';
     const error = new Error(`invalid input syntax for type uuid: "${wrongId}"`);
 
-    // assert that the function throws the mocked error
     await expect(
       registerOrganisation({
         organisationId: wrongId,
@@ -163,11 +169,9 @@ describe('registerOrganisation', () => {
       })
     ).rejects.toThrowError(error);
 
-    // ensure no organisation is added or updated in the database
     await expect(
       db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toHaveLength(0);
-    // ensure no sync users event is sent
     expect(send).toBeCalledTimes(0);
   });
 });

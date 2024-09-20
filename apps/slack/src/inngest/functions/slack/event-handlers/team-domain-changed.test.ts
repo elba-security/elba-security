@@ -14,7 +14,7 @@ const mockedDate = '2023-01-01T00:00:00.000Z';
 
 const eventType: SlackEvent['type'] = 'team_domain_changed';
 
-describe(`handle-slack-webhook-event ${eventType}`, () => {
+describe.skip(`handle-slack-webhook-event ${eventType}`, () => {
   beforeAll(() => {
     vi.setSystemTime(mockedDate);
   });

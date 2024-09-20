@@ -106,6 +106,7 @@ export const getPaginatedOrganizationMembers = async (
 
 const OrganizationInstallationSchema = z.object({
   id: z.number(),
+  app_id: z.number(),
   app_slug: z.string(),
   created_at: z.string(),
   permissions: z.record(z.enum(['read', 'write'])),

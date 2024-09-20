@@ -10,13 +10,16 @@ import { type AircallUser } from '@/connectors/aircall/users';
 import { createElbaClient } from '@/connectors/elba/client';
 import { decrypt } from '@/common/crypto';
 
-const formatElbaUser = (user: AircallUser): User => ({
-  id: user.id.toString(),
-  displayName: user.name,
-  email: user.email,
-  additionalEmails: [],
-  isSuspendable: true,
-});
+const formatElbaUser = ({ user, authUserId }: { user: AircallUser; authUserId: string }): User => {
+  return {
+    id: String(user.id),
+    displayName: user.name,
+    email: user.email,
+    additionalEmails: [],
+    isSuspendable: String(user.id) !== authUserId,
+    url: `https://dashboard.aircall.io/users/${user.id}/general`,
+  };
+};
 
 export const syncUsers = inngest.createFunction(
   {
@@ -37,6 +40,7 @@ export const syncUsers = inngest.createFunction(
     const [organisation] = await db
       .select({
         token: organisationsTable.accessToken,
+        authUserId: organisationsTable.authUserId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -51,13 +55,14 @@ export const syncUsers = inngest.createFunction(
     });
 
     const token = await decrypt(organisation.token);
+    const authUserId = organisation.authUserId;
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ token, nextPageLink: page });
 
       const users = result.validUsers
         .filter(({ availability_status: status }) => status === 'available')
-        .map(formatElbaUser);
+        .map((user) => formatElbaUser({ user, authUserId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

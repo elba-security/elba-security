@@ -13,6 +13,7 @@ export const organisations = Array.from({ length: 2 }, (_, i) => ({
   region: 'us',
   apiKey: `test-api-key${i}`,
   apiSecret: `test-api-secret${i}`,
+  authUserId: `test-auth-user-id${i}`,
 }));
 
 describe('schedule-users-syncs', () => {

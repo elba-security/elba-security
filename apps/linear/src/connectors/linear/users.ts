@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { LinearError } from '../common/error';
 
@@ -24,6 +25,16 @@ const linearResponseSchema = z.object({
   }),
 });
 
+const authUserResponseSchema = z.object({
+  data: z.object({
+    user: z.object({
+      id: z.string(),
+    }),
+    organization: z.object({
+      urlKey: z.string(),
+    }),
+  }),
+});
 export type GetUsersParams = {
   accessToken: string;
   afterCursor?: string | null;
@@ -120,4 +131,46 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
   if (!response.ok) {
     throw new LinearError(`Could not suspend user with Id: ${userId}`, { response });
   }
+};
+
+export const getAuthUser = async (accessToken: string) => {
+  const query = {
+    query: `
+      query {
+        user(id: "me") {
+          id
+        }
+        organization {
+          urlKey
+        }
+      }
+    `,
+  };
+
+  const response = await fetch(`${env.LINEAR_API_BASE_URL}/graphql`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(query),
+  });
+
+  if (!response.ok) {
+    throw new LinearError('Could not retrieve auth-user id and workspace url', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = authUserResponseSchema.safeParse(resData);
+  if (!result.success) {
+    logger.error('Invalid Linear auth-user id response', { resData });
+    throw new LinearError('Invalid Linear auth-user id response');
+  }
+
+  return {
+    authUserId: result.data.data.user.id,
+    workspaceUrlKey: result.data.data.organization.urlKey,
+  };
 };

@@ -1,6 +1,6 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
-import { FivetranError } from '@/connectors/commons/error';
+import { FivetranError } from '@/connectors/common/error';
 
 const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),

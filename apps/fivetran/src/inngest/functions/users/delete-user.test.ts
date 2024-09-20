@@ -1,6 +1,6 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import * as usersConnector from '@/connectors/users';
+import * as usersConnector from '@/connectors/fivetran/users';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import * as crypto from '@/common/crypto';
@@ -10,11 +10,13 @@ const organisationId = '00000000-0000-0000-0000-000000000001';
 const userId = 'user-id-1';
 const apiKey = 'test-api-key';
 const apiSecret = 'test-api-secret';
+const authUserId = 'test-auth-user-id';
 
 const organisation = {
   id: organisationId,
   apiKey,
   apiSecret,
+  authUserId,
   region: 'us',
 };
 

@@ -6,7 +6,7 @@ import { RedirectType, redirect } from 'next/navigation';
 import { z } from 'zod';
 import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 import { env } from '@/common/env';
-import { FivetranError } from '@/connectors/commons/error';
+import { FivetranError } from '@/connectors/common/error';
 import { registerOrganisation } from './service';
 
 const formSchema = z.object({

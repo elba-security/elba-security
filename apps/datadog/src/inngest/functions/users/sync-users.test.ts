@@ -9,20 +9,23 @@ import { syncUsers } from './sync-users';
 
 const apiKey = 'test-access-token';
 const appKey = 'test-appKey';
-const sourceRegion = 'EU';
+const authUserId = 'test-authUserId';
+const sourceRegion = 'EU1';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   apiKey: await encrypt(apiKey),
-  region: 'us',
   appKey,
+  authUserId,
   sourceRegion,
+  region: 'us',
 };
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const nextPage = 1;
 const users: usersConnector.DatadogUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
+  type: 'users',
   attributes: {
     name: `displayName-${i}`,
     email: `user-${i}@foo.bar`,
@@ -97,6 +100,7 @@ describe('synchronize-users', () => {
           id: 'id-0',
           authMethod: 'password',
           isSuspendable: true,
+          url: 'https://app.datadoghq.eu/organization-settings/users?user_id=id-0',
         },
         {
           additionalEmails: [],
@@ -105,6 +109,7 @@ describe('synchronize-users', () => {
           id: 'id-1',
           authMethod: 'password',
           isSuspendable: true,
+          url: 'https://app.datadoghq.eu/organization-settings/users?user_id=id-1',
         },
       ],
     });
@@ -139,6 +144,7 @@ describe('synchronize-users', () => {
           id: 'id-0',
           authMethod: 'password',
           isSuspendable: true,
+          url: 'https://app.datadoghq.eu/organization-settings/users?user_id=id-0',
         },
         {
           additionalEmails: [],
@@ -147,6 +153,7 @@ describe('synchronize-users', () => {
           id: 'id-1',
           authMethod: 'password',
           isSuspendable: true,
+          url: 'https://app.datadoghq.eu/organization-settings/users?user_id=id-1',
         },
       ],
     });

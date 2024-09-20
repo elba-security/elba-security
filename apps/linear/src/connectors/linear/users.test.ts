@@ -4,12 +4,15 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { LinearError } from '../common/error';
 import type { LinearUser } from './users';
-import { getUsers, deleteUser } from './users';
+import { getUsers, deleteUser, getAuthUser } from './users';
 
 const validToken = 'token-1234';
 const endCursor = '2';
 const nextCursor = '1';
 const userId = 'test-id';
+
+const authUserId = 'test-auth-user-id';
+const workspaceUrlKey = 'test-workspace-url-key';
 
 const validUsers: LinearUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
@@ -99,6 +102,37 @@ describe('users connector', () => {
       await expect(deleteUser({ accessToken: 'invalidToken', userId })).rejects.toBeInstanceOf(
         LinearError
       );
+    });
+  });
+
+  describe('getAuthUser', () => {
+    // mock token API endpoint using msw
+    beforeEach(() => {
+      server.use(
+        http.post(`${env.LINEAR_API_BASE_URL}/graphql`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          return Response.json({
+            data: {
+              user: { id: authUserId },
+              organization: { urlKey: workspaceUrlKey },
+            },
+          });
+        })
+      );
+    });
+
+    test('should return authUserId and workspace url when the token is valid', async () => {
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+        authUserId,
+        workspaceUrlKey,
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getAuthUser('foo-bar')).rejects.toBeInstanceOf(LinearError);
     });
   });
 });

@@ -65,6 +65,9 @@ export const getRefreshToken = async (refreshTokenInfo: string) => {
   });
 
   if (!response.ok) {
+    //log the response body
+    const data: unknown = await response.text();
+    logger.error('Could not refresh token', { error: data });
     throw new ZoomError('Could not refresh token', { response });
   }
 

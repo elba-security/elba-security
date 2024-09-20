@@ -34,26 +34,25 @@ export const removeOrganisation = inngest.createFunction(
       .where(eq(subscriptionsTable.organisationId, organisationId));
 
     if (subscriptions.length) {
-      const eventsWait = subscriptions.map(({ subscriptionId }) =>
-        step.waitForEvent(`wait-for-remove-subscription-complete-${subscriptionId}`, {
-          event: 'sharepoint/subscriptions.remove.completed',
-          timeout: '30d',
-          if: `async.data.organisationId == '${organisationId}' && async.data.subscriptionId == '${subscriptionId}'`,
-        })
-      );
-
-      await step.sendEvent(
-        'subscription-remove-triggered',
-        subscriptions.map(({ subscriptionId }) => ({
-          name: 'sharepoint/subscriptions.remove.triggered',
-          data: {
-            organisationId,
-            subscriptionId,
-          },
-        }))
-      );
-
-      await Promise.all(eventsWait);
+      await Promise.all([
+        ...subscriptions.map(({ subscriptionId }) =>
+          step.waitForEvent(`wait-for-remove-subscription-complete-${subscriptionId}`, {
+            event: 'sharepoint/subscriptions.remove.completed',
+            timeout: '30d',
+            if: `async.data.organisationId == '${organisationId}' && async.data.subscriptionId == '${subscriptionId}'`,
+          })
+        ),
+        step.sendEvent(
+          'subscription-remove-triggered',
+          subscriptions.map(({ subscriptionId }) => ({
+            name: 'sharepoint/subscriptions.remove.triggered',
+            data: {
+              organisationId,
+              subscriptionId,
+            },
+          }))
+        ),
+      ]);
     }
 
     const elba = createElbaClient({ organisationId, region: organisation.region });

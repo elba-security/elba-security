@@ -2,14 +2,16 @@ import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { FivetranError } from '@/connectors/commons/error';
+import { FivetranError } from '@/connectors/common/error';
 import { unauthorizedMiddleware } from './unauthorized-middleware';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   apiKey: 'test-api-key',
   apiSecret: 'test-api-secret',
+  authUserId: 'test-auth-user-id',
   region: 'us',
+  ownerId: 'test-owner-id',
 };
 
 describe('unauthorized middleware', () => {

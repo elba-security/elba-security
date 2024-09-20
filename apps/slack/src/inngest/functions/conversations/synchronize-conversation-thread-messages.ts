@@ -109,7 +109,12 @@ export const synchronizeConversationThreadMessages = inngest.createFunction(
       for (const message of messages) {
         const result = slackMessageSchema.safeParse(message);
 
-        if (message.type !== 'message' || message.team !== teamId || !result.success) {
+        if (
+          message.type !== 'message' ||
+          message.team !== teamId ||
+          message.bot_id ||
+          !result.success
+        ) {
           continue;
         }
 

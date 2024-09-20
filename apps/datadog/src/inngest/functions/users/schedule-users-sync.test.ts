@@ -12,6 +12,7 @@ export const organisations = Array.from({ length: 5 }, (_, i) => ({
   id: `00000000-0000-0000-0000-00000000000${i}`,
   apiKey: `test-api-token${i}`,
   appKey: 'test-appKey',
+  authUserId: 'test-authUserId',
   sourceRegion: 'EU',
   region: `us`,
 }));

@@ -818,6 +818,106 @@ importers:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.16.2)
 
+  apps/dropbox:
+    dependencies:
+      '@elba-security/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@elba-security/inngest':
+        specifier: workspace:*
+        version: link:../../packages/inngest
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@elba-security/nextjs':
+        specifier: workspace:*
+        version: link:../../packages/nextjs
+      '@elba-security/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@neondatabase/serverless':
+        specifier: 0.9.4
+        version: 0.9.4
+      date-fns:
+        specifier: ^3.2.0
+        version: 3.3.1
+      drizzle-orm:
+        specifier: ^0.29.4
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+      inngest:
+        specifier: 3.22.2
+        version: 3.22.2(hono@4.3.2)(next@14.2.4)(typescript@5.5.3)
+      next:
+        specifier: 14.2.4
+        version: 14.2.4(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: ^18
+        version: 18.2.0
+      react-dom:
+        specifier: ^18
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^3.2.0
+        version: 3.2.0
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: ^14.2.4
+        version: 14.2.4
+      '@types/node':
+        specifier: ^20
+        version: 20.14.2
+      '@types/react':
+        specifier: ^18
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: ^18
+        version: 18.2.25
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      drizzle-kit:
+        specifier: ^0.20.6
+        version: 0.20.18
+      eslint:
+        specifier: ^8
+        version: 8.57.0
+      inngest-cli:
+        specifier: ^0.29.1
+        version: 0.29.1
+      msw:
+        specifier: ^2.3.1
+        version: 2.3.1(typescript@5.5.3)
+      postgres:
+        specifier: ^3.4.4
+        version: 3.4.4
+      testcontainers:
+        specifier: ^10.10.0
+        version: 10.10.0
+      typescript:
+        specifier: ^5.5.2
+        version: 5.5.3
+      vitest:
+        specifier: 1.6.0
+        version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
+
   apps/fivetran:
     dependencies:
       '@elba-security/config':
@@ -914,6 +1014,103 @@ importers:
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.16.2)
+
+  apps/front:
+    dependencies:
+      '@elba-security/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@elba-security/inngest':
+        specifier: workspace:*
+        version: link:../../packages/inngest
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@elba-security/nextjs':
+        specifier: workspace:*
+        version: link:../../packages/nextjs
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@neondatabase/serverless':
+        specifier: 0.9.4
+        version: 0.9.4
+      date-fns:
+        specifier: ^3.2.0
+        version: 3.3.1
+      drizzle-orm:
+        specifier: ^0.29.4
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+      inngest:
+        specifier: 3.22.2
+        version: 3.22.2(hono@4.3.2)(next@14.2.4)(typescript@5.5.3)
+      next:
+        specifier: 14.2.4
+        version: 14.2.4(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: ^18
+        version: 18.2.0
+      react-dom:
+        specifier: ^18
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^3.2.0
+        version: 3.2.0
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: ^14.2.4
+        version: 14.2.4
+      '@types/node':
+        specifier: ^20
+        version: 20.14.2
+      '@types/react':
+        specifier: ^18
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: ^18
+        version: 18.2.25
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      drizzle-kit:
+        specifier: ^0.20.6
+        version: 0.20.18
+      eslint:
+        specifier: ^8
+        version: 8.57.0
+      inngest-cli:
+        specifier: ^0.29.1
+        version: 0.29.1
+      msw:
+        specifier: ^2.3.1
+        version: 2.3.1(typescript@5.5.3)
+      postgres:
+        specifier: ^3.4.4
+        version: 3.4.4
+      testcontainers:
+        specifier: ^10.10.0
+        version: 10.10.0
+      typescript:
+        specifier: ^5.5.2
+        version: 5.5.3
+      vitest:
+        specifier: 1.6.0
+        version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
 
   apps/github:
     dependencies:
@@ -1120,6 +1317,103 @@ importers:
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.16.2)
+
+  apps/harvest:
+    dependencies:
+      '@elba-security/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@elba-security/inngest':
+        specifier: workspace:*
+        version: link:../../packages/inngest
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@elba-security/nextjs':
+        specifier: workspace:*
+        version: link:../../packages/nextjs
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@neondatabase/serverless':
+        specifier: 0.9.4
+        version: 0.9.4
+      date-fns:
+        specifier: ^3.2.0
+        version: 3.3.1
+      drizzle-orm:
+        specifier: ^0.29.4
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+      inngest:
+        specifier: 3.22.2
+        version: 3.22.2(hono@4.3.2)(next@14.2.4)(typescript@5.5.3)
+      next:
+        specifier: 14.2.4
+        version: 14.2.4(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: ^18
+        version: 18.2.0
+      react-dom:
+        specifier: ^18
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^3.2.0
+        version: 3.2.0
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: ^14.2.4
+        version: 14.2.4
+      '@types/node':
+        specifier: ^20
+        version: 20.14.2
+      '@types/react':
+        specifier: ^18
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: ^18
+        version: 18.2.25
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      drizzle-kit:
+        specifier: ^0.20.6
+        version: 0.20.18
+      eslint:
+        specifier: ^8
+        version: 8.57.0
+      inngest-cli:
+        specifier: ^0.29.1
+        version: 0.29.1
+      msw:
+        specifier: ^2.3.1
+        version: 2.3.1(typescript@5.5.3)
+      postgres:
+        specifier: ^3.4.4
+        version: 3.4.4
+      testcontainers:
+        specifier: ^10.10.0
+        version: 10.10.0
+      typescript:
+        specifier: ^5.5.2
+        version: 5.5.3
+      vitest:
+        specifier: 1.6.0
+        version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
 
   apps/intercom:
     dependencies:
@@ -2428,8 +2722,8 @@ importers:
         specifier: ^8
         version: 8.57.0
       hono:
-        specifier: ^4.4.10
-        version: 4.5.9
+        specifier: 4.3.2
+        version: 4.3.2
       tsx:
         specifier: ^3.12.2
         version: 3.14.0
@@ -4701,9 +4995,9 @@ packages:
       debug: 4.3.6
       globby: 11.1.0
       is-glob: 4.0.3
-      semver: 7.6.3
-      tsutils: 3.21.0(typescript@5.5.4)
-      typescript: 5.5.4
+      semver: 7.6.2
+      tsutils: 3.21.0(typescript@5.5.3)
+      typescript: 5.5.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4744,7 +5038,7 @@ packages:
       '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.5.4)
       eslint: 8.57.0
       eslint-scope: 5.1.1
-      semver: 7.6.3
+      semver: 7.6.2
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -6599,7 +6893,7 @@ packages:
     dependencies:
       escape-string-regexp: 1.0.5
       eslint: 8.57.0
-      ignore: 5.3.2
+      ignore: 5.3.1
     dev: true
 
   /eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0)(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.0):
@@ -7516,8 +7810,8 @@ packages:
     resolution: {integrity: sha512-2bsegYkkHO+h/9MGbn6KWcE45cHZgPANo5LXF7EvWdT0yT2EguSVO1nDgU5c8+ZOPwp2vMNa7YFsJhVcDR9Sdg==}
     dev: true
 
-  /hono@4.5.9:
-    resolution: {integrity: sha512-zz8ktqMDRrZETjxBrv8C5PQRFbrTRCLNVAjD1SNQyOzv4VjmX68Uxw83xQ6oxdAB60HiWnGEatiKA8V3SZLDkQ==}
+  /hono@4.3.2:
+    resolution: {integrity: sha512-wiZcF5N06tc232U11DnqW6hP8DNoypjsrxslKXfvOqOAkTdh7K1HLZJH/92Mf+urxUTGi96f1w4xx/1Qozoqiw==}
     engines: {node: '>=16.0.0'}
 
   /hosted-git-info@2.8.9:

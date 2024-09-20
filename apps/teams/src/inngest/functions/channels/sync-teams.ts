@@ -61,27 +61,26 @@ export const syncTeams = inngest.createFunction(
     });
 
     if (validTeams.length) {
-      const eventsWait = validTeams.map(async ({ id }) => {
-        return step.waitForEvent(`wait-for-channels-complete-${id}`, {
-          event: 'teams/channels.sync.completed',
-          timeout: '1d',
-          if: `async.data.organisationId == '${organisationId}' && async.data.teamId == '${id}'`,
-        });
-      });
-
-      await step.sendEvent(
-        'start-channels-sync',
-        validTeams.map(({ id, displayName }) => ({
-          name: 'teams/channels.sync.requested',
-          data: {
-            teamId: id,
-            teamName: displayName,
-            organisationId,
-          },
-        }))
-      );
-
-      await Promise.all(eventsWait);
+      await Promise.all([
+        ...validTeams.map(async ({ id }) => {
+          return step.waitForEvent(`wait-for-channels-complete-${id}`, {
+            event: 'teams/channels.sync.completed',
+            timeout: '1d',
+            if: `async.data.organisationId == '${organisationId}' && async.data.teamId == '${id}'`,
+          });
+        }),
+        step.sendEvent(
+          'start-channels-sync',
+          validTeams.map(({ id, displayName }) => ({
+            name: 'teams/channels.sync.requested',
+            data: {
+              teamId: id,
+              teamName: displayName,
+              organisationId,
+            },
+          }))
+        ),
+      ]);
     }
 
     if (nextSkipToken) {

@@ -9,6 +9,7 @@ import { unauthorizedMiddleware } from './unauthorized-middleware';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: 'access-token',
+  authUserUri: 'auth-user-uri',
   refreshToken: 'refresh-token',
   organizationUri: 'some organization_uri',
   region: 'us',
