@@ -25,6 +25,7 @@ const syncedBefore = Date.now();
 const nextPage = 1;
 const users: usersConnector.DatadogUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
+  type: 'users',
   attributes: {
     name: `displayName-${i}`,
     email: `user-${i}@foo.bar`,
