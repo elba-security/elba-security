@@ -55,28 +55,27 @@ export const syncDataProtection = inngest.createFunction(
     });
 
     if (userIds.length) {
-      const eventsWait = userIds.map((id) =>
-        step.waitForEvent(`wait-for-items-complete-${id}`, {
-          event: 'onedrive/items.sync.completed',
-          timeout: '30d',
-          if: `async.data.organisationId == '${organisationId}' && async.data.userId == '${id}'`,
-        })
-      );
-
-      await step.sendEvent(
-        'items-sync-triggered',
-        userIds.map((id) => ({
-          name: 'onedrive/items.sync.triggered',
-          data: {
-            userId: id,
-            organisationId,
-            isFirstSync,
-            skipToken: null,
-          },
-        }))
-      );
-
-      await Promise.all(eventsWait);
+      await Promise.all([
+        ...userIds.map((id) =>
+          step.waitForEvent(`wait-for-items-complete-${id}`, {
+            event: 'onedrive/items.sync.completed',
+            timeout: '30d',
+            if: `async.data.organisationId == '${organisationId}' && async.data.userId == '${id}'`,
+          })
+        ),
+        step.sendEvent(
+          'items-sync-triggered',
+          userIds.map((id) => ({
+            name: 'onedrive/items.sync.triggered',
+            data: {
+              userId: id,
+              organisationId,
+              isFirstSync,
+              skipToken: null,
+            },
+          }))
+        ),
+      ]);
     }
 
     if (nextSkipToken) {

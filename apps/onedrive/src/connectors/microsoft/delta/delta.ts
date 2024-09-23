@@ -40,7 +40,7 @@ export const getDeltaItems = async ({
   userId: string;
   deltaToken: string | null;
 }): Promise<
-  { items: ParsedDeltaItems } & ({ nextSkipToken: string } | { newDeltaToken: string })
+  null | ({ items: ParsedDeltaItems } & ({ nextSkipToken: string } | { newDeltaToken: string }))
 > => {
   const url = new URL(`${env.MICROSOFT_API_URL}/users/${userId}/drive/root/delta`);
 
@@ -60,6 +60,10 @@ export const getDeltaItems = async ({
   });
 
   if (!response.ok) {
+    if (response.status === 404) {
+      return null;
+    }
+
     throw new MicrosoftError('Could not retrieve delta', { response });
   }
 

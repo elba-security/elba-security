@@ -38,12 +38,13 @@ describe('delta connector', () => {
         http.get(
           `${env.MICROSOFT_API_URL}/users/:userId/drive/root/delta`,
           ({ request, params }) => {
-            if (
-              request.headers.get('Authorization') !== `Bearer ${validToken}` ||
-              params.userId !== userId
-            ) {
+            if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(undefined, { status: 401 });
             }
+            if (params.userId !== userId) {
+              return new Response(undefined, { status: 404 });
+            }
+
             const url = new URL(request.url);
             const select = url.searchParams.get('$select');
             const top = url.searchParams.get('$top');
@@ -113,14 +114,14 @@ describe('delta connector', () => {
       ).rejects.toBeInstanceOf(MicrosoftError);
     });
 
-    test('should throws when the userId is invalid', async () => {
+    test("should return null when the user doesn't have a drive", async () => {
       await expect(
         getDeltaItems({
           token: validToken,
           userId: 'some-invalid-id',
           deltaToken: null,
         })
-      ).rejects.toBeInstanceOf(MicrosoftError);
+      ).resolves.toBeNull();
     });
   });
 });

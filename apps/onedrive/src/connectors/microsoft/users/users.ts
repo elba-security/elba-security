@@ -94,12 +94,12 @@ export const getOrganisationUserIds = async ({ token, tenantId, skipToken }: Get
   }
 
   const userIds: string[] = [];
-  for (const item of result.data.value) {
-    const parsedItem = organisationUserSchema.safeParse(item);
-    if (!parsedItem.success) {
-      logger.error('Failed to parse item while getting users', { item, error: parsedItem.error });
+  for (const user of result.data.value) {
+    const parsedUser = organisationUserSchema.safeParse(user);
+    if (!parsedUser.success) {
+      logger.error('Failed to parse user', { user, error: parsedUser.error });
     } else {
-      userIds.push(parsedItem.data.id);
+      userIds.push(parsedUser.data.id);
     }
   }
 

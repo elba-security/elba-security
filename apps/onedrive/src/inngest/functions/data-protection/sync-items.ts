@@ -62,10 +62,21 @@ export const syncItems = inngest.createFunction(
     const token = await decrypt(organisation.token);
 
     // TODO: make sure to handle force resync from microsoft
-    const { items, ...tokens } = await step.run('get-items', async () =>
+    const result = await step.run('get-items', async () =>
       getDeltaItems({ token, userId, deltaToken: skipToken })
     );
 
+    // Ignore if user doesn't have a drive
+    if (!result) {
+      await step.sendEvent('items-sync-completed', {
+        name: 'onedrive/items.sync.completed',
+        data: { organisationId, userId },
+      });
+
+      return { status: 'ignored' };
+    }
+
+    const { items, ...tokens } = result;
     const itemIds = new Set<string>();
     const sharedItems: MicrosoftDriveItem[] = [];
     for (const item of items.updated) {

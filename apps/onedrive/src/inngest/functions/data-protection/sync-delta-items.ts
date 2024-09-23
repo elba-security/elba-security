@@ -50,17 +50,21 @@ export const syncDeltaItems = inngest.createFunction(
     }
 
     const token = await decrypt(record.token);
-    const { items, ...tokens } = await step.run('fetch-delta-items', async () => {
-      const result = await getDeltaItems({
+    const result = await step.run('fetch-delta-items', async () => {
+      const delta = await getDeltaItems({
         token,
         userId,
         deltaToken: record.delta,
       });
 
+      if (!delta) {
+        return null;
+      }
+
       await db
         .update(subscriptionsTable)
         .set({
-          delta: 'newDeltaToken' in result ? result.newDeltaToken : result.nextSkipToken,
+          delta: 'newDeltaToken' in delta ? delta.newDeltaToken : delta.nextSkipToken,
         })
         .where(
           and(
@@ -70,8 +74,14 @@ export const syncDeltaItems = inngest.createFunction(
           )
         );
 
-      return result;
+      return delta;
     });
+
+    if (!result) {
+      return { status: 'ignored' };
+    }
+
+    const { items, ...tokens } = result;
 
     const sharedItems: MicrosoftDriveItem[] = [];
     const itemIds = new Set<string>();
