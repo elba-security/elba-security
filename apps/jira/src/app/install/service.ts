@@ -1,8 +1,8 @@
 import { encrypt } from '@/common/crypto';
-import { getUsers } from '@/connectors/jira/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
+import { getAuthUser } from '@/connectors/jira/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -11,6 +11,7 @@ type SetupOrganisationParams = {
   email: string;
   region: string;
 };
+
 export const registerOrganisation = async ({
   organisationId,
   apiToken,
