@@ -18,13 +18,13 @@ export const registerOrganisation = async ({
   email,
   region,
 }: SetupOrganisationParams) => {
-  await getUsers({ apiToken, domain, email, page: null });
+  const { authUserId } = await getAuthUser({ apiToken, domain, email });
 
   const encodedtoken = await encrypt(apiToken);
 
   await db
     .insert(organisationsTable)
-    .values({ id: organisationId, region, apiToken: encodedtoken, domain, email })
+    .values({ id: organisationId, region, apiToken: encodedtoken, domain, email, authUserId })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
@@ -32,6 +32,7 @@ export const registerOrganisation = async ({
         apiToken: encodedtoken,
         domain,
         email,
+        authUserId,
       },
     });
 
