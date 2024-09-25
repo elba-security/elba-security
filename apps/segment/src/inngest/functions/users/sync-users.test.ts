@@ -12,6 +12,7 @@ const organisation = {
   id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
   token: 'test-api-key',
   region: 'us',
+  workspaceName: 'test-workspace-name',
 };
 
 const users: usersConnector.SegmentUser[] = Array.from({ length: 2 }, (_, i) => ({
@@ -70,6 +71,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '0',
           isSuspendable: true,
+          url: 'https://app.segment.com/test-workspace-name/settings/access-management/users',
         },
         {
           additionalEmails: [],
@@ -77,6 +79,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: '1',
           isSuspendable: true,
+          url: 'https://app.segment.com/test-workspace-name/settings/access-management/users',
         },
       ],
     });
@@ -122,6 +125,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '0',
           isSuspendable: true,
+          url: 'https://app.segment.com/test-workspace-name/settings/access-management/users',
         },
         {
           additionalEmails: [],
@@ -129,6 +133,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: '1',
           isSuspendable: true,
+          url: 'https://app.segment.com/test-workspace-name/settings/access-management/users',
         },
       ],
     });

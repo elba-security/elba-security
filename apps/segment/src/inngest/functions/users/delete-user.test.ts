@@ -9,11 +9,13 @@ import { deleteUser } from './delete-user';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const userId = 'user-id-1';
 const token = 'test-api-key';
+const workspaceName = 'test-workspace-name';
 
 const organisation = {
   id: organisationId,
   token,
   region: 'us',
+  workspaceName,
 };
 
 const setup = createInngestFunctionMock(deleteUser, 'segment/users.delete.requested');

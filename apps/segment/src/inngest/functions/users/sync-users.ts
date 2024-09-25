@@ -10,12 +10,19 @@ import { decrypt } from '@/common/crypto';
 import { type SegmentUser } from '@/connectors/segment/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUser = (user: SegmentUser): User => ({
+const formatElbaUser = ({
+  user,
+  workspaceName,
+}: {
+  user: SegmentUser;
+  workspaceName: string;
+}): User => ({
   id: user.id,
   displayName: user.name,
   email: user.email,
   additionalEmails: [],
   isSuspendable: true,
+  url: `https://app.segment.com/${workspaceName}/settings/access-management/users`,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -48,6 +55,7 @@ export const syncUsers = inngest.createFunction(
       .select({
         token: organisationsTable.token,
         region: organisationsTable.region,
+        workspaceName: organisationsTable.workspaceName,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -58,11 +66,12 @@ export const syncUsers = inngest.createFunction(
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.token);
+    const workspaceName = organisation.workspaceName;
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ token, cursor: page });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers.map((user) => formatElbaUser({ user, workspaceName }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

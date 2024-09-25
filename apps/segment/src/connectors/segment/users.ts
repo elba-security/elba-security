@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { SegmentError } from '../common/error';
 
@@ -29,11 +30,17 @@ export type DeleteUsersParams = {
   token: string;
 };
 
-const count = env.SEGMENT_USERS_SYNC_BATCH_SIZE;
+const workspaceNameResponseSchema = z.object({
+  data: z.object({
+    workspace: z.object({
+      name: z.string(),
+    }),
+  }),
+});
 
 export const getUsers = async ({ token, cursor }: GetUsersParams) => {
   const endpoint = new URL(`${env.SEGMENT_API_BASE_URL}/users`);
-  endpoint.searchParams.append('pagination.count', String(count));
+  endpoint.searchParams.append('pagination.count', String(env.SEGMENT_USERS_SYNC_BATCH_SIZE));
 
   if (cursor) {
     endpoint.searchParams.append('pagination.cursor', cursor);
@@ -89,4 +96,31 @@ export const deleteUser = async ({ userId, token }: DeleteUsersParams) => {
   if (!response.ok && response.status !== 404) {
     throw new SegmentError(`Could not delete user with Id: ${userId}`, { response });
   }
+};
+
+export const getWorkspaceName = async ({ token }: { token: string }) => {
+  const url = new URL(env.SEGMENT_API_BASE_URL);
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new SegmentError('Could not retrieve workspace name', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = workspaceNameResponseSchema.safeParse(resData);
+  if (!result.success) {
+    logger.error('Invalid Segment workspace name response', { resData });
+    throw new SegmentError('Invalid Segment workspace name response');
+  }
+
+  return {
+    workspaceName: result.data.data.workspace.name,
+  };
 };

@@ -11,6 +11,7 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   token: 'test-api-token',
   region: 'us',
+  workspaceName: 'test-workspace-name',
 };
 
 const setup = createInngestFunctionMock(removeOrganisation, 'segment/app.uninstalled');

@@ -10,6 +10,7 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   token: 'access-token',
   region: 'us',
+  workspaceName: 'test-workspace-name',
 };
 
 describe('unauthorized middleware', () => {

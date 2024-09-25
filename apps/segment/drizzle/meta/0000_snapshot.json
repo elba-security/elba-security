@@ -1,5 +1,5 @@
 {
-  "id": "6f9ffc52-78b8-4830-b210-ac62f709a4ce",
+  "id": "7e223ea1-dcf8-46b9-bfd4-5665f8f430bf",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -22,6 +22,12 @@
         },
         "region": {
           "name": "region",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspace_name": {
+          "name": "workspace_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
