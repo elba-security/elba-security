@@ -90,12 +90,14 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
         };
       }
 
-      return {
-        errors: {
-          apiToken: ['The given API token seems to be invalid'],
-          email: ['The given API email seems to be invalid'],
-        },
-      };
+      if (status === 401) {
+        return {
+          errors: {
+            apiToken: ['The given API token seems to be invalid'],
+            email: ['The given API email seems to be invalid'],
+          },
+        };
+      }
     }
 
     redirect(
