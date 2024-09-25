@@ -76,8 +76,8 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
       const status = error.response?.status;
       // 403: Site temporarily unavailable
       // 503: Your Jira Cloud subscription has been deactivated due to inactivity
-      if (status && [404, 503].includes(status) && error.response?.text()) {
-        const errorText = await error.response.text();
+      if (status && [404, 503].includes(status) && error.response) {
+        const errorText = await error.response.clone().text();
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- we trust the response.text on error
         const errorResult: {
