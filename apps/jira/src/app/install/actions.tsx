@@ -72,11 +72,27 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
 
     logger.warn('Could not register organisation', { error });
 
-    if (error instanceof JiraError && error.response?.status === 401) {
+    if (error instanceof JiraError) {
+      const status = error.response?.status;
+      if (status === 404 && error.response?.text()) {
+        const errorText = await error.response.text();
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- we trust the response.text on error
+        const errorResult: {
+          errorMessage: string;
+          errorCode: string;
+        } = JSON.parse(errorText);
+
+        return {
+          errors: {
+            domain: [`${errorResult.errorMessage}, please check your domain`],
+          },
+        };
+      }
+
       return {
         errors: {
           apiToken: ['The given API token seems to be invalid'],
-          domain: ['The given API domain seems to be invalid'],
           email: ['The given API email seems to be invalid'],
         },
       };
