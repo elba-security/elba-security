@@ -7,12 +7,14 @@ import { encrypt } from '@/common/crypto';
 type SetupOrganisationParams = {
   organisationId: string;
   token: string;
+  authUserEmail: string;
   region: string;
 };
 
 export const registerOrganisation = async ({
   organisationId,
   token,
+  authUserEmail,
   region,
 }: SetupOrganisationParams) => {
   const { workspaceName } = await getWorkspaceName({ token });
@@ -24,6 +26,7 @@ export const registerOrganisation = async ({
       id: organisationId,
       token: encryptedToken,
       workspaceName,
+      authUserEmail,
       region,
     })
     .onConflictDoUpdate({
@@ -31,6 +34,7 @@ export const registerOrganisation = async ({
       set: {
         token: encryptedToken,
         workspaceName,
+        authUserEmail,
       },
     });
 

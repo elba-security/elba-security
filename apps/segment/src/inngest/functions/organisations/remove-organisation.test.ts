@@ -12,6 +12,7 @@ const organisation = {
   token: 'test-api-token',
   region: 'us',
   workspaceName: 'test-workspace-name',
+  authUserEmail: 'auth-user@alpha.com',
 };
 
 const setup = createInngestFunctionMock(removeOrganisation, 'segment/app.uninstalled');

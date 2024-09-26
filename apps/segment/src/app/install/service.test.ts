@@ -12,6 +12,7 @@ const token = 'test-api-key';
 const region = 'us';
 const now = new Date();
 const workspaceName = 'test-workspace-name';
+const authUserEmail = 'auth-user@alpha.com';
 
 const getWorkspaceNameData = {
   workspaceName,
@@ -21,6 +22,7 @@ const mockOrganisation = {
   id: '00000000-0000-0000-0000-000000000001',
   token,
   region,
+  authUserEmail,
   workspaceName,
 };
 
@@ -45,6 +47,7 @@ describe('registerOrganisation', () => {
         organisationId: mockOrganisation.id,
         token,
         region,
+        authUserEmail,
       })
     ).resolves.toBeUndefined();
 
@@ -102,6 +105,7 @@ describe('registerOrganisation', () => {
         organisationId: mockOrganisation.id,
         token,
         region,
+        authUserEmail,
       })
     ).resolves.toBeUndefined();
 

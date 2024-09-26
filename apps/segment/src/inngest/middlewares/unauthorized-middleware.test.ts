@@ -11,6 +11,7 @@ const organisation = {
   token: 'access-token',
   region: 'us',
   workspaceName: 'test-workspace-name',
+  authUserEmail: 'auth-user@alpha.com',
 };
 
 describe('unauthorized middleware', () => {
