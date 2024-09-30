@@ -51,7 +51,7 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'statsig/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt } = event.data;
+    const { organisationId, syncStartedAt, page } = event.data;
 
     const [organisation] = await db
       .select({
@@ -68,9 +68,10 @@ export const syncUsers = inngest.createFunction(
 
     const apiKey = await decrypt(organisation.apiKey);
 
-    await step.run('list-users', async () => {
+    const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({
         apiKey,
+        page,
       });
 
       const users = result.validUsers.map(formatElbaUser);
@@ -85,7 +86,22 @@ export const syncUsers = inngest.createFunction(
       if (users.length > 0) {
         await elba.users.update({ users });
       }
+
+      return result.nextPage;
     });
+
+    if (nextPage) {
+      await step.sendEvent('synchronize-users', {
+        name: 'statsig/users.sync.requested',
+        data: {
+          ...event.data,
+          page: nextPage,
+        },
+      });
+      return {
+        status: 'ongoing',
+      };
+    }
 
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })

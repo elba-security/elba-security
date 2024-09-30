@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { StatsigError } from './common/error';
+import { StatsigError } from '../common/error';
 
 const statsigUserSchema = z.object({
   email: z.string(),
@@ -13,15 +13,23 @@ export type StatsigUser = z.infer<typeof statsigUserSchema>;
 
 const statsigResponseSchema = z.object({
   data: z.array(z.unknown()),
+  pagination: z.object({
+    nextPage: z.string().nullable(),
+  }),
 });
 
-export type GetUsers = {
+export type GetUsersParams = {
   apiKey: string;
+  page?: string | null;
 };
 
-export const getUsers = async ({ apiKey }: GetUsers) => {
-  // TODO: Pagination parameters required from August 1st 2024, https://docs.statsig.com/console-api/users#get-/users
-  const url = new URL(`${env.STATSIG_API_BASE_URL}/users`);
+export const getUsers = async ({ apiKey, page }: GetUsersParams) => {
+  const baseUrl = `${env.STATSIG_API_BASE_URL}${page ? page : '/console/v1/users'}`;
+  const url = new URL(baseUrl);
+
+  if (!page) {
+    url.searchParams.append('limit', String(env.STATSIG_USERS_SYNC_BATCH_SIZE));
+  }
 
   const response = await fetch(url.toString(), {
     method: 'GET',
@@ -38,7 +46,7 @@ export const getUsers = async ({ apiKey }: GetUsers) => {
 
   const resData: unknown = await response.json();
 
-  const { data } = statsigResponseSchema.parse(resData);
+  const { data, pagination } = statsigResponseSchema.parse(resData);
 
   const validUsers: StatsigUser[] = [];
   const invalidUsers: unknown[] = [];
@@ -51,9 +59,9 @@ export const getUsers = async ({ apiKey }: GetUsers) => {
       invalidUsers.push(node);
     }
   }
-
   return {
     validUsers,
     invalidUsers,
+    nextPage: pagination.nextPage,
   };
 };
