@@ -3,7 +3,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUser as deletefifteenFiveUser } from '@/connectors/fifteenfive/users';
+import { deleteUser as deleteFifteenfiveUser } from '@/connectors/fifteenfive/users';
 import { env } from '@/common/env';
 import { decrypt } from '@/common/crypto';
 
@@ -12,7 +12,7 @@ export const deleteUser = inngest.createFunction(
     id: 'fifteenfive-delete-user',
     concurrency: {
       key: 'event.data.organisationId',
-      limit: env.fifteenFIVE_USERS_DELETE_CONCURRENCY,
+      limit: env.FIFTEENFIVE_USERS_DELETE_CONCURRENCY,
     },
     retries: 5,
   },
@@ -35,7 +35,7 @@ export const deleteUser = inngest.createFunction(
 
     const decryptedToken = await decrypt(organisation.apiKey);
 
-    await deletefifteenFiveUser({
+    await deleteFifteenfiveUser({
       userId,
       apiKey: decryptedToken,
     });

@@ -8,7 +8,8 @@ import { type FifteenFiveUser, getUsers, deleteUser, checkUserWithEmail } from '
 const nextCursor = 'https://api.15five.com/api/public/user/?is_active=true&page=2&page_size=1';
 const apiKey = 'test-api-key';
 const userId = 'test-user-id';
-const ownerEmail = 'test-owner-email';
+const authUserEmail = 'test-owner-email';
+
 const validUsers: FifteenFiveUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: i,
   first_name: `first_name-${i}`,
@@ -29,21 +30,16 @@ describe('users connector', () => {
 
           const url = new URL(request.url);
           const page = url.searchParams.get('page');
-          const returnData = page
-            ? {
-                results: validUsers,
-                next: nextCursor,
-              }
-            : {
-                results: validUsers,
-                next: null,
-              };
+          const returnData = {
+            results: validUsers,
+            next: page ? nextCursor : null,
+          };
           return Response.json(returnData);
         })
       );
     });
 
-    test('should return users and nextPage when the apiKey is valid and their is another page', async () => {
+    test('should return users and nextPage when the apiKey is valid and if their is another page', async () => {
       await expect(getUsers({ apiKey, nextPageUrl: nextCursor })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
@@ -51,7 +47,7 @@ describe('users connector', () => {
       });
     });
 
-    test('should return users and no nextPage when the apiKey is valid and their is no other page', async () => {
+    test('should return users and no nextPage when the apiKey is valid if and their is no other page', async () => {
       await expect(getUsers({ apiKey, nextPageUrl: null })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
@@ -82,6 +78,7 @@ describe('users connector', () => {
             if (params.userId !== userId) {
               return new Response(undefined, { status: 404 });
             }
+
             return new Response(undefined, { status: 200 });
           }
         )
@@ -114,7 +111,7 @@ describe('users connector', () => {
           const url = new URL(request.url);
           const email = url.searchParams.get('email');
           const returnData = {
-            results: email === ownerEmail ? validUsers : [],
+            results: email === authUserEmail ? validUsers : [],
             next: null,
           };
           return Response.json(returnData);
@@ -123,13 +120,15 @@ describe('users connector', () => {
     });
 
     test('should return true when the apiKey is valid and the email is the one of the owner', async () => {
-      await expect(checkUserWithEmail({ apiKey, email: ownerEmail })).resolves.toStrictEqual({
+      await expect(checkUserWithEmail({ apiKey, authUserEmail })).resolves.toStrictEqual({
         isValidEmail: true,
       });
     });
 
     test('should return false and no nextPage when the apiKey is valid and their is no other page', async () => {
-      await expect(checkUserWithEmail({ apiKey, email: 'invalid-email' })).resolves.toStrictEqual({
+      await expect(
+        checkUserWithEmail({ apiKey, authUserEmail: 'invalid-email' })
+      ).resolves.toStrictEqual({
         isValidEmail: false,
       });
     });
@@ -138,7 +137,7 @@ describe('users connector', () => {
       await expect(
         checkUserWithEmail({
           apiKey: 'foo-id',
-          email: ownerEmail,
+          authUserEmail,
         })
       ).rejects.toBeInstanceOf(FifteenFiveError);
     });

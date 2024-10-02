@@ -50,16 +50,16 @@ export default function InstallPage() {
                 <FormErrorMessage>{state.errors.apiKey.at(0)}</FormErrorMessage>
               ) : null}
             </FormField>
-            <FormField isInvalid={Boolean(state.errors?.email?.at(0))}>
+            <FormField isInvalid={Boolean(state.errors?.authUserEmail?.at(0))}>
               <FormLabel>Your Email</FormLabel>
               <Input
                 minLength={1}
-                name="email"
+                name="authUserEmail"
                 placeholder="Paste Your Email Address"
                 type="text"
               />
-              {state.errors?.email?.at(0) ? (
-                <FormErrorMessage>{state.errors.email.at(0)}</FormErrorMessage>
+              {state.errors?.authUserEmail?.at(0) ? (
+                <FormErrorMessage>{state.errors.authUserEmail.at(0)}</FormErrorMessage>
               ) : null}
             </FormField>
             {organisationId !== null && (

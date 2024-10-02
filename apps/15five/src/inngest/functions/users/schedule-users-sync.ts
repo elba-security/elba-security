@@ -5,7 +5,7 @@ import { inngest } from '../../client';
 
 export const scheduleUsersSync = inngest.createFunction(
   { id: 'fifteenfive-schedule-users-sync' },
-  { cron: env.fifteenFIVE_USERS_SYNC_CRON },
+  { cron: env.FIFTEENFIVE_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({

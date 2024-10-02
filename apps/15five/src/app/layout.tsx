@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Elba x fifteenFive',
-  description: 'Elba x fifteenFive integration',
+  title: 'Elba x 15Five',
+  description: 'Elba x 15Five integration',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

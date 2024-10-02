@@ -13,10 +13,10 @@ import { registerOrganisation } from './service';
 const formSchema = z.object({
   organisationId: z.string().uuid(),
   apiKey: z.string().min(1, {
-    message: 'apiKey is required',
+    message: 'API Key is required',
   }),
-  email: z.string().min(1, {
-    message: 'email is required',
+  authUserEmail: z.string().email({
+    message: 'Email is required',
   }),
   region: z.string().min(1),
 });
@@ -24,7 +24,7 @@ const formSchema = z.object({
 export type FormState = {
   errors?: {
     apiKey?: string[] | undefined;
-    email?: string[] | undefined;
+    authUserEmail?: string[] | undefined;
   };
 };
 
@@ -34,7 +34,7 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
   try {
     const result = formSchema.safeParse({
       apiKey: formData.get('apiKey'),
-      email: formData.get('email'),
+      authUserEmail: formData.get('authUserEmail'),
       organisationId: formData.get('organisationId'),
       region,
     });
@@ -60,14 +60,14 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
     }
 
     const apiKey = result.data.apiKey;
-    const email = result.data.email;
+    const authUserEmail = result.data.authUserEmail;
 
-    const { isValidEmail } = await checkUserWithEmail({ apiKey, email });
+    const { isValidEmail } = await checkUserWithEmail({ apiKey, authUserEmail });
 
     if (!isValidEmail) {
       return {
         errors: {
-          email: ['The email is not valid'],
+          authUserEmail: ['The email is not valid'],
         },
       };
     }

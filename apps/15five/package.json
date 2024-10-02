@@ -14,13 +14,12 @@
     "database:up": "docker-compose -p fifteenfive --profile edge --env-file=.env.local up -d",
     "database:down": "docker-compose -p fifteenfive down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
-    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts",
-    "database:open:pg": "drizzle-kit studio --config ../../drizzle.config.ts"
+    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
-    "@elba-security/design-system": "workspace:*",
     "@elba-security/inngest": "workspace:*",
+    "@elba-security/design-system": "workspace:*",
     "@elba-security/logger": "workspace:*",
     "@elba-security/nextjs": "workspace:*",
     "@elba-security/sdk": "workspace:*",

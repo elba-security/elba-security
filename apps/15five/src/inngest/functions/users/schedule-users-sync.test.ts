@@ -12,7 +12,7 @@ export const organisations = Array.from({ length: 2 }, (_, i) => ({
   id: `00000000-0000-0000-0000-00000000000${i}`,
   region: 'us',
   apiKey: `test-api-key${i}`,
-  email: 'test-owner-email',
+  authUserEmail: 'test-owner-email',
 }));
 
 describe('schedule-users-syncs', () => {

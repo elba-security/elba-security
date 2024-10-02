@@ -1,5 +1,5 @@
 {
-  "id": "7cc36eb2-66e0-4928-9228-acdfa17fe02c",
+  "id": "ec663081-1b70-401e-913a-f6f0a89903c7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -20,8 +20,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "email": {
-          "name": "email",
+        "auth_user_email": {
+          "name": "auth_user_email",
           "type": "text",
           "primaryKey": false,
           "notNull": true

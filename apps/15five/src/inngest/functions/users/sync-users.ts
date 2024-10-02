@@ -17,12 +17,18 @@ const formatElbaUserDisplayName = (user: FifteenFiveUser) => {
   return user.email;
 };
 
-const formatElbaUser = ({ user, email }: { user: FifteenFiveUser; email: string }): User => ({
+const formatElbaUser = ({
+  user,
+  authUserEmail,
+}: {
+  user: FifteenFiveUser;
+  authUserEmail: string;
+}): User => ({
   id: String(user.id),
   displayName: formatElbaUserDisplayName(user),
   email: user.email,
   additionalEmails: [],
-  isSuspendable: user.email !== email,
+  isSuspendable: user.email !== authUserEmail,
   url: `https://my.15five.com/account/settings/${user.id}/`,
 });
 
@@ -55,7 +61,7 @@ export const syncUsers = inngest.createFunction(
     const [organisation] = await db
       .select({
         apiKey: organisationsTable.apiKey,
-        email: organisationsTable.email,
+        authUserEmail: organisationsTable.authUserEmail,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -67,12 +73,12 @@ export const syncUsers = inngest.createFunction(
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const apiKey = await decrypt(organisation.apiKey);
-    const email = organisation.email;
+    const authUserEmail = organisation.authUserEmail;
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ apiKey, nextPageUrl: page });
 
-      const users = result.validUsers.map((user) => formatElbaUser({ user, email }));
+      const users = result.validUsers.map((user) => formatElbaUser({ user, authUserEmail }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

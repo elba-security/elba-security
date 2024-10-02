@@ -10,7 +10,7 @@ import { decrypt } from '@/common/crypto';
 import { registerOrganisation } from './service';
 
 const apiKey = 'test-api-key';
-const email = 'test-owner-email';
+const authUserEmail = 'test-owner-email';
 const region = 'us';
 const now = new Date();
 
@@ -31,7 +31,7 @@ const getUsersData = {
 const mockOrganisation = {
   id: '00000000-0000-0000-0000-000000000001',
   apiKey,
-  email,
+  authUserEmail,
   region,
 };
 
@@ -53,7 +53,7 @@ describe('registerOrganisation', () => {
       registerOrganisation({
         organisationId: mockOrganisation.id,
         apiKey,
-        email,
+        authUserEmail,
         region,
       })
     ).resolves.toBeUndefined();
@@ -102,14 +102,13 @@ describe('registerOrganisation', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
-    // pre-insert an organisation to simulate an existing entry
     await db.insert(organisationsTable).values(mockOrganisation);
 
     await expect(
       registerOrganisation({
         organisationId: mockOrganisation.id,
         apiKey,
-        email,
+        authUserEmail,
         region,
       })
     ).resolves.toBeUndefined();
@@ -117,7 +116,6 @@ describe('registerOrganisation', () => {
     expect(getUsers).toBeCalledTimes(1);
     expect(getUsers).toBeCalledWith({ apiKey });
 
-    // check if the apiKey in the database is updated
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)
@@ -128,7 +126,6 @@ describe('registerOrganisation', () => {
     }
     expect(storedOrganisation.region).toBe(region);
     await expect(decrypt(storedOrganisation.apiKey)).resolves.toEqual(apiKey);
-    // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {

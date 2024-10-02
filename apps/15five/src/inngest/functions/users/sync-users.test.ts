@@ -9,9 +9,9 @@ import { syncUsers } from './sync-users';
 
 const nextPage = '1';
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
   apiKey: 'test-api-key',
-  email: 'test-owner-email',
+  authUserEmail: 'test-owner-email',
   region: 'us',
 };
 

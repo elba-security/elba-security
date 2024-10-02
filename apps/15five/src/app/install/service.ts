@@ -7,14 +7,14 @@ import { encrypt } from '@/common/crypto';
 type SetupOrganisationParams = {
   organisationId: string;
   apiKey: string;
-  email: string;
+  authUserEmail: string;
   region: string;
 };
 
 export const registerOrganisation = async ({
   organisationId,
   apiKey,
-  email,
+  authUserEmail,
   region,
 }: SetupOrganisationParams) => {
   await getUsers({ apiKey });
@@ -24,14 +24,14 @@ export const registerOrganisation = async ({
     .values({
       id: organisationId,
       apiKey: encryptedToken,
-      email,
+      authUserEmail,
       region,
     })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
         apiKey: encryptedToken,
-        email,
+        authUserEmail,
       },
     });
 

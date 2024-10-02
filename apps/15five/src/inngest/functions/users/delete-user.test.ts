@@ -13,7 +13,7 @@ const apiKey = 'test-api-key';
 const organisation = {
   id: organisationId,
   apiKey,
-  email: 'test-owner-email',
+  authUserEmail: 'test-owner-email',
   region: 'us',
 };
 

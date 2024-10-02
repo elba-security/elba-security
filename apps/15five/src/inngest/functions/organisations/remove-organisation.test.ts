@@ -10,7 +10,7 @@ import { removeOrganisation } from './remove-organisation';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   apiKey: 'test-api-apiKey',
-  email: 'test-owner-email',
+  authUserEmail: 'test-owner-email',
   region: 'us',
 };
 
