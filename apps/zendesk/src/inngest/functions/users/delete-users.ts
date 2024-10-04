@@ -39,7 +39,7 @@ export const deleteUser = inngest.createFunction(
       .where(eq(organisationsTable.id, organisationId));
 
     if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve ${userId}`);
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
     const accessToken = await decrypt(organisation.token);
     const subDomain = organisation.subDomain;
