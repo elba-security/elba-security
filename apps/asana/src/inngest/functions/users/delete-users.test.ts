@@ -1,7 +1,6 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/asana/users';
-import * as authConnector from '@/connectors/asana/auth';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
@@ -30,14 +29,14 @@ describe('deleteUser', () => {
 
   test('should delete users', async () => {
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
-    vi.spyOn(authConnector, 'getWorkspaceIds').mockResolvedValueOnce([workspaceId]);
+    vi.spyOn(usersConnector, 'getUser').mockResolvedValueOnce([workspaceId]);
     await db.insert(organisationsTable).values(organisation);
 
     const [result] = setup({ userId, organisationId: organisation.id });
 
     await expect(result).resolves.toStrictEqual(undefined);
-    expect(authConnector.getWorkspaceIds).toHaveBeenCalledTimes(1);
-    expect(authConnector.getWorkspaceIds).toHaveBeenCalledWith(accessToken);
+    expect(usersConnector.getUser).toHaveBeenCalledTimes(1);
+    expect(usersConnector.getUser).toHaveBeenCalledWith({ accessToken, userId });
 
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     expect(usersConnector.deleteUser).toBeCalledWith({
