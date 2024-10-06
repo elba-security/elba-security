@@ -438,6 +438,9 @@ importers:
       '@elba-security/logger':
         specifier: workspace:*
         version: link:../../packages/logger
+      '@elba-security/next-elba':
+        specifier: workspace:*
+        version: link:../../packages/next-elba
       '@elba-security/nextjs':
         specifier: workspace:*
         version: link:../../packages/nextjs
