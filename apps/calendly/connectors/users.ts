@@ -1,7 +1,31 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env';
-import { CalendlyError } from '../common/error';
+import { ConnectorError } from '@elba-security/next-elba/connector-error';
+import { type User } from '@elba-security/sdk';
+import { env } from '../env';
+
+// extract uuid from user's unique uri like this: "https://api.calendly.com/organization_memberships/AAAAAAAAAAAAAAAA"
+const extractUUID = (user: CalendlyUser): string => {
+  const regex = /organization_memberships\/(?<uuid>[a-f0-9-]{36})/;
+  const match = regex.exec(user.uri);
+  return match?.groups?.uuid ? match.groups.uuid : user.user.email;
+};
+
+const formatElbaUser = ({
+  user,
+  authUserUri,
+}: {
+  user: CalendlyUser;
+  authUserUri: string;
+}): User => ({
+  id: extractUUID(user),
+  displayName: user.user.name,
+  email: user.user.email,
+  role: user.role,
+  additionalEmails: [],
+  isSuspendable: user.user.uri !== authUserUri && user.role !== 'owner',
+  url: 'https://calendly.com/app/admin/users',
+});
 
 const calendlyUserSchema = z.object({
   user: z.object({
@@ -25,7 +49,8 @@ const calendlyResponseSchema = z.object({
 export type GetUsersParams = {
   accessToken: string;
   organizationUri: string;
-  page?: string | null;
+  authUserUri: string;
+  cursor?: string | null;
 };
 
 export type DeleteUsersParams = {
@@ -33,14 +58,19 @@ export type DeleteUsersParams = {
   userId: string;
 };
 
-export const getUsers = async ({ accessToken, organizationUri, page }: GetUsersParams) => {
+export const getUsers = async ({
+  accessToken,
+  organizationUri,
+  authUserUri,
+  cursor,
+}: GetUsersParams) => {
   const url = new URL(`${env.CALENDLY_API_BASE_URL}/organization_memberships`);
 
   url.searchParams.append('organization', organizationUri);
   url.searchParams.append('count', `${env.CALENDLY_USERS_SYNC_BATCH_SIZE}`);
 
-  if (page) {
-    url.searchParams.append('page_token', page);
+  if (cursor) {
+    url.searchParams.append('page_token', cursor);
   }
 
   const response = await fetch(url.toString(), {
@@ -52,7 +82,7 @@ export const getUsers = async ({ accessToken, organizationUri, page }: GetUsersP
   });
 
   if (!response.ok) {
-    throw new CalendlyError('Could not retrieve users', { response });
+    throw new ConnectorError('Could not retrieve users', { response });
   }
 
   const resData: unknown = await response.json();
@@ -71,10 +101,11 @@ export const getUsers = async ({ accessToken, organizationUri, page }: GetUsersP
     }
   }
 
+  logger.warn('Response contains invalid users', { invalidUsers });
+
   return {
-    validUsers,
-    invalidUsers,
-    nextPage: result.pagination.next_page_token ?? null,
+    users: validUsers.map((user) => formatElbaUser({ user, authUserUri })),
+    nextCursor: result.pagination.next_page_token ?? null,
   };
 };
 
@@ -89,7 +120,7 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
   });
 
   if (!response.ok && response.status !== 404) {
-    throw new CalendlyError(`Could not delete user with Id: ${userId}`, { response });
+    throw new ConnectorError(`Could not delete user with Id: ${userId}`, { response });
   }
 };
 
@@ -111,7 +142,7 @@ export const getAuthUser = async (accessToken: string) => {
   });
 
   if (!response.ok) {
-    throw new CalendlyError('Could not retrieve auth user id', { response });
+    throw new ConnectorError('Could not retrieve auth user id', { response });
   }
 
   const resData: unknown = await response.json();
@@ -119,7 +150,7 @@ export const getAuthUser = async (accessToken: string) => {
   const result = authUserIdResponseSchema.safeParse(resData);
   if (!result.success) {
     logger.error('Invalid Calendly auth user response', { resData });
-    throw new CalendlyError('Invalid Calendly auth user response');
+    throw new ConnectorError('Invalid Calendly auth user response');
   }
 
   return {

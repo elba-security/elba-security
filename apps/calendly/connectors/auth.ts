@@ -1,7 +1,7 @@
 import { z } from 'zod';
+import { ConnectorError } from '@elba-security/next-elba/connector-error';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env';
-import { CalendlyError } from '../common/error';
+import { env } from '../env';
 
 const tokenResponseSchema = z.object({
   access_token: z.string(),
@@ -25,7 +25,7 @@ export const getToken = async (code: string) => {
   });
 
   if (!response.ok) {
-    throw new CalendlyError('Could not retrieve token', { response });
+    throw new ConnectorError('Could not retrieve token', { response });
   }
 
   const data: unknown = await response.json();
@@ -54,7 +54,7 @@ export const getRefreshToken = async (refreshToken: string) => {
   });
 
   if (!response.ok) {
-    throw new CalendlyError('Could not retrieve token', { response });
+    throw new ConnectorError('Could not retrieve token', { response });
   }
 
   const data: unknown = await response.json();
