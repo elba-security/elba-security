@@ -1,8 +1,8 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/common/env';
-import { CalendlyError } from '../common/error';
+import { ConnectorError } from '@elba-security/next-elba/connector-error';
+import { env } from '../env';
 import { getToken, getRefreshToken } from './auth';
 
 const validCode = '1234';
@@ -45,7 +45,7 @@ describe('auth connector', () => {
     });
 
     test('should throw when the code is invalid', async () => {
-      await expect(getToken('wrong-code')).rejects.toBeInstanceOf(CalendlyError);
+      await expect(getToken('wrong-code')).rejects.toBeInstanceOf(ConnectorError);
     });
   });
 
@@ -82,7 +82,7 @@ describe('auth connector', () => {
     });
 
     test('should throw when the refreshToken is invalid', async () => {
-      await expect(getToken('wrong-refreshtoken')).rejects.toBeInstanceOf(CalendlyError);
+      await expect(getToken('wrong-refreshtoken')).rejects.toBeInstanceOf(ConnectorError);
     });
   });
 });
