@@ -15,6 +15,7 @@ const region = 'us';
 const now = new Date();
 const subDomain = 'some-subdomain';
 const ownerId = 'test-owner-id';
+const authUserId = 'test-auth-user-id';
 const getTokenData = {
   accessToken,
 };
@@ -30,6 +31,7 @@ const organisation = {
   region,
   subDomain,
   ownerId,
+  authUserId,
 };
 
 describe('setupOrganisation', () => {
@@ -46,6 +48,7 @@ describe('setupOrganisation', () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
     const getOwnerId = vi.spyOn(usersConnector, 'getOwnerId').mockResolvedValue(getOwnerIdData);
+    const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({ authUserId });
 
     await expect(
       setupOrganisation({
@@ -61,6 +64,9 @@ describe('setupOrganisation', () => {
 
     expect(getOwnerId).toBeCalledTimes(1);
     expect(getOwnerId).toBeCalledWith({ accessToken, subDomain });
+
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith({ accessToken, subDomain });
     const [storedOrganisation] = await db
       .select()
       .from(organisationsTable)
@@ -101,6 +107,7 @@ describe('setupOrganisation', () => {
     // mock getToken as above
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
     const getOwnerId = vi.spyOn(usersConnector, 'getOwnerId').mockResolvedValue(getOwnerIdData);
+    const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({ authUserId });
 
     // assert the function resolves without returning a value
     await expect(
@@ -117,6 +124,8 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith({ code, subDomain });
     expect(getOwnerId).toBeCalledTimes(1);
     expect(getOwnerId).toBeCalledWith({ accessToken, subDomain });
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith({ accessToken, subDomain });
     // check if the token in the database is updated
     const [storedOrganisation] = await db
       .select()
@@ -155,6 +164,7 @@ describe('setupOrganisation', () => {
     const error = new Error('invalid code');
     // mock getToken to reject with a dumb error for an invalid code
     const getToken = vi.spyOn(authConnector, 'getToken').mockRejectedValue(error);
+    const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockRejectedValue(error);
 
     // assert that the function throws the mocked error
     await expect(
@@ -169,6 +179,9 @@ describe('setupOrganisation', () => {
     // verify getToken usage
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith({ code, subDomain });
+
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith({ code, subDomain });
 
     // ensure no organisation is added or updated in the database
     await expect(

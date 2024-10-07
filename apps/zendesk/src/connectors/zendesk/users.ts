@@ -82,6 +82,37 @@ export const getUsers = async ({ accessToken, page, subDomain }: GetUsersParams)
   };
 };
 
+const zenDeskAuthUserSchema = z.object({
+  user: zendeskUserSchema,
+});
+
+export const getAuthUser = async ({ accessToken, subDomain }: GetUsersParams) => {
+  const url = new URL(`${subDomain}/api/v2/users/me`);
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ZendeskError('Could not retrieve users', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const { user } = zenDeskAuthUserSchema.parse(resData);
+
+  if (user.role !== 'admin') {
+    throw new Error('User is not an admin');
+  }
+
+  return {
+    authUserId: String(user.id),
+  };
+};
+
 // Owner of the organization cannot be deleted
 export const suspendUser = async ({ userId, accessToken, subDomain }: DeleteUsersParams) => {
   const response = await fetch(`${subDomain}/api/v2/users/${userId}`, {

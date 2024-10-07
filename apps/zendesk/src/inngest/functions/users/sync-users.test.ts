@@ -9,13 +9,16 @@ import { syncUsers } from './sync-users';
 
 const ownerId = 'test-owner-id';
 const subDomain = 'https://some-subdomain';
+const authUserId = 'test-auth-user-id';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   region: 'us',
   subDomain,
   ownerId,
+  authUserId,
 };
+
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const nextPageLink = `${subDomain}/api/v2/users?page=2&per_page=1&role%5B%5D=admin&role%5B%5D=agent`;

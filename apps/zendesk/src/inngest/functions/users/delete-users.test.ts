@@ -10,6 +10,7 @@ const userId = 'user-id';
 const accessToken = 'test-access-token';
 const ownerId = 'test-owner-id';
 const subDomain = 'some-subdomain';
+const authUserId = 'test-auth-user-id';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt(accessToken),
@@ -17,6 +18,7 @@ const organisation = {
   subDomain,
   region: 'us',
   ownerId,
+  authUserId,
 };
 
 const setup = createInngestFunctionMock(deleteUser, 'zendesk/users.delete.requested');

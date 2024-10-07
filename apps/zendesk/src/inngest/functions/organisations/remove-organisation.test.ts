@@ -9,12 +9,14 @@ import { removeOrganisation } from './remove-organisation';
 
 const subDomain = 'some-subdomain';
 const ownerId = 'test-owner-id';
+const authUserId = 'test-auth-user-id';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: 'access-token',
   region: 'us',
   subDomain,
   ownerId,
+  authUserId,
 };
 
 const setup = createInngestFunctionMock(removeOrganisation, 'zendesk/app.uninstalled');

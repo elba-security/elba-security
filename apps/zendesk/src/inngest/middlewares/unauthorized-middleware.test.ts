@@ -8,12 +8,15 @@ import { unauthorizedMiddleware } from './unauthorized-middleware';
 
 const ownerId = 'test-owner-id';
 const subDomain = 'some-subdomain';
+const authUserId = 'test-auth-user-id';
+
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: 'access-token',
   region: 'us',
   subDomain,
   ownerId,
+  authUserId,
 };
 
 describe('unauthorized middleware', () => {

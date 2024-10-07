@@ -1,7 +1,7 @@
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/zendesk/auth';
-import { getOwnerId } from '@/connectors/zendesk/users';
+import { getAuthUser, getOwnerId } from '@/connectors/zendesk/users';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
@@ -19,7 +19,7 @@ export const setupOrganisation = async ({
   subDomain,
 }: SetupOrganisationParams) => {
   const { accessToken } = await getToken({ code, subDomain });
-
+  const { authUserId } = await getAuthUser({ accessToken, subDomain });
   const { ownerId } = await getOwnerId({ accessToken, subDomain });
   const encryptedAccessToken = await encrypt(accessToken);
 
@@ -35,6 +35,7 @@ export const setupOrganisation = async ({
       region,
       subDomain,
       ownerId,
+      authUserId,
     })
     .onConflictDoUpdate({
       target: organisationsTable.id,
@@ -43,6 +44,7 @@ export const setupOrganisation = async ({
         region,
         subDomain,
         ownerId,
+        authUserId,
       },
     });
 
