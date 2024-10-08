@@ -3,7 +3,11 @@ import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 
-export const handleThirdPartyAppsSyncRequested = async (organisationId: string) => {
+export const handleThirdPartyAppsSyncRequested = async ({
+  organisationId,
+}: {
+  organisationId: string;
+}) => {
   const [organisation] = await db
     .select({
       installationId: organisationsTable.installationId,
@@ -29,6 +33,4 @@ export const handleThirdPartyAppsSyncRequested = async (organisationId: string) 
       cursor: null,
     },
   });
-
-  return { success: true };
 };
