@@ -13,18 +13,20 @@ import { createElbaClient } from '@/connectors/elba/client';
 const formatElbaUser = ({
   user,
   subDomain,
+  authUserId,
   ownerId,
 }: {
   user: ZendeskUser;
   subDomain: string;
   ownerId: string;
+  authUserId: string;
 }): User => ({
   id: String(user.id),
   displayName: user.name,
   email: user.email,
   role: user.role,
   additionalEmails: [],
-  isSuspendable: String(user.id) !== ownerId,
+  isSuspendable: ![ownerId, authUserId].includes(String(user.id)),
   url: `${subDomain}/admin/people/team/members/${user.id}`,
 });
 
@@ -60,6 +62,7 @@ export const syncUsers = inngest.createFunction(
         region: organisationsTable.region,
         subDomain: organisationsTable.subDomain,
         ownerId: organisationsTable.ownerId,
+        authUserId: organisationsTable.authUserId,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -69,15 +72,15 @@ export const syncUsers = inngest.createFunction(
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.token);
-    const subDomain = organisation.subDomain;
-    const ownerId = organisation.ownerId;
+
+    const { subDomain, ownerId, authUserId } = organisation;
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ accessToken: token, page, subDomain });
 
       const users = result.validUsers
         .filter(({ active }) => active)
-        .map((user) => formatElbaUser({ user, subDomain, ownerId }));
+        .map((user) => formatElbaUser({ user, subDomain, ownerId, authUserId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
