@@ -30,6 +30,6 @@ export function GET(request: NextRequest) {
   redirectUrl.searchParams.append('client_id', env.CALENDLY_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.CALENDLY_REDIRECT_URI);
   redirectUrl.searchParams.append('state', state);
-
+  cookies().set('redirect_url', redirectUrl.toString());
   redirect(redirectUrl.toString());
 }

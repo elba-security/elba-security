@@ -1,6 +1,7 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import * as authConnector from '@/connectors/calendly/auth';
+import * as organisationConnector from '@/connectors/calendly/organisation';
 import * as usersConnector from '@/connectors/calendly/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
@@ -37,6 +38,12 @@ const organisation = {
   authUserUri,
 };
 
+const organisationDetails = {
+  name: 'test organisation',
+  plan: 'teams',
+  stage: 'paid',
+};
+
 describe('setupOrganisation', () => {
   beforeAll(() => {
     vi.setSystemTime(now);
@@ -50,6 +57,9 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getOrganisation = vi
+      .spyOn(organisationConnector, 'getOrganisation')
+      .mockResolvedValue(organisationDetails);
     const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
 
     await expect(
@@ -62,6 +72,12 @@ describe('setupOrganisation', () => {
 
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
+
+    expect(getOrganisation).toBeCalledTimes(1);
+    expect(getOrganisation).toBeCalledWith({
+      accessToken,
+      organizationUri: getTokenData.organizationUri,
+    });
 
     expect(getAuthUser).toBeCalledTimes(1);
     expect(getAuthUser).toBeCalledWith(accessToken);
@@ -109,6 +125,9 @@ describe('setupOrganisation', () => {
     await db.insert(organisationsTable).values(organisation);
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getOrganisation = vi
+      .spyOn(organisationConnector, 'getOrganisation')
+      .mockResolvedValue(organisationDetails);
     const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
 
     await expect(
@@ -121,6 +140,12 @@ describe('setupOrganisation', () => {
 
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
+
+    expect(getOrganisation).toBeCalledTimes(1);
+    expect(getOrganisation).toBeCalledWith({
+      accessToken,
+      organizationUri: getTokenData.organizationUri,
+    });
 
     expect(getAuthUser).toBeCalledTimes(1);
     expect(getAuthUser).toBeCalledWith(accessToken);
@@ -159,6 +184,40 @@ describe('setupOrganisation', () => {
         },
       },
     ]);
+  });
+
+  test('should not setup the organisation when the plan is not supported', async () => {
+    // @ts-expect-error -- this is a mock
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    await db.insert(organisationsTable).values(organisation);
+
+    const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getOrganisation = vi.spyOn(organisationConnector, 'getOrganisation').mockResolvedValue({
+      name: 'test organisation',
+      plan: 'basic',
+      stage: 'free',
+    });
+
+    await expect(
+      setupOrganisation({
+        organisationId: organisation.id,
+        code,
+        region,
+      })
+    ).resolves.toStrictEqual({
+      isInvalidPlan: true,
+    });
+
+    expect(getToken).toBeCalledTimes(1);
+    expect(getToken).toBeCalledWith(code);
+
+    expect(getOrganisation).toBeCalledTimes(1);
+    expect(getOrganisation).toBeCalledWith({
+      accessToken,
+      organizationUri: getTokenData.organizationUri,
+    });
+
+    expect(send).toBeCalledTimes(0);
   });
 
   test('should not setup the organisation when the code is invalid', async () => {
