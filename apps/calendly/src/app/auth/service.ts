@@ -5,6 +5,8 @@ import { getToken } from '@/connectors/calendly/auth';
 import { getAuthUser } from '@/connectors/calendly/users';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
+import { getOrganisation } from '@/connectors/calendly/organisation';
+import { env } from '@/common/env';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -12,12 +14,26 @@ type SetupOrganisationParams = {
   region: string;
 };
 
+const isDevelopment = !env.VERCEL_ENV || env.VERCEL_ENV === 'development';
+
 export const setupOrganisation = async ({
   organisationId,
   code,
   region,
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn, organizationUri } = await getToken(code);
+
+  // For testing purposes, we user trail account & we don't want to check the plan and stage of the organisation
+  if (!isDevelopment || process.env.NODE_ENV === 'test') {
+    const { plan, stage } = await getOrganisation({ accessToken, organizationUri });
+
+    if (['basic', 'essentials'].includes(plan) || stage !== 'paid') {
+      return {
+        isInvalidPlan: true,
+      };
+    }
+  }
+
   const { authUserUri } = await getAuthUser(accessToken);
 
   const encryptedAccessToken = await encrypt(accessToken);
