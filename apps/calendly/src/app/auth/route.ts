@@ -1,4 +1,4 @@
-import type { NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
@@ -31,7 +31,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    await setupOrganisation({ organisationId, code, region });
+    const response = await setupOrganisation({ organisationId, code, region });
+
+    if (response?.isInvalidPlan) {
+      return NextResponse.redirect(new URL('/connection', request.nextUrl.origin));
+    }
   } catch (error) {
     logger.error('Could not setup organisation', { error, organisationId });
     return new ElbaInstallRedirectResponse({
