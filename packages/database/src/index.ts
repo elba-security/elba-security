@@ -1,2 +1,2 @@
-export { createDatabase } from './createDatabase';
+export { createDatabase } from './database';
 export { extendOrganisationTable } from './schemas/organisation';
