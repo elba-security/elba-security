@@ -9,6 +9,7 @@ import { unauthorizedMiddleware } from './unauthorized-middleware';
 const organisation: Omit<Organisation, 'createdAt'> = {
   id: '00000000-0000-0000-0000-000000000001',
   accountId: '00000000-0000-0000-0000-000000000005',
+  authUserId: '00000000-0000-0000-0000-000000000006',
   accessToken: 'access-token',
   refreshToken: 'refresh-token',
   apiBaseUri: 'https://demo.docusign.net',
