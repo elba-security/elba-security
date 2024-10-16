@@ -15,6 +15,7 @@
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
     "@next/eslint-plugin-next": "^14.2.4",
+    "@types/react": "^18",
     "drizzle-kit": "^0.20.6",
     "eslint": "^8",
     "postgres": "^3.4.4",

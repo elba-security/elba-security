@@ -3044,7 +3044,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: ^0.29.4
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.47)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
     devDependencies:
       '@elba-security/eslint-config-custom':
         specifier: workspace:*
@@ -3055,6 +3055,9 @@ importers:
       '@next/eslint-plugin-next':
         specifier: ^14.2.4
         version: 14.2.4
+      '@types/react':
+        specifier: ^18
+        version: 18.2.79
       drizzle-kit:
         specifier: ^0.20.6
         version: 0.20.18
