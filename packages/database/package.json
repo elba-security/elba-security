@@ -1,0 +1,23 @@
+{
+  "name": "@elba-security/database",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "private": true,
+  "scripts": {
+    "lint": "eslint src/**.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "0.9.4",
+    "drizzle-orm": "^0.29.4"
+  },
+  "devDependencies": {
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
+    "@next/eslint-plugin-next": "^14.2.4",
+    "drizzle-kit": "^0.20.6",
+    "eslint": "^8",
+    "postgres": "^3.4.4",
+    "typescript": "^5.5.2"
+  }
+}
