@@ -1,6 +1,5 @@
 import { env } from '@/common/env';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { db, tables } from '@/database/client';
 import { inngest } from '@/inngest/client';
 
 export const scheduleUsersSync = inngest.createFunction(
@@ -12,9 +11,9 @@ export const scheduleUsersSync = inngest.createFunction(
   async ({ step }) => {
     const organisations = await db
       .select({
-        id: organisationsTable.id,
+        id: tables.organisationsTable.id,
       })
-      .from(organisationsTable);
+      .from(tables.organisationsTable);
 
     if (organisations.length > 0) {
       await step.sendEvent(

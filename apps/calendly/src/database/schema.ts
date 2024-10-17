@@ -1,9 +1,7 @@
-import { uuid, text, timestamp, pgTable } from 'drizzle-orm/pg-core';
+import { extendOrganisationTable } from '@elba-security/database';
+import { text } from 'drizzle-orm/pg-core';
 
-export const organisationsTable = pgTable('organisations', {
-  id: uuid('id').primaryKey(),
-  region: text('region').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+export const organisationsTable = extendOrganisationTable({
   accessToken: text('access_token').notNull(),
   refreshToken: text('refresh_token').notNull(),
   organizationUri: text('organization_uri').notNull(),

@@ -1,24 +1,14 @@
-import { Pool, neon, neonConfig } from '@neondatabase/serverless';
-import type { NeonDatabase } from 'drizzle-orm/neon-serverless';
-import { drizzle as drizzleNeonServerless } from 'drizzle-orm/neon-serverless';
-import { drizzle as drizzleNeonHttp } from 'drizzle-orm/neon-http';
+import { createDatabase } from '@elba-security/database';
 import { env } from '@/common/env';
 import * as schema from './schema';
 
-// eslint-disable-next-line import/no-mutable-exports -- to make it work locally
-let db: NeonDatabase<typeof schema>;
+const { client, tables } = createDatabase({
+  environment: env.VERCEL_ENV || 'development',
+  url: env.DATABASE_URL,
+  proxy: {
+    port: env.DATABASE_PROXY_PORT,
+  },
+  schema,
+});
 
-if (!process.env.VERCEL_ENV || process.env.VERCEL_ENV === 'development') {
-  neonConfig.wsProxy = (host) => `${host}:${env.DATABASE_PROXY_PORT!}/v1`; // eslint-disable-line @typescript-eslint/no-non-null-assertion -- convenience
-  neonConfig.useSecureWebSocket = false;
-  neonConfig.pipelineTLS = false;
-  neonConfig.pipelineConnect = false;
-
-  const pool = new Pool({ connectionString: env.DATABASE_URL });
-  db = drizzleNeonServerless(pool, { schema });
-} else {
-  // @ts-expect-error -- to make it work locally
-  db = drizzleNeonHttp(neon(env.DATABASE_URL), { schema });
-}
-
-export { db };
+export { client as db, tables };

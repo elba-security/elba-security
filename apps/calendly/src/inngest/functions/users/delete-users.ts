@@ -1,7 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { db, tables } from '@/database/client';
 import { inngest } from '@/inngest/client';
 import { deleteUser as deleteCalendlyUser } from '@/connectors/calendly/users';
 import { decrypt } from '@/common/crypto';
@@ -22,10 +21,10 @@ export const deleteUser = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        token: organisationsTable.accessToken,
+        token: tables.organisationsTable.accessToken,
       })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
+      .from(tables.organisationsTable)
+      .where(eq(tables.organisationsTable.id, organisationId));
 
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve ${userId}`);

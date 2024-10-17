@@ -23,6 +23,7 @@
     "@elba-security/nextjs": "workspace:*",
     "@elba-security/sdk": "workspace:*",
     "@elba-security/utils": "workspace:*",
+    "@elba-security/database": "workspace:*",
     "@neondatabase/serverless": "0.9.4",
     "date-fns": "^3.2.0",
     "drizzle-orm": "^0.29.4",

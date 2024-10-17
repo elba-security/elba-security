@@ -3,8 +3,7 @@ import { addSeconds } from 'date-fns/addSeconds';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { failureRetry } from '@elba-security/inngest';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { db, tables } from '@/database/client';
 import { inngest } from '@/inngest/client';
 import { getRefreshToken } from '@/connectors/calendly/auth';
 import { encrypt, decrypt } from '@/common/crypto';
@@ -40,10 +39,10 @@ export const refreshToken = inngest.createFunction(
     const nextExpiresAt = await step.run('refresh-token', async () => {
       const [organisation] = await db
         .select({
-          refreshToken: organisationsTable.refreshToken,
+          refreshToken: tables.organisationsTable.refreshToken,
         })
-        .from(organisationsTable)
-        .where(eq(organisationsTable.id, organisationId));
+        .from(tables.organisationsTable)
+        .where(eq(tables.organisationsTable.id, organisationId));
 
       if (!organisation) {
         throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
@@ -61,12 +60,12 @@ export const refreshToken = inngest.createFunction(
       const encryptedRefreshToken = await encrypt(newRefreshToken);
 
       await db
-        .update(organisationsTable)
+        .update(tables.organisationsTable)
         .set({
           accessToken: encryptedAccessToken,
           refreshToken: encryptedRefreshToken,
         })
-        .where(eq(organisationsTable.id, organisationId));
+        .where(eq(tables.organisationsTable.id, organisationId));
 
       return addSeconds(new Date(), expiresIn);
     });
