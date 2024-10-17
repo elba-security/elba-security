@@ -1,7 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { db, tables } from '@/database/client';
 import { createElbaClient } from '@/connectors/elba/client';
 import { inngest } from '../../client';
 
@@ -23,10 +22,10 @@ export const removeOrganisation = inngest.createFunction(
     const { organisationId } = event.data;
     const [organisation] = await db
       .select({
-        region: organisationsTable.region,
+        region: tables.organisationsTable.region,
       })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
+      .from(tables.organisationsTable)
+      .where(eq(tables.organisationsTable.id, organisationId));
 
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
@@ -39,6 +38,8 @@ export const removeOrganisation = inngest.createFunction(
 
     await elba.connectionStatus.update({ hasError: true });
 
-    await db.delete(organisationsTable).where(eq(organisationsTable.id, organisationId));
+    await db
+      .delete(tables.organisationsTable)
+      .where(eq(tables.organisationsTable.id, organisationId));
   }
 );

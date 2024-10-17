@@ -4,8 +4,7 @@ import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/calendly/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { db, tables } from '@/database/client';
 import { decrypt } from '@/common/crypto';
 import { type CalendlyUser } from '@/connectors/calendly/users';
 import { createElbaClient } from '@/connectors/elba/client';
@@ -60,13 +59,13 @@ export const syncUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        token: organisationsTable.accessToken,
-        authUserUri: organisationsTable.authUserUri,
-        region: organisationsTable.region,
-        organizationUri: organisationsTable.organizationUri,
+        token: tables.organisationsTable.accessToken,
+        authUserUri: tables.organisationsTable.authUserUri,
+        region: tables.organisationsTable.region,
+        organizationUri: tables.organisationsTable.organizationUri,
       })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
+      .from(tables.organisationsTable)
+      .where(eq(tables.organisationsTable.id, organisationId));
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
