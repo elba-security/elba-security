@@ -32,7 +32,7 @@ export const unauthorizedMiddleware = new InngestMiddleware({
 
             if (hasRequiredDataProperties(data)) {
               await client.send({
-                name: 'intercom/app.uninstalled',
+                name: 'docusign/app.uninstalled',
                 data: {
                   organisationId: data.organisationId,
                 },

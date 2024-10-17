@@ -3,7 +3,7 @@ import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 
 export const inngest = new Inngest({
-  id: 'slack',
+  id: 'docusign',
   schemas: new EventSchemas().fromRecord<{
     'docusign/app.installed': {
       data: {

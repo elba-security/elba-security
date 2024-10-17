@@ -36,7 +36,7 @@ const formatElbaUser = ({
 
 export const syncUsers = inngest.createFunction(
   {
-    id: 'sync-users',
+    id: 'docusign-sync-users',
     priority: {
       run: 'event.data.isFirstSync ? 600 : 0',
     },

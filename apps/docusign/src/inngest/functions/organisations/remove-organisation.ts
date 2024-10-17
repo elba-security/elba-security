@@ -7,7 +7,7 @@ import { inngest } from '@/inngest/client';
 
 export const removeOrganisation = inngest.createFunction(
   {
-    id: 'intercom-remove-organisation',
+    id: 'docusign-remove-organisation',
     retries: 5,
     cancelOn: [
       {

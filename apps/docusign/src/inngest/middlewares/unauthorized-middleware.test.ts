@@ -37,7 +37,7 @@ describe('unauthorized middleware', () => {
     expect(send).toBeCalledTimes(0);
   });
 
-  test('should not transform the output when the error is not about Intercom authorization', async () => {
+  test('should not transform the output when the error is not about Docusign authorization', async () => {
     const send = vi.fn().mockResolvedValue(undefined);
     await expect(
       unauthorizedMiddleware
@@ -55,7 +55,7 @@ describe('unauthorized middleware', () => {
     expect(send).toBeCalledTimes(0);
   });
 
-  test('should transform the output error to NonRetriableError and remove the organisation when the error is about Intercom authorization', async () => {
+  test('should transform the output error to NonRetriableError and remove the organisation when the error is about Docusign authorization', async () => {
     const unauthorizedError = new DocusignError('foo bar', {
       // @ts-expect-error this is a mock
       response: {
@@ -105,7 +105,7 @@ describe('unauthorized middleware', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'intercom/app.uninstalled',
+      name: 'docusign/app.uninstalled',
       data: {
         organisationId: organisation.id,
       },
