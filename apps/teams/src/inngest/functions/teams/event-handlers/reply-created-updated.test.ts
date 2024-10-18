@@ -1,7 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
-import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { eq } from 'drizzle-orm';
+import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { EventType } from '@/app/api/webhooks/microsoft/event-handler/service';
 import { handleTeamsWebhookEvent } from '@/inngest/functions/teams/handle-team-webhook-event';
 import { decrypt, encrypt } from '@/common/crypto';
@@ -11,6 +10,7 @@ import * as replyConnector from '@/connectors/microsoft/replies/replies';
 import * as teamConnector from '@/connectors/microsoft/teams/teams';
 import type { MicrosoftReply } from '@/connectors/microsoft/types';
 import type { MicrosoftTeam } from '@/connectors/microsoft/teams/teams';
+import { omitMessageContent } from '@/common/utils';
 
 const setup = createInngestFunctionMock(
   handleTeamsWebhookEvent,
@@ -20,20 +20,27 @@ const setup = createInngestFunctionMock(
 const token = 'token';
 const encryptedToken = await encrypt(token);
 
-const organisation = {
-  id: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
-  tenantId: 'tenant-id',
-  region: 'us',
-  token: encryptedToken,
-};
+const organisations = [
+  {
+    id: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
+    tenantId: 'tenant-id',
+    region: 'us',
+    token: encryptedToken,
+  },
+  {
+    id: '98449620-9738-4a9c-8db0-1e4ef5a6a9e1',
+    tenantId: 'tenant-id',
+    region: 'us',
+    token: encryptedToken,
+  },
+];
 
-const channel = {
-  id: `${organisation.id}:channel-id`,
-  channelId: 'channel-id',
+const channels = organisations.map((org) => ({
+  id: 'channel-id',
   membershipType: 'standard',
   displayName: 'channel-name',
-  organisationId: organisation.id,
-};
+  organisationId: org.id,
+}));
 
 const team: MicrosoftTeam = { id: 'team-id', displayName: 'team-name', visibility: 'public' };
 
@@ -79,25 +86,10 @@ const invalidReply: MicrosoftReply = {
   },
 };
 
-const formatObject = {
-  id: `${organisation.id}:reply-id`,
-  name: 'team-name - #channel-name - 2023-03-28',
-  metadata: {
-    teamId: 'team-id',
-    organisationId: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
-    channelId: 'channel-id',
-    messageId: 'message-id',
-    replyId: 'reply-id',
-    type: 'reply',
-  },
-  updatedAt: '2024-02-28T21:11:12.395Z',
-  ownerId: 'user-id',
-  permissions: [{ type: 'domain', id: 'domain' }],
-  url: 'http://wb.uk.com',
-};
-
 describe('reply-created-updated', () => {
   test('should exit when the messageId or replyId is not provided', async () => {
+    await db.insert(organisationsTable).values(organisations);
+
     const [result] = setup({
       payload: {
         subscriptionId: 'subscription-id',
@@ -111,7 +103,7 @@ describe('reply-created-updated', () => {
     await expect(result).resolves.toBeUndefined();
   });
 
-  test('should throw when the organisation is not registered', async () => {
+  test('should throw when there are no organisations for that tenant', async () => {
     const [result] = setup({
       payload: {
         subscriptionId: 'subscription-id',
@@ -123,38 +115,13 @@ describe('reply-created-updated', () => {
         event: EventType.ReplyCreated,
       },
     });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-  });
-
-  test('should throw when the channel not received', async () => {
-    await db.insert(organisationsTable).values(organisation);
-
-    const [result] = setup({
-      payload: {
-        subscriptionId: 'subscription-id',
-        teamId: 'team-id',
-        channelId: 'channel-id',
-        tenantId: 'tenant-id',
-        messageId: 'message-id',
-        replyId: 'reply-id',
-        event: EventType.ReplyCreated,
-      },
-    });
-
-    await expect(
-      db
-        .select({ id: channelsTable.id })
-        .from(channelsTable)
-        .where(eq(channelsTable.id, `${organisation.id}:channel-id`))
-    ).resolves.toMatchObject([]);
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
   });
 
   test('should exit if the team is not received', async () => {
-    await db.insert(organisationsTable).values(organisation);
-    await db.insert(channelsTable).values(channel);
+    await db.insert(organisationsTable).values(organisations);
+    await db.insert(channelsTable).values(channels);
 
     const getTeam = vi.spyOn(teamConnector, 'getTeam').mockResolvedValue(null);
 
@@ -170,15 +137,15 @@ describe('reply-created-updated', () => {
       },
     });
 
-    await expect(result).resolves.toBeUndefined();
+    await expect(result).resolves.toBe('Could not find a team');
 
-    expect(getTeam).toBeCalledWith(organisation.token, 'team-id');
+    expect(getTeam).toBeCalledWith(await decrypt(encryptedToken), 'team-id');
     expect(getTeam).toBeCalledTimes(1);
   });
 
   test('should exit when the reply is not received or the messageType is not "message"', async () => {
-    await db.insert(organisationsTable).values(organisation);
-    await db.insert(channelsTable).values(channel);
+    await db.insert(organisationsTable).values(organisations);
+    await db.insert(channelsTable).values(channels);
 
     const [result] = setup({
       payload: {
@@ -196,25 +163,25 @@ describe('reply-created-updated', () => {
 
     const getReply = vi.spyOn(replyConnector, 'getReply').mockResolvedValue(invalidReply);
 
-    await expect(result).resolves.toBeUndefined();
+    await expect(result).resolves.toBe('Ignoring invalid reply');
 
     expect(getReply).toBeCalledWith({
-      token: await decrypt(organisation.token),
+      token: await decrypt(encryptedToken),
       teamId: 'team-id',
       channelId: 'channel-id',
       messageId: 'invalid-message-id',
       replyId: 'reply-id',
     });
-    expect(getTeam).toBeCalledWith(organisation.token, 'team-id');
+    expect(getTeam).toBeCalledWith(await decrypt(encryptedToken), 'team-id');
     expect(getTeam).toBeCalledTimes(1);
     expect(getReply).toBeCalledTimes(1);
   });
 
-  test('should send the reply to Elba ', async () => {
-    await db.insert(organisationsTable).values(organisation);
-    await db.insert(channelsTable).values(channel);
-    const elba = spyOnElba();
-    const [result] = setup({
+  test('should request-to-upsert-reply for all organisation within same tenant', async () => {
+    await db.insert(organisationsTable).values(organisations);
+    await db.insert(channelsTable).values(channels);
+
+    const [result, { step }] = setup({
       payload: {
         subscriptionId: 'subscription-id',
         teamId: 'team-id',
@@ -225,12 +192,18 @@ describe('reply-created-updated', () => {
         event: EventType.ReplyCreated,
       },
     });
+
+    const getTeam = vi.spyOn(teamConnector, 'getTeam').mockResolvedValue(team);
+
     const getReply = vi.spyOn(replyConnector, 'getReply').mockResolvedValue(reply);
 
     await expect(result).resolves.toBeUndefined();
 
+    expect(getTeam).toBeCalledWith(await decrypt(encryptedToken), 'team-id');
+    expect(getTeam).toBeCalledTimes(1);
+
     expect(getReply).toBeCalledWith({
-      token: await decrypt(organisation.token),
+      token: await decrypt(encryptedToken),
       teamId: 'team-id',
       channelId: 'channel-id',
       messageId: 'message-id',
@@ -238,11 +211,22 @@ describe('reply-created-updated', () => {
     });
     expect(getReply).toBeCalledTimes(1);
 
-    const elbaInstance = elba.mock.results.at(0)?.value;
-
-    expect(elba).toBeCalledTimes(1);
-
-    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledTimes(1);
-    expect(elbaInstance?.dataProtection.updateObjects).toBeCalledWith({ objects: [formatObject] });
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith(
+      'request-to-upsert-reply',
+      organisations.map((org) => ({
+        name: 'teams/data.protection.object.upsert.requested',
+        data: {
+          organisationId: org.id,
+          region: org.region,
+          teamId: team.id,
+          teamName: team.displayName,
+          channelId: 'channel-id',
+          messageId: 'message-id',
+          replyId: reply.id,
+          message: omitMessageContent(reply),
+        },
+      }))
+    );
   });
 });

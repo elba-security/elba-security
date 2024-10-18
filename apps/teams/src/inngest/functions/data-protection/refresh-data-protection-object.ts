@@ -9,6 +9,7 @@ import { decrypt } from '@/common/crypto';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
 import { getReply } from '@/connectors/microsoft/replies/replies';
 import { getTeam } from '@/connectors/microsoft/teams/teams';
+import { omitMessageContent } from '@/common/utils';
 
 export const refreshDataProtectionObject = inngest.createFunction(
   {
@@ -57,13 +58,13 @@ export const refreshDataProtectionObject = inngest.createFunction(
           membershipType: channelsTable.membershipType,
         })
         .from(channelsTable)
-        .where(eq(channelsTable.id, `${organisationId}:${channelId}`));
+        .where(eq(channelsTable.id, channelId));
 
       if (!channel) {
-        throw new Error(`Could not retrieve channel with id=${organisationId}:${channelId}`);
+        throw new Error(`Could not retrieve channel with id=$${channelId}`);
       }
 
-      const team = await getTeam(organisation.token, teamId);
+      const team = await getTeam(await decrypt(organisation.token), teamId);
 
       if (!team) {
         throw new Error(`Could not retrieve team with id=${teamId}`);
@@ -77,7 +78,7 @@ export const refreshDataProtectionObject = inngest.createFunction(
         organisationId,
         channelName: channel.displayName,
         membershipType: channel.membershipType,
-        message,
+        message: omitMessageContent(message),
       });
 
       await elbaClient.dataProtection.updateObjects({ objects: [object] });
@@ -107,13 +108,13 @@ export const refreshDataProtectionObject = inngest.createFunction(
           membershipType: channelsTable.membershipType,
         })
         .from(channelsTable)
-        .where(eq(channelsTable.id, `${organisationId}:${channelId}`));
+        .where(eq(channelsTable.id, channelId));
 
       if (!channel) {
-        throw new Error(`Could not retrieve channel with id=${organisationId}:${channelId}`);
+        throw new Error(`Could not retrieve channel with id=${channelId}`);
       }
 
-      const team = await getTeam(organisation.token, teamId);
+      const team = await getTeam(await decrypt(organisation.token), teamId);
 
       if (!team) {
         throw new Error(`Could not retrieve team with id=${teamId}`);
@@ -128,7 +129,7 @@ export const refreshDataProtectionObject = inngest.createFunction(
         channelName: channel.displayName,
         organisationId,
         membershipType: channel.membershipType,
-        message: reply,
+        message: omitMessageContent(reply),
       });
 
       await elbaClient.dataProtection.updateObjects({ objects: [object] });
