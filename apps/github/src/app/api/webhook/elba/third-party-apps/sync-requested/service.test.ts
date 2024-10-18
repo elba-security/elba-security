@@ -24,7 +24,9 @@ describe('handleElbaOrganisationActivated', () => {
   });
 
   test('should throws when organisation is not registered', async () => {
-    await expect(handleThirdPartyAppsSyncRequested(organisation.id)).rejects.toStrictEqual(
+    await expect(
+      handleThirdPartyAppsSyncRequested({ organisationId: organisation.id })
+    ).rejects.toStrictEqual(
       new Error(`Could not retrieve an organisation with id=${organisation.id}`)
     );
   });
@@ -33,7 +35,9 @@ describe('handleElbaOrganisationActivated', () => {
     const send = vi.spyOn(client.inngest, 'send').mockResolvedValue({ ids: [] });
     await db.insert(organisationsTable).values(organisation);
 
-    await expect(handleThirdPartyAppsSyncRequested(organisation.id)).resolves.toStrictEqual({
+    await expect(
+      handleThirdPartyAppsSyncRequested({ organisationId: organisation.id })
+    ).resolves.toStrictEqual({
       success: true,
     });
     expect(send).toBeCalledTimes(1);
