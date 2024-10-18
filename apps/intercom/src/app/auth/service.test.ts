@@ -38,7 +38,7 @@ describe('setupOrganisation', () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
     const getCurrentAdmin = vi
-      .spyOn(usersConnector, 'getCurrentAdminInfos')
+      .spyOn(usersConnector, 'getAuthUser')
       .mockResolvedValue({ app: { id_code: 'workspace-id' } });
 
     await expect(
@@ -94,7 +94,7 @@ describe('setupOrganisation', () => {
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
     const getCurrentAdmin = vi
-      .spyOn(usersConnector, 'getCurrentAdminInfos')
+      .spyOn(usersConnector, 'getAuthUser')
       .mockResolvedValue({ app: { id_code: 'workspace-id' } });
 
     await expect(
@@ -147,7 +147,7 @@ describe('setupOrganisation', () => {
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockRejectedValue(error);
     const getCurrentAdmin = vi
-      .spyOn(usersConnector, 'getCurrentAdminInfos')
+      .spyOn(usersConnector, 'getAuthUser')
       .mockResolvedValue({ app: { id_code: 'workspace-id' } });
 
     await expect(
