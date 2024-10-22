@@ -1,5 +1,5 @@
 {
-  "id": "395105cf-6326-42fc-84ff-e5f9ff36d05f",
+  "id": "f6beb040-2cae-41ee-811a-cf56f490729c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -14,8 +14,14 @@
           "primaryKey": true,
           "notNull": true
         },
-        "region": {
-          "name": "region",
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -27,8 +33,8 @@
           "notNull": true,
           "default": "now()"
         },
-        "access_token": {
-          "name": "access_token",
+        "domain": {
+          "name": "domain",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -39,21 +45,21 @@
           "primaryKey": false,
           "notNull": true
         },
+        "portal_id": {
+          "name": "portal_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
         "timezone": {
           "name": "timezone",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "domain": {
-          "name": "domain",
+        "region": {
+          "name": "region",
           "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "portal_id": {
-          "name": "portal_id",
-          "type": "integer",
           "primaryKey": false,
           "notNull": true
         }

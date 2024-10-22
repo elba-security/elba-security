@@ -8,7 +8,7 @@ export const scheduleUsersSync = inngest.createFunction(
     id: 'hubspot-schedule-users-syncs',
     retries: 5,
   },
-  { cron: env.USERS_SYNC_CRON },
+  { cron: env.HUBSPOT_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({

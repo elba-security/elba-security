@@ -18,14 +18,14 @@ const formatElbaUserDisplayName = (user: HubspotUser) => {
 };
 
 const formatElbaUser =
-  ({ domain, portalId }: { domain: string; portalId: number }) =>
+  ({ domain, portalId, authUserId }: { domain: string; portalId: number; authUserId: string }) =>
   (user: HubspotUser): User => ({
     id: user.id,
     displayName: formatElbaUserDisplayName(user),
     email: user.email,
     role: user.superAdmin ? 'admin' : 'user',
     additionalEmails: [],
-    isSuspendable: !user.superAdmin,
+    isSuspendable: !user.superAdmin && user.id !== authUserId,
     url: `https://${domain}/settings/${portalId}/users/user/${user.id}`,
   });
 

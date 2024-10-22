@@ -81,6 +81,39 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   };
 };
 
+const hubspotAuthUserSchema = z.object({
+  user: z.string().min(1),
+  user_id: z.number().min(1),
+});
+
+export const getAuthUser = async (accessToken: string) => {
+  const url = new URL(`${env.HUBSPOT_API_BASE_URL}/oauth/v1/access-tokens/${accessToken}`);
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new HubspotError(`Couldn't get the auth user details`, { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = hubspotAuthUserSchema.safeParse(resData);
+
+  if (!result.success) {
+    throw new HubspotError("Couldn't get the auth user details", { response });
+  }
+
+  return {
+    userId: String(result.data.user_id),
+  };
+};
+
 export const deleteUser = async ({ accessToken, userId }: DeleteUsersParams) => {
   const url = new URL(`${env.HUBSPOT_API_BASE_URL}/settings/v3/users/${userId}`);
   url.searchParams.append('idProperty', 'USER_ID');

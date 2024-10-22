@@ -4,7 +4,7 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { HubspotError } from './common/error';
 import type { HubspotUser } from './users';
-import { getUsers, deleteUser } from './users';
+import { getUsers, deleteUser, getAuthUser } from './users';
 
 const validToken = 'token-1234';
 const endPage = '3';
@@ -60,6 +60,34 @@ describe('users connector', () => {
 
     test('should throws when the token is invalid', async () => {
       await expect(getUsers({ accessToken: 'foo-bar' })).rejects.toBeInstanceOf(HubspotError);
+    });
+  });
+
+  describe('getAuthUser', () => {
+    beforeEach(() => {
+      server.use(
+        http.get<{ testId: string }>(
+          `${env.HUBSPOT_API_BASE_URL}/oauth/v1/access-tokens/:validToken`,
+          ({ request }) => {
+            if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+              return new Response(undefined, { status: 401 });
+            }
+
+            return Response.json({
+              user: 'test-user',
+              user_id: 1234,
+            });
+          }
+        )
+      );
+    });
+
+    test('should get the auth user information', async () => {
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({ userId: '1234' });
+    });
+
+    test('should throw HubspotError when token is invalid', async () => {
+      await expect(getAuthUser('invalid-token')).rejects.toBeInstanceOf(HubspotError);
     });
   });
 

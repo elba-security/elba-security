@@ -5,6 +5,7 @@ import { getToken } from '@/connectors/hubspot/auth';
 import { getAccountInfo } from '@/connectors/hubspot/account-info';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
+import { getAuthUser } from '@/connectors/hubspot/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -20,6 +21,7 @@ export const setupOrganisation = async ({
   const { accessToken, refreshToken, expiresIn } = await getToken(code);
 
   const accountInfo = await getAccountInfo(accessToken);
+  const authUser = await getAuthUser(accessToken);
 
   const encryptedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
@@ -28,6 +30,7 @@ export const setupOrganisation = async ({
     .insert(organisationsTable)
     .values({
       id: organisationId,
+      authUserId: authUser.userId,
       accessToken: encryptedAccessToken,
       refreshToken: encodedRefreshToken,
       timeZone: accountInfo.timeZone,

@@ -9,6 +9,7 @@ import { syncUsers } from './sync-users';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
+  authUserId: 'id-1',
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
   timeZone: 'us/eastern',
@@ -24,7 +25,7 @@ const users: usersConnector.HubspotUser[] = Array.from({ length: 2 }, (_, i) => 
   firstName: `firstName-${i}`,
   lastName: `lastName-${i}`,
   email: `user-${i}@foo.bar`,
-  superAdmin: true,
+  superAdmin: i === 1,
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'hubspot/users.sync.requested');
@@ -90,8 +91,8 @@ describe('synchronize-users', () => {
           displayName: 'firstName-0 lastName-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
-          role: 'admin',
-          isSuspendable: false,
+          role: 'user',
+          isSuspendable: true,
           url: 'https://foo-bar.hubspot.com/settings/12345/users/user/id-0',
         },
         {
@@ -134,8 +135,8 @@ describe('synchronize-users', () => {
           displayName: 'firstName-0 lastName-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
-          role: 'admin',
-          isSuspendable: false,
+          role: 'user',
+          isSuspendable: true,
           url: 'https://foo-bar.hubspot.com/settings/12345/users/user/id-0',
         },
         {

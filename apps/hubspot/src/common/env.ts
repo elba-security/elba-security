@@ -20,7 +20,7 @@ export const env = z
     HUBSPOT_REDIRECT_URI: z.string().url(),
     HUBSPOT_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),
     HUBSPOT_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
-    USERS_SYNC_CRON: z.string().default('0 0 * * *'),
+    HUBSPOT_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     HUBSPOT_TIMEZONE_REFRESH_CRON: z.string().default('1 0 * * *'),
   })
   .parse(process.env);

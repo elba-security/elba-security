@@ -2,6 +2,7 @@ import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import * as authConnector from '@/connectors/hubspot/auth';
 import * as timeZoneConnector from '@/connectors/hubspot/account-info';
+import * as userConnector from '@/connectors/hubspot/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -27,6 +28,7 @@ const getTokenData = {
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
+  authUserId: '1001',
   accessToken,
   refreshToken,
   region,
@@ -53,6 +55,9 @@ describe('setupOrganisation', () => {
       portalId,
       uiDomain: domain,
     });
+    const getAuthUser = vi.spyOn(userConnector, 'getAuthUser').mockResolvedValue({
+      userId: organisation.authUserId,
+    });
 
     await expect(
       setupOrganisation({
@@ -67,6 +72,9 @@ describe('setupOrganisation', () => {
 
     expect(getAccountInfo).toBeCalledTimes(1);
     expect(getAccountInfo).toBeCalledWith(accessToken);
+
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith(accessToken);
 
     const [storedOrganisation] = await db
       .select()
