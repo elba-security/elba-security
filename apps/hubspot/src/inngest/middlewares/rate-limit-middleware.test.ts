@@ -57,7 +57,7 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test.only.each([
+  test.each([
     {
       dailyRateLimitRemaining: '499855',
       rateLimitRemaining: '149',
