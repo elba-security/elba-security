@@ -1,8 +1,5 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
-import { eq } from 'drizzle-orm';
 import * as client from '@/inngest/client';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { startThirdPartyAppsSync } from './service';
 
 const organisation = {
@@ -24,9 +21,10 @@ describe('startThirdPartyAppsSync', () => {
   });
   test('should schedule apps sync', async () => {
     const send = vi.spyOn(client.inngest, 'send').mockResolvedValue({ ids: [] });
-    await db.insert(organisationsTable).values(organisation);
 
-    await expect(startThirdPartyAppsSync(organisation.id)).resolves.toBeUndefined();
+    await expect(
+      startThirdPartyAppsSync({ organisationId: organisation.id })
+    ).resolves.toBeUndefined();
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
       name: 'microsoft/third_party_apps.sync.requested',
@@ -37,8 +35,5 @@ describe('startThirdPartyAppsSync', () => {
         skipToken: null,
       },
     });
-    await expect(
-      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
-    ).resolves.toMatchObject([organisation]);
   });
 });
