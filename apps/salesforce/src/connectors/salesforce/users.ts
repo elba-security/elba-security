@@ -3,13 +3,17 @@ import { env } from '@/common/env';
 import { SalesforceError } from '../common/error';
 
 const salesforceUserSchema = z.object({
-  attributes: z.object({
-    type: z.string().min(1),
-  }),
   Id: z.string(),
   Name: z.string(),
   Email: z.string(),
   IsActive: z.boolean(),
+  UserType: z.string(),
+  Profile: z
+    .object({
+      Id: z.string(),
+      Name: z.string(),
+    })
+    .nullable(),
 });
 
 export type SalesforceUser = z.infer<typeof salesforceUserSchema>;
@@ -34,10 +38,10 @@ export type DeleteUsersParams = {
 const limit = env.SALESFORCE_USERS_SYNC_BATCH_SIZE;
 
 export const getUsers = async ({ accessToken, instanceUrl, offset }: GetUsersParams) => {
-  const url = new URL(
-    `/services/data/v60.0/query/?q=SELECT+Id,+Name,+Email,+IsActive+FROM+User+limit+${limit}+offset+${offset}`,
-    instanceUrl
-  );
+  const query = `SELECT Id, Name, Email, UserType, IsActive, Profile.Id, Profile.Name FROM User LIMIT ${limit} OFFSET ${offset}`;
+
+  const url = new URL(`${instanceUrl}/services/data/v60.0/query`);
+  url.searchParams.append('q', query);
 
   const response = await fetch(url.toString(), {
     method: 'GET',
@@ -59,8 +63,9 @@ export const getUsers = async ({ accessToken, instanceUrl, offset }: GetUsersPar
 
   for (const record of records) {
     const result = salesforceUserSchema.safeParse(record);
+
     if (result.success) {
-      if (result.data.attributes.type !== 'User') {
+      if (result.data.UserType !== 'Standard' || !result.data.IsActive) {
         continue;
       }
 
@@ -77,8 +82,51 @@ export const getUsers = async ({ accessToken, instanceUrl, offset }: GetUsersPar
   };
 };
 
+const salesforceAuthUserSchema = z.object({
+  user_id: z.string().min(1),
+  active: z.boolean(),
+});
+
+export const getAuthUser = async ({
+  accessToken,
+  instanceUrl,
+}: {
+  accessToken: string;
+  instanceUrl: string;
+}) => {
+  const url = new URL(`${instanceUrl}/services/oauth2/userinfo`);
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new SalesforceError(`Couldn't get the user details`, { response });
+  }
+
+  const data: unknown = await response.json();
+
+  const result = salesforceAuthUserSchema.safeParse(data);
+
+  if (!result.success) {
+    throw new SalesforceError('Invalid user data', { response });
+  }
+
+  if (!result.data.active) {
+    throw new SalesforceError('User is not active', { response });
+  }
+
+  return {
+    userId: result.data.user_id,
+  };
+};
+
 export const deleteUser = async ({ accessToken, instanceUrl, userId }: DeleteUsersParams) => {
-  const url = new URL(`/services/data/v60.0/sobjects/User/${userId}`, instanceUrl);
+  const url = new URL(`${instanceUrl}/services/data/v60.0/sobjects/User/${userId}`);
 
   const response = await fetch(url.toString(), {
     method: 'PATCH',

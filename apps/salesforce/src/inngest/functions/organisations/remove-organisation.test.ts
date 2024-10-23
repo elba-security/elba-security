@@ -10,6 +10,7 @@ import { removeOrganisation } from './remove-organisation';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
+  authUserId: '00000001',
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
   instanceUrl: 'some-url',

@@ -18,11 +18,23 @@ const formatElbaUserEmail = (user: SalesforceUser): string | undefined => {
     return user.Email;
   }
 };
-const formatElbaUser = (user: SalesforceUser): User => ({
+
+const formatElbaUser = ({
+  user,
+  instanceUrl,
+  authUserId,
+}: {
+  user: SalesforceUser;
+  instanceUrl: string;
+  authUserId: string;
+}): User => ({
   id: user.Id,
   displayName: user.Name,
   email: formatElbaUserEmail(user),
   additionalEmails: [],
+  isSuspendable: user.Id !== authUserId,
+  role: user.Profile?.Name,
+  url: `${instanceUrl}/lightning/r/User/${user.Id}/view`,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -56,6 +68,7 @@ export const syncUsers = inngest.createFunction(
         accessToken: organisationsTable.accessToken,
         region: organisationsTable.region,
         instanceUrl: organisationsTable.instanceUrl,
+        authUserId: organisationsTable.authUserId,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -64,14 +77,21 @@ export const syncUsers = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.accessToken);
-    const instanceUrl = organisation.instanceUrl;
+    const { accessToken, instanceUrl, authUserId, region } = organisation;
+
+    const elba = createElbaClient({ organisationId, region });
+    const token = await decrypt(accessToken);
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ accessToken: token, instanceUrl, offset: page });
 
-      const users = result.validUsers.filter(({ IsActive }) => IsActive).map(formatElbaUser);
+      const users = result.validUsers.map((user) =>
+        formatElbaUser({
+          user,
+          instanceUrl,
+          authUserId,
+        })
+      );
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

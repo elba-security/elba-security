@@ -1,5 +1,5 @@
 {
-  "id": "2548645f-a80c-4a3a-90c3-c35318ab5395",
+  "id": "19cd29d6-3bcb-4448-9c91-b4c53f8d42c7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -12,6 +12,12 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
+          "notNull": true
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "region": {
