@@ -11,8 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "type-check": "tsc --noEmit",
-    "database:up": "docker-compose -p integration --profile edge --env-file=.env.local up -d",
-    "database:down": "docker-compose -p integration down --volumes",
+    "database:up": "docker-compose -p tableau --profile edge --env-file=.env.local up -d",
+    "database:down": "docker-compose -p tableau down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
     "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
   },
