@@ -13,6 +13,7 @@ const instanceUrl = 'test-some url';
 
 const organisation = {
   id: userId,
+  authUserId: '00000001',
   accessToken: await encrypt(accessToken),
   refreshToken: await encrypt(refreshToken),
   instanceUrl,

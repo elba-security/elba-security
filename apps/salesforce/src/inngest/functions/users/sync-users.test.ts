@@ -9,20 +9,23 @@ import { syncUsers } from './sync-users';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
+  authUserId: 'id-1',
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
-  instanceUrl: 'test-some-url',
+  instanceUrl: 'https://test-some-url.com',
   region: 'us',
 };
+
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const nextPage = 1;
 const users: usersConnector.SalesforceUser[] = Array.from({ length: 2 }, (_, i) => ({
-  attributes: { type: 'User' },
   Id: `id-${i}`,
   Name: `name-${i}`,
   Email: `user-${i}@foo.bar`,
   IsActive: true,
+  UserType: 'Standard',
+  Profile: { Id: `role-id-${i}`, Name: `role-name-${i}` },
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'salesforce/users.sync.requested');
@@ -35,7 +38,6 @@ describe('sync-users', () => {
       nextPage: null,
     });
 
-    // setup the test without organisation entries in the database, the function cannot retrieve a token
     const [result, { step }] = setup({
       organisationId: organisation.id,
       isFirstSync: false,
@@ -43,7 +45,6 @@ describe('sync-users', () => {
       page: 0,
     });
 
-    // assert the function throws a NonRetriableError that will inform inngest to definitly cancel the event (no further retries)
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(usersConnector.getUsers).toBeCalledTimes(0);
@@ -53,9 +54,8 @@ describe('sync-users', () => {
 
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
-    // setup the test with an organisation
     await db.insert(organisationsTable).values(organisation);
-    // mock the getUser function that returns SaaS users page
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -72,7 +72,6 @@ describe('sync-users', () => {
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
     const elbaInstance = elba.mock.results[0]?.value;
-    // check that the function continue the pagination process
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users', {
       name: 'salesforce/users.sync.requested',
@@ -92,12 +91,18 @@ describe('sync-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          role: 'role-name-0',
+          isSuspendable: true,
+          url: 'https://test-some-url.com/lightning/r/User/id-0/view',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          role: 'role-name-1',
+          isSuspendable: false,
+          url: 'https://test-some-url.com/lightning/r/User/id-1/view',
         },
       ],
     });
@@ -107,7 +112,7 @@ describe('sync-users', () => {
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
     await db.insert(organisationsTable).values(organisation);
-    // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -131,19 +136,24 @@ describe('sync-users', () => {
           displayName: 'name-0',
           email: 'user-0@foo.bar',
           id: 'id-0',
+          role: 'role-name-0',
+          isSuspendable: true,
+          url: 'https://test-some-url.com/lightning/r/User/id-0/view',
         },
         {
           additionalEmails: [],
           displayName: 'name-1',
           email: 'user-1@foo.bar',
           id: 'id-1',
+          role: 'role-name-1',
+          isSuspendable: false,
+          url: 'https://test-some-url.com/lightning/r/User/id-1/view',
         },
       ],
     });
     const syncBeforeAtISO = new Date(syncedBefore).toISOString();
     expect(elbaInstance?.users.delete).toBeCalledTimes(1);
     expect(elbaInstance?.users.delete).toBeCalledWith({ syncedBefore: syncBeforeAtISO });
-    // the function should not send another event that continue the pagination
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 });

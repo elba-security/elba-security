@@ -4,7 +4,7 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { SalesforceError } from '../common/error';
 import type { SalesforceUser } from './users';
-import { getUsers, deleteUser } from './users';
+import { getUsers, deleteUser, getAuthUser } from './users';
 
 const validToken = 'token-1234';
 const userId = 'test-id';
@@ -15,11 +15,12 @@ const total = 25;
 const instanceUrl = 'https://some-url';
 
 const validUsers: SalesforceUser[] = Array.from({ length: 5 }, (_, i) => ({
-  attributes: { type: 'User' },
   Id: `id-${i}`,
   Name: `name-${i}`,
   Email: `user-${i}@foo.bar`,
   IsActive: true,
+  UserType: 'Standard',
+  Profile: { Id: `role-id-${i}`, Name: `role-name-${i}` },
 }));
 
 const invalidUsers = [];
@@ -27,23 +28,29 @@ const invalidUsers = [];
 describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
+      const apiUrl = `${instanceUrl}/services/data/v60.0/query`;
+
       server.use(
-        http.get(`${instanceUrl}/services/data/v60.0/query/`, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+        http.get(apiUrl, ({ request }) => {
+          const authHeader = request.headers.get('Authorization');
+          if (authHeader !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
 
-          const url = new URL(request.url);
-          const query = url.searchParams.get('q');
-          const offsetMatch = query ? /offset\s+(?<offset>\d+)/i.exec(query) : null;
-          const offsetValue = offsetMatch ? offsetMatch[1] : null;
+          const requestUrl = new URL(request.url);
+          const queryParam = requestUrl.searchParams.get('q');
+          const offsetMatch = queryParam ? /OFFSET\s+(?<offsetValue>\d+)/i.exec(queryParam) : null;
 
-          if (!offsetValue) {
+          const offsetValue = offsetMatch
+            ? parseInt(offsetMatch.groups?.offsetValue || '0', 10)
+            : null;
+
+          if (offsetValue === null) {
             return new Response(undefined, { status: 401 });
           }
 
           const returnData = {
-            totalSize: total > limit + parseInt(offsetValue) ? limit : 0,
+            totalSize: total > limit + offsetValue ? limit : total - offsetValue,
             records: validUsers,
           };
 
@@ -75,6 +82,35 @@ describe('users connector', () => {
     test('should throws when the token is invalid', async () => {
       await expect(
         getUsers({ accessToken: 'foo-bar', instanceUrl, offset })
+      ).rejects.toBeInstanceOf(SalesforceError);
+    });
+  });
+
+  describe('getAuthUser', () => {
+    beforeEach(() => {
+      server.use(
+        http.get<{ userId: string }>(`${instanceUrl}/services/oauth2/userinfo`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          return Response.json({
+            user_id: userId,
+            active: true,
+          });
+        })
+      );
+    });
+
+    test('should return current user info', async () => {
+      await expect(getAuthUser({ accessToken: validToken, instanceUrl })).resolves.toStrictEqual({
+        userId,
+      });
+    });
+
+    test('should throw SalesforceError when token is invalid', async () => {
+      await expect(
+        getAuthUser({ accessToken: 'invalidToken', instanceUrl })
       ).rejects.toBeInstanceOf(SalesforceError);
     });
   });

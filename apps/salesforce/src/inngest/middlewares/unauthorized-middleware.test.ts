@@ -7,7 +7,8 @@ import { SalesforceError } from '@/connectors/common/error';
 import { unauthorizedMiddleware } from './unauthorized-middleware';
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
+  authUserId: '00000001',
   accessToken: 'some-access-token',
   refreshToken: 'some-refresh-token',
   instanceUrl: 'some url',
