@@ -16,7 +16,7 @@ const validUsers: SentryUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
   name: `first_name-${i}`,
   email: `user-${i}@foo.bar`,
-  role: 'member',
+  orgRole: 'member',
   user: {
     isActive: true,
     has2fa: false,

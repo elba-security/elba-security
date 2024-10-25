@@ -32,7 +32,6 @@ export const getToken = async (code: string, installationId: string) => {
 
   const data: unknown = await response.json();
 
-  // the schema is not correct now
   const result = tokenResponseSchema.safeParse(data);
 
   if (!result.success) {

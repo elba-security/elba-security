@@ -11,7 +11,7 @@ const accessToken = 'test-access-token';
 const refreshToken = 'test-refresh-token';
 const installationId = 'test-installation-id';
 const organizationSlug = 'test-organization-slug';
-// Mock data for organisation and user
+
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt(accessToken),
@@ -21,7 +21,6 @@ const organisation = {
   organizationSlug,
 };
 
-// Setup function mock for Inngest
 const setup = createInngestFunctionMock(deleteUser, 'sentry/users.delete.requested');
 
 describe('deleteUser', () => {

@@ -13,13 +13,13 @@ export const env = z
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
-    SENTRY_APP_INSTALL_URL: z.string().url(),
+    SENTRY_APP_INSTALL_URL: z.string().url().default('https://sentry.io/oauth'),
     SENTRY_API_BASE_URL: z.string().url().default('https://sentry.io/api/0'),
     SENTRY_CLIENT_ID: z.string().min(1),
     SENTRY_CLIENT_SECRET: z.string().min(1),
     SENTRY_REDIRECT_URI: z.string().url(),
-    HARVEST_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),
+    SENTRY_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
     SENTRY_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
-    USERS_SYNC_CRON: z.string().default('0 0 * * *'),
+    SENTRY_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
   })
   .parse(process.env);

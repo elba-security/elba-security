@@ -24,7 +24,7 @@ const users: usersConnector.SentryUser[] = Array.from({ length: 2 }, (_, i) => (
   id: `id-${i}`,
   name: `name-${i}`,
   email: `user-${i}@foo.bar`,
-  role: 'member',
+  orgRole: 'member',
   user: {
     isActive: true,
     has2fa: false,

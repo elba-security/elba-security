@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
   }
 
   await setupOrganisation({ organisationId, code, region, installationId, organizationSlug });
+
   redirect(
     getRedirectUrl({
       region,

@@ -4,11 +4,11 @@ import { SentryError } from '../common/error';
 import { getNextCursorFromHeader } from '../utils/pagination';
 
 const sentryUserSchema = z.object({
-  role: z.string(),
   id: z.string(),
   name: z.string(),
   email: z.string(),
   pending: z.boolean(),
+  orgRole: z.string(),
   user: z
     .object({
       has2fa: z.boolean(),
@@ -36,7 +36,7 @@ export type DeleteUsersParams = {
 export const getUsers = async ({ accessToken, cursor, organizationSlug }: GetUsersParams) => {
   const url = new URL(`${env.SENTRY_API_BASE_URL}/organizations/${organizationSlug}/members/`);
 
-  url.searchParams.append('per_page', String(`${env.HARVEST_USERS_SYNC_BATCH_SIZE}`));
+  url.searchParams.append('per_page', String(`${env.SENTRY_USERS_SYNC_BATCH_SIZE}`));
   if (cursor) {
     url.searchParams.append('cursor', String(cursor));
   }

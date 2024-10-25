@@ -10,15 +10,21 @@ import { decrypt } from '@/common/crypto';
 import { type SentryUser } from '@/connectors/sentry/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUser = ({organizationSlug, user}:{ organizationSlug: string, user:SentryUser}): User => ({
+const formatElbaUser = ({
+  organizationSlug,
+  user,
+}: {
+  organizationSlug: string;
+  user: SentryUser;
+}): User => ({
   id: user.id,
   displayName: user.name,
   email: user.email,
-  role: user.role,
+  role: user.orgRole,
   authMethod: user.user?.has2fa ? 'mfa' : 'password',
   additionalEmails: [],
-  isSuspendable: user.role !== 'owner',
-  url: `https://${organizationSlug}.sentry.io/settings/members/`
+  isSuspendable: user.orgRole !== 'owner',
+  url: `https://${organizationSlug}.sentry.io/settings/members/`,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -62,7 +68,7 @@ export const syncUsers = inngest.createFunction(
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.token);
 
-    const organizationSlug = organisation.organizationSlug; 
+    const organizationSlug = organisation.organizationSlug;
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({
         accessToken: token,
