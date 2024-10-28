@@ -16,24 +16,11 @@ export const rateLimitMiddleware = new InngestMiddleware({
             if (!(error instanceof SalesforceError)) {
               return;
             }
-            // TODO: remove this once discussed with Guillaume & Alex
-            // if (error.response?.status === 403) {
-            //   const data = await error.response.text();
-            //   const errors = JSON.parse(data) as {
-            //     errorCode: string;
-            //     message: string;
-            //   }[];
 
-            //   if (errors.length > 0) {
-            //     if (errors[0]?.errorCode === 'REQUEST_LIMIT_EXCEEDED') {
-            //       return new NonRetriableError(errors[0].message);
-            //     }
-            //   }
-            // }
+            // This error typically depends on the organization's configuration limits in Salesforce.
+            // If this error occurs, We should request the specific organization to increase their API limit.
+            // For more information, refer to the related discussion: https://help.salesforce.com/s/articleView?id=000389363&type=1
 
-            // TODO: remove this once discussed with Guillaume & Alex
-            // Sales force doesn't support  rate limit 429
-            // https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_methods_system_restresponse.htm?search_text=HTTP%20Response
             if (error.response?.status === 429) {
               const retryAfter = error.response.headers.get('retry-after') || 60;
               return {
