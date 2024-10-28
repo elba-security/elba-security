@@ -5,6 +5,7 @@ import { RedirectType, redirect } from 'next/navigation';
 import { getRedirectUrl } from '@elba-security/sdk';
 import { isRedirectError } from 'next/dist/client/components/redirect';
 import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
+import { cookies } from 'next/headers';
 import { env } from '@/common/env';
 import { DbtlabsError } from '@/connectors/common/error';
 import { registerOrganisation } from './service';
@@ -12,6 +13,7 @@ import { registerOrganisation } from './service';
 const formSchema = z.object({
   organisationId: z.string().uuid(),
   region: z.string().min(1),
+  currentUrl: z.string().min(1),
   serviceToken: z.string().min(1, {
     message: 'Service Token is required',
   }),
@@ -35,10 +37,12 @@ export type FormState = {
 export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
   unstable_noStore();
   const region = formData.get('region');
+
   try {
     const result = formSchema.safeParse({
       organisationId: formData.get('organisationId'),
       region: formData.get('region'),
+      currentUrl: formData.get('currentUrl'),
       serviceToken: formData.get('serviceToken'),
       accountId: formData.get('accountId'),
       accessUrl: formData.get('accessUrl'),
@@ -63,7 +67,12 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
       };
     }
 
-    await registerOrganisation(result.data);
+    cookies().set('redirect_url', result.data.currentUrl.toString());
+
+    const response = await registerOrganisation(result.data);
+    if (response?.isInvalidPlan) {
+      redirect('/connection');
+    }
 
     redirect(
       getRedirectUrl({
