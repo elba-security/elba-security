@@ -821,6 +821,103 @@ importers:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
 
+  apps/docusign:
+    dependencies:
+      '@elba-security/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@elba-security/inngest':
+        specifier: workspace:*
+        version: link:../../packages/inngest
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@elba-security/nextjs':
+        specifier: workspace:*
+        version: link:../../packages/nextjs
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@neondatabase/serverless':
+        specifier: 0.9.4
+        version: 0.9.4
+      date-fns:
+        specifier: ^3.2.0
+        version: 3.3.1
+      drizzle-orm:
+        specifier: ^0.29.4
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+      inngest:
+        specifier: 3.22.2
+        version: 3.22.2(hono@4.3.2)(next@14.2.4)(typescript@5.5.3)
+      next:
+        specifier: 14.2.4
+        version: 14.2.4(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: ^18
+        version: 18.2.0
+      react-dom:
+        specifier: ^18
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^3.2.0
+        version: 3.2.0
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: ^14.2.4
+        version: 14.2.4
+      '@types/node':
+        specifier: ^20
+        version: 20.14.2
+      '@types/react':
+        specifier: ^18
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: ^18
+        version: 18.2.25
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      drizzle-kit:
+        specifier: ^0.20.6
+        version: 0.20.18
+      eslint:
+        specifier: ^8
+        version: 8.57.0
+      inngest-cli:
+        specifier: ^0.29.1
+        version: 0.29.1
+      msw:
+        specifier: ^2.3.1
+        version: 2.3.1(typescript@5.5.3)
+      postgres:
+        specifier: ^3.4.4
+        version: 3.4.4
+      testcontainers:
+        specifier: ^10.10.0
+        version: 10.10.0
+      typescript:
+        specifier: ^5.5.2
+        version: 5.5.3
+      vitest:
+        specifier: 1.6.0
+        version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
+
   apps/doppler:
     dependencies:
       '@elba-security/config':
@@ -1444,6 +1541,109 @@ importers:
       date-fns:
         specifier: ^3.2.0
         version: 3.3.1
+      drizzle-orm:
+        specifier: ^0.29.4
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+      inngest:
+        specifier: 3.22.2
+        version: 3.22.2(hono@4.3.2)(next@14.2.4)(typescript@5.5.3)
+      next:
+        specifier: 14.2.4
+        version: 14.2.4(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: ^18
+        version: 18.2.0
+      react-dom:
+        specifier: ^18
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^3.2.0
+        version: 3.2.0
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: ^14.2.4
+        version: 14.2.4
+      '@types/node':
+        specifier: ^20
+        version: 20.14.2
+      '@types/react':
+        specifier: ^18
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: ^18
+        version: 18.2.25
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      drizzle-kit:
+        specifier: ^0.20.6
+        version: 0.20.18
+      eslint:
+        specifier: ^8
+        version: 8.57.0
+      inngest-cli:
+        specifier: ^0.29.1
+        version: 0.29.1
+      msw:
+        specifier: ^2.3.1
+        version: 2.3.1(typescript@5.5.3)
+      postgres:
+        specifier: ^3.4.4
+        version: 3.4.4
+      testcontainers:
+        specifier: ^10.10.0
+        version: 10.10.0
+      typescript:
+        specifier: ^5.5.2
+        version: 5.5.3
+      vitest:
+        specifier: 1.6.0
+        version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
+
+  apps/hubspot:
+    dependencies:
+      '@elba-security/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@elba-security/design-system':
+        specifier: workspace:*
+        version: link:../../packages/design-system
+      '@elba-security/inngest':
+        specifier: workspace:*
+        version: link:../../packages/inngest
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@elba-security/nextjs':
+        specifier: workspace:*
+        version: link:../../packages/nextjs
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@neondatabase/serverless':
+        specifier: 0.9.4
+        version: 0.9.4
+      date-fns:
+        specifier: ^3.6.0
+        version: 3.6.0
+      date-fns-tz:
+        specifier: ^3.1.3
+        version: 3.2.0(date-fns@3.6.0)
       drizzle-orm:
         specifier: ^0.29.4
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
@@ -2197,6 +2397,106 @@ importers:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
 
+  apps/salesforce:
+    dependencies:
+      '@elba-security/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@elba-security/design-system':
+        specifier: workspace:*
+        version: link:../../packages/design-system
+      '@elba-security/inngest':
+        specifier: workspace:*
+        version: link:../../packages/inngest
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@elba-security/nextjs':
+        specifier: workspace:*
+        version: link:../../packages/nextjs
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@neondatabase/serverless':
+        specifier: 0.9.4
+        version: 0.9.4
+      date-fns:
+        specifier: ^3.2.0
+        version: 3.3.1
+      drizzle-orm:
+        specifier: ^0.29.4
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+      inngest:
+        specifier: 3.22.2
+        version: 3.22.2(hono@4.3.2)(next@14.2.4)(typescript@5.5.3)
+      next:
+        specifier: 14.2.4
+        version: 14.2.4(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: ^18
+        version: 18.2.0
+      react-dom:
+        specifier: ^18
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^3.2.0
+        version: 3.2.0
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: ^14.2.4
+        version: 14.2.4
+      '@types/node':
+        specifier: ^20
+        version: 20.14.2
+      '@types/react':
+        specifier: ^18
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: ^18
+        version: 18.2.25
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      drizzle-kit:
+        specifier: ^0.20.6
+        version: 0.20.18
+      eslint:
+        specifier: ^8
+        version: 8.53.0
+      inngest-cli:
+        specifier: ^0.29.1
+        version: 0.29.1
+      msw:
+        specifier: ^2.3.1
+        version: 2.3.1(typescript@5.5.3)
+      postgres:
+        specifier: ^3.4.4
+        version: 3.4.4
+      testcontainers:
+        specifier: ^10.10.0
+        version: 10.10.0
+      typescript:
+        specifier: ^5.5.2
+        version: 5.5.3
+      vitest:
+        specifier: 1.6.0
+        version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
+
   apps/segment:
     dependencies:
       '@elba-security/config':
@@ -2293,6 +2593,106 @@ importers:
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.11.16)
+
+  apps/sentry:
+    dependencies:
+      '@elba-security/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@elba-security/design-system':
+        specifier: workspace:*
+        version: link:../../packages/design-system
+      '@elba-security/inngest':
+        specifier: workspace:*
+        version: link:../../packages/inngest
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@elba-security/nextjs':
+        specifier: workspace:*
+        version: link:../../packages/nextjs
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@neondatabase/serverless':
+        specifier: 0.9.4
+        version: 0.9.4
+      date-fns:
+        specifier: ^3.2.0
+        version: 3.6.0
+      drizzle-orm:
+        specifier: ^0.29.4
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+      inngest:
+        specifier: 3.22.2
+        version: 3.22.2(hono@4.3.2)(next@14.2.4)(typescript@5.5.3)
+      next:
+        specifier: 14.2.4
+        version: 14.2.4(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: ^18
+        version: 18.2.0
+      react-dom:
+        specifier: ^18
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^3.2.0
+        version: 3.2.0
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: ^14.2.4
+        version: 14.2.4
+      '@types/node':
+        specifier: ^20
+        version: 20.14.2
+      '@types/react':
+        specifier: ^18
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: ^18
+        version: 18.2.25
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      drizzle-kit:
+        specifier: ^0.20.6
+        version: 0.20.18
+      eslint:
+        specifier: ^8
+        version: 8.57.0
+      inngest-cli:
+        specifier: ^0.29.1
+        version: 0.29.1
+      msw:
+        specifier: ^2.3.1
+        version: 2.3.1(typescript@5.5.3)
+      postgres:
+        specifier: ^3.4.4
+        version: 3.4.4
+      testcontainers:
+        specifier: ^10.10.0
+        version: 10.10.0
+      typescript:
+        specifier: ^5.5.2
+        version: 5.5.3
+      vitest:
+        specifier: 1.6.0
+        version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
 
   apps/sharepoint:
     dependencies:
@@ -3385,7 +3785,7 @@ packages:
       '@babel/traverse': 7.24.7
       '@babel/types': 7.24.7
       convert-source-map: 2.0.0
-      debug: 4.3.5
+      debug: 4.3.7
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -3576,7 +3976,7 @@ packages:
       '@babel/helper-split-export-declaration': 7.24.7
       '@babel/parser': 7.24.7
       '@babel/types': 7.24.7
-      debug: 4.3.5
+      debug: 4.3.7
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -4453,6 +4853,10 @@ packages:
 
   /@jridgewell/sourcemap-codec@1.4.15:
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
+    dev: true
+
+  /@jridgewell/sourcemap-codec@1.5.0:
+    resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
 
   /@jridgewell/trace-mapping@0.3.20:
     resolution: {integrity: sha512-R8LcPeWZol2zR8mmH3JeKQ6QRCFb7XgUhV9ZlGhHLGyg4wpPiPZNQOOWhFZhxKw8u//yTbNGI42Bx/3paXEQ+Q==}
@@ -5393,7 +5797,7 @@ packages:
       '@typescript-eslint/types': 7.15.0
       '@typescript-eslint/typescript-estree': 7.15.0(typescript@5.5.3)
       '@typescript-eslint/visitor-keys': 7.15.0
-      debug: 4.3.5
+      debug: 4.3.7
       eslint: 8.57.0
       typescript: 5.5.3
     transitivePeerDependencies:
@@ -5428,7 +5832,7 @@ packages:
     dependencies:
       '@typescript-eslint/typescript-estree': 7.15.0(typescript@5.5.3)
       '@typescript-eslint/utils': 7.15.0(eslint@8.57.0)(typescript@5.5.3)
-      debug: 4.3.5
+      debug: 4.3.7
       eslint: 8.57.0
       ts-api-utils: 1.3.0(typescript@5.5.3)
       typescript: 5.5.3
@@ -5457,7 +5861,7 @@ packages:
     dependencies:
       '@typescript-eslint/types': 5.62.0
       '@typescript-eslint/visitor-keys': 5.62.0
-      debug: 4.3.5
+      debug: 4.3.7
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.6.2
@@ -5478,7 +5882,7 @@ packages:
     dependencies:
       '@typescript-eslint/types': 7.15.0
       '@typescript-eslint/visitor-keys': 7.15.0
-      debug: 4.3.5
+      debug: 4.3.7
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -5606,13 +6010,13 @@ packages:
     dependencies:
       '@vitest/utils': 1.6.0
       p-limit: 5.0.0
-      pathe: 1.1.1
+      pathe: 1.1.2
 
   /@vitest/snapshot@1.6.0:
     resolution: {integrity: sha512-+Hx43f8Chus+DCmygqqfetcAZrDJwvTj0ymqjQq4CvmpKFSTVteEOBzCusu1x2tt4OJcvBflyHUE0DZSLgEMtQ==}
     dependencies:
-      magic-string: 0.30.10
-      pathe: 1.1.1
+      magic-string: 0.30.12
+      pathe: 1.1.2
       pretty-format: 29.7.0
 
   /@vitest/spy@1.6.0:
@@ -5662,7 +6066,7 @@ packages:
     resolution: {integrity: sha512-o/zjMZRhJxny7OyEF+Op8X+efiELC7k7yOjMzgfzVqOzXqkBkWI79YoTdOtsuWd5BWhAGAuOY/Xa6xpiaWXiNg==}
     engines: {node: '>= 14'}
     dependencies:
-      debug: 4.3.5
+      debug: 4.3.7
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -6557,8 +6961,20 @@ packages:
       is-data-view: 1.0.1
     dev: true
 
+  /date-fns-tz@3.2.0(date-fns@3.6.0):
+    resolution: {integrity: sha512-sg8HqoTEulcbbbVXeg84u5UnlsQa8GS5QXMqjjYIhS4abEVVKIUwe0/l/UhrZdKaL/W5eWZNlbTeEIiOXTcsBQ==}
+    peerDependencies:
+      date-fns: ^3.0.0 || ^4.0.0
+    dependencies:
+      date-fns: 3.6.0
+    dev: false
+
   /date-fns@3.3.1:
     resolution: {integrity: sha512-y8e109LYGgoQDveiEBD3DYXKba1jWf5BA8YU1FL5Tvm0BTdEfy54WLCwnuYWZNnzzvALy/QQ4Hov+Q9RVRv+Zw==}
+    dev: false
+
+  /date-fns@3.6.0:
+    resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
     dev: false
 
   /debug@2.6.9:
@@ -6605,6 +7021,17 @@ packages:
         optional: true
     dependencies:
       ms: 2.1.2
+
+  /debug@4.3.7:
+    resolution: {integrity: sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+    dependencies:
+      ms: 2.1.3
 
   /deep-eql@4.1.3:
     resolution: {integrity: sha512-WaEtAOpRA1MQ0eohqZjpGD8zdI0Ovsm8mmFhaDN8dvDZzyoUMcYDnf5Y6iu7HTXxf8JDS23qWa4a+hKCDyOPzw==}
@@ -6711,7 +7138,7 @@ packages:
     resolution: {integrity: sha512-f0ReSURdM3pcKPNS30mxOHSbaFLcknGmQjwSfmbcdOw1XWKXVhukM3NJHhr7NpY9BIyyWQb0EBo3KQvvuU5egQ==}
     engines: {node: '>= 8.0'}
     dependencies:
-      debug: 4.3.5
+      debug: 4.3.7
       readable-stream: 3.6.2
       split-ca: 1.0.1
       ssh2: 1.15.0
@@ -7591,7 +8018,7 @@ packages:
       eslint: '*'
       eslint-plugin-import: '*'
     dependencies:
-      debug: 4.3.5
+      debug: 4.3.7
       enhanced-resolve: 5.15.0
       eslint: 8.57.0
       eslint-module-utils: 2.8.0(@typescript-eslint/parser@7.15.0)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
@@ -8668,7 +9095,7 @@ packages:
     engines: {node: '>= 14'}
     dependencies:
       agent-base: 7.1.0
-      debug: 4.3.5
+      debug: 4.3.7
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -8785,7 +9212,7 @@ packages:
       canonicalize: 1.0.8
       chalk: 4.1.2
       cross-fetch: 4.0.0
-      debug: 4.3.5
+      debug: 4.3.7
       hash.js: 1.1.7
       hono: 4.3.2
       json-stringify-safe: 5.0.1
@@ -9469,10 +9896,10 @@ packages:
       react: 18.2.0
     dev: false
 
-  /magic-string@0.30.10:
-    resolution: {integrity: sha512-iIRwTIf0QKV3UAnYK4PU8uiEc4SRh5jX0mwpIwETPpHdhVM4f53RSwS/vXvN1JhGX+Cs7B8qIq3d6AH49O5fAQ==}
+  /magic-string@0.30.12:
+    resolution: {integrity: sha512-Ea8I3sQMVXr8JhN4z+H/d8zwo+tYDgHE9+5G4Wnrwhs0gaK9fXTKx0Tw5Xwsd/bCPTTZNRAdpyzvoeORe9LYpw==}
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
 
   /media-typer@0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
@@ -10089,6 +10516,9 @@ packages:
 
   /pathe@1.1.1:
     resolution: {integrity: sha512-d+RQGp0MAYTIaDBIMmOfMwz3E+LOZnxx1HZd5R18mmCZY0QBlK0LDZfPc8FW8Ed2DlvsuE6PRjroDY+wg4+j/Q==}
+
+  /pathe@1.1.2:
+    resolution: {integrity: sha512-whLdWMYL2TwI08hn8/ZqAbrVemu0LNaNNJZX73O6qaIdCTfXutsLhMkjdENX0qhsQ9uIimo4/aQOmXkoon2nDQ==}
 
   /pathval@1.1.1:
     resolution: {integrity: sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==}
@@ -11943,11 +12373,11 @@ packages:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.2
       chai: 4.3.10
-      debug: 4.3.5
+      debug: 4.3.7
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.10
-      pathe: 1.1.1
+      magic-string: 0.30.12
+      pathe: 1.1.2
       picocolors: 1.0.1
       std-env: 3.6.0
       strip-literal: 2.1.0
@@ -12000,11 +12430,11 @@ packages:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.2
       chai: 4.3.10
-      debug: 4.3.5
+      debug: 4.3.7
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.10
-      pathe: 1.1.1
+      magic-string: 0.30.12
+      pathe: 1.1.2
       picocolors: 1.0.1
       std-env: 3.6.0
       strip-literal: 2.1.0
@@ -12057,11 +12487,11 @@ packages:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.2
       chai: 4.3.10
-      debug: 4.3.5
+      debug: 4.3.7
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.10
-      pathe: 1.1.1
+      magic-string: 0.30.12
+      pathe: 1.1.2
       picocolors: 1.0.1
       std-env: 3.6.0
       strip-literal: 2.1.0
@@ -12113,11 +12543,11 @@ packages:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.2
       chai: 4.3.10
-      debug: 4.3.5
+      debug: 4.3.7
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.10
-      pathe: 1.1.1
+      magic-string: 0.30.12
+      pathe: 1.1.2
       picocolors: 1.0.1
       std-env: 3.6.0
       strip-literal: 2.1.0
