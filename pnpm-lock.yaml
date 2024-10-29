@@ -432,9 +432,6 @@ importers:
       '@elba-security/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@elba-security/database':
-        specifier: workspace:*
-        version: link:../../packages/database
       '@elba-security/inngest':
         specifier: workspace:*
         version: link:../../packages/inngest
