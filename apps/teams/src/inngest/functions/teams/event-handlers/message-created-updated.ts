@@ -77,5 +77,9 @@ export const messageCreatedOrUpdatedHandler: TeamsEventHandler = async ({
     message,
   });
 
-  await elbaClient.dataProtection.updateObjects({ objects: [object] });
+  const res = await elbaClient.dataProtection.updateObjects({ objects: [object] });
+
+  if (elbaClient.dataProtection.isTrialOrganisationExceededIssuesLimit(res)) {
+    throw new NonRetriableError('Trial organisation exceeded issues limit');
+  }
 };

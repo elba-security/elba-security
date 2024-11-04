@@ -105,7 +105,11 @@ export const syncReplies = inngest.createFunction(
         });
       });
 
-      await elbaClient.dataProtection.updateObjects({ objects });
+      const res = await elbaClient.dataProtection.updateObjects({ objects });
+
+      if (elbaClient.dataProtection.isTrialOrganisationExceededIssuesLimit(res)) {
+        throw new NonRetriableError('Trial organisation exceeded issues limit');
+      }
     });
 
     if (nextSkipToken) {

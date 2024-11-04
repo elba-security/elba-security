@@ -102,9 +102,16 @@ export const syncMessages = inngest.createFunction(
 
         const chunkedArray = chunkObjects(formatObjects, 1000);
 
-        await Promise.all(
+        const responses = await Promise.all(
           chunkedArray.map((objects) => elbaClient.dataProtection.updateObjects({ objects }))
         );
+        const isTrialOrganisationExceededIssuesLimit = responses.some((res) =>
+          elbaClient.dataProtection.isTrialOrganisationExceededIssuesLimit(res)
+        );
+
+        if (isTrialOrganisationExceededIssuesLimit) {
+          throw new NonRetriableError('Trial organisation exceeded issues limit');
+        }
       }
 
       const selectedMessagesFields = filterMessages.map((message) => ({

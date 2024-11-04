@@ -4,6 +4,7 @@ import type {
 } from '@elba-security/schemas';
 import { ElbaResourceClient } from '../elba-resource-client';
 import type { DataProtectionDeleteObjectsResult, DataProtectionUpdateObjectsResult } from './types';
+import { DataProtectionErrorCode } from './types';
 
 export class DataProtectionClient extends ElbaResourceClient {
   async updateObjects(data: UpdateDataProtectionObjects) {
@@ -20,5 +21,13 @@ export class DataProtectionClient extends ElbaResourceClient {
       data,
     });
     return response.json<DataProtectionDeleteObjectsResult>();
+  }
+
+  isTrialOrganisationExceededIssuesLimit(
+    response: DataProtectionUpdateObjectsResult | DataProtectionDeleteObjectsResult
+  ): boolean {
+    return (
+      'code' in response && response.code === DataProtectionErrorCode.TrialOrgIssuesLimitExceeded
+    );
   }
 }

@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { env } from '@/env';
 import { db } from '@/database/client';
@@ -80,7 +81,11 @@ export const refreshDataProtectionObject = inngest.createFunction(
         message,
       });
 
-      await elbaClient.dataProtection.updateObjects({ objects: [object] });
+      const res = await elbaClient.dataProtection.updateObjects({ objects: [object] });
+
+      if (elbaClient.dataProtection.isTrialOrganisationExceededIssuesLimit(res)) {
+        throw new NonRetriableError('Trial organisation exceeded issues limit');
+      }
     }
 
     if (replyId) {
@@ -131,7 +136,11 @@ export const refreshDataProtectionObject = inngest.createFunction(
         message: reply,
       });
 
-      await elbaClient.dataProtection.updateObjects({ objects: [object] });
+      const res = await elbaClient.dataProtection.updateObjects({ objects: [object] });
+
+      if (elbaClient.dataProtection.isTrialOrganisationExceededIssuesLimit(res)) {
+        throw new NonRetriableError('Trial organisation exceeded issues limit');
+      }
     }
   }
 );
