@@ -12,42 +12,42 @@ const userId = 'test-user-id';
 const nextContinuationToken = 'test-token';
 const authUserEmail = 'test@gmail.com';
 const validUsers: AzuredevopsUser[] = Array.from({ length: 5 }, (_, i) => ({
-  mailAddress: `user${i}@gmail.com`,
-  displayName: `user${i}-displayName`,
-  descriptor: `user${i}-displayName`,
-  origin: `msa`,
-  subjectKind: `user`,
+  id: `user${i}`,
+  user: {
+    mailAddress: `user${i}@gmail.com`,
+    displayName: `user${i}-displayName`,
+    origin: 'msa',
+    subjectKind: 'user',
+  },
+  accessLevel: {
+    status: 'active',
+  },
 }));
 
 const invalidUsers = [];
 
+const setup = ({ hasNextPage = true }: { hasNextPage?: boolean }) => {
+  server.use(
+    http.get(
+      `${env.AZUREDEVOPS_API_BASE_URL}/${workspaceId}/_apis/userentitlements`,
+      ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
+        }
+
+        const returnData = {
+          items: validUsers,
+          continuationToken: hasNextPage ? nextContinuationToken : null,
+        };
+
+        return Response.json(returnData);
+      }
+    )
+  );
+};
 describe('users connector', () => {
   describe('getUsers', () => {
-    // mock token API endpoint using msw
-    beforeEach(() => {
-      server.use(
-        http.get(
-          `${env.AZUREDEVOPS_API_BASE_URL}/${workspaceId}/_apis/graph/users`,
-          ({ request }) => {
-            if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-              return new Response(undefined, { status: 401 });
-            }
-
-            const url = new URL(request.url);
-            const continuationToken = url.searchParams.get('continuationToken');
-            const returnData = continuationToken
-              ? {
-                  value: validUsers,
-                  continuationToken: nextContinuationToken,
-                }
-              : {
-                  value: validUsers,
-                };
-            return Response.json(returnData);
-          }
-        )
-      );
-    });
+    setup({ hasNextPage: true });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
       await expect(
@@ -55,25 +55,39 @@ describe('users connector', () => {
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage: null,
-      });
-    });
-
-    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(
-        getUsers({
-          accessToken: validToken,
-          workspaceId,
-          page: nextContinuationToken,
-        })
-      ).resolves.toStrictEqual({
-        validUsers,
-        invalidUsers,
         nextPage: nextContinuationToken,
       });
     });
 
+    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
+      setup({ hasNextPage: false });
+      await expect(
+        getUsers({
+          accessToken: validToken,
+          workspaceId,
+          page: null,
+        })
+      ).resolves.toStrictEqual({
+        validUsers,
+        invalidUsers,
+        nextPage: null,
+      });
+    });
+
+    test('should handle the next page cursor and return the users', async () => {
+      setup({ hasNextPage: false });
+
+      await expect(
+        getUsers({ accessToken: validToken, workspaceId, page: nextContinuationToken })
+      ).resolves.toStrictEqual({
+        validUsers,
+        invalidUsers,
+        nextPage: null,
+      });
+    });
+
     test('should throws when the token is invalid', async () => {
+      setup({ hasNextPage: false });
       await expect(getUsers({ accessToken: 'foo-bar', workspaceId })).rejects.toBeInstanceOf(
         AzuredevopsError
       );
@@ -84,7 +98,7 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.delete<{ userId: string }>(
-          `${env.AZUREDEVOPS_API_BASE_URL}/${workspaceId}/_apis/graph/users/${userId}`,
+          `${env.AZUREDEVOPS_API_BASE_URL}/${workspaceId}/_apis/userentitlements/${userId}`,
           ({ request }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(undefined, { status: 401 });
@@ -146,7 +160,7 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.get(
-          `${env.AZUREDEVOPS_API_BASE_URL}/${workspaceId}/_apis/graph/users`,
+          `${env.AZUREDEVOPS_API_BASE_URL}/${workspaceId}/_apis/userentitlements`,
           ({ request }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(undefined, { status: 401 });
@@ -155,25 +169,26 @@ describe('users connector', () => {
             const returnData = {
               value: validUsers,
             };
+
             return Response.json(returnData);
           }
         )
       );
     });
 
-    test('should return false when the response is successful', async () => {
+    test('should return true when the response is successful', async () => {
       await expect(
         checkWorkspaceSetting({ accessToken: validToken, workspaceId })
       ).resolves.toStrictEqual({
-        isInvalidSecuritySetting: false,
+        hasValidSecuritySettings: true,
       });
     });
 
-    test('should throws when the response is not successful', async () => {
+    test('should  return false when the response is unsuccessful', async () => {
       await expect(
         checkWorkspaceSetting({ accessToken: 'foo-bar', workspaceId })
       ).resolves.toStrictEqual({
-        isInvalidSecuritySetting: true,
+        hasValidSecuritySettings: false,
       });
     });
   });

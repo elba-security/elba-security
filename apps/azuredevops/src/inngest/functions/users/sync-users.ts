@@ -17,11 +17,11 @@ const formatElbaUser = ({
   workspaceId: string;
   authUserEmail: string;
 }): User => ({
-  id: user.descriptor,
-  email: user.mailAddress,
-  displayName: user.displayName,
+  id: user.id,
+  email: user.user.mailAddress,
+  displayName: user.user.displayName,
   additionalEmails: [],
-  isSuspendable: user.mailAddress !== authUserEmail,
+  isSuspendable: user.user.mailAddress !== authUserEmail,
   url: `https://dev.azure.com/${workspaceId}/_settings/users`,
 });
 

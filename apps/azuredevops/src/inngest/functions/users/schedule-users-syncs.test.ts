@@ -54,7 +54,7 @@ describe('schedule-users-syncs', () => {
         data: {
           organisationId: id,
           syncStartedAt: Date.now(),
-          isFirstSync: true,
+          isFirstSync: false,
           page: null,
         },
       }))

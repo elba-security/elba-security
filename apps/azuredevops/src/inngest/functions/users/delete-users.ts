@@ -3,7 +3,7 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUser as deleteAzuredevopsUser } from '@/connectors/azuredevops/users';
+import { deleteUser as deleteAzureDevOpsUser } from '@/connectors/azuredevops/users';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 
@@ -34,6 +34,6 @@ export const deleteUser = inngest.createFunction(
     const accessToken = await decrypt(organisation.token);
     const workspaceId = organisation.workspaceId;
 
-    await deleteAzuredevopsUser({ userId, accessToken, workspaceId });
+    await deleteAzureDevOpsUser({ userId, accessToken, workspaceId });
   }
 );

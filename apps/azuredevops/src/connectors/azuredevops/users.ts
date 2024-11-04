@@ -4,16 +4,21 @@ import { env } from '@/common/env';
 import { AzuredevopsError } from '../common/error';
 
 const getUsersResponseSchema = z.object({
-  value: z.array(z.unknown()),
-  continuationToken: z.string().optional(),
+  items: z.array(z.unknown()),
+  continuationToken: z.string().nullable(),
 });
 
 export const azuredevopsUserSchema = z.object({
-  mailAddress: z.string(),
-  origin: z.literal('msa'),
-  displayName: z.string(),
-  descriptor: z.string(),
-  subjectKind: z.literal('user'), // user
+  id: z.string().min(1),
+  user: z.object({
+    mailAddress: z.string(),
+    origin: z.string(),
+    displayName: z.string(),
+    subjectKind: z.string(),
+  }), // Group, Scope, User
+  accessLevel: z.object({
+    status: z.string(),
+  }),
 });
 
 export type AzuredevopsUser = z.infer<typeof azuredevopsUserSchema>;
@@ -36,8 +41,14 @@ type CheckWorkspaceSettingParams = {
 };
 
 export const getUsers = async ({ accessToken, workspaceId, page }: GetUsersParams) => {
-  const url = new URL(`${env.AZUREDEVOPS_API_BASE_URL}/${workspaceId}/_apis/graph/users`);
-  url.searchParams.append('api-version', `7.2-preview.1`);
+  // There are two API to list the users in Azure DevOps
+  // https://learn.microsoft.com/en-us/rest/api/azure/devops/graph/users/list?view=azure-devops-rest-7.1&tabs=HTTP
+  // https://learn.microsoft.com/en-us/rest/api/azure/devops/memberentitlementmanagement/user-entitlements/search-user-entitlements?view=azure-devops-rest-7.2#accesslevel
+  // however, the first one does not return the complete user list only 2 actual users returned, so we are using the second one
+
+  const url = new URL(`${env.AZUREDEVOPS_API_BASE_URL}/${workspaceId}/_apis/userentitlements`);
+  url.searchParams.append('api-version', `7.2-preview.4`);
+
   if (page) {
     url.searchParams.append('continuationToken', page);
   }
@@ -55,14 +66,24 @@ export const getUsers = async ({ accessToken, workspaceId, page }: GetUsersParam
   }
 
   const resData: unknown = await response.json();
+
   const result = getUsersResponseSchema.parse(resData);
 
   const validUsers: AzuredevopsUser[] = [];
   const invalidUsers: unknown[] = [];
 
-  for (const user of result.value) {
+  for (const user of result.items) {
     const userResult = azuredevopsUserSchema.safeParse(user);
     if (userResult.success) {
+      const { subjectKind, origin } = userResult.data.user;
+      if (
+        subjectKind !== 'user' ||
+        !['aad', 'msa'].includes(origin) ||
+        userResult.data.accessLevel.status !== 'active'
+      ) {
+        continue;
+      }
+
       validUsers.push(userResult.data);
     } else {
       invalidUsers.push(user);
@@ -72,14 +93,17 @@ export const getUsers = async ({ accessToken, workspaceId, page }: GetUsersParam
   return {
     validUsers,
     invalidUsers,
-    nextPage: result.continuationToken ?? null,
+    nextPage: result.continuationToken || null,
   };
 };
 
-export const deleteUser = async ({ userId, accessToken, workspaceId }: DeleteUsersParams) => {
-  const url = new URL(`${env.AZUREDEVOPS_API_BASE_URL}/${workspaceId}/_apis/graph/users/${userId}`);
+export const deleteUser = async ({ accessToken, workspaceId, userId }: DeleteUsersParams) => {
+  const url = new URL(
+    `${env.AZUREDEVOPS_API_BASE_URL}/${workspaceId}/_apis/userentitlements/${userId}`
+  );
 
-  url.searchParams.append('api-version', `7.2-preview.1`);
+  url.searchParams.append('api-version', `7.2-preview.4`);
+
   const response = await fetch(url.toString(), {
     method: 'DELETE',
     headers: {
@@ -129,8 +153,8 @@ export const checkWorkspaceSetting = async ({
   accessToken,
   workspaceId,
 }: CheckWorkspaceSettingParams) => {
-  const url = new URL(`${env.AZUREDEVOPS_API_BASE_URL}/${workspaceId}/_apis/graph/users`);
-  url.searchParams.append('api-version', `7.2-preview.1`);
+  const url = new URL(`${env.AZUREDEVOPS_API_BASE_URL}/${workspaceId}/_apis/userentitlements`);
+  url.searchParams.append('api-version', `7.2-preview.4`);
 
   const response = await fetch(url.toString(), {
     method: 'GET',
@@ -141,6 +165,6 @@ export const checkWorkspaceSetting = async ({
   });
 
   return {
-    isInvalidSecuritySetting: !response.ok && response.status === 401,
+    hasValidSecuritySettings: response.ok,
   };
 };

@@ -18,6 +18,7 @@ export const env = z
     AZUREDEVOPS_CLIENT_ID: z.string(),
     AZUREDEVOPS_CLIENT_SECRET: z.string(),
     AZUREDEVOPS_REDIRECT_URI: z.string().url(),
+    AZUREDEVOPS_USERS_SYNC_LIMIT: zEnvInt().default(400),
     AZUREDEVOPS_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
     AZUREDEVOPS_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
   })

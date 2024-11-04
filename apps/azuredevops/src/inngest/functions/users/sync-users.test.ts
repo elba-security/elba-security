@@ -28,11 +28,17 @@ const organisation = {
 const syncStartedAt = Date.now();
 
 const users: usersConnector.AzuredevopsUser[] = Array.from({ length: 5 }, (_, i) => ({
-  mailAddress: `user${i}@gmail.com`,
-  displayName: `user${i}-displayName`,
-  descriptor: `user${i}-displayName`,
-  origin: `msa`,
-  subjectKind: `user`,
+  id: `user${i}`,
+  accessLevel: {
+    status: 'active',
+  },
+  user: {
+    mailAddress: `user${i}@gmail.com`,
+    displayName: `user${i}-displayName`,
+    descriptor: `user${i}-displayName`,
+    origin: 'msa',
+    subjectKind: 'user',
+  },
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'azuredevops/users.sync.requested');

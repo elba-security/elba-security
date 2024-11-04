@@ -1,6 +1,7 @@
 import { expect, test, describe, vi, beforeEach, afterEach } from 'vitest';
 import { cookies } from 'next/headers';
 import { type ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import { redirect } from 'next/navigation';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -36,7 +37,7 @@ const mockCookieValue = JSON.stringify({
 });
 
 const checkWorkspaceSettingData = {
-  isInvalidSecuritySetting: false,
+  hasValidSecuritySettings: true,
 };
 
 const getAuthUserData = {
@@ -44,7 +45,11 @@ const getAuthUserData = {
 };
 
 vi.mock('next/headers', () => ({
-  cookies: vi.fn(),
+  cookies: vi.fn(() => ({})),
+}));
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
 }));
 
 describe('setupOrganisation', () => {
@@ -72,6 +77,7 @@ describe('setupOrganisation', () => {
     await db.insert(organisationsTable).values(organisation);
 
     await setupOrganisation({ workspaceId });
+    expect(redirect).not.toHaveBeenCalled();
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
@@ -98,6 +104,23 @@ describe('setupOrganisation', () => {
         },
       },
     ]);
+  });
+
+  test('should redirect to connection page if workspace settings are invalid', async () => {
+    const encodedWorkspaceId = encodeURIComponent(JSON.stringify(workspaceId));
+    vi.spyOn(usersConnector, 'checkWorkspaceSetting').mockResolvedValue({
+      hasValidSecuritySettings: false,
+    });
+
+    const mockCookies: PartialMockCookies = {
+      get: vi.fn().mockReturnValue({ value: mockCookieValue }),
+    };
+
+    vi.mocked(cookies).mockReturnValue(mockCookies as ReadonlyRequestCookies);
+    await db.insert(organisationsTable).values(organisation);
+
+    await setupOrganisation({ workspaceId });
+    expect(redirect).toHaveBeenCalledWith(`/connection?workspace=${encodedWorkspaceId}`);
   });
 
   test('should throw an error if no auth cookie is found', async () => {

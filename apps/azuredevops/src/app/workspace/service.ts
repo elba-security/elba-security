@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { inngest } from '@/inngest/client';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
-import { checkWorkspaceSetting , getAuthUser } from '@/connectors/azuredevops/users';
+import { checkWorkspaceSetting, getAuthUser } from '@/connectors/azuredevops/users';
 import { encrypt } from '../../common/crypto';
 
 type SetupOrganisationParams = {
@@ -37,10 +37,10 @@ export const setupOrganisation = async ({ workspaceId }: SetupOrganisationParams
 
   const { organisationId, accessToken, refreshToken, expiresAt, region } = result.data;
 
-  const { isInvalidSecuritySetting } = await checkWorkspaceSetting({ accessToken, workspaceId });
+  const { hasValidSecuritySettings } = await checkWorkspaceSetting({ accessToken, workspaceId });
 
-  if (isInvalidSecuritySetting) {
-    redirect(`/connection?workspace=${encodeURIComponent(JSON.stringify(workspaceId))}`);
+  if (!hasValidSecuritySettings) {
+    return redirect(`/connection?workspace=${encodeURIComponent(JSON.stringify(workspaceId))}`);
   }
 
   const { authUserEmail } = await getAuthUser(accessToken);

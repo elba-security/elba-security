@@ -29,7 +29,7 @@ describe('getToken', () => {
     );
   });
 
-  test('should not throw when authorization code is valid', async () => {
+  test('should not throw an error when authorization code is valid', async () => {
     await expect(getToken(validAuthCode)).resolves.toStrictEqual({
       accessToken,
       refreshToken,
