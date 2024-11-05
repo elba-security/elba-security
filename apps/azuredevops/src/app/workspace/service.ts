@@ -6,7 +6,7 @@ import { inngest } from '@/inngest/client';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { checkWorkspaceSetting, getAuthUser } from '@/connectors/azuredevops/users';
-import { encrypt } from '../../common/crypto';
+import { encrypt } from '@/common/crypto';
 
 type SetupOrganisationParams = {
   workspaceId: string;
@@ -16,7 +16,7 @@ const azuredevopsTokenCookieSchema = z.object({
   organisationId: z.string(),
   accessToken: z.string(),
   refreshToken: z.string(),
-  expiresAt: z.string(),
+  expiresIn: z.string(),
   region: z.string(),
 });
 
@@ -35,7 +35,7 @@ export const setupOrganisation = async ({ workspaceId }: SetupOrganisationParams
     throw new Error('Invalid auth cookie');
   }
 
-  const { organisationId, accessToken, refreshToken, expiresAt, region } = result.data;
+  const { organisationId, accessToken, refreshToken, expiresIn, region } = result.data;
 
   const { hasValidSecuritySettings } = await checkWorkspaceSetting({ accessToken, workspaceId });
 
@@ -90,7 +90,7 @@ export const setupOrganisation = async ({ workspaceId }: SetupOrganisationParams
       name: 'azuredevops/token.refresh.requested',
       data: {
         organisationId,
-        expiresAt: addSeconds(new Date(), parseInt(expiresAt, 10)).getTime(),
+        expiresAt: addSeconds(new Date(), parseInt(expiresIn, 10)).getTime(),
       },
     },
   ]);

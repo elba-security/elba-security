@@ -19,7 +19,7 @@ export const getWorkspacesAndStoreToken = async ({
     organisationId,
     accessToken,
     refreshToken,
-    expiresAt: expiresIn,
+    expiresIn,
     region,
   };
 
