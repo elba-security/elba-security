@@ -27,9 +27,5 @@ export default function InstallPage() {
     });
   }, []);
 
-  return (
-    <GradientBackground>
-      <h1>Hello</h1>
-    </GradientBackground>
-  );
+  return <GradientBackground />;
 }
