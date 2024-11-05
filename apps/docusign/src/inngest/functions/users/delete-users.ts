@@ -1,11 +1,12 @@
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
+import { getCredentials } from '@elba-security/nango';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUsers as deleteDocusignUsers } from '@/connectors/docusign/users';
-import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
+import { getRequestInfo } from '@/connectors/docusign/request-info';
 
 export const deleteUsers = inngest.createFunction(
   {
@@ -22,9 +23,7 @@ export const deleteUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        accessToken: organisationsTable.accessToken,
-        accountId: organisationsTable.accountId,
-        apiBaseUri: organisationsTable.apiBaseUri,
+        connectionId: organisationsTable.connectionId,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -33,13 +32,26 @@ export const deleteUsers = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation`);
     }
 
-    const accessToken = await decrypt(organisation.accessToken);
+    try {
+      const { credentials } = await getCredentials(organisation.connectionId);
 
-    await deleteDocusignUsers({
-      accessToken,
-      apiBaseUri: organisation.apiBaseUri,
-      users: userIds.map((userId) => ({ userId })),
-      accountId: organisation.accountId,
-    });
+      if (!credentials) {
+        throw new NonRetriableError(`Could not retrieve credentials`);
+      }
+
+      const { baseUri, accountId } = await getRequestInfo(
+        credentials.access_token,
+        env.DOCUSIGN_ROOT_URL
+      );
+
+      await deleteDocusignUsers({
+        accessToken: credentials.access_token,
+        apiBaseUri: baseUri,
+        users: userIds.map((userId) => ({ userId })),
+        accountId,
+      });
+    } catch (error: unknown) {
+      throw new NonRetriableError(`Could not retrieve credentials or request info`);
+    }
   }
 );

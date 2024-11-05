@@ -2,13 +2,15 @@ import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { getCredentials } from '@elba-security/nango';
 import { getUsers } from '@/connectors/docusign/users';
 import { db } from '@/database/client';
 import { inngest } from '@/inngest/client';
 import { type DocusignUser } from '@/connectors/docusign/users';
 import { organisationsTable } from '@/database/schema';
 import { createElbaClient } from '@/connectors/elba/client';
-import { decrypt } from '@/common/crypto';
+import { env } from '@/common/env';
+import { getRequestInfo } from '@/connectors/docusign/request-info';
 
 const formatElbaUserDisplayName = (user: DocusignUser) => {
   if (user.firstName || user.lastName) {
@@ -20,17 +22,17 @@ const formatElbaUserDisplayName = (user: DocusignUser) => {
 
 const formatElbaUser = ({
   user,
-  authUserId,
+  isSuspendable,
 }: {
   user: DocusignUser;
-  authUserId: string;
+  isSuspendable: boolean;
 }): User => ({
   id: user.userId,
   displayName: formatElbaUserDisplayName(user),
   role: user.permissionProfileName,
   email: user.email,
   additionalEmails: [],
-  isSuspendable: authUserId !== user.userId,
+  isSuspendable,
   url: `https://apps.docusign.com/admin/edit-user/${user.userId}`, // Development base url:  https://apps-d.docusign.com
 });
 
@@ -62,11 +64,8 @@ export const syncUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        accessToken: organisationsTable.accessToken,
+        connectionId: organisationsTable.connectionId,
         region: organisationsTable.region,
-        authUserId: organisationsTable.authUserId,
-        accountId: organisationsTable.accountId,
-        apiBaseUri: organisationsTable.apiBaseUri,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -80,19 +79,27 @@ export const syncUsers = inngest.createFunction(
       region: organisation.region,
     });
 
-    const { accessToken, accountId, apiBaseUri } = organisation;
-    const decryptedAccessToken = await decrypt(accessToken);
+    const { credentials } = await getCredentials(organisation.connectionId);
+
+    if (!credentials) {
+      throw new NonRetriableError(`Could not retrieve credentials`);
+    }
+
+    const { ownerId, baseUri, accountId } = await getRequestInfo(
+      credentials.access_token,
+      env.DOCUSIGN_ROOT_URL
+    );
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({
-        accessToken: decryptedAccessToken,
+        accessToken: credentials.access_token,
         accountId,
-        apiBaseUri,
+        apiBaseUri: baseUri,
         page,
       });
 
       const users = result.validUsers.map((user) => {
-        return formatElbaUser({ user, authUserId: organisation.authUserId });
+        return formatElbaUser({ user, isSuspendable: user.userId !== ownerId });
       });
 
       if (result.invalidUsers.length > 0) {

@@ -20,6 +20,7 @@
     "@elba-security/config": "workspace:*",
     "@elba-security/inngest": "workspace:*",
     "@elba-security/logger": "workspace:*",
+    "@elba-security/nango": "workspace:*",
     "@elba-security/nextjs": "workspace:*",
     "@elba-security/sdk": "workspace:*",
     "@elba-security/utils": "workspace:*",

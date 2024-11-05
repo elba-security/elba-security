@@ -8,6 +8,7 @@ export const env = z
     DOCUSIGN_CLIENT_ID: z.string().min(1),
     DOCUSIGN_CLIENT_SECRET: z.string().min(1),
     DOCUSIGN_REDIRECT_URI: z.string().url(),
+    DOCUSIGN_ROOT_URL: z.string(),
     DOCUSIGN_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     DOCUSIGN_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
     DOCUSIGN_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
@@ -20,5 +21,9 @@ export const env = z
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     VERCEL_ENV: z.string().min(1).optional(),
+    NANGO_PUBLIC_KEY: z.string().min(1),
+    NANGO_SECRET_KEY: z.string().min(1),
+    NANGO_HOST: z.string().min(1),
+    NANGO_INTEGRATION_ID: z.string().min(1),
   })
   .parse(process.env);

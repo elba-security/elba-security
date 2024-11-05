@@ -1,0 +1,25 @@
+{
+  "name": "@elba-security/nango",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "lint": "eslint src/**.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
+    "@elba-security/utils": "workspace:*",
+    "@types/node": "^20",
+    "eslint": "^8",
+    "typescript": "^5.5.2"
+  },
+  "dependencies": {
+    "@nangohq/frontend": "^0.42.20"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./auth": "./src/auth/index.ts"
+  }
+}
