@@ -89,12 +89,15 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
 
     logger.warn('Could not register organisation', { error });
 
-    if (error instanceof FifteenFiveError && error.response?.status === 401) {
-      return {
-        errors: {
-          apiKey: ['The given Token seems to be invalid'],
-        },
-      };
+    if (error instanceof FifteenFiveError) {
+      const status = error.response?.status;
+      if (status && [401, 403].includes(status)) {
+        return {
+          errors: {
+            apiKey: ['Invalid token. Please verify and try again.'],
+          },
+        };
+      }
     }
 
     redirect(
