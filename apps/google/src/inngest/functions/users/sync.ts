@@ -2,7 +2,7 @@ import type { User } from '@elba-security/sdk';
 import { and, eq, lt, sql } from 'drizzle-orm';
 import { inngest } from '@/inngest/client';
 import { getGoogleServiceAccountClient } from '@/connectors/google/clients';
-import { listGoogleUsers } from '@/connectors/google/users';
+import { checkUserIsAdmin, listGoogleUsers } from '@/connectors/google/users';
 import { formatUser } from '@/connectors/elba/users';
 import { db } from '@/database/client';
 import { usersTable } from '@/database/schema';
@@ -53,6 +53,9 @@ export const syncUsers = inngest.createFunction(
 
     const { users, nextPageToken: nextPage } = await step.run('list-users', async () => {
       const authClient = await getGoogleServiceAccountClient(googleAdminEmail, true);
+
+      await checkUserIsAdmin({ userId: googleAdminEmail, auth: authClient });
+
       return listGoogleUsers({
         auth: authClient,
         customer: googleCustomerId,
