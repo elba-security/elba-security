@@ -29,6 +29,7 @@ export type DeleteUsersParams = {
 export const getUsers = async ({ accessToken, page, companyId }: GetUsersParams) => {
   const url = new URL(`${env.GUSTO_API_BASE_URL}/v1/companies/${companyId}/employees`);
 
+  url.searchParams.append('terminated', String(false));
   url.searchParams.append('per', `${env.GUSTO_USERS_SYNC_BATCH_SIZE}`);
   url.searchParams.append('page', String(page));
 
@@ -59,7 +60,6 @@ export const getUsers = async ({ accessToken, page, companyId }: GetUsersParams)
       invalidUsers.push(user);
     }
   }
-
   // Extract pagination information from headers
   const totalPages = Number(response.headers.get('X-Total-Pages'));
   return {
@@ -71,7 +71,7 @@ export const getUsers = async ({ accessToken, page, companyId }: GetUsersParams)
 
 // Owner of the organization cannot be deleted
 export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => {
-  const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+  const today = new Date().toLocaleDateString('fr-CA'); // Get today's date in YYYY-MM-DD format
   const response = await fetch(`${env.GUSTO_API_BASE_URL}/v1/employees/${userId}/terminations`, {
     method: 'POST',
     headers: {

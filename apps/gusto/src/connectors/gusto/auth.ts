@@ -58,15 +58,16 @@ export const getRefreshToken = async (refreshToken: string) => {
 
   const data: unknown = await response.json();
 
-  try {
-    const result = tokenResponseSchema.parse(data);
-    return {
-      accessToken: result.access_token,
-      refreshToken: result.refresh_token,
-      expiresIn: result.expires_in,
-    };
-  } catch (error) {
-    logger.error('Invalid Gusto refresh token response', { data, error });
-    throw error;
+  const result = tokenResponseSchema.safeParse(data);
+
+  if (!result.success) {
+    logger.error('Invalid Gusto refresh token response', { data });
+    throw new GustoError('Invalid Gusto refresh token response', { response });
   }
+
+  return {
+    accessToken: result.data.access_token,
+    refreshToken: result.data.refresh_token,
+    expiresIn: result.data.expires_in,
+  };
 };

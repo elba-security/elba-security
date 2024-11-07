@@ -16,13 +16,14 @@ const formatElbaUserDisplayName = (user: GustoUser) => {
   }
   return user.email;
 };
+
 const formatElbaUser = (user: GustoUser): User => ({
   id: user.uuid,
   displayName: formatElbaUserDisplayName(user),
   email: user.email,
   additionalEmails: [],
   isSuspendable: true,
-  url: 'https://app.gusto-demo.com/payroll_admin/people/all',
+  url: `https://app.gusto-demo.com/payroll_admin/people/employees/${user.uuid}`,
 });
 
 export const syncUsers = inngest.createFunction(
