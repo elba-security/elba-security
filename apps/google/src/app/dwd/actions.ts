@@ -6,6 +6,7 @@ import { getRedirectUrl } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
 import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 import { env } from '@/common/env/server';
+import { GoogleDriveAccessDenied } from '@/connectors/google/errors';
 import { isInstallationCompleted } from './service';
 
 export const isDWDActivationPending = async () => {
@@ -29,15 +30,27 @@ export const isDWDActivationPending = async () => {
     );
   }
 
-  const isCompleted = await isInstallationCompleted({
-    organisationId,
-    region,
-    googleAdminEmail,
-    googleCustomerId,
-  });
+  try {
+    const isCompleted = await isInstallationCompleted({
+      organisationId,
+      region,
+      googleAdminEmail,
+      googleCustomerId,
+    });
 
-  if (!isCompleted) {
-    return true;
+    if (!isCompleted) {
+      return true;
+    }
+  } catch (error) {
+    logger.error('An error occurred during the domain wide delegation', {
+      organisationId,
+      googleAdminEmail,
+      googleCustomerId,
+      error,
+    });
+    return redirect(
+      error instanceof GoogleDriveAccessDenied ? '/error?error=gdrive_access_restricted' : '/error'
+    );
   }
 
   redirect(

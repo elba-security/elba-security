@@ -2,6 +2,7 @@ import type { infer as zInfer } from 'zod';
 import { z } from 'zod';
 import { admin_directory_v1 as adminDirectory } from '@googleapis/admin';
 import { logger } from '@elba-security/logger';
+import { GoogleUserNotAdminError } from './errors';
 
 export const googleUserSchema = z.object({
   id: z.string().min(1),
@@ -33,6 +34,29 @@ const googleUserFields = [
   'isEnrolledIn2Sv',
   'name.fullName',
 ];
+
+export const checkUserIsAdmin = async ({
+  userId,
+  auth,
+}: {
+  userId: string;
+  auth: adminDirectory.Params$Resource$Users$Get['auth'];
+}) => {
+  try {
+    const { data: user } = await new adminDirectory.Admin({}).users.get({
+      fields: 'isAdmin',
+      userKey: userId,
+      auth,
+    });
+
+    if (!user.isAdmin) {
+      throw new GoogleUserNotAdminError('User is not admin');
+    }
+  } catch (error) {
+    logger.error('User is not admin', { userId, error });
+    throw new GoogleUserNotAdminError('User is not admin', { cause: error });
+  }
+};
 
 export const getGoogleUser = async ({
   fields = [...googleUserFields, 'isAdmin', 'customerId'].join(','),
