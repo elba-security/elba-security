@@ -61,7 +61,7 @@ describe('getWorkspacesAndStoreToken', () => {
         organisationId: organisation.id,
         accessToken,
         refreshToken,
-        expiresAt: expiresIn,
+        expiresIn,
         region,
       }),
       httpOnly: true,
