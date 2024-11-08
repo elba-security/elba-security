@@ -11,13 +11,14 @@ const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const nextPage = 2;
 const companyId = 'https://test-uri/users/00000000-0000-0000-0000-000000000091';
-
+const authUserEmail = 'test-auth-user-email';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
   region: 'us',
   companyId,
+  authUserEmail,
 };
 
 const users: usersConnector.GustoUser[] = Array.from({ length: 3 }, (_, i) => ({
@@ -92,7 +93,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '00000000-0000-0000-0000-000000000090',
           isSuspendable: true,
-          url: 'https://app.gusto-demo.com/payroll_admin/people/all',
+          url: 'https://app.gusto-demo.com/payroll_admin/people/employees/00000000-0000-0000-0000-000000000090',
         },
         {
           additionalEmails: [],
@@ -100,7 +101,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: '00000000-0000-0000-0000-000000000091',
           isSuspendable: true,
-          url: 'https://app.gusto-demo.com/payroll_admin/people/all',
+          url: 'https://app.gusto-demo.com/payroll_admin/people/employees/00000000-0000-0000-0000-000000000091',
         },
         {
           additionalEmails: [],
@@ -108,7 +109,7 @@ describe('sync-users', () => {
           email: 'user-2@foo.bar',
           id: '00000000-0000-0000-0000-000000000092',
           isSuspendable: true,
-          url: 'https://app.gusto-demo.com/payroll_admin/people/all',
+          url: 'https://app.gusto-demo.com/payroll_admin/people/employees/00000000-0000-0000-0000-000000000092',
         },
       ],
     });
@@ -142,7 +143,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '00000000-0000-0000-0000-000000000090',
           isSuspendable: true,
-          url: 'https://app.gusto-demo.com/payroll_admin/people/all',
+          url: 'https://app.gusto-demo.com/payroll_admin/people/employees/00000000-0000-0000-0000-000000000090',
         },
         {
           additionalEmails: [],
@@ -150,7 +151,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: '00000000-0000-0000-0000-000000000091',
           isSuspendable: true,
-          url: 'https://app.gusto-demo.com/payroll_admin/people/all',
+          url: 'https://app.gusto-demo.com/payroll_admin/people/employees/00000000-0000-0000-0000-000000000091',
         },
         {
           additionalEmails: [],
@@ -158,7 +159,7 @@ describe('sync-users', () => {
           email: 'user-2@foo.bar',
           id: '00000000-0000-0000-0000-000000000092',
           isSuspendable: true,
-          url: 'https://app.gusto-demo.com/payroll_admin/people/all',
+          url: 'https://app.gusto-demo.com/payroll_admin/people/employees/00000000-0000-0000-0000-000000000092',
         },
       ],
     });

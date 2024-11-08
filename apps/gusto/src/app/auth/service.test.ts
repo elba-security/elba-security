@@ -15,7 +15,9 @@ const refreshToken = 'some refresh token';
 const expiresIn = 60;
 const region = 'us';
 const now = new Date();
-const companyId = 'https://api.gusto.com/users/AAAAAAAAAAAAAAAA';
+const companyId = 'test-company-id';
+const adminId = 'test-admin-id';
+const authUserEmail = 'test-auth-user-email';
 
 const getTokenData = {
   accessToken,
@@ -24,7 +26,12 @@ const getTokenData = {
 };
 
 const getTokenInfoData = {
-  companyId: String(companyId),
+  companyId,
+  adminId,
+};
+
+const getAuthUserData = {
+  authUserEmail,
 };
 
 const organisation = {
@@ -33,6 +40,7 @@ const organisation = {
   refreshToken,
   region,
   companyId,
+  authUserEmail,
 };
 
 describe('setupOrganisation', () => {
@@ -52,6 +60,8 @@ describe('setupOrganisation', () => {
       .spyOn(usersConnector, 'getTokenInfo')
       .mockResolvedValue(getTokenInfoData);
 
+    const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
+
     await expect(
       setupOrganisation({
         organisationId: organisation.id,
@@ -65,6 +75,9 @@ describe('setupOrganisation', () => {
 
     expect(getTokenInfo).toBeCalledTimes(1);
     expect(getTokenInfo).toBeCalledWith(accessToken);
+
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith({ accessToken, adminId, companyId });
 
     const [storedOrganisation] = await db
       .select()
@@ -112,6 +125,7 @@ describe('setupOrganisation', () => {
     const getTokenInfo = vi
       .spyOn(usersConnector, 'getTokenInfo')
       .mockResolvedValue(getTokenInfoData);
+    const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
 
     await expect(
       setupOrganisation({
@@ -126,6 +140,8 @@ describe('setupOrganisation', () => {
 
     expect(getTokenInfo).toBeCalledTimes(1);
     expect(getTokenInfo).toBeCalledWith(accessToken);
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith({ accessToken, adminId, companyId });
 
     const [storedOrganisation] = await db
       .select()

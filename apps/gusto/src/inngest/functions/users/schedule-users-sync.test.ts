@@ -14,6 +14,7 @@ export const organisations = Array.from({ length: 5 }, (_, i) => ({
   refreshToken: `test-refresh-token${i}`,
   region: `us`,
   companyId: 'https://api.gusto.com/users/AAAAAAAAAAAAAAAA',
+  authUserEmail: 'test-auth-user-email',
 }));
 
 describe('schedule-users-syncs', () => {

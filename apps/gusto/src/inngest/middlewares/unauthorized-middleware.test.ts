@@ -12,6 +12,7 @@ const organisation = {
   companyId: 'auth-user-uri',
   refreshToken: 'refresh-token',
   region: 'us',
+  authUserEmail: 'test-auth-user-email',
 };
 
 describe('unauthorized middleware', () => {
