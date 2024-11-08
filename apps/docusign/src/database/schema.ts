@@ -3,7 +3,6 @@ import { type InferSelectModel } from 'drizzle-orm';
 
 export const organisationsTable = pgTable('organisations', {
   id: uuid('id').primaryKey(),
-  connectionId: text('connection_id').notNull(),
   region: text('region').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

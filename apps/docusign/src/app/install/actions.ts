@@ -2,58 +2,35 @@
 
 import { getRedirectUrl } from '@elba-security/sdk';
 import { redirect, RedirectType } from 'next/navigation';
-import { Nango } from '@nangohq/node';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-
-type SetupOrganisationParams = {
-  organisationId: string;
-  connectionId: string;
-  region: string;
-};
-
-export const getSession = async () => {
-  console.log({ secret: env.NANGO_SECRET_KEY });
-  const nango = new Nango({ secretKey: env.NANGO_SECRET_KEY });
-  const res = await nango.createConnectSession({
-    end_user: {
-      id: 'my-unique-user-id',
-      email: 'shutup@local.org',
-    },
-    organization: {
-      id: 'my-org-id',
-    },
-    // end_user: {
-    //   id: '1',
-    //   email: '',
-    //   display_name: '',
-    // },
-    allowed_integrations: ['docusign-sandbox'],
-  });
-  console.log(res);
-  return res.data.token;
-};
+import { getAuthUser } from '@/connectors/docusign/auth';
+import { nangoAPIClient } from '@/common/nango/api';
 
 export const setupOrganisation = async ({
   organisationId,
-  connectionId,
   region,
-}: SetupOrganisationParams) => {
+}: {
+  organisationId: string;
+  region: string;
+}) => {
+  const { credentials } = await nangoAPIClient.getConnection(organisationId);
+  if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+    throw new Error('Could not retrieve Nango credentials');
+  }
+  await getAuthUser(credentials.access_token);
+
   await db
     .insert(organisationsTable)
     .values({
       id: organisationId,
-      connectionId,
       region,
     })
     .onConflictDoUpdate({
       target: organisationsTable.id,
-      set: {
-        connectionId,
-        region,
-      },
+      set: { region },
     });
 
   await inngest.send([

@@ -3,7 +3,7 @@ import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import * as usersConnector from '@/connectors/docusign/users';
-import * as requestInfo from '@/connectors/docusign/request-info';
+import * as nangoAPI from '@/common/nango/api';
 import { deleteUsers } from './delete-users';
 
 const userIds = ['user-id-1', 'user-id-2'];
@@ -28,9 +28,13 @@ describe('deleteUser', () => {
 
   test('should delete user', async () => {
     vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
-    vi.spyOn(requestInfo, 'getRequestInfo').mockResolvedValueOnce({
-      baseUri: 'some url',
-      accountId: '00000000-0000-0000-0000-000000000005',
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: {
+          access_token: 'access-token',
+        },
+      }),
     });
 
     await db.insert(organisationsTable).values(organisation);

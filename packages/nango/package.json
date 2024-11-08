@@ -16,10 +16,7 @@
     "typescript": "^5.5.2"
   },
   "dependencies": {
-    "@nangohq/frontend": "^0.42.20"
-  },
-  "exports": {
-    ".": "./src/index.ts",
-    "./auth": "./src/auth/index.ts"
+    "@nangohq/frontend": "^0.42.20",
+    "@nangohq/types": "^0.42.20"
   }
 }

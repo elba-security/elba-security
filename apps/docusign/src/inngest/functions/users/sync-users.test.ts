@@ -4,21 +4,10 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/docusign/users';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
-import { encrypt } from '@/common/crypto';
 import { syncUsers } from './sync-users';
-
-const newTokens = {
-  accessToken: 'new-access-token',
-  refreshToken: 'new-refresh-token',
-};
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt(newTokens.accessToken),
-  refreshToken: await encrypt(newTokens.refreshToken),
-  accountId: '00000000-0000-0000-0000-000000000010',
-  authUserId: '00000000-0000-0000-0000-000000000011',
-  apiBaseUri: 'test-url',
   region: 'us',
 };
 const syncStartedAt = Date.now();

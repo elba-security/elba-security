@@ -1,12 +1,9 @@
-import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { getCredentials } from '@elba-security/nango';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUsers as deleteDocusignUsers } from '@/connectors/docusign/users';
-import { env } from '@/common/env';
-import { getRequestInfo } from '@/connectors/docusign/request-info';
+import { env } from '@/common/env/server';
+import { nangoAPIClient } from '@/common/nango/api';
+import { getAuthUser } from '@/connectors/docusign/auth';
 
 export const deleteUsers = inngest.createFunction(
   {
@@ -21,32 +18,18 @@ export const deleteUsers = inngest.createFunction(
   async ({ event }) => {
     const { organisationId, userIds } = event.data;
 
-    const [organisation] = await db
-      .select({
-        connectionId: organisationsTable.connectionId,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation`);
-    }
-
     try {
-      const { credentials } = await getCredentials(organisation.connectionId);
+      const { credentials } = await nangoAPIClient.getConnection(organisationId);
 
-      if (!credentials) {
-        throw new NonRetriableError(`Could not retrieve credentials`);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
       }
 
-      const { baseUri, accountId } = await getRequestInfo(
-        credentials.access_token,
-        env.DOCUSIGN_ROOT_URL
-      );
+      const { apiBaseUri, accountId } = await getAuthUser(credentials.access_token);
 
       await deleteDocusignUsers({
         accessToken: credentials.access_token,
-        apiBaseUri: baseUri,
+        apiBaseUri,
         users: userIds.map((userId) => ({ userId })),
         accountId,
       });

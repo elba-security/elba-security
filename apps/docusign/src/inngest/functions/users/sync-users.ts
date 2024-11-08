@@ -2,15 +2,14 @@ import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
-import { getCredentials } from '@elba-security/nango';
 import { getUsers } from '@/connectors/docusign/users';
 import { db } from '@/database/client';
 import { inngest } from '@/inngest/client';
 import { type DocusignUser } from '@/connectors/docusign/users';
 import { organisationsTable } from '@/database/schema';
 import { createElbaClient } from '@/connectors/elba/client';
-import { env } from '@/common/env';
-import { getRequestInfo } from '@/connectors/docusign/request-info';
+import { nangoAPIClient } from '@/common/nango/api';
+import { getAuthUser } from '@/connectors/docusign/auth';
 
 const formatElbaUserDisplayName = (user: DocusignUser) => {
   if (user.firstName || user.lastName) {
@@ -64,7 +63,6 @@ export const syncUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        // connectionId: organisationsTable.connectionId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -79,27 +77,23 @@ export const syncUsers = inngest.createFunction(
       region: organisation.region,
     });
 
-    const { credentials } = await getCredentials(organisationId);
-
-    if (!credentials) {
-      throw new NonRetriableError(`Could not retrieve credentials`);
-    }
-
-    const { ownerId, baseUri, accountId } = await getRequestInfo(
-      credentials.access_token,
-      env.DOCUSIGN_ROOT_URL
-    );
-
     const nextPage = await step.run('list-users', async () => {
+      const { credentials } = await nangoAPIClient.getConnection(organisationId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
+      const { authUserId, apiBaseUri, accountId } = await getAuthUser(credentials.access_token);
+
       const result = await getUsers({
         accessToken: credentials.access_token,
         accountId,
-        apiBaseUri: baseUri,
+        apiBaseUri,
         page,
       });
 
       const users = result.validUsers.map((user) => {
-        return formatElbaUser({ user, isSuspendable: user.userId !== ownerId });
+        return formatElbaUser({ user, isSuspendable: user.userId !== authUserId });
       });
 
       if (result.invalidUsers.length > 0) {

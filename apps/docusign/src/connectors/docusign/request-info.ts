@@ -11,7 +11,7 @@ export const getRequestInfo = async (
   accessToken: string,
   rootUrl: string
 ): Promise<{ baseUri: string; accountId: string; ownerId: string }> => {
-  const response = await fetch(`https://${rootUrl}/oauth/userinfo`, {
+  const response = await fetch(`${rootUrl}/oauth/userinfo`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
