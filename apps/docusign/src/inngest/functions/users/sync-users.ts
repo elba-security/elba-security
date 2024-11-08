@@ -64,7 +64,7 @@ export const syncUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        connectionId: organisationsTable.connectionId,
+        // connectionId: organisationsTable.connectionId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -79,7 +79,7 @@ export const syncUsers = inngest.createFunction(
       region: organisation.region,
     });
 
-    const { credentials } = await getCredentials(organisation.connectionId);
+    const { credentials } = await getCredentials(organisationId);
 
     if (!credentials) {
       throw new NonRetriableError(`Could not retrieve credentials`);

@@ -1016,6 +1016,12 @@ importers:
       '@elba-security/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      '@nangohq/node':
+        specifier: ^0.42.22
+        version: 0.42.22
+      '@nangohq/types':
+        specifier: ^0.42.22
+        version: 0.42.22
       '@neondatabase/serverless':
         specifier: 'catalog:'
         version: 0.9.4
@@ -4738,6 +4744,13 @@ packages:
   '@nangohq/frontend@0.42.22':
     resolution: {integrity: sha512-ZxVhhGYUJDmxnuyfmRn7z7lBQPLoJTpkVx3alcqLe+wjxlfcXu1ka3iPAb5rZeU3f60stmtwKVGUQ1EpDtXfVQ==}
 
+  '@nangohq/node@0.42.22':
+    resolution: {integrity: sha512-zFiq6PdtYkaM3oOFLBpKiuu4Gmz2nl8PHSk2JxiRRjx5HBd4oFYf8w7HLY53pRtCHxgLMCJwBDjYF3hjlr8Paw==}
+    engines: {node: '>=18.0'}
+
+  '@nangohq/types@0.42.22':
+    resolution: {integrity: sha512-8VKO40UKP3pXv5WqhMTXFWZehVosxPgyWo8BAaz/HyGrBWbDmloWEl5igpqYwwwBu3xZ9YLjdfpF5seWFSBgiw==}
+
   '@neondatabase/serverless@0.9.4':
     resolution: {integrity: sha512-D0AXgJh6xkf+XTlsO7iwE2Q1w8981E1cLCPAALMU2YKtkF/1SF6BiAzYARZFYo175ON+b1RNIy9TdSFHm5nteg==}
 
@@ -5637,6 +5650,9 @@ packages:
 
   axios@1.6.5:
     resolution: {integrity: sha512-Ii012v05KEVuUoFWmMW/UQv9aRIc3ZwkWDcM+h5Il8izZCtRVpDUfwpoFf7eOtajT3QiGR4yDUx7lPqHJULgbg==}
+
+  axios@1.7.7:
+    resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
 
   axobject-query@3.2.1:
     resolution: {integrity: sha512-jsyHu61e6N4Vbz/v18DHwWYKK0bSWLqn47eeDSKPB7m8tqMHF9YJ+mhIk2lVteyZrY8tnSj/jHOv4YiTCuCJgg==}
@@ -9973,6 +9989,14 @@ snapshots:
 
   '@nangohq/frontend@0.42.22': {}
 
+  '@nangohq/node@0.42.22':
+    dependencies:
+      axios: 1.7.7
+    transitivePeerDependencies:
+      - debug
+
+  '@nangohq/types@0.42.22': {}
+
   '@neondatabase/serverless@0.9.4':
     dependencies:
       '@types/pg': 8.11.6
@@ -11115,6 +11139,14 @@ snapshots:
   axe-core@4.7.0: {}
 
   axios@1.6.5:
+    dependencies:
+      follow-redirects: 1.15.6
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
+  axios@1.7.7:
     dependencies:
       follow-redirects: 1.15.6
       form-data: 4.0.0
