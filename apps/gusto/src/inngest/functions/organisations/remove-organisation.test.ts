@@ -13,6 +13,7 @@ const organisation = {
   refreshToken: 'refresh-token',
   region: 'us',
   companyId: 'https://api.gusto.com/users/AAAAAAAAAAAAAAAA',
+  authUserEmail: 'test-auth-user-email',
 };
 
 const setup = createInngestFunctionMock(removeOrganisation, 'gusto/app.uninstalled');

@@ -26,6 +26,12 @@ export type DeleteUsersParams = {
   userId: string;
 };
 
+export type GetAuthUserParams = {
+  accessToken: string;
+  adminId: string;
+  companyId: string;
+};
+
 export const getUsers = async ({ accessToken, page, companyId }: GetUsersParams) => {
   const url = new URL(`${env.GUSTO_API_BASE_URL}/v1/companies/${companyId}/employees`);
 
@@ -88,14 +94,52 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
   }
 };
 
-const authUserIdResponseSchema = z.object({
+const tokenInfoResponseSchema = z.object({
   resource: z.object({
+    uuid: z.string(),
+  }),
+  resource_owner: z.object({
     uuid: z.string(),
   }),
 });
 
-export const getAuthUser = async (accessToken: string) => {
+export const getTokenInfo = async (accessToken: string) => {
   const url = new URL(`${env.GUSTO_API_BASE_URL}/v1/token_info`);
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new GustoError('Could not retrieve token info', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = tokenInfoResponseSchema.safeParse(resData);
+  if (!result.success) {
+    logger.error('Invalid Gusto token info response', { resData });
+    throw new GustoError('Invalid Gusto token info response');
+  }
+
+  return {
+    companyId: result.data.resource.uuid,
+    adminId: result.data.resource_owner.uuid,
+  };
+};
+
+const authUserEmailResponseSchema = z.array(
+  z.object({
+    uuid: z.string(),
+    email: z.string(),
+  })
+);
+export const getAuthUser = async ({ accessToken, adminId, companyId }: GetAuthUserParams) => {
+  const url = new URL(`${env.GUSTO_API_BASE_URL}/v1/companies/${companyId}/admins`);
 
   const response = await fetch(url.toString(), {
     method: 'GET',
@@ -111,13 +155,19 @@ export const getAuthUser = async (accessToken: string) => {
 
   const resData: unknown = await response.json();
 
-  const result = authUserIdResponseSchema.safeParse(resData);
+  const result = authUserEmailResponseSchema.safeParse(resData);
+
   if (!result.success) {
     logger.error('Invalid Gusto auth user response', { resData });
     throw new GustoError('Invalid Gusto auth user response');
   }
 
+  const authUserEmail = result.data.find((user) => user.uuid === adminId)?.email;
+  if (!authUserEmail) {
+    logger.error('Invalid Gusto auth user response', { resData });
+    throw new GustoError('Invalid Gusto auth user response');
+  }
   return {
-    companyId: String(result.data.resource.uuid),
+    authUserEmail,
   };
 };

@@ -9,12 +9,14 @@ import { deleteUser } from './delete-users';
 const userId = 'user-id';
 const accessToken = 'test-access-token';
 const refreshToken = 'test-refresh-token';
+const authUserEmail = 'test-auth-user-email';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt(accessToken),
   refreshToken: await encrypt(refreshToken),
   region: 'us',
   companyId: 'https://api.gusto.com/users/AAAAAAAAAAAAAAAA',
+  authUserEmail,
 };
 
 const setup = createInngestFunctionMock(deleteUser, 'gusto/users.delete.requested');

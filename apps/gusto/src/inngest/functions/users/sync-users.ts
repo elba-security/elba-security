@@ -17,12 +17,18 @@ const formatElbaUserDisplayName = (user: GustoUser) => {
   return user.email;
 };
 
-const formatElbaUser = (user: GustoUser): User => ({
+const formatElbaUser = ({
+  user,
+  authUserEmail,
+}: {
+  user: GustoUser;
+  authUserEmail: string;
+}): User => ({
   id: user.uuid,
   displayName: formatElbaUserDisplayName(user),
   email: user.email,
   additionalEmails: [],
-  isSuspendable: true,
+  isSuspendable: authUserEmail !== user.email,
   url: `https://app.gusto-demo.com/payroll_admin/people/employees/${user.uuid}`,
 });
 
@@ -56,6 +62,7 @@ export const syncUsers = inngest.createFunction(
       .select({
         token: organisationsTable.accessToken,
         companyId: organisationsTable.companyId,
+        authUserEmail: organisationsTable.authUserEmail,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -67,6 +74,7 @@ export const syncUsers = inngest.createFunction(
     const elba = createElbaClient({ organisationId, region: organisation.region });
     const token = await decrypt(organisation.token);
     const companyId = organisation.companyId;
+    const authUserEmail = organisation.authUserEmail;
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({
@@ -75,7 +83,9 @@ export const syncUsers = inngest.createFunction(
         companyId,
       });
 
-      const users = result.validUsers.filter(({ terminated }) => !terminated).map(formatElbaUser);
+      const users = result.validUsers
+        .filter(({ terminated }) => !terminated)
+        .map((user) => formatElbaUser({ user, authUserEmail }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

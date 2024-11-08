@@ -4,12 +4,14 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { GustoError } from '../common/error';
 import type { GustoUser } from './users';
-import { getUsers, deleteUser, getAuthUser } from './users';
+import { getUsers, deleteUser, getTokenInfo, getAuthUser } from './users';
 
 const validToken = 'token-1234';
 const endPage = 3;
 const nextPage = 2;
 const companyId = 'test-company-id';
+const adminId = 'test-admin-id';
+const authUserEmail = 'test-auth-user-email';
 const userId = 'test-user-id';
 
 const validUsers: GustoUser[] = Array.from({ length: 5 }, (_, i) => ({
@@ -103,7 +105,7 @@ describe('users connector', () => {
     });
   });
 
-  describe('getAuthUser', () => {
+  describe('getTokenInfo', () => {
     beforeEach(() => {
       server.use(
         http.get(`${env.GUSTO_API_BASE_URL}/v1/token_info`, ({ request }) => {
@@ -115,6 +117,9 @@ describe('users connector', () => {
             resource: {
               uuid: companyId,
             },
+            resource_owner: {
+              uuid: adminId,
+            },
           };
 
           return Response.json(returnData);
@@ -123,13 +128,49 @@ describe('users connector', () => {
     });
 
     test('should return auth user id when the token is valid', async () => {
-      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+      await expect(getTokenInfo(validToken)).resolves.toStrictEqual({
         companyId,
+        adminId,
       });
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(getAuthUser('foo-bar')).rejects.toBeInstanceOf(GustoError);
+      await expect(getTokenInfo('foo-bar')).rejects.toBeInstanceOf(GustoError);
+    });
+  });
+
+  describe('getAuthUser', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.GUSTO_API_BASE_URL}/v1/companies/${companyId}/admins`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          const returnData = [
+            {
+              uuid: adminId,
+              email: authUserEmail,
+            },
+          ];
+
+          return Response.json(returnData);
+        })
+      );
+    });
+
+    test('should return auth user id when the token is valid', async () => {
+      await expect(
+        getAuthUser({ accessToken: validToken, companyId, adminId })
+      ).resolves.toStrictEqual({
+        authUserEmail,
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(
+        getAuthUser({ accessToken: 'foo-bar', companyId, adminId })
+      ).rejects.toBeInstanceOf(GustoError);
     });
   });
 });

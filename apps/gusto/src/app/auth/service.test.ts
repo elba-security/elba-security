@@ -15,7 +15,9 @@ const refreshToken = 'some refresh token';
 const expiresIn = 60;
 const region = 'us';
 const now = new Date();
-const companyId = 'https://api.gusto.com/users/AAAAAAAAAAAAAAAA';
+const companyId = 'test-company-id';
+const adminId = 'test-admin-id';
+const authUserEmail = 'test-auth-user-email';
 
 const getTokenData = {
   accessToken,
@@ -23,8 +25,13 @@ const getTokenData = {
   expiresIn,
 };
 
+const getTokenInfoData = {
+  companyId,
+  adminId,
+};
+
 const getAuthUserData = {
-  companyId: String(companyId),
+  authUserEmail,
 };
 
 const organisation = {
@@ -33,6 +40,7 @@ const organisation = {
   refreshToken,
   region,
   companyId,
+  authUserEmail,
 };
 
 describe('setupOrganisation', () => {
@@ -48,6 +56,10 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getTokenInfo = vi
+      .spyOn(usersConnector, 'getTokenInfo')
+      .mockResolvedValue(getTokenInfoData);
+
     const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
 
     await expect(
@@ -61,8 +73,11 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
+    expect(getTokenInfo).toBeCalledTimes(1);
+    expect(getTokenInfo).toBeCalledWith(accessToken);
+
     expect(getAuthUser).toBeCalledTimes(1);
-    expect(getAuthUser).toBeCalledWith(accessToken);
+    expect(getAuthUser).toBeCalledWith({ accessToken, adminId, companyId });
 
     const [storedOrganisation] = await db
       .select()
@@ -107,6 +122,9 @@ describe('setupOrganisation', () => {
     await db.insert(organisationsTable).values(organisation);
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
+    const getTokenInfo = vi
+      .spyOn(usersConnector, 'getTokenInfo')
+      .mockResolvedValue(getTokenInfoData);
     const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
 
     await expect(
@@ -120,8 +138,10 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
+    expect(getTokenInfo).toBeCalledTimes(1);
+    expect(getTokenInfo).toBeCalledWith(accessToken);
     expect(getAuthUser).toBeCalledTimes(1);
-    expect(getAuthUser).toBeCalledWith(accessToken);
+    expect(getAuthUser).toBeCalledWith({ accessToken, adminId, companyId });
 
     const [storedOrganisation] = await db
       .select()

@@ -1,5 +1,5 @@
 {
-  "id": "602e305b-0467-4d0a-9e14-e8994167bcdb",
+  "id": "2eda5873-3df7-4722-ae4a-0e512b2ee94d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -41,6 +41,12 @@
         },
         "company_id": {
           "name": "company_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "auth_user_email": {
+          "name": "auth_user_email",
           "type": "text",
           "primaryKey": false,
           "notNull": true

@@ -2,7 +2,7 @@ import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/gusto/auth';
-import { getAuthUser } from '@/connectors/gusto/users';
+import { getTokenInfo, getAuthUser } from '@/connectors/gusto/users';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
@@ -18,7 +18,8 @@ export const setupOrganisation = async ({
   region,
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn } = await getToken(code);
-  const { companyId } = await getAuthUser(accessToken);
+  const { companyId, adminId } = await getTokenInfo(accessToken);
+  const { authUserEmail } = await getAuthUser({ accessToken, adminId, companyId });
 
   const encryptedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
@@ -31,6 +32,7 @@ export const setupOrganisation = async ({
       refreshToken: encodedRefreshToken,
       region,
       companyId,
+      authUserEmail,
     })
     .onConflictDoUpdate({
       target: organisationsTable.id,
@@ -39,6 +41,7 @@ export const setupOrganisation = async ({
         refreshToken: encodedRefreshToken,
         region,
         companyId,
+        authUserEmail,
       },
     });
 
