@@ -3622,8 +3622,8 @@ importers:
         specifier: ^8
         version: 8.53.0
       hono:
-        specifier: 4.3.2
-        version: 4.3.2
+        specifier: 4.5.8
+        version: 4.5.8
       tsx:
         specifier: ^3.12.2
         version: 3.14.0
@@ -9291,6 +9291,11 @@ packages:
   /hono@4.3.2:
     resolution: {integrity: sha512-wiZcF5N06tc232U11DnqW6hP8DNoypjsrxslKXfvOqOAkTdh7K1HLZJH/92Mf+urxUTGi96f1w4xx/1Qozoqiw==}
     engines: {node: '>=16.0.0'}
+
+  /hono@4.5.8:
+    resolution: {integrity: sha512-pqpSlcdqGkpTTRpLYU1PnCz52gVr0zVR9H5GzMyJWuKQLLEBQxh96q45QizJ2PPX8NATtz2mu31/PKW/Jt+90Q==}
+    engines: {node: '>=16.0.0'}
+    dev: true
 
   /hosted-git-info@2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
