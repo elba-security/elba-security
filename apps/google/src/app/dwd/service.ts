@@ -1,4 +1,5 @@
 import { getGoogleServiceAccountClient } from '@/connectors/google/clients';
+import { checkGoogleDriveAdminAccess } from '@/connectors/google/drives';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -21,6 +22,8 @@ export const isInstallationCompleted = async ({
   } catch {
     return false;
   }
+
+  await checkGoogleDriveAdminAccess({ auth: authClient });
 
   await db
     .insert(organisationsTable)

@@ -4,6 +4,7 @@ import { db } from '@/database/client';
 import { organisationsTable, usersTable } from '@/database/schema';
 import * as googleUsers from '@/connectors/google/users';
 import { spyOnGoogleServiceAccountClient } from '@/connectors/google/__mocks__/clients';
+import { GoogleUserNotAdminError } from '@/connectors/google/errors';
 import { getOrganisation } from '../common/get-organisation';
 import { syncUsers } from './sync';
 
@@ -24,6 +25,7 @@ describe('sync-users', () => {
     const elba = spyOnElba();
     const serviceAccountClientSpy = spyOnGoogleServiceAccountClient();
 
+    vi.spyOn(googleUsers, 'checkUserIsAdmin').mockResolvedValue();
     vi.spyOn(googleUsers, 'listGoogleUsers').mockResolvedValue({
       users: [
         {
@@ -99,6 +101,12 @@ describe('sync-users', () => {
     expect(serviceAccountClientSpy).toBeCalledWith('admin@org.local', true);
 
     const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+
+    expect(googleUsers.checkUserIsAdmin).toHaveBeenCalledTimes(1);
+    expect(googleUsers.checkUserIsAdmin).toHaveBeenCalledWith({
+      auth: authClient,
+      userId: 'admin@org.local',
+    });
 
     expect(googleUsers.listGoogleUsers).toBeCalledTimes(1);
     expect(googleUsers.listGoogleUsers).toBeCalledWith({
@@ -182,6 +190,7 @@ describe('sync-users', () => {
     const elba = spyOnElba();
     const serviceAccountClientSpy = spyOnGoogleServiceAccountClient();
 
+    vi.spyOn(googleUsers, 'checkUserIsAdmin').mockResolvedValue();
     vi.spyOn(googleUsers, 'listGoogleUsers').mockResolvedValue({
       users: [
         {
@@ -258,6 +267,12 @@ describe('sync-users', () => {
 
     const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
 
+    expect(googleUsers.checkUserIsAdmin).toHaveBeenCalledTimes(1);
+    expect(googleUsers.checkUserIsAdmin).toHaveBeenCalledWith({
+      auth: authClient,
+      userId: 'admin@org.local',
+    });
+
     expect(googleUsers.listGoogleUsers).toBeCalledTimes(1);
     expect(googleUsers.listGoogleUsers).toBeCalledWith({
       auth: authClient,
@@ -318,5 +333,115 @@ describe('sync-users', () => {
 
     expect(elbaInstance?.users.delete).toBeCalledTimes(1);
     expect(elbaInstance?.users.delete).toBeCalledWith({ syncedBefore: '2024-01-02T00:00:00Z' });
+  });
+
+  test('should not sync users when user is not admin', async () => {
+    const elba = spyOnElba();
+    const serviceAccountClientSpy = spyOnGoogleServiceAccountClient();
+
+    const userNotAdminError = new GoogleUserNotAdminError('User is not admin');
+    vi.spyOn(googleUsers, 'checkUserIsAdmin').mockRejectedValue(userNotAdminError);
+    vi.spyOn(googleUsers, 'listGoogleUsers').mockResolvedValue({
+      users: [
+        {
+          id: 'user-id-2',
+          name: { fullName: 'John Doe' },
+          primaryEmail: 'user2@org.local',
+          emails: [{ address: 'john.doe@org.local' }],
+        },
+        {
+          id: 'user-id-1',
+          name: { fullName: 'Admin' },
+          primaryEmail: 'admin@org.local',
+          isEnrolledIn2Sv: true,
+        },
+      ],
+      nextPageToken: null,
+    });
+
+    await db.insert(organisationsTable).values({
+      googleAdminEmail: 'admin@org.local',
+      googleCustomerId: 'google-customer-id',
+      id: '00000000-0000-0000-0000-000000000000',
+      region: 'eu',
+    });
+
+    await db.insert(usersTable).values([
+      {
+        id: 'user-id-1',
+        email: 'admin-old@org.local',
+        organisationId: '00000000-0000-0000-0000-000000000000',
+        lastSyncedAt: '2024-01-01T00:00:00Z',
+      },
+      {
+        id: 'deleted-user-id',
+        email: 'deleted-user@org.local',
+        organisationId: '00000000-0000-0000-0000-000000000000',
+        lastSyncedAt: '2024-01-01T00:00:00Z',
+      },
+    ]);
+
+    const [result, { step }] = setup({
+      organisationId: '00000000-0000-0000-0000-000000000000',
+      isFirstSync: true,
+      pageToken: null,
+      syncStartedAt: '2024-01-02T00:00:00Z',
+    });
+
+    await expect(result).rejects.toThrowError(userNotAdminError);
+
+    expect(step.invoke).toBeCalledTimes(1);
+    expect(step.invoke).toBeCalledWith('get-organisation', {
+      function: getOrganisation,
+      data: {
+        organisationId: '00000000-0000-0000-0000-000000000000',
+        columns: ['region', 'googleAdminEmail', 'googleCustomerId'],
+      },
+    });
+
+    expect(elba).toBeCalledTimes(0);
+
+    expect(step.run).toBeCalledTimes(1);
+    expect(step.run).toBeCalledWith('list-users', expect.any(Function));
+
+    expect(serviceAccountClientSpy).toBeCalledTimes(1);
+    expect(serviceAccountClientSpy).toBeCalledWith('admin@org.local', true);
+
+    const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+
+    expect(googleUsers.checkUserIsAdmin).toHaveBeenCalledTimes(1);
+    expect(googleUsers.checkUserIsAdmin).toHaveBeenCalledWith({
+      auth: authClient,
+      userId: 'admin@org.local',
+    });
+
+    expect(googleUsers.listGoogleUsers).toBeCalledTimes(0);
+
+    expect(step.run).not.toBeCalledWith('insert-users', expect.any(Function));
+    expect(step.run).not.toBeCalledWith('update-elba-users', expect.any(Function));
+
+    expect(step.sendEvent).not.toBeCalled();
+
+    expect(step.run).not.toBeCalledWith('delete-users', expect.any(Function));
+
+    const usersInserted = await db.query.usersTable.findMany();
+    expect(usersInserted).toStrictEqual([
+      {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
+        createdAt: expect.any(Date),
+        email: 'admin-old@org.local',
+        id: 'user-id-1',
+        lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
+        organisationId: '00000000-0000-0000-0000-000000000000',
+      },
+      {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
+        createdAt: expect.any(Date),
+        email: 'deleted-user@org.local',
+        id: 'deleted-user-id',
+        lastSyncedAt: new Date('2024-01-01T00:00:00.000Z'),
+        organisationId: '00000000-0000-0000-0000-000000000000',
+      },
+    ]);
   });
 });
