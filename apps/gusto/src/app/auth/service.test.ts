@@ -23,7 +23,7 @@ const getTokenData = {
   expiresIn,
 };
 
-const getAuthUserData = {
+const getTokenInfoData = {
   companyId: String(companyId),
 };
 
@@ -48,7 +48,9 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
-    const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
+    const getTokenInfo = vi
+      .spyOn(usersConnector, 'getTokenInfo')
+      .mockResolvedValue(getTokenInfoData);
 
     await expect(
       setupOrganisation({
@@ -61,8 +63,8 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
-    expect(getAuthUser).toBeCalledTimes(1);
-    expect(getAuthUser).toBeCalledWith(accessToken);
+    expect(getTokenInfo).toBeCalledTimes(1);
+    expect(getTokenInfo).toBeCalledWith(accessToken);
 
     const [storedOrganisation] = await db
       .select()
@@ -107,7 +109,9 @@ describe('setupOrganisation', () => {
     await db.insert(organisationsTable).values(organisation);
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
-    const getAuthUser = vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
+    const getTokenInfo = vi
+      .spyOn(usersConnector, 'getTokenInfo')
+      .mockResolvedValue(getTokenInfoData);
 
     await expect(
       setupOrganisation({
@@ -120,8 +124,8 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
-    expect(getAuthUser).toBeCalledTimes(1);
-    expect(getAuthUser).toBeCalledWith(accessToken);
+    expect(getTokenInfo).toBeCalledTimes(1);
+    expect(getTokenInfo).toBeCalledWith(accessToken);
 
     const [storedOrganisation] = await db
       .select()

@@ -4,7 +4,7 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { GustoError } from '../common/error';
 import type { GustoUser } from './users';
-import { getUsers, deleteUser, getAuthUser } from './users';
+import { getUsers, deleteUser, getTokenInfo, getAuthUser } from './users';
 
 const validToken = 'token-1234';
 const endPage = 3;
@@ -103,6 +103,36 @@ describe('users connector', () => {
     });
   });
 
+  describe('getTokenInfo', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.GUSTO_API_BASE_URL}/v1/token_info`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          const returnData = {
+            resource: {
+              uuid: companyId,
+            },
+          };
+
+          return Response.json(returnData);
+        })
+      );
+    });
+
+    test('should return auth user id when the token is valid', async () => {
+      await expect(getTokenInfo(validToken)).resolves.toStrictEqual({
+        companyId,
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getTokenInfo('foo-bar')).rejects.toBeInstanceOf(GustoError);
+    });
+  });
+
   describe('getAuthUser', () => {
     beforeEach(() => {
       server.use(
@@ -123,7 +153,7 @@ describe('users connector', () => {
     });
 
     test('should return auth user id when the token is valid', async () => {
-      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+      await expect(getAuthUser({accessToken: validToken, companyId, adminId})).resolves.toStrictEqual({
         companyId,
       });
     });
