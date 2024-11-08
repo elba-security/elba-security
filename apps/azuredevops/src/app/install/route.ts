@@ -31,10 +31,7 @@ export function GET(request: NextRequest) {
   redirectUrl.searchParams.append('client_id', env.AZUREDEVOPS_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.AZUREDEVOPS_REDIRECT_URI);
   redirectUrl.searchParams.append('state', state);
-  redirectUrl.searchParams.append(
-    'scope',
-    'vso.profile vso.graph_manage vso.memberentitlementmanagement_write'
-  );
+  redirectUrl.searchParams.append('scope', 'vso.profile vso.memberentitlementmanagement_write');
   cookies().set('redirect_url', redirectUrl.toString());
 
   redirect(redirectUrl.toString());
