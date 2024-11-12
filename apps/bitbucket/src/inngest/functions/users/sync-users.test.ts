@@ -22,14 +22,17 @@ const organisation = {
   accessToken: encryptedTokens.accessToken,
   refreshToken: encryptedTokens.refreshToken,
   workspaceId: '00000000-0000-0000-0000-000000000010',
+  authUserId: 'auth-user-id',
   region: 'us',
 };
+
 const syncStartedAt = Date.now();
 
 const users: usersConnector.BitbucketUser[] = Array.from({ length: 5 }, (_, i) => ({
   user: {
     uuid: `user-id-${i}`,
     display_name: `user ${i}`,
+    type: 'user',
   },
   workspace: {
     slug: `test-workspace-name-${i}`,

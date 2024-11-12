@@ -25,6 +25,7 @@ const organisation = {
   refreshToken: encryptedTokens.refreshToken,
   region: 'us',
   workspaceId: 'some-workspace-id',
+  authUserId: 'auth-user-id',
 };
 
 const now = new Date();

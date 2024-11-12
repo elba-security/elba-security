@@ -8,8 +8,10 @@ import { unauthorizedMiddleware } from './unauthorized-middleware';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  accessToken: 'access-token',
-  teamId: 'team-id',
+  accessToken: 'encrypted-access-token',
+  refreshToken: 'encrypted-refresh-token',
+  workspaceId: '00000000-0000-0000-0000-000000000010',
+  authUserId: 'auth-user-id',
   region: 'us',
 };
 

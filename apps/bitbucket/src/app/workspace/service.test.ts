@@ -5,6 +5,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
+import * as userConnector from '@/connectors/bitbucket/users';
 import { setupOrganisation } from './service';
 
 type PartialMockCookies = Pick<ReadonlyRequestCookies, 'get'>;
@@ -14,6 +15,7 @@ const now = new Date();
 const accessToken = 'access-token';
 const refreshToken = 'refresh-token';
 const workspaceId = 'workspace-id';
+const authUserId = 'auth-user-id';
 const expiresIn = 60;
 
 const organisation = {
@@ -21,6 +23,7 @@ const organisation = {
   accessToken: await encrypt(accessToken),
   refreshToken: await encrypt(refreshToken),
   workspaceId,
+  authUserId,
   region: 'us',
 };
 
@@ -54,7 +57,14 @@ describe('setupOrganisation', () => {
     const mockCookies: PartialMockCookies = {
       get: vi.fn().mockReturnValue({ value: mockCookieValue }),
     };
+
     vi.mocked(cookies).mockReturnValue(mockCookies as ReadonlyRequestCookies);
+
+    vi.spyOn(userConnector, 'getAuthUser').mockResolvedValue({
+      uuid: authUserId,
+      display_name: 'auth-user',
+      type: 'user',
+    });
 
     await db.insert(organisationsTable).values(organisation);
 

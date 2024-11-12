@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { inngest } from '@/inngest/client';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
+import { getAuthUser } from '@/connectors/bitbucket/users';
 import { encrypt } from '../../common/crypto';
 
 type SetupOrganisationParams = {
@@ -35,6 +36,8 @@ export const setupOrganisation = async ({ workspaceId }: SetupOrganisationParams
 
   const { organisationId, accessToken, refreshToken, expiresAt, region } = result.data;
 
+  const { uuid: authUserId } = await getAuthUser(accessToken);
+
   const encodedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
 
@@ -44,6 +47,7 @@ export const setupOrganisation = async ({ workspaceId }: SetupOrganisationParams
       id: organisationId,
       accessToken: encodedAccessToken,
       refreshToken: encodedRefreshToken,
+      authUserId,
       workspaceId,
       region,
     })
@@ -53,6 +57,7 @@ export const setupOrganisation = async ({ workspaceId }: SetupOrganisationParams
         id: organisationId,
         accessToken: encodedAccessToken,
         refreshToken: encodedRefreshToken,
+        authUserId,
         workspaceId,
         region,
       },

@@ -7,12 +7,14 @@ const getUsersResponseSchema = z.object({
   next: z.string().optional(),
 });
 
+const userSchema = z.object({
+  uuid: z.string(),
+  display_name: z.string(),
+  type: z.string(), // user
+});
+
 export const bitbucketUserSchema = z.object({
-  user: z.object({
-    display_name: z.string(),
-    uuid: z.string(),
-    type: z.literal('user'), // user
-  }),
+  user: userSchema,
   workspace: z.object({
     slug: z.string(),
   }),
@@ -28,6 +30,7 @@ type GetUsersParams = {
 
 export const getUsers = async ({ accessToken, workspaceId, page }: GetUsersParams) => {
   const url = new URL(`${env.BITBUCKET_API_BASE_URL}/workspaces/${workspaceId}/members`);
+  url.searchParams.append('fields', '+values.user.email');
   url.searchParams.append('pagelen', `${env.BITBUCKET_USERS_SYNC_BATCH_SIZE}`);
 
   const response = await fetch(page ?? url.toString(), {
@@ -50,7 +53,7 @@ export const getUsers = async ({ accessToken, workspaceId, page }: GetUsersParam
 
   for (const user of result.values) {
     const userResult = bitbucketUserSchema.safeParse(user);
-    if (userResult.success) {
+    if (userResult.success && userResult.data.user.type === 'user') {
       validUsers.push(userResult.data);
     } else {
       invalidUsers.push(user);
@@ -62,4 +65,32 @@ export const getUsers = async ({ accessToken, workspaceId, page }: GetUsersParam
     invalidUsers,
     nextPage: result.next ?? null,
   };
+};
+
+export const getAuthUser = async (accessToken: string) => {
+  const response = await fetch(`${env.BITBUCKET_API_BASE_URL}/user`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new BitbucketError('Could not retrieve user', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const userResult = userSchema.safeParse(resData);
+
+  if (!userResult.success) {
+    throw new BitbucketError('Invalid auth user data', { response });
+  }
+
+  if (userResult.data.type !== 'user') {
+    throw new BitbucketError('Invalid auth user type', { response });
+  }
+
+  return userResult.data;
 };

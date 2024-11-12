@@ -1,5 +1,5 @@
 {
-  "id": "945dd8f4-6e56-4e69-8919-d35dd48fb4bf",
+  "id": "1af2cf43-c93c-4eed-b80b-93656f51ba39",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -16,6 +16,12 @@
         },
         "access_token": {
           "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true

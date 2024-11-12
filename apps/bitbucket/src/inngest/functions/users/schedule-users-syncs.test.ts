@@ -17,6 +17,7 @@ export const organisations = [
     refreshToken: await encrypt(newTokens.refreshToken),
     region: 'us',
     workspaceId: 'some-workspace-id',
+    authUserId: 'auth-user-id',
   },
 ];
 

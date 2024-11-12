@@ -8,10 +8,17 @@ import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUser = (user: BitbucketUser): User => ({
+const formatElbaUser = ({
+  user,
+  authUserId,
+}: {
+  user: BitbucketUser;
+  authUserId: string;
+}): User => ({
   id: user.user.uuid,
   displayName: user.user.display_name,
   additionalEmails: [],
+  isSuspendable: authUserId !== user.user.uuid,
   url: `https://bitbucket.org/${user.workspace.slug}/workspace/settings/user-directory`,
 });
 
@@ -45,6 +52,7 @@ export const syncUsers = inngest.createFunction(
       .select({
         accessToken: organisationsTable.accessToken,
         workspaceId: organisationsTable.workspaceId,
+        authUserId: organisationsTable.authUserId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -65,7 +73,9 @@ export const syncUsers = inngest.createFunction(
         page,
       });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers.map((user) =>
+        formatElbaUser({ user, authUserId: organisation.authUserId })
+      );
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
