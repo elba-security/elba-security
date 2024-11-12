@@ -1,28 +1,20 @@
-/**
- * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `setupOrganisation` function.
- * These tests illustrate potential scenarios and methodologies relevant for SaaS integration.
- * Developers should create tests tailored to their specific implementation and requirements.
- * Mock data and assertions here are simplified and may not cover all real-world complexities.
- * Expanding upon these tests to fit the actual logic and behaviors of specific integrations is crucial.
- */
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
-import * as authConnector from '@/connectors/auth';
+import * as authConnector from '@/connectors/pipedrive/auth';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
+import { PipedriveError } from '@/connectors/common/error';
+import { decrypt } from '@/common/crypto';
 import { setupOrganisation } from './service';
-import { decrypt, encrypt } from '@/common/crypto';
 
 const code = 'some-code';
 const accessToken = 'some token';
 const refreshToken = 'some refresh token';
-const apiDomain = 'some api base uri';
 const expiresIn = 60;
+const apiDomain = 'test-api-domain';
 const region = 'us';
 const now = new Date();
-
 const getTokenData = {
   accessToken,
   refreshToken,
@@ -31,11 +23,11 @@ const getTokenData = {
 };
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
   accessToken,
   refreshToken,
-  apiDomain,
   region,
+  apiDomain,
 };
 
 describe('setupOrganisation', () => {
@@ -48,12 +40,10 @@ describe('setupOrganisation', () => {
   });
 
   test('should setup organisation when the code is valid and the organisation is not registered', async () => {
-    // mock inngest client, only inngest.send should be used
+    // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mock the getToken function to return a predefined token
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
 
-    // assert the function resolves without returning a value
     await expect(
       setupOrganisation({
         organisationId: organisation.id,
@@ -62,21 +52,19 @@ describe('setupOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    // check if getToken was called correctly
     expect(getToken).toBeCalledTimes(1);
     expect(getToken).toBeCalledWith(code);
 
-    // verify the organisation token is set in the database
-    await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
-    ).resolves.toMatchObject([
-      {
-        accessToken,
-        region,
-      },
-    ]);
+    const [storedOrganisation] = await db
+      .select()
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
+    if (!storedOrganisation) {
+      throw new PipedriveError(`Organisation with ID ${organisation.id} not found.`);
+    }
+    expect(storedOrganisation.region).toBe(region);
+    await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
 
-    // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
@@ -89,14 +77,13 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'pipedrive/pipedrive.elba_app.installed',
+        name: 'pipedrive/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
       {
-        name: 'pipedrive/pipedrive.token.refresh.requested',
+        name: 'pipedrive/token.refresh.requested',
         data: {
           organisationId: organisation.id,
           expiresAt: now.getTime() + 60 * 1000,
@@ -107,9 +94,10 @@ describe('setupOrganisation', () => {
 
   test('should setup organisation when the code is valid and the organisation is already registered', async () => {
     // mock inngest client, only inngest.send should be used
+    // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // pre-insert an organisation to simulate an existing entry
-    await db.insert(Organisation).values(organisation);
+    await db.insert(organisationsTable).values(organisation);
 
     // mock getToken as above
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
@@ -128,11 +116,14 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith(code);
 
     // check if the token in the database is updated
-    const [updatedOrganisation] = await db
-      .select({ accessToken: Organisation.accessToken })
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
-    await expect(decrypt(updatedOrganisation?.accessToken ?? '')).resolves.toBe(accessToken);
+    const [storedOrganisation] = await db
+      .select()
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
+    if (!storedOrganisation) {
+      throw new PipedriveError(`Organisation with ID ${organisation.id} not found.`);
+    }
+    await expect(decrypt(storedOrganisation.accessToken)).resolves.toEqual(accessToken);
 
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
@@ -147,14 +138,13 @@ describe('setupOrganisation', () => {
         },
       },
       {
-        name: 'pipedrive/pipedrive.elba_app.installed',
+        name: 'pipedrive/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
       {
-        name: 'pipedrive/pipedrive.token.refresh.requested',
+        name: 'pipedrive/token.refresh.requested',
         data: {
           organisationId: organisation.id,
           expiresAt: now.getTime() + 60 * 1000,
@@ -165,6 +155,7 @@ describe('setupOrganisation', () => {
 
   test('should not setup the organisation when the code is invalid', async () => {
     // mock inngest client
+    // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const error = new Error('invalid code');
     // mock getToken to reject with a dumb error for an invalid code
@@ -185,7 +176,7 @@ describe('setupOrganisation', () => {
 
     // ensure no organisation is added or updated in the database
     await expect(
-      db.select().from(Organisation).where(eq(Organisation.id, organisation.id))
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toHaveLength(0);
 
     // ensure no sync users event is sent

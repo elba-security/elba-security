@@ -1,7 +1,7 @@
 import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { getToken } from '@/connectors/auth';
+import { organisationsTable } from '@/database/schema';
+import { getToken } from '@/connectors/pipedrive/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 
@@ -16,23 +16,29 @@ export const setupOrganisation = async ({
   code,
   region,
 }: SetupOrganisationParams) => {
-  
-  // retrieve token from SaaS API using the given code
   const { accessToken, refreshToken, expiresIn, apiDomain } = await getToken(code);
-  const encodedAccessToken = await encrypt(accessToken);
+
+  const encryptedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
 
-  console.log("accessToken:", accessToken)
-  console.log("encodedAccessToken:", encodedAccessToken)
-  await db.insert(Organisation).values({ id: organisationId, accessToken, region, refreshToken, apiDomain }).onConflictDoUpdate({
-    target: Organisation.id,
-    set: {
-      accessToken: encodedAccessToken,
+  await db
+    .insert(organisationsTable)
+    .values({
+      id: organisationId,
+      accessToken: encryptedAccessToken,
       refreshToken: encodedRefreshToken,
       apiDomain,
-      region
-    },
-  });
+      region,
+    })
+    .onConflictDoUpdate({
+      target: organisationsTable.id,
+      set: {
+        accessToken: encryptedAccessToken,
+        refreshToken: encodedRefreshToken,
+        apiDomain,
+        region,
+      },
+    });
 
   await inngest.send([
     {
@@ -44,16 +50,14 @@ export const setupOrganisation = async ({
         page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
-      name: 'pipedrive/pipedrive.elba_app.installed',
+      name: 'pipedrive/app.installed',
       data: {
         organisationId,
-        region,
       },
     },
     {
-      name: 'pipedrive/pipedrive.token.refresh.requested',
+      name: 'pipedrive/token.refresh.requested',
       data: {
         organisationId,
         expiresAt: addSeconds(new Date(), expiresIn).getTime(),

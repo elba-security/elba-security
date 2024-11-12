@@ -1,14 +1,14 @@
 import { z } from 'zod';
-import { env } from '@/env';
-import { PipedriveError } from './commons/error';
+import { env } from '@/common/env';
+import { PipedriveError } from '../common/error';
 
 const pipedriveUserSchema = z.object({
   id: z.number(), // ID is a number in the JSON response.
   name: z.string(),
   email: z.string().optional(), // Email is already optional, which is correct.
   active_flag: z.boolean(),
+  is_you: z.boolean(),
   is_admin: z.number(),
-  phone: z.string().nullable().optional(), // Phone can be null, and is also optional.
 });
 
 export type PipedriveUser = z.infer<typeof pipedriveUserSchema>;
@@ -18,8 +18,6 @@ const pipedriveResponseSchema = z.object({
   additional_data: z.object({
     pagination: z
       .object({
-        start: z.number(),
-        limit: z.number(),
         more_items_in_collection: z.boolean(),
         next_start: z.number(),
       })
@@ -28,27 +26,33 @@ const pipedriveResponseSchema = z.object({
 });
 
 export type GetUsersParams = {
-  token: string;
-  start?: string | null;
+  accessToken: string;
+  page?: string | null;
   apiDomain: string;
 };
 
-const limit = env.USERS_SYNC_BATCH_SIZE;
+export type DeleteUsersParams = {
+  accessToken: string;
+  userId: string;
+  apiDomain: string;
+};
 
-export const getUsers = async ({ token, start, apiDomain }: GetUsersParams) => {
+export const getUsers = async ({ accessToken, page, apiDomain }: GetUsersParams) => {
   const url = new URL(`${apiDomain}/v1/users`);
-  url.searchParams.append('limit', String(limit));
-  if (start) {
-    url.searchParams.append('start', String(start));
+  url.searchParams.append('limit', String(env.PIPEDRIVE_USERS_SYNC_BATCH_SIZE));
+
+  if (page) {
+    url.searchParams.append('start', String(page));
   }
 
   const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
+
   if (!response.ok) {
     throw new PipedriveError('Could not retrieve users', { response });
   }
@@ -59,12 +63,12 @@ export const getUsers = async ({ token, start, apiDomain }: GetUsersParams) => {
   const validUsers: PipedriveUser[] = [];
   const invalidUsers: unknown[] = [];
 
-  for (const node of data) {
-    const result = pipedriveUserSchema.safeParse(node);
-    if (result.success) {
-      validUsers.push(result.data);
+  for (const user of data) {
+    const userResult = pipedriveUserSchema.safeParse(user);
+    if (userResult.success) {
+      validUsers.push(userResult.data);
     } else {
-      invalidUsers.push(node);
+      invalidUsers.push(user);
     }
   }
 
@@ -75,4 +79,21 @@ export const getUsers = async ({ token, start, apiDomain }: GetUsersParams) => {
       ? addtionalData.pagination.next_start
       : null,
   };
+};
+
+export const deleteUser = async ({ userId, accessToken, apiDomain }: DeleteUsersParams) => {
+  const response = await fetch(`${apiDomain}/v1/users/${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      active_flag: false,
+    }),
+  });
+
+  if (!response.ok && response.status !== 404) {
+    throw new PipedriveError(`Could not delete user with Id: ${userId}`, { response });
+  }
 };
