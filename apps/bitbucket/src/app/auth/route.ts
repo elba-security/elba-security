@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const response = await getWorkspacesAndStoreToken({
+    const { workspaces } = await getWorkspacesAndStoreToken({
       organisationId,
       code,
       region,
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.redirect(
       new URL(
-        `/workspace?workspaces=${encodeURIComponent(JSON.stringify(response.workspaces))}`,
+        `/workspace?workspaces=${encodeURIComponent(JSON.stringify(workspaces))}`,
         request.nextUrl.origin
       )
     );

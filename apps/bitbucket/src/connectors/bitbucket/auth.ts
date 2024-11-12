@@ -32,8 +32,8 @@ export const getAccessToken = async (code: string) => {
   const result = tokenResponseSchema.safeParse(data);
 
   if (!result.success) {
-    logger.error('Invalid Linear token response', { data });
-    throw new BitbucketError('Invalid Linear token response');
+    logger.error('Invalid Bitbucket token response', { data });
+    throw new BitbucketError('Invalid Bitbucket token response');
   }
 
   return {
@@ -65,8 +65,8 @@ export const getRefreshToken = async (refreshToken: string) => {
   const result = tokenResponseSchema.safeParse(data);
 
   if (!result.success) {
-    logger.error('Invalid Linear token response', { data });
-    throw new BitbucketError('Invalid Linear token response');
+    logger.error('Invalid Bitbucket token response', { data });
+    throw new BitbucketError('Invalid Bitbucket token response');
   }
 
   return {
