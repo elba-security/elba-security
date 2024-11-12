@@ -71,3 +71,18 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
     nextPage: nextPage ? String(nextPage) : null,
   };
 };
+
+export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => {
+  const response = await fetch(`${env.SALESLOFT_API_BASE_URL}/v2/users/${userId}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ active: false }),
+  });
+
+  if (!response.ok && response.status !== 404) {
+    throw new SalesloftError(`Could not delete user with Id: ${userId}`, { response });
+  }
+};
