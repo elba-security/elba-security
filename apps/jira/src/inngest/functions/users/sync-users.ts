@@ -9,12 +9,21 @@ import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUser = (user: JiraUser): User => ({
+const formatElbaUser = ({
+  user,
+  domain,
+  authUserId,
+}: {
+  user: JiraUser;
+  domain: string;
+  authUserId: string;
+}): User => ({
   id: user.accountId,
   displayName: user.displayName,
   email: user.emailAddress,
   additionalEmails: [],
-  isSuspendable: true,
+  isSuspendable: String(user.accountId) !== authUserId,
+  url: `https://${domain}.atlassian.net/jira/people/${user.accountId}`,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -49,6 +58,7 @@ export const syncUsers = inngest.createFunction(
         domain: organisationsTable.domain,
         email: organisationsTable.email,
         region: organisationsTable.region,
+        authUserId: organisationsTable.authUserId,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -65,11 +75,12 @@ export const syncUsers = inngest.createFunction(
     const decryptedToken = await decrypt(organisation.apiToken);
     const domain = organisation.domain;
     const email = organisation.email;
+    const authUserId = organisation.authUserId;
 
     const nextPage = await step.run('list-users', async () => {
       const result = await getUsers({ apiToken: decryptedToken, domain, email, page });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers.map((user) => formatElbaUser({ user, domain, authUserId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

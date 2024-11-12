@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { AsanaError } from '../common/error';
 
@@ -31,6 +32,12 @@ export type DeleteUsersParams = {
   userId: string;
   workspaceId: string;
 };
+
+const authUserIdResponseSchema = z.object({
+  data: z.object({
+    gid: z.string(),
+  }),
+});
 
 export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   const url = new URL(`${env.ASANA_API_BASE_URL}/users`);
@@ -100,4 +107,32 @@ export const deleteUser = async ({ userId, workspaceId, accessToken }: DeleteUse
   if (!response.ok) {
     throw new AsanaError('Could not delete user', { response });
   }
+};
+
+export const getAuthUser = async ({ accessToken }: { accessToken: string }) => {
+  const url = new URL(`${env.ASANA_API_BASE_URL}/users/me`);
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new AsanaError('Could not retrieve auth-user id', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = authUserIdResponseSchema.safeParse(resData);
+  if (!result.success) {
+    logger.error('Invalid Asana auth-user id response', { resData });
+    throw new AsanaError('Invalid Asana auth-user id response');
+  }
+
+  return {
+    authUserId: result.data.data.gid,
+  };
 };

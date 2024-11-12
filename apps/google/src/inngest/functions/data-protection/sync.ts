@@ -1,5 +1,7 @@
 import { inngest } from '@/inngest/client';
 import { getElbaClient } from '@/connectors/elba/client';
+import { getGoogleServiceAccountClient } from '@/connectors/google/clients';
+import { checkGoogleDriveAdminAccess } from '@/connectors/google/drives';
 import { getOrganisation } from '../common/get-organisation';
 
 export type SyncDataProtectionEvents = {
@@ -43,6 +45,11 @@ export const syncDataProtection = inngest.createFunction(
     const { region, googleAdminEmail, googleCustomerId } = await step.invoke('get-organisation', {
       function: getOrganisation,
       data: { organisationId, columns: ['region', 'googleAdminEmail', 'googleCustomerId'] },
+    });
+
+    await step.run('check-drive-access', async () => {
+      const client = await getGoogleServiceAccountClient(googleAdminEmail, true);
+      await checkGoogleDriveAdminAccess({ auth: client });
     });
 
     const driveTypes = ['personal', 'shared'] as const;

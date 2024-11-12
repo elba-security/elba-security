@@ -12,7 +12,14 @@ export const DATADOG_REGIONS_DOMAINS: Record<DatadogRegion, string> = {
   US5: 'us5.datadoghq.com',
   'US1-FED': 'ddog-gov.com',
 };
-
+export const DATADOG_REGIONS_URLS: Record<DatadogRegion, string> = {
+  AP1: 'ap1.datadoghq.com',
+  EU1: 'app.datadoghq.eu',
+  US1: 'app.datadoghq.com',
+  US3: 'us3.datadoghq.com',
+  US5: 'us5.datadoghq.com',
+  'US1-FED': 'ddog-gov.com',
+};
 export const DATADOG_REGIONS_NAMES: Record<DatadogRegion, string> = {
   AP1: 'Japan',
   EU1: 'Europe - Germany',
@@ -29,4 +36,13 @@ export const getDatadogRegionAPIBaseURL = (region: string) => {
   }
 
   return `https://api.${regionDomain}`;
+};
+
+export const getDatadogRegionURL = (region: string) => {
+  const regionDomain = DATADOG_REGIONS_URLS[region as DatadogRegion];
+  if (!regionDomain) {
+    throw new Error('Invalid Datadog URL');
+  }
+
+  return `https://${regionDomain}`;
 };

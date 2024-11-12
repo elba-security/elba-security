@@ -4,7 +4,6 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import * as userConnector from '@/connectors/segment/users';
-import type { SegmentUser } from '@/connectors/segment/users';
 import { SegmentError } from '@/connectors/common/error';
 import { decrypt } from '@/common/crypto';
 import { registerOrganisation } from './service';
@@ -12,24 +11,19 @@ import { registerOrganisation } from './service';
 const token = 'test-api-key';
 const region = 'us';
 const now = new Date();
+const workspaceName = 'test-workspace-name';
+const authUserEmail = 'auth-user@alpha.com';
 
-const validUsers: SegmentUser[] = Array.from({ length: 2 }, (_, i) => ({
-  id: `${i}`,
-  name: `name-${i}`,
-  email: `user${i}@foo.bar`,
-}));
-
-const invalidUsers = [];
-const getUsersData = {
-  validUsers,
-  invalidUsers,
-  nextPage: null,
+const getWorkspaceNameData = {
+  workspaceName,
 };
 
 const mockOrganisation = {
   id: '00000000-0000-0000-0000-000000000001',
   token,
   region,
+  authUserEmail,
+  workspaceName,
 };
 
 describe('registerOrganisation', () => {
@@ -44,18 +38,21 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
+    const getWorkspaceName = vi
+      .spyOn(userConnector, 'getWorkspaceName')
+      .mockResolvedValue(getWorkspaceNameData);
 
     await expect(
       registerOrganisation({
         organisationId: mockOrganisation.id,
         token,
         region,
+        authUserEmail,
       })
     ).resolves.toBeUndefined();
 
-    expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ token });
+    expect(getWorkspaceName).toBeCalledTimes(1);
+    expect(getWorkspaceName).toBeCalledWith({ token });
 
     const [organisation] = await db
       .select({
@@ -96,8 +93,10 @@ describe('registerOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // @ts-expect-error -- this is a mock
-    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
-    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
+    vi.spyOn(userConnector, 'getWorkspaceName').mockResolvedValue(undefined);
+    const getWorkspaceName = vi
+      .spyOn(userConnector, 'getWorkspaceName')
+      .mockResolvedValue(getWorkspaceNameData);
     // pre-insert an organisation to simulate an existing entry
     await db.insert(organisationsTable).values(mockOrganisation);
 
@@ -106,11 +105,12 @@ describe('registerOrganisation', () => {
         organisationId: mockOrganisation.id,
         token,
         region,
+        authUserEmail,
       })
     ).resolves.toBeUndefined();
 
-    expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({ token });
+    expect(getWorkspaceName).toBeCalledTimes(1);
+    expect(getWorkspaceName).toBeCalledWith({ token });
 
     // check if the token in the database is updated
     const [storedOrganisation] = await db

@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { logger } from '@elba-security/logger';
 import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { env } from '@/common/env/server';
+import { GoogleUserNotAdminError } from '@/connectors/google/errors';
 import { getGoogleInfo } from './service';
 
 export const dynamic = 'force-dynamic';
@@ -29,12 +30,7 @@ export const GET = async (request: NextRequest) => {
   } catch (error) {
     logger.error('An error occurred during Google oauth flow', { organisationId, cause: error });
 
-    return new ElbaInstallRedirectResponse({
-      region,
-      sourceId: env.ELBA_SOURCE_ID,
-      baseUrl: env.ELBA_REDIRECT_URL,
-      error: 'unauthorized',
-    });
+    return redirect(error instanceof GoogleUserNotAdminError ? '/error?error=not_admin' : '/error');
   }
 
   redirect('/dwd', RedirectType.replace);

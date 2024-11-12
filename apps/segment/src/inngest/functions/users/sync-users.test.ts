@@ -9,9 +9,11 @@ import { syncUsers } from './sync-users';
 
 const nextPage = '1';
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+  id: '00000000-0000-0000-0000-000000000001',
   token: 'test-api-key',
   region: 'us',
+  workspaceName: 'test-workspace-name',
+  authUserEmail: 'auth-user@alpha.com',
 };
 
 const users: usersConnector.SegmentUser[] = Array.from({ length: 2 }, (_, i) => ({
@@ -70,6 +72,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '0',
           isSuspendable: true,
+          url: 'https://app.segment.com/test-workspace-name/settings/access-management/users/0/edit',
         },
         {
           additionalEmails: [],
@@ -77,6 +80,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: '1',
           isSuspendable: true,
+          url: 'https://app.segment.com/test-workspace-name/settings/access-management/users/1/edit',
         },
       ],
     });
@@ -122,6 +126,7 @@ describe('sync-users', () => {
           email: 'user-0@foo.bar',
           id: '0',
           isSuspendable: true,
+          url: 'https://app.segment.com/test-workspace-name/settings/access-management/users/0/edit',
         },
         {
           additionalEmails: [],
@@ -129,6 +134,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: '1',
           isSuspendable: true,
+          url: 'https://app.segment.com/test-workspace-name/settings/access-management/users/1/edit',
         },
       ],
     });

@@ -12,14 +12,16 @@ import { registerOrganisation } from './service';
 const formSchema = z.object({
   organisationId: z.string().uuid(),
   token: z.string().min(1, {
-    message: 'token is required',
+    message: 'Token is required',
   }),
+  authUserEmail: z.string().email({ message: 'Email is required' }),
   region: z.string().min(1),
 });
 
 export type FormState = {
   errors?: {
     token?: string[] | undefined;
+    authUserEmail?: string[] | undefined;
   };
 };
 
@@ -30,6 +32,7 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
     const result = formSchema.safeParse({
       token: formData.get('token'),
       organisationId: formData.get('organisationId'),
+      authUserEmail: formData.get('authUserEmail'),
       region,
     });
 

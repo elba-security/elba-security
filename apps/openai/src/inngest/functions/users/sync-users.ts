@@ -7,13 +7,16 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { createElbaClient } from '@/connectors/elba/client';
 
+// An organisation can have multiple owners, but only one can be the actual owner.
+// Allowing to remove all owners of the organisation would be a security risk.
+// therefore, if the admin wants to remove the owner, they can remove it from the OpenAi platform
 const formatElbaUser = (user: OpenAiUser): User => ({
   id: user.user.id,
   displayName: user.user.name,
   email: user.user.email,
-  role: user.role,
+  role: user.role, // 'owner' | 'reader'
   additionalEmails: [],
-  isSuspendable: true,
+  isSuspendable: user.role !== 'owner',
   url: 'https://platform.openai.com/settings/organization/team',
 });
 

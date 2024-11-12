@@ -5,10 +5,12 @@ import { getDatadogRegionAPIBaseURL } from './regions';
 
 const datadogUserSchema = z.object({
   id: z.string().min(1),
+  type: z.string().min(1),
   attributes: z.object({
     name: z.string(),
     email: z.string(),
     status: z.string().min(1),
+    service_account: z.boolean(),
     mfa_enabled: z.boolean(),
   }),
 });
@@ -69,6 +71,15 @@ export const getUsers = async ({ apiKey, appKey, sourceRegion, page = 0 }: GetUs
   for (const user of data) {
     const result = datadogUserSchema.safeParse(user);
     if (result.success) {
+      // We are only interested in active users
+      if (
+        result.data.type !== 'users' ||
+        result.data.attributes.status !== 'Active' ||
+        result.data.attributes.service_account
+      ) {
+        continue;
+      }
+
       validUsers.push(result.data);
     } else {
       invalidUsers.push(user);
@@ -83,15 +94,64 @@ export const getUsers = async ({ apiKey, appKey, sourceRegion, page = 0 }: GetUs
   };
 };
 
-export const deleteUser = async ({ apiKey, appKey, sourceRegion, userId }: DeleteUsersParams) => {
-  const url = new URL(`${getDatadogRegionAPIBaseURL(sourceRegion)}/api/v2/users/${userId}`);
+type GetAuthUser = {
+  apiKey: string;
+  appKey: string;
+  sourceRegion: string;
+};
+
+const authUserResponseSchema = z.object({
+  data: z.object({
+    id: z.string(),
+  }),
+});
+
+export const getAuthUser = async ({ apiKey, appKey, sourceRegion }: GetAuthUser) => {
+  const url = new URL(`${getDatadogRegionAPIBaseURL(sourceRegion)}/api/v2/current_user`);
 
   const response = await fetch(url.toString(), {
-    method: 'DELETE',
+    method: 'GET',
     headers: {
       'DD-API-KEY': apiKey,
       'DD-APPLICATION-KEY': appKey,
     },
+  });
+
+  if (!response.ok) {
+    throw new DatadogError('Could not retrieve Datadog users', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = authUserResponseSchema.safeParse(resData);
+
+  if (!result.success) {
+    throw new DatadogError('Could not retrieve Datadog users', { response });
+  }
+
+  return {
+    authUserId: result.data.data.id,
+  };
+};
+
+export const deleteUser = async ({ apiKey, appKey, sourceRegion, userId }: DeleteUsersParams) => {
+  const url = new URL(`${getDatadogRegionAPIBaseURL(sourceRegion)}/api/v2/users/${userId}`);
+
+  const response = await fetch(url.toString(), {
+    method: 'PATCH',
+    headers: {
+      'DD-API-KEY': apiKey,
+      'DD-APPLICATION-KEY': appKey,
+    },
+    body: JSON.stringify({
+      data: {
+        attributes: {
+          disabled: true,
+        },
+        id: userId,
+        type: 'users',
+      },
+    }),
   });
 
   if (!response.ok && response.status !== 404) {

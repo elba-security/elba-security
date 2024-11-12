@@ -57,7 +57,7 @@ describe('users connector', () => {
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(getUsers({ token: validToken, nextPage })).resolves.toStrictEqual({
+      await expect(getUsers({ accessToken: validToken, nextPage })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
         nextPage: limit + 1,
@@ -65,7 +65,7 @@ describe('users connector', () => {
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(getUsers({ token: validToken, nextPage: '' })).resolves.toStrictEqual({
+      await expect(getUsers({ accessToken: validToken, nextPage: '' })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
         nextPage: null,
@@ -73,14 +73,14 @@ describe('users connector', () => {
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(getUsers({ token: 'foo-bar' })).rejects.toBeInstanceOf(BoxError);
+      await expect(getUsers({ accessToken: 'foo-bar' })).rejects.toBeInstanceOf(BoxError);
     });
   });
 
   describe('deleteUser', () => {
     beforeEach(() => {
       server.use(
-        http.delete<{ userId: string }>(
+        http.put<{ userId: string }>(
           `${env.BOX_API_BASE_URL}/2.0/users/${userId}`,
           ({ request, params }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
@@ -96,15 +96,17 @@ describe('users connector', () => {
     });
 
     test('should delete user successfully when token is valid', async () => {
-      await expect(deleteUser({ token: validToken, userId })).resolves.not.toThrow();
+      await expect(deleteUser({ accessToken: validToken, userId })).resolves.not.toThrow();
     });
 
     test('should not throw when the user is not found', async () => {
-      await expect(deleteUser({ token: validToken, userId })).resolves.toBeUndefined();
+      await expect(deleteUser({ accessToken: validToken, userId })).resolves.toBeUndefined();
     });
 
     test('should throw BoxError when token is invalid', async () => {
-      await expect(deleteUser({ token: 'invalidToken', userId })).rejects.toBeInstanceOf(BoxError);
+      await expect(deleteUser({ accessToken: 'invalidToken', userId })).rejects.toBeInstanceOf(
+        BoxError
+      );
     });
   });
 });

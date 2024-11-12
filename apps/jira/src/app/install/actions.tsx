@@ -72,14 +72,34 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
 
     logger.warn('Could not register organisation', { error });
 
-    if (error instanceof JiraError && error.response?.status === 401) {
-      return {
-        errors: {
-          apiToken: ['The given API token seems to be invalid'],
-          domain: ['The given API domain seems to be invalid'],
-          email: ['The given API email seems to be invalid'],
-        },
-      };
+    if (error instanceof JiraError) {
+      const status = error.response?.status;
+      // 403: Site temporarily unavailable
+      // 503: Your Jira Cloud subscription has been deactivated due to inactivity
+      if (status && [404, 503].includes(status) && error.response) {
+        const errorText = await error.response.clone().text();
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- we trust the response.text on error
+        const errorResult: {
+          errorMessage: string;
+          errorCode: string;
+        } = JSON.parse(errorText);
+
+        return {
+          errors: {
+            domain: [`${errorResult.errorMessage}, please check your domain`],
+          },
+        };
+      }
+
+      if (status === 401) {
+        return {
+          errors: {
+            apiToken: ['The given API token seems to be invalid'],
+            email: ['The given API email seems to be invalid'],
+          },
+        };
+      }
     }
 
     redirect(
