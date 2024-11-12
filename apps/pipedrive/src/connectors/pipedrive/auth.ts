@@ -72,8 +72,6 @@ export const getRefreshToken = async (refreshToken: string) => {
 
   const data: unknown = await response.json();
 
-  logger.info('Refresh token response', { data });
-
   const result = tokenResponseSchema.safeParse(data);
 
   if (!result.success) {

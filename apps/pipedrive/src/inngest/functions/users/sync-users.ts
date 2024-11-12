@@ -16,8 +16,8 @@ const formatElbaUser = ({ user, apiDomain }: { user: PipedriveUser; apiDomain: s
   email: user.email,
   additionalEmails: [],
   role: user.is_admin === 1 ? 'admin' : 'user',
-  url: `${apiDomain}/users/details/${user.id}/updates`,
   isSuspendable: !user.is_you,
+  url: `${apiDomain}/users/details/${user.id}/updates`,
 });
 
 export const syncUsers = inngest.createFunction(

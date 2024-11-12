@@ -25,7 +25,7 @@ export function GET(request: NextRequest) {
   cookies().set('region', region);
   cookies().set('state', state);
 
-  const redirectUrl = new URL(`${env.PIPEDRIVE_APP_INSTALL_URL}/authorize?`);
+  const redirectUrl = new URL(`${env.PIPEDRIVE_APP_INSTALL_URL}/authorize`);
   redirectUrl.searchParams.append('client_id', env.PIPEDRIVE_CLIENT_ID);
   redirectUrl.searchParams.append('redirect_uri', env.PIPEDRIVE_REDIRECT_URI);
   redirectUrl.searchParams.append('state', state);

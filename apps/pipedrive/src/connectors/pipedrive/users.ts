@@ -38,6 +38,9 @@ export type DeleteUsersParams = {
 };
 
 export const getUsers = async ({ accessToken, page, apiDomain }: GetUsersParams) => {
+  // TODO: Remove the pagination setup.
+  // The API does not support pagination
+  // DOC: https://pipedrive.readme.io/docs/core-api-concepts-pagination?_gl=1*1nx96yn*_ga*MjA4ODk4OTQwMy4xNzMxNDQxMjA1*_ga_0935B0BWJP*MTczMTUxNjEzNS43LjEuMTczMTUxNzIwMi4wLjAuMA..
   const url = new URL(`${apiDomain}/v1/users`);
   url.searchParams.append('limit', String(env.PIPEDRIVE_USERS_SYNC_BATCH_SIZE));
 
@@ -58,6 +61,7 @@ export const getUsers = async ({ accessToken, page, apiDomain }: GetUsersParams)
   }
 
   const resData: unknown = await response.json();
+
   const { data, additional_data: addtionalData } = pipedriveResponseSchema.parse(resData);
 
   const validUsers: PipedriveUser[] = [];
@@ -65,7 +69,14 @@ export const getUsers = async ({ accessToken, page, apiDomain }: GetUsersParams)
 
   for (const user of data) {
     const userResult = pipedriveUserSchema.safeParse(user);
+
     if (userResult.success) {
+      // The document says  the last_login is available, but it is not available in the actual response,
+      // we could have filtered the invited users if we had the last_login.
+      if (!userResult.data.active_flag) {
+        continue;
+      }
+
       validUsers.push(userResult.data);
     } else {
       invalidUsers.push(user);

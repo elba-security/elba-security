@@ -1,6 +1,6 @@
 {
   "name": "@elba-security/pipedrive",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 4000",
@@ -14,8 +14,7 @@
     "database:up": "docker-compose -p pipedrive --profile edge --env-file=.env.local up -d",
     "database:down": "docker-compose -p pipedrive down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
-    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts",
-    "database:open:db": "drizzle-kit studio --config ../../drizzle.config.ts"
+    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
@@ -25,9 +24,9 @@
     "@elba-security/sdk": "workspace:*",
     "@elba-security/utils": "workspace:*",
     "@neondatabase/serverless": "0.9.4",
-    "date-fns": "^3.2.0",
+    "date-fns": "^4.1.0",
     "drizzle-orm": "^0.29.4",
-    "inngest": "3.19.11",
+    "inngest": "3.22.2",
     "next": "14.2.4",
     "react": "^18",
     "react-dom": "^18",
