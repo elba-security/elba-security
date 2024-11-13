@@ -28,7 +28,6 @@ export function GET(request: NextRequest) {
   const redirectUrl = new URL(`${env.CLOSE_APP_INSTALL_URL}/authorize`);
   redirectUrl.searchParams.append('response_type', 'code');
   redirectUrl.searchParams.append('client_id', env.CLOSE_CLIENT_ID);
-  // redirectUrl.searchParams.append('redirect_uri', env.CLOSE_REDIRECT_URI);
   redirectUrl.searchParams.append('state', state);
 
   redirect(redirectUrl.toString());
