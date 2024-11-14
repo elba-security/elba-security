@@ -29,6 +29,12 @@ export const inngest = new Inngest({
         expiresAt: number;
       };
     };
+    'salesloft/users.delete.requested': {
+      data: {
+        organisationId: string;
+        userId: string;
+      };
+    };
   }>(),
   middleware: [rateLimitMiddleware],
   logger,
