@@ -15,6 +15,7 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accessToken: await encrypt('test-access-token'),
   refreshToken: await encrypt('test-refresh-token'),
+  authUserId: 'test-owner-id',
   region: 'us',
 };
 
@@ -22,6 +23,7 @@ const users: usersConnector.SalesloftUser[] = Array.from({ length: 3 }, (_, i) =
   id: i,
   name: `name-${i}`,
   email: `user-${i}@foo.bar`,
+  role: { id: 'User' },
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'salesloft/users.sync.requested');
@@ -89,6 +91,7 @@ describe('sync-users', () => {
           id: '0',
           isSuspendable: true,
           url: 'https://app.salesloft.com/app/settings/users/active',
+          role: 'User',
         },
         {
           additionalEmails: [],
@@ -97,6 +100,7 @@ describe('sync-users', () => {
           id: '1',
           isSuspendable: true,
           url: 'https://app.salesloft.com/app/settings/users/active',
+          role: 'User',
         },
         {
           additionalEmails: [],
@@ -105,6 +109,7 @@ describe('sync-users', () => {
           id: '2',
           isSuspendable: true,
           url: 'https://app.salesloft.com/app/settings/users/active',
+          role: 'User',
         },
       ],
     });
@@ -139,6 +144,7 @@ describe('sync-users', () => {
           id: '0',
           isSuspendable: true,
           url: 'https://app.salesloft.com/app/settings/users/active',
+          role: 'User',
         },
         {
           additionalEmails: [],
@@ -147,6 +153,7 @@ describe('sync-users', () => {
           id: '1',
           isSuspendable: true,
           url: 'https://app.salesloft.com/app/settings/users/active',
+          role: 'User',
         },
         {
           additionalEmails: [],
@@ -155,6 +162,7 @@ describe('sync-users', () => {
           id: '2',
           isSuspendable: true,
           url: 'https://app.salesloft.com/app/settings/users/active',
+          role: 'User',
         },
       ],
     });

@@ -19,7 +19,6 @@ const organisation = {
   companyDomain: 'test-company-domain',
 };
 
-// Setup function mock for Inngest
 const setup = createInngestFunctionMock(deleteUser, 'salesloft/users.delete.requested');
 
 describe('deleteUser', () => {

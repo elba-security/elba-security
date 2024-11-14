@@ -14,6 +14,7 @@ const validUsers: SalesloftUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: i,
   name: `name-${i}`,
   email: `user-${i}@foo.bar`,
+  role: { id: 'User' },
 }));
 
 const invalidUsers = [];
