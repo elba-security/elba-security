@@ -10,12 +10,21 @@ import { decrypt } from '@/common/crypto';
 import { type SalesloftUser } from '@/connectors/salesloft/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUser = (user: SalesloftUser): User => ({
+// TODO: Fetch Role
+// We could fetch the user role from the Admin | User | custom role(it should be fetch from roles api, it may have pagination)
+const formatElbaUser = ({
+  user,
+  authUserId,
+}: {
+  user: SalesloftUser;
+  authUserId: string;
+}): User => ({
   id: String(user.id),
   displayName: user.name,
   email: user.email,
   additionalEmails: [],
-  isSuspendable: true,
+  isSuspendable: String(user.id) !== authUserId,
+  role: ['Admin', 'User'].includes(user.role.id) ? user.role.id : undefined,
   url: 'https://app.salesloft.com/app/settings/users/active',
 });
 
@@ -49,9 +58,11 @@ export const syncUsers = inngest.createFunction(
       .select({
         token: organisationsTable.accessToken,
         region: organisationsTable.region,
+        authUserId: organisationsTable.authUserId,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
+
     if (!organisation) {
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
@@ -65,7 +76,9 @@ export const syncUsers = inngest.createFunction(
         page,
       });
 
-      const users = result.validUsers.map(formatElbaUser);
+      const users = result.validUsers.map((user) =>
+        formatElbaUser({ user, authUserId: organisation.authUserId })
+      );
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

@@ -4,6 +4,7 @@ import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/salesloft/auth';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
+import { getAuthUser } from '@/connectors/salesloft/users';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -18,6 +19,8 @@ export const setupOrganisation = async ({
 }: SetupOrganisationParams) => {
   const { accessToken, refreshToken, expiresIn } = await getToken(code);
 
+  const { id: authUserId } = await getAuthUser(accessToken);
+
   const encryptedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
 
@@ -27,6 +30,7 @@ export const setupOrganisation = async ({
       id: organisationId,
       accessToken: encryptedAccessToken,
       refreshToken: encodedRefreshToken,
+      authUserId: String(authUserId),
       region,
     })
     .onConflictDoUpdate({
@@ -34,6 +38,7 @@ export const setupOrganisation = async ({
       set: {
         accessToken: encryptedAccessToken,
         refreshToken: encodedRefreshToken,
+        authUserId: String(authUserId),
         region,
       },
     });

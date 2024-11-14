@@ -1,5 +1,5 @@
 {
-  "id": "12ed3b11-7afd-4415-a975-a90229ea95d7",
+  "id": "221b4ab3-dcd6-40f5-8965-8e7af851772d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -14,6 +14,24 @@
           "primaryKey": true,
           "notNull": true
         },
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "region": {
           "name": "region",
           "type": "text",
@@ -26,18 +44,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "access_token": {
-          "name": "access_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "refresh_token": {
-          "name": "refresh_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {},
