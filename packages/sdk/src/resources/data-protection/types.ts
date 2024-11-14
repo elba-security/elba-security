@@ -11,3 +11,15 @@ export type DataProtectionUpdateObjectsResult = {
 export type DataProtectionDeleteObjectsResult = {
   success: boolean;
 };
+
+export enum DataProtectionErrorCode {
+  TrialOrgIssuesLimitExceeded = 1,
+  MethodNotAllowed = 2,
+}
+
+export type DataProtectionUpdateFailure = {
+  errors: {
+    code: DataProtectionErrorCode;
+    message: string;
+  }[];
+};

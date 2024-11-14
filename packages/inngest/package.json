@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@elba-security/utils": "workspace:*",
+    "@elba-security/sdk": "workspace:*",
     "date-fns": "^3.2.0"
   },
   "devDependencies": {

@@ -1,5 +1,6 @@
 import { EventSchemas, type GetEvents, type GetFunctionInput, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { createDataProtectionApiMiddleware } from '@elba-security/inngest';
 import type { WebhookPayload } from '@/app/api/webhooks/microsoft/event-handler/service';
 import type { MessageMetadata } from '@/connectors/elba/data-protection/metadata';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
@@ -133,6 +134,14 @@ export const inngest = new Inngest({
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [
+    rateLimitMiddleware,
+    createDataProtectionApiMiddleware([
+      'teams/messages.sync.requested',
+      'teams/replies.sync.requested',
+      'teams/teams.webhook.event.received',
+      'teams/data_protection.refresh_object.requested',
+    ]),
+  ],
   logger,
 });

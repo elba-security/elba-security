@@ -51,6 +51,10 @@ export class RequestSender {
 
       return response;
     } catch (error) {
+      if (error instanceof ElbaError) {
+        throw error;
+      }
+
       throw new ElbaError('An unexpected error occurred', { path, method, cause: error });
     }
   }

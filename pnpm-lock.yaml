@@ -3691,6 +3691,9 @@ importers:
 
   packages/inngest:
     dependencies:
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../sdk
       '@elba-security/utils':
         specifier: workspace:*
         version: link:../utils
