@@ -1,21 +1,20 @@
-import { env } from '@/env';
+import { env } from '@/common/env';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
-import { inngest } from '../../client';
+import { organisationsTable } from '@/database/schema';
+import { inngest } from '@/inngest/client';
 
-export const scheduleUsersSynchronize = inngest.createFunction(
-  { id: 'schedule-users-syncs' },
-  { cron: env.USERS_SYNC_CRON },
+export const scheduleUsersSync = inngest.createFunction(
+  {
+    id: 'sumologic-schedule-users-syncs',
+    retries: 5,
+  },
+  { cron: env.SUMOLOGIC_USERS_SYNC_CRON },
   async ({ step }) => {
     const organisations = await db
       .select({
-        id: Organisation.id,
-        region: Organisation.region,
-        accessId: Organisation.accessId,
-        accessKey: Organisation.accessKey,
-        sourceRegion: Organisation.sourceRegion,
+        id: organisationsTable.id,
       })
-      .from(Organisation);
+      .from(organisationsTable);
 
     if (organisations.length > 0) {
       await step.sendEvent(

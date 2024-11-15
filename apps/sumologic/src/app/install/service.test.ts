@@ -1,47 +1,34 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
-import { Organisation } from '@/database/schema';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import * as userConnector from '@/connectors/users';
-import { decrypt } from '@/common/crypto';
-import { SumologicError } from '@/connectors/commons/error';
-import { type SumologicUser } from '@/connectors/users';
+import * as userConnector from '@/connectors/sumologic/users';
+import * as crypto from '@/common/crypto';
 import { registerOrganisation } from './service';
 
 const accessId = 'test-access-id';
 const accessKey = 'test-access-key';
-const sourceRegion = 'EU';
+const sourceRegion = 'eu';
 const region = 'us';
+const authUserId = 'test-owner-id';
 const now = new Date();
-const validUsers: SumologicUser[] = Array.from({ length: 5 }, (_, i) => ({
-  id: '0442f541-45d2-487a-9e4b-de03ce4c559e',
-  firstName: `firstName-${i}`,
-  lastName: `lastName-${i}`,
-  isActive: true,
-  isMfaEnabled: false,
-  email: `user-${i}@foo.bar`,
-}));
-
-const getUsersData = {
-  validUsers,
-  invalidUsers: [],
-  nextPage: null,
-};
 
 const organisation = {
-  id: '45a76301-f1dd-4a77-b12f-9d7d3fca3c99',
+  id: '00000000-0000-0000-0000-000000000001',
   accessId,
   accessKey,
   sourceRegion,
   region,
+  authUserId,
 };
+
+const getAuthUserData = { authUserId };
 
 describe('registerOrganisation', () => {
   beforeAll(() => {
     vi.setSystemTime(now);
   });
-
   afterAll(() => {
     vi.useRealTimers();
   });
@@ -49,7 +36,8 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
+    const getAuthUser = vi.spyOn(userConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue(accessId);
 
     await expect(
       registerOrganisation({
@@ -60,22 +48,20 @@ describe('registerOrganisation', () => {
         region,
       })
     ).resolves.toBeUndefined();
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith({ accessId, accessKey, sourceRegion });
 
-    // check if getUsers was called correctly
-    expect(getUsers).toBeCalledTimes(1);
-    expect(getUsers).toBeCalledWith({accessId, accessKey, sourceRegion});
-    // verify the organisation token is set in the database
-    const [storedOrganisation] = await db
-      .select()
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
-    if (!storedOrganisation) {
-      throw new SumologicError(`Organisation with ID ${organisation.id} not found.`);
-    }
-    expect(storedOrganisation.region).toBe(region);
-    await expect(decrypt(storedOrganisation.accessId)).resolves.toEqual(accessId);
-    await expect(decrypt(storedOrganisation.accessKey)).resolves.toEqual(accessKey);
-
+    await expect(
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
+    ).resolves.toMatchObject([
+      {
+        accessId,
+        accessKey,
+        sourceRegion,
+        region,
+        authUserId,
+      },
+    ]);
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {
@@ -88,24 +74,22 @@ describe('registerOrganisation', () => {
         },
       },
       {
-        name: 'sumologic/sumologic.elba_app.installed',
+        name: 'sumologic/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
     ]);
+    expect(crypto.encrypt).toBeCalledTimes(1);
   });
 
   test('should setup organisation when the organisation id is valid and the organisation is already registered', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    // mocked the getUsers function
-    // @ts-expect-error -- this is a mock
-    vi.spyOn(userConnector, 'getUsers').mockResolvedValue(undefined);
-    // pre-insert an organisation to simulate an existing entry
-    await db.insert(Organisation).values(organisation);
+    const getAuthUser = vi.spyOn(userConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
+    vi.spyOn(crypto, 'encrypt').mockResolvedValue(accessId);
 
+    await db.insert(organisationsTable).values(organisation);
     await expect(
       registerOrganisation({
         organisationId: organisation.id,
@@ -116,18 +100,22 @@ describe('registerOrganisation', () => {
       })
     ).resolves.toBeUndefined();
 
-    // check if the token in the database is updated
-    const [storedOrganisation] = await db
-      .select()
-      .from(Organisation)
-      .where(eq(Organisation.id, organisation.id));
+    expect(getAuthUser).toBeCalledTimes(1);
+    expect(getAuthUser).toBeCalledWith({ accessId, accessKey, sourceRegion });
 
-    if (!storedOrganisation) {
-      throw new SumologicError(`Organisation with ID ${organisation.id} not found.`);
-    }
-    expect(storedOrganisation.region).toBe(region);
-    await expect(decrypt(storedOrganisation.accessId)).resolves.toEqual(accessId);
-    await expect(decrypt(storedOrganisation.accessKey)).resolves.toEqual(accessKey);
+    // check if the accessId in the database is updated
+    await expect(
+      db
+        .select({
+          accessId: organisationsTable.accessId,
+        })
+        .from(organisationsTable)
+        .where(eq(organisationsTable.id, organisation.id))
+    ).resolves.toMatchObject([
+      {
+        accessId,
+      },
+    ]);
     // verify that the user/sync event is sent
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
@@ -141,12 +129,34 @@ describe('registerOrganisation', () => {
         },
       },
       {
-        name: 'sumologic/sumologic.elba_app.installed',
+        name: 'sumologic/app.installed',
         data: {
           organisationId: organisation.id,
-          region,
         },
       },
     ]);
+  });
+
+  test('should not setup the organisation when the organisation id is invalid', async () => {
+    // @ts-expect-error -- this is a mock
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    vi.spyOn(userConnector, 'getAuthUser').mockResolvedValue(getAuthUserData);
+    const wrongId = 'xfdhg-dsf';
+    const error = new Error(`invalid input syntax for type uuid: "${wrongId}"`);
+
+    await expect(
+      registerOrganisation({
+        organisationId: wrongId,
+        accessId,
+        accessKey,
+        sourceRegion,
+        region,
+      })
+    ).rejects.toThrowError(error);
+
+    await expect(
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
+    ).resolves.toHaveLength(0);
+    expect(send).toBeCalledTimes(0);
   });
 });
