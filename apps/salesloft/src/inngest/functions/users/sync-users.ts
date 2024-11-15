@@ -6,9 +6,10 @@ import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/salesloft/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
+import { nangoAPIClient } from '@/common/nango/api';
 import { type SalesloftUser } from '@/connectors/salesloft/users';
 import { createElbaClient } from '@/connectors/elba/client';
+import { getAuthUser } from '@/connectors/salesloft/auth';
 
 // TODO: Fetch Role
 // We could fetch the user role from the Admin | User | custom role(it should be fetch from roles api, it may have pagination)
@@ -56,9 +57,7 @@ export const syncUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        token: organisationsTable.accessToken,
         region: organisationsTable.region,
-        authUserId: organisationsTable.authUserId,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -68,16 +67,21 @@ export const syncUsers = inngest.createFunction(
     }
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
 
     const nextPage = await step.run('list-users', async () => {
+      const { credentials } = await nangoAPIClient.getConnection(organisationId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
       const result = await getUsers({
-        accessToken: token,
+        accessToken: credentials.access_token,
         page,
       });
+      const data = await getAuthUser(credentials.access_token);
 
       const users = result.validUsers.map((user) =>
-        formatElbaUser({ user, authUserId: organisation.authUserId })
+        formatElbaUser({ user, authUserId: String(data.id) })
       );
 
       if (result.invalidUsers.length > 0) {

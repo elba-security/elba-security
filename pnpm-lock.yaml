@@ -2708,12 +2708,18 @@ importers:
       '@elba-security/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@elba-security/design-system':
+        specifier: workspace:*
+        version: link:../../packages/design-system
       '@elba-security/inngest':
         specifier: workspace:*
         version: link:../../packages/inngest
       '@elba-security/logger':
         specifier: workspace:*
         version: link:../../packages/logger
+      '@elba-security/nango':
+        specifier: workspace:*
+        version: link:../../packages/nango
       '@elba-security/nextjs':
         specifier: workspace:*
         version: link:../../packages/nextjs
@@ -3828,6 +3834,34 @@ importers:
       eslint:
         specifier: ^8
         version: 8.53.0
+      typescript:
+        specifier: ^5.5.2
+        version: 5.5.3
+
+  packages/nango:
+    dependencies:
+      '@nangohq/frontend':
+        specifier: ^0.42.20
+        version: 0.42.22
+      '@nangohq/types':
+        specifier: ^0.42.20
+        version: 0.42.22
+    devDependencies:
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../eslint-config-custom
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../utils
+      '@types/node':
+        specifier: ^20
+        version: 20.14.2
+      eslint:
+        specifier: ^8
+        version: 8.57.0
       typescript:
         specifier: ^5.5.2
         version: 5.5.3
@@ -5174,6 +5208,14 @@ packages:
       outvariant: 1.4.2
       strict-event-emitter: 0.5.1
     dev: true
+
+  /@nangohq/frontend@0.42.22:
+    resolution: {integrity: sha512-ZxVhhGYUJDmxnuyfmRn7z7lBQPLoJTpkVx3alcqLe+wjxlfcXu1ka3iPAb5rZeU3f60stmtwKVGUQ1EpDtXfVQ==}
+    dev: false
+
+  /@nangohq/types@0.42.22:
+    resolution: {integrity: sha512-8VKO40UKP3pXv5WqhMTXFWZehVosxPgyWo8BAaz/HyGrBWbDmloWEl5igpqYwwwBu3xZ9YLjdfpF5seWFSBgiw==}
+    dev: false
 
   /@neondatabase/serverless@0.9.4:
     resolution: {integrity: sha512-D0AXgJh6xkf+XTlsO7iwE2Q1w8981E1cLCPAALMU2YKtkF/1SF6BiAzYARZFYo175ON+b1RNIy9TdSFHm5nteg==}

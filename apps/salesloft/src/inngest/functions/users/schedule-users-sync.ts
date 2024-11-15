@@ -1,4 +1,4 @@
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -6,7 +6,6 @@ import { inngest } from '@/inngest/client';
 export const scheduleUsersSync = inngest.createFunction(
   {
     id: 'salesloft-schedule-users-syncs',
-    retries: 5,
   },
   { cron: env.SALESLOFT_USERS_SYNC_CRON },
   async ({ step }) => {

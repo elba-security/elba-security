@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { SalesloftError } from '../common/error';
 
 const salesloftUserSchema = z.object({
@@ -73,36 +73,6 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
     invalidUsers,
     nextPage: nextPage ? String(nextPage) : null,
   };
-};
-
-export const getAuthUser = async (accessToken: string) => {
-  const url = new URL(`${env.SALESLOFT_API_BASE_URL}/v2/me`);
-
-  const response = await fetch(url.toString(), {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new SalesloftError('Could not retrieve auth user', { response });
-  }
-
-  const resData: unknown = await response.json();
-
-  const result = z
-    .object({
-      data: salesloftUserSchema,
-    })
-    .safeParse(resData);
-
-  if (!result.success) {
-    throw new SalesloftError('Could not parse auth user', { response });
-  }
-
-  return result.data.data;
 };
 
 export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => {

@@ -1,11 +1,8 @@
-import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUser as deleteSalesloftUser } from '@/connectors/salesloft/users';
-import { decrypt } from '@/common/crypto';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
+import { nangoAPIClient } from '@/common/nango/api';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -28,24 +25,21 @@ export const deleteUser = inngest.createFunction(
   },
   { event: 'salesloft/users.delete.requested' },
   async ({ event }) => {
-    const { userId, organisationId } = event.data;
+    const { organisationId, userId } = event.data;
 
-    const [organisation] = await db
-      .select({
-        accessToken: organisationsTable.accessToken,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
+    try {
+      const { credentials } = await nangoAPIClient.getConnection(organisationId);
 
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve ${organisationId}`);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
+      await deleteSalesloftUser({
+        userId,
+        accessToken: credentials.access_token,
+      });
+    } catch (error: unknown) {
+      throw new NonRetriableError(`Could not retrieve credentials or request info`);
     }
-
-    const accessToken = await decrypt(organisation.accessToken);
-
-    await deleteSalesloftUser({
-      userId,
-      accessToken,
-    });
   }
 );

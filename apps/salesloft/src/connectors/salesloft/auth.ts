@@ -1,12 +1,21 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { SalesloftError } from '../common/error';
 
 const tokenResponseSchema = z.object({
   access_token: z.string(),
   refresh_token: z.string(),
   expires_in: z.number(),
+});
+
+const getAuthUserResponseData = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string(),
+  role: z.object({
+    id: z.string(),
+  }),
 });
 
 export const getToken = async (code: string) => {
@@ -70,4 +79,34 @@ export const getRefreshToken = async (refreshToken: string) => {
     logger.error('Invalid Salesloft refresh token response', { data, error });
     throw error;
   }
+};
+
+export const getAuthUser = async (accessToken: string) => {
+  const url = new URL(`${env.SALESLOFT_API_BASE_URL}/v2/me`);
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new SalesloftError('Could not retrieve auth user', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = z
+    .object({
+      data: getAuthUserResponseData,
+    })
+    .safeParse(resData);
+
+  if (!result.success) {
+    throw new SalesloftError('Could not parse auth user', { response });
+  }
+
+  return result.data.data;
 };
