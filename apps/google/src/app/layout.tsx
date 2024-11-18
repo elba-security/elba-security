@@ -3,7 +3,7 @@
  * It should not be edited or removed.
  */
 import type { Metadata } from 'next';
-import style from './layout.module.css';
+import './global.css';
 
 export const metadata: Metadata = {
   title: 'Elba x Google',
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={style.body}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

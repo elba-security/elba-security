@@ -11,9 +11,9 @@
   },
   "devDependencies": {
     "@elba-security/tsconfig": "workspace:*",
-    "dotenv": "^16.3.1",
-    "drizzle-kit": "^0.20.6",
-    "eslint": "^8.53.0",
+    "dotenv": "catalog:",
+    "drizzle-kit": "catalog:",
+    "eslint": "catalog:",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.2",
     "prettier": "^3.0.3",
@@ -21,10 +21,10 @@
   },
   "engines": {
     "node": "20",
-    "pnpm": "8"
+    "pnpm": ">=9.5.0"
   },
   "name": "elba-security",
-  "packageManager": "pnpm@8.10.2",
+  "packageManager": "pnpm@9.5.0",
   "lint-staged": {
     "!(template/**/*)*.{js,jsx,ts,tsx}": "eslint --fix",
     "*.{js,jsx,ts,tsx,json,css,md}": "prettier --write"

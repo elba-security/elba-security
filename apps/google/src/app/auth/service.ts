@@ -1,4 +1,5 @@
 import { getGoogleOAuthClient } from '@/connectors/google/clients';
+import { GoogleUserNotAdminError } from '@/connectors/google/errors';
 import { getGoogleUser } from '@/connectors/google/users';
 
 export const getGoogleInfo = async (code: string) => {
@@ -25,7 +26,7 @@ export const getGoogleInfo = async (code: string) => {
     });
 
     if (!user.isAdmin) {
-      throw new Error('User is not admin');
+      throw new GoogleUserNotAdminError('User is not admin');
     }
 
     if (!user.customerId) {
@@ -37,7 +38,7 @@ export const getGoogleInfo = async (code: string) => {
   } catch (error: any) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- error handling
     if (error?.errors?.[0]?.reason === 'forbidden') {
-      throw new Error('User is not admin');
+      throw new GoogleUserNotAdminError('User is not admin', { cause: error });
     }
 
     throw error;

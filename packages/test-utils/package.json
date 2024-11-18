@@ -15,26 +15,26 @@
   },
   "dependencies": {
     "@elba-security/api-client": "workspace:*",
-    "typescript": "^5.5.2",
-    "zod": "^3.23.8"
+    "typescript": "catalog:",
+    "zod": "catalog:"
   },
   "peerDependencies": {
     "@elba-security/sdk": "workspace:*",
-    "drizzle-orm": ">=0.31.0",
-    "inngest": ">=3.22.2",
-    "msw": ">=2.3.0",
-    "postgres": ">=3.4.0",
-    "testcontainers": ">=10.10.0",
-    "vitest": ">=1.6.0"
+    "drizzle-orm": "catalog:",
+    "inngest": "catalog:",
+    "msw": "catalog:",
+    "postgres": "catalog:",
+    "testcontainers": "catalog:",
+    "vitest": "catalog:"
   },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
-    "@types/node": "^20",
-    "eslint": "^8",
-    "inngest": "3.22.2",
-    "msw": "^2.3.1",
-    "testcontainers": "^10.10.0",
-    "typescript": "^5.5.2"
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "inngest": "catalog:",
+    "msw": "catalog:",
+    "testcontainers": "catalog:",
+    "typescript": "catalog:"
   }
 }
