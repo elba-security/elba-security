@@ -9,18 +9,13 @@ import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 
-const formatElbaUserAuthMethod = (user: SumologicUser) => {
-  if (user.isMfaEnabled) {
-    return 'mfa';
-  }
-  return 'password';
-};
 const formatElbaUserDisplayName = (user: SumologicUser) => {
-  if (user.firstName === '' || user.lastName === '') {
+  if (!user.firstName || !user.lastName) {
     return user.email;
   }
   return `${user.firstName} ${user.lastName}`;
 };
+
 const formatElbaUser = ({
   user,
   sourceRegion,
@@ -33,7 +28,7 @@ const formatElbaUser = ({
   id: user.id,
   displayName: formatElbaUserDisplayName(user),
   email: user.email,
-  authMethod: formatElbaUserAuthMethod(user),
+  authMethod: user.isMfaEnabled ? 'mfa' : 'password',
   additionalEmails: [],
   isSuspendable: user.id !== authUserId,
   url: `https://service.${sourceRegion}.sumologic.com/ui/#/manage/users`,
@@ -97,9 +92,9 @@ export const syncUsers = inngest.createFunction(
         page,
       });
 
-      const users = result.validUsers
-        .filter(({ isActive }) => isActive)
-        .map((user) => formatElbaUser({ user, sourceRegion, authUserId }));
+      const users = result.validUsers.map((user) =>
+        formatElbaUser({ user, sourceRegion, authUserId })
+      );
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

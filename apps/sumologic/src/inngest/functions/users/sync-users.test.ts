@@ -27,6 +27,7 @@ const users: usersConnector.SumologicUser[] = Array.from({ length: 2 }, (_, i) =
   firstName: `firstName-${i}`,
   lastName: `lastName-${i}`,
   isActive: true,
+  isLocked: false,
   isMfaEnabled: false,
   email: `user-${i}@foo.bar`,
 }));

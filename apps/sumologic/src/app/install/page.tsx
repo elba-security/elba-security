@@ -31,8 +31,15 @@ export default function InstallPage() {
           <div>
             <h3>How to obtain your Sumologic Access ID and Access Key?</h3>
             <p>
-              1. Log in to your account and click your name in the left-nav and open the{' '}
-              <b>Preferences</b> page.
+              1. In the top menu, select your username and then{' '}
+              <b>
+                <a
+                  href="https://help.sumologic.com/docs/manage/security/access-keys/"
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  Preferences
+                </a>
+              </b>
             </p>
             <p>
               2. In the <b>My Access Keys</b> section, click <b>+ Add Access Key</b>.
@@ -72,9 +79,9 @@ export default function InstallPage() {
               <FormLabel>Region</FormLabel>
 
               <Select name="sourceRegion" placeholder="Select a region">
-                {Object.entries(SUMOLOGIC_REGIONS_NAMES).map(([value, name]) => (
-                  <option key={name} value={name}>
-                    {`[${value}] - ${name}`}
+                {Object.entries(SUMOLOGIC_REGIONS_NAMES).map(([value, code]) => (
+                  <option key={value} value={value}>
+                    {`${value} - ${code}`}
                   </option>
                 ))}
               </Select>

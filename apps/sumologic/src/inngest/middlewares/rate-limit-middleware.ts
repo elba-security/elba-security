@@ -18,7 +18,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
             }
 
             if (error.response?.status === 429) {
-              const retryAfter = error.response.headers.get('retry-after') || 60;
+              const retryAfter = 60; // the response doesn't contain any details retry interval, so we use a default value of 60 seconds
 
               return {
                 ...context,

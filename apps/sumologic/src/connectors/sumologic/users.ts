@@ -9,6 +9,7 @@ const sumologicUserSchema = z.object({
   lastName: z.string(),
   email: z.string(),
   isActive: z.boolean(),
+  isLocked: z.boolean(),
   isMfaEnabled: z.boolean(),
 });
 
@@ -82,6 +83,9 @@ export const getUsers = async ({ accessId, accessKey, sourceRegion, page }: GetU
   for (const node of data) {
     const result = sumologicUserSchema.safeParse(node);
     if (result.success) {
+      if (!result.data.isActive || result.data.isLocked) {
+        continue;
+      }
       validUsers.push(result.data);
     } else {
       invalidUsers.push(node);
@@ -118,7 +122,7 @@ export const deleteUser = async ({
       Authorization: `Basic ${encodedKey}`,
     },
     body: JSON.stringify({
-      firstName,
+      firstName, // First name  and Last name are required fields. https://api.sumologic.com/docs/#operation/updateUser
       lastName,
       isActive: false,
     }),

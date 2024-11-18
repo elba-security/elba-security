@@ -7,7 +7,7 @@ export const env = z
     DATABASE_PROXY_PORT: zEnvInt().optional(),
     DATABASE_URL: z.string().min(1),
     SUMOLOGIC_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
-    SUMOLOGIC_USERS_SYNC_BATCH_SIZE: zEnvInt().default(200),
+    SUMOLOGIC_USERS_SYNC_BATCH_SIZE: zEnvInt().default(400),
     SUMOLOGIC_USERS_SYNC_CONCURRENCY: zEnvInt().default(1),
     SUMOLOGIC_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     ELBA_API_BASE_URL: z.string().url(),

@@ -103,7 +103,6 @@ describe('registerOrganisation', () => {
     expect(getAuthUser).toBeCalledTimes(1);
     expect(getAuthUser).toBeCalledWith({ accessId, accessKey, sourceRegion });
 
-    // check if the accessId in the database is updated
     await expect(
       db
         .select({
@@ -116,7 +115,7 @@ describe('registerOrganisation', () => {
         accessId,
       },
     ]);
-    // verify that the user/sync event is sent
+
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith([
       {

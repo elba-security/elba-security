@@ -15,10 +15,11 @@ const accessKey = 'test-accessKey';
 const sourceRegion = 'eu';
 const userId = 'test-user-id';
 const validUsers: SumologicUser[] = Array.from({ length: 5 }, (_, i) => ({
-  id: `0442f541-45d2-487a-9e4b-de03ce4c559${i}`,
+  id: `00000000-0000-0000-0000-00000000000${i}`,
   firstName: `firstName-${i}`,
   lastName: `lastName-${i}`,
   isActive: true,
+  isLocked: false,
   isMfaEnabled: false,
   email: `user-${i}@foo.bar`,
 }));

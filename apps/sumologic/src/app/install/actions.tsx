@@ -7,15 +7,15 @@ import { isRedirectError } from 'next/dist/client/components/redirect';
 import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 import { SumologicError } from '@/connectors/common/error';
 import { env } from '@/common/env';
-import { SUMOLOGIC_REGIONS_NAMES } from '@/connectors/sumologic/regions';
+import { SUMOLOGIC_REGIONS_NAMES, getKeys } from '@/connectors/sumologic/regions';
 import { registerOrganisation } from './service';
 
 const formSchema = z.object({
   organisationId: z.string().uuid(),
   accessId: z.string().min(1, { message: 'The access id is required' }).trim(),
   accessKey: z.string().min(1, { message: 'The access key is required' }).trim(),
-  sourceRegion: z.enum(SUMOLOGIC_REGIONS_NAMES, {
-    errorMap: () => ({ message: 'The region is required' }),
+  sourceRegion: z.enum(getKeys(SUMOLOGIC_REGIONS_NAMES), {
+    errorMap: () => ({ message: 'The region is required and must be valid' }),
   }),
   region: z.string().min(1),
 });
