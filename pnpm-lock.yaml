@@ -24,6 +24,9 @@ catalogs:
     '@types/react-dom':
       specifier: ^18
       version: 18.2.25
+    autoprefixer:
+      specifier: ^10.4.20
+      version: 10.4.20
     dotenv:
       specifier: ^16.4.5
       version: 16.4.5
@@ -48,6 +51,9 @@ catalogs:
     next:
       specifier: 14.2.4
       version: 14.2.4
+    postcss:
+      specifier: ^8.4.47
+      version: 8.4.47
     postgres:
       specifier: ^3.4.4
       version: 3.4.4
@@ -57,6 +63,9 @@ catalogs:
     react-dom:
       specifier: ^18
       version: 18.2.0
+    tailwindcss:
+      specifier: ^3.4.3
+      version: 3.4.3
     testcontainers:
       specifier: ^10.10.0
       version: 10.10.0
@@ -1654,7 +1663,7 @@ importers:
         specifier: 'catalog:'
         version: 18.2.25
       autoprefixer:
-        specifier: ^10.4.20
+        specifier: 'catalog:'
         version: 10.4.20(postcss@8.4.47)
       dotenv:
         specifier: 'catalog:'
@@ -1672,13 +1681,13 @@ importers:
         specifier: 'catalog:'
         version: 2.3.1(typescript@5.5.3)
       postcss:
-        specifier: ^8.4.47
+        specifier: 'catalog:'
         version: 8.4.47
       postgres:
         specifier: 'catalog:'
         version: 3.4.4
       tailwindcss:
-        specifier: ^3.4.3
+        specifier: 'catalog:'
         version: 3.4.3(ts-node@10.9.1(@types/node@20.14.2)(typescript@5.5.3))
       testcontainers:
         specifier: 'catalog:'
@@ -3740,7 +3749,7 @@ importers:
         specifier: 'catalog:'
         version: 18.2.0(react@18.2.0)
       tailwindcss:
-        specifier: ^3.4.3
+        specifier: 'catalog:'
         version: 3.4.3(ts-node@10.9.1(@types/node@20.14.2)(typescript@5.5.3))
       typescript:
         specifier: 'catalog:'
@@ -8166,14 +8175,6 @@ packages:
     resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
     engines: {node: ^10 || ^12 || >=14}
 
-  postcss@8.4.32:
-    resolution: {integrity: sha512-D/kj5JNu6oo2EIy+XL/26JEDTlIbB8hw85G8StOE6L74RQAVVP5rej6wxCNqyMbR4RkPfqvezVbPw81Ngd6Kcw==}
-    engines: {node: ^10 || ^12 || >=14}
-
-  postcss@8.4.39:
-    resolution: {integrity: sha512-0vzE+lAiG7hZl1/9I8yzKLx3aR9Xbof3fBHKunvMfOCYAtMhrsnccJY2iTURb9EZd5+pLuiNV9/c/GZJOHsgIw==}
-    engines: {node: ^10 || ^12 || >=14}
-
   postcss@8.4.47:
     resolution: {integrity: sha512-56rxCq7G/XfB4EkXq9Egn5GCqugWvDFjafDOThIdMBsI15iqPqR5r15TfSr1YPYeEI19YeaXMCbY6u88Y76GLQ==}
     engines: {node: ^10 || ^12 || >=14}
@@ -8595,14 +8596,6 @@ packages:
   sort-package-json@2.10.0:
     resolution: {integrity: sha512-MYecfvObMwJjjJskhxYfuOADkXp1ZMMnCFC8yhp+9HDsk7HhR336hd7eiBs96lTXfiqmUNI+WQCeCMRBhl251g==}
     hasBin: true
-
-  source-map-js@1.0.2:
-    resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
-    engines: {node: '>=0.10.0'}
-
-  source-map-js@1.2.0:
-    resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
-    engines: {node: '>=0.10.0'}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -11019,7 +11012,7 @@ snapshots:
       caniuse-lite: 1.0.30001674
       fraction.js: 4.3.7
       normalize-range: 0.1.2
-      picocolors: 1.0.1
+      picocolors: 1.1.1
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
@@ -13882,7 +13875,8 @@ snapshots:
       postgres-interval: 3.0.0
       postgres-range: 1.1.4
 
-  picocolors@1.0.0: {}
+  picocolors@1.0.0:
+    optional: true
 
   picocolors@1.0.1: {}
 
@@ -13934,29 +13928,29 @@ snapshots:
 
   possible-typed-array-names@1.0.0: {}
 
-  postcss-import@15.1.0(postcss@8.4.32):
+  postcss-import@15.1.0(postcss@8.4.47):
     dependencies:
-      postcss: 8.4.32
+      postcss: 8.4.47
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
       resolve: 1.22.8
 
-  postcss-js@4.0.1(postcss@8.4.32):
+  postcss-js@4.0.1(postcss@8.4.47):
     dependencies:
       camelcase-css: 2.0.1
-      postcss: 8.4.32
+      postcss: 8.4.47
 
-  postcss-load-config@4.0.2(postcss@8.4.32)(ts-node@10.9.1(@types/node@20.14.2)(typescript@5.5.3)):
+  postcss-load-config@4.0.2(postcss@8.4.47)(ts-node@10.9.1(@types/node@20.14.2)(typescript@5.5.3)):
     dependencies:
       lilconfig: 3.0.0
       yaml: 2.3.4
     optionalDependencies:
-      postcss: 8.4.32
+      postcss: 8.4.47
       ts-node: 10.9.1(@types/node@20.14.2)(typescript@5.5.3)
 
-  postcss-nested@6.0.1(postcss@8.4.32):
+  postcss-nested@6.0.1(postcss@8.4.47):
     dependencies:
-      postcss: 8.4.32
+      postcss: 8.4.47
       postcss-selector-parser: 6.0.16
 
   postcss-selector-parser@6.0.16:
@@ -13971,18 +13965,6 @@ snapshots:
       nanoid: 3.3.7
       picocolors: 1.1.1
       source-map-js: 1.2.1
-
-  postcss@8.4.32:
-    dependencies:
-      nanoid: 3.3.7
-      picocolors: 1.0.0
-      source-map-js: 1.0.2
-
-  postcss@8.4.39:
-    dependencies:
-      nanoid: 3.3.7
-      picocolors: 1.0.1
-      source-map-js: 1.2.0
 
   postcss@8.4.47:
     dependencies:
@@ -14475,10 +14457,6 @@ snapshots:
       semver: 7.6.2
       sort-object-keys: 1.1.3
 
-  source-map-js@1.0.2: {}
-
-  source-map-js@1.2.0: {}
-
   source-map-js@1.2.1: {}
 
   source-map-support@0.5.21:
@@ -14660,7 +14638,7 @@ snapshots:
 
   sucrase@3.35.0:
     dependencies:
-      '@jridgewell/gen-mapping': 0.3.3
+      '@jridgewell/gen-mapping': 0.3.5
       commander: 4.1.1
       glob: 10.3.12
       lines-and-columns: 1.2.4
@@ -14725,12 +14703,12 @@ snapshots:
       micromatch: 4.0.5
       normalize-path: 3.0.0
       object-hash: 3.0.0
-      picocolors: 1.0.0
-      postcss: 8.4.32
-      postcss-import: 15.1.0(postcss@8.4.32)
-      postcss-js: 4.0.1(postcss@8.4.32)
-      postcss-load-config: 4.0.2(postcss@8.4.32)(ts-node@10.9.1(@types/node@20.14.2)(typescript@5.5.3))
-      postcss-nested: 6.0.1(postcss@8.4.32)
+      picocolors: 1.1.1
+      postcss: 8.4.47
+      postcss-import: 15.1.0(postcss@8.4.47)
+      postcss-js: 4.0.1(postcss@8.4.47)
+      postcss-load-config: 4.0.2(postcss@8.4.47)(ts-node@10.9.1(@types/node@20.14.2)(typescript@5.5.3))
+      postcss-nested: 6.0.1(postcss@8.4.47)
       postcss-selector-parser: 6.0.16
       resolve: 1.22.8
       sucrase: 3.35.0
@@ -15156,7 +15134,7 @@ snapshots:
   vite@5.3.2(@types/node@20.14.2):
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.4.39
+      postcss: 8.4.47
       rollup: 4.18.0
     optionalDependencies:
       '@types/node': 20.14.2
