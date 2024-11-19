@@ -30,7 +30,7 @@ const getUsersData = {
 };
 
 const getOrganisationData = {
-  plan: 'trial',
+  plan: 'team',
   name: 'test-name',
 };
 
@@ -163,5 +163,40 @@ describe('registerOrganisation', () => {
         },
       },
     ]);
+  });
+
+  test('should not setup organisation when the plan is not supported', async () => {
+    // @ts-expect-error -- this is a mock
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
+    // mocked the getUsers function
+    const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
+    const getOrganisation = vi
+      .spyOn(organisationConnector, 'getOrganisation')
+      .mockResolvedValue({ ...getOrganisationData, plan: 'developer' });
+
+    await expect(
+      registerOrganisation({
+        organisationId: organisation.id,
+        region,
+        serviceToken,
+        accountId,
+        accessUrl,
+      })
+    ).resolves.toStrictEqual({ isInvalidPlan: true });
+    expect(getUsers).toBeCalledTimes(0);
+
+    // check if getOrganisation was called correctly
+    expect(getOrganisation).toBeCalledTimes(1);
+    expect(getOrganisation).toBeCalledWith({ serviceToken, accountId, accessUrl });
+
+    // check if the token in the database is updated
+    const [storedOrganisation] = await db
+      .select()
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisation.id));
+
+    expect(storedOrganisation).toBeUndefined();
+
+    expect(send).toBeCalledTimes(0);
   });
 });

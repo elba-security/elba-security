@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Form, SubmitButton, Alert } from '@elba-security/design-system';
+import { Button, Alert } from '@elba-security/design-system';
 import { useSearchParams } from 'next/navigation';
 import { redirectTo } from './actions';
 
@@ -16,12 +16,13 @@ export default function Error() {
   return (
     <>
       <h1>An error has occurred</h1>
-      <b>
-        <Alert status="error">{errorMessage}</Alert>
-      </b>
-      <Form action={redirectTo}>
-        <SubmitButton>Connect again</SubmitButton>
-      </Form>
+      <Alert status="error">{errorMessage}</Alert>
+      <div className="mt-4 self-center space-x-3">
+        <Button variant="secondary" onClick={() => redirectTo('elba')}>
+          Back to elba
+        </Button>
+        <Button onClick={() => redirectTo('install')}>Setup Google</Button>
+      </div>
     </>
   );
 }

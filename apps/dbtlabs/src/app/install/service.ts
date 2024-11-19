@@ -14,16 +14,10 @@ type SetupOrganisationParams = {
   accessUrl: string;
 };
 
-const accountPlans = [
-  'cancelled',
-  'cancelled_2022',
-  'free',
-  'developer',
-  'developer_2022',
-  'trial_2022',
-];
+const supportedPlans = ['enterprise', 'team', 'team_2022', 'team_annual'];
 
-const isDevelopment = !env.VERCEL_ENV || env.VERCEL_ENV === 'development';
+const isDevelopment =
+  (!env.VERCEL_ENV || env.VERCEL_ENV === 'development') && process.env.NODE_ENV !== 'test';
 
 export const registerOrganisation = async ({
   organisationId,
@@ -32,14 +26,12 @@ export const registerOrganisation = async ({
   accountId,
   accessUrl,
 }: SetupOrganisationParams) => {
-  // For testing purposes, we user trail account & we don't want to check the plan and stage of the organisation
-  if (!isDevelopment || process.env.NODE_ENV === 'test') {
+  // For testing purposes, we use trial account & we don't want to check the plan and stage of the organisation
+  if (!isDevelopment) {
     const { plan } = await getOrganisation({ serviceToken, accountId, accessUrl });
 
-    if (accountPlans.includes(plan)) {
-      return {
-        isInvalidPlan: true,
-      };
+    if (!supportedPlans.includes(plan)) {
+      return { isInvalidPlan: true };
     }
   }
 
