@@ -6,6 +6,7 @@ import { inngest } from '@/inngest/client';
 import * as userConnector from '@/connectors/dbtlabs/users';
 import { decrypt } from '@/common/crypto';
 import { DbtlabsError } from '@/connectors/common/error';
+import * as organisationConnector from '@/connectors/dbtlabs/organisation';
 import { registerOrganisation } from './service';
 
 const serviceToken = 'test-personal-token';
@@ -28,6 +29,11 @@ const getUsersData = {
   nextPage: null,
 };
 
+const getOrganisationData = {
+  plan: 'trial',
+  name: 'test-name',
+};
+
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   accountId,
@@ -48,6 +54,9 @@ describe('registerOrganisation', () => {
   test('should setup organisation when the organisation id is valid and the organisation is not registered', async () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
+    const getOrganisation = vi
+      .spyOn(organisationConnector, 'getOrganisation')
+      .mockResolvedValue(getOrganisationData);
 
     await expect(
       registerOrganisation({
@@ -62,6 +71,10 @@ describe('registerOrganisation', () => {
     // check if getUsers was called correctly
     expect(getUsers).toBeCalledTimes(1);
     expect(getUsers).toBeCalledWith({ serviceToken, accountId, accessUrl, page: null });
+
+    // check if getOrganisation was called correctly
+    expect(getOrganisation).toBeCalledTimes(1);
+    expect(getOrganisation).toBeCalledWith({ serviceToken, accountId, accessUrl });
     // verify the organisation token is set in the database
     const [storedOrganisation] = await db
       .select()
@@ -98,6 +111,10 @@ describe('registerOrganisation', () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     // mocked the getUsers function
     const getUsers = vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
+    const getOrganisation = vi
+      .spyOn(organisationConnector, 'getOrganisation')
+      .mockResolvedValue(getOrganisationData);
+
     // pre-insert an organisation to simulate an existing entry
     await db.insert(organisationsTable).values(organisation);
 
@@ -112,6 +129,11 @@ describe('registerOrganisation', () => {
     ).resolves.toBeUndefined();
     expect(getUsers).toBeCalledTimes(1);
     expect(getUsers).toBeCalledWith({ serviceToken, accountId, accessUrl, page: null });
+
+    // check if getOrganisation was called correctly
+    expect(getOrganisation).toBeCalledTimes(1);
+    expect(getOrganisation).toBeCalledWith({ serviceToken, accountId, accessUrl });
+
     // check if the token in the database is updated
     const [storedOrganisation] = await db
       .select()

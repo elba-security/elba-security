@@ -3,6 +3,8 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 import { getUsers } from '@/connectors/dbtlabs/users';
+import { getOrganisation } from '@/connectors/dbtlabs/organisation';
+import { env } from '@/common/env';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -12,6 +14,8 @@ type SetupOrganisationParams = {
   accessUrl: string;
 };
 
+const isDevelopment = !env.VERCEL_ENV || env.VERCEL_ENV === 'development';
+
 export const registerOrganisation = async ({
   organisationId,
   region,
@@ -19,6 +23,17 @@ export const registerOrganisation = async ({
   accountId,
   accessUrl,
 }: SetupOrganisationParams) => {
+  // For testing purposes, we user trail account & we don't want to check the plan and stage of the organisation
+  if (!isDevelopment || process.env.NODE_ENV === 'test') {
+    const { plan } = await getOrganisation({ serviceToken, accountId, accessUrl });
+
+    if (['cancelled', 'cancelled_2022', 'free', 'developer', 'developer_2022'].includes(plan)) {
+      return {
+        isInvalidPlan: true,
+      };
+    }
+  }
+
   const encryptedServiceToken = await encrypt(serviceToken);
 
   await getUsers({ serviceToken, accountId, accessUrl, page: null });

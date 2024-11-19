@@ -12,6 +12,7 @@ import {
 } from '@elba-security/design-system';
 import { useSearchParams } from 'next/navigation';
 import { useFormState } from 'react-dom';
+import { useEffect, useState } from 'react';
 import type { FormState } from './actions';
 import { install } from './actions';
 
@@ -21,6 +22,11 @@ export default function InstallPage() {
   const region = searchParams.get('region');
 
   const [state, formAction] = useFormState<FormState, FormData>(install, {});
+  const [currentUrl, setCurrentUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCurrentUrl(window.location.href); // Capture the current URL once on component mount
+  }, []);
 
   return (
     <>
@@ -92,7 +98,7 @@ export default function InstallPage() {
               <input name="organisationId" type="hidden" value={organisationId} />
             )}
             {region !== null && <input name="region" type="hidden" value={region} />}
-
+            {currentUrl ? <input name="currentUrl" type="hidden" value={currentUrl} /> : null}
             <SubmitButton>Install</SubmitButton>
           </Form>
         </InstructionsStep>
