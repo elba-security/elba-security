@@ -7,9 +7,9 @@ import { env } from '@/common/env';
 
 export const redirectTo = () => {
   const region = cookies().get('region')?.value;
-  const redirectUrl = cookies().get('redirect_url')?.value;
+  const organisationId = cookies().get('organisation_id')?.value;
 
-  if (!redirectUrl) {
+  if (!organisationId || !region) {
     logger.error('Redirect URL is not found');
     redirect(
       getRedirectUrl({
@@ -22,5 +22,5 @@ export const redirectTo = () => {
     );
   }
 
-  redirect(redirectUrl);
+  redirect(`/install?organisation_id=${organisationId}&region=${region}`);
 };

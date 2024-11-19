@@ -14,6 +14,15 @@ type SetupOrganisationParams = {
   accessUrl: string;
 };
 
+const accountPlans = [
+  'cancelled',
+  'cancelled_2022',
+  'free',
+  'developer',
+  'developer_2022',
+  'trial_2022',
+];
+
 const isDevelopment = !env.VERCEL_ENV || env.VERCEL_ENV === 'development';
 
 export const registerOrganisation = async ({
@@ -27,7 +36,7 @@ export const registerOrganisation = async ({
   if (!isDevelopment || process.env.NODE_ENV === 'test') {
     const { plan } = await getOrganisation({ serviceToken, accountId, accessUrl });
 
-    if (['cancelled', 'cancelled_2022', 'free', 'developer', 'developer_2022'].includes(plan)) {
+    if (accountPlans.includes(plan)) {
       return {
         isInvalidPlan: true,
       };
@@ -66,7 +75,6 @@ export const registerOrganisation = async ({
         page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
       name: 'dbtlabs/app.installed',
       data: {

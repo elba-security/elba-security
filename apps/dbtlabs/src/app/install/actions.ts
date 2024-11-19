@@ -13,7 +13,6 @@ import { registerOrganisation } from './service';
 const formSchema = z.object({
   organisationId: z.string().uuid(),
   region: z.string().min(1),
-  currentUrl: z.string().min(1),
   serviceToken: z.string().min(1, {
     message: 'Service Token is required',
   }),
@@ -42,7 +41,6 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
     const result = formSchema.safeParse({
       organisationId: formData.get('organisationId'),
       region: formData.get('region'),
-      currentUrl: formData.get('currentUrl'),
       serviceToken: formData.get('serviceToken'),
       accountId: formData.get('accountId'),
       accessUrl: formData.get('accessUrl'),
@@ -67,11 +65,12 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
       };
     }
 
-    cookies().set('redirect_url', result.data.currentUrl.toString());
-
     const response = await registerOrganisation(result.data);
     if (response?.isInvalidPlan) {
-      redirect('/connection');
+      cookies().set('organisation_id', result.data.organisationId);
+      cookies().set('region', result.data.region);
+
+      redirect('/error?error=invalid_plan', RedirectType.replace);
     }
 
     redirect(
