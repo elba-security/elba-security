@@ -2,7 +2,6 @@
 import { getRedirectUrl } from '@elba-security/sdk';
 import { cookies } from 'next/headers';
 import { redirect, RedirectType } from 'next/navigation';
-import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 
 export const redirectTo = () => {
@@ -10,7 +9,6 @@ export const redirectTo = () => {
   const organisationId = cookies().get('organisation_id')?.value;
 
   if (!organisationId || !region) {
-    logger.error('Redirect URL is not found');
     redirect(
       getRedirectUrl({
         sourceId: env.ELBA_SOURCE_ID,
