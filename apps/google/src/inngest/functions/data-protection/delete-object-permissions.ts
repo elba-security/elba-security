@@ -22,9 +22,9 @@ type DeleteDataProtectionObjectPermissionsRequested = {
 export const deleteDataProtectionObjectPermissions = inngest.createFunction(
   {
     id: 'google-delete-data-protection-object-permissions',
-    retries: 3,
+    retries: 5,
     concurrency: {
-      limit: 1,
+      limit: 5,
     },
     cancelOn: [
       {
