@@ -3,13 +3,16 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env/server';
 import { BoxError } from '../common/error';
-import { getRefreshToken, getToken } from './auth';
+import { getRefreshToken, getToken, getAuthUser } from './auth';
 
 const validCode = '1234';
 const validRefreshToken = 'valid-refresh-token';
 const accessToken = 'access-token-1234';
 const refreshToken = 'refresh-token-1234';
 const expiresIn = '1234';
+const validToken = 'test-valid-token';
+const invalidToken = 'foo-bar';
+const authUserId = 'test-auth-user-id';
 
 describe('auth connector', () => {
   describe('getToken', () => {
@@ -79,6 +82,33 @@ describe('auth connector', () => {
 
     test('should throw when the refreshToken is invalid', async () => {
       await expect(getToken('wrong-refreshtoken')).rejects.toBeInstanceOf(BoxError);
+    });
+  });
+
+  describe('getAuthUser', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.BOX_API_BASE_URL}/2.0/users/me`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          const responseData = {
+            id: authUserId,
+          };
+          return Response.json(responseData);
+        })
+      );
+    });
+
+    test('should return users and nextPage when the token is valid and their is another page', async () => {
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+        authUserId,
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getAuthUser(invalidToken)).rejects.toBeInstanceOf(BoxError);
     });
   });
 });
