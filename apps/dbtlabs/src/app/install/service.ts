@@ -3,6 +3,8 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { encrypt } from '@/common/crypto';
 import { getUsers } from '@/connectors/dbtlabs/users';
+import { getOrganisation } from '@/connectors/dbtlabs/organisation';
+import { env } from '@/common/env';
 
 type SetupOrganisationParams = {
   organisationId: string;
@@ -12,6 +14,11 @@ type SetupOrganisationParams = {
   accessUrl: string;
 };
 
+const supportedPlans = ['enterprise', 'team', 'team_2022', 'team_annual'];
+
+const isDevelopment =
+  (!env.VERCEL_ENV || env.VERCEL_ENV === 'development') && process.env.NODE_ENV !== 'test';
+
 export const registerOrganisation = async ({
   organisationId,
   region,
@@ -19,6 +26,15 @@ export const registerOrganisation = async ({
   accountId,
   accessUrl,
 }: SetupOrganisationParams) => {
+  // For testing purposes, we use trial account & we don't want to check the plan and stage of the organisation
+  if (!isDevelopment) {
+    const { plan } = await getOrganisation({ serviceToken, accountId, accessUrl });
+
+    if (!supportedPlans.includes(plan)) {
+      return { isInvalidPlan: true };
+    }
+  }
+
   const encryptedServiceToken = await encrypt(serviceToken);
 
   await getUsers({ serviceToken, accountId, accessUrl, page: null });
@@ -51,7 +67,6 @@ export const registerOrganisation = async ({
         page: null,
       },
     },
-    // this will cancel scheduled token refresh if it exists
     {
       name: 'dbtlabs/app.installed',
       data: {
