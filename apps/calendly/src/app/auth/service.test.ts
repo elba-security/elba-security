@@ -189,7 +189,6 @@ describe('setupOrganisation', () => {
   test('should not setup the organisation when the plan is not supported', async () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
-    await db.insert(organisationsTable).values(organisation);
 
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue(getTokenData);
     const getOrganisation = vi.spyOn(organisationConnector, 'getOrganisation').mockResolvedValue({
@@ -216,6 +215,10 @@ describe('setupOrganisation', () => {
       accessToken,
       organizationUri: getTokenData.organizationUri,
     });
+
+    await expect(
+      db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
+    ).resolves.toHaveLength(0);
 
     expect(send).toBeCalledTimes(0);
   });

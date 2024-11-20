@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const response = await setupOrganisation({ organisationId, code, region });
 
     if (response?.isInvalidPlan) {
-      return NextResponse.redirect(new URL('/connection', request.nextUrl.origin));
+      return NextResponse.redirect(new URL('/error?error=invalid_plan', request.nextUrl.origin));
     }
   } catch (error) {
     logger.error('Could not setup organisation', { error, organisationId });

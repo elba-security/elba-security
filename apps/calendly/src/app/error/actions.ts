@@ -2,15 +2,13 @@
 import { getRedirectUrl } from '@elba-security/sdk';
 import { cookies } from 'next/headers';
 import { redirect, RedirectType } from 'next/navigation';
-import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 
-export const redirectTo = () => {
+export const redirectTo = (destination: 'elba' | 'install') => {
   const region = cookies().get('region')?.value;
   const redirectUrl = cookies().get('redirect_url')?.value;
 
-  if (!redirectUrl) {
-    logger.error('Redirect URL is not found');
+  if (destination === 'elba' || !region || !redirectUrl) {
     redirect(
       getRedirectUrl({
         sourceId: env.ELBA_SOURCE_ID,
@@ -22,5 +20,5 @@ export const redirectTo = () => {
     );
   }
 
-  redirect(redirectUrl);
+  redirect(redirectUrl, RedirectType.replace);
 };

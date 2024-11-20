@@ -14,7 +14,8 @@ type SetupOrganisationParams = {
   region: string;
 };
 
-const isDevelopment = !env.VERCEL_ENV || env.VERCEL_ENV === 'development';
+const isDevelopment =
+  (!env.VERCEL_ENV || env.VERCEL_ENV === 'development') && process.env.NODE_ENV !== 'test';
 
 export const setupOrganisation = async ({
   organisationId,
@@ -24,9 +25,8 @@ export const setupOrganisation = async ({
   const { accessToken, refreshToken, expiresIn, organizationUri } = await getToken(code);
 
   // For testing purposes, we user trail account & we don't want to check the plan and stage of the organisation
-  if (!isDevelopment || process.env.NODE_ENV === 'test') {
+  if (!isDevelopment) {
     const { plan, stage } = await getOrganisation({ accessToken, organizationUri });
-
     if (['basic', 'essentials'].includes(plan) || stage !== 'paid') {
       return {
         isInvalidPlan: true,
