@@ -1,7 +1,7 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { BoxError } from '../common/error';
 import type { BoxUser } from './users';
 import { getUsers, deleteUser } from './users';
