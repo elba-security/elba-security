@@ -1,9 +1,11 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/asana/users';
+import * as authConnector from '@/connectors/asana/auth';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
+import * as nangoAPI from '@/common/nango/api';
 import { syncUsers } from './sync-users';
 
 const organisation = {
@@ -12,7 +14,9 @@ const organisation = {
 };
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
+const accessToken = 'test-access-token';
 const nextPage = '1';
+
 const users: usersConnector.AsanaUser[] = Array.from({ length: 2 }, (_, i) => ({
   gid: `id-${i}`,
   name: `name-${i}`,
@@ -21,9 +25,26 @@ const users: usersConnector.AsanaUser[] = Array.from({ length: 2 }, (_, i) => ({
   is_active: true,
 }));
 
+const user = {
+  authUserId: 'test-auth-user-id',
+};
 const setup = createInngestFunctionMock(syncUsers, 'asana/users.sync.requested');
 
 describe('synchronize-users', () => {
+  beforeEach(() => {
+    // Create a mock instance of NangoAPIClient
+    const mockNangoAPIClient = {
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: {
+          access_token: accessToken,
+        },
+      }),
+    };
+    /* eslint-disable @typescript-eslint/no-unsafe-argument -- copy paste from inngest */
+    /* eslint-disable @typescript-eslint/no-explicit-any -- needed for efficient type extraction */
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(mockNangoAPIClient as any);
+  });
+
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -47,6 +68,7 @@ describe('synchronize-users', () => {
 
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
+    vi.spyOn(authConnector, 'getAuthUser').mockResolvedValue(user);
 
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
@@ -100,6 +122,8 @@ describe('synchronize-users', () => {
 
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
+    vi.spyOn(authConnector, 'getAuthUser').mockResolvedValue(user);
+
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,

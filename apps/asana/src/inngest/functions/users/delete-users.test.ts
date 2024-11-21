@@ -4,6 +4,7 @@ import * as usersConnector from '@/connectors/asana/users';
 import * as authConnector from '@/connectors/asana/auth';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
+import * as nangoAPI from '@/common/nango/api';
 import { deleteUser } from './delete-users';
 
 const userId = 'user-id';
@@ -21,6 +22,18 @@ const setup = createInngestFunctionMock(deleteUser, 'asana/users.delete.requeste
 describe('deleteUser', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    // Create a mock instance of NangoAPIClient
+    const mockNangoAPIClient = {
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: {
+          access_token: accessToken,
+        },
+      }),
+    };
+
+    /* eslint-disable @typescript-eslint/no-unsafe-argument -- copy paste from inngest */
+    /* eslint-disable @typescript-eslint/no-explicit-any -- needed for efficient type extraction */
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(mockNangoAPIClient as any);
   });
 
   test('should delete users', async () => {

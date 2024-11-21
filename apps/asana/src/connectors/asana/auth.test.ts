@@ -3,13 +3,14 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env/server';
 import { AsanaError } from '../common/error';
-import { getToken, getWorkspaceIds, getRefreshToken } from './auth';
+import { getToken, getWorkspaceIds, getRefreshToken, getAuthUser } from './auth';
 
 const validCode = '1234';
 const accessToken = 'access-token-1234';
 const validRefreshToken = 'valid-refresh-token';
 const invalidToken = 'invalid-token';
 const workspaceId = '000000';
+const authUserId = 'test-auth-user-id';
 const expiresIn = 1234;
 
 describe('auth connector', () => {
@@ -107,6 +108,35 @@ describe('auth connector', () => {
 
     test('should throw when the accessToken is invalid', async () => {
       await expect(getWorkspaceIds(invalidToken)).rejects.toBeInstanceOf(AsanaError);
+    });
+  });
+
+  describe('getAuthUser', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.ASANA_API_BASE_URL}/users/me`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${accessToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          const responseData = {
+            data: {
+              gid: authUserId,
+            },
+          };
+          return Response.json(responseData);
+        })
+      );
+    });
+
+    test('should return users and nextPage when the token is valid and their is another page', async () => {
+      await expect(getAuthUser(accessToken)).resolves.toStrictEqual({
+        authUserId,
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getAuthUser(invalidToken)).rejects.toBeInstanceOf(AsanaError);
     });
   });
 });
