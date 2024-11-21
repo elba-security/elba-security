@@ -6,9 +6,10 @@ import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/asana/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
+import { nangoAPIClient } from '@/common/nango/api';
 import { type AsanaUser } from '@/connectors/asana/users';
 import { createElbaClient } from '@/connectors/elba/client';
+import { getAuthUser } from '@/connectors/asana/auth';
 
 const formatElbaUser = ({ user, authUserId }: { user: AsanaUser; authUserId: string }): User => ({
   id: user.gid,
@@ -46,8 +47,6 @@ export const syncUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        token: organisationsTable.accessToken,
-        authUserId: organisationsTable.authUserId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -57,11 +56,15 @@ export const syncUsers = inngest.createFunction(
     }
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
-    const authUserId = organisation.authUserId;
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken: token, page });
+      const { credentials } = await nangoAPIClient.getConnection(organisationId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+      const { authUserId } = await getAuthUser(credentials.access_token);
+
+      const result = await getUsers({ accessToken: credentials.access_token, page });
 
       const users = result.validUsers.map((user) => formatElbaUser({ user, authUserId }));
 

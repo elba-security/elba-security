@@ -4,16 +4,10 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/asana/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
 import { syncUsers } from './sync-users';
-
-const authUserId = 'test-auth-user-id';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt('test-access-token'),
-  refreshToken: await encrypt('test-refresh-token'),
-  authUserId,
   region: 'us',
 };
 const syncStartedAt = Date.now();

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { AsanaError } from '../common/error';
 
 const tokenResponseSchema = z.object({
@@ -15,6 +15,12 @@ const workspaceResponseSchema = z.object({
       gid: z.string(),
     })
   ),
+});
+
+const getAuthUserResponseData = z.object({
+  data: z.object({
+    gid: z.string(),
+  }),
 });
 
 export const getToken = async (code: string) => {
@@ -123,4 +129,32 @@ export const getWorkspaceIds = async (accessToken: string) => {
   }
 
   return workspaceIds;
+};
+
+export const getAuthUser = async (accessToken: string) => {
+  const url = new URL(`${env.ASANA_API_BASE_URL}/users/me`);
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new AsanaError('Could not retrieve auth-user id', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = getAuthUserResponseData.safeParse(resData);
+  if (!result.success) {
+    logger.error('Invalid Asana auth-user id response', { resData });
+    throw new AsanaError('Invalid Asana auth-user id response');
+  }
+
+  return {
+    authUserId: result.data.data.gid,
+  };
 };
