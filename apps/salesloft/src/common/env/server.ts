@@ -8,10 +8,7 @@ export const env = z
     DATABASE_URL: z.string().min(1),
     SALESLOFT_APP_INSTALL_URL: z.string().url().default('https://account.salesloft.com'), // Development URL: https://account-d.salesloft.com
     SALESLOFT_API_BASE_URL: z.string().url().default('https://api.salesloft.com'), // Development URL: https://account-d.salesloft.com
-    SALESLOFT_CLIENT_ID: z.string().min(1),
-    SALESLOFT_CLIENT_SECRET: z.string().min(1),
     SALESLOFT_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
-    SALESLOFT_REDIRECT_URI: z.string().url(),
     SALESLOFT_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
     SALESLOFT_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     ELBA_API_BASE_URL: z.string().url(),

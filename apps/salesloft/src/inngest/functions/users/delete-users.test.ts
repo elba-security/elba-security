@@ -20,7 +20,6 @@ describe('deleteUser', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
 
-    // Create a mock instance of NangoAPIClient
     const mockNangoAPIClient = {
       getConnection: vi.fn().mockResolvedValue({
         credentials: {
@@ -29,9 +28,9 @@ describe('deleteUser', () => {
       }),
     };
 
-    /* eslint-disable @typescript-eslint/no-unsafe-argument -- copy paste from inngest */
-    /* eslint-disable @typescript-eslint/no-explicit-any -- needed for efficient type extraction */
-    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(mockNangoAPIClient as any);
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(
+      mockNangoAPIClient as unknown as typeof nangoAPI.nangoAPIClient
+    );
   });
 
   test('should delete users', async () => {

@@ -6,8 +6,8 @@ import { env } from '@/common/env/server';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { getAuthUser } from '@/connectors/salesloft/auth';
 import { nangoAPIClient } from '@/common/nango/api';
+import { getAuthUser } from '@/connectors/salesloft/users';
 
 export const setupOrganisation = async ({
   organisationId,
@@ -20,6 +20,7 @@ export const setupOrganisation = async ({
   if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
     throw new Error('Could not retrieve Nango credentials');
   }
+
   await getAuthUser(credentials.access_token);
 
   await db

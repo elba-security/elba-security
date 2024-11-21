@@ -3,13 +3,12 @@ import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/salesloft/users';
+import { getAuthUser, getUsers } from '@/connectors/salesloft/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { nangoAPIClient } from '@/common/nango/api';
 import { type SalesloftUser } from '@/connectors/salesloft/users';
 import { createElbaClient } from '@/connectors/elba/client';
-import { getAuthUser } from '@/connectors/salesloft/auth';
 
 // TODO: Fetch Role
 // We could fetch the user role from the Admin | User | custom role(it should be fetch from roles api, it may have pagination)
@@ -18,13 +17,13 @@ const formatElbaUser = ({
   authUserId,
 }: {
   user: SalesloftUser;
-  authUserId: string;
+  authUserId: number;
 }): User => ({
   id: String(user.id),
   displayName: user.name,
   email: user.email,
   additionalEmails: [],
-  isSuspendable: String(user.id) !== authUserId,
+  isSuspendable: String(user.id) !== String(authUserId),
   role: ['Admin', 'User'].includes(user.role.id) ? user.role.id : undefined,
   url: 'https://app.salesloft.com/app/settings/users/active',
 });
@@ -70,19 +69,21 @@ export const syncUsers = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       const { credentials } = await nangoAPIClient.getConnection(organisationId);
+
       if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
+        throw new NonRetriableError(
+          `Nango credentials are missing or invalid for the organisation with id=${organisationId}`
+        );
       }
 
       const result = await getUsers({
         accessToken: credentials.access_token,
         page,
       });
-      const data = await getAuthUser(credentials.access_token);
 
-      const users = result.validUsers.map((user) =>
-        formatElbaUser({ user, authUserId: String(data.id) })
-      );
+      const { id: authUserId } = await getAuthUser(credentials.access_token);
+
+      const users = result.validUsers.map((user) => formatElbaUser({ user, authUserId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
