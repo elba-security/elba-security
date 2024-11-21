@@ -4,7 +4,7 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env/server';
 import { BoxError } from '../common/error';
 import type { BoxUser } from './users';
-import { getUsers, deleteUser } from './users';
+import { getUsers, deleteUser, getAuthUser } from './users';
 
 const validToken = 'token-1234';
 const nextPage = '1';
@@ -12,6 +12,8 @@ const userId = 'test-id';
 const nextPagetotalCount = 30;
 const limit = 20;
 const totalCount = 1;
+const authUserId = 'test-auth-user-id';
+const invalidToken = 'foo-bar';
 
 const validUsers: BoxUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
@@ -107,6 +109,33 @@ describe('users connector', () => {
       await expect(deleteUser({ accessToken: 'invalidToken', userId })).rejects.toBeInstanceOf(
         BoxError
       );
+    });
+  });
+
+  describe('getAuthUser', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.BOX_API_BASE_URL}/2.0/users/me`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          const responseData = {
+            id: authUserId,
+          };
+          return Response.json(responseData);
+        })
+      );
+    });
+
+    test('should return users and nextPage when the token is valid and their is another page', async () => {
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+        authUserId,
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getAuthUser(invalidToken)).rejects.toBeInstanceOf(BoxError);
     });
   });
 });

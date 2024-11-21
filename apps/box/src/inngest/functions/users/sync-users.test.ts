@@ -2,7 +2,6 @@ import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/box/users';
-import * as authConnector from '@/connectors/box/auth';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as nangoAPI from '@/common/nango/api';
@@ -30,7 +29,6 @@ const setup = createInngestFunctionMock(synchronizeUsers, 'box/users.sync.reques
 
 describe('synchronize-users', () => {
   beforeEach(() => {
-    // Create a mock instance of NangoAPIClient
     const mockNangoAPIClient = {
       getConnection: vi.fn().mockResolvedValue({
         credentials: {
@@ -38,9 +36,10 @@ describe('synchronize-users', () => {
         },
       }),
     };
-    /* eslint-disable @typescript-eslint/no-unsafe-argument -- copy paste from inngest */
-    /* eslint-disable @typescript-eslint/no-explicit-any -- needed for efficient type extraction */
-    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(mockNangoAPIClient as any);
+
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(
+      mockNangoAPIClient as unknown as typeof nangoAPI.nangoAPIClient
+    );
   });
 
   test('should abort sync when organisation is not registered', async () => {
@@ -68,7 +67,7 @@ describe('synchronize-users', () => {
 
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
-    vi.spyOn(authConnector, 'getAuthUser').mockResolvedValue(user);
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
 
     // setup the test with an organisation
     await db.insert(organisationsTable).values(organisation);
@@ -127,7 +126,7 @@ describe('synchronize-users', () => {
 
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
-    vi.spyOn(authConnector, 'getAuthUser').mockResolvedValue(user);
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
 
     await db.insert(organisationsTable).values(organisation);
     // mock the getUser function that returns SaaS users page, but this time the response does not indicate that their is a next page

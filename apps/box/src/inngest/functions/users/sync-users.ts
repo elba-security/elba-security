@@ -3,14 +3,13 @@ import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/box/users';
+import { getUsers, getAuthUser } from '@/connectors/box/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { type BoxUser } from '@/connectors/box/users';
 import { createElbaClient } from '@/connectors/elba/client';
 import { env } from '@/common/env/server';
 import { nangoAPIClient } from '@/common/nango/api';
-import { getAuthUser } from '@/connectors/box/auth';
 
 const formatElbaUser = ({ user, authUserId }: { user: BoxUser; authUserId: string }): User => ({
   id: user.id,
@@ -62,12 +61,13 @@ export const synchronizeUsers = inngest.createFunction(
     const nextPage = await step.run('list-users', async () => {
       const { credentials } = await nangoAPIClient.getConnection(organisationId);
       if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
+        throw new NonRetriableError(
+          `Nango credentials are missing or invalid for the organisation with id=${organisationId}`
+        );
       }
 
-      const { authUserId } = await getAuthUser(credentials.access_token);
-
       const result = await getUsers({ accessToken: credentials.access_token, nextPage: page });
+      const { authUserId } = await getAuthUser(credentials.access_token);
 
       const users = result.validUsers
         .filter((user) => user.status === 'active')

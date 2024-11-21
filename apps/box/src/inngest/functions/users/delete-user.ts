@@ -21,7 +21,9 @@ export const deleteUser = inngest.createFunction(
       const { credentials } = await nangoAPIClient.getConnection(organisationId);
 
       if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
+        throw new NonRetriableError(
+          `Nango credentials are missing or invalid for the organisation with id =${organisationId}`
+        );
       }
 
       await deleteBoxUser({

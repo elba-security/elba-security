@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env/server';
 import { BoxError } from '../common/error';
 
@@ -90,4 +91,36 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUserParams) => {
   if (!response.ok && response.status !== 404) {
     throw new BoxError(`Could not deactivate user with Id: ${userId}`, { response });
   }
+};
+
+const getAuthUserResponseData = z.object({
+  id: z.string(),
+});
+
+export const getAuthUser = async (accessToken: string) => {
+  const url = new URL(`${env.BOX_API_BASE_URL}/2.0/users/me`);
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new BoxError('Could not retrieve auth-user id', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = getAuthUserResponseData.safeParse(resData);
+  if (!result.success) {
+    logger.error('Invalid Box auth-user id response', { resData });
+    throw new BoxError('Invalid Box auth-user id response');
+  }
+
+  return {
+    authUserId: String(result.data.id),
+  };
 };
