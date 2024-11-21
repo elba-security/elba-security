@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { BoxError } from '../common/error';
 
 const boxUserSchema = z.object({
@@ -28,10 +28,6 @@ export type DeleteUserParams = {
   userId: string;
   accessToken: string;
 };
-
-const authUserIdResponseSchema = z.object({
-  id: z.string(),
-});
 
 export const getUsers = async ({ accessToken, nextPage }: GetUsersParams) => {
   const url = new URL(`${env.BOX_API_BASE_URL}/2.0/users`);
@@ -97,7 +93,11 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUserParams) => {
   }
 };
 
-export const getAuthUser = async ({ accessToken }: { accessToken: string }) => {
+const getAuthUserResponseData = z.object({
+  id: z.string(),
+});
+
+export const getAuthUser = async (accessToken: string) => {
   const url = new URL(`${env.BOX_API_BASE_URL}/2.0/users/me`);
 
   const response = await fetch(url.toString(), {
@@ -114,7 +114,7 @@ export const getAuthUser = async ({ accessToken }: { accessToken: string }) => {
 
   const resData: unknown = await response.json();
 
-  const result = authUserIdResponseSchema.safeParse(resData);
+  const result = getAuthUserResponseData.safeParse(resData);
   if (!result.success) {
     logger.error('Invalid Box auth-user id response', { resData });
     throw new BoxError('Invalid Box auth-user id response');

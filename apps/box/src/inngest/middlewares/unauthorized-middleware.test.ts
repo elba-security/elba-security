@@ -4,15 +4,11 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { BoxError } from '@/connectors/common/error';
-import { encrypt } from '@/common/crypto';
 import { unauthorizedMiddleware } from './unauthorized-middleware';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt('test-access-token'),
-  refreshToken: await encrypt('test-refresh-token'),
   region: 'us',
-  authUserId: 'test-auth-user-id',
 };
 
 describe('unauthorized middleware', () => {
