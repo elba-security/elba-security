@@ -28,16 +28,17 @@ export default function InstallPage() {
       <InstructionsSteps>
         <InstructionsStep index={1}>
           <h3>Create Token</h3>
-          <p>In the Segment Dashboard, use the menu (left) and navigate to the Settings</p>
+          <p>1. In the Segment Dashboard, use the menu (left) and navigate to the Settings</p>
           <p>
-            you can see Workspace Setting, click on it, and then click on the{' '}
+            2. you can see Workspace Setting, click on it, and then click on the{' '}
             <strong>Create Token Button</strong>
           </p>
           <p>
-            After completing the Description input field, Copy the Token and paste them in the
-            fields below. You will not be able to see the Token again. Make sure to save them in a
-            secure place.
+            3. After completing the Description input field, Copy the Token and paste them in the
+            fields below (You will not be able to see the Token again. Make sure to save them in a
+            secure place).
           </p>
+          <p>4. Provide your email</p>
         </InstructionsStep>
         <InstructionsStep index={2}>
           <h3>Connect Segment</h3>
@@ -49,6 +50,20 @@ export default function InstallPage() {
                 <FormErrorMessage>{state.errors.token.at(0)}</FormErrorMessage>
               ) : null}
             </FormField>
+
+            <FormField isInvalid={Boolean(state.errors?.authUserEmail?.at(0))}>
+              <FormLabel>Your Email</FormLabel>
+              <Input
+                minLength={1}
+                name="authUserEmail"
+                placeholder="Enter Your Email"
+                type="text"
+              />
+              {state.errors?.authUserEmail?.at(0) ? (
+                <FormErrorMessage>{state.errors.authUserEmail.at(0)}</FormErrorMessage>
+              ) : null}
+            </FormField>
+
             {organisationId !== null && (
               <input name="organisationId" type="hidden" value={organisationId} />
             )}

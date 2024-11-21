@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1718119244900,
+      "tag": "0000_wealthy_the_fury",
+      "breakpoints": true
+    }
+  ]
+}

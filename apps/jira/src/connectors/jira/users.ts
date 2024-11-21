@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { JiraError } from '../common/error';
 
@@ -27,6 +28,16 @@ export type DeleteUsersParams = {
   email: string;
   apiToken: string;
 };
+
+export type GetAuthUserParams = {
+  domain: string;
+  email: string;
+  apiToken: string;
+};
+
+const authUserIdResponseSchema = z.object({
+  accountId: z.string(),
+});
 
 export const getUsers = async ({ apiToken, domain, email, page }: GetUsersParams) => {
   const url = new URL(`https://${domain}.atlassian.net/rest/api/3/users/search`);
@@ -90,4 +101,33 @@ export const deleteUser = async ({ apiToken, domain, email, userId }: DeleteUser
   if (!response.ok && response.status !== 404) {
     throw new JiraError(`Could not delete user with Id: ${userId}`, { response });
   }
+};
+
+export const getAuthUser = async ({ apiToken, domain, email }: GetAuthUserParams) => {
+  const url = new URL(`https://${domain}.atlassian.net/rest/api/3/myself`);
+  const encodedToken = btoa(`${email}:${apiToken}`);
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Basic ${encodedToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new JiraError('Could not retrieve authUser id', { response });
+  }
+
+  const resData: unknown = await response.json();
+
+  const result = authUserIdResponseSchema.safeParse(resData);
+  if (!result.success) {
+    logger.error('Invalid Jira authUser id response', { resData });
+    throw new JiraError('Invalid Jira authUser id response');
+  }
+
+  return {
+    authUserId: String(result.data.accountId),
+  };
 };

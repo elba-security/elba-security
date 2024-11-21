@@ -12,6 +12,8 @@ export const organisations = Array.from({ length: 2 }, (_, i) => ({
   id: `00000000-0000-0000-0000-00000000000${i}`,
   region: 'us',
   token: `test-api-key${i}`,
+  workspaceName: 'test-workspace-name',
+  authUserEmail: 'auth-user@alpha.com',
 }));
 
 describe('schedule-users-syncs', () => {

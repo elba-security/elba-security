@@ -92,7 +92,6 @@ export default function InstallPage() {
               <input name="organisationId" type="hidden" value={organisationId} />
             )}
             {region !== null && <input name="region" type="hidden" value={region} />}
-
             <SubmitButton>Install</SubmitButton>
           </Form>
         </InstructionsStep>
