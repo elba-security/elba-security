@@ -1,12 +1,8 @@
-import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUser as deleteAsanaUser } from '@/connectors/asana/users';
-import { decrypt } from '@/common/crypto';
-import { env } from '@/common/env';
-import { getWorkspaceIds } from '@/connectors/asana/auth';
+import { deleteUser as deleteAsanaUser , getWorkspaceIds } from '@/connectors/asana/users';
+import { env } from '@/common/env/server';
+import { nangoAPIClient } from '@/common/nango/api';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -31,32 +27,33 @@ export const deleteUser = inngest.createFunction(
   async ({ event, step }) => {
     const { userId, organisationId } = event.data;
 
-    const [organisation] = await db
-      .select({
-        accessToken: organisationsTable.accessToken,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
+    try {
+      const { credentials } = await nangoAPIClient.getConnection(organisationId);
 
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve ${organisationId}`);
-    }
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError(
+          `Nango credentials are missing or invalid for the organisation with id =${organisationId}`
+        );
+      }
 
-    const accessToken = await decrypt(organisation.accessToken);
-    const workspaceIds = await step.run('get-workspace-ids', async () => {
-      return getWorkspaceIds(accessToken);
-    });
+      const accessToken = credentials.access_token;
+      const workspaceIds = await step.run('get-workspace-ids', async () => {
+        return getWorkspaceIds(accessToken);
+      });
 
-    await Promise.all(
-      workspaceIds.map(async (workspaceId) =>
-        step.run(`delete-user-from-workspace-${workspaceId}`, async () =>
-          deleteAsanaUser({
-            userId,
-            workspaceId,
-            accessToken,
-          })
+      await Promise.all(
+        workspaceIds.map(async (workspaceId) =>
+          step.run(`delete-user-from-workspace-${workspaceId}`, async () =>
+            deleteAsanaUser({
+              userId,
+              workspaceId,
+              accessToken,
+            })
+          )
         )
-      )
-    );
+      );
+    } catch (error: unknown) {
+      throw new NonRetriableError(`Could not retrieve credentials or request info`);
+    }
   }
 );

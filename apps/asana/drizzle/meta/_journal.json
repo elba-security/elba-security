@@ -15,6 +15,13 @@
       "when": 1726665663481,
       "tag": "0001_bitter_hellcat",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1732173717173,
+      "tag": "0002_jazzy_ogun",
+      "breakpoints": true
     }
   ]
 }

@@ -23,12 +23,6 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'asana/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
-      };
-    };
     'asana/users.delete.requested': {
       data: {
         organisationId: string;
