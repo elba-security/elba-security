@@ -1,9 +1,8 @@
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { deleteUser as deleteAsanaUser } from '@/connectors/asana/users';
+import { deleteUser as deleteAsanaUser , getWorkspaceIds } from '@/connectors/asana/users';
 import { env } from '@/common/env/server';
 import { nangoAPIClient } from '@/common/nango/api';
-import { getWorkspaceIds } from '@/connectors/asana/auth';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -32,7 +31,9 @@ export const deleteUser = inngest.createFunction(
       const { credentials } = await nangoAPIClient.getConnection(organisationId);
 
       if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
+        throw new NonRetriableError(
+          `Nango credentials are missing or invalid for the organisation with id =${organisationId}`
+        );
       }
 
       const accessToken = credentials.access_token;

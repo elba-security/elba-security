@@ -4,13 +4,15 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env/server';
 import { AsanaError } from '../common/error';
 import type { AsanaUser } from './users';
-import { getUsers, deleteUser } from './users';
+import { getUsers, deleteUser, getAuthUser, getWorkspaceIds } from './users';
 
 const validToken = 'token-1234';
 const endPage = '3';
 const nextPage = '2';
 const userId = 'test-user-id';
 const workspaceId = '000000';
+const invalidToken = 'invalid-token';
+const authUserId = 'test-auth-user-id';
 
 const validUsers: AsanaUser[] = Array.from({ length: 5 }, (_, i) => ({
   gid: `gid-${i}`,
@@ -95,6 +97,63 @@ describe('users connector', () => {
       await expect(
         deleteUser({ accessToken: 'invalidToken', workspaceId, userId })
       ).rejects.toBeInstanceOf(AsanaError);
+    });
+  });
+
+  describe('getWorkspaceIds', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.ASANA_API_BASE_URL}/workspaces`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          return Response.json({
+            data: [
+              {
+                gid: workspaceId,
+              },
+            ],
+          });
+        })
+      );
+    });
+
+    test('should return the workspaceIds when the accessToken is valid', async () => {
+      await expect(getWorkspaceIds(validToken)).resolves.toStrictEqual([workspaceId]);
+    });
+
+    test('should throw when the accessToken is invalid', async () => {
+      await expect(getWorkspaceIds(invalidToken)).rejects.toBeInstanceOf(AsanaError);
+    });
+  });
+
+  describe('getAuthUser', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.ASANA_API_BASE_URL}/users/me`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          const responseData = {
+            data: {
+              gid: authUserId,
+            },
+          };
+          return Response.json(responseData);
+        })
+      );
+    });
+
+    test('should return users and nextPage when the token is valid and their is another page', async () => {
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+        authUserId,
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getAuthUser(invalidToken)).rejects.toBeInstanceOf(AsanaError);
     });
   });
 });
