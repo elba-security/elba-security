@@ -16,12 +16,6 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'aircall/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
-      };
-    };
     'aircall/users.sync.requested': {
       data: {
         organisationId: string;
