@@ -6,13 +6,9 @@ import { organisationsTable } from '@/database/schema';
 import { AircallError } from '@/connectors/common/error';
 import { unauthorizedMiddleware } from './unauthorized-middleware';
 
-const authUserId = 12345;
-
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  accessToken: 'access-token',
   region: 'us',
-  authUserId: String(authUserId),
 };
 
 describe('unauthorized middleware', () => {

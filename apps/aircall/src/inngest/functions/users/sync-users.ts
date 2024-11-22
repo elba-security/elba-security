@@ -2,13 +2,13 @@ import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
-import { getUsers } from '@/connectors/aircall/users';
+import { getUsers, getAuthUser } from '@/connectors/aircall/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
+import { nangoAPIClient } from '@/common/nango/api';
 import { type AircallUser } from '@/connectors/aircall/users';
 import { createElbaClient } from '@/connectors/elba/client';
-import { decrypt } from '@/common/crypto';
 
 const formatElbaUser = ({ user, authUserId }: { user: AircallUser; authUserId: string }): User => {
   return {
@@ -39,8 +39,6 @@ export const syncUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        token: organisationsTable.accessToken,
-        authUserId: organisationsTable.authUserId,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -54,11 +52,16 @@ export const syncUsers = inngest.createFunction(
       region: organisation.region,
     });
 
-    const token = await decrypt(organisation.token);
-    const authUserId = organisation.authUserId;
-
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ token, nextPageLink: page });
+      const { credentials } = await nangoAPIClient.getConnection(organisationId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError(
+          `Nango credentials are missing or invalid for the organisation with id=${organisationId}`
+        );
+      }
+
+      const result = await getUsers({ token: credentials.access_token, nextPageLink: page });
+      const { authUserId } = await getAuthUser(credentials.access_token);
 
       const users = result.validUsers
         .filter(({ availability_status: status }) => status === 'available')
