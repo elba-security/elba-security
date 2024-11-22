@@ -26,11 +26,9 @@ const invalidUsers = [];
 
 describe('users connector', () => {
   describe('getUsers', () => {
-    // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
         http.get(`${env.BOX_API_BASE_URL}/2.0/users`, ({ request }) => {
-          // briefly implement API endpoint behaviour
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
