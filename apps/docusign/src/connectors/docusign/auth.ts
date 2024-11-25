@@ -1,14 +1,7 @@
 import { z } from 'zod';
-import { logger } from '@elba-security/logger';
-import { env } from '@/common/env';
-import { DocusignError } from '../common/error';
+import { env } from '@/common/env/server';
+import { DocusignError, DocusignNotAdminError } from '../common/error';
 import { getUser } from './users';
-
-const docusignTokenResponseSchema = z.object({
-  access_token: z.string(),
-  refresh_token: z.string(),
-  expires_in: z.number(),
-});
 
 const accountInfo = z.object({
   account_id: z.string(),
@@ -22,73 +15,6 @@ const getAuthUserResponseData = z.object({
   accounts: z.array(accountInfo),
 });
 
-const encodedCredentials = btoa(`${env.DOCUSIGN_CLIENT_ID}:${env.DOCUSIGN_CLIENT_SECRET}`);
-
-export const getToken = async (code: string) => {
-  const response = await fetch(`${env.DOCUSIGN_APP_INSTALL_URL}/oauth/token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${encodedCredentials}`,
-    },
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      code,
-    }).toString(),
-  });
-
-  if (!response.ok) {
-    throw new DocusignError('Could not retrieve token', { response });
-  }
-
-  const data: unknown = await response.json();
-
-  const result = docusignTokenResponseSchema.safeParse(data);
-
-  if (!result.success) {
-    logger.error('Invalid Docusign token response', { data });
-    throw new DocusignError('Invalid Docusign token response');
-  }
-
-  return {
-    accessToken: result.data.access_token,
-    refreshToken: result.data.refresh_token,
-    expiresIn: result.data.expires_in,
-  };
-};
-
-export const getRefreshToken = async (refreshToken: string) => {
-  const response = await fetch(`${env.DOCUSIGN_APP_INSTALL_URL}/oauth/token`, {
-    method: 'POST',
-    body: new URLSearchParams({
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-    }).toString(),
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${encodedCredentials}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new DocusignError('Could not refresh token', { response });
-  }
-
-  const data: unknown = await response.json();
-  const result = docusignTokenResponseSchema.safeParse(data);
-
-  if (!result.success) {
-    logger.error('Invalid Docusign token response', { data });
-    throw new DocusignError('Invalid Docusign token response');
-  }
-
-  return {
-    accessToken: result.data.access_token,
-    refreshToken: result.data.refresh_token,
-    expiresIn: result.data.expires_in,
-  };
-};
-
 export const getAuthUser = async (accessToken: string) => {
   // DOC: https://developers.docusign.com/platform/auth/reference/user-info/
   const response = await fetch(`${env.DOCUSIGN_APP_INSTALL_URL}/oauth/userinfo`, {
@@ -100,7 +26,7 @@ export const getAuthUser = async (accessToken: string) => {
   });
 
   if (!response.ok) {
-    throw new DocusignError('Could not retrieve account id', { response });
+    throw new DocusignError('Failed to retrieve authenticated user information', { response });
   }
 
   const data: unknown = await response.json();
@@ -125,7 +51,7 @@ export const getAuthUser = async (accessToken: string) => {
   });
 
   if (isAdmin !== 'True') {
-    throw new DocusignError('User is not an admin');
+    throw new DocusignNotAdminError('User is not an admin');
   }
 
   return {

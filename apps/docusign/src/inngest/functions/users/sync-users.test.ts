@@ -1,24 +1,15 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
+import * as authConnector from '@/connectors/docusign/auth';
 import * as usersConnector from '@/connectors/docusign/users';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
-import { encrypt } from '@/common/crypto';
+import * as nangoAPIClient from '@/common/nango/api';
 import { syncUsers } from './sync-users';
-
-const newTokens = {
-  accessToken: 'new-access-token',
-  refreshToken: 'new-refresh-token',
-};
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt(newTokens.accessToken),
-  refreshToken: await encrypt(newTokens.refreshToken),
-  accountId: '00000000-0000-0000-0000-000000000010',
-  authUserId: '00000000-0000-0000-0000-000000000011',
-  apiBaseUri: 'test-url',
   region: 'us',
 };
 const syncStartedAt = Date.now();
@@ -59,6 +50,17 @@ describe('syncUsers', () => {
   test('should continue the sync when there is a next page', async () => {
     await db.insert(organisationsTable).values(organisation);
 
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    }));
+    vi.spyOn(authConnector, 'getAuthUser').mockResolvedValue({
+      accountId: 'account-id',
+      apiBaseUri: 'https://api.local',
+      authUserId: 'auth-user',
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -72,6 +74,7 @@ describe('syncUsers', () => {
       page: 'some after',
     });
 
+    // TODO: improve this test (get users, send to elba etc)
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
@@ -88,6 +91,17 @@ describe('syncUsers', () => {
   test('should finalize the sync when there is a no next page', async () => {
     await db.insert(organisationsTable).values(organisation);
 
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    }));
+    vi.spyOn(authConnector, 'getAuthUser').mockResolvedValue({
+      accountId: 'account-id',
+      apiBaseUri: 'https://api.local',
+      authUserId: 'auth-user',
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -101,6 +115,7 @@ describe('syncUsers', () => {
       page: null,
     });
 
+    // TODO: improve this test (get users, send to elba etc)
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
     expect(step.sendEvent).toBeCalledTimes(0);
