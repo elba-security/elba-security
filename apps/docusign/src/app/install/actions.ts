@@ -2,6 +2,7 @@
 
 import { getRedirectUrl } from '@elba-security/sdk';
 import { redirect, RedirectType } from 'next/navigation';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env/server';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
@@ -53,6 +54,7 @@ export const setupOrganisation = async ({
       },
     ]);
   } catch (error) {
+    logger.error('An error occurred during installation', { organisationId, error });
     return redirect(error instanceof DocusignNotAdminError ? '/error?error=not_admin' : '/error');
   }
 
