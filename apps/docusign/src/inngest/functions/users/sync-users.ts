@@ -21,17 +21,17 @@ const formatElbaUserDisplayName = (user: DocusignUser) => {
 
 const formatElbaUser = ({
   user,
-  isSuspendable,
+  authUserId,
 }: {
   user: DocusignUser;
-  isSuspendable: boolean;
+  authUserId: string;
 }): User => ({
   id: user.userId,
   displayName: formatElbaUserDisplayName(user),
   role: user.permissionProfileName,
   email: user.email,
   additionalEmails: [],
-  isSuspendable,
+  isSuspendable: user.userId !== authUserId,
   url: `https://apps.docusign.com/admin/edit-user/${user.userId}`, // Development base url:  https://apps-d.docusign.com
 });
 
@@ -92,9 +92,7 @@ export const syncUsers = inngest.createFunction(
         page,
       });
 
-      const users = result.validUsers.map((user) => {
-        return formatElbaUser({ user, isSuspendable: user.userId !== authUserId });
-      });
+      const users = result.validUsers.map((user) => formatElbaUser({ user, authUserId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
