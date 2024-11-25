@@ -9,3 +9,5 @@ export class DocusignError extends Error {
     this.name = 'DocusignError';
   }
 }
+
+export class DocusignNotAdminError extends DocusignError {}

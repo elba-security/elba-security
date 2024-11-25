@@ -8,6 +8,7 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getAuthUser } from '@/connectors/docusign/auth';
 import { nangoAPIClient } from '@/common/nango/api';
+import { DocusignNotAdminError } from '@/connectors/common/error';
 
 export const setupOrganisation = async ({
   organisationId,
@@ -16,40 +17,44 @@ export const setupOrganisation = async ({
   organisationId: string;
   region: string;
 }) => {
-  const { credentials } = await nangoAPIClient.getConnection(organisationId);
-  if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-    throw new Error('Could not retrieve Nango credentials');
+  try {
+    const { credentials } = await nangoAPIClient.getConnection(organisationId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new Error('Could not retrieve Nango credentials');
+    }
+    await getAuthUser(credentials.access_token);
+
+    await db
+      .insert(organisationsTable)
+      .values({
+        id: organisationId,
+        region,
+      })
+      .onConflictDoUpdate({
+        target: organisationsTable.id,
+        set: { region },
+      });
+
+    await inngest.send([
+      {
+        name: 'docusign/users.sync.requested',
+        data: {
+          organisationId,
+          isFirstSync: true,
+          syncStartedAt: Date.now(),
+          page: null,
+        },
+      },
+      {
+        name: 'docusign/app.installed',
+        data: {
+          organisationId,
+        },
+      },
+    ]);
+  } catch (error) {
+    return redirect(error instanceof DocusignNotAdminError ? '/error?error=not_admin' : '/error');
   }
-  await getAuthUser(credentials.access_token);
-
-  await db
-    .insert(organisationsTable)
-    .values({
-      id: organisationId,
-      region,
-    })
-    .onConflictDoUpdate({
-      target: organisationsTable.id,
-      set: { region },
-    });
-
-  await inngest.send([
-    {
-      name: 'docusign/users.sync.requested',
-      data: {
-        organisationId,
-        isFirstSync: true,
-        syncStartedAt: Date.now(),
-        page: null,
-      },
-    },
-    {
-      name: 'docusign/app.installed',
-      data: {
-        organisationId,
-      },
-    },
-  ]);
 
   redirect(
     getRedirectUrl({
