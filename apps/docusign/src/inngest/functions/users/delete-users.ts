@@ -1,11 +1,9 @@
-import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUsers as deleteDocusignUsers } from '@/connectors/docusign/users';
-import { decrypt } from '@/common/crypto';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
+import { nangoAPIClient } from '@/common/nango/api';
+import { getAuthUser } from '@/connectors/docusign/auth';
 
 export const deleteUsers = inngest.createFunction(
   {
@@ -20,26 +18,23 @@ export const deleteUsers = inngest.createFunction(
   async ({ event }) => {
     const { organisationId, userIds } = event.data;
 
-    const [organisation] = await db
-      .select({
-        accessToken: organisationsTable.accessToken,
-        accountId: organisationsTable.accountId,
-        apiBaseUri: organisationsTable.apiBaseUri,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
+    try {
+      const { credentials } = await nangoAPIClient.getConnection(organisationId);
 
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation`);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
+      const { apiBaseUri, accountId } = await getAuthUser(credentials.access_token);
+
+      await deleteDocusignUsers({
+        accessToken: credentials.access_token,
+        apiBaseUri,
+        users: userIds.map((userId) => ({ userId })),
+        accountId,
+      });
+    } catch (error: unknown) {
+      throw new NonRetriableError(`Could not retrieve credentials or request info`);
     }
-
-    const accessToken = await decrypt(organisation.accessToken);
-
-    await deleteDocusignUsers({
-      accessToken,
-      apiBaseUri: organisation.apiBaseUri,
-      users: userIds.map((userId) => ({ userId })),
-      accountId: organisation.accountId,
-    });
   }
 );

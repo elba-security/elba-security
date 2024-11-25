@@ -1,0 +1,22 @@
+{
+  "name": "@elba-security/nango",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "lint": "eslint src/**.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nangohq/frontend": "^0.42.20",
+    "@nangohq/types": "^0.42.20"
+  },
+  "devDependencies": {
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
+    "@elba-security/utils": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:"
+  }
+}

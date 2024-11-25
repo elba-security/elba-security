@@ -8,7 +8,8 @@ import { inngest } from '@/inngest/client';
 import { type DocusignUser } from '@/connectors/docusign/users';
 import { organisationsTable } from '@/database/schema';
 import { createElbaClient } from '@/connectors/elba/client';
-import { decrypt } from '@/common/crypto';
+import { nangoAPIClient } from '@/common/nango/api';
+import { getAuthUser } from '@/connectors/docusign/auth';
 
 const formatElbaUserDisplayName = (user: DocusignUser) => {
   if (user.firstName || user.lastName) {
@@ -30,7 +31,7 @@ const formatElbaUser = ({
   role: user.permissionProfileName,
   email: user.email,
   additionalEmails: [],
-  isSuspendable: authUserId !== user.userId,
+  isSuspendable: user.userId !== authUserId,
   url: `https://apps.docusign.com/admin/edit-user/${user.userId}`, // Development base url:  https://apps-d.docusign.com
 });
 
@@ -62,11 +63,7 @@ export const syncUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        accessToken: organisationsTable.accessToken,
         region: organisationsTable.region,
-        authUserId: organisationsTable.authUserId,
-        accountId: organisationsTable.accountId,
-        apiBaseUri: organisationsTable.apiBaseUri,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -80,20 +77,22 @@ export const syncUsers = inngest.createFunction(
       region: organisation.region,
     });
 
-    const { accessToken, accountId, apiBaseUri } = organisation;
-    const decryptedAccessToken = await decrypt(accessToken);
-
     const nextPage = await step.run('list-users', async () => {
+      const { credentials } = await nangoAPIClient.getConnection(organisationId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
+      const { authUserId, apiBaseUri, accountId } = await getAuthUser(credentials.access_token);
+
       const result = await getUsers({
-        accessToken: decryptedAccessToken,
+        accessToken: credentials.access_token,
         accountId,
         apiBaseUri,
         page,
       });
 
-      const users = result.validUsers.map((user) => {
-        return formatElbaUser({ user, authUserId: organisation.authUserId });
-      });
+      const users = result.validUsers.map((user) => formatElbaUser({ user, authUserId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
