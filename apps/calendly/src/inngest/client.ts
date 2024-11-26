@@ -23,12 +23,6 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'calendly/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
-      };
-    };
     'calendly/users.delete.requested': {
       data: {
         organisationId: string;

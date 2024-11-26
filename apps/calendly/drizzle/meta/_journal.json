@@ -15,6 +15,20 @@
       "when": 1725367246110,
       "tag": "0001_lame_fixer",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1732533992387,
+      "tag": "0002_jazzy_exiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1732539772100,
+      "tag": "0003_giant_azazel",
+      "breakpoints": true
     }
   ]
 }
