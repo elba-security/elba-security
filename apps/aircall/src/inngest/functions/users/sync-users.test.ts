@@ -12,9 +12,11 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   region: 'us',
 };
+
 const user = {
   authUserId,
 };
+
 const accessToken = 'test-access-token';
 
 const syncStartedAt = Date.now();
@@ -23,7 +25,6 @@ const nextPage = 'next-page-link';
 const users: usersConnector.AircallUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: i,
   name: `name-${i}`,
-  availability_status: 'available',
   email: `user-${i}@foo.bar`,
 }));
 
