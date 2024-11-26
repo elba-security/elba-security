@@ -1,25 +1,22 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/calendly/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
+import * as nangoAPI from '@/common/nango/api';
 import { syncUsers } from './sync-users';
 
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const nextPage = '1';
 const organizationUri = 'some-org-uri';
-const authUserUri = 'https://test-uri/users/00000000-0000-0000-0000-000000000091';
+const accessToken = 'test-access-token';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt('test-access-token'),
-  refreshToken: await encrypt('test-refresh-token'),
   organizationUri,
   region: 'us',
-  authUserUri,
 };
 
 const roles = ['owner', 'admin', 'user'];
@@ -34,9 +31,27 @@ const users: usersConnector.CalendlyUser[] = Array.from({ length: 3 }, (_, i) =>
   },
 }));
 
+const user = {
+  authUserUri: 'test-auth-user-id',
+};
+
 const setup = createInngestFunctionMock(syncUsers, 'calendly/users.sync.requested');
 
 describe('sync-users', () => {
+  beforeEach(() => {
+    const mockNangoAPIClient = {
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: {
+          access_token: accessToken,
+        },
+      }),
+    };
+
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(
+      mockNangoAPIClient as unknown as typeof nangoAPI.nangoAPIClient
+    );
+  });
+
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -60,6 +75,7 @@ describe('sync-users', () => {
 
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
 
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
@@ -107,7 +123,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           role: 'admin',
           id: '00000000-0000-0000-0000-000000000091',
-          isSuspendable: false,
+          isSuspendable: true,
           url: 'https://calendly.com/app/admin/users',
         },
         {
@@ -126,6 +142,8 @@ describe('sync-users', () => {
 
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
+
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -160,7 +178,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           role: 'admin',
           id: '00000000-0000-0000-0000-000000000091',
-          isSuspendable: false,
+          isSuspendable: true,
           url: 'https://calendly.com/app/admin/users',
         },
         {

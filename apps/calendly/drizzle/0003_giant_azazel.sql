@@ -1,0 +1,1 @@
+ALTER TABLE "organisations" ADD COLUMN "organization_uri" text NOT NULL;
