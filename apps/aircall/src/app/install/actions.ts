@@ -17,6 +17,7 @@ export const setupOrganisation = async ({
   region: string;
 }) => {
   const { credentials } = await nangoAPIClient.getConnection(organisationId);
+
   if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
     throw new Error('Could not retrieve Nango credentials');
   }
