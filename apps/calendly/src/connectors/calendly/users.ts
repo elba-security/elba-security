@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { CalendlyError } from '../common/error';
 
 const calendlyUserSchema = z.object({
