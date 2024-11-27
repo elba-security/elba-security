@@ -7,7 +7,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { nangoAPIClient } from '@/common/nango/api';
-import { getAuthUser } from '@/connectors/calendly/users';
+import { getUsers } from '@/connectors/calendly/users';
 
 export const setupOrganisation = async ({
   organisationId,
@@ -21,14 +21,19 @@ export const setupOrganisation = async ({
     throw new Error('Could not retrieve Nango credentials');
   }
 
-  const organizationUri = credentials.raw.organization as string;
-  await getAuthUser(credentials.access_token);
+  if (!('organization' in credentials.raw)) {
+    throw new Error('Could not retrieve Nango credentials');
+  }
+
+  await getUsers({
+    accessToken: credentials.access_token,
+    organizationUri: credentials.raw.organization as string,
+  });
 
   await db
     .insert(organisationsTable)
     .values({
       id: organisationId,
-      organizationUri,
       region,
     })
     .onConflictDoUpdate({

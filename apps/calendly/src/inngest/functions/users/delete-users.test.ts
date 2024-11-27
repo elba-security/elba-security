@@ -10,7 +10,6 @@ const userId = 'user-id';
 const accessToken = 'test-access-token';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  organizationUri: 'some organization_uri',
   region: 'us',
 };
 

@@ -10,12 +10,10 @@ import { syncUsers } from './sync-users';
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const nextPage = '1';
-const organizationUri = 'some-org-uri';
 const accessToken = 'test-access-token';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  organizationUri,
   region: 'us',
 };
 
@@ -31,10 +29,6 @@ const users: usersConnector.CalendlyUser[] = Array.from({ length: 3 }, (_, i) =>
   },
 }));
 
-const user = {
-  authUserUri: 'test-auth-user-id',
-};
-
 const setup = createInngestFunctionMock(syncUsers, 'calendly/users.sync.requested');
 
 describe('sync-users', () => {
@@ -43,6 +37,10 @@ describe('sync-users', () => {
       getConnection: vi.fn().mockResolvedValue({
         credentials: {
           access_token: accessToken,
+          raw: {
+            owner: `https://api.calendly.com/users/${organisation.id}`,
+            organization: `https://test-uri/users/${users.at(0)?.user.uri}`,
+          },
         },
       }),
     };
@@ -75,7 +73,6 @@ describe('sync-users', () => {
 
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
 
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
@@ -142,7 +139,6 @@ describe('sync-users', () => {
 
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
 
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
