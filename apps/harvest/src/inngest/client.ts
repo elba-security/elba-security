@@ -31,12 +31,6 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'harvest/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
-      };
-    };
     'harvest/users.delete.requested': {
       data: {
         organisationId: string;
