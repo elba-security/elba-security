@@ -1,11 +1,10 @@
 import { InngestMiddleware, NonRetriableError, RetryAfterError } from 'inngest';
 import { addDays, differenceInSeconds, startOfDay } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
-import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
-import { HubspotError } from '@/connectors/hubspot/common/error';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { HubspotError } from '@/connectors/common/error';
+import { nangoAPIClient } from '@/common/nango/api';
+import { getAccountInfo } from '@/connectors/hubspot/users';
 
 const secondsUntilMidnight = (timezone: string): number => {
   const now = new Date();
@@ -15,18 +14,15 @@ const secondsUntilMidnight = (timezone: string): number => {
 };
 
 const getTimeZone = async (organisationId: string) => {
-  const [organisation] = await db
-    .select({
-      timeZone: organisationsTable.timeZone,
-    })
-    .from(organisationsTable)
-    .where(eq(organisationsTable.id, organisationId));
-
-  if (!organisation) {
-    throw new NonRetriableError(`Could not retrieve organisation`);
+  const { credentials } = await nangoAPIClient.getConnection(organisationId);
+  if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+    throw new NonRetriableError(
+      `Nango credentials are missing or invalid for the organisation with id=${organisationId}`
+    );
   }
+  const { timeZone } = await getAccountInfo(credentials.access_token);
 
-  return organisation.timeZone;
+  return timeZone;
 };
 
 // Example thread https://community.hubspot.com/t5/APIs-Integrations/Batch-Deals-Update-API-Limit/m-p/678230

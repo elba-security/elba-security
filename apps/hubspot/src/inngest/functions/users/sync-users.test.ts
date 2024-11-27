@@ -1,23 +1,18 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/hubspot/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
+import * as nangoAPI from '@/common/nango/api';
 import { syncUsers } from './sync-users';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  authUserId: 'id-1',
-  accessToken: await encrypt('test-access-token'),
-  refreshToken: await encrypt('test-refresh-token'),
-  timeZone: 'us/eastern',
   region: 'us',
-  domain: 'foo-bar.hubspot.com',
-  portalId: 12345,
 };
 const syncStartedAt = Date.now();
+const accessToken = 'test-access-token';
 const syncedBefore = Date.now();
 const nextPage = '1';
 const users: usersConnector.HubspotUser[] = Array.from({ length: 2 }, (_, i) => ({
@@ -28,9 +23,33 @@ const users: usersConnector.HubspotUser[] = Array.from({ length: 2 }, (_, i) => 
   superAdmin: i === 1,
 }));
 
+const user = {
+  authUserId: 'test-auth-user-id',
+};
+
+const accountInfo = {
+  timeZone: 'test-timezone',
+  portalId: 12345,
+  uiDomain: 'test-domain',
+};
+
 const setup = createInngestFunctionMock(syncUsers, 'hubspot/users.sync.requested');
 
 describe('synchronize-users', () => {
+  beforeEach(() => {
+    const mockNangoAPIClient = {
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: {
+          access_token: accessToken,
+        },
+      }),
+    };
+
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(
+      mockNangoAPIClient as unknown as typeof nangoAPI.nangoAPIClient
+    );
+  });
+
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -54,6 +73,8 @@ describe('synchronize-users', () => {
 
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
+    vi.spyOn(usersConnector, 'getAccountInfo').mockResolvedValue(accountInfo);
 
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
@@ -93,7 +114,7 @@ describe('synchronize-users', () => {
           id: 'id-0',
           role: 'user',
           isSuspendable: true,
-          url: 'https://foo-bar.hubspot.com/settings/12345/users/user/id-0',
+          url: 'https://test-domain/settings/12345/users/user/id-0',
         },
         {
           additionalEmails: [],
@@ -102,7 +123,7 @@ describe('synchronize-users', () => {
           id: 'id-1',
           role: 'admin',
           isSuspendable: false,
-          url: 'https://foo-bar.hubspot.com/settings/12345/users/user/id-1',
+          url: 'https://test-domain/settings/12345/users/user/id-1',
         },
       ],
     });
@@ -111,6 +132,9 @@ describe('synchronize-users', () => {
 
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
+    vi.spyOn(usersConnector, 'getAccountInfo').mockResolvedValue(accountInfo);
+
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -137,7 +161,7 @@ describe('synchronize-users', () => {
           id: 'id-0',
           role: 'user',
           isSuspendable: true,
-          url: 'https://foo-bar.hubspot.com/settings/12345/users/user/id-0',
+          url: 'https://test-domain/settings/12345/users/user/id-0',
         },
         {
           additionalEmails: [],
@@ -146,7 +170,7 @@ describe('synchronize-users', () => {
           id: 'id-1',
           role: 'admin',
           isSuspendable: false,
-          url: 'https://foo-bar.hubspot.com/settings/12345/users/user/id-1',
+          url: 'https://test-domain/settings/12345/users/user/id-1',
         },
       ],
     });
