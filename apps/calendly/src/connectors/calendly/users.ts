@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { logger } from '@elba-security/logger';
 import { env } from '@/common/env/server';
 import { CalendlyError } from '../common/error';
 
@@ -91,38 +90,4 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
   if (!response.ok && response.status !== 404) {
     throw new CalendlyError(`Could not delete user with Id: ${userId}`, { response });
   }
-};
-
-const authUserIdResponseSchema = z.object({
-  resource: z.object({
-    uri: z.string(),
-  }),
-});
-
-export const getAuthUser = async (accessToken: string) => {
-  const url = new URL(`${env.CALENDLY_API_BASE_URL}/users/me`);
-
-  const response = await fetch(url.toString(), {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new CalendlyError('Could not retrieve auth user id', { response });
-  }
-
-  const resData: unknown = await response.json();
-
-  const result = authUserIdResponseSchema.safeParse(resData);
-  if (!result.success) {
-    logger.error('Invalid Calendly auth user response', { resData });
-    throw new CalendlyError('Invalid Calendly auth user response');
-  }
-
-  return {
-    authUserUri: String(result.data.resource.uri),
-  };
 };
