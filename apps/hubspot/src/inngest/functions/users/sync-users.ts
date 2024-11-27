@@ -3,10 +3,10 @@ import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/hubspot/users';
+import { getUsers, getAuthUser, getAccountInfo } from '@/connectors/hubspot/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
+import { nangoAPIClient } from '@/common/nango/api';
 import { type HubspotUser } from '@/connectors/hubspot/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
@@ -18,7 +18,15 @@ const formatElbaUserDisplayName = (user: HubspotUser) => {
 };
 
 const formatElbaUser =
-  ({ domain, portalId, authUserId }: { domain: string; portalId: number; authUserId: string }) =>
+  ({
+    uiDomain,
+    portalId,
+    authUserId,
+  }: {
+    uiDomain: string;
+    portalId: number;
+    authUserId: string;
+  }) =>
   (user: HubspotUser): User => ({
     id: user.id,
     displayName: formatElbaUserDisplayName(user),
@@ -26,7 +34,7 @@ const formatElbaUser =
     role: user.superAdmin ? 'admin' : 'user',
     additionalEmails: [],
     isSuspendable: !user.superAdmin && user.id !== authUserId,
-    url: `https://${domain}/settings/${portalId}/users/user/${user.id}`,
+    url: `https://${uiDomain}/settings/${portalId}/users/user/${user.id}`,
   });
 
 export const syncUsers = inngest.createFunction(
@@ -65,12 +73,20 @@ export const syncUsers = inngest.createFunction(
     }
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
-    const accessToken = await decrypt(organisation.accessToken);
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken, page });
+      const { credentials } = await nangoAPIClient.getConnection(organisationId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError(
+          `Nango credentials are missing or invalid for the organisation with id=${organisationId}`
+        );
+      }
 
-      const users = result.validUsers.map(formatElbaUser(organisation));
+      const result = await getUsers({ accessToken: credentials.access_token, page });
+      const { authUserId } = await getAuthUser(credentials.access_token);
+      const { portalId, uiDomain } = await getAccountInfo(credentials.access_token);
+
+      const users = result.validUsers.map(formatElbaUser({ uiDomain, portalId, authUserId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

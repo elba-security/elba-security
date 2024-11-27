@@ -13,14 +13,12 @@ export const env = z
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
     VERCEL_ENV: z.string().min(1).optional(),
-    HUBSPOT_APP_INSTALL_URL: z.string().url().default('https://app.hubspot.com/oauth/authorize'),
     HUBSPOT_API_BASE_URL: z.string().url().default('https://api.hubapi.com'),
-    HUBSPOT_CLIENT_ID: z.string().min(1),
-    HUBSPOT_CLIENT_SECRET: z.string().min(1),
-    HUBSPOT_REDIRECT_URI: z.string().url(),
     HUBSPOT_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),
     HUBSPOT_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
     HUBSPOT_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    HUBSPOT_TIMEZONE_REFRESH_CRON: z.string().default('1 0 * * *'),
+    NANGO_SECRET_KEY: z.string().min(1),
+    NEXT_PUBLIC_NANGO_INTEGRATION_ID: z.string().min(1),
+    NEXT_PUBLIC_NANGO_PUBLIC_KEY: z.string().min(1),
   })
   .parse(process.env);

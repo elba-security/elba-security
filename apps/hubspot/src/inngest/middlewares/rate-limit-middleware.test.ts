@@ -1,25 +1,15 @@
 import { afterEach } from 'node:test';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { RetryAfterError } from 'inngest';
-import { HubspotError } from '@/connectors/hubspot/common/error';
-import { encrypt } from '@/common/crypto';
+import { HubspotError } from '@/connectors/common/error';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
-const accessToken = 'some token';
-const refreshToken = 'some refresh token';
 const region = 'us';
-const timeZone = 'us/eastern';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  authUserId: '10001',
-  accessToken: await encrypt(accessToken),
-  refreshToken: await encrypt(refreshToken),
   region,
-  timeZone,
-  domain: 'foo-bar.hubspot.com',
-  portalId: 12345,
 };
 
 describe('rate-limit middleware', () => {

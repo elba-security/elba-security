@@ -23,12 +23,6 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'hubspot/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
-      };
-    };
     'hubspot/users.delete.requested': {
       data: {
         organisationId: string;

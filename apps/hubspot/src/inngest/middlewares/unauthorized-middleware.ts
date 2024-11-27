@@ -1,6 +1,6 @@
 import { InngestMiddleware, NonRetriableError } from 'inngest';
 import { z } from 'zod';
-import { HubspotError } from '@/connectors/hubspot/common/error';
+import { HubspotError } from '@/connectors/common/error';
 
 const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),
