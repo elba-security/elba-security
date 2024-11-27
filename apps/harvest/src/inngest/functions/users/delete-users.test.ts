@@ -2,21 +2,16 @@ import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/harvest/users';
 import { organisationsTable } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
+import * as nangoAPI from '@/common/nango/api';
 import { deleteUser } from './delete-users';
 
 const userId = 'user-id';
 const accessToken = 'test-access-token';
-const refreshToken = 'test-refresh-token';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt(accessToken),
-  refreshToken: await encrypt(refreshToken),
   region: 'us',
-  authUserId: 'test-owner-id',
-  companyDomain: 'test-company-domain',
 };
 
 // Setup function mock for Inngest
@@ -25,6 +20,18 @@ const setup = createInngestFunctionMock(deleteUser, 'harvest/users.delete.reques
 describe('deleteUser', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+
+    const mockNangoAPIClient = {
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: {
+          access_token: accessToken,
+        },
+      }),
+    };
+
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(
+      mockNangoAPIClient as unknown as typeof nangoAPI.nangoAPIClient
+    );
   });
 
   test('should delete users', async () => {
