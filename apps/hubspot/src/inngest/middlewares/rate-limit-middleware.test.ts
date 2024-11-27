@@ -2,11 +2,20 @@ import { afterEach } from 'node:test';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { RetryAfterError } from 'inngest';
 import { HubspotError } from '@/connectors/common/error';
+import * as usersConnector from '@/connectors/hubspot/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
+import * as nangoAPI from '@/common/nango/api';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
 const region = 'us';
+const accessToken = 'test-access-token';
+const accountInfo = {
+  timeZone: 'test-timezone',
+  portalId: 1234,
+  uiDomain: 'test-domain',
+};
+
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   region,
@@ -15,6 +24,17 @@ const organisation = {
 describe('rate-limit middleware', () => {
   beforeEach(() => {
     vi.setSystemTime(new Date('2022-01-01T10:00:00Z'));
+    const mockNangoAPIClient = {
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: {
+          access_token: accessToken,
+        },
+      }),
+    };
+
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(
+      mockNangoAPIClient as unknown as typeof nangoAPI.nangoAPIClient
+    );
   });
 
   afterEach(() => {
@@ -55,14 +75,16 @@ describe('rate-limit middleware', () => {
       retryAfter: '60',
     },
     {
-      dailyRateLimitRemaining: '0',
-      rateLimitRemaining: '0',
+      dailyRateLimitRemaining: '10000',
+      rateLimitRemaining: '10',
       rateLimitInterval: '10000',
-      retryAfter: '68400',
+      retryAfter: '60',
     },
   ])(
     'should transform the output error to RetryAfterError when the error is about Hubspot rate limit',
     async ({ dailyRateLimitRemaining, rateLimitRemaining, rateLimitInterval, retryAfter }) => {
+      vi.spyOn(usersConnector, 'getAccountInfo').mockResolvedValueOnce(accountInfo);
+
       await db.insert(organisationsTable).values(organisation);
 
       const rateLimitError = new HubspotError('foo bar', {
