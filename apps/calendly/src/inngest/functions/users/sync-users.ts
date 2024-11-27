@@ -2,13 +2,19 @@ import type { User } from '@elba-security/sdk';
 import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
+import { z } from 'zod';
 import { inngest } from '@/inngest/client';
-import { getUsers, getAuthUser } from '@/connectors/calendly/users';
+import { getUsers } from '@/connectors/calendly/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { nangoAPIClient } from '@/common/nango/api';
 import { type CalendlyUser } from '@/connectors/calendly/users';
 import { createElbaClient } from '@/connectors/elba/client';
+
+const credentialsRawSchema = z.object({
+  owner: z.string().url(),
+  organization: z.string().url(),
+});
 
 // extract uuid from user's unique uri like this: "https://api.calendly.com/organization_memberships/AAAAAAAAAAAAAAAA"
 const extractUUID = (user: CalendlyUser): string => {
@@ -16,6 +22,7 @@ const extractUUID = (user: CalendlyUser): string => {
   const match = regex.exec(user.uri);
   return match?.groups?.uuid ? match.groups.uuid : user.user.email;
 };
+
 const formatElbaUser = ({
   user,
   authUserUri,
@@ -61,7 +68,6 @@ export const syncUsers = inngest.createFunction(
     const [organisation] = await db
       .select({
         region: organisationsTable.region,
-        organizationUri: organisationsTable.organizationUri,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -73,18 +79,28 @@ export const syncUsers = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       const { credentials } = await nangoAPIClient.getConnection(organisationId);
+
       if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
         throw new NonRetriableError(
           `Nango credentials are missing or invalid for the organisation with id=${organisationId}`
         );
       }
 
+      const rawData = credentialsRawSchema.safeParse(credentials.raw);
+
+      if (!rawData.success) {
+        throw new NonRetriableError(
+          `Nango credentials.row is invalid for the organisation with id=${organisationId}`
+        );
+      }
+
+      const { organization: organizationUri, owner: authUserUri } = rawData.data;
+
       const result = await getUsers({
         accessToken: credentials.access_token,
-        organizationUri: organisation.organizationUri,
+        organizationUri,
         page,
       });
-      const { authUserUri } = await getAuthUser(credentials.access_token);
 
       const users = result.validUsers.map((user) => formatElbaUser({ user, authUserUri }));
 

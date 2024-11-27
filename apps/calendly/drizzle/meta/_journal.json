@@ -29,6 +29,13 @@
       "when": 1732539772100,
       "tag": "0003_giant_azazel",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1732711685487,
+      "tag": "0004_tearful_klaw",
+      "breakpoints": false
     }
   ]
 }
