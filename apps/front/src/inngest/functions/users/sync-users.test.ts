@@ -3,7 +3,6 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
 import * as usersConnector from '@/connectors/front/users';
 import { syncUsers } from './sync-users';
 
@@ -12,8 +11,6 @@ const syncedBefore = Date.now();
 const organizationUri = 'some-org-uri';
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt('test-access-token'),
-  refreshToken: await encrypt('test-refresh-token'),
   organizationUri,
   region: 'us',
 };
