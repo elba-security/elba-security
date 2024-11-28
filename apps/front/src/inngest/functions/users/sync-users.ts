@@ -5,8 +5,8 @@ import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
+import { nangoAPIClient } from '@/common/nango/api';
 import { type FrontUser } from '@/connectors/front/users';
 import { getUsers } from '@/connectors/front/users';
 
@@ -54,7 +54,6 @@ export const syncUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        token: organisationsTable.accessToken,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -64,12 +63,18 @@ export const syncUsers = inngest.createFunction(
     }
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
 
     await step.run('list-users', async () => {
+      const { credentials } = await nangoAPIClient.getConnection(organisationId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError(
+          `Nango credentials are missing or invalid for the organisation with id=${organisationId}`
+        );
+      }
+
       // Teammates API doesn't support pagination (it is verified with support team)
       // https://dev.frontapp.com/reference/list-teammates
-      const result = await getUsers(token);
+      const result = await getUsers(credentials.access_token);
 
       const users = result.validUsers.map(formatElbaUser);
 
