@@ -1,6 +1,7 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { unauthorizedMiddleware } from './middlewares/unauthorized-middleware';
 
 export const inngest = new Inngest({
   id: 'harvest',
@@ -31,12 +32,6 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'harvest/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
-      };
-    };
     'harvest/users.delete.requested': {
       data: {
         organisationId: string;
@@ -44,6 +39,6 @@ export const inngest = new Inngest({
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [rateLimitMiddleware, unauthorizedMiddleware],
   logger,
 });
