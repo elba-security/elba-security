@@ -22,12 +22,6 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'front/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
-      };
-    };
     'front/users.delete.requested': {
       data: {
         organisationId: string;

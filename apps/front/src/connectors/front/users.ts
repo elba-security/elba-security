@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { FrontError } from '../common/error';
 
 const frontUserSchema = z.object({
