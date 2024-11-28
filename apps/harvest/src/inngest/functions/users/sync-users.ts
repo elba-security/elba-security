@@ -3,12 +3,13 @@ import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { getUsers, getCompanyDomain, getAuthUser } from '@/connectors/harvest/users';
+import { getUsers, getAuthUser } from '@/connectors/harvest/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { nangoAPIClient } from '@/common/nango/api';
 import { type HarvestUser } from '@/connectors/harvest/users';
 import { createElbaClient } from '@/connectors/elba/client';
+import { getCompanyDomain } from '@/connectors/harvest/company';
 
 const formatElbaUserDisplayName = (user: HarvestUser) => {
   if (user.first_name && user.last_name) {
@@ -17,18 +18,16 @@ const formatElbaUserDisplayName = (user: HarvestUser) => {
   return user.email;
 };
 
+// Users with the manager role can additionally be granted one or more of these roles
+// Elba accepts only one role, so we prioritize the roles in the following order:
+// DOC: https://help.getharvest.com/api-v2/users-api/users/users
 const findUserRole = (user: HarvestUser) => {
-  if (user.access_roles.includes('administrator')) {
-    return 'administrator';
+  for (const role of ['administrator', 'manager']) {
+    if (user.access_roles.includes(role)) {
+      return role;
+    }
   }
-
-  if (user.access_roles.includes('manager')) {
-    // Users with the manager role can additionally be granted one or more of these roles
-    // Elba accepts only one role, so we prioritize the roles in the following order:
-    // DOC: https://help.getharvest.com/api-v2/users-api/users/users
-    return 'manager';
-  }
-
+  // Default role if no higher-priority roles are found
   return 'member';
 };
 
@@ -90,6 +89,7 @@ export const syncUsers = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       const { credentials } = await nangoAPIClient.getConnection(organisationId);
+
       if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
         throw new NonRetriableError(
           `Nango credentials are missing or invalid for the organisation with id=${organisationId}`
@@ -97,6 +97,9 @@ export const syncUsers = inngest.createFunction(
       }
 
       const result = await getUsers({ accessToken: credentials.access_token, page });
+
+      // TODO: the following fetch auth user should be handled properly in the future nango update, check the Docusign implementations
+      // set elba connection error if the the auth user is not admin or not active
       const { authUserId } = await getAuthUser(credentials.access_token);
       const { companyDomain } = await getCompanyDomain(credentials.access_token);
 

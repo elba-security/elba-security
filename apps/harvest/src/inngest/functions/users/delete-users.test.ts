@@ -14,7 +14,6 @@ const organisation = {
   region: 'us',
 };
 
-// Setup function mock for Inngest
 const setup = createInngestFunctionMock(deleteUser, 'harvest/users.delete.requested');
 
 describe('deleteUser', () => {

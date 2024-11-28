@@ -1,6 +1,7 @@
 import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
+import * as companyConnector from '@/connectors/harvest/company';
 import * as usersConnector from '@/connectors/harvest/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
@@ -11,6 +12,7 @@ const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
   region: 'us',
 };
+
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 const accessToken = 'test-access-token';
@@ -29,9 +31,11 @@ const users: usersConnector.HarvestUser[] = Array.from({ length: 2 }, (_, i) => 
 const user = {
   authUserId: 'test-auth-user-id',
 };
+
 const companyInfo = {
   companyDomain: 'test-company-domain',
 };
+
 const setup = createInngestFunctionMock(syncUsers, 'harvest/users.sync.requested');
 
 describe('synchronize-users', () => {
@@ -73,7 +77,7 @@ describe('synchronize-users', () => {
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
-    vi.spyOn(usersConnector, 'getCompanyDomain').mockResolvedValue(companyInfo);
+    vi.spyOn(companyConnector, 'getCompanyDomain').mockResolvedValue(companyInfo);
 
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
