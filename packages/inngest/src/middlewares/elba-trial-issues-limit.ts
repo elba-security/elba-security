@@ -1,5 +1,5 @@
-import { InngestMiddleware } from 'inngest';
-import { ElbaError, type DataProtectionUpdateFailure } from '@elba-security/sdk';
+import { InngestMiddleware, NonRetriableError } from 'inngest';
+import { ElbaError } from '@elba-security/sdk';
 
 const hasOrganisationIdProperty = (data: unknown): data is { organisationId: string } =>
   typeof data === 'object' &&
@@ -7,7 +7,7 @@ const hasOrganisationIdProperty = (data: unknown): data is { organisationId: str
   'organisationId' in data &&
   typeof data.organisationId === 'string';
 
-export const createDataProtectionApiMiddleware = (cancelEventName: string) =>
+export const createElbaTrialIssuesLimitExceededMiddleware = (cancelEventName: string) =>
   new InngestMiddleware({
     name: 'data-protection-api-middleware',
     init: ({ client }) => {
@@ -20,20 +20,20 @@ export const createDataProtectionApiMiddleware = (cancelEventName: string) =>
           return {
             transformOutput: async (ctx) => {
               const {
-                result: { error },
+                result: { error, ...result },
               } = ctx;
-              const isElbaApiError = error instanceof ElbaError;
-
-              if (!isElbaApiError || !error.response) {
+              if (!(error instanceof ElbaError) || !error.elbaApiErrors) {
                 return ctx;
               }
 
-              const response = (await error.response.clone().json()) as DataProtectionUpdateFailure;
-              const trialOrgIssuesLimitExceededError = response.errors.find(
+              const trialOrgIssuesLimitExceededError = error.elbaApiErrors.find(
                 ({ code }) => code === 'trial_org_issues_limit_exceeded'
               );
+              if (!trialOrgIssuesLimitExceededError) {
+                return ctx;
+              }
 
-              if (trialOrgIssuesLimitExceededError && hasOrganisationIdProperty(data)) {
+              if (hasOrganisationIdProperty(data)) {
                 await client.send({
                   name: cancelEventName,
                   data: {
@@ -42,7 +42,13 @@ export const createDataProtectionApiMiddleware = (cancelEventName: string) =>
                 });
               }
 
-              return ctx;
+              return {
+                ...ctx,
+                result: {
+                  ...result,
+                  error: new NonRetriableError('Trial issues limit exceeded', { cause: error }),
+                },
+              };
             },
           };
         },

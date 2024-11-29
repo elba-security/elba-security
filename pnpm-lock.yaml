@@ -3775,6 +3775,9 @@ importers:
 
   packages/inngest:
     dependencies:
+      '@elba-security/schemas':
+        specifier: workspace:*
+        version: link:../schemas
       '@elba-security/sdk':
         specifier: workspace:*
         version: link:../sdk
