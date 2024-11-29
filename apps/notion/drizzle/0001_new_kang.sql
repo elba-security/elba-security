@@ -1,0 +1,1 @@
+ALTER TABLE "organisations" DROP COLUMN IF EXISTS "access_token";
