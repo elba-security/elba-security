@@ -1,5 +1,6 @@
 import { EventSchemas, type GetEvents, type GetFunctionInput, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { createDataProtectionApiMiddleware } from '@elba-security/inngest';
 import type { WebhookPayload } from '@/app/api/webhooks/microsoft/event-handler/service';
 import type { MessageMetadata } from '@/connectors/elba/data-protection/metadata';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
@@ -14,6 +15,11 @@ export type GetInngestFunctionInput<T extends keyof GetEvents<InngestClient>> = 
 export const inngest = new Inngest({
   id: 'teams',
   schemas: new EventSchemas().fromRecord<{
+    'teams/sync.cancel': {
+      data: {
+        organisationId: string;
+      };
+    };
     'teams/app.installed': {
       data: {
         organisationId: string;
@@ -133,6 +139,6 @@ export const inngest = new Inngest({
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [rateLimitMiddleware, createDataProtectionApiMiddleware('teams/sync.cancel')],
   logger,
 });

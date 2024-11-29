@@ -9,13 +9,13 @@ const channelData: MicrosoftEventHandlerPayload['value'] = [
     subscriptionId: 'subscription-id-0',
     changeType: 'created',
     resource: "teams('team-id-0')/channels('channel-id-0')",
-    tenantId: 'tenant-id-0',
+    tenantId: 'tenantId',
   },
   {
     subscriptionId: 'subscription-id-1',
     changeType: 'deleted',
     resource: "teams('team-id-1')/channels('channel-id-1')",
-    tenantId: 'tenant-id-1',
+    tenantId: 'tenantId',
   },
 ];
 const invalidData: MicrosoftEventHandlerPayload['value'] = [
@@ -23,13 +23,13 @@ const invalidData: MicrosoftEventHandlerPayload['value'] = [
     subscriptionId: 'subscription-id-0',
     changeType: 'created',
     resource: "teams('team-id-0')",
-    tenantId: 'tenant-id-0',
+    tenantId: 'tenantId',
   },
   {
     subscriptionId: 'subscription-id-1',
     changeType: 'deleted',
     resource: "channels('channel-id-1')",
-    tenantId: 'tenant-id-1',
+    tenantId: 'tenantId',
   },
 ];
 
@@ -38,13 +38,13 @@ const messageData: MicrosoftEventHandlerPayload['value'] = [
     subscriptionId: 'subscription-id-0',
     changeType: 'created',
     resource: "teams('team-id-0')/channels('channel-id-0')/messages('message-id-0')",
-    tenantId: 'tenant-id-0',
+    tenantId: 'tenantId',
   },
   {
     subscriptionId: 'subscription-id-1',
     changeType: 'created',
     resource: "teams('team-id-1')/channels('channel-id-1')/messages('message-id-1')",
-    tenantId: 'tenant-id-1',
+    tenantId: 'tenantId',
   },
 ];
 
@@ -54,14 +54,14 @@ const replyData: MicrosoftEventHandlerPayload['value'] = [
     changeType: 'created',
     resource:
       "teams('team-id-0')/channels('channel-id-0')/messages('message-id-0')/replies('reply-id-0')",
-    tenantId: 'tenant-id-0',
+    tenantId: 'tenantId',
   },
   {
     subscriptionId: 'subscription-id-1',
     changeType: 'created',
     resource:
       "teams('team-id-1')/channels('channel-id-1')/messages('message-id-1')/replies('reply-id-1')",
-    tenantId: 'tenant-id-1',
+    tenantId: 'tenantId',
   },
 ];
 
@@ -73,7 +73,7 @@ function createChannelPayload() {
       teamId: `team-id-${i}`,
       channelId: `channel-id-${i}`,
       subscriptionId: `subscription-id-${i}`,
-      tenantId: `tenant-id-${i}`,
+      tenantId: 'tenantId',
       event: i % 2 === 0 ? EventType.ChannelCreated : EventType.ChannelDeleted,
     };
     objectsArray.push(obj);
@@ -93,7 +93,7 @@ function createMessagePayload() {
       channelId: `channel-id-${i}`,
       messageId: `message-id-${i}`,
       subscriptionId: `subscription-id-${i}`,
-      tenantId: `tenant-id-${i}`,
+      tenantId: 'tenantId',
       event: EventType.MessageCreated,
     };
     objectsArray.push(obj);
@@ -114,7 +114,7 @@ function createReplyPayload() {
       messageId: `message-id-${i}`,
       replyId: `reply-id-${i}`,
       subscriptionId: `subscription-id-${i}`,
-      tenantId: `tenant-id-${i}`,
+      tenantId: 'tenantId',
       event: EventType.ReplyCreated,
     };
     objectsArray.push(obj);

@@ -8,7 +8,10 @@ export type HandleTeamsWebhookEventEventName = typeof handleTeamWebhookEventEven
 export type TeamsWebhookHandlerContext = GetInngestFunctionInput<HandleTeamsWebhookEventEventName>;
 
 export const handleTeamsWebhookEvent = inngest.createFunction(
-  { id: 'teams-handle-teams-webhook-event', retries: 5 },
+  {
+    id: 'teams-handle-teams-webhook-event',
+    retries: 5,
+  },
   { event: handleTeamWebhookEventEventName },
   teamsEventHandler
 );
