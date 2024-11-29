@@ -1,9 +1,5 @@
 import { InngestMiddleware } from 'inngest';
-import {
-  ElbaError,
-  DataProtectionErrorCode,
-  type DataProtectionUpdateFailure,
-} from '@elba-security/sdk';
+import { ElbaError, type DataProtectionUpdateFailure } from '@elba-security/sdk';
 
 const hasOrganisationIdProperty = (data: unknown): data is { organisationId: string } =>
   typeof data === 'object' &&
@@ -34,7 +30,7 @@ export const createDataProtectionApiMiddleware = (cancelEventName: string) =>
 
               const response = (await error.response.clone().json()) as DataProtectionUpdateFailure;
               const trialOrgIssuesLimitExceededError = response.errors.find(
-                ({ code }) => code === DataProtectionErrorCode.TrialOrgIssuesLimitExceeded
+                ({ code }) => code === 'trial_org_issues_limit_exceeded'
               );
 
               if (trialOrgIssuesLimitExceededError && hasOrganisationIdProperty(data)) {
