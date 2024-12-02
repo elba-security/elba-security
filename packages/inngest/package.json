@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@elba-security/utils": "workspace:*",
-    "date-fns": "^3.2.0"
+    "date-fns": "catalog:"
   },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
