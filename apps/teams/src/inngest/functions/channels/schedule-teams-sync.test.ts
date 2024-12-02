@@ -51,7 +51,7 @@ describe('schedule-teams-sync', () => {
           organisationId: organisation.id,
           syncStartedAt: new Date().toISOString(),
           skipToken: null,
-          isFirstSync: true,
+          isFirstSync: false,
         },
       }))
     );
