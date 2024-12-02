@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@elba-security/utils": "workspace:*",
+    "@elba-security/schemas": "workspace:*",
+    "@elba-security/sdk": "workspace:*",
     "date-fns": "catalog:"
   },
   "devDependencies": {
