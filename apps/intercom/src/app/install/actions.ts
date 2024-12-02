@@ -1,41 +1,37 @@
+'use server';
+
+import { getRedirectUrl } from '@elba-security/sdk';
+import { redirect, RedirectType } from 'next/navigation';
+import { env } from '@/common/env/server';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { getToken } from '@/connectors/intercom/auth';
 import { inngest } from '@/inngest/client';
-import { encrypt } from '@/common/crypto';
+import { nangoAPIClient } from '@/common/nango/api';
 import { getCurrentAdminInfos } from '@/connectors/intercom/users';
-
-type SetupOrganisationParams = {
-  organisationId: string;
-  code: string;
-  region: string;
-};
 
 export const setupOrganisation = async ({
   organisationId,
-  code,
   region,
-}: SetupOrganisationParams) => {
-  const { accessToken } = await getToken(code);
-  const currentAdmin = await getCurrentAdminInfos(accessToken);
+}: {
+  organisationId: string;
+  region: string;
+}) => {
+  const { credentials } = await nangoAPIClient.getConnection(organisationId);
+  if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+    throw new Error('Could not retrieve Nango credentials');
+  }
 
-  const encryptedAccessToken = await encrypt(accessToken);
+  await getCurrentAdminInfos(credentials.access_token);
 
   await db
     .insert(organisationsTable)
     .values({
       id: organisationId,
-      accessToken: encryptedAccessToken,
-      workspaceId: currentAdmin.app.id_code,
       region,
     })
     .onConflictDoUpdate({
       target: organisationsTable.id,
-      set: {
-        accessToken: encryptedAccessToken,
-        workspaceId: currentAdmin.app.id_code,
-        region,
-      },
+      set: { region },
     });
 
   await inngest.send([
@@ -55,4 +51,13 @@ export const setupOrganisation = async ({
       },
     },
   ]);
+
+  redirect(
+    getRedirectUrl({
+      region,
+      sourceId: env.ELBA_SOURCE_ID,
+      baseUrl: env.ELBA_REDIRECT_URL,
+    }),
+    RedirectType.replace
+  );
 };
