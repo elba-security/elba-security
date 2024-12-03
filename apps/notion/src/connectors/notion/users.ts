@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { NotionError } from '../common/error';
 
 const notionUserSchema = z.object({
