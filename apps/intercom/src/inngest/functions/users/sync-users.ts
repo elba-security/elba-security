@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { getUsers , getCurrentAdminInfos } from '@/connectors/intercom/users';
+import { getUsers, getAuthUser } from '@/connectors/intercom/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { nangoAPIClient } from '@/common/nango/api';
@@ -71,11 +71,11 @@ export const syncUsers = inngest.createFunction(
       }
 
       const result = await getUsers({ accessToken: credentials.access_token, page });
-      const currentAdmin = await getCurrentAdminInfos(credentials.access_token);
+      const {
+        app: { id_code: workspaceId },
+      } = await getAuthUser(credentials.access_token);
 
-      const users = result.validUsers.map((user) =>
-        formatElbaUser({ user, workspaceId: currentAdmin.app.id_code })
-      );
+      const users = result.validUsers.map((user) => formatElbaUser({ user, workspaceId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

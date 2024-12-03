@@ -4,7 +4,7 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env/server';
 import { IntercomError } from '../common/error';
 import type { IntercomUser } from './users';
-import { getUsers } from './users';
+import { getAuthUser, getUsers } from './users';
 
 const validToken = 'token-1234';
 const endPage = '3';
@@ -68,6 +68,36 @@ describe('users connector', () => {
 
     test('should throws when the token is invalid', async () => {
       await expect(getUsers({ accessToken: 'foo-bar' })).rejects.toBeInstanceOf(IntercomError);
+    });
+  });
+
+  describe('getAuthUser', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.INTERCOM_API_BASE_URL}/me`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          return Response.json({
+            app: {
+              id_code: 'workspace-id',
+            },
+          });
+        })
+      );
+    });
+
+    test('should return auth user id when the token is valid', async () => {
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+        app: {
+          id_code: 'workspace-id',
+        },
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getAuthUser('foo-bar')).rejects.toBeInstanceOf(IntercomError);
     });
   });
 });

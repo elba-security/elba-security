@@ -21,7 +21,7 @@ const users: usersConnector.IntercomUser[] = Array.from({ length: 2 }, (_, i) =>
   email: `user-${i}@foo.bar`,
 }));
 
-const adminInfo = {
+const authUserData = {
   app: { id_code: 'workspace-id' },
 };
 
@@ -65,7 +65,7 @@ describe('synchronize-users', () => {
 
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
-    vi.spyOn(usersConnector, 'getCurrentAdminInfos').mockResolvedValue(adminInfo);
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(authUserData);
 
     await db.insert(organisationsTable).values(organisation);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({

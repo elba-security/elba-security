@@ -7,7 +7,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { nangoAPIClient } from '@/common/nango/api';
-import { getCurrentAdminInfos } from '@/connectors/intercom/users';
+import { getAuthUser } from '@/connectors/intercom/users';
 
 export const setupOrganisation = async ({
   organisationId,
@@ -21,7 +21,7 @@ export const setupOrganisation = async ({
     throw new Error('Could not retrieve Nango credentials');
   }
 
-  await getCurrentAdminInfos(credentials.access_token);
+  await getAuthUser(credentials.access_token);
 
   await db
     .insert(organisationsTable)
