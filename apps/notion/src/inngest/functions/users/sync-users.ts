@@ -65,9 +65,7 @@ export const syncUsers = inngest.createFunction(
 
       const result = await getUsers({ accessToken: credentials.access_token, page });
 
-      const users = result.validUsers
-        .filter((user) => user.object === 'user' && user.type === 'person')
-        .map(formatElbaUser);
+      const users = result.validUsers.map(formatElbaUser);
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
