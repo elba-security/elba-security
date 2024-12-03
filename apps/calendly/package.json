@@ -24,7 +24,7 @@
     "@elba-security/sdk": "workspace:*",
     "@elba-security/utils": "workspace:*",
     "@neondatabase/serverless": "catalog:",
-    "date-fns": "^3.2.0",
+    "date-fns": "catalog:",
     "drizzle-orm": "catalog:",
     "inngest": "catalog:",
     "next": "catalog:",

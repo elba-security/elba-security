@@ -8,7 +8,7 @@ const now = Date.now();
 
 const setup = createInngestFunctionMock(scheduleUsersSync);
 
-export const organisations = Array.from({ length: 5 }, (_, i) => ({
+export const organisations = Array.from({ length: 2 }, (_, i) => ({
   id: `45a76301-f1dd-4a77-b12f-9d7d3fca3c9${i}`,
   tenantId: `tenant-${i}`,
   token: `token-${i}`,

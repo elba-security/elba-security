@@ -33,6 +33,10 @@ export const syncMessages = inngest.createFunction(
         event: 'teams/app.installed',
         match: 'data.organisationId',
       },
+      {
+        event: 'teams/sync.cancel',
+        match: 'data.organisationId',
+      },
     ],
     retries: env.MESSAGES_SYNC_MAX_RETRY,
   },
