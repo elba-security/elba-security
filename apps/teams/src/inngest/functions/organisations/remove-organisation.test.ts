@@ -71,7 +71,7 @@ describe('remove-organisation', () => {
 
     expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
     expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
-      hasError: true,
+      errorType: 'unauthorized',
     });
 
     await expect(

@@ -43,7 +43,7 @@ export const removeOrganisation = inngest.createFunction(
       baseUrl: env.ELBA_API_BASE_URL,
     });
 
-    await elba.connectionStatus.update({ hasError: true });
+    await elba.connectionStatus.update({ errorType: 'unauthorized' });
 
     await db.delete(organisationsTable).where(eq(organisationsTable.id, organisationId));
   }

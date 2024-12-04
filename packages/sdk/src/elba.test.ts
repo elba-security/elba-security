@@ -153,7 +153,9 @@ describe('connection status', () => {
   describe('update', () => {
     test('should call the right endpoint and return the response data', async () => {
       const elba = new Elba(options);
-      await expect(elba.connectionStatus.update({ hasError: true })).resolves.toStrictEqual({
+      await expect(
+        elba.connectionStatus.update({ errorType: 'unauthorized' })
+      ).resolves.toStrictEqual({
         success: true,
       });
     });

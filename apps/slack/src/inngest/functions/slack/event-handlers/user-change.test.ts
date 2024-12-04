@@ -419,7 +419,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
 
     const elbaInstance = elba.mock.results[0]?.value;
     expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
-    expect(elbaInstance?.connectionStatus.update).toBeCalledWith({ hasError: true });
+    expect(elbaInstance?.connectionStatus.update).toBeCalledWith({ errorType: 'not_admin' });
     expect(elbaInstance?.users.update).toBeCalledTimes(0);
     expect(elbaInstance?.users.delete).toBeCalledTimes(0);
 
