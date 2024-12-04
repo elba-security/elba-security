@@ -1,5 +1,5 @@
 import { Elba } from '@elba-security/sdk';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 
 export const createElbaClient = ({
   organisationId,
