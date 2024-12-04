@@ -34,7 +34,7 @@ export const parseWebhookEventData = <T extends WebhookEvent>(
   event: T,
   data: unknown
 ): zInfer<(typeof eventDataSchema)[T]> => {
-  const eventDataParseResult = eventDataSchema[event].safeParse(formatData(data));
+  const eventDataParseResult = eventDataSchema[event].safeParse(data);
 
   if (!eventDataParseResult.success) {
     throw new ElbaError('Could not validate webhook event data', {
@@ -43,11 +43,4 @@ export const parseWebhookEventData = <T extends WebhookEvent>(
   }
 
   return eventDataParseResult.data;
-};
-
-const formatData = (data: unknown) => {
-  if (data instanceof URLSearchParams) {
-    return Object.fromEntries(data.entries());
-  }
-  return data;
 };

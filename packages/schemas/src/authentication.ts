@@ -1,6 +1,8 @@
 import { z } from 'zod';
+import { baseWebhookSchema } from './common';
 
-export const authenticationRefreshObjectRequestedWebhookDataSchema = z.object({
-  organisationId: z.string().uuid(),
-  id: z.string().min(1),
-});
+export const authenticationRefreshObjectRequestedWebhookDataSchema = baseWebhookSchema.and(
+  z.object({
+    id: z.string().min(1),
+  })
+);

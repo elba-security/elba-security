@@ -4,6 +4,8 @@ import { inngest } from '@/inngest/client';
 import { deleteDataProtectionObjectPermissions } from './service';
 
 const spaceEventData = {
+  region: 'eu' as const,
+  nangoConnectionId: null,
   organisationId: 'organisation-id',
   id: 'object-id',
   metadata: {
@@ -20,6 +22,8 @@ const spaceEventData = {
 };
 
 const invalidSpaceEventData = {
+  region: 'eu' as const,
+  nangoConnectionId: null,
   organisationId: 'organisation-id',
   id: 'object-id',
   metadata: {
@@ -44,6 +48,8 @@ const invalidSpaceEventData = {
 };
 
 const pageEventData = {
+  region: 'eu' as const,
+  nangoConnectionId: null,
   organisationId: 'organisation-id',
   id: 'object-id',
   metadata: {
@@ -58,6 +64,8 @@ const pageEventData = {
 };
 
 const invalidPageEventData = {
+  region: 'eu' as const,
+  nangoConnectionId: null,
   organisationId: 'organisation-id',
   id: 'object-id',
   metadata: {

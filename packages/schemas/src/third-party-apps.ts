@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { infer as zInfer } from 'zod';
-import { jsonSchema } from './common';
+import { baseWebhookSchema, jsonSchema } from './common';
 
 export const updateThirdPartyAppsSchema = z.object({
   apps: z.array(
@@ -38,20 +38,20 @@ export const deleteThirdPartyAppsSchema = z.union([
 
 export type DeleteThirdPartyApps = zInfer<typeof deleteThirdPartyAppsSchema>;
 
-export const thirdPartyAppsStartSyncRequestedWebhookDataSchema = z.object({
-  organisationId: z.string().uuid(),
-});
+export const thirdPartyAppsStartSyncRequestedWebhookDataSchema = baseWebhookSchema;
 
-export const thirdPartyAppsRefreshObjectRequestedWebhookDataSchema = z.object({
-  organisationId: z.string().uuid(),
-  userId: z.string(),
-  appId: z.string(),
-  metadata: jsonSchema,
-});
+export const thirdPartyAppsRefreshObjectRequestedWebhookDataSchema = baseWebhookSchema.and(
+  z.object({
+    userId: z.string(),
+    appId: z.string(),
+    metadata: jsonSchema,
+  })
+);
 
-export const thirdPartyAppsDeleteObjectRequestedWebhookDataSchema = z.object({
-  organisationId: z.string().uuid(),
-  userId: z.string(),
-  appId: z.string(),
-  metadata: jsonSchema,
-});
+export const thirdPartyAppsDeleteObjectRequestedWebhookDataSchema = baseWebhookSchema.and(
+  z.object({
+    userId: z.string(),
+    appId: z.string(),
+    metadata: jsonSchema,
+  })
+);
