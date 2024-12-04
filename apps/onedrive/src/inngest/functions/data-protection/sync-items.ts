@@ -32,6 +32,10 @@ export const syncItems = inngest.createFunction(
         event: 'onedrive/app.installed',
         match: 'data.organisationId',
       },
+      {
+        event: 'onedrive/sync.cancel',
+        match: 'data.organisationId',
+      },
     ],
     onFailure: async ({ event, step }) => {
       const { organisationId, userId } = event.data.event.data;

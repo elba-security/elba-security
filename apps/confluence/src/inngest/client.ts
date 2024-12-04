@@ -1,5 +1,6 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { createElbaTrialIssuesLimitExceededMiddleware } from '@elba-security/inngest';
 import type {
   DataProtectionObjectMetadata,
   PageObjectPermissionMetadata,
@@ -92,7 +93,15 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
+    'confluence/sync.cancel': {
+      data: {
+        organisationId: string;
+      };
+    };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [
+    rateLimitMiddleware,
+    createElbaTrialIssuesLimitExceededMiddleware('confluence/sync.cancel'),
+  ],
   logger,
 });

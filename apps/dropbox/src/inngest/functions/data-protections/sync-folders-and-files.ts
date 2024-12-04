@@ -24,6 +24,12 @@ export const syncFoldersAndFiles = inngest.createFunction(
         },
       });
     },
+    cancelOn: [
+      {
+        event: 'dropbox/sync.cancel',
+        match: 'data.organisationId',
+      },
+    ],
   },
   { event: 'dropbox/data_protection.folder_and_files.sync.requested' },
   async ({ event, step }) => {

@@ -23,6 +23,10 @@ export const syncSpaces = inngest.createFunction(
         event: 'confluence/app.installed',
         match: 'data.organisationId',
       },
+      {
+        event: 'confluence/sync.cancel',
+        match: 'data.organisationId',
+      },
     ],
     concurrency: {
       key: 'event.data.organisationId',
