@@ -4,6 +4,7 @@ import { spyOnElba } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { conversationsTable, teamsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
+import { env } from '@/common/env';
 import { refreshDataProtectionObject } from './service';
 
 describe('refresh-data-protection-object', () => {
@@ -102,7 +103,8 @@ describe('refresh-data-protection-object', () => {
 
       expect(elba).toBeCalledTimes(1);
       expect(elba).toBeCalledWith({
-        apiKey: 'elba-api-key',
+        apiKey: env.ELBA_API_KEY,
+        baseUrl: env.ELBA_API_BASE_URL,
         organisationId: '00000000-0000-0000-0000-000000000001',
         region: 'eu',
       });
@@ -202,7 +204,8 @@ describe('refresh-data-protection-object', () => {
 
       expect(elba).toBeCalledTimes(1);
       expect(elba).toBeCalledWith({
-        apiKey: 'elba-api-key',
+        apiKey: env.ELBA_API_KEY,
+        baseUrl: env.ELBA_API_BASE_URL,
         organisationId: '00000000-0000-0000-0000-000000000001',
         region: 'eu',
       });
@@ -293,7 +296,8 @@ describe('refresh-data-protection-object', () => {
 
       expect(elba).toBeCalledTimes(1);
       expect(elba).toBeCalledWith({
-        apiKey: 'elba-api-key',
+        apiKey: env.ELBA_API_KEY,
+        baseUrl: env.ELBA_API_BASE_URL,
         organisationId: '00000000-0000-0000-0000-000000000001',
         region: 'eu',
       });
@@ -397,7 +401,8 @@ describe('refresh-data-protection-object', () => {
 
       expect(elba).toBeCalledTimes(1);
       expect(elba).toBeCalledWith({
-        apiKey: 'elba-api-key',
+        apiKey: env.ELBA_API_KEY,
+        baseUrl: env.ELBA_API_BASE_URL,
         organisationId: '00000000-0000-0000-0000-000000000001',
         region: 'eu',
       });

@@ -2,7 +2,7 @@ import { elbaApiErrorResponseSchema } from '@elba-security/schemas';
 import { type ElbaApiError, ElbaError } from './error';
 import type { ElbaOptions } from './types';
 
-export type RequestSenderOptions = Required<Omit<ElbaOptions, 'region'>>;
+export type RequestSenderOptions = Omit<ElbaOptions, 'region'>;
 
 export type ElbaResponse = Omit<Response, 'json'> & {
   json: <T = unknown>() => Promise<T>;
@@ -10,12 +10,12 @@ export type ElbaResponse = Omit<Response, 'json'> & {
 
 export type ElbaRequestInit<D extends Record<string, unknown>> = {
   method?: string;
-  data: D;
+  data?: D;
 };
 
 export class RequestSender {
   private readonly baseUrl: string;
-  private readonly organisationId: string;
+  private readonly organisationId?: string;
   private readonly apiKey: string;
 
   constructor({ baseUrl, organisationId, apiKey }: RequestSenderOptions) {
@@ -33,12 +33,19 @@ export class RequestSender {
         method,
         headers: {
           Authorization: `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
+          ...(method !== 'GET'
+            ? {
+                'Content-Type': 'application/json',
+              }
+            : {}),
         },
-        body: JSON.stringify({
-          ...data,
-          organisationId: this.organisationId,
-        }),
+        body:
+          method !== 'GET'
+            ? JSON.stringify({
+                ...data,
+                organisationId: this.organisationId,
+              })
+            : null,
       });
 
       if (!response.ok) {
