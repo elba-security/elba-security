@@ -6,6 +6,7 @@ import {
   dataProtectionObjectDeletedWebhookDataSchema,
   dataProtectionRefreshObjectRequestedWebhookDataSchema,
   dataProtectionStartSyncRequestedWebhookDataSchema,
+  installationValidationRequestedWebhookDataSchema,
   thirdPartyAppsDeleteObjectRequestedWebhookDataSchema,
   thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
   thirdPartyAppsStartSyncRequestedWebhookDataSchema,
@@ -21,6 +22,7 @@ const eventDataSchema = {
   'data_protection.object_deleted': dataProtectionObjectDeletedWebhookDataSchema,
   'data_protection.refresh_object_requested': dataProtectionRefreshObjectRequestedWebhookDataSchema,
   'data_protection.start_sync_requested': dataProtectionStartSyncRequestedWebhookDataSchema,
+  'installation.validation.requested': installationValidationRequestedWebhookDataSchema,
   'third_party_apps.delete_object_requested': thirdPartyAppsDeleteObjectRequestedWebhookDataSchema,
   'third_party_apps.refresh_object_requested':
     thirdPartyAppsRefreshObjectRequestedWebhookDataSchema,
