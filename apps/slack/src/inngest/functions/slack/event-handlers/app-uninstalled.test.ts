@@ -80,7 +80,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
     const elbaInstance = elba.mock.results[0]?.value;
     expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
     expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
-      hasError: true,
+      errorType: 'unauthorized',
     });
 
     expect(step.sendEvent).toBeCalledTimes(0);

@@ -35,7 +35,7 @@ export const userChangeHandler: SlackEventHandler<'user_change'> = async ({
     const token = await decrypt(team.token);
     await new SlackAPIClient().auth.revoke({ token });
     await db.delete(teamsTable).where(eq(teamsTable.id, teamId));
-    await elbaClient.connectionStatus.update({ hasError: true });
+    await elbaClient.connectionStatus.update({ errorType: 'unauthorized' });
 
     return { message: 'App uninstalled, user is not admin anymore', teamId, user };
   }

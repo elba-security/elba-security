@@ -45,7 +45,7 @@ export const removeOrganisation = inngest.createFunction(
     if (organisation) {
       logger.info('Google organisation deleted', { organisationId, region: organisation.region });
       const elba = getElbaClient({ organisationId, region: organisation.region });
-      await elba.connectionStatus.update({ hasError: true });
+      await elba.connectionStatus.update({ errorType: 'unauthorized' });
     }
 
     return { status: 'deleted' };
