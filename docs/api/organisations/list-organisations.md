@@ -17,9 +17,9 @@ Example requests:
 #### CURL
 
 ```shell
-curl --request POST \
-  --url "https://admin.elba.ninja/api/rest/organisations" \
-  --header "Authorization: Bearer <ELBA_API_KEY>" \
+curl --request GET \
+  --url "https://api.elba.ninja/api/rest/organisations" \
+  --header "Authorization: Bearer <ELBA_API_KEY>"
 ```
 
 #### elba SDK

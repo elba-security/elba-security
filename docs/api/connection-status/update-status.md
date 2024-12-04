@@ -25,7 +25,7 @@ Example requests:
 ```shell
 curl
   --request POST \
-  --url "https://admin.elba.ninja/api/rest/connection-status" \
+  --url "https://api.elba.ninja/api/rest/connection-status" \
   --header "Authorization: Bearer <ELBA_API_KEY>" \
   --header "Content-Type: application/json" \
   --data '{

@@ -32,7 +32,7 @@ Example request for deletion by user `ids`:
 
 ```shell
 curl --request DELETE \
-  --url "https://admin.elba.ninja/api/rest/users" \
+  --url "https://api.elba.ninja/api/rest/users" \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer <ELBA_API_KEY>" \
   --data '{
@@ -46,7 +46,7 @@ Example request for deletion by `syncedBefore`:
 ```shell
 curl
   --request DELETE \
-  --url "https://admin.elba.ninja/api/rest/users" \
+  --url "https://api.elba.ninja/api/rest/users" \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer <ELBA_API_KEY>" \
   --data '{
