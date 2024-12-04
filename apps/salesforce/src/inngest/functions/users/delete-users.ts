@@ -3,6 +3,7 @@ import { inngest } from '@/inngest/client';
 import { deleteUser as deleteSalesforceUser } from '@/connectors/salesforce/users';
 import { env } from '@/common/env/server';
 import { nangoAPIClient } from '@/common/nango/api';
+import { credentialsRawSchema } from './sync-users';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -32,12 +33,22 @@ export const deleteUser = inngest.createFunction(
         );
       }
 
-      const instanceUrl = credentials.raw.instance_url as string;
+      if (!('instance_url' in credentials.raw)) {
+        throw new Error('Could not retrieve Nango credentials');
+      }
+
+      const rawData = credentialsRawSchema.safeParse(credentials.raw);
+
+      if (!rawData.success) {
+        throw new NonRetriableError(
+          `Nango credentials.raw is invalid for the organisation with id=${organisationId}`
+        );
+      }
 
       await deleteSalesforceUser({
         userId,
         accessToken: credentials.access_token,
-        instanceUrl,
+        instanceUrl: credentials.raw.instance_url as string,
       });
     } catch (error: unknown) {
       throw new NonRetriableError(`Could not retrieve credentials or request info`);

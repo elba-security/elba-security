@@ -12,6 +12,10 @@ import { type SalesforceUser } from '@/connectors/salesforce/users';
 import { createElbaClient } from '@/connectors/elba/client';
 import { env } from '@/common/env/server';
 
+export const credentialsRawSchema = z.object({
+  instance_url: z.string().url(),
+});
+
 const formatElbaUserEmail = (user: SalesforceUser): string | undefined => {
   const emailSchema = z.string().email();
   if (user.Email && emailSchema.safeParse(user.Email).success) {
@@ -83,8 +87,15 @@ export const syncUsers = inngest.createFunction(
           `Nango credentials are missing or invalid for the organisation with id=${organisationId}`
         );
       }
+      const rawData = credentialsRawSchema.safeParse(credentials.raw);
 
-      const instanceUrl = credentials.raw.instance_url as string;
+      if (!rawData.success) {
+        throw new NonRetriableError(
+          `Nango credentials.raw is invalid for the organisation with id=${organisationId}`
+        );
+      }
+
+      const { instance_url: instanceUrl } = rawData.data;
 
       const result = await getUsers({
         accessToken: credentials.access_token,

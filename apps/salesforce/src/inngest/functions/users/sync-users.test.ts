@@ -1,23 +1,21 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/salesforce/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
+import * as nangoAPI from '@/common/nango/api';
 import { syncUsers } from './sync-users';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  authUserId: 'id-1',
-  accessToken: await encrypt('test-access-token'),
-  refreshToken: await encrypt('test-refresh-token'),
-  instanceUrl: 'https://test-some-url.com',
   region: 'us',
 };
 
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
+const accessToken = 'test-access-token';
+const instanceUrl = 'https://test-some-url.com';
 const nextPage = 1;
 const users: usersConnector.SalesforceUser[] = Array.from({ length: 2 }, (_, i) => ({
   Id: `id-${i}`,
@@ -28,9 +26,29 @@ const users: usersConnector.SalesforceUser[] = Array.from({ length: 2 }, (_, i) 
   Profile: { Id: `role-id-${i}`, Name: `role-name-${i}` },
 }));
 
+const user = {
+  userId: 'test-auth-user-id',
+};
+
 const setup = createInngestFunctionMock(syncUsers, 'salesforce/users.sync.requested');
 
 describe('sync-users', () => {
+  beforeEach(() => {
+    const mockNangoAPIClient = {
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: {
+          access_token: accessToken,
+          raw: {
+            instance_url: instanceUrl,
+          },
+        },
+      }),
+    };
+
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(
+      mockNangoAPIClient as unknown as typeof nangoAPI.nangoAPIClient
+    );
+  });
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -54,6 +72,8 @@ describe('sync-users', () => {
 
   test('should continue the sync when there is a next page', async () => {
     const elba = spyOnElba();
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
+
     await db.insert(organisationsTable).values(organisation);
 
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
@@ -101,7 +121,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           role: 'role-name-1',
-          isSuspendable: false,
+          isSuspendable: true,
           url: 'https://test-some-url.com/lightning/r/User/id-1/view',
         },
       ],
@@ -111,6 +131,8 @@ describe('sync-users', () => {
 
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
+
     await db.insert(organisationsTable).values(organisation);
 
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
@@ -146,7 +168,7 @@ describe('sync-users', () => {
           email: 'user-1@foo.bar',
           id: 'id-1',
           role: 'role-name-1',
-          isSuspendable: false,
+          isSuspendable: true,
           url: 'https://test-some-url.com/lightning/r/User/id-1/view',
         },
       ],
