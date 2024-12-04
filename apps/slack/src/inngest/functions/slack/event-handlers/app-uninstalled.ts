@@ -21,7 +21,7 @@ export const appUninstalledHandler: SlackEventHandler<'app_uninstalled'> = async
 
   if (team) {
     const elbaClient = createElbaClient(team.elbaOrganisationId, team.elbaRegion);
-    await elbaClient.connectionStatus.update({ hasError: true });
+    await elbaClient.connectionStatus.update({ errorType: 'unauthorized' });
   }
 
   logger.info('Slack app uninstalled', { teamId, team });
