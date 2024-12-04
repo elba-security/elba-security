@@ -2,6 +2,7 @@ import { expect, test, describe } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
+import { env } from '@/common/env/server';
 import { removeOrganisation } from './remove-organisation';
 
 const setup = createInngestFunctionMock(
@@ -46,8 +47,8 @@ describe('remove-organisation', () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      apiKey: 'elba-api-key',
-      baseUrl: 'https://elba.local/api',
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: '00000000-0000-0000-0000-000000000000',
       region: 'eu',
     });

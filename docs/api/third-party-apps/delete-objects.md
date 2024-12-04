@@ -24,7 +24,7 @@ Example requests:
 ```shell
 curl
   --request DELETE \
-  --url "https://admin.elba.ninja/api/rest/third-party-apps/objects" \
+  --url "https://api.elba.ninja/api/rest/third-party-apps/objects" \
   --header "Authorization: Bearer <ELBA_API_KEY>" \
   --header "Content-Type: application/json" \
   --data '{

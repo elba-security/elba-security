@@ -161,3 +161,23 @@ describe('connection status', () => {
     });
   });
 });
+
+describe('organisations', () => {
+  describe('list', () => {
+    test('should call the right endpoint and return the response data', async () => {
+      const elba = new Elba(options);
+      await expect(elba.organisations.list()).resolves.toStrictEqual({
+        organisations: [
+          {
+            id: '00000000-0000-0000-0000-000000000001',
+            nangoConnectionId: 'nango-connection-id',
+          },
+          {
+            id: '00000000-0000-0000-0000-000000000002',
+            nangoConnectionId: null,
+          },
+        ],
+      });
+    });
+  });
+});

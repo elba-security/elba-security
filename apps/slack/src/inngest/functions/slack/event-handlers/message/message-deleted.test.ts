@@ -3,6 +3,7 @@ import type { SlackEvent } from '@slack/bolt';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { teamsTable } from '@/database/schema';
+import { env } from '@/common/env';
 import { handleSlackWebhookEvent } from '../../handle-slack-webhook-event';
 import type { SlackMessageSubtype } from './types';
 
@@ -54,7 +55,8 @@ describe(`handle-slack-webhook-event ${eventType} ${messageSubtype}`, () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      apiKey: 'elba-api-key',
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: '00000000-0000-0000-0000-000000000001',
       region: 'eu',
     });
