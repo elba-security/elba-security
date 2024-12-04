@@ -33,7 +33,7 @@ Example requests:
 
 ```shell
 curl --request POST \
-  --url "https://admin.elba.ninja/api/rest/users" \
+  --url "https://api.elba.ninja/api/rest/users" \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer <ELBA_API_KEY>" \
   --data '{

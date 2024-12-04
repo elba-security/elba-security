@@ -4,6 +4,7 @@ import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils'
 import * as crypto from '@/common/crypto';
 import { db } from '@/database/client';
 import { conversationsTable, teamsTable } from '@/database/schema';
+import { env } from '@/common/env';
 import { synchronizeConversationMessages } from './synchronize-conversation-messages';
 
 const setup = createInngestFunctionMock(
@@ -107,7 +108,8 @@ describe('synchronize-conversation-messages', () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      apiKey: 'elba-api-key',
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: '00000000-0000-0000-0000-000000000001',
       region: 'eu',
     });
@@ -271,7 +273,8 @@ describe('synchronize-conversation-messages', () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      apiKey: 'elba-api-key',
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: '00000000-0000-0000-0000-000000000001',
       region: 'eu',
     });
