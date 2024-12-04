@@ -61,8 +61,10 @@ describe('deleteObjectPermissions', () => {
     const response = await mockNextRequest({
       handler,
       body: {
-        id: itemId,
+        region: 'us',
+        nangoConnectionId: null,
         organisationId: organisation.id,
+        id: itemId,
         metadata: {
           userId,
         },

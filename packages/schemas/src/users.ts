@@ -1,6 +1,6 @@
 import type { infer as zInfer } from 'zod';
 import { z } from 'zod';
-import { baseDeleteRequestSchema } from './common';
+import { baseDeleteRequestSchema, baseWebhookSchema } from './common';
 
 export const updateUsersSchema = z.object({
   users: z.array(
@@ -17,10 +17,11 @@ export const updateUsersSchema = z.object({
   ),
 });
 
-export const usersDeleteUsersRequestedWebhookDataSchema = z.object({
-  organisationId: z.string().uuid(),
-  ids: z.array(z.string().min(1)),
-});
+export const usersDeleteUsersRequestedWebhookDataSchema = baseWebhookSchema.and(
+  z.object({
+    ids: z.array(z.string().min(1)),
+  })
+);
 
 export type UpdateUsers = zInfer<typeof updateUsersSchema>;
 

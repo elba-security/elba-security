@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { infer as zInfer } from 'zod';
-import { baseDeleteRequestSchema, jsonSchema } from './common';
+import { baseDeleteRequestSchema, baseWebhookSchema, jsonSchema } from './common';
 
 const basePermissionSchema = z.object({
   id: z.string().min(1),
@@ -53,39 +53,41 @@ export const deleteDataProtectionObjectsSchema = baseDeleteRequestSchema;
 
 export type DeleteDataProtectionObjects = zInfer<typeof deleteDataProtectionObjectsSchema>;
 
-export const dataProtectionContentRequestedWebhookDataSchema = z.object({
-  organisationId: z.string().uuid(),
-  id: z.string().min(1),
-  metadata: jsonSchema,
-});
+export const dataProtectionContentRequestedWebhookDataSchema = baseWebhookSchema.and(
+  z.object({
+    id: z.string().min(1),
+    metadata: jsonSchema,
+  })
+);
 
-export const dataProtectionStartSyncRequestedWebhookDataSchema = z.object({
-  organisationId: z.string().uuid(),
-});
+export const dataProtectionStartSyncRequestedWebhookDataSchema = baseWebhookSchema;
 
-export const dataProtectionObjectDeletedWebhookDataSchema = z.object({
-  organisationId: z.string().uuid(),
-  id: z.string().min(1),
-  metadata: jsonSchema,
-});
+export const dataProtectionObjectDeletedWebhookDataSchema = baseWebhookSchema.and(
+  z.object({
+    id: z.string().min(1),
+    metadata: jsonSchema,
+  })
+);
 
-export const dataProtectionRefreshObjectRequestedWebhookDataSchema = z.object({
-  organisationId: z.string().uuid(),
-  id: z.string().min(1),
-  metadata: jsonSchema,
-});
+export const dataProtectionRefreshObjectRequestedWebhookDataSchema = baseWebhookSchema.and(
+  z.object({
+    id: z.string().min(1),
+    metadata: jsonSchema,
+  })
+);
 
-export const dataProtectionDeleteObjectPermissionsRequestedDataSchema = z.object({
-  id: z.string().min(1),
-  organisationId: z.string().uuid(),
-  metadata: jsonSchema,
-  permissions: z.array(
-    z.object({
-      id: z.string().min(1),
-      metadata: jsonSchema,
-    })
-  ),
-});
+export const dataProtectionDeleteObjectPermissionsRequestedDataSchema = baseWebhookSchema.and(
+  z.object({
+    id: z.string().min(1),
+    metadata: jsonSchema,
+    permissions: z.array(
+      z.object({
+        id: z.string().min(1),
+        metadata: jsonSchema,
+      })
+    ),
+  })
+);
 
 export type DataProtectionDeleteObjectPermissionsRequestedData = z.infer<
   typeof dataProtectionDeleteObjectPermissionsRequestedDataSchema
