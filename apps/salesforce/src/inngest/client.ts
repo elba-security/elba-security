@@ -23,12 +23,6 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'salesforce/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
-      };
-    };
     'salesforce/users.delete.requested': {
       data: {
         organisationId: string;

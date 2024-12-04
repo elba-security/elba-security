@@ -4,16 +4,11 @@ import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { env } from '@/common/env';
-import { encrypt } from '@/common/crypto';
+import { env } from '@/common/env/server';
 import { removeOrganisation } from './remove-organisation';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  authUserId: '00000001',
-  accessToken: await encrypt('test-access-token'),
-  refreshToken: await encrypt('test-refresh-token'),
-  instanceUrl: 'some-url',
   region: 'us',
 };
 const setup = createInngestFunctionMock(removeOrganisation, 'salesforce/app.uninstalled');
