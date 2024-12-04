@@ -51,6 +51,10 @@ export const syncDataProtectionDrive = inngest.createFunction(
         event: 'google/common.remove_organisation.requested',
         match: 'data.organisationId',
       },
+      {
+        event: 'google/sync.cancel',
+        match: 'data.organisationId',
+      },
     ],
     onFailure: async ({ step, event }) => {
       await step.sendEvent('failed', {

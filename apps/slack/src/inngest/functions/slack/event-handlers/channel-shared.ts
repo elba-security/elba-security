@@ -20,7 +20,7 @@ export const channelSharedHandler: SlackEventHandler<'channel_shared'> = async (
     throw new Error('Failed to retrieve authorizations');
   }
 
-  const steps: Promise<{ teamId: string; isSyncRequired: boolean }>[] = [];
+  const steps: Promise<{ organisationId: string; teamId: string; isSyncRequired: boolean }>[] = [];
   for (const { team_id: teamId } of authorizations) {
     if (!teamId) {
       logger.error('No team id provided in authorization');
@@ -29,27 +29,29 @@ export const channelSharedHandler: SlackEventHandler<'channel_shared'> = async (
 
     steps.push(
       step.run(`channel-shared-${teamId}`, async () => {
-        const conversation = await db.query.conversationsTable.findFirst({
-          where: and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, channelId)),
-          columns: {
-            isSharedExternally: true,
-          },
-        });
+        const [conversation, team] = await Promise.all([
+          db.query.conversationsTable.findFirst({
+            where: and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, channelId)),
+            columns: {
+              isSharedExternally: true,
+            },
+          }),
+          await db.query.teamsTable.findFirst({
+            where: eq(teamsTable.id, teamId),
+            columns: {
+              token: true,
+              elbaOrganisationId: true,
+            },
+          }),
+        ]);
+
+        if (!team) {
+          throw new Error('Failed to find team');
+        }
 
         // When accepting a slack connect invitation, no 'channel_created' event is sent
         // We have to handle the channel creation here
         if (!conversation) {
-          const team = await db.query.teamsTable.findFirst({
-            where: eq(teamsTable.id, teamId),
-            columns: {
-              token: true,
-            },
-          });
-
-          if (!team) {
-            throw new Error('Failed to find team');
-          }
-
           const decryptedToken = await decrypt(team.token);
           const slackClient = new SlackAPIClient(decryptedToken);
           const slackConversation = await slackClient.conversations.info({
@@ -70,7 +72,7 @@ export const channelSharedHandler: SlackEventHandler<'channel_shared'> = async (
             teamId,
           });
 
-          return { teamId, isSyncRequired: true };
+          return { organisationId: team.elbaOrganisationId, teamId, isSyncRequired: true };
         }
 
         // In case the channel was not shared externally yet, we need to trigger a sync
@@ -86,10 +88,10 @@ export const channelSharedHandler: SlackEventHandler<'channel_shared'> = async (
               and(eq(conversationsTable.teamId, teamId), eq(conversationsTable.id, channelId))
             );
 
-          return { teamId, isSyncRequired: true };
+          return { organisationId: team.elbaOrganisationId, teamId, isSyncRequired: true };
         }
 
-        return { teamId, isSyncRequired: false };
+        return { organisationId: team.elbaOrganisationId, teamId, isSyncRequired: false };
       })
     );
   }
@@ -100,9 +102,10 @@ export const channelSharedHandler: SlackEventHandler<'channel_shared'> = async (
   if (teamsToSync.length) {
     await step.sendEvent(
       'sync-channels',
-      teamsToSync.map(({ teamId }) => ({
+      teamsToSync.map(({ teamId, organisationId }) => ({
         name: 'slack/conversations.sync.messages.requested',
         data: {
+          organisationId,
           teamId,
           conversationId: channelId,
           isFirstSync: false,

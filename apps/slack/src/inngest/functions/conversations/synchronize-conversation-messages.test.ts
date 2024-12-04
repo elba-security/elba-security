@@ -82,6 +82,7 @@ describe('synchronize-conversation-messages', () => {
     });
 
     const [result, { step }] = setup({
+      organisationId: 'organisation-id',
       teamId: 'team-id',
       conversationId: 'conversation-id',
       isFirstSync: true,
@@ -175,6 +176,7 @@ describe('synchronize-conversation-messages', () => {
           isFirstSync: true,
           teamId: 'team-id',
           threadId: '1700000001.000000',
+          organisationId: 'organisation-id',
         },
         name: 'slack/conversations.sync.thread.messages.requested',
       },
@@ -185,6 +187,7 @@ describe('synchronize-conversation-messages', () => {
         cursor: 'next-cursor',
         isFirstSync: true,
         teamId: 'team-id',
+        organisationId: 'organisation-id',
       },
       name: 'slack/conversations.sync.messages.requested',
     });
@@ -244,6 +247,7 @@ describe('synchronize-conversation-messages', () => {
     });
 
     const [result, { step }] = setup({
+      organisationId: 'organisation-id',
       teamId: 'team-id',
       conversationId: 'conversation-id',
       isFirstSync: false,
@@ -335,6 +339,7 @@ describe('synchronize-conversation-messages', () => {
     expect(step.sendEvent).toBeCalledWith('start-conversation-thread-messages-synchronization', [
       {
         data: {
+          organisationId: 'organisation-id',
           conversationId: 'conversation-id',
           isFirstSync: false,
           teamId: 'team-id',
