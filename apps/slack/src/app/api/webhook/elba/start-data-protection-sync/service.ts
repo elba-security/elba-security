@@ -8,6 +8,7 @@ export const startDataProtectionSync = async (organisationId: string) => {
     where: eq(teamsTable.elbaOrganisationId, organisationId),
     columns: {
       id: true,
+      elbaOrganisationId: true,
     },
   });
 
@@ -18,6 +19,7 @@ export const startDataProtectionSync = async (organisationId: string) => {
   await inngest.send({
     name: 'slack/conversations.sync.requested',
     data: {
+      organisationId: team.elbaOrganisationId,
       isFirstSync: true,
       syncStartedAt: new Date().toISOString(),
       teamId: team.id,

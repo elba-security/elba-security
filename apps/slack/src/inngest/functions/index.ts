@@ -1,5 +1,5 @@
 import { conversationsFunctions, type ConversationsEvents } from './conversations';
-import { dataProtectionFunctions } from './data-protection';
+import { dataProtectionFunctions, type DataProtectionEvents } from './data-protection';
 import { slackFunctions, type SlackEvents } from './slack';
 import { usersFunctions, type UsersEvents } from './users';
 
@@ -15,4 +15,4 @@ export const inngestFunctions = [
   ...usersFunctions,
 ];
 
-export type InngestEvents = ConversationsEvents & SlackEvents & UsersEvents;
+export type InngestEvents = ConversationsEvents & SlackEvents & UsersEvents & DataProtectionEvents;

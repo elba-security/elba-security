@@ -18,6 +18,7 @@ export type SynchronizeConversationThreadMessagesEvents = {
 
 type SynchronizeConversationThreadMessagesRequested = {
   data: {
+    organisationId: string;
     teamId: string;
     isFirstSync: boolean;
     conversationId: string;
@@ -52,13 +53,19 @@ export const synchronizeConversationThreadMessages = inngest.createFunction(
         },
       });
     },
+    cancelOn: [
+      {
+        event: 'slack/sync.cancel',
+        match: 'data.organisationId',
+      },
+    ],
   },
   {
     event: 'slack/conversations.sync.thread.messages.requested',
   },
   async ({
     event: {
-      data: { teamId, isFirstSync, conversationId, threadId, cursor },
+      data: { organisationId, teamId, isFirstSync, conversationId, threadId, cursor },
     },
     step,
   }) => {
@@ -146,6 +153,7 @@ export const synchronizeConversationThreadMessages = inngest.createFunction(
       await step.sendEvent('next-pagination-cursor', {
         name: 'slack/conversations.sync.thread.messages.requested',
         data: {
+          organisationId,
           teamId,
           conversationId,
           threadId,
