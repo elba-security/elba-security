@@ -41,7 +41,7 @@ export const setupOrganisation = async ({
         organisationId,
         isFirstSync: true,
         syncStartedAt: Date.now(),
-        page: null,
+        page: 0,
       },
     },
     {

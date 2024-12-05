@@ -90,9 +90,7 @@ export const syncUsers = inngest.createFunction(
         companyId,
       });
 
-      const users = result.validUsers
-        .filter(({ terminated }) => !terminated)
-        .map((user) => formatElbaUser({ user, authUserEmail }));
+      const users = result.validUsers.map((user) => formatElbaUser({ user, authUserEmail }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
