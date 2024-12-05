@@ -1,9 +1,9 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "envMode": "loose",
   "globalDependencies": ["**/.env.*local", "pnpm-workspace.yaml"],
   "tasks": {
     "build": {
-      "env": ["*"],
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**"]
     },
