@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { ElbaInstallRedirectResponse } from '@elba-security/nextjs';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { setupOrganisation } from './service';
 
 export const runtime = 'edge';
