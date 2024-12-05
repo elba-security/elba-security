@@ -1,5 +1,5 @@
 {
-  "ignoreCommand": "sh -c 'exit 0'",
+  "ignoreCommand": "npx turbo-ignore --fallback=HEAD^1",
   "functions": {
     "src/app/api/**/*": {
       "maxDuration": 60
