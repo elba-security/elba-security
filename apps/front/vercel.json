@@ -1,4 +1,5 @@
 {
+  "ignoreCommand": "sh -c 'exit 1'",
   "functions": {
     "src/app/api/**/*": {
       "maxDuration": 60
