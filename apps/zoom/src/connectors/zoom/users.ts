@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { ZoomError } from '../common/error';
 
 const zoomUserSchema = z.object({
@@ -39,7 +39,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
     url.searchParams.append('next_page_token', page);
   }
 
-  const response = await fetch(url, {
+  const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
       Accept: 'application/json',
