@@ -10,11 +10,11 @@ export const listOrganisations = createRoute({
       organisations: [
         {
           id: '00000000-0000-0000-0000-000000000001',
-          nangoConnectionId: 'nango-connection-id',
+          nangoConnectionId: 'nango-connection-id-1',
         },
         {
           id: '00000000-0000-0000-0000-000000000002',
-          nangoConnectionId: null,
+          nangoConnectionId: 'nango-connection-id-2',
         },
       ],
     });
