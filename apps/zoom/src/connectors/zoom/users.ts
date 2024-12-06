@@ -39,7 +39,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
     url.searchParams.append('next_page_token', page);
   }
 
-  const response = await fetch(url, {
+  const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
       Accept: 'application/json',
