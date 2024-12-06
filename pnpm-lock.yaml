@@ -3845,9 +3845,6 @@ importers:
 
   packages/nango:
     dependencies:
-      '@nangohq/frontend':
-        specifier: ^0.42.20
-        version: 0.42.22
       '@nangohq/types':
         specifier: ^0.42.20
         version: 0.42.22
@@ -4730,9 +4727,6 @@ packages:
   '@mswjs/interceptors@0.29.1':
     resolution: {integrity: sha512-3rDakgJZ77+RiQUuSK69t1F0m8BQKA8Vh5DCS5V0DWvNY67zob2JhhQrhCO0AKLGINTRSFd1tBaHcJTkhefoSw==}
     engines: {node: '>=18'}
-
-  '@nangohq/frontend@0.42.22':
-    resolution: {integrity: sha512-ZxVhhGYUJDmxnuyfmRn7z7lBQPLoJTpkVx3alcqLe+wjxlfcXu1ka3iPAb5rZeU3f60stmtwKVGUQ1EpDtXfVQ==}
 
   '@nangohq/types@0.42.22':
     resolution: {integrity: sha512-8VKO40UKP3pXv5WqhMTXFWZehVosxPgyWo8BAaz/HyGrBWbDmloWEl5igpqYwwwBu3xZ9YLjdfpF5seWFSBgiw==}
@@ -9668,8 +9662,6 @@ snapshots:
       is-node-process: 1.2.0
       outvariant: 1.4.2
       strict-event-emitter: 0.5.1
-
-  '@nangohq/frontend@0.42.22': {}
 
   '@nangohq/types@0.42.22': {}
 
