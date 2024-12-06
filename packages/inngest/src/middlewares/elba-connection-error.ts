@@ -10,7 +10,7 @@ const requiredDataSchema = z.object({
 
 export type MapConnectionErrorFn = (error: unknown) => ConnectionErrorType | null;
 
-export const createElbaConnectionErrorMiddelware = ({
+export const createElbaConnectionErrorMiddleware = ({
   mapErrorFn,
   eventName,
 }: {

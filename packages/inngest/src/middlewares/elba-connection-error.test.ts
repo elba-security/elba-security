@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
-import { createElbaConnectionErrorMiddelware } from './elba-connection-error';
+import { createElbaConnectionErrorMiddleware } from './elba-connection-error';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const region = 'us';
@@ -18,7 +18,7 @@ class UnauthorizedError extends Error {
   }
 }
 
-const middleware = createElbaConnectionErrorMiddelware({
+const middleware = createElbaConnectionErrorMiddleware({
   eventName: 'connection-error-event',
   mapErrorFn: (error) => {
     if (error instanceof UnauthorizedError) {
