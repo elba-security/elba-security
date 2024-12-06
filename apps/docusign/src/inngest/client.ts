@@ -1,6 +1,8 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { type ConnectionErrorType } from '@elba-security/sdk';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { elbaConnectionErrorMiddelware } from './middlewares/elba-connection-error-middleware';
 
 export const inngest = new Inngest({
   id: 'docusign',
@@ -13,17 +15,16 @@ export const inngest = new Inngest({
     'docusign/app.uninstalled': {
       data: {
         organisationId: string;
-      };
-    };
-    'docusign/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
+        region: string;
+        errorType: ConnectionErrorType;
+        errorMetadata?: unknown;
       };
     };
     'docusign/users.sync.requested': {
       data: {
         organisationId: string;
+        region: string;
+        nangoConnectionId: string;
         isFirstSync: boolean;
         syncStartedAt: number;
         page: string | null;
@@ -32,10 +33,12 @@ export const inngest = new Inngest({
     'docusign/users.delete.requested': {
       data: {
         organisationId: string;
+        region: string;
+        nangoConnectionId: string;
         userIds: string[];
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [rateLimitMiddleware, elbaConnectionErrorMiddelware],
   logger,
 });
