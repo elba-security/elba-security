@@ -1,8 +1,8 @@
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { deleteUsers as deleteDocusignUsers } from '@/connectors/docusign/users';
-import { env } from '@/common/env/server';
-import { nangoAPIClient } from '@/common/nango/api';
+import { env } from '@/common/env';
+import { nangoAPIClient } from '@/common/nango';
 import { getAuthUser } from '@/connectors/docusign/auth';
 
 export const deleteUsers = inngest.createFunction(
@@ -16,25 +16,21 @@ export const deleteUsers = inngest.createFunction(
   },
   { event: 'docusign/users.delete.requested' },
   async ({ event }) => {
-    const { organisationId, userIds } = event.data;
+    const { nangoConnectionId, userIds } = event.data;
 
-    try {
-      const { credentials } = await nangoAPIClient.getConnection(organisationId);
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
 
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
-      }
-
-      const { apiBaseUri, accountId } = await getAuthUser(credentials.access_token);
-
-      await deleteDocusignUsers({
-        accessToken: credentials.access_token,
-        apiBaseUri,
-        users: userIds.map((userId) => ({ userId })),
-        accountId,
-      });
-    } catch (error: unknown) {
-      throw new NonRetriableError(`Could not retrieve credentials or request info`);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
     }
+
+    const { apiBaseUri, accountId } = await getAuthUser(credentials.access_token);
+
+    await deleteDocusignUsers({
+      accessToken: credentials.access_token,
+      apiBaseUri,
+      users: userIds.map((userId) => ({ userId })),
+      accountId,
+    });
   }
 );
