@@ -2,7 +2,7 @@ import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { type ConnectionErrorType } from '@elba-security/sdk';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
-import { elbaConnectionErrorMiddelware } from './middlewares/elba-connection-error-middleware';
+import { elbaConnectionErrorMiddleware } from './middlewares/elba-connection-error-middleware';
 
 export const inngest = new Inngest({
   id: 'docusign',
@@ -39,6 +39,6 @@ export const inngest = new Inngest({
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware, elbaConnectionErrorMiddelware],
+  middleware: [rateLimitMiddleware, elbaConnectionErrorMiddleware],
   logger,
 });
