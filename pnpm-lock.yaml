@@ -3775,6 +3775,9 @@ importers:
 
   packages/inngest:
     dependencies:
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../logger
       '@elba-security/schemas':
         specifier: workspace:*
         version: link:../schemas
@@ -3787,10 +3790,16 @@ importers:
       date-fns:
         specifier: 'catalog:'
         version: 3.6.0
+      zod:
+        specifier: 'catalog:'
+        version: 3.23.8
     devDependencies:
       '@elba-security/eslint-config-custom':
         specifier: workspace:*
         version: link:../eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       '@elba-security/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
@@ -3806,6 +3815,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.5.3
+      vitest:
+        specifier: 'catalog:'
+        version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
 
   packages/logger:
     devDependencies:
