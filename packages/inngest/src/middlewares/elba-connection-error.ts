@@ -1,19 +1,28 @@
+import { serializeLogObject } from '@elba-security/logger/src/serialize';
+import { elbaRegionSchema, type ConnectionErrorType } from '@elba-security/schemas';
 import { InngestMiddleware, NonRetriableError } from 'inngest';
-import { ElbaError } from '@elba-security/sdk';
 import { z } from 'zod';
-import { elbaRegionSchema } from '@elba-security/schemas';
 
 const requiredDataSchema = z.object({
   organisationId: z.string().uuid(),
-  region: elbaRegionSchema.optional(),
+  region: elbaRegionSchema,
 });
 
-export const createElbaTrialIssuesLimitExceededMiddleware = (cancelEventName: string) =>
-  new InngestMiddleware({
-    name: 'data-protection-api-middleware',
+export type MapConnectionErrorFn = (error: unknown) => ConnectionErrorType | null;
+
+export const createElbaConnectionErrorMiddleware = ({
+  mapErrorFn,
+  eventName,
+}: {
+  mapErrorFn: (error: unknown) => ConnectionErrorType | null;
+  eventName: string;
+}) => {
+  return new InngestMiddleware({
+    name: 'elba-connection-error',
     init: ({ client }) => {
       return {
         onFunctionRun: ({
+          fn,
           ctx: {
             event: { data },
           },
@@ -22,34 +31,34 @@ export const createElbaTrialIssuesLimitExceededMiddleware = (cancelEventName: st
             transformOutput: async (ctx) => {
               const {
                 result: { error, ...result },
+                ...context
               } = ctx;
-              if (!(error instanceof ElbaError) || !error.elbaApiErrors) {
-                return ctx;
-              }
 
-              const trialOrgIssuesLimitExceededError = error.elbaApiErrors.find(
-                ({ code }) => code === 'trial_org_issues_limit_exceeded'
-              );
-              if (!trialOrgIssuesLimitExceededError) {
-                return ctx;
+              const errorType = mapErrorFn(error);
+              if (!errorType) {
+                return;
               }
 
               const requiredDataResult = requiredDataSchema.safeParse(data);
               if (requiredDataResult.success) {
                 await client.send({
-                  name: cancelEventName,
+                  name: eventName,
                   data: {
                     organisationId: requiredDataResult.data.organisationId,
                     region: requiredDataResult.data.region,
+                    errorType,
+                    errorMetadata: serializeLogObject(error) as unknown,
                   },
                 });
               }
 
               return {
-                ...ctx,
+                ...context,
                 result: {
                   ...result,
-                  error: new NonRetriableError('Trial issues limit exceeded', { cause: error }),
+                  error: new NonRetriableError(`Detected '${errorType}' error in '${fn.name}'`, {
+                    cause: error,
+                  }),
                 },
               };
             },
@@ -58,3 +67,4 @@ export const createElbaTrialIssuesLimitExceededMiddleware = (cancelEventName: st
       };
     },
   });
+};
