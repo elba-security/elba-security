@@ -12,6 +12,7 @@ export const spyOnElba = () =>
     const elba = new Elba(options);
     vi.spyOn(elba.dataProtection, 'updateObjects');
     vi.spyOn(elba.dataProtection, 'deleteObjects');
+    vi.spyOn(elba.organisations, 'list');
     vi.spyOn(elba.thirdPartyApps, 'updateObjects');
     vi.spyOn(elba.thirdPartyApps, 'deleteObjects');
     vi.spyOn(elba.users, 'update');
