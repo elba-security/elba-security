@@ -6,7 +6,7 @@ import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/notion/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
+import { nangoAPIClient } from '@/common/nango/api';
 import { type NotionUser } from '@/connectors/notion/users';
 import { createElbaClient } from '@/connectors/elba/client';
 
@@ -45,7 +45,6 @@ export const syncUsers = inngest.createFunction(
 
     const [organisation] = await db
       .select({
-        token: organisationsTable.accessToken,
         region: organisationsTable.region,
       })
       .from(organisationsTable)
@@ -55,14 +54,18 @@ export const syncUsers = inngest.createFunction(
     }
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken: token, page });
+      const { credentials } = await nangoAPIClient.getConnection(organisationId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError(
+          `Nango credentials are missing or invalid for the organisation with id=${organisationId}`
+        );
+      }
 
-      const users = result.validUsers
-        .filter((user) => user.object === 'user' && user.type === 'person')
-        .map(formatElbaUser);
+      const result = await getUsers({ accessToken: credentials.access_token, page });
+
+      const users = result.validUsers.map(formatElbaUser);
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

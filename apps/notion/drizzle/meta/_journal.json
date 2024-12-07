@@ -8,6 +8,13 @@
       "when": 1715176779269,
       "tag": "0000_aromatic_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1732863554571,
+      "tag": "0001_new_kang",
+      "breakpoints": false
     }
   ]
 }

@@ -1,20 +1,19 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/notion/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
+import * as nangoAPI from '@/common/nango/api';
 import { syncUsers } from './sync-users';
 
 const organisation = {
   id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt('test-access-token'),
-  refreshToken: await encrypt('test-refresh-token'),
   region: 'us',
 };
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
+const accessToken = 'test-access-token';
 const nextPage = '1';
 const users: usersConnector.NotionUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
@@ -27,6 +26,20 @@ const users: usersConnector.NotionUser[] = Array.from({ length: 2 }, (_, i) => (
 const setup = createInngestFunctionMock(syncUsers, 'notion/users.sync.requested');
 
 describe('synchronize-users', () => {
+  beforeEach(() => {
+    const mockNangoAPIClient = {
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: {
+          access_token: accessToken,
+        },
+      }),
+    };
+
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(
+      mockNangoAPIClient as unknown as typeof nangoAPI.nangoAPIClient
+    );
+  });
+
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,

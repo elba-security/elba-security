@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { NotionError } from '../common/error';
 
 const notionUserSchema = z.object({
@@ -61,6 +61,10 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   for (const user of results) {
     const result = notionUserSchema.safeParse(user);
     if (result.success) {
+      if (result.data.object !== 'user' && result.data.type !== 'person') {
+        continue;
+      }
+
       validUsers.push(result.data);
     } else {
       invalidUsers.push(user);
