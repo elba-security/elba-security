@@ -3,13 +3,12 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { AsanaError } from '../common/error';
-import { getToken, getWorkspaceIds, getRefreshToken } from './auth';
+import { getToken, getRefreshToken } from './auth';
 
 const validCode = '1234';
 const accessToken = 'access-token-1234';
 const validRefreshToken = 'valid-refresh-token';
-const invalidToken = 'invalid-token';
-const workspaceId = '000000';
+const authUserId = 1000000;
 const expiresIn = 1234;
 
 describe('auth connector', () => {
@@ -30,6 +29,9 @@ describe('auth connector', () => {
             access_token: accessToken,
             refresh_token: validRefreshToken,
             expires_in: expiresIn,
+            data: {
+              id: authUserId,
+            },
           });
         })
       );
@@ -40,6 +42,7 @@ describe('auth connector', () => {
         accessToken,
         refreshToken: validRefreshToken,
         expiresIn,
+        authUserId: String(authUserId),
       });
     });
 
@@ -65,6 +68,9 @@ describe('auth connector', () => {
           return Response.json({
             access_token: accessToken,
             expires_in: expiresIn,
+            data: {
+              id: authUserId,
+            },
           });
         })
       );
@@ -79,34 +85,6 @@ describe('auth connector', () => {
 
     test('should throw when the refreshToken is invalid', async () => {
       await expect(getToken('wrong-refreshtoken')).rejects.toBeInstanceOf(AsanaError);
-    });
-  });
-
-  describe('getWorkspaceIds', () => {
-    beforeEach(() => {
-      server.use(
-        http.get(`${env.ASANA_API_BASE_URL}/workspaces`, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${accessToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-
-          return Response.json({
-            data: [
-              {
-                gid: workspaceId,
-              },
-            ],
-          });
-        })
-      );
-    });
-
-    test('should return the workspaceIds when the accessToken is valid', async () => {
-      await expect(getWorkspaceIds(accessToken)).resolves.toStrictEqual([workspaceId]);
-    });
-
-    test('should throw when the accessToken is invalid', async () => {
-      await expect(getWorkspaceIds(invalidToken)).rejects.toBeInstanceOf(AsanaError);
     });
   });
 });

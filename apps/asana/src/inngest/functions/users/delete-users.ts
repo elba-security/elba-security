@@ -3,10 +3,9 @@ import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { deleteUser as deleteAsanaUser } from '@/connectors/asana/users';
+import { deleteUser as deleteAsanaUser, getUser } from '@/connectors/asana/users';
 import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
-import { getWorkspaceIds } from '@/connectors/asana/auth';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -44,7 +43,7 @@ export const deleteUser = inngest.createFunction(
 
     const accessToken = await decrypt(organisation.accessToken);
     const workspaceIds = await step.run('get-workspace-ids', async () => {
-      return getWorkspaceIds(accessToken);
+      return getUser({ accessToken, userId });
     });
 
     await Promise.all(
