@@ -1,4 +1,8 @@
 import type { DataProtectionObject } from '@elba-security/sdk';
+import {
+  type MicrosoftMessageObject,
+  type MicrosoftMessageObjectWithoutContent,
+} from '@/connectors/elba/types';
 
 export function chunkObjects(array: DataProtectionObject[], chunkSize: number) {
   const chunks: DataProtectionObject[][] = [];
@@ -14,3 +18,9 @@ export function mapInvalidMessageData(data: unknown) {
   }
   return data;
 }
+
+export const omitMessageContent = (
+  message: MicrosoftMessageObject
+): MicrosoftMessageObjectWithoutContent => {
+  return { ...message, body: null };
+};

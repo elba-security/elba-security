@@ -3,6 +3,7 @@ import { createSubscriptionToChannelMessages } from '@/inngest/functions/subscri
 import { refreshSubscription } from '@/inngest/functions/subscriptions/refresh-subscription';
 import { startRecreateSubscriptionsForOrganisations } from '@/inngest/functions/subscriptions/start-recreate-subscriptions-for-organisations';
 import { recreateSubscriptionsForOrganisation } from '@/inngest/functions/subscriptions/recreate-subscriptions-for-organisation';
+import { removeSubscriptions } from '@/inngest/functions/subscriptions/remove-subscriptions';
 
 export const subscriptionsFunctions = [
   createSubscriptionToChannels,
@@ -10,4 +11,5 @@ export const subscriptionsFunctions = [
   refreshSubscription,
   startRecreateSubscriptionsForOrganisations,
   recreateSubscriptionsForOrganisation,
+  removeSubscriptions,
 ];
