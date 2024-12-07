@@ -15,6 +15,13 @@
       "when": 1725536148056,
       "tag": "0001_material_madame_web",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1732795981734,
+      "tag": "0002_outstanding_killmonger",
+      "breakpoints": false
     }
   ]
 }
