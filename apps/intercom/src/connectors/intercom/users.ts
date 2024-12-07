@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { IntercomError } from '../common/error';
 
 const intercomUserSchema = z.object({
@@ -36,7 +36,7 @@ export type GetUsersParams = {
   page?: string | null;
 };
 
-export const getCurrentAdminInfos = async (accessToken: string) => {
+export const getAuthUser = async (accessToken: string) => {
   const response = await fetch(`${env.INTERCOM_API_BASE_URL}/me`, {
     method: 'GET',
     headers: {
