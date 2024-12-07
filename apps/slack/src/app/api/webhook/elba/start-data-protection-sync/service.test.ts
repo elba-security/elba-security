@@ -31,6 +31,7 @@ describe('start-data-protection-sync', () => {
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
       data: {
+        organisationId: '00000000-0000-0000-0000-000000000001',
         isFirstSync: true,
         syncStartedAt: mockedDate,
         teamId: 'team-id',

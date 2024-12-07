@@ -18,6 +18,12 @@ export const refreshObject = inngest.createFunction(
       limit: 10,
       key: 'event.data.organisationId',
     },
+    cancelOn: [
+      {
+        event: 'dropbox/sync.cancel',
+        match: 'data.organisationId',
+      },
+    ],
   },
   { event: 'dropbox/data_protection.refresh_object.requested' },
 

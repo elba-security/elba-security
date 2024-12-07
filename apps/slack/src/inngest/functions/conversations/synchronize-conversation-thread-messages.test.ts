@@ -82,6 +82,7 @@ describe('synchronize-conversation-thread-messages', () => {
     });
 
     const [result, { step }] = setup({
+      organisationId: 'organisation-id',
       teamId: 'team-id',
       conversationId: 'conversation-id',
       threadId: 'thread-id',
@@ -160,6 +161,7 @@ describe('synchronize-conversation-thread-messages', () => {
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('next-pagination-cursor', {
       data: {
+        organisationId: 'organisation-id',
         conversationId: 'conversation-id',
         cursor: 'next-cursor',
         isFirstSync: true,
@@ -223,6 +225,7 @@ describe('synchronize-conversation-thread-messages', () => {
     });
 
     const [result, { step }] = setup({
+      organisationId: 'organisation-id',
       teamId: 'team-id',
       conversationId: 'conversation-id',
       threadId: 'thread-id',

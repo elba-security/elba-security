@@ -48,7 +48,10 @@ describe('schedule-data-protection-sync', () => {
     const [result, { step }] = setup();
 
     await expect(result).resolves.toStrictEqual({
-      teams: [{ id: 'team-id-1' }, { id: 'team-id-2' }],
+      teams: [
+        { id: 'team-id-1', elbaOrganisationId: 'org-id-1' },
+        { id: 'team-id-2', elbaOrganisationId: 'org-id-2' },
+      ],
     });
 
     expect(step.sendEvent).toBeCalledTimes(1);
@@ -58,6 +61,7 @@ describe('schedule-data-protection-sync', () => {
           isFirstSync: false,
           syncStartedAt: mockedDate,
           teamId: 'team-id-1',
+          organisationId: 'org-id-1',
         },
         name: 'slack/conversations.sync.requested',
       },
@@ -66,6 +70,7 @@ describe('schedule-data-protection-sync', () => {
           isFirstSync: false,
           syncStartedAt: mockedDate,
           teamId: 'team-id-2',
+          organisationId: 'org-id-2',
         },
         name: 'slack/conversations.sync.requested',
       },

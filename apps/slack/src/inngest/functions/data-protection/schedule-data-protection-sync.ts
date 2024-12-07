@@ -10,6 +10,7 @@ export const scheduleDataProtectionSync = inngest.createFunction(
       return db.query.teamsTable.findMany({
         columns: {
           id: true,
+          elbaOrganisationId: true,
         },
       });
     });
@@ -17,9 +18,10 @@ export const scheduleDataProtectionSync = inngest.createFunction(
     if (teams.length) {
       await step.sendEvent(
         'start-data-protection-sync',
-        teams.map(({ id: teamId }) => ({
+        teams.map(({ id: teamId, elbaOrganisationId }) => ({
           name: 'slack/conversations.sync.requested',
           data: {
+            organisationId: elbaOrganisationId,
             teamId,
             isFirstSync: false,
             syncStartedAt: new Date().toISOString(),

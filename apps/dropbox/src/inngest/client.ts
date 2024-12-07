@@ -1,5 +1,6 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { createElbaTrialIssuesLimitExceededMiddleware } from '@elba-security/inngest';
 import { type FileMetadata, type Permission } from '@/connectors/elba/data-protection/files';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 
@@ -124,7 +125,15 @@ export const inngest = new Inngest({
         permission: Permission;
       };
     };
+    'dropbox/sync.cancel': {
+      data: {
+        organisationId: string;
+      };
+    };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [
+    rateLimitMiddleware,
+    createElbaTrialIssuesLimitExceededMiddleware('dropbox/sync.cancel'),
+  ],
   logger,
 });
