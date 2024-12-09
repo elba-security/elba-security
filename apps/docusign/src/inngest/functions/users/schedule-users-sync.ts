@@ -1,6 +1,8 @@
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { env } from '@/common/env/server';
+import { elbaRegions } from '@elba-security/sdk';
+import { logger } from '@elba-security/logger';
+import { NonRetriableError } from 'inngest';
+import { env } from '@/common/env';
+import { createElbaGlobalClient } from '@/connectors/elba/client';
 import { inngest } from '../../client';
 
 export const scheduleUsersSync = inngest.createFunction(
@@ -11,24 +13,57 @@ export const scheduleUsersSync = inngest.createFunction(
     cron: env.DOCUSIGN_USERS_SYNC_CRON,
   },
   async ({ step }) => {
-    const organisations = await db
-      .select({
-        id: organisationsTable.id,
-      })
-      .from(organisationsTable);
+    const regionOrganisations = await Promise.all(
+      elbaRegions.map((region) =>
+        step.run(`get-organisations-${region}`, async () => {
+          const elba = createElbaGlobalClient(region);
+          const result = await elba.organisations.list();
+          return result.organisations.map(({ id: organisationId, nangoConnectionId }) => ({
+            organisationId,
+            nangoConnectionId,
+            region,
+          }));
+        })
+      )
+    );
 
-    if (organisations.length > 0) {
+    const invalidOrganisations: { organisationId: string; region: string }[] = [];
+    const organisations: {
+      organisationId: string;
+      region: string;
+      nangoConnectionId: string;
+    }[] = [];
+    for (const { organisationId, region, nangoConnectionId } of regionOrganisations.flat()) {
+      if (!nangoConnectionId) {
+        invalidOrganisations.push({ organisationId, region });
+      } else {
+        organisations.push({ organisationId, region, nangoConnectionId });
+      }
+    }
+
+    if (organisations.length) {
       await step.sendEvent(
         'synchronize-users',
-        organisations.map(({ id }) => ({
+        organisations.map(({ organisationId, nangoConnectionId, region }) => ({
           name: 'docusign/users.sync.requested',
           data: {
             isFirstSync: false,
-            organisationId: id,
+            organisationId,
+            nangoConnectionId,
+            region,
             syncStartedAt: Date.now(),
             page: null,
           },
         }))
+      );
+    }
+
+    if (invalidOrganisations.length) {
+      logger.error('Failed to schedule users sync due to missing nango connection ID', {
+        invalidOrganisations,
+      });
+      throw new NonRetriableError(
+        'Failed to schedule users sync due to missing nango connection ID'
       );
     }
 

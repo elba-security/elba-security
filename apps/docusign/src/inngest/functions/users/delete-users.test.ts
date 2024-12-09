@@ -1,19 +1,14 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { organisationsTable } from '@/database/schema';
-import { db } from '@/database/client';
 import * as usersConnector from '@/connectors/docusign/users';
-import * as nangoAPI from '@/common/nango/api';
+import * as nangoAPI from '@/common/nango';
 import * as authConnector from '@/connectors/docusign/auth';
 import { deleteUsers } from './delete-users';
 
 const userIds = ['user-id-1', 'user-id-2'];
-
-const organisation = {
-  id: '00000000-0000-0000-0000-000000000001',
-  connectionId: '00000000-0000-0000-0000-000000000006',
-  region: 'us',
-};
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const nangoConnectionId = 'nango-connection-id';
+const region = 'us';
 
 const setup = createInngestFunctionMock(deleteUsers, 'docusign/users.delete.requested');
 
@@ -36,9 +31,7 @@ describe('deleteUser', () => {
       authUserId: 'auth-user',
     });
 
-    await db.insert(organisationsTable).values(organisation);
-
-    const [result] = setup({ organisationId: organisation.id, userIds });
+    const [result] = setup({ organisationId, region, nangoConnectionId, userIds });
 
     await expect(result).resolves.toStrictEqual(undefined);
 

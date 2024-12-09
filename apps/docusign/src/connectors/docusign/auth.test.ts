@@ -2,7 +2,7 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach, vi } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import * as userConnector from '@/connectors/docusign/users';
-import { env } from '@/common/env/server';
+import { env } from '@/common/env';
 import { getAuthUser } from './auth';
 
 const accessToken = 'access-token-1234';
