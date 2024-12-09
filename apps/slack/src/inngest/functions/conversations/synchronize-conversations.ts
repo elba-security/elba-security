@@ -25,6 +25,12 @@ export const synchronizeConversations = inngest.createFunction(
   {
     id: 'slack-synchronize-conversations',
     retries: env.SLACK_SYNC_CONVERSATIONS_RETRY,
+    cancelOn: [
+      {
+        event: 'slack/sync.cancel',
+        match: 'data.teamId',
+      },
+    ],
   },
   {
     event: 'slack/conversations.sync.requested',

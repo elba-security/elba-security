@@ -37,6 +37,10 @@ export const refreshDataProtectionObject = inngest.createFunction(
         event: 'google/common.remove_organisation.requested',
         match: 'data.organisationId',
       },
+      {
+        event: 'google/sync.cancel',
+        match: 'data.organisationId',
+      },
     ],
   },
   { event: 'google/data_protection.refresh_object.requested' },
