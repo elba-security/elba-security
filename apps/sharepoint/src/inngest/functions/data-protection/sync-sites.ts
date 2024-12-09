@@ -24,6 +24,10 @@ export const syncSites = inngest.createFunction(
         event: 'sharepoint/app.installed',
         match: 'data.organisationId',
       },
+      {
+        event: 'sharepoint/sync.cancel',
+        match: 'data.organisationId',
+      },
     ],
     retries: 5,
   },

@@ -16,8 +16,16 @@ export const startFolderAndFileSync = inngest.createFunction(
       limit: 1,
       key: 'event.data.organisationId',
     },
+    cancelOn: [
+      {
+        event: 'dropbox/sync.cancel',
+        match: 'data.organisationId',
+      },
+    ],
   },
-  { event: 'dropbox/data_protection.folder_and_files.start.sync.requested' },
+  {
+    event: 'dropbox/data_protection.folder_and_files.start.sync.requested',
+  },
   async ({ event, step }) => {
     const { organisationId, cursor, syncStartedAt } = event.data;
     const organisation = await getOrganisation(organisationId);

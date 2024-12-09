@@ -24,6 +24,10 @@ export const syncDataProtection = inngest.createFunction(
         event: 'onedrive/app.installed',
         match: 'data.organisationId',
       },
+      {
+        event: 'onedrive/sync.cancel',
+        match: 'data.organisationId',
+      },
     ],
     retries: 5,
   },

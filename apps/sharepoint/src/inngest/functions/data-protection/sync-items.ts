@@ -32,6 +32,10 @@ export const syncItems = inngest.createFunction(
         event: 'sharepoint/app.installed',
         match: 'data.organisationId',
       },
+      {
+        event: 'sharepoint/sync.cancel',
+        match: 'data.organisationId',
+      },
     ],
     onFailure: async ({ event, step }) => {
       const { organisationId, driveId } = event.data.event.data;

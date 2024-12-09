@@ -1,5 +1,6 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { createElbaTrialIssuesLimitExceededMiddleware } from '@elba-security/inngest';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 import type { ElbaPermissionToDelete } from './functions/data-protection/common/types';
 
@@ -130,7 +131,15 @@ export const inngest = new Inngest({
         tenantId: string;
       };
     };
+    'sharepoint/sync.cancel': {
+      data: {
+        organisationId: string;
+      };
+    };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [
+    rateLimitMiddleware,
+    createElbaTrialIssuesLimitExceededMiddleware('sharepoint/sync.cancel'),
+  ],
   logger,
 });

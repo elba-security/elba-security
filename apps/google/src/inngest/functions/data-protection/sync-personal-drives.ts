@@ -42,6 +42,10 @@ export const syncDataProtectionPersonalDrives = inngest.createFunction(
         event: 'google/common.remove_organisation.requested',
         match: 'data.organisationId',
       },
+      {
+        event: 'google/sync.cancel',
+        match: 'data.organisationId',
+      },
     ],
   },
   { event: 'google/data_protection.sync.drives.personal.requested' },

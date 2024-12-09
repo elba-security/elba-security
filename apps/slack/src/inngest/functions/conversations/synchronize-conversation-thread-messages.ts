@@ -52,6 +52,12 @@ export const synchronizeConversationThreadMessages = inngest.createFunction(
         },
       });
     },
+    cancelOn: [
+      {
+        event: 'slack/sync.cancel',
+        match: 'data.teamId',
+      },
+    ],
   },
   {
     event: 'slack/conversations.sync.thread.messages.requested',

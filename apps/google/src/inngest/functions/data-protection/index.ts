@@ -12,12 +12,21 @@ import { syncDataProtectionPersonalDrives } from './sync-personal-drives';
 import type { SyncDataProtectionSharedDrivesEvents } from './sync-shared-drives';
 import { syncDataProtectionSharedDrives } from './sync-shared-drives';
 
+type DataProtectionSyncCancelEvent = {
+  'google/sync.cancel': {
+    data: {
+      organisationId: string;
+    };
+  };
+};
+
 export type DataProtectionEvents = DeleteDataProtectionObjectPermissionsEvents &
   RefreshDataProtectionObjectEvents &
   SyncDataProtectionDriveEvents &
   SyncDataProtectionEvents &
   SyncDataProtectionPersonalDrivesEvents &
-  SyncDataProtectionSharedDrivesEvents;
+  SyncDataProtectionSharedDrivesEvents &
+  DataProtectionSyncCancelEvent;
 
 export const dataProtectionFunctions = [
   deleteDataProtectionObjectPermissions,

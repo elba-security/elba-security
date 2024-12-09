@@ -23,6 +23,12 @@ export const syncDeltaItems = inngest.createFunction(
       limit: env.MICROSOFT_DATA_PROTECTION_ITEMS_SYNC_CONCURRENCY,
     },
     retries: 5,
+    cancelOn: [
+      {
+        event: 'sharepoint/sync.cancel',
+        match: 'data.organisationId',
+      },
+    ],
   },
   { event: 'sharepoint/delta.sync.triggered' },
   async ({ event, step }) => {
