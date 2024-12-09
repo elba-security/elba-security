@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm';
-import { conversationsTable, teamsTable } from '@/database/schema';
+import { conversationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import type { SlackEventHandler } from './types';
 
@@ -7,15 +7,6 @@ export const channelIdChangedHandler: SlackEventHandler<'channel_id_changed'> = 
   { team_id: teamId, event: { new_channel_id: newChannelId, old_channel_id: oldChannelId } },
   { step }
 ) => {
-  const team = await db.query.teamsTable.findFirst({
-    where: eq(teamsTable.id, teamId),
-    columns: { elbaOrganisationId: true },
-  });
-
-  if (!team) {
-    throw new Error("Couldn't find team");
-  }
-
   await db
     .update(conversationsTable)
     .set({
@@ -29,7 +20,6 @@ export const channelIdChangedHandler: SlackEventHandler<'channel_id_changed'> = 
   await step.sendEvent('synchronize-conversations', {
     name: 'slack/conversations.sync.requested',
     data: {
-      organisationId: team.elbaOrganisationId,
       teamId,
       isFirstSync: false,
       syncStartedAt: new Date().toISOString(),

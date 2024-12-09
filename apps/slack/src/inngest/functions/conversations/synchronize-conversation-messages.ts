@@ -17,7 +17,6 @@ export type SynchronizeConversationMessagesEvents = {
 
 type SynchronizeConversationMessagesRequested = {
   data: {
-    organisationId: string;
     teamId: string;
     isFirstSync: boolean;
     conversationId: string;
@@ -52,7 +51,7 @@ export const synchronizeConversationMessages = inngest.createFunction(
     cancelOn: [
       {
         event: 'slack/sync.cancel',
-        match: 'data.organisationId',
+        match: 'data.teamId',
       },
     ],
   },
@@ -61,7 +60,7 @@ export const synchronizeConversationMessages = inngest.createFunction(
   },
   async ({
     event: {
-      data: { organisationId, teamId, isFirstSync, conversationId, cursor },
+      data: { teamId, isFirstSync, conversationId, cursor },
     },
     step,
   }) => {
@@ -168,7 +167,7 @@ export const synchronizeConversationMessages = inngest.createFunction(
           'start-conversation-thread-messages-synchronization',
           threadIds.map((threadId) => ({
             name: 'slack/conversations.sync.thread.messages.requested',
-            data: { teamId, conversationId, threadId, isFirstSync, organisationId },
+            data: { teamId, conversationId, threadId, isFirstSync },
           }))
         ),
       ]);
@@ -177,7 +176,7 @@ export const synchronizeConversationMessages = inngest.createFunction(
     if (nextCursor) {
       await step.sendEvent('next-pagination-cursor', {
         name: 'slack/conversations.sync.messages.requested',
-        data: { teamId, conversationId, isFirstSync, cursor: nextCursor, organisationId },
+        data: { teamId, conversationId, isFirstSync, cursor: nextCursor },
       });
     } else {
       await step.sendEvent('conversation-sync-complete', {

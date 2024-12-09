@@ -79,7 +79,6 @@ describe('synchronize-conversations', () => {
     });
 
     const [result, { step }] = setup({
-      organisationId: '00000000-0000-0000-0000-000000000001',
       teamId: 'team-id',
       isFirstSync: true,
       syncStartedAt: '2023-01-01T00:00:00.000Z',
@@ -154,7 +153,6 @@ describe('synchronize-conversations', () => {
     expect(step.sendEvent).toBeCalledWith('start-conversations-messages-synchronization', [
       {
         data: {
-          organisationId: '00000000-0000-0000-0000-000000000001',
           conversationId: 'channel-id-1',
           isFirstSync: true,
           teamId: 'team-id',
@@ -163,7 +161,6 @@ describe('synchronize-conversations', () => {
       },
       {
         data: {
-          organisationId: '00000000-0000-0000-0000-000000000001',
           conversationId: 'channel-id-2',
           isFirstSync: true,
           teamId: 'team-id',
@@ -173,7 +170,6 @@ describe('synchronize-conversations', () => {
     ]);
     expect(step.sendEvent).toBeCalledWith('next-pagination-cursor', {
       data: {
-        organisationId: '00000000-0000-0000-0000-000000000001',
         cursor: 'next-cursor',
         isFirstSync: true,
         syncStartedAt: '2023-01-01T00:00:00.000Z',
@@ -251,7 +247,6 @@ describe('synchronize-conversations', () => {
     ]);
 
     const [result, { step }] = setup({
-      organisationId: '00000000-0000-0000-0000-000000000001',
       teamId: 'team-id',
       isFirstSync: false,
       syncStartedAt: '2023-01-01T00:00:00.000Z',
@@ -347,7 +342,6 @@ describe('synchronize-conversations', () => {
     expect(step.sendEvent).toBeCalledWith('start-conversations-messages-synchronization', [
       {
         data: {
-          organisationId: '00000000-0000-0000-0000-000000000001',
           conversationId: 'channel-id-1',
           isFirstSync: false,
           teamId: 'team-id',
@@ -356,7 +350,6 @@ describe('synchronize-conversations', () => {
       },
       {
         data: {
-          organisationId: '00000000-0000-0000-0000-000000000001',
           conversationId: 'channel-id-2',
           isFirstSync: false,
           teamId: 'team-id',

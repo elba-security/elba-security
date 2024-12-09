@@ -12,7 +12,7 @@ export const channelUnarchiveHandler: SlackEventHandler<'channel_unarchive'> = a
 ) => {
   const team = await db.query.teamsTable.findFirst({
     where: eq(teamsTable.id, teamId),
-    columns: { token: true, elbaOrganisationId: true },
+    columns: { token: true },
   });
 
   if (!team) {
@@ -55,7 +55,6 @@ export const channelUnarchiveHandler: SlackEventHandler<'channel_unarchive'> = a
   await step.sendEvent('synchronize-conversation-messages', {
     name: 'slack/conversations.sync.messages.requested',
     data: {
-      organisationId: team.elbaOrganisationId,
       teamId,
       conversationId: result.data.id,
       isFirstSync: false,

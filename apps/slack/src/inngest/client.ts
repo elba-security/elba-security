@@ -1,12 +1,10 @@
 import type { GetEvents, GetFunctionInput } from 'inngest';
 import { EventSchemas, Inngest } from 'inngest';
-import {
-  createElbaTrialIssuesLimitExceededMiddleware,
-  encryptionMiddleware,
-} from '@elba-security/inngest';
+import { encryptionMiddleware } from '@elba-security/inngest';
 import { env } from '@/common/env';
 import type { InngestEvents } from './functions';
 import { slackRateLimitMiddleware } from './middlewares/slack-rate-limit';
+import { elbaTrialIssuesLimitExceededMiddleware } from './middlewares/elba-trial-issues-limit';
 
 export const inngest = new Inngest({
   id: 'slack',
@@ -14,7 +12,7 @@ export const inngest = new Inngest({
   middleware: [
     encryptionMiddleware({ key: env.ENCRYPTION_KEY }),
     slackRateLimitMiddleware,
-    createElbaTrialIssuesLimitExceededMiddleware('slack/sync.cancel'),
+    elbaTrialIssuesLimitExceededMiddleware,
   ],
 });
 

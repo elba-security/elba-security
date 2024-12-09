@@ -14,7 +14,6 @@ export type SynchronizeConversationsEvents = {
 
 type SynchronizeConversationsRequested = {
   data: {
-    organisationId: string;
     teamId: string;
     syncStartedAt: string;
     isFirstSync: boolean;
@@ -29,7 +28,7 @@ export const synchronizeConversations = inngest.createFunction(
     cancelOn: [
       {
         event: 'slack/sync.cancel',
-        match: 'data.organisationId',
+        match: 'data.teamId',
       },
     ],
   },
@@ -38,7 +37,7 @@ export const synchronizeConversations = inngest.createFunction(
   },
   async ({
     event: {
-      data: { organisationId, teamId, isFirstSync, syncStartedAt, cursor },
+      data: { teamId, isFirstSync, syncStartedAt, cursor },
     },
     step,
   }) => {
@@ -117,7 +116,7 @@ export const synchronizeConversations = inngest.createFunction(
           'start-conversations-messages-synchronization',
           conversationsToInsert.map(({ id: conversationId }) => ({
             name: 'slack/conversations.sync.messages.requested',
-            data: { teamId, conversationId, isFirstSync, organisationId },
+            data: { teamId, conversationId, isFirstSync },
           }))
         ),
       ]);
@@ -126,7 +125,7 @@ export const synchronizeConversations = inngest.createFunction(
     if (nextCursor) {
       await step.sendEvent('next-pagination-cursor', {
         name: 'slack/conversations.sync.requested',
-        data: { organisationId, teamId, syncStartedAt, isFirstSync, cursor: nextCursor },
+        data: { teamId, syncStartedAt, isFirstSync, cursor: nextCursor },
       });
     } else {
       await step.run('delete-conversations', async () => {

@@ -7,25 +7,17 @@ export const teamDomainChangedHandler: SlackEventHandler<'team_domain_changed'> 
   { team_id: teamId, event: { url } },
   { step }
 ) => {
-  const [team] = await db
+  await db
     .update(teamsTable)
     .set({
       url,
     })
-    .where(eq(teamsTable.id, teamId))
-    .returning({
-      elbaOrganisationId: teamsTable.elbaOrganisationId,
-    });
-
-  if (!team) {
-    throw new Error("Couldn't find team");
-  }
+    .where(eq(teamsTable.id, teamId));
 
   // We need to update every objects url
   await step.sendEvent('synchronize-conversations', {
     name: 'slack/conversations.sync.requested',
     data: {
-      organisationId: team.elbaOrganisationId,
       teamId,
       isFirstSync: false,
       syncStartedAt: new Date().toISOString(),
