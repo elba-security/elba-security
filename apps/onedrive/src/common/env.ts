@@ -1,6 +1,11 @@
+import { type TimeStr } from 'inngest';
 import { z } from 'zod';
 
 const zEnvInt = () => z.coerce.number().int().positive();
+
+const zInngestTimeStringSchema = z
+  .string()
+  .regex(/^(?:\d+w)?(?:\d+d)?(?:\d+h)?(?:\d+m)?(?:\d+s)?$/) as unknown as z.ZodLiteral<TimeStr>;
 
 const MICROSOFT_DATA_PROTECTION_ITEM_SYNC_SIZE_DEFAULT_VALUE = 15;
 
@@ -24,7 +29,9 @@ export const env = z
     MICROSOFT_DATA_PROTECTION_ITEM_SYNC_SIZE: zEnvInt()
       .min(1)
       .default(MICROSOFT_DATA_PROTECTION_ITEM_SYNC_SIZE_DEFAULT_VALUE),
-    MICROSOFT_DATA_PROTECTION_ITEMS_PERMISSIONS_BATCH_SIZE: zEnvInt().min(1).default(10),
+    MICROSOFT_DATA_PROTECTION_ITEMS_PERMISSIONS_RATE_LIMIT: zEnvInt().min(1).default(25),
+    MICROSOFT_DATA_PROTECTION_ITEMS_PERMISSIONS_RATE_LIMIT_PERIOD:
+      zInngestTimeStringSchema.default('1s'),
     MICROSOFT_DATA_PROTECTION_ITEMS_SYNC_CONCURRENCY: zEnvInt().min(1).default(1),
     MICROSOFT_DATA_PROTECTION_REFRESH_DELETE_CONCURRENCY: zEnvInt().min(1).default(10),
     MICROSOFT_DATA_PROTECTION_SYNC_CHUNK_SIZE: zEnvInt().min(1).default(100),

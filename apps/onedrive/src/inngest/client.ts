@@ -53,6 +53,13 @@ export const inngest = new Inngest({
         userId: string;
       };
     };
+    'onedrive/items.get-permissions.requested': {
+      data: {
+        organisationId: string;
+        userId: string;
+        itemId: string;
+      };
+    };
     'onedrive/data_protection.refresh_object.requested': {
       data: {
         id: string;
