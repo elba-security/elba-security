@@ -93,16 +93,22 @@ export const syncItems = inngest.createFunction(
       }
     }
 
-    let permissions: [string, OnedrivePermission[]][] = [];
+    const permissions: [string, OnedrivePermission[]][] = [];
+    const batchSize = env.MICROSOFT_DATA_PROTECTION_ITEMS_PERMISSIONS_BATCH_SIZE;
     if (itemIds.size) {
-      permissions = await step.run('get-permissions', async () =>
-        Promise.all(
-          [...itemIds.values()].map(async (itemId) => {
-            const itemPermissions = await getAllItemPermissions({ token, userId, itemId });
-            return [itemId, itemPermissions] as const;
-          })
-        )
-      );
+      for (let i = 0; i * batchSize < itemIds.size; i += 1) {
+        const permissionsBatch = await step.run(`get-permissions-batch-${i + 1}`, async () =>
+          Promise.all(
+            [...itemIds.values()]
+              .slice(i * batchSize, i * batchSize + batchSize)
+              .map(async (itemId) => {
+                const itemPermissions = await getAllItemPermissions({ token, userId, itemId });
+                return [itemId, itemPermissions] as const;
+              })
+          )
+        );
+        permissions.push(...permissionsBatch);
+      }
     }
 
     const itemIdsPermissions = new Map(
