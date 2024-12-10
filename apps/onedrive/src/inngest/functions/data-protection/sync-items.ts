@@ -14,6 +14,7 @@ import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
 import { getDeltaItems } from '@/connectors/microsoft/delta/delta';
 import { createSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
 import { type MicrosoftDriveItem } from '@/connectors/microsoft/onedrive/items';
+import { chunkArray } from '@/common/utils';
 import { parseItemsInheritedPermissions } from './common/helpers';
 
 export const syncItems = inngest.createFunction(
@@ -93,16 +94,23 @@ export const syncItems = inngest.createFunction(
       }
     }
 
-    let permissions: [string, OnedrivePermission[]][] = [];
-    if (itemIds.size) {
-      permissions = await step.run('get-permissions', async () =>
-        Promise.all(
-          [...itemIds.values()].map(async (itemId) => {
-            const itemPermissions = await getAllItemPermissions({ token, userId, itemId });
-            return [itemId, itemPermissions] as const;
-          })
-        )
-      );
+    const permissions: [string, OnedrivePermission[]][] = [];
+    const itemsChunks = chunkArray(
+      [...itemIds],
+      env.MICROSOFT_DATA_PROTECTION_ITEMS_PERMISSIONS_BATCH_SIZE
+    );
+    if (itemsChunks.length) {
+      for (const [i, itemsChunk] of itemsChunks.entries()) {
+        const permissionsBatch = await step.run(`get-permissions-batch-${i + 1}`, async () =>
+          Promise.all(
+            itemsChunk.map(async (itemId) => {
+              const itemPermissions = await getAllItemPermissions({ token, userId, itemId });
+              return [itemId, itemPermissions] as const;
+            })
+          )
+        );
+        permissions.push(...permissionsBatch);
+      }
     }
 
     const itemIdsPermissions = new Map(

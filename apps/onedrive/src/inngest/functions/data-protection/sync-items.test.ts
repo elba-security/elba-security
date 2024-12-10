@@ -135,10 +135,11 @@ describe('sync-items', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
-    expect(step.run).toBeCalledTimes(3);
+    expect(step.run).toBeCalledTimes(4);
     expect(step.run).toHaveBeenNthCalledWith(1, 'get-items', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(2, 'get-permissions', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(3, 'update-elba-objects', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(2, 'get-permissions-batch-1', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(3, 'get-permissions-batch-2', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(4, 'update-elba-objects', expect.any(Function));
 
     expect(deltaConnector.getDeltaItems).toBeCalledTimes(1);
     expect(deltaConnector.getDeltaItems).toBeCalledWith({
@@ -212,11 +213,12 @@ describe('sync-items', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
-    expect(step.run).toBeCalledTimes(4);
+    expect(step.run).toBeCalledTimes(5);
     expect(step.run).toHaveBeenNthCalledWith(1, 'get-items', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(2, 'get-permissions', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(3, 'update-elba-objects', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(4, 'create-subscription', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(2, 'get-permissions-batch-1', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(3, 'get-permissions-batch-2', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(4, 'update-elba-objects', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(5, 'create-subscription', expect.any(Function));
 
     expect(deltaConnector.getDeltaItems).toBeCalledTimes(1);
     expect(deltaConnector.getDeltaItems).toBeCalledWith({
