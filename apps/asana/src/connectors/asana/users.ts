@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env/server';
+import { env } from '@/common/env';
 import { AsanaError } from '../common/error';
 
 const asanaUserSchema = z.object({
@@ -43,7 +43,7 @@ export type GetUsersParams = {
 
 export type DeleteUsersParams = {
   accessToken: string;
-  userId: string;
+  userIds: string;
   workspaceId: string;
 };
 
@@ -94,7 +94,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   };
 };
 
-export const deleteUser = async ({ userId, workspaceId, accessToken }: DeleteUsersParams) => {
+export const deleteUser = async ({ userIds, workspaceId, accessToken }: DeleteUsersParams) => {
   const response = await fetch(`${env.ASANA_API_BASE_URL}/workspaces/${workspaceId}/removeUser`, {
     method: 'post',
     headers: {
@@ -103,7 +103,7 @@ export const deleteUser = async ({ userId, workspaceId, accessToken }: DeleteUse
     },
     body: JSON.stringify({
       data: {
-        user: userId,
+        user: userIds,
       },
     }),
   });

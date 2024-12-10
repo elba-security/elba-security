@@ -11,6 +11,7 @@ export default {
   schema: './src/database/schema*',
   out: './drizzle',
   driver: 'pg',
+  breakpoints: false,
   dbCredentials: {
     connectionString: process.env.DATABASE_URL as string,
   },

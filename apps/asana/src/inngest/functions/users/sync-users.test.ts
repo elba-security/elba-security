@@ -4,7 +4,7 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/asana/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import * as nangoAPI from '@/common/nango/api';
+import * as nangoAPI from '@/common/nango';
 import { syncUsers } from './sync-users';
 
 const organisation = {
