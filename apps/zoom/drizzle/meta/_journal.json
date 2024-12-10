@@ -15,6 +15,13 @@
       "when": 1724929290427,
       "tag": "0001_burly_moonstone",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1733373182811,
+      "tag": "0002_previous_doomsday",
+      "breakpoints": false
     }
   ]
 }
