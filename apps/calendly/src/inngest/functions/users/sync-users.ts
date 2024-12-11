@@ -1,15 +1,12 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { z } from 'zod';
 import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/calendly/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { nangoAPIClient } from '@/common/nango/api';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
+import { nangoAPIClient } from '@/common/nango';
 import { type CalendlyUser } from '@/connectors/calendly/users';
-import { createElbaClient } from '@/connectors/elba/client';
 
 const credentialsRawSchema = z.object({
   owner: z.string().url(),
@@ -63,27 +60,16 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'calendly/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
-
-    const [organisation] = await db
-      .select({
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const elba = createElbaClient({ organisationId, region: organisation.region });
+    const { organisationId, nangoConnectionId, region, syncStartedAt, page } = event.data;
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
 
     const nextPage = await step.run('list-users', async () => {
-      const { credentials } = await nangoAPIClient.getConnection(organisationId);
-
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
       if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError(
-          `Nango credentials are missing or invalid for the organisation with id=${organisationId}`
-        );
+        throw new NonRetriableError('Could not retrieve Nango credentials');
       }
 
       const rawData = credentialsRawSchema.safeParse(credentials.raw);
