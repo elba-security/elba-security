@@ -3,7 +3,7 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import { getOrganisationUserIds, getUsers } from './users';
+import { getUsers } from './users';
 import type { MicrosoftUser } from './users';
 
 const validToken = 'token-1234';
@@ -31,8 +31,6 @@ const validUsers: (MicrosoftUser & { userType: string })[] = Array.from(
     displayName: `user ${i}`,
   })
 );
-
-const userIds = validUsers.filter((user) => user.userType === 'Member').map(({ id }) => id);
 
 const users = [...validUsers, ...invalidUsers];
 
@@ -115,42 +113,6 @@ describe('auth connector', () => {
     test('should throws when the tenantId is invalid', async () => {
       await expect(
         getUsers({ tenantId: 'invalid-tenant-id', token: validToken, skipToken: endSkipToken })
-      ).rejects.toBeInstanceOf(MicrosoftError);
-    });
-  });
-
-  describe('getOrganisationUserIds', () => {
-    test('should return userIds and nextSkipToken when the token is valid and there is another page', async () => {
-      await expect(
-        getOrganisationUserIds({ tenantId, token: validToken, skipToken: startSkipToken })
-      ).resolves.toStrictEqual({
-        userIds,
-        nextSkipToken,
-      });
-    });
-
-    test('should return userIds and no nextSkipToken when the token is valid and there is no other page', async () => {
-      await expect(
-        getOrganisationUserIds({ tenantId, token: validToken, skipToken: endSkipToken })
-      ).resolves.toStrictEqual({
-        userIds,
-        nextSkipToken: null,
-      });
-    });
-
-    test('should throws when the token is invalid', async () => {
-      await expect(
-        getOrganisationUserIds({ tenantId, token: 'invalid-token', skipToken: endSkipToken })
-      ).rejects.toBeInstanceOf(MicrosoftError);
-    });
-
-    test('should throws when the tenantId is invalid', async () => {
-      await expect(
-        getOrganisationUserIds({
-          tenantId: 'invalid-tenant-id',
-          token: validToken,
-          skipToken: endSkipToken,
-        })
       ).rejects.toBeInstanceOf(MicrosoftError);
     });
   });

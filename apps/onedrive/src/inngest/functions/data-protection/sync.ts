@@ -6,7 +6,7 @@ import { inngest } from '@/inngest/client';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
-import { getOrganisationUserIds } from '@/connectors/microsoft/users/users';
+import { getDeltaUsers } from '@/connectors/microsoft/delta/delta';
 
 export const syncDataProtection = inngest.createFunction(
   {
@@ -49,13 +49,20 @@ export const syncDataProtection = inngest.createFunction(
     }
 
     const { userIds, nextSkipToken } = await step.run('paginate', async () => {
-      const result = await getOrganisationUserIds({
-        token: await decrypt(organisation.token),
+      const result = await getDeltaUsers({
         tenantId: organisation.tenantId,
+        token: await decrypt(organisation.token),
         skipToken,
       });
 
-      return result;
+      const memberIds = result.users.updated
+        .filter(({ userType }) => userType === 'Member')
+        .map(({ id }) => id);
+
+      return {
+        userIds: memberIds,
+        nextSkipToken: 'nextSkipToken' in result ? result.nextSkipToken : null,
+      };
     });
 
     if (userIds.length) {
