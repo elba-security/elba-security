@@ -23,6 +23,10 @@ export const syncDrives = inngest.createFunction(
         event: 'sharepoint/app.installed',
         match: 'data.organisationId',
       },
+      {
+        event: 'sharepoint/sync.cancel',
+        match: 'data.organisationId',
+      },
     ],
     onFailure: async ({ event, step }) => {
       const { organisationId, siteId } = event.data.event.data;

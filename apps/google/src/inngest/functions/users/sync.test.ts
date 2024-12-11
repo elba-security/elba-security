@@ -5,6 +5,7 @@ import { organisationsTable, usersTable } from '@/database/schema';
 import * as googleUsers from '@/connectors/google/users';
 import { spyOnGoogleServiceAccountClient } from '@/connectors/google/__mocks__/clients';
 import { GoogleUserNotAdminError } from '@/connectors/google/errors';
+import { env } from '@/common/env/server';
 import { getOrganisation } from '../common/get-organisation';
 import { syncUsers } from './sync';
 
@@ -88,8 +89,8 @@ describe('sync-users', () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      apiKey: 'elba-api-key',
-      baseUrl: 'https://elba.local/api',
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: '00000000-0000-0000-0000-000000000000',
       region: 'eu',
     });
@@ -253,8 +254,8 @@ describe('sync-users', () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      apiKey: 'elba-api-key',
-      baseUrl: 'https://elba.local/api',
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: '00000000-0000-0000-0000-000000000000',
       region: 'eu',
     });

@@ -22,7 +22,7 @@ export const scheduleTeamsSync = inngest.createFunction(
             organisationId: organisation.id,
             syncStartedAt: new Date().toISOString(),
             skipToken: null,
-            isFirstSync: true,
+            isFirstSync: false,
           },
         }))
       );

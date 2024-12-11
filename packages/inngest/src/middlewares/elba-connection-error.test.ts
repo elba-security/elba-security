@@ -1,25 +1,38 @@
-import { beforeEach } from 'node:test';
 import { describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { type Organisation, organisationsTable } from '@/database/schema';
-import { DocusignError } from '@/connectors/common/error';
-import { unauthorizedMiddleware } from './unauthorized-middleware';
+import { createElbaConnectionErrorMiddleware } from './elba-connection-error';
 
-const organisation: Omit<Organisation, 'createdAt'> = {
-  id: '00000000-0000-0000-0000-000000000001',
-  region: 'us',
-};
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const region = 'us';
+
+class UnauthorizedError extends Error {
+  response: Response;
+
+  constructor(
+    message: string,
+    { response, ...opts }: Parameters<ErrorConstructor>[1] & { response: Response }
+  ) {
+    super(message, opts);
+    this.name = 'UnauthorizedError';
+    this.response = response;
+  }
+}
+
+const middleware = createElbaConnectionErrorMiddleware({
+  eventName: 'connection-error-event',
+  mapErrorFn: (error) => {
+    if (error instanceof UnauthorizedError) {
+      return 'unauthorized';
+    }
+    return null;
+  },
+});
 
 describe('unauthorized middleware', () => {
-  beforeEach(async () => {
-    await db.insert(organisationsTable).values(organisation);
-  });
-
   test('should not transform the output when their is no error', async () => {
     const send = vi.fn().mockResolvedValue(undefined);
     await expect(
-      unauthorizedMiddleware
+      middleware
         // @ts-expect-error -- this is a mock
         .init({ client: { send } })
         // @ts-expect-error -- this is a mock
@@ -32,10 +45,10 @@ describe('unauthorized middleware', () => {
     expect(send).toBeCalledTimes(0);
   });
 
-  test('should not transform the output when the error is not about Docusign authorization', async () => {
+  test('should not transform the output when the error is not mapped', async () => {
     const send = vi.fn().mockResolvedValue(undefined);
     await expect(
-      unauthorizedMiddleware
+      middleware
         // @ts-expect-error -- this is a mock
         .init({ client: { send } })
         // @ts-expect-error -- this is a mock
@@ -50,8 +63,8 @@ describe('unauthorized middleware', () => {
     expect(send).toBeCalledTimes(0);
   });
 
-  test('should transform the output error to NonRetriableError and remove the organisation when the error is about Docusign authorization', async () => {
-    const unauthorizedError = new DocusignError('foo bar', {
+  test('should transform the output error to NonRetriableError and send event when the error is mapped', async () => {
+    const unauthorizedError = new UnauthorizedError('foo bar', {
       // @ts-expect-error this is a mock
       response: {
         status: 401,
@@ -70,7 +83,7 @@ describe('unauthorized middleware', () => {
     };
 
     const send = vi.fn().mockResolvedValue(undefined);
-    const result = await unauthorizedMiddleware
+    const result = await middleware
       // @ts-expect-error -- this is a mock
       .init({ client: { send } })
       .onFunctionRun({
@@ -80,7 +93,8 @@ describe('unauthorized middleware', () => {
           // @ts-expect-error -- this is a mock
           event: {
             data: {
-              organisationId: organisation.id,
+              region,
+              organisationId,
             },
           },
         },
@@ -100,9 +114,19 @@ describe('unauthorized middleware', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'docusign/app.uninstalled',
+      name: 'connection-error-event',
       data: {
-        organisationId: organisation.id,
+        region,
+        organisationId,
+        errorMetadata: {
+          message: 'foo bar',
+          name: 'UnauthorizedError',
+          response: {
+            status: 401,
+          },
+          stack: expect.any(String), // eslint-disable-line -- We can't exactly match the stack trace
+        },
+        errorType: 'unauthorized',
       },
     });
   });

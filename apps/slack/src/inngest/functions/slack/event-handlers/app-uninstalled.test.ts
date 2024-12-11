@@ -3,6 +3,7 @@ import type { SlackEvent } from '@slack/bolt';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { db } from '@/database/client';
 import { teamsTable } from '@/database/schema';
+import { env } from '@/common/env';
 import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
 
 const setup = createInngestFunctionMock(
@@ -72,7 +73,8 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      apiKey: 'elba-api-key',
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: '00000000-0000-0000-0000-000000000001',
       region: 'eu',
     });
@@ -80,7 +82,7 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
     const elbaInstance = elba.mock.results[0]?.value;
     expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
     expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
-      hasError: true,
+      errorType: 'unauthorized',
     });
 
     expect(step.sendEvent).toBeCalledTimes(0);

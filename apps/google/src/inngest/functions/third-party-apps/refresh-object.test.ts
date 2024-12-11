@@ -4,6 +4,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as googleTokens from '@/connectors/google/tokens';
 import { spyOnGoogleServiceAccountClient } from '@/connectors/google/__mocks__/clients';
+import { env } from '@/common/env/server';
 import { getOrganisation } from '../common/get-organisation';
 import { refreshThirdPartyAppsObject } from './refresh-object';
 
@@ -58,8 +59,8 @@ describe('refresh-third-party-apps-object', () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      apiKey: 'elba-api-key',
-      baseUrl: 'https://elba.local/api',
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: '00000000-0000-0000-0000-000000000000',
       region: 'eu',
     });
@@ -132,8 +133,8 @@ describe('refresh-third-party-apps-object', () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      apiKey: 'elba-api-key',
-      baseUrl: 'https://elba.local/api',
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: '00000000-0000-0000-0000-000000000000',
       region: 'eu',
     });

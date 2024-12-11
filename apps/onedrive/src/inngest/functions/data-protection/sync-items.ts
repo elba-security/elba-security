@@ -6,15 +6,13 @@ import { db } from '@/database/client';
 import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { decrypt } from '@/common/crypto';
 import { createElbaClient } from '@/connectors/elba/client';
-import {
-  getAllItemPermissions,
-  type OnedrivePermission,
-} from '@/connectors/microsoft/onedrive/permissions';
+import { type OnedrivePermission } from '@/connectors/microsoft/onedrive/permissions';
 import { formatDataProtectionObjects } from '@/connectors/elba/data-protection';
 import { getDeltaItems } from '@/connectors/microsoft/delta/delta';
-import { createSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
 import { type MicrosoftDriveItem } from '@/connectors/microsoft/onedrive/items';
+import { createSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
 import { parseItemsInheritedPermissions } from './common/helpers';
+import { getItemPermissions } from './get-item-permission';
 
 export const syncItems = inngest.createFunction(
   {
@@ -30,6 +28,10 @@ export const syncItems = inngest.createFunction(
       },
       {
         event: 'onedrive/app.installed',
+        match: 'data.organisationId',
+      },
+      {
+        event: 'onedrive/sync.cancel',
         match: 'data.organisationId',
       },
     ],
@@ -91,13 +93,18 @@ export const syncItems = inngest.createFunction(
 
     let permissions: [string, OnedrivePermission[]][] = [];
     if (itemIds.size) {
-      permissions = await step.run('get-permissions', async () =>
-        Promise.all(
-          [...itemIds.values()].map(async (itemId) => {
-            const itemPermissions = await getAllItemPermissions({ token, userId, itemId });
-            return [itemId, itemPermissions] as const;
-          })
-        )
+      permissions = await Promise.all(
+        [...itemIds].map(async (itemId) => {
+          const itemPermissions = await step.invoke(`get-item-${itemId}-permissions`, {
+            function: getItemPermissions,
+            data: {
+              organisationId,
+              itemId,
+              userId,
+            },
+          });
+          return [itemId, itemPermissions] as const;
+        })
       );
     }
 

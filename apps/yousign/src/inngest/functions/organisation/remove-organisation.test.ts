@@ -44,7 +44,7 @@ describe('remove-organisation', () => {
     const elbaInstance = elba.mock.results.at(0)?.value;
     expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
     expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
-      hasError: true,
+      errorType: 'unauthorized',
     });
     await expect(
       db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))

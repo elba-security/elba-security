@@ -33,6 +33,10 @@ export const syncReplies = inngest.createFunction(
         event: 'teams/app.installed',
         match: 'data.organisationId',
       },
+      {
+        event: 'teams/sync.cancel',
+        match: 'data.organisationId',
+      },
     ],
     retries: env.REPLIES_SYNC_MAX_RETRY,
   },

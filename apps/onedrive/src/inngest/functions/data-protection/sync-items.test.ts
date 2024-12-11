@@ -11,6 +11,7 @@ import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import * as subscriptionsConnector from '@/connectors/microsoft/subscriptions/subscriptions';
 import { syncItems } from './sync-items';
+import { getItemPermissions } from './get-item-permission';
 
 const token = 'test-token';
 
@@ -135,10 +136,35 @@ describe('sync-items', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
-    expect(step.run).toBeCalledTimes(3);
+    expect(step.run).toBeCalledTimes(2);
     expect(step.run).toHaveBeenNthCalledWith(1, 'get-items', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(2, 'get-permissions', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(3, 'update-elba-objects', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(2, 'update-elba-objects', expect.any(Function));
+
+    expect(step.invoke).toBeCalledTimes(3);
+    expect(step.invoke).toHaveBeenNthCalledWith(1, 'get-item-item-id-1-permissions', {
+      data: {
+        itemId: 'item-id-1',
+        organisationId: organisation.id,
+        userId,
+      },
+      function: getItemPermissions,
+    });
+    expect(step.invoke).toHaveBeenNthCalledWith(2, 'get-item-parent-id-1-permissions', {
+      data: {
+        itemId: 'parent-id-1',
+        organisationId: organisation.id,
+        userId,
+      },
+      function: getItemPermissions,
+    });
+    expect(step.invoke).toHaveBeenNthCalledWith(3, 'get-item-item-id-2-permissions', {
+      data: {
+        itemId: 'item-id-2',
+        organisationId: organisation.id,
+        userId,
+      },
+      function: getItemPermissions,
+    });
 
     expect(deltaConnector.getDeltaItems).toBeCalledTimes(1);
     expect(deltaConnector.getDeltaItems).toBeCalledWith({
@@ -212,11 +238,36 @@ describe('sync-items', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
-    expect(step.run).toBeCalledTimes(4);
+    expect(step.run).toBeCalledTimes(3);
     expect(step.run).toHaveBeenNthCalledWith(1, 'get-items', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(2, 'get-permissions', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(3, 'update-elba-objects', expect.any(Function));
-    expect(step.run).toHaveBeenNthCalledWith(4, 'create-subscription', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(2, 'update-elba-objects', expect.any(Function));
+    expect(step.run).toHaveBeenNthCalledWith(3, 'create-subscription', expect.any(Function));
+
+    expect(step.invoke).toBeCalledTimes(3);
+    expect(step.invoke).toHaveBeenNthCalledWith(1, 'get-item-item-id-1-permissions', {
+      data: {
+        itemId: 'item-id-1',
+        organisationId: organisation.id,
+        userId,
+      },
+      function: getItemPermissions,
+    });
+    expect(step.invoke).toHaveBeenNthCalledWith(2, 'get-item-parent-id-1-permissions', {
+      data: {
+        itemId: 'parent-id-1',
+        organisationId: organisation.id,
+        userId,
+      },
+      function: getItemPermissions,
+    });
+    expect(step.invoke).toHaveBeenNthCalledWith(3, 'get-item-item-id-2-permissions', {
+      data: {
+        itemId: 'item-id-2',
+        organisationId: organisation.id,
+        userId,
+      },
+      function: getItemPermissions,
+    });
 
     expect(deltaConnector.getDeltaItems).toBeCalledTimes(1);
     expect(deltaConnector.getDeltaItems).toBeCalledWith({

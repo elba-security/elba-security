@@ -5,6 +5,7 @@ import * as slack from 'slack-web-api-client';
 import { db } from '@/database/client';
 import { teamsTable } from '@/database/schema';
 import * as crypto from '@/common/crypto';
+import { env } from '@/common/env';
 import { handleSlackWebhookEvent } from '../handle-slack-webhook-event';
 
 const setup = createInngestFunctionMock(
@@ -111,7 +112,8 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      apiKey: 'elba-api-key',
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: '00000000-0000-0000-0000-000000000001',
       region: 'eu',
     });
@@ -216,7 +218,8 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      apiKey: 'elba-api-key',
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: '00000000-0000-0000-0000-000000000001',
       region: 'eu',
     });
@@ -412,14 +415,15 @@ describe(`handle-slack-webhook-event ${eventType}`, () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      apiKey: 'elba-api-key',
+      apiKey: env.ELBA_API_KEY,
+      baseUrl: env.ELBA_API_BASE_URL,
       organisationId: '00000000-0000-0000-0000-000000000001',
       region: 'eu',
     });
 
     const elbaInstance = elba.mock.results[0]?.value;
     expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
-    expect(elbaInstance?.connectionStatus.update).toBeCalledWith({ hasError: true });
+    expect(elbaInstance?.connectionStatus.update).toBeCalledWith({ errorType: 'not_admin' });
     expect(elbaInstance?.users.update).toBeCalledTimes(0);
     expect(elbaInstance?.users.delete).toBeCalledTimes(0);
 

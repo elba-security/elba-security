@@ -57,7 +57,7 @@ export const removeOrganisation = inngest.createFunction(
 
     const elba = createElbaClient({ organisationId, region: organisation.region });
 
-    await elba.connectionStatus.update({ hasError: true });
+    await elba.connectionStatus.update({ errorType: 'unauthorized' });
 
     await db.delete(organisationsTable).where(eq(organisationsTable.id, organisationId));
   }

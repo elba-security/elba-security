@@ -33,6 +33,8 @@ describe('startSync', () => {
     const response = await mockNextRequest({
       handler,
       body: {
+        region: 'us',
+        nangoConnectionId: null,
         organisationId: organisation.id,
       },
     });

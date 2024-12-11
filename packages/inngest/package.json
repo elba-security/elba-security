@@ -5,19 +5,27 @@
   "main": "src/index.ts",
   "scripts": {
     "lint": "eslint src/**.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@elba-security/logger": "workspace:*",
     "@elba-security/utils": "workspace:*",
-    "date-fns": "^3.2.0"
+    "@elba-security/schemas": "workspace:*",
+    "@elba-security/sdk": "workspace:*",
+    "date-fns": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/test-utils": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "eslint": "catalog:",
     "inngest": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "peerDependencies": {
     "inngest": "catalog:"

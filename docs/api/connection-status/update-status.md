@@ -12,10 +12,11 @@ POST /api/rest/connection-status
 
 Supported attributes:
 
-| Attribute                   | Type    | Required | Description                                 |
-| --------------------------- | ------- | -------- | ------------------------------------------- |
-| `organisationId` **(uuid)** | string  | Yes      | Unique identifier for the organisation.     |
-| `hasError`                  | boolean | Yes      | Indicates if there is an error with access. |
+| Attribute                   | Type           | Required | Description                                                                                                                           |
+| --------------------------- | -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `organisationId` **(uuid)** | string         | Yes      | Unique identifier for the organisation.                                                                                               |
+| `errorType`                 | string or null | Yes      | The type of error. Supported values are `not_admin`, `unauthorized`, `unknown`, `unsupported_plan`. Use `null` when there is no error |
+| `errorMetadata`             | object         | No       | The metadata related to the error.                                                                                                    |
 
 Example requests:
 
@@ -24,17 +25,21 @@ Example requests:
 ```shell
 curl
   --request POST \
-  --url "https://admin.elba.ninja/api/rest/connection-status" \
+  --url "https://api.elba.ninja/api/rest/connection-status" \
   --header "Authorization: Bearer <ELBA_API_KEY>" \
   --header "Content-Type: application/json" \
   --data '{
     "organisationId": "organisation-id",
-    "hasError": true
+    "errorType": "unknown"
+    "errorMetadata": {"message": "An unexpected error occurred"}
   }'
 ```
 
 #### elba SDK
 
 ```javascript
-elba.connectionStatus.update({ hasError: true });
+elba.connectionStatus.update({
+  errorType: 'unknown',
+  errorMetadata: { message: 'An unexpected error occurred' },
+});
 ```
