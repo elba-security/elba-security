@@ -195,5 +195,5 @@ _Used when the integration retrieve data from SaaS using webhook._
 Update the connection status of the elba organisation with the SaaS:
 
 ```ts
-elba.connectionStatus.update(hasError);
+elba.connectionStatus.update({ errorType, errorMetadata });
 ```

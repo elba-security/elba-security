@@ -12,19 +12,18 @@ describe('parseWebhookEventData', () => {
   });
 
   test('should returns the event data when the payload is valid', () => {
-    const data = { organisationId: '139ed8eb-2f8c-4784-b330-019d57737f06', someExtraData: 'foo' };
-    const result = parseWebhookEventData('data_protection.start_sync_requested', data);
-
-    expect(result).toStrictEqual({ organisationId: data.organisationId });
-  });
-
-  test('should returns the event data when the data is instance of URLSearchParams and is valid', () => {
-    const data = new URLSearchParams({
+    const data = {
+      region: 'eu',
+      nangoConnectionId: null,
       organisationId: '139ed8eb-2f8c-4784-b330-019d57737f06',
       someExtraData: 'foo',
-    });
+    };
     const result = parseWebhookEventData('data_protection.start_sync_requested', data);
 
-    expect(result).toStrictEqual({ organisationId: data.get('organisationId') });
+    expect(result).toStrictEqual({
+      region: 'eu',
+      nangoConnectionId: null,
+      organisationId: data.organisationId,
+    });
   });
 });

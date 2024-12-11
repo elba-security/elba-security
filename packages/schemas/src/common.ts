@@ -32,3 +32,17 @@ export const baseDeleteRequestSchema = z.union([
 ]);
 
 export type BaseDeleteRequest = zInfer<typeof baseDeleteRequestSchema>;
+
+export const elbaRegions = ['eu', 'us'] as const;
+
+export const elbaRegionSchema = z.enum(elbaRegions);
+
+export type ElbaRegion = zInfer<typeof elbaRegionSchema>;
+
+export const baseWebhookSchema = z.object({
+  organisationId: z.string().uuid(),
+  nangoConnectionId: z.string().min(1).nullable(),
+  region: elbaRegionSchema,
+});
+
+export type BaseWebhookData = zInfer<typeof baseWebhookSchema>;
