@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { env } from '@/common/env/server';
+import { env } from '@/common/env';
 import { DocusignError } from '../common/error';
 
 const docusignUserSchema = z.object({
