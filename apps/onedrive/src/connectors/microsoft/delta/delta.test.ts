@@ -3,12 +3,14 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { MicrosoftError } from '@/common/error';
-import { getDeltaItems, type DeltaItem } from './delta';
+import { type DeltaUser, getDeltaItems, type DeltaItem, getDeltaUsers } from './delta';
 
 const userId = 'some-user-id';
 
+const tenantId = 'tenant-id';
+
 const validToken = 'token-1234';
-const deltaToken = 'some-delta-token';
+const nextDeltaToken = 'some-delta-token';
 
 const startSkipToken = 'start-skip-token';
 const endSkipToken = 'end-skip-token';
@@ -28,6 +30,15 @@ const deltaItems: DeltaItem[] = Array.from({ length: 2 }, (_, i) => ({
     id: `some-parent-id-1`,
   },
   ...(i === 0 ? { deleted: { state: 'deleted' } } : {}),
+}));
+
+const deltaUsers: DeltaUser[] = Array.from({ length: 2 }, (_, i) => ({
+  id: `user-id-${i}`,
+  ...(i === 0
+    ? { '@removed': { reason: 'changed' } }
+    : {
+        userType: 'Member',
+      }),
 }));
 
 describe('delta connector', () => {
@@ -52,16 +63,16 @@ describe('delta connector', () => {
 
             const selectedKeys = select?.split(',') || ([] as unknown as (keyof DeltaItem)[]);
 
-            const formattedDelta = deltaItems.map((site) =>
+            const formattedDelta = deltaItems.map((item) =>
               selectedKeys.reduce<Partial<DeltaItem>>((acc, key: keyof DeltaItem) => {
-                return { ...acc, [key]: site[key] };
+                return { ...acc, [key]: item[key] };
               }, {})
             );
 
-            const nextPageUrl = new URL(url);
+            const nextPageUrl = new URL(`${env.MICROSOFT_API_URL}/users/:userId/drive/root/delta`);
             nextPageUrl.searchParams.set(
               'token',
-              token === endSkipToken ? deltaToken : nextSkipToken
+              token === endSkipToken ? nextDeltaToken : nextSkipToken
             );
 
             const addToken =
@@ -100,7 +111,7 @@ describe('delta connector', () => {
         })
       ).resolves.toStrictEqual({
         items: { deleted: [deltaItems[0]?.id], updated: [deltaItems[1]] },
-        newDeltaToken: deltaToken,
+        newDeltaToken: nextDeltaToken,
       });
     });
 
@@ -122,6 +133,86 @@ describe('delta connector', () => {
           deltaToken: null,
         })
       ).resolves.toBeNull();
+    });
+  });
+
+  describe('getDeltaUsers', () => {
+    // mock token API endpoint using msw
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.MICROSOFT_API_URL}/:tenantId/users/delta`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          const url = new URL(request.url);
+          const select = url.searchParams.get('$select');
+          const skipToken = url.searchParams.get('$skiptoken');
+
+          const selectedKeys = select?.split(',') || ([] as unknown as (keyof DeltaUser)[]);
+
+          const formattedDelta = deltaUsers.map((user) =>
+            selectedKeys.reduce<Partial<DeltaUser>>((acc, key: keyof DeltaUser) => {
+              return { ...acc, [key]: user[key], '@removed': user['@removed'] };
+            }, {})
+          );
+
+          const nextPageUrl = new URL(`${env.MICROSOFT_API_URL}/users/delta`);
+          nextPageUrl.searchParams.delete('$deltatoken');
+          nextPageUrl.searchParams.delete('$skiptoken');
+          if (skipToken === endSkipToken) {
+            nextPageUrl.searchParams.set('$deltatoken', nextDeltaToken);
+          } else {
+            nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
+          }
+
+          const addToken =
+            skipToken === endSkipToken
+              ? { '@odata.deltaLink': decodeURIComponent(nextPageUrl.toString()) }
+              : { '@odata.nextLink': decodeURIComponent(nextPageUrl.toString()) };
+
+          return Response.json({
+            value: formattedDelta,
+            ...addToken,
+          });
+        })
+      );
+    });
+
+    test('should return delta users and nextSkipToken when there is another page', async () => {
+      await expect(
+        getDeltaUsers({
+          tenantId,
+          token: validToken,
+          skipToken: startSkipToken,
+        })
+      ).resolves.toStrictEqual({
+        users: { deleted: [deltaUsers[0]?.id], updated: [deltaUsers[1]] },
+        nextSkipToken,
+      });
+    });
+
+    test('should return delta users and newDeltaToken when there is no next page', async () => {
+      await expect(
+        getDeltaUsers({
+          tenantId,
+          token: validToken,
+          skipToken: endSkipToken,
+        })
+      ).resolves.toStrictEqual({
+        users: { deleted: [deltaUsers[0]?.id], updated: [deltaUsers[1]] },
+        newDeltaToken: nextDeltaToken,
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(
+        getDeltaUsers({
+          tenantId,
+          token: 'invalid-token',
+          skipToken: endSkipToken,
+        })
+      ).rejects.toBeInstanceOf(MicrosoftError);
     });
   });
 });
