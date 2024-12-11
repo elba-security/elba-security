@@ -2,6 +2,7 @@ import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/calendly/users';
+import * as nangoAPIClient from '@/common/nango';
 import { syncUsers } from './sync-users';
 
 const syncStartedAt = Date.now();
@@ -28,7 +29,9 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: {
+          access_token: 'access-token',
+        },
       }),
     }));
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
@@ -57,7 +60,13 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: {
+          access_token: 'access-token',
+          raw: {
+            owner: `https://api.calendly.com/users/${organisationId}`,
+            organization: `${users.at(0)?.user.uri}`,
+          },
+        },
       }),
     }));
 
@@ -77,7 +86,6 @@ describe('sync-users', () => {
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
-    
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 });
