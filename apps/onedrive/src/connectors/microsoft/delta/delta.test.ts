@@ -7,6 +7,8 @@ import { type DeltaUser, getDeltaItems, type DeltaItem, getDeltaUsers } from './
 
 const userId = 'some-user-id';
 
+const tenantId = 'tenant-id';
+
 const validToken = 'token-1234';
 const nextDeltaToken = 'some-delta-token';
 
@@ -180,6 +182,7 @@ describe('delta connector', () => {
     test('should return delta users and nextSkipToken when there is another page', async () => {
       await expect(
         getDeltaUsers({
+          tenantId,
           token: validToken,
           skipToken: startSkipToken,
         })
@@ -192,6 +195,7 @@ describe('delta connector', () => {
     test('should return delta users and newDeltaToken when there is no next page', async () => {
       await expect(
         getDeltaUsers({
+          tenantId,
           token: validToken,
           skipToken: endSkipToken,
         })
@@ -204,6 +208,7 @@ describe('delta connector', () => {
     test('should throws when the token is invalid', async () => {
       await expect(
         getDeltaUsers({
+          tenantId,
           token: 'invalid-token',
           skipToken: endSkipToken,
         })
