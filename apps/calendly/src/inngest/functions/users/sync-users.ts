@@ -76,7 +76,7 @@ export const syncUsers = inngest.createFunction(
 
       if (!rawData.success) {
         throw new NonRetriableError(
-          `Nango credentials.row is invalid for the organisation with id=${organisationId}`
+          `Nango credentials.raw is invalid for the organisation with id=${organisationId}`
         );
       }
 
