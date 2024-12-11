@@ -6,7 +6,7 @@ import { deleteUser } from './delete-users';
 
 const accessToken = 'test-access-token';
 const workspaceId = '000000';
-const userIds = ['user-id-1', 'user-id-2'];
+const userId = 'user-id';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const nangoConnectionId = 'nango-connection-id';
 const region = 'us';
@@ -35,7 +35,7 @@ describe('deleteUser', () => {
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
     vi.spyOn(usersConnector, 'getWorkspaceIds').mockResolvedValueOnce([workspaceId]);
 
-    const [result] = setup({ organisationId, region, nangoConnectionId, userIds });
+    const [result] = setup({ organisationId, region, nangoConnectionId, userId });
 
     await expect(result).resolves.toStrictEqual(undefined);
     expect(usersConnector.getWorkspaceIds).toHaveBeenCalledTimes(1);
@@ -43,7 +43,7 @@ describe('deleteUser', () => {
 
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     expect(usersConnector.deleteUser).toBeCalledWith({
-      userIds,
+      userId,
       workspaceId,
       accessToken,
     });

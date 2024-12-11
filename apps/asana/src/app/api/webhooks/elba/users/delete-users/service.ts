@@ -11,13 +11,15 @@ export const deleteUsers = async ({
   region: string;
   userIds: string[];
 }) => {
-  await inngest.send({
-    name: 'asana/users.delete.requested',
-    data: {
-      organisationId,
-      nangoConnectionId,
-      region,
-      userIds,
-    },
-  });
+  await inngest.send(
+    userIds.map((userId) => ({
+      name: 'asana/users.delete.requested',
+      data: {
+        organisationId,
+        nangoConnectionId,
+        region,
+        userId,
+      },
+    }))
+  );
 };

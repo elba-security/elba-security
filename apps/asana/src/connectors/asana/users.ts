@@ -43,7 +43,7 @@ export type GetUsersParams = {
 
 export type DeleteUsersParams = {
   accessToken: string;
-  userIds: string;
+  userId: string;
   workspaceId: string;
 };
 
@@ -94,7 +94,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   };
 };
 
-export const deleteUser = async ({ userIds, workspaceId, accessToken }: DeleteUsersParams) => {
+export const deleteUser = async ({ userId, workspaceId, accessToken }: DeleteUsersParams) => {
   const response = await fetch(`${env.ASANA_API_BASE_URL}/workspaces/${workspaceId}/removeUser`, {
     method: 'post',
     headers: {
@@ -103,7 +103,7 @@ export const deleteUser = async ({ userIds, workspaceId, accessToken }: DeleteUs
     },
     body: JSON.stringify({
       data: {
-        user: userIds,
+        user: userId,
       },
     }),
   });

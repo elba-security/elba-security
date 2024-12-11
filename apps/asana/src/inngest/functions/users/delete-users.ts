@@ -25,7 +25,7 @@ export const deleteUser = inngest.createFunction(
   },
   { event: 'asana/users.delete.requested' },
   async ({ event, step }) => {
-    const { userIds, nangoConnectionId } = event.data;
+    const { userId, nangoConnectionId } = event.data;
 
     const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
 
@@ -43,7 +43,7 @@ export const deleteUser = inngest.createFunction(
       workspaceIds.map(async (workspaceId) =>
         step.run(`delete-user-from-workspace-${workspaceId}`, async () =>
           deleteAsanaUser({
-            userIds,
+            userId,
             workspaceId,
             accessToken,
           })

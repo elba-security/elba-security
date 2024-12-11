@@ -33,7 +33,7 @@ export const inngest = new Inngest({
     'asana/users.delete.requested': {
       data: {
         organisationId: string;
-        userIds: string[];
+        userId: string;
         region: string;
         nangoConnectionId: string;
       };
