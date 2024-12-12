@@ -3,7 +3,7 @@ import { nangoAPIClient } from '@/common/nango';
 import { getOrganisation } from '@/connectors/calendly/organisation';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
-import { mapElbaConnectionError } from '@/connectors/common/error';
+import { mapElbaConnectionError, CalendlyNotAdminError } from '@/connectors/common/error';
 import { env } from '@/common/env';
 
 const isDevelopment =
@@ -33,7 +33,7 @@ export const validateSourceInstallation = async ({
         organizationUri: credentials.raw.organization as string,
       });
       if (['basic', 'essentials'].includes(plan) || stage !== 'paid') {
-        throw new Error('Invalid account plan');
+        throw new CalendlyNotAdminError('User is not an admin');
       }
     }
 
