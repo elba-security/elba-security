@@ -2,7 +2,7 @@ import { Pool, neon, neonConfig } from '@neondatabase/serverless';
 import type { NeonDatabase } from 'drizzle-orm/neon-serverless';
 import { drizzle as drizzleNeonServerless } from 'drizzle-orm/neon-serverless';
 import { drizzle as drizzleNeonHttp } from 'drizzle-orm/neon-http';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import * as schema from './schema';
 
 // eslint-disable-next-line import/no-mutable-exports -- to make it work locally
