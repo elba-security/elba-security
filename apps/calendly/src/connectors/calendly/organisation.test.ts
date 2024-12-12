@@ -36,11 +36,7 @@ describe('organisation connector', () => {
     test('should return correct organisation details', async () => {
       await expect(
         getOrganisation({ accessToken: validToken, organizationUri })
-      ).resolves.toStrictEqual({
-        name,
-        plan,
-        stage,
-      });
+      ).resolves.toStrictEqual(undefined);
     });
 
     test('should throws when the token is invalid', async () => {

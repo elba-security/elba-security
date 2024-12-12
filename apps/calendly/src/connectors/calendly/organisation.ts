@@ -43,7 +43,6 @@ export const getOrganisation = async ({
   }
 
   const { plan, stage } = result.data.resource;
-
   if (['basic', 'essentials'].includes(plan) || stage !== 'paid') {
     throw new CalendlyNotAdminError('User is not an admin');
   }
