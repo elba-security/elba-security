@@ -1,7 +1,7 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { AircallError } from '../common/error';
 import type { AircallUser } from './users';
 import { deleteUser, getUsers, getAuthUser } from './users';
@@ -14,7 +14,6 @@ const authUserId = 12345;
 const validUsers: AircallUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: i,
   name: `name-${i}`,
-  availability_status: 'available',
   email: `user-${i}@foo.bar`,
 }));
 
