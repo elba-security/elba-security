@@ -1,9 +1,13 @@
 import { serializeLogObject } from '@elba-security/logger/src/serialize';
 import { nangoAPIClient } from '@/common/nango';
-import { getUsers } from '@/connectors/calendly/users';
+import { getOrganisation } from '@/connectors/calendly/organisation';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
 import { mapElbaConnectionError } from '@/connectors/common/error';
+import { env } from '@/common/env';
+
+const isDevelopment =
+  (!env.VERCEL_ENV || env.VERCEL_ENV === 'development') && process.env.NODE_ENV !== 'test';
 
 export const validateSourceInstallation = async ({
   organisationId,
@@ -23,10 +27,16 @@ export const validateSourceInstallation = async ({
     if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
       throw new Error('Could not retrieve Nango credentials');
     }
-    await getUsers({
-      accessToken: credentials.access_token,
-      organizationUri: credentials.raw.organization as string,
-    });
+    if (!isDevelopment) {
+      const { plan, stage } = await getOrganisation({
+        accessToken: credentials.access_token,
+        organizationUri: credentials.raw.organization as string,
+      });
+      if (['basic', 'essentials'].includes(plan) || stage !== 'paid') {
+        throw new Error('Invalid account plan');
+      }
+    }
+
     await elba.connectionStatus.update({
       errorType: null,
     });
