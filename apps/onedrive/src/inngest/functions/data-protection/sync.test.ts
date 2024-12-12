@@ -1,7 +1,7 @@
 import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
-import * as usersConnector from '@/connectors/microsoft/users/users';
+import * as deltaConnector from '@/connectors/microsoft/delta/delta';
 import { organisationsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
@@ -20,7 +20,15 @@ const organisation = {
 const syncStartedAt = Date.now();
 const isFirstSync = false;
 
-const userIds: string[] = ['user-id-1', 'user-id-2'];
+const members: deltaConnector.ParsedDeltaUsers['updated'] = Array.from({ length: 2 }, (_, i) => ({
+  id: `user-id-${i + 1}`,
+  userType: 'Member',
+}));
+
+const guestUser: deltaConnector.ParsedDeltaUsers['updated'][number] = {
+  id: 'guest',
+  userType: 'Guest',
+};
 
 const setupData = {
   organisationId: organisation.id,
@@ -40,9 +48,9 @@ describe('sync-data-protection', () => {
   });
 
   test('should abort sync when organisation is not registered', async () => {
-    vi.spyOn(usersConnector, 'getOrganisationUserIds').mockResolvedValue({
-      nextSkipToken: null,
-      userIds: [],
+    vi.spyOn(deltaConnector, 'getDeltaUsers').mockResolvedValue({
+      users: { updated: [], deleted: [] },
+      newDeltaToken: '',
     });
 
     const [result, { step }] = setup({
@@ -52,37 +60,35 @@ describe('sync-data-protection', () => {
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
-    expect(usersConnector.getOrganisationUserIds).toBeCalledTimes(0);
+    expect(deltaConnector.getDeltaUsers).toBeCalledTimes(0);
 
     expect(step.waitForEvent).toBeCalledTimes(0);
 
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 
-  test('should continue the sync when there is a next page', async () => {
+  test('should ignore guests and continue the sync when there is a next page', async () => {
     const nextSkipToken = 'next-skip-token';
-    const skipToken = null;
-
-    vi.spyOn(usersConnector, 'getOrganisationUserIds').mockResolvedValue({
+    vi.spyOn(deltaConnector, 'getDeltaUsers').mockResolvedValue({
+      users: { updated: [...members, guestUser], deleted: [] },
       nextSkipToken,
-      userIds,
     });
 
     const [result, { step }] = setup(setupData);
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
-    expect(usersConnector.getOrganisationUserIds).toBeCalledTimes(1);
-    expect(usersConnector.getOrganisationUserIds).toBeCalledWith({
-      token,
+    expect(deltaConnector.getDeltaUsers).toBeCalledTimes(1);
+    expect(deltaConnector.getDeltaUsers).toBeCalledWith({
       tenantId,
-      skipToken,
+      token,
+      skipToken: setupData.skipToken,
     });
 
-    expect(step.waitForEvent).toBeCalledTimes(userIds.length);
+    expect(step.waitForEvent).toBeCalledTimes(members.length);
 
-    for (let i = 0; i < userIds.length; i++) {
-      const userId = userIds[i];
+    for (let i = 0; i < members.length; i++) {
+      const userId = members[i]?.id;
 
       expect(step.waitForEvent).nthCalledWith(i + 1, `wait-for-items-complete-${userId}`, {
         event: 'onedrive/items.sync.completed',
@@ -94,7 +100,7 @@ describe('sync-data-protection', () => {
     expect(step.sendEvent).toBeCalledTimes(2);
     expect(step.sendEvent).toBeCalledWith(
       'items-sync-triggered',
-      userIds.map((id) => ({
+      members.map(({ id }) => ({
         name: 'onedrive/items.sync.triggered',
         data: {
           userId: id,
@@ -117,11 +123,10 @@ describe('sync-data-protection', () => {
   });
 
   test('should finalize the sync when there is a no next page', async () => {
-    const nextSkipToken = null;
     const skipToken = 'skip-token';
-    vi.spyOn(usersConnector, 'getOrganisationUserIds').mockResolvedValue({
-      nextSkipToken,
-      userIds,
+    vi.spyOn(deltaConnector, 'getDeltaUsers').mockResolvedValue({
+      newDeltaToken: 'new-delta-token',
+      users: { updated: members, deleted: [] },
     });
     const [result, { step }] = setup({
       ...setupData,
@@ -130,17 +135,17 @@ describe('sync-data-protection', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
 
-    expect(usersConnector.getOrganisationUserIds).toBeCalledTimes(1);
-    expect(usersConnector.getOrganisationUserIds).toBeCalledWith({
+    expect(deltaConnector.getDeltaUsers).toBeCalledTimes(1);
+    expect(deltaConnector.getDeltaUsers).toBeCalledWith({
       token,
       tenantId,
       skipToken,
     });
 
-    expect(step.waitForEvent).toBeCalledTimes(userIds.length);
+    expect(step.waitForEvent).toBeCalledTimes(members.length);
 
-    for (let i = 0; i < userIds.length; i++) {
-      const userId = userIds[i];
+    for (let i = 0; i < members.length; i++) {
+      const userId = members[i]?.id;
 
       expect(step.waitForEvent).nthCalledWith(i + 1, `wait-for-items-complete-${userId}`, {
         event: 'onedrive/items.sync.completed',
@@ -152,12 +157,12 @@ describe('sync-data-protection', () => {
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
       'items-sync-triggered',
-      userIds.map((id) => ({
+      members.map(({ id }) => ({
         name: 'onedrive/items.sync.triggered',
         data: {
           userId: id,
           isFirstSync,
-          skipToken: nextSkipToken,
+          skipToken: null,
           organisationId: organisation.id,
         },
       }))

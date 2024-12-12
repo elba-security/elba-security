@@ -10,7 +10,11 @@ const deltaTokenSchema = z
   .url()
   .transform((link) => {
     const url = new URL(link);
-    return url.searchParams.get('token');
+    return (
+      url.searchParams.get('token') ||
+      url.searchParams.get('$skiptoken') ||
+      url.searchParams.get('$deltatoken')
+    );
   })
   .refine((token) => token !== null);
 
@@ -64,14 +68,14 @@ export const getDeltaItems = async ({
       return null;
     }
 
-    throw new MicrosoftError('Could not retrieve delta', { response });
+    throw new MicrosoftError('Could not retrieve items delta', { response });
   }
 
   const data: unknown = await response.json();
   const result = microsoftDeltaPaginatedResponseSchema.safeParse(data);
   if (!result.success) {
-    logger.error('Failed to parse paginated delta response', { data, error: result.error });
-    throw new Error('Failed to parse delta paginated response');
+    logger.error('Failed to parse paginated delta items response', { data, error: result.error });
+    throw new Error('Failed to parse paginated delta items response');
   }
 
   const items: ParsedDeltaItems = { deleted: [], updated: [] };
@@ -101,4 +105,80 @@ export const getDeltaItems = async ({
   }
 
   return { items, newDeltaToken: result.data['@odata.deltaLink'] };
+};
+
+const userSchema = z.object({
+  id: z.string(),
+  userType: z.enum(['Member', 'Guest']).optional(),
+});
+
+const deltaUserSchema = userSchema.extend({
+  '@removed': z.object({ reason: z.string() }).optional(),
+});
+
+export type User = z.infer<typeof userSchema>;
+
+export type DeltaUser = z.infer<typeof deltaUserSchema>;
+
+export type ParsedDeltaUsers = { deleted: string[]; updated: User[] };
+
+export const getDeltaUsers = async ({
+  tenantId,
+  token,
+  deltaToken,
+  skipToken,
+}: {
+  tenantId: string;
+  token: string;
+  deltaToken?: string | null;
+  skipToken?: string | null;
+}): Promise<
+  { users: ParsedDeltaUsers } & ({ nextSkipToken: string } | { newDeltaToken: string })
+> => {
+  const url = new URL(`${env.MICROSOFT_API_URL}/${tenantId}/users/delta`);
+
+  if (skipToken) {
+    url.searchParams.append('$skiptoken', skipToken);
+  }
+  if (deltaToken) {
+    url.searchParams.append('$deltatoken', deltaToken);
+  }
+
+  // The $top parameter doesn't work on users delta
+  url.searchParams.append('$select', Object.keys(userSchema.shape).join(','));
+
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!response.ok) {
+    throw new MicrosoftError('Could not retrieve users delta', { response });
+  }
+
+  const data: unknown = await response.json();
+  const result = microsoftDeltaPaginatedResponseSchema.safeParse(data);
+  if (!result.success) {
+    logger.error('Failed to parse paginated delta users response', { data, error: result.error });
+    throw new Error('Failed to parse paginated delta users response');
+  }
+
+  const users: ParsedDeltaUsers = { deleted: [], updated: [] };
+  for (const deltaUser of result.data.value) {
+    const parsedUser = deltaUserSchema.safeParse(deltaUser);
+    if (parsedUser.success) {
+      if (parsedUser.data['@removed']) {
+        users.deleted.push(parsedUser.data.id);
+      } else {
+        users.updated.push(parsedUser.data);
+      }
+    } else {
+      logger.error('Failed to parse delta user', { deltaUser, error: parsedUser.error });
+    }
+  }
+
+  if ('@odata.nextLink' in result.data) {
+    return { users, nextSkipToken: result.data['@odata.nextLink'] };
+  }
+
+  return { users, newDeltaToken: result.data['@odata.deltaLink'] };
 };
