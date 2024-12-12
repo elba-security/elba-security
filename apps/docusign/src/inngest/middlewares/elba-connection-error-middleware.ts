@@ -1,7 +1,8 @@
 import { createElbaConnectionErrorMiddleware } from '@elba-security/inngest';
-import { mapElbaConnectionError } from '@/connectors/common/error';
+import { mapElbaConnectionError } from '@elba-security/sdk';
+import { DocusignError } from '@/connectors/common/error';
 
 export const elbaConnectionErrorMiddleware = createElbaConnectionErrorMiddleware({
-  mapErrorFn: mapElbaConnectionError,
+  mapErrorFn: (error: unknown) => mapElbaConnectionError(DocusignError, error),
   eventName: 'docusign/app.uninstalled',
 });

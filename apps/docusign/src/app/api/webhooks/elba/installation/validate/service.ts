@@ -1,9 +1,10 @@
 import { serializeLogObject } from '@elba-security/logger/src/serialize';
+import { mapElbaConnectionError } from '@elba-security/sdk';
 import { nangoAPIClient } from '@/common/nango';
 import { getAuthUser } from '@/connectors/docusign/auth';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
-import { mapElbaConnectionError } from '@/connectors/common/error';
+import { DocusignError } from '@/connectors/common/error';
 
 export const validateSourceInstallation = async ({
   organisationId,
@@ -51,7 +52,7 @@ export const validateSourceInstallation = async ({
 
     return { message: 'Source installation validated' };
   } catch (error) {
-    const errorType = mapElbaConnectionError(error);
+    const errorType = mapElbaConnectionError(DocusignError, error);
     await elba.connectionStatus.update({
       errorType: errorType || 'unknown',
       errorMetadata: serializeLogObject(error),

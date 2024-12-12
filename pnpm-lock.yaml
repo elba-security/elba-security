@@ -3905,6 +3905,9 @@ importers:
 
   packages/sdk:
     dependencies:
+      '@elba-security/nango':
+        specifier: workspace:*
+        version: link:../nango
       '@elba-security/schemas':
         specifier: workspace:*
         version: link:../schemas

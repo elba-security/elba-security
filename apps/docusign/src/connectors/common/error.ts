@@ -1,30 +1,15 @@
-import { type MapConnectionErrorFn } from '@elba-security/inngest';
-import { NangoConnectionError } from '@elba-security/nango';
+import { type ConnectionErrorType } from '@elba-security/sdk';
 
-type DocusignErrorOptions = { response?: Response };
+type DocusignErrorOptions = { response?: Response; code?: ConnectionErrorType };
 
 export class DocusignError extends Error {
   response?: Response;
+  code?: ConnectionErrorType;
 
-  constructor(message: string, { response }: DocusignErrorOptions = {}) {
+  constructor(message: string, { response, code }: DocusignErrorOptions = {}) {
     super(message);
     this.response = response;
+    this.code = code;
     this.name = 'DocusignError';
   }
 }
-
-export class DocusignNotAdminError extends DocusignError {}
-
-export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
-  if (error instanceof NangoConnectionError && error.response.status === 404) {
-    return 'unauthorized';
-  }
-  if (error instanceof DocusignError && error.response?.status !== 401) {
-    return 'unauthorized';
-  }
-  if (error instanceof DocusignNotAdminError) {
-    return 'not_admin';
-  }
-
-  return null;
-};
