@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { CalendlyError } from '../common/error';
+import { CalendlyError, CalendlyNotAdminError } from '../common/error';
 
 const calendlyOrganisationSchema = z.object({
   resource: z.object({
@@ -42,5 +42,9 @@ export const getOrganisation = async ({
     throw new CalendlyError('Could not parse organisation response');
   }
 
-  return result.data.resource;
+  const { plan, stage } = result.data.resource;
+
+  if (['basic', 'essentials'].includes(plan) || stage !== 'paid') {
+    throw new CalendlyNotAdminError('User is not an admin');
+  }
 };

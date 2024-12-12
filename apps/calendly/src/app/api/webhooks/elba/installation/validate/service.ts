@@ -3,7 +3,7 @@ import { nangoAPIClient } from '@/common/nango';
 import { getOrganisation } from '@/connectors/calendly/organisation';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
-import { mapElbaConnectionError, CalendlyNotAdminError } from '@/connectors/common/error';
+import { mapElbaConnectionError } from '@/connectors/common/error';
 import { env } from '@/common/env';
 
 const isDevelopment =
@@ -28,13 +28,10 @@ export const validateSourceInstallation = async ({
       throw new Error('Could not retrieve Nango credentials');
     }
     if (!isDevelopment) {
-      const { plan, stage } = await getOrganisation({
+      await getOrganisation({
         accessToken: credentials.access_token,
         organizationUri: credentials.raw.organization as string,
       });
-      if (['basic', 'essentials'].includes(plan) || stage !== 'paid') {
-        throw new CalendlyNotAdminError('User is not an admin');
-      }
     }
 
     await elba.connectionStatus.update({
