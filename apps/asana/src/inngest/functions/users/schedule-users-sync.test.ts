@@ -6,7 +6,7 @@ const now = Date.now();
 
 const setup = createInngestFunctionMock(scheduleUsersSync);
 
-describe('schedule-users-syncs', () => {
+describe('scheduleUsersSync', () => {
   beforeAll(() => {
     vi.setSystemTime(now);
   });

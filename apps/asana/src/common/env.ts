@@ -13,6 +13,6 @@ export const env = z
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     NANGO_SECRET_KEY: z.string().min(1),
-    NANGO_INTEGRATION_ID: z.string().min(1),
+    NANGO_INTEGRATION_ID: z.string().min(1).default('asana'),
   })
   .parse(process.env);

@@ -1,8 +1,9 @@
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { deleteUser as deleteAsanaUser, getWorkspaceIds } from '@/connectors/asana/users';
+import { deleteUser as deleteAsanaUser } from '@/connectors/asana/users';
 import { env } from '@/common/env';
 import { nangoAPIClient } from '@/common/nango';
+import { getWorkspaceIds } from '@/connectors/asana/workspaces';
 
 export const deleteUser = inngest.createFunction(
   {

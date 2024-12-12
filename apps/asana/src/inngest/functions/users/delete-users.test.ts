@@ -1,5 +1,6 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
+import * as workspacesConnector from '@/connectors/asana/workspaces';
 import * as usersConnector from '@/connectors/asana/users';
 import * as nangoAPI from '@/common/nango';
 import { deleteUser } from './delete-users';
@@ -11,7 +12,6 @@ const organisationId = '00000000-0000-0000-0000-000000000001';
 const nangoConnectionId = 'nango-connection-id';
 const region = 'us';
 
-// Setup function mock for Inngest
 const setup = createInngestFunctionMock(deleteUser, 'asana/users.delete.requested');
 
 describe('deleteUser', () => {
@@ -33,13 +33,13 @@ describe('deleteUser', () => {
 
   test('should delete users', async () => {
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
-    vi.spyOn(usersConnector, 'getWorkspaceIds').mockResolvedValueOnce([workspaceId]);
+    vi.spyOn(workspacesConnector, 'getWorkspaceIds').mockResolvedValueOnce([workspaceId]);
 
     const [result] = setup({ organisationId, region, nangoConnectionId, userId });
 
     await expect(result).resolves.toStrictEqual(undefined);
-    expect(usersConnector.getWorkspaceIds).toHaveBeenCalledTimes(1);
-    expect(usersConnector.getWorkspaceIds).toHaveBeenCalledWith(accessToken);
+    expect(workspacesConnector.getWorkspaceIds).toHaveBeenCalledTimes(1);
+    expect(workspacesConnector.getWorkspaceIds).toHaveBeenCalledWith(accessToken);
 
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     expect(usersConnector.deleteUser).toBeCalledWith({
