@@ -12,7 +12,6 @@ export const organisations = Array.from({ length: 5 }, (_, i) => ({
   id: `00000000-0000-0000-0000-00000000000${i}`,
   accessToken: `test-access-token${i}`,
   refreshToken: `test-refresh-token${i}`,
-  organizationUri: `some organization_uri-${i}`,
   region: `us`,
   authUserUri: 'https://api.calendly.com/users/AAAAAAAAAAAAAAAA',
 }));
