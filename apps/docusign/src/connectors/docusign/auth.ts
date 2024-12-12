@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { DocusignError, DocusignNotAdminError } from '../common/error';
+import { DocusignError } from '../common/error';
 import { getUser } from './users';
 
 const accountInfo = z.object({
@@ -51,7 +51,9 @@ export const getAuthUser = async (accessToken: string) => {
   });
 
   if (isAdmin !== 'True') {
-    throw new DocusignNotAdminError('User is not an admin');
+    throw new DocusignError('User is not an admin', {
+      code: 'not_admin',
+    });
   }
 
   return {
