@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
   if (!nangoConnectionId) {
     logger.error('Missing nango connection ID', { organisationId });
-    throw new Error('Missing nango connection ID');
+    throw new Error(`Missing nango connection ID for organisation ID ${organisationId}`);
   }
 
   await deleteUsers({ organisationId, region, nangoConnectionId, userIds });
