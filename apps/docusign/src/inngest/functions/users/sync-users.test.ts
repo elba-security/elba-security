@@ -1,17 +1,13 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
 import * as authConnector from '@/connectors/docusign/auth';
 import * as usersConnector from '@/connectors/docusign/users';
-import { organisationsTable } from '@/database/schema';
-import { db } from '@/database/client';
-import * as nangoAPIClient from '@/common/nango/api';
+import * as nangoAPIClient from '@/common/nango';
 import { syncUsers } from './sync-users';
 
-const organisation = {
-  id: '00000000-0000-0000-0000-000000000001',
-  region: 'us',
-};
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
 const syncStartedAt = Date.now();
 
 const users: usersConnector.DocusignUser[] = Array.from({ length: 5 }, (_, i) => ({
@@ -26,30 +22,7 @@ const users: usersConnector.DocusignUser[] = Array.from({ length: 5 }, (_, i) =>
 const setup = createInngestFunctionMock(syncUsers, 'docusign/users.sync.requested');
 
 describe('syncUsers', () => {
-  test('should abort sync when organisation is not registered', async () => {
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      validUsers: users,
-      invalidUsers: [],
-      nextPage: '',
-    });
-
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt: Date.now(),
-      page: null,
-    });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(usersConnector.getUsers).toBeCalledTimes(0);
-
-    expect(step.sendEvent).toBeCalledTimes(0);
-  });
-
   test('should continue the sync when there is a next page', async () => {
-    await db.insert(organisationsTable).values(organisation);
-
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
@@ -68,7 +41,9 @@ describe('syncUsers', () => {
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      organisationId,
+      region,
+      nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
       page: 'some after',
@@ -80,7 +55,9 @@ describe('syncUsers', () => {
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
       name: 'docusign/users.sync.requested',
       data: {
-        organisationId: organisation.id,
+        organisationId,
+        region,
+        nangoConnectionId,
         isFirstSync: false,
         syncStartedAt,
         page: 'some page',
@@ -89,8 +66,6 @@ describe('syncUsers', () => {
   });
 
   test('should finalize the sync when there is a no next page', async () => {
-    await db.insert(organisationsTable).values(organisation);
-
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
@@ -109,7 +84,9 @@ describe('syncUsers', () => {
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      region,
+      organisationId,
+      nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
       page: null,
