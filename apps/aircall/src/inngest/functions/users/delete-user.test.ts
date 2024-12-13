@@ -5,7 +5,7 @@ import * as nangoAPI from '@/common/nango';
 import { deleteUser } from './delete-user';
 
 const userId = 'user-id';
-const accessToken = 'test-access-token';
+const accessToken = 'access-token';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const nangoConnectionId = 'nango-connection-id';
 const region = 'us';
