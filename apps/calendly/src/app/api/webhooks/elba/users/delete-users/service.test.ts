@@ -13,14 +13,25 @@ describe('docusign/users.delete.requested', () => {
 
     await deleteUsers({ userIds, organisationId, nangoConnectionId, region });
     expect(send).toBeCalledTimes(1);
-    expect(send).toBeCalledWith({
-      name: 'docusign/users.delete.requested',
-      data: {
-        region,
-        organisationId,
-        nangoConnectionId,
-        userIds,
+    expect(send).toBeCalledWith([
+      {
+        data: {
+          nangoConnectionId,
+          organisationId: '00000000-0000-0000-0000-000000000002',
+          region,
+          userId: 'test-user-id1',
+        },
+        name: 'calendly/users.delete.requested',
       },
-    });
+      {
+        data: {
+          nangoConnectionId,
+          organisationId: '00000000-0000-0000-0000-000000000002',
+          region,
+          userId: 'test-user-id2',
+        },
+        name: 'calendly/users.delete.requested',
+      },
+    ]);
   });
 });

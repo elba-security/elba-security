@@ -1,17 +1,13 @@
 import type { User } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
-import { z } from 'zod';
 import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/calendly/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { nangoAPIClient } from '@/common/nango';
 import { type CalendlyUser } from '@/connectors/calendly/users';
-
-const credentialsRawSchema = z.object({
-  owner: z.string().url(),
-  organization: z.string().url(),
-});
+import { nangoRawCredentialsSchema } from '@/connectors/common/nango';
+import { checkOrganisationPlan } from '@/connectors/calendly/organisation';
 
 // extract uuid from user's unique uri like this: "https://api.calendly.com/organization_memberships/AAAAAAAAAAAAAAAA"
 const extractUUID = (user: CalendlyUser): string => {
@@ -72,15 +68,20 @@ export const syncUsers = inngest.createFunction(
         throw new NonRetriableError('Could not retrieve Nango credentials');
       }
 
-      const rawData = credentialsRawSchema.safeParse(credentials.raw);
+      const rawCredentials = nangoRawCredentialsSchema.safeParse(credentials.raw);
 
-      if (!rawData.success) {
+      if (!rawCredentials.success) {
         throw new NonRetriableError(
           `Nango credentials.raw is invalid for the organisation with id=${organisationId}`
         );
       }
 
-      const { organization: organizationUri, owner: authUserUri } = rawData.data;
+      const { organization: organizationUri, owner: authUserUri } = rawCredentials.data;
+
+      await checkOrganisationPlan({
+        accessToken: credentials.access_token,
+        organizationUri,
+      });
 
       const result = await getUsers({
         accessToken: credentials.access_token,

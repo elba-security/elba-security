@@ -2,6 +2,7 @@ import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/calendly/users';
+import * as organisationConnector from '@/connectors/calendly/organisation';
 import * as nangoAPIClient from '@/common/nango';
 import { syncUsers } from './sync-users';
 
@@ -69,6 +70,8 @@ describe('sync-users', () => {
         },
       }),
     }));
+
+    vi.spyOn(organisationConnector, 'checkOrganisationPlan').mockResolvedValue();
 
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,

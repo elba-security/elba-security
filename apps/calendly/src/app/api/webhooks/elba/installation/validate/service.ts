@@ -1,13 +1,11 @@
 import { serializeLogObject } from '@elba-security/logger/src/serialize';
+import { logger } from '@elba-security/logger';
 import { nangoAPIClient } from '@/common/nango';
-import { getOrganisation } from '@/connectors/calendly/organisation';
+import { checkOrganisationPlan } from '@/connectors/calendly/organisation';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
 import { mapElbaConnectionError } from '@/connectors/common/error';
-import { env } from '@/common/env';
-
-const isDevelopment =
-  (!env.VERCEL_ENV || env.VERCEL_ENV === 'development') && process.env.NODE_ENV !== 'test';
+import { nangoRawCredentialsSchema } from '@/connectors/common/nango';
 
 export const validateSourceInstallation = async ({
   organisationId,
@@ -27,12 +25,13 @@ export const validateSourceInstallation = async ({
     if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
       throw new Error('Could not retrieve Nango credentials');
     }
-    if (!isDevelopment) {
-      await getOrganisation({
-        accessToken: credentials.access_token,
-        organizationUri: credentials.raw.organization as string,
-      });
-    }
+
+    const rawCredentials = nangoRawCredentialsSchema.parse(credentials.raw);
+
+    await checkOrganisationPlan({
+      accessToken: credentials.access_token,
+      organizationUri: rawCredentials.organization,
+    });
 
     await elba.connectionStatus.update({
       errorType: null,
@@ -60,6 +59,12 @@ export const validateSourceInstallation = async ({
 
     return { message: 'Source installation validated' };
   } catch (error) {
+    logger.error(`Failed to validate installation`, {
+      organisationId,
+      region,
+      nangoConnectionId,
+      error,
+    });
     const errorType = mapElbaConnectionError(error);
     await elba.connectionStatus.update({
       errorType: errorType || 'unknown',
