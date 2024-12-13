@@ -46,7 +46,7 @@ describe('sync-users', () => {
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
-      name: 'docusign/users.sync.requested',
+      name: 'aircall/users.sync.requested',
       data: {
         organisationId,
         region,
