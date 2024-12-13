@@ -19,6 +19,7 @@
     "@elba-security/nango": "workspace:*",
     "@elba-security/nextjs": "workspace:*",
     "@elba-security/sdk": "workspace:*",
+    "@elba-security/utils": "workspace:*",
     "inngest": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
