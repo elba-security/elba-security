@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env/server';
+import { env } from '@/common/env';
 import { AircallError } from '../common/error';
 
 const aircallUserSchema = z.object({
