@@ -13,7 +13,7 @@ export const env = z
     CALENDLY_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),
     CALENDLY_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     NANGO_SECRET_KEY: z.string().min(1),
-    NANGO_INTEGRATION_ID: z.string().min(1),
+    NANGO_INTEGRATION_ID: z.string().min(1).default('calendly'),
     VERCEL_ENV: z.string().min(1).optional(),
   })
   .parse(process.env);

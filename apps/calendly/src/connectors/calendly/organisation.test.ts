@@ -1,73 +1,70 @@
 import { http } from 'msw';
-import { describe, expect, test, beforeEach } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { CalendlyError, CalendlyNotAdminError } from '../common/error';
+import { CalendlyError, CalendlyUnsupportedPlanError } from '../common/error';
 import { getOrganisation } from './organisation';
 
-const validToken = 'token-1234';
-const basicOrganizationUri = 'https://api.calendly.com/organizations/basic';
-const teamsOrganizationUri = 'https://api.calendly.com/organizations/teams';
-const name = 'Sales Team';
-const plan = 'teams';
-const stage = 'paid';
+const validToken = 'test-token';
+const organizationUri = 'https://api.calendly.com/organizations/012345678901234567890';
 
-describe('organisation connector', () => {
-  describe('getOrganisation', () => {
-    beforeEach(() => {
-      server.use(
-        http.get(teamsOrganizationUri, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-          return Response.json({
-            resource: {
-              uri: teamsOrganizationUri,
-              name,
-              plan,
-              stage,
-              created_at: '2019-01-02T03:04:05.678123Z',
-              updated_at: '2019-08-07T06:05:04.321123Z',
-            },
-          });
-        }),
-
-        http.get(basicOrganizationUri, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-          return Response.json({
-            resource: {
-              uri: basicOrganizationUri,
-              name,
-              plan: 'basic',
-              stage,
-              created_at: '2019-01-02T03:04:05.678123Z',
-              updated_at: '2019-08-07T06:05:04.321123Z',
-            },
-          });
-        })
-      );
-    });
-
-    test('should return correct organisation details', async () => {
-      await expect(
-        getOrganisation({ accessToken: validToken, organizationUri: teamsOrganizationUri })
-      ).resolves.toStrictEqual({
-        plan,
-        stage,
+const setup = ({
+  plan = 'teams',
+  stage = 'paid',
+}: {
+  plan?: string;
+  stage?: string;
+} = {}) => {
+  server.use(
+    http.get(organizationUri, ({ request }) => {
+      if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+        return new Response(undefined, { status: 401 });
+      }
+      return Response.json({
+        resource: {
+          uri: organizationUri,
+          name: 'Team name',
+          plan,
+          stage,
+          created_at: '2019-01-02T03:04:05.678123Z',
+          updated_at: '2019-08-07T06:05:04.321123Z',
+        },
       });
-    });
+    })
+  );
+};
 
-    test('should throws when the token is invalid', async () => {
-      await expect(
-        getOrganisation({ accessToken: 'foo-bar', organizationUri: basicOrganizationUri })
-      ).rejects.toBeInstanceOf(CalendlyError);
+describe('getOrganisation', () => {
+  test('should return correct organisation details', async () => {
+    setup();
+    await expect(
+      getOrganisation({ accessToken: validToken, organizationUri })
+    ).resolves.toStrictEqual({
+      plan: 'teams',
+      stage: 'paid',
     });
+  });
+  test('should throws when the plan is basic', async () => {
+    setup({
+      plan: 'basic',
+    });
+    await expect(
+      getOrganisation({ accessToken: validToken, organizationUri })
+    ).rejects.toBeInstanceOf(CalendlyUnsupportedPlanError);
+  });
 
-    test('should throws when the plan is basic', async () => {
-      await expect(
-        getOrganisation({ accessToken: validToken, organizationUri: basicOrganizationUri })
-      ).rejects.toBeInstanceOf(CalendlyNotAdminError);
+  test('should throws when the stage is trial', async () => {
+    setup({
+      stage: 'trial',
     });
+    await expect(
+      getOrganisation({ accessToken: validToken, organizationUri })
+    ).rejects.toBeInstanceOf(CalendlyUnsupportedPlanError);
+  });
+
+  test('should throws when the token is invalid', async () => {
+    setup();
+    await expect(
+      getOrganisation({ accessToken: 'foo-bar', organizationUri })
+    ).rejects.toBeInstanceOf(CalendlyError);
   });
 });

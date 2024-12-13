@@ -13,7 +13,7 @@ export class CalendlyError extends Error {
   }
 }
 
-export class CalendlyNotAdminError extends CalendlyError {}
+export class CalendlyUnsupportedPlanError extends CalendlyError {}
 
 export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   if (error instanceof NangoConnectionError && error.response.status === 404) {
@@ -22,8 +22,8 @@ export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   if (error instanceof CalendlyError && error.response?.status !== 401) {
     return 'unauthorized';
   }
-  if (error instanceof CalendlyNotAdminError) {
-    return 'not_admin';
+  if (error instanceof CalendlyUnsupportedPlanError) {
+    return 'unsupported_plan';
   }
 
   return null;

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { CalendlyError, CalendlyNotAdminError } from '../common/error';
+import { CalendlyError, CalendlyUnsupportedPlanError } from '../common/error';
 
 const calendlyOrganisationSchema = z.object({
   resource: z.object({
@@ -43,8 +43,11 @@ export const getOrganisation = async ({
   }
 
   const { plan, stage } = result.data.resource;
+  // DOC: https://developer.calendly.com/api-docs/848e5e20591ee-organization
+  // Available: plans: basic | essentials | standard | professional | teams | enterprise
+  // Available: stages: trial | free | paid
   if (['basic', 'essentials'].includes(plan) || stage !== 'paid') {
-    throw new CalendlyNotAdminError('User is not an admin');
+    throw new CalendlyUnsupportedPlanError('User is not an admin');
   }
 
   return { plan, stage };
