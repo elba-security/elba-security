@@ -18,6 +18,8 @@ describe('harvest/users.delete.requested', () => {
       {
         data: {
           organisationId,
+          region,
+          nangoConnectionId,
           userId: userId1,
         },
         name: 'harvest/users.delete.requested',
@@ -26,6 +28,8 @@ describe('harvest/users.delete.requested', () => {
         data: {
           organisationId,
           userId: userId2,
+          nangoConnectionId,
+          region,
         },
         name: 'harvest/users.delete.requested',
       },
