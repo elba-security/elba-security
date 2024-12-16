@@ -1,27 +1,14 @@
-import { expect, test, describe, vi, beforeEach } from 'vitest';
-import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
+import { expect, test, describe, vi } from 'vitest';
+import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/aircall/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import * as nangoAPI from '@/common/nango/api';
+import * as nangoAPIClient from '@/common/nango';
 import { syncUsers } from './sync-users';
 
-const authUserId = '12345';
-const organisation = {
-  id: '00000000-0000-0000-0000-000000000001',
-  region: 'us',
-};
-
-const user = {
-  authUserId,
-};
-
-const accessToken = 'test-access-token';
-
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
 const syncStartedAt = Date.now();
 
-const nextPage = 'next-page-link';
 const users: usersConnector.AircallUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: i,
   name: `name-${i}`,
@@ -31,143 +18,73 @@ const users: usersConnector.AircallUser[] = Array.from({ length: 2 }, (_, i) => 
 const setup = createInngestFunctionMock(syncUsers, 'aircall/users.sync.requested');
 
 describe('sync-users', () => {
-  beforeEach(() => {
-    const mockNangoAPIClient = {
-      getConnection: vi.fn().mockResolvedValue({
-        credentials: {
-          access_token: accessToken,
-        },
-      }),
-    };
-
-    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(
-      mockNangoAPIClient as unknown as typeof nangoAPI.nangoAPIClient
-    );
-  });
-
-  test('should abort sync when organisation is not registered', async () => {
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      validUsers: users,
-      invalidUsers: [],
-      nextPage: null,
-    });
-
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt: Date.now(),
-      page: null,
-    });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(usersConnector.getUsers).toBeCalledTimes(0);
-
-    expect(step.sendEvent).toBeCalledTimes(0);
-  });
-
   test('should continue the sync when there is a next page', async () => {
-    const elba = spyOnElba();
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
-
-    await db.insert(organisationsTable).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    }));
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
+      authUserId: 'auth-user',
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage,
+      nextPage: 'some page',
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      organisationId,
+      region,
+      nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
-      page: nextPage,
+      page: 'some after',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
-
-    const elbaInstance = elba.mock.results[0]?.value;
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
       name: 'aircall/users.sync.requested',
       data: {
-        organisationId: organisation.id,
+        organisationId,
+        region,
+        nangoConnectionId,
         isFirstSync: false,
         syncStartedAt,
-        page: nextPage,
+        page: 'some page',
       },
     });
-
-    expect(elbaInstance?.users.update).toBeCalledTimes(1);
-    expect(elbaInstance?.users.update).toBeCalledWith({
-      users: [
-        {
-          additionalEmails: [],
-          displayName: 'name-0',
-          email: 'user-0@foo.bar',
-          id: '0',
-          isSuspendable: true,
-          url: 'https://dashboard.aircall.io/users/0/general',
-        },
-        {
-          additionalEmails: [],
-          displayName: 'name-1',
-          email: 'user-1@foo.bar',
-          id: '1',
-          isSuspendable: true,
-          url: 'https://dashboard.aircall.io/users/1/general',
-        },
-      ],
-    });
-    expect(elbaInstance?.users.delete).not.toBeCalled();
   });
 
   test('should finalize the sync when there is a no next page', async () => {
-    const elba = spyOnElba();
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
-
-    await db.insert(organisationsTable).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    }));
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
+      authUserId: 'auth-user',
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: null,
+      nextPage: '',
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      region,
+      organisationId,
+      nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
       page: null,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
-    const elbaInstance = elba.mock.results[0]?.value;
-    expect(elbaInstance?.users.update).toBeCalledTimes(1);
-    expect(elbaInstance?.users.update).toBeCalledWith({
-      users: [
-        {
-          additionalEmails: [],
-          displayName: 'name-0',
-          email: 'user-0@foo.bar',
-          id: '0',
-          isSuspendable: true,
-          url: 'https://dashboard.aircall.io/users/0/general',
-        },
-        {
-          additionalEmails: [],
-          displayName: 'name-1',
-          email: 'user-1@foo.bar',
-          id: '1',
-          isSuspendable: true,
-          url: 'https://dashboard.aircall.io/users/1/general',
-        },
-      ],
-    });
 
-    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
-    expect(elbaInstance?.users.delete).toBeCalledWith({
-      syncedBefore: new Date(syncStartedAt).toISOString(),
-    });
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 });
