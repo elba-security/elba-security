@@ -1,11 +1,8 @@
 import { NonRetriableError } from 'inngest';
-import { eq } from 'drizzle-orm';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUser as deleteAircallUser } from '@/connectors/aircall/users';
-import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
+import { nangoAPIClient } from '@/common/nango';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -28,24 +25,17 @@ export const deleteUser = inngest.createFunction(
   },
   { event: 'aircall/users.delete.requested' },
   async ({ event }) => {
-    const { userId, organisationId } = event.data;
+    const { nangoConnectionId, userId } = event.data;
 
-    const [organisation] = await db
-      .select({
-        token: organisationsTable.accessToken,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
 
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
     }
-
-    const decryptToken = await decrypt(organisation.token);
 
     await deleteAircallUser({
       userId,
-      token: decryptToken,
+      token: credentials.access_token,
     });
   }
 );
