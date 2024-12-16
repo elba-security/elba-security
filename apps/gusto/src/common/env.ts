@@ -9,8 +9,6 @@ export const env = z
     ELBA_REDIRECT_URL: z.string().url(),
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
-    DATABASE_URL: z.string().min(1),
-    DATABASE_PROXY_PORT: zEnvInt().optional(),
     GUSTO_API_BASE_URL: z.string().url(),
     GUSTO_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
     GUSTO_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),
