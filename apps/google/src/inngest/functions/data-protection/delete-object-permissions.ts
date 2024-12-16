@@ -1,5 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
+import { batchFetchImplementation } from '@jrmdayn/googleapis-batcher';
 import { inngest } from '@/inngest/client';
 import { getGoogleServiceAccountClient } from '@/connectors/google/clients';
 import { db } from '@/database/client';
@@ -42,7 +43,6 @@ export const deleteDataProtectionObjectPermissions = inngest.createFunction(
     event: {
       data: { organisationId, objectId, ownerId, permissionIds },
     },
-    step,
     logger,
   }) => {
     const user = await db.query.usersTable.findFirst({
@@ -64,37 +64,39 @@ export const deleteDataProtectionObjectPermissions = inngest.createFunction(
     }
 
     const authClient = await getGoogleServiceAccountClient(user.email);
+
+    // Maximum number of call per batch is 100 see https://developers.google.com/drive/api/guides/performance#overview
+    const fetchImplementation = batchFetchImplementation({ maxBatchSize: 100 });
     const permissionDeletionResults = await Promise.allSettled(
-      permissionIds.map(async (permissionId) =>
-        step.run(`delete-permission-${permissionId}`, async () => {
-          try {
-            await deleteGooglePermission({
-              auth: authClient,
-              fileId: objectId,
-              permissionId,
-            });
+      permissionIds.map(async (permissionId) => {
+        try {
+          await deleteGooglePermission({
+            fetchImplementation,
+            auth: authClient,
+            fileId: objectId,
+            permissionId,
+          });
 
-            return { status: 'deleted' };
-            /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access -- Start of error handling */
-          } catch (error: any) {
-            const ignoredErrors = [
-              { code: 404, reason: 'notFound' },
-              { code: 403, reason: 'insufficientFilePermissions' },
-            ] as const;
-            for (const ignoredError of ignoredErrors) {
-              if (
-                error?.code === ignoredError.code &&
-                error?.errors?.[0]?.reason === ignoredError.reason
-              ) {
-                return { status: 'ignored', reason: ignoredError.reason };
-              }
+          return { status: 'deleted' };
+          /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access -- Start of error handling */
+        } catch (error: any) {
+          const ignoredErrors = [
+            { code: 404, reason: 'notFound' },
+            { code: 403, reason: 'insufficientFilePermissions' },
+          ] as const;
+          for (const ignoredError of ignoredErrors) {
+            if (
+              error?.code === ignoredError.code &&
+              error?.errors?.[0]?.reason === ignoredError.reason
+            ) {
+              return { status: 'ignored', reason: ignoredError.reason };
             }
-            /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access -- End of error handling */
-
-            throw error;
           }
-        })
-      )
+          /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access -- End of error handling */
+
+          throw error;
+        }
+      })
     );
 
     const deletedPermissions: string[] = [];
@@ -121,14 +123,9 @@ export const deleteDataProtectionObjectPermissions = inngest.createFunction(
         ownerId,
         unexpectedFailedPermissions,
       });
+      throw new Error('Unexpected errors occurred while revoking permissions');
     }
 
-    return {
-      deletedPermissions,
-      ignoredPermissions,
-      unexpectedFailedPermissionIds: unexpectedFailedPermissions.map(
-        ({ permissionId }) => permissionId
-      ),
-    };
+    return { deletedPermissions, ignoredPermissions };
   }
 );
