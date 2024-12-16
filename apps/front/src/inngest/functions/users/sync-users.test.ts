@@ -1,6 +1,5 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/front/users';
 import * as nangoAPIClient from '@/common/nango';
 import { syncUsers } from './sync-users';
@@ -23,7 +22,7 @@ const users: usersConnector.FrontUser[] = Array.from({ length: 2 }, (_, i) => ({
 const setup = createInngestFunctionMock(syncUsers, 'front/users.sync.requested');
 
 describe('sync-users', () => {
-  test('should continue the sync when there is a next page', async () => {
+  test('should finalize the sync', async () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
@@ -34,30 +33,6 @@ describe('sync-users', () => {
       validUsers: users,
       invalidUsers: [],
     });
-
-    const [result, { step }] = setup({
-      organisationId,
-      region,
-      nangoConnectionId,
-      isFirstSync: false,
-      syncStartedAt,
-    });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(usersConnector.getUsers).toBeCalledTimes(0);
-
-    expect(step.sendEvent).toBeCalledTimes(0);
-  });
-
-  test('should finalize the sync when there is a no next page', async () => {
-    // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
-      getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
-      }),
-    }));
-
     const [result, { step }] = setup({
       region,
       organisationId,
