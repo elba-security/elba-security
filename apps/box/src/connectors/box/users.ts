@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env/server';
+import { env } from '@/common/env';
 import { BoxError } from '../common/error';
 
 const boxUserSchema = z.object({
