@@ -23,12 +23,6 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
-    'zoom/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
-      };
-    };
     'zoom/users.delete.requested': {
       data: {
         organisationId: string;
