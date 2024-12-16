@@ -19,9 +19,11 @@ export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   if (error instanceof NangoConnectionError && error.response.status === 404) {
     return 'unauthorized';
   }
-  if (error instanceof BoxError && error.response?.status !== 401) {
+
+  if (error instanceof BoxError && error.response?.status === 401) {
     return 'unauthorized';
   }
+
   if (error instanceof BoxNotAdminError) {
     return 'not_admin';
   }

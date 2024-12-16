@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
-import { BoxError } from '../common/error';
+import { BoxError, BoxNotAdminError } from '../common/error';
 
 const boxUserSchema = z.object({
   id: z.string(),
@@ -93,9 +93,15 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUserParams) => {
   }
 };
 
-const getAuthUserResponseData = z.object({
-  id: z.string(),
-});
+const getAuthUserResponseData = z
+  .object({
+    id: z.string(),
+    role: z.string(),
+  })
+  .transform((data) => ({
+    ...data,
+    isAdmin: data.role === 'admin',
+  }));
 
 export const getAuthUser = async (accessToken: string) => {
   const url = new URL(`${env.BOX_API_BASE_URL}/2.0/users/me`);
@@ -118,6 +124,10 @@ export const getAuthUser = async (accessToken: string) => {
   if (!result.success) {
     logger.error('Invalid Box auth-user id response', { resData });
     throw new BoxError('Invalid Box auth-user id response');
+  }
+
+  if (!result.data.isAdmin) {
+    throw new BoxNotAdminError('Auth user is not an admin');
   }
 
   return {
