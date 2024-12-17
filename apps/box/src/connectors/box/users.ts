@@ -46,6 +46,7 @@ export const getUsers = async ({ accessToken, nextPage }: GetUsersParams) => {
   });
 
   if (!response.ok) {
+    logger.error('Could not retrieve users', { response });
     throw new BoxError('Could not retrieve users', { response });
   }
 
@@ -59,6 +60,10 @@ export const getUsers = async ({ accessToken, nextPage }: GetUsersParams) => {
   for (const node of entries) {
     const result = boxUserSchema.safeParse(node);
     if (result.success) {
+      if (result.data.status !== 'active') {
+        continue;
+      }
+
       validUsers.push(result.data);
     } else {
       invalidUsers.push(node);
@@ -89,6 +94,7 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUserParams) => {
   });
 
   if (!response.ok && response.status !== 404) {
+    logger.error(`Could not deactivate user with Id: ${userId}`, { response });
     throw new BoxError(`Could not deactivate user with Id: ${userId}`, { response });
   }
 };
@@ -105,6 +111,7 @@ const getAuthUserResponseData = z
 
 export const getAuthUser = async (accessToken: string) => {
   const url = new URL(`${env.BOX_API_BASE_URL}/2.0/users/me`);
+  url.searchParams.append('fields', 'id,role');
 
   const response = await fetch(url.toString(), {
     method: 'GET',
@@ -115,15 +122,16 @@ export const getAuthUser = async (accessToken: string) => {
   });
 
   if (!response.ok) {
-    throw new BoxError('Could not retrieve auth-user id', { response });
+    throw new BoxError('Could not retrieve auth user id', { response });
   }
 
   const resData: unknown = await response.json();
 
   const result = getAuthUserResponseData.safeParse(resData);
+
   if (!result.success) {
-    logger.error('Invalid Box auth-user id response', { resData });
-    throw new BoxError('Invalid Box auth-user id response');
+    logger.error('Invalid Box auth-user response', { resData });
+    throw new BoxError('Invalid Box auth-user response');
   }
 
   if (!result.data.isAdmin) {

@@ -1,15 +1,15 @@
 import { http } from 'msw';
-import { describe, expect, test, beforeEach } from 'vitest';
+import { describe, expect, test, beforeEach, vi } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { BoxError } from '../common/error';
+import { BoxError, BoxNotAdminError } from '../common/error';
 import type { BoxUser } from './users';
 import { getUsers, deleteUser, getAuthUser } from './users';
 
 const validToken = 'token-1234';
 const nextPage = '1';
 const userId = 'test-id';
-const nextPagetotalCount = 30;
+const nextPageTotalCount = 30;
 const limit = 20;
 const totalCount = 1;
 const authUserId = 'test-auth-user-id';
@@ -35,22 +35,14 @@ describe('users connector', () => {
 
           const url = new URL(request.url);
           const offset = url.searchParams.get('offset');
-          let returnData;
-          if (offset) {
-            returnData = {
-              entries: validUsers,
-              offset: 1,
-              limit,
-              total_count: nextPagetotalCount,
-            };
-          } else {
-            returnData = {
-              entries: validUsers,
-              offset: 0,
-              limit,
-              total_count: totalCount,
-            };
-          }
+
+          const returnData = {
+            entries: validUsers,
+            offset: offset ? 1 : 0,
+            limit,
+            total_count: offset ? nextPageTotalCount : totalCount,
+          };
+
           return Response.json(returnData);
         })
       );
@@ -110,29 +102,47 @@ describe('users connector', () => {
     });
   });
 
+  const setup = ({
+    isAdmin = true,
+  }: {
+    isAdmin?: boolean;
+  } = {}) => {
+    server.use(
+      http.get(`${env.BOX_API_BASE_URL}/2.0/users/me`, ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
+        }
+
+        const responseData = {
+          id: authUserId,
+          role: isAdmin ? 'admin' : 'user',
+        };
+
+        return Response.json(responseData);
+      })
+    );
+  };
+
   describe('getAuthUser', () => {
     beforeEach(() => {
-      server.use(
-        http.get(`${env.BOX_API_BASE_URL}/2.0/users/me`, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-
-          const responseData = {
-            id: authUserId,
-          };
-          return Response.json(responseData);
-        })
-      );
+      vi.resetAllMocks();
     });
-
-    test('should return users and nextPage when the token is valid and their is another page', async () => {
+    test('should return the auth user details', async () => {
+      setup();
       await expect(getAuthUser(validToken)).resolves.toStrictEqual({
         authUserId,
       });
     });
 
-    test('should throws when the token is invalid', async () => {
+    test('Should throw error when the user is not admin', async () => {
+      setup({
+        isAdmin: false,
+      });
+      await expect(getAuthUser(validToken)).rejects.toBeInstanceOf(BoxNotAdminError);
+    });
+
+    test('should throw error when the token is invalid', async () => {
+      setup();
       await expect(getAuthUser(invalidToken)).rejects.toBeInstanceOf(BoxError);
     });
   });
