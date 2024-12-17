@@ -1,6 +1,6 @@
 {
   "name": "@elba-security/box",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 4000",
@@ -8,26 +8,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "pg:studio": "drizzle-kit studio --port 4300",
     "test": "vitest run",
     "test:watch": "vitest",
-    "type-check": "tsc --noEmit",
-    "database:up": "docker-compose -p box --profile edge --env-file=.env.local up -d",
-    "database:down": "docker-compose -p box down --volumes",
-    "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
-    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts",
-    "database:open:pg": "drizzle-kit studio --config ../../drizzle.config.ts"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
     "@elba-security/inngest": "workspace:*",
     "@elba-security/logger": "workspace:*",
+    "@elba-security/nango": "workspace:*",
     "@elba-security/nextjs": "workspace:*",
     "@elba-security/sdk": "workspace:*",
     "@elba-security/utils": "workspace:*",
-    "@neondatabase/serverless": "catalog:",
-    "date-fns": "catalog:",
-    "drizzle-orm": "catalog:",
     "inngest": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
@@ -44,12 +36,9 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "dotenv": "catalog:",
-    "drizzle-kit": "catalog:",
     "eslint": "catalog:",
     "inngest-cli": "catalog:",
     "msw": "catalog:",
-    "postgres": "catalog:",
-    "testcontainers": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

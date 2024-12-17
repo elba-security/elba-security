@@ -1,15 +1,12 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/box/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
+import { getUsers, getAuthUser } from '@/connectors/box/users';
 import { type BoxUser } from '@/connectors/box/users';
-import { createElbaClient } from '@/connectors/elba/client';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
+import { nangoAPIClient } from '@/common/nango';
 
 const formatElbaUser = ({ user, authUserId }: { user: BoxUser; authUserId: string }): User => ({
   id: user.id,
@@ -44,30 +41,22 @@ export const synchronizeUsers = inngest.createFunction(
   },
   { event: 'box/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, nangoConnectionId, region, syncStartedAt, page } = event.data;
 
-    const [organisation] = await db
-      .select({
-        accessToken: organisationsTable.accessToken,
-        authUserId: organisationsTable.authUserId,
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const elba = createElbaClient({ organisationId, region: organisation.region });
-    const accessToken = await decrypt(organisation.accessToken);
-    const authUserId = organisation.authUserId;
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken, nextPage: page });
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+      const result = await getUsers({ accessToken: credentials.access_token, nextPage: page });
+      const { authUserId } = await getAuthUser(credentials.access_token);
 
-      const users = result.validUsers
-        .filter((user) => user.status === 'active')
-        .map((user) => formatElbaUser({ user, authUserId }));
+      const users = result.validUsers.map((user) => formatElbaUser({ user, authUserId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {
@@ -81,7 +70,6 @@ export const synchronizeUsers = inngest.createFunction(
       return result.nextPage;
     });
 
-    // if there is a next page enqueue a new sync user event
     if (nextPage) {
       await step.sendEvent('synchronize-users', {
         name: 'box/users.sync.requested',
@@ -95,7 +83,6 @@ export const synchronizeUsers = inngest.createFunction(
       };
     }
 
-    // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );
