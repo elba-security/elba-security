@@ -25,6 +25,7 @@ export type GetUsersParams = {
   accessToken: string;
   organizationUri: string;
   page?: string | null;
+  userUri?: string;
 };
 
 export type DeleteUsersParams = {
@@ -32,7 +33,7 @@ export type DeleteUsersParams = {
   userId: string;
 };
 
-export const getUsers = async ({ accessToken, organizationUri, page }: GetUsersParams) => {
+export const getUsers = async ({ accessToken, organizationUri, page, userUri }: GetUsersParams) => {
   const url = new URL(`${env.CALENDLY_API_BASE_URL}/organization_memberships`);
 
   url.searchParams.append('organization', organizationUri);
@@ -40,6 +41,10 @@ export const getUsers = async ({ accessToken, organizationUri, page }: GetUsersP
 
   if (page) {
     url.searchParams.append('page_token', page);
+  }
+
+  if (userUri) {
+    url.searchParams.append('user', userUri);
   }
 
   const response = await fetch(url.toString(), {
