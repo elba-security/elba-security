@@ -4,8 +4,9 @@ import { nangoAPIClient } from '@/common/nango';
 import { checkOrganisationPlan } from '@/connectors/calendly/organisation';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
-import { mapElbaConnectionError } from '@/connectors/common/error';
+import { CalendlyNotAdminError, mapElbaConnectionError } from '@/connectors/common/error';
 import { nangoRawCredentialsSchema } from '@/connectors/common/nango';
+import { getUsers } from '@/connectors/calendly/users';
 
 export const validateSourceInstallation = async ({
   organisationId,
@@ -27,6 +28,19 @@ export const validateSourceInstallation = async ({
     }
 
     const rawCredentials = nangoRawCredentialsSchema.parse(credentials.raw);
+
+    const {
+      validUsers: [currentUser],
+    } = await getUsers({
+      accessToken: credentials.access_token,
+      organizationUri: rawCredentials.organization,
+      userUri: rawCredentials.owner,
+    });
+
+    if (!currentUser || !['admin', 'owner'].includes(currentUser.role)) {
+      logger.error('User is not admin', { organisationId, region, nangoConnectionId, currentUser });
+      throw new CalendlyNotAdminError('User is not admin');
+    }
 
     await checkOrganisationPlan({
       accessToken: credentials.access_token,
@@ -59,7 +73,7 @@ export const validateSourceInstallation = async ({
 
     return { message: 'Source installation validated' };
   } catch (error) {
-    logger.error(`Failed to validate installation`, {
+    logger.error('Failed to validate installation', {
       organisationId,
       region,
       nangoConnectionId,
