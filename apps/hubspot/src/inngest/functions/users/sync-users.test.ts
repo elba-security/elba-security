@@ -34,10 +34,15 @@ describe('synchronize-users', () => {
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
       authUserId: 'auth-user',
     });
+    vi.spyOn(usersConnector, 'getAccountInfo').mockResolvedValue({
+      timeZone: 'test-timezone',
+      portalId: 123,
+      uiDomain: 'test.com',
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: '',
+      nextPage,
     });
     const [result, { step }] = setup({
       region,
@@ -58,6 +63,8 @@ describe('synchronize-users', () => {
         isFirstSync: false,
         syncStartedAt,
         page: nextPage,
+        region,
+        nangoConnectionId,
       },
     });
   });
@@ -71,6 +78,11 @@ describe('synchronize-users', () => {
     }));
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
       authUserId: 'auth-user',
+    });
+    vi.spyOn(usersConnector, 'getAccountInfo').mockResolvedValue({
+      timeZone: 'test-timezone',
+      portalId: 123,
+      uiDomain: 'test.com',
     });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
