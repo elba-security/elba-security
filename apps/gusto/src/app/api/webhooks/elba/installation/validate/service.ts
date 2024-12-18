@@ -44,7 +44,7 @@ export const validateSourceInstallation = async ({
           nangoConnectionId,
           isFirstSync: true,
           syncStartedAt: Date.now(),
-          page: null,
+          page: 0,
         },
       },
     ]);
