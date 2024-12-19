@@ -1,7 +1,8 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { type ConnectionErrorType } from '@elba-security/sdk';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
-import { unauthorizedMiddleware } from './middlewares/unauthorized-middleware';
+import { elbaConnectionErrorMiddleware } from './middlewares/elba-connection-error-middleware';
 
 export const inngest = new Inngest({
   id: 'notion',
@@ -9,6 +10,8 @@ export const inngest = new Inngest({
     'notion/users.sync.requested': {
       data: {
         organisationId: string;
+        region: string;
+        nangoConnectionId: string;
         isFirstSync: boolean;
         syncStartedAt: number;
         page: string | null;
@@ -22,9 +25,12 @@ export const inngest = new Inngest({
     'notion/app.uninstalled': {
       data: {
         organisationId: string;
+        region: string;
+        errorType: ConnectionErrorType;
+        errorMetadata?: unknown;
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware, unauthorizedMiddleware],
+  middleware: [rateLimitMiddleware, elbaConnectionErrorMiddleware],
   logger,
 });

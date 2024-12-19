@@ -1,14 +1,11 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/notion/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
+import { nangoAPIClient } from '@/common/nango';
 import { type NotionUser } from '@/connectors/notion/users';
-import { createElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUser = (user: NotionUser): User => ({
   id: user.id,
@@ -41,24 +38,19 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'notion/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, nangoConnectionId, region, syncStartedAt, page } = event.data;
 
-    const [organisation] = await db
-      .select({
-        token: organisationsTable.accessToken,
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
-
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken: token, page });
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
+      const result = await getUsers({ accessToken: credentials.access_token, page });
 
       const users = result.validUsers
         .filter((user) => user.object === 'user' && user.type === 'person')
