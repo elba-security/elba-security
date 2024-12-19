@@ -1,6 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/notion/users';
+import * as nangoAPIClient from '@/common/nango';
 import { syncUsers } from './sync-users';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
