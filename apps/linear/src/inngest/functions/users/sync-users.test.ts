@@ -10,7 +10,7 @@ const nangoConnectionId = 'nango-connection-id';
 
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
-const nextPage = '1';
+
 const users: usersConnector.LinearUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
   name: `name-${i}`,
@@ -18,11 +18,6 @@ const users: usersConnector.LinearUser[] = Array.from({ length: 2 }, (_, i) => (
   email: `user-${i}@foo.bar`,
   active: true,
 }));
-
-const user = {
-  authUserId: 'test-auth-user-id',
-  workspaceUrlKey: 'workspace-url-key',
-};
 
 const setup = createInngestFunctionMock(syncUsers, 'linear/users.sync.requested');
 
@@ -34,8 +29,15 @@ describe('synchronize-users', () => {
         credentials: { access_token: 'access-token' },
       }),
     }));
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue(user);
-
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
+      authUserId: 'auth-user',
+      workspaceUrlKey: 'workspace-url-key',
+    });
+    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: 'some page',
+    });
     const [result, { step }] = setup({
       organisationId,
       region,
@@ -52,9 +54,11 @@ describe('synchronize-users', () => {
       name: 'linear/users.sync.requested',
       data: {
         organisationId,
+        region,
+        nangoConnectionId,
         isFirstSync: false,
         syncStartedAt,
-        page: nextPage,
+        page: 'some page',
       },
     });
   });
