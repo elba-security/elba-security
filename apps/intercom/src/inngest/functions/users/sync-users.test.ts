@@ -9,7 +9,6 @@ const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 
 const syncStartedAt = Date.now();
-const nextPage = '1';
 const users: usersConnector.IntercomUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
   name: `name-${i}`,
@@ -53,7 +52,7 @@ describe('synchronize-users', () => {
         organisationId,
         isFirstSync: false,
         syncStartedAt,
-        page: nextPage,
+        page: 'some page',
         region,
         nangoConnectionId,
       },
