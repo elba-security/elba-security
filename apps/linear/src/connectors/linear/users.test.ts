@@ -116,7 +116,7 @@ describe('users connector', () => {
 
           return Response.json({
             data: {
-              viewer: { id: authUserId },
+              user: { id: authUserId },
               organization: { urlKey: workspaceUrlKey },
             },
           });
