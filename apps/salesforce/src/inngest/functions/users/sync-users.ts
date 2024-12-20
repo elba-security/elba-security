@@ -1,16 +1,17 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { z } from 'zod';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/salesforce/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
+import { getUsers, getAuthUser } from '@/connectors/salesforce/users';
+import { nangoAPIClient } from '@/common/nango';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { type SalesforceUser } from '@/connectors/salesforce/users';
-import { createElbaClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
+
+export const credentialsRawSchema = z.object({
+  instance_url: z.string().url(),
+});
 
 const formatElbaUserEmail = (user: SalesforceUser): string | undefined => {
   const emailSchema = z.string().email();
@@ -61,29 +62,38 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'salesforce/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, nangoConnectionId, region, syncStartedAt, page } = event.data;
 
-    const [organisation] = await db
-      .select({
-        accessToken: organisationsTable.accessToken,
-        region: organisationsTable.region,
-        instanceUrl: organisationsTable.instanceUrl,
-        authUserId: organisationsTable.authUserId,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const { accessToken, instanceUrl, authUserId, region } = organisation;
-
-    const elba = createElbaClient({ organisationId, region });
-    const token = await decrypt(accessToken);
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken: token, instanceUrl, offset: page });
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
+      const rawData = credentialsRawSchema.safeParse(credentials.raw);
+
+      if (!rawData.success) {
+        throw new NonRetriableError(
+          `Nango credentials.raw is invalid for the organisation with id=${organisationId}`
+        );
+      }
+
+      const { instance_url: instanceUrl } = rawData.data;
+
+      const result = await getUsers({
+        accessToken: credentials.access_token,
+        instanceUrl,
+        offset: page,
+      });
+      const { userId: authUserId } = await getAuthUser({
+        accessToken: credentials.access_token,
+        instanceUrl,
+      });
 
       const users = result.validUsers.map((user) =>
         formatElbaUser({
