@@ -1,38 +1,46 @@
-import { serializeLogObject } from '@elba-security/logger/src/serialize';
-import { nangoAPIClient } from '@/common/nango';
-import { getAuthUser } from '@/connectors/salesforce/users';
-import { createElbaOrganisationClient } from '@/connectors/elba/client';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { spyOnElba } from '@elba-security/test-utils';
 import { inngest } from '@/inngest/client';
-import { mapElbaConnectionError } from '@/connectors/common/error';
+import * as usersConnector from '@/connectors/salesforce/users';
+import * as nangoAPI from '@/common/nango';
+import { validateSourceInstallation } from './service';
 
-export const validateSourceInstallation = async ({
-  organisationId,
-  region,
-  nangoConnectionId,
-}: {
-  organisationId: string;
-  region: string;
-  nangoConnectionId: string;
-}) => {
-  const elba = createElbaOrganisationClient({
-    organisationId,
-    region,
+const organisationId = '00000000-0000-0000-0000-000000000002';
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
+const now = Date.now();
+
+describe('validateSourceInstallation', () => {
+  beforeAll(() => {
+    vi.setSystemTime(now);
   });
-  try {
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new Error('Could not retrieve Nango credentials');
-    }
 
-    const instanceUrl = credentials.raw.instance_url as string;
+  afterAll(() => {
+    vi.useRealTimers();
+  });
 
-    await getAuthUser({ accessToken: credentials.access_token, instanceUrl });
-
-    await elba.connectionStatus.update({
-      errorType: null,
+  it('should send request to sync the users and set the elba connection error null', async () => {
+    const elba = spyOnElba();
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token', raw: { instance_url: 'instance-url' } },
+      }),
     });
 
-    await inngest.send([
+    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
+      userId: 'auth-user-id',
+    });
+
+    await validateSourceInstallation({
+      organisationId,
+      nangoConnectionId,
+      region,
+    });
+
+    expect(send).toBeCalledTimes(1);
+    expect(send).toBeCalledWith([
       {
         name: 'salesforce/app.installed',
         data: {
@@ -46,20 +54,47 @@ export const validateSourceInstallation = async ({
           region,
           nangoConnectionId,
           isFirstSync: true,
-          syncStartedAt: Date.now(),
-          page: null,
+          syncStartedAt: now,
+          page: 0,
         },
       },
     ]);
-
-    return { message: 'Source installation validated' };
-  } catch (error) {
-    const errorType = mapElbaConnectionError(error);
-    await elba.connectionStatus.update({
-      errorType: errorType || 'unknown',
-      errorMetadata: serializeLogObject(error),
+    const elbaInstance = elba.mock.results[0]?.value;
+    expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
+    expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
+      errorType: null,
+    });
+  });
+  it('should throw an error when the nango credentials are not valid', async () => {
+    const elba = spyOnElba();
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: {},
+      }),
     });
 
-    return { message: 'Source installation validation failed' };
-  }
-};
+    await expect(
+      validateSourceInstallation({
+        organisationId,
+        nangoConnectionId,
+        region,
+      })
+    ).resolves.toStrictEqual({
+      message: 'Source installation validation failed',
+    });
+
+    const elbaInstance = elba.mock.results[0]?.value;
+    expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
+    expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
+      errorMetadata: {
+        name: 'Error',
+        cause: undefined,
+        message: 'Could not retrieve Nango credentials',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- convenience
+        stack: expect.any(String),
+      },
+      errorType: 'unknown',
+    });
+  });
+});

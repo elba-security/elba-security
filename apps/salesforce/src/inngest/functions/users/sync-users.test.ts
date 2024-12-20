@@ -26,7 +26,10 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: {
+          access_token: 'test-access-token',
+          raw: { instance_url: 'https://test-some-url.com' },
+        },
       }),
     }));
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
@@ -67,7 +70,10 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: {
+          access_token: 'test-access-token',
+          raw: { instance_url: 'https://test-some-url.com' },
+        },
       }),
     }));
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({

@@ -31,7 +31,6 @@ export const validateSourceInstallation = async ({
     await elba.connectionStatus.update({
       errorType: null,
     });
-
     await inngest.send([
       {
         name: 'salesforce/app.installed',

@@ -23,7 +23,10 @@ describe('deleteUser', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: {
+          access_token: 'test-access-token',
+          raw: { instance_url: 'https://test-some-url.com' },
+        },
       }),
     });
 

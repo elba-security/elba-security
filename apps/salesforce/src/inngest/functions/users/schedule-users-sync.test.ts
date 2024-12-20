@@ -120,7 +120,7 @@ describe('schedule-users-syncs', () => {
               nangoConnectionId,
               syncStartedAt: now,
               isFirstSync: false,
-              page: null,
+              page: 0,
             },
           }))
         )
