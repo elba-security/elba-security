@@ -15,7 +15,6 @@ const organisationId = '00000000-0000-0000-0000-000000000001';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const syncStartedAt = Date.now();
-const nextPage = '1';
 const users: usersConnector.ZoomUser[] = Array.from({ length: 4 }, (_, i) => ({
   id: `id-${i}`,
   first_name: `first_name-${i}`,
@@ -65,7 +64,7 @@ describe('synchronize-users', () => {
         nangoConnectionId,
         isFirstSync: false,
         syncStartedAt,
-        page: nextPage,
+        page: 'some page',
       },
     });
   });
