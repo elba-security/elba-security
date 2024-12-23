@@ -1,11 +1,9 @@
-import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUser as deleteDatadogUser } from '@/connectors/datadog/users';
-import { decrypt } from '@/common/crypto';
+import { nangoAPIClient } from '@/common/nango';
 import { env } from '@/common/env';
+import { credentialsRawSchema } from './sync-users';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -28,28 +26,22 @@ export const deleteUser = inngest.createFunction(
   },
   { event: 'datadog/users.delete.requested' },
   async ({ event }) => {
-    const { userId, organisationId } = event.data;
+    const { nangoConnectionId, userId } = event.data;
 
-    const [organisation] = await db
-      .select({
-        apiKey: organisationsTable.apiKey,
-        appKey: organisationsTable.appKey,
-        sourceRegion: organisationsTable.sourceRegion,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
 
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve ${userId}`);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
     }
-
-    const apiKey = await decrypt(organisation.apiKey);
-
+    const rawData = credentialsRawSchema.safeParse(credentials.raw);
+    if (!rawData.success) {
+      throw new NonRetriableError(`Nango credentials.raw is invalid`);
+    }
     await deleteDatadogUser({
       userId,
-      apiKey,
-      appKey: organisation.appKey,
-      sourceRegion: organisation.sourceRegion,
+      apiKey: rawData.data.apiKey,
+      appKey: rawData.data.appKey,
+      sourceRegion: rawData.data.sourceRegion,
     });
   }
 );

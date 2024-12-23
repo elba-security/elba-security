@@ -1,14 +1,19 @@
 import { type User } from '@elba-security/sdk';
 import { NonRetriableError } from 'inngest';
-import { eq } from 'drizzle-orm';
+import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { type DatadogUser, getUsers } from '@/connectors/datadog/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { getUsers , getAuthUser } from '@/connectors/datadog/users';
+import { type DatadogUser } from '@/connectors/datadog/users';
 import { inngest } from '@/inngest/client';
-import { decrypt } from '@/common/crypto';
-import { createElbaClient } from '@/connectors/elba/client';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
+import { nangoAPIClient } from '@/common/nango';
 import { getDatadogRegionURL } from '@/connectors/datadog/regions';
+
+export const credentialsRawSchema = z.object({
+  apiKey: z.string(),
+  appKey: z.string(),
+  sourceRegion: z.string(),
+});
 
 const formatElbaUserAuthMethod = (user: DatadogUser) => {
   if (user.attributes.mfa_enabled) {
@@ -70,42 +75,43 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'datadog/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, nangoConnectionId, region, syncStartedAt, page } = event.data;
 
-    const [organisation] = await db
-      .select({
-        apiKey: organisationsTable.apiKey,
-        appKey: organisationsTable.appKey,
-        sourceRegion: organisationsTable.sourceRegion,
-        authUserId: organisationsTable.authUserId,
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const elba = createElbaClient({
+    const elba = createElbaOrganisationClient({
       organisationId,
-      region: organisation.region,
+      region,
     });
 
-    const decryptedToken = await decrypt(organisation.apiKey);
-    const appKey = organisation.appKey;
-    const sourceRegion = organisation.sourceRegion;
-
     const nextPage = await step.run('list-users', async () => {
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+      const rawData = credentialsRawSchema.safeParse(credentials.raw);
+      if (!rawData.success) {
+        throw new NonRetriableError(`Nango credentials.raw is invalid`);
+      }
+
+      const sourceRegion = rawData.data.sourceRegion;
+      const { authUserId } = await getAuthUser({
+        apiKey: rawData.data.apiKey,
+        appKey: rawData.data.appKey,
+        sourceRegion,
+      });
+
       const result = await getUsers({
-        apiKey: decryptedToken,
-        appKey,
+        apiKey: rawData.data.apiKey,
+        appKey: rawData.data.appKey,
         sourceRegion,
         page,
       });
 
       const users = result.validUsers.map((user) =>
-        formatElbaUser({ user, sourceRegion, authUserId: organisation.authUserId })
+        formatElbaUser({ user, sourceRegion, authUserId })
       );
 
       if (result.invalidUsers.length > 0) {
