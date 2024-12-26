@@ -1,6 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/jira/users';
+import * as nangoAPIClient from '@/common/nango';
 import { syncUsers } from './sync-users';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
@@ -8,6 +9,9 @@ const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const syncStartedAt = Date.now();
 const nextPage = 1;
+const apiToken = 'test-access-token';
+const domain = 'test-domain';
+const email = 'test@email';
 const users: usersConnector.JiraUser[] = Array.from({ length: 2 }, (_, i) => ({
   accountId: `id-${i}`,
   displayName: `displayName-${i}`,
@@ -22,7 +26,10 @@ describe('synchronize-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { username: email, password: apiToken },
+        connection_config: {
+          subdomain: domain,
+        },
       }),
     }));
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
@@ -63,7 +70,10 @@ describe('synchronize-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { username: email, password: apiToken },
+        connection_config: {
+          subdomain: domain,
+        },
       }),
     }));
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({

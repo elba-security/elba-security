@@ -1,5 +1,6 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
+import * as nangoAPI from '@/common/nango';
 import * as usersConnector from '@/connectors/jira/users';
 import { deleteUser } from './delete-user';
 
@@ -24,7 +25,10 @@ describe('deleteUser', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { username: email, password: apiToken },
+        connection_config: {
+          subdomain: domain,
+        },
       }),
     });
     const [result] = setup({ organisationId, region, nangoConnectionId, userId });
