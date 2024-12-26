@@ -1,12 +1,13 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
+import * as nangoAPI from '@/common/nango';
 import * as usersConnector from '@/connectors/datadog/users';
 import { deleteUser } from './delete-user';
 
 const userId = 'user-id';
 const apiKey = 'test-access-token';
 const appKey = 'test-appKey';
-const sourceRegion = 'EU';
+const siteParameter = 'test.eu';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const nangoConnectionId = 'nango-connection-id';
 const region = 'us';
@@ -23,7 +24,11 @@ describe('deleteUser', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey },
+        connection_config: {
+          applicationKey: appKey,
+          siteParameter,
+        },
       }),
     });
 
@@ -36,7 +41,7 @@ describe('deleteUser', () => {
       userId,
       apiKey,
       appKey,
-      sourceRegion,
+      sourceRegion: siteParameter,
     });
   });
 });

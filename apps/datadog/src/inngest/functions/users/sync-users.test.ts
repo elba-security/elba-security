@@ -7,7 +7,9 @@ import { syncUsers } from './sync-users';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
-
+const apiKey = 'test-access-token';
+const appKey = 'test-appKey';
+const siteParameter = 'datadoghq.eu';
 const syncStartedAt = Date.now();
 const users: usersConnector.DatadogUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
@@ -29,7 +31,11 @@ describe('synchronize-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey },
+        connection_config: {
+          applicationKey: appKey,
+          siteParameter,
+        },
       }),
     }));
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
@@ -70,7 +76,11 @@ describe('synchronize-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey },
+        connection_config: {
+          applicationKey: appKey,
+          siteParameter,
+        },
       }),
     }));
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
@@ -79,7 +89,7 @@ describe('synchronize-users', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: 1,
+      nextPage: 0,
     });
 
     const [result, { step }] = setup({

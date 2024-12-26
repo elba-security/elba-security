@@ -9,9 +9,9 @@ const organisationId = '00000000-0000-0000-0000-000000000002';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const now = Date.now();
-const apiToken = 'test-access-token';
-const domain = 'test-domain';
-const email = 'test@email';
+const apiKey = 'test-access-token';
+const appKey = 'test-appKey';
+const siteParameter = 'datadoghq.eu';
 
 describe('validateSourceInstallation', () => {
   beforeAll(() => {
@@ -27,9 +27,10 @@ describe('validateSourceInstallation', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { username: email, password: apiToken },
+        credentials: { apiKey },
         connection_config: {
-          subdomain: domain,
+          applicationKey: appKey,
+          siteParameter,
         },
       }),
     });
@@ -61,7 +62,7 @@ describe('validateSourceInstallation', () => {
           nangoConnectionId,
           isFirstSync: true,
           syncStartedAt: now,
-          page: null,
+          page: 0,
         },
       },
     ]);
