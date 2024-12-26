@@ -120,7 +120,6 @@ export const getAuthUser = async ({ apiToken, domain, email }: GetAuthUserParams
   }
 
   const resData: unknown = await response.json();
-
   const result = authUserIdResponseSchema.safeParse(resData);
   if (!result.success) {
     logger.error('Invalid Jira authUser id response', { resData });
