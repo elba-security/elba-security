@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
 import { DatadogError } from '../common/error';
-import { getDatadogRegionAPIBaseURL } from './regions';
 
 const datadogUserSchema = z.object({
   id: z.string().min(1),
@@ -44,7 +43,7 @@ export type DeleteUsersParams = {
 const pageSize = env.DATADOG_USERS_SYNC_BATCH_SIZE;
 
 export const getUsers = async ({ apiKey, appKey, sourceRegion, page = 0 }: GetUsersParams) => {
-  const url = new URL(`${getDatadogRegionAPIBaseURL(sourceRegion)}/api/v2/users`);
+  const url = new URL(`https://api.${sourceRegion}/api/v2/users`);
   url.searchParams.append('filter[status]', 'Active');
   url.searchParams.append('page[size]', String(pageSize));
   url.searchParams.append('page[number]', String(page));
@@ -107,7 +106,7 @@ const authUserResponseSchema = z.object({
 });
 
 export const getAuthUser = async ({ apiKey, appKey, sourceRegion }: GetAuthUser) => {
-  const url = new URL(`${getDatadogRegionAPIBaseURL(sourceRegion)}/api/v2/current_user`);
+  const url = new URL(`https://api.${sourceRegion}/api/v2/current_user`);
 
   const response = await fetch(url.toString(), {
     method: 'GET',
@@ -135,7 +134,7 @@ export const getAuthUser = async ({ apiKey, appKey, sourceRegion }: GetAuthUser)
 };
 
 export const deleteUser = async ({ apiKey, appKey, sourceRegion, userId }: DeleteUsersParams) => {
-  const url = new URL(`${getDatadogRegionAPIBaseURL(sourceRegion)}/api/v2/users/${userId}`);
+  const url = new URL(`https://api.${sourceRegion}/api/v2/users/${userId}`);
 
   const response = await fetch(url.toString(), {
     method: 'PATCH',

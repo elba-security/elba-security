@@ -1,9 +1,8 @@
-import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { deleteUser as deleteDatadogUser } from '@/connectors/datadog/users';
 import { nangoAPIClient } from '@/common/nango';
 import { env } from '@/common/env';
-import { credentialsRawSchema } from './sync-users';
+import { nangoConnectionConfigSchema, nangoCredentialsSchema } from '@/connectors/common/nango';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -28,20 +27,22 @@ export const deleteUser = inngest.createFunction(
   async ({ event }) => {
     const { nangoConnectionId, userId } = event.data;
 
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    const { credentials, connection_config: connectionConfig } =
+      await nangoAPIClient.getConnection(nangoConnectionId);
+    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
+    if (!nangoCredentialsResult.success) {
+      throw new Error('Could not retrieve Nango credentials');
+    }
+    const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
+    if (!nangoConnectionConfigResult.success) {
+      throw new Error('Could not retrieve Nango connection config data');
+    }
 
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new NonRetriableError('Could not retrieve Nango credentials');
-    }
-    const rawData = credentialsRawSchema.safeParse(credentials.raw);
-    if (!rawData.success) {
-      throw new NonRetriableError(`Nango credentials.raw is invalid`);
-    }
     await deleteDatadogUser({
       userId,
-      apiKey: rawData.data.apiKey,
-      appKey: rawData.data.appKey,
-      sourceRegion: rawData.data.sourceRegion,
+      apiKey: nangoCredentialsResult.data.apiKey,
+      appKey: nangoConnectionConfigResult.data.applicationKey,
+      sourceRegion: nangoConnectionConfigResult.data.siteParameter,
     });
   }
 );
