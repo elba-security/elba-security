@@ -8,7 +8,7 @@ const userId = 'user-id';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const nangoConnectionId = 'nango-connection-id';
 const region = 'us';
-const apiDomain = 'test-api-domain';
+const apiDomain = 'https://test-domain.com';
 
 // Setup function mock for Inngest
 const setup = createInngestFunctionMock(deleteUser, 'pipedrive/users.delete.requested');
@@ -23,7 +23,12 @@ describe('deleteUser', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: {
+          access_token: 'access-token',
+          raw: {
+            api_domain: 'https://test-domain.com',
+          },
+        },
       }),
     });
     const [result] = setup({ organisationId, region, nangoConnectionId, userId });
