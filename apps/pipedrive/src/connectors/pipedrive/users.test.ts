@@ -18,7 +18,6 @@ const validUsers: PipedriveUser[] = Array.from({ length: 5 }, (_, i) => ({
   is_admin: 1,
   is_you: false,
   email: `user-${i}@foo.bar`,
-  last_login: `2021-09-0${1 + i}T00:00:00Z`,
 }));
 
 const invalidUsers = [];

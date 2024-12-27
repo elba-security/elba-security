@@ -1,7 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/pipedrive/users';
-import * as nangoAPIClient from '@/common/nango';
+import * as nangoAPI from '@/common/nango';
 import { syncUsers } from './sync-users';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
@@ -23,11 +23,16 @@ const setup = createInngestFunctionMock(syncUsers, 'pipedrive/users.sync.request
 describe('synchronize-users', () => {
   test('should continue the sync when there is a next page', async () => {
     // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: {
+          access_token: 'access-token',
+          raw: {
+            api_domain: 'https://test-domain.com',
+          },
+        },
       }),
-    }));
+    });
 
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -53,7 +58,7 @@ describe('synchronize-users', () => {
         organisationId,
         isFirstSync: false,
         syncStartedAt,
-        page: 'some page',
+        page: '1',
         region,
         nangoConnectionId,
       },
@@ -62,11 +67,16 @@ describe('synchronize-users', () => {
 
   test('should finalize the sync when there is a no next page', async () => {
     // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: {
+          access_token: 'access-token',
+          raw: {
+            api_domain: 'https://test-domain.com',
+          },
+        },
       }),
-    }));
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
