@@ -61,7 +61,7 @@ describe('schedule-users-syncs', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'sync-organisations-users',
+      'sync-users',
       [...regionOrganisations].flatMap(([region, organisations]) =>
         organisations.map(({ id: organisationId, nangoConnectionId }) => ({
           name: 'clickup/users.sync.requested',
@@ -107,7 +107,7 @@ describe('schedule-users-syncs', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'synchronize-users',
+      'sync-users',
       [...regionOrganisations]
         .filter(([region]) => region !== 'us')
         .flatMap(([region, organisations]) =>
@@ -118,8 +118,7 @@ describe('schedule-users-syncs', () => {
               organisationId,
               nangoConnectionId,
               syncStartedAt: now,
-              isFirstSync: false,
-              page: null,
+              isFirstSync: true,
             },
           }))
         )
