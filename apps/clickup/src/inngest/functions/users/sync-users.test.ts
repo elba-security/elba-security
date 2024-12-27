@@ -1,6 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/clickup/users';
+import * as teamIdsConnector from '@/connectors/clickup/teams';
 import * as nangoAPIClient from '@/common/nango';
 import { syncUsers } from './sync-users';
 
@@ -34,6 +35,11 @@ describe('sync-users', () => {
       validUsers,
       invalidUsers,
     });
+    vi.spyOn(teamIdsConnector, 'getTeamIds').mockResolvedValue([
+      {
+        id: 'team-id',
+      },
+    ]);
 
     const [result] = setup({
       region,

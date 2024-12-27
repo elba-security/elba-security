@@ -2,6 +2,7 @@ import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as nangoAPI from '@/common/nango';
 import * as usersConnector from '@/connectors/clickup/users';
+import * as teamIdsConnector from '@/connectors/clickup/teams';
 import { deleteUser } from './delete-user';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
@@ -21,6 +22,12 @@ describe('delete-user-request', () => {
         credentials: { access_token: 'access-token' },
       }),
     });
+
+    vi.spyOn(teamIdsConnector, 'getTeamIds').mockResolvedValue([
+      {
+        id: 'team-id',
+      },
+    ]);
 
     const [result] = setup({ organisationId, region, nangoConnectionId, userId });
 

@@ -39,7 +39,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
 
     if (organisations.length) {
       await step.sendEvent(
-        'sync-organisations-users',
+        'sync-users',
         organisations.map(({ organisationId, nangoConnectionId, region }) => ({
           name: 'clickup/users.sync.requested',
           data: {

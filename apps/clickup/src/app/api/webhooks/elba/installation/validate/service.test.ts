@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { spyOnElba } from '@elba-security/test-utils';
 import { inngest } from '@/inngest/client';
-import * as usersConnector from '@/connectors/clickup/users';
+import * as teamIdsConnector from '@/connectors/clickup/teams';
 import * as nangoAPI from '@/common/nango';
 import { validateSourceInstallation } from './service';
 
@@ -29,9 +29,11 @@ describe('validateSourceInstallation', () => {
     });
 
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserId: 'auth-user-id',
-    });
+    vi.spyOn(teamIdsConnector, 'getTeamIds').mockResolvedValue([
+      {
+        id: 'team-id-0',
+      },
+    ]);
 
     await validateSourceInstallation({
       organisationId,
