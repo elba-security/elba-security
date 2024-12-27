@@ -108,7 +108,7 @@ describe('schedule-users-syncs', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'synchronize-users',
+      'sync-users',
       [...regionOrganisations]
         .filter(([region]) => region !== 'us')
         .flatMap(([region, organisations]) =>
@@ -119,7 +119,7 @@ describe('schedule-users-syncs', () => {
               organisationId,
               nangoConnectionId,
               syncStartedAt: now,
-              isFirstSync: false,
+              isFirstSync: true,
               page: null,
             },
           }))

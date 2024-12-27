@@ -1,5 +1,6 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
+import * as workspacesConnector from '@/connectors/bitbucket/workspaces';
 import * as usersConnector from '@/connectors/bitbucket/users';
 import * as nangoAPIClient from '@/common/nango';
 import { syncUsers } from './sync-users';
@@ -31,10 +32,16 @@ describe('syncUsers', () => {
       }),
     }));
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      uuid: 'account-id',
-      apiBaseUri: 'https://api.local',
-      authUserId: 'auth-user',
+      uuid: 'auth-user-id',
+      display_name: 'test-display-name',
+      type: 'user',
     });
+    vi.spyOn(workspacesConnector, 'getWorkspaces').mockResolvedValue([
+      {
+        uuid: 'test-uuid',
+        name: 'test-name',
+      },
+    ]);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -73,10 +80,16 @@ describe('syncUsers', () => {
       }),
     }));
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      uuid: 'account-id',
-      apiBaseUri: 'https://api.local',
-      authUserId: 'auth-user',
+      uuid: 'auth-user-id',
+      display_name: 'test-display-name',
+      type: 'user',
     });
+    vi.spyOn(workspacesConnector, 'getWorkspaces').mockResolvedValue([
+      {
+        uuid: 'test-uuid',
+        name: 'test-name',
+      },
+    ]);
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
