@@ -1,14 +1,13 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/calendly/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
+import { nangoAPIClient } from '@/common/nango';
 import { type CalendlyUser } from '@/connectors/calendly/users';
-import { createElbaClient } from '@/connectors/elba/client';
+import { nangoRawCredentialsSchema } from '@/connectors/common/nango';
+import { checkOrganisationPlan } from '@/connectors/calendly/organisation';
 
 // extract uuid from user's unique uri like this: "https://api.calendly.com/organization_memberships/AAAAAAAAAAAAAAAA"
 const extractUUID = (user: CalendlyUser): string => {
@@ -16,6 +15,7 @@ const extractUUID = (user: CalendlyUser): string => {
   const match = regex.exec(user.uri);
   return match?.groups?.uuid ? match.groups.uuid : user.user.email;
 };
+
 const formatElbaUser = ({
   user,
   authUserUri,
@@ -56,29 +56,36 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'calendly/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
-
-    const [organisation] = await db
-      .select({
-        token: organisationsTable.accessToken,
-        authUserUri: organisationsTable.authUserUri,
-        region: organisationsTable.region,
-        organizationUri: organisationsTable.organizationUri,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
-    const authUserUri = organisation.authUserUri;
+    const { organisationId, nangoConnectionId, region, syncStartedAt, page } = event.data;
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
 
     const nextPage = await step.run('list-users', async () => {
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
+      const rawCredentials = nangoRawCredentialsSchema.safeParse(credentials.raw);
+
+      if (!rawCredentials.success) {
+        throw new NonRetriableError(
+          `Nango credentials.raw is invalid for the organisation with id=${organisationId}`
+        );
+      }
+
+      const { organization: organizationUri, owner: authUserUri } = rawCredentials.data;
+
+      await checkOrganisationPlan({
+        accessToken: credentials.access_token,
+        organizationUri,
+      });
+
       const result = await getUsers({
-        accessToken: token,
-        organizationUri: organisation.organizationUri,
+        accessToken: credentials.access_token,
+        organizationUri,
         page,
       });
 
