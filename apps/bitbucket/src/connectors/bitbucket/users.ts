@@ -46,6 +46,7 @@ export const getUsers = async ({ accessToken, workspaceId, page }: GetUsersParam
   }
 
   const resData: unknown = await response.json();
+
   const result = getUsersResponseSchema.parse(resData);
 
   const validUsers: BitbucketUser[] = [];
@@ -53,7 +54,11 @@ export const getUsers = async ({ accessToken, workspaceId, page }: GetUsersParam
 
   for (const user of result.values) {
     const userResult = bitbucketUserSchema.safeParse(user);
-    if (userResult.success && userResult.data.user.type === 'user') {
+    if (userResult.success) {
+      if (userResult.data.user.type !== 'user') {
+        continue;
+      }
+
       validUsers.push(userResult.data);
     } else {
       invalidUsers.push(user);

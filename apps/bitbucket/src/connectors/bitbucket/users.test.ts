@@ -36,15 +36,10 @@ describe('users connector', () => {
 
             const url = new URL(request.url);
             const position = url.searchParams.get('page');
-            const returnData =
-              position !== endPosition
-                ? {
-                    values: validUsers,
-                    next: nextUri,
-                  }
-                : {
-                    values: validUsers,
-                  };
+            const returnData = {
+              values: validUsers,
+              ...(position !== endPosition ? { next: nextUri } : {}),
+            };
             return Response.json(returnData);
           }
         )

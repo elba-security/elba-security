@@ -62,7 +62,7 @@ export const syncUsers = inngest.createFunction(
 
       const result = await getUsers({
         accessToken: credentials.access_token,
-        workspaceId: workspaceIds[0].uuid,
+        workspaceId: workspaceIds[0].uuid, // TODO: We should not pick the first workspace, it must be selected by the user
         page,
       });
 
