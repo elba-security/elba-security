@@ -27,7 +27,7 @@ const linearResponseSchema = z.object({
 
 const authUserResponseSchema = z.object({
   data: z.object({
-    viewer: z.object({
+    user: z.object({
       id: z.string(),
     }),
     organization: z.object({
@@ -136,12 +136,12 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
 export const getAuthUser = async (accessToken: string) => {
   const query = {
     query: `
-      query WhoAmIAndAndOrganisation {
+      query {
+        user(id: "me") {
+          id
+        }
         organization {
           urlKey
-        }
-        viewer {
-          id
         }
       }
     `,
@@ -170,7 +170,7 @@ export const getAuthUser = async (accessToken: string) => {
   }
 
   return {
-    authUserId: result.data.data.viewer.id,
+    authUserId: result.data.data.user.id,
     workspaceUrlKey: result.data.data.organization.urlKey,
   };
 };
