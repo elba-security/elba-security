@@ -13,10 +13,13 @@ const syncedBefore = Date.now();
 
 const users: usersConnector.LinearUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
-  name: `name-${i}`,
-  username: `username-${i}`,
+  displayName: `name-${i}`,
   email: `user-${i}@foo.bar`,
   active: true,
+  admin: false,
+  organization: {
+    urlKey: 'workspace-url-key',
+  },
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'linear/users.sync.requested');
@@ -31,7 +34,6 @@ describe('synchronize-users', () => {
     }));
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
       authUserId: 'auth-user',
-      workspaceUrlKey: 'workspace-url-key',
     });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
