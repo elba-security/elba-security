@@ -1,4 +1,5 @@
 import { serializeLogObject } from '@elba-security/logger/src/serialize';
+import { logger } from '@elba-security/logger';
 import { nangoAPIClient } from '@/common/nango';
 import { getAuthUser } from '@/connectors/zoom/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
@@ -25,6 +26,7 @@ export const validateSourceInstallation = async ({
     }
 
     await getAuthUser(credentials.access_token);
+
     await elba.connectionStatus.update({
       errorType: null,
     });
@@ -51,7 +53,14 @@ export const validateSourceInstallation = async ({
 
     return { message: 'Source installation validated' };
   } catch (error) {
+    logger.error('Failed to validate installation', {
+      organisationId,
+      region,
+      nangoConnectionId,
+      error,
+    });
     const errorType = mapElbaConnectionError(error);
+
     await elba.connectionStatus.update({
       errorType: errorType || 'unknown',
       errorMetadata: serializeLogObject(error),
