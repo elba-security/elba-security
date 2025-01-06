@@ -1,25 +1,17 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
+import * as nangoAPI from '@/common/nango';
 import * as usersConnector from '@/connectors/jira/users';
-import { organisationsTable } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
-import { db } from '@/database/client';
 import { deleteUser } from './delete-user';
 
 const userId = 'user-id';
 const apiToken = 'test-access-token';
 const domain = 'test-domain';
 const email = 'test@email';
-const authUserId = 'test-authUser-id';
 
-const organisation = {
-  id: '00000000-0000-0000-0000-000000000001',
-  apiToken: await encrypt(apiToken),
-  region: 'us',
-  domain,
-  email,
-  authUserId,
-};
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const nangoConnectionId = 'nango-connection-id';
+const region = 'us';
 
 const setup = createInngestFunctionMock(deleteUser, 'jira/users.delete.requested');
 
@@ -30,9 +22,16 @@ describe('deleteUser', () => {
 
   test('should delete user', async () => {
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
-    await db.insert(organisationsTable).values(organisation);
-
-    const [result] = setup({ userId, organisationId: organisation.id });
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { username: email, password: apiToken },
+        connection_config: {
+          subdomain: domain,
+        },
+      }),
+    });
+    const [result] = setup({ organisationId, region, nangoConnectionId, userId });
 
     await expect(result).resolves.toStrictEqual(undefined);
 
