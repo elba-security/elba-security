@@ -17,7 +17,7 @@ describe('deleteUser', () => {
   });
 
   test('should delete users', async () => {
-    vi.spyOn(usersConnector, 'deleteUsers').mockResolvedValueOnce();
+    vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
