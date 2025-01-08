@@ -101,6 +101,7 @@ describe('validateSourceInstallation', () => {
       errorType: 'not_admin',
     });
   });
+
   it('should throw an error when the nango credentials are not valid', async () => {
     const elba = spyOnElba();
     // @ts-expect-error -- this is a mock
