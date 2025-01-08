@@ -74,7 +74,11 @@ export const getUsers = async ({ apiToken, domain, email, page }: GetUsersParams
 
   for (const user of users) {
     const result = jiraUserSchema.safeParse(user);
-    if (result.success && result.data.accountType === 'atlassian' && result.data.active) {
+    if (result.success) {
+      if (result.data.accountType !== 'atlassian' || !result.data.active) {
+        continue;
+      }
+
       validUsers.push(result.data);
     } else {
       invalidUsers.push(user);
