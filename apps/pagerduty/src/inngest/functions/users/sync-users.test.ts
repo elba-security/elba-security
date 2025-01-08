@@ -1,6 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/pagerduty/users';
+import * as nangoAPI from '@/common/nango';
 import { syncUsers } from './sync-users';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
@@ -22,18 +23,18 @@ const setup = createInngestFunctionMock(syncUsers, 'pagerduty/users.sync.request
 describe('sync-users', () => {
   test('should continue the sync when there is a next page', async () => {
     // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
         credentials: { access_token: 'access-token' },
       }),
-    }));
+    });
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
       authUserUrl: 'https://test-domain.pagerduty.com',
     });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: 'some page',
+      nextPage: 1,
     });
 
     const [result, { step }] = setup({
@@ -42,7 +43,7 @@ describe('sync-users', () => {
       nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
-      page: 'some after',
+      page: '1',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -56,25 +57,25 @@ describe('sync-users', () => {
         nangoConnectionId,
         isFirstSync: false,
         syncStartedAt,
-        page: 'some page',
+        page: '1',
       },
     });
   });
 
   test('should finalize the sync when there is a no next page', async () => {
     // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
         credentials: { access_token: 'access-token' },
       }),
-    }));
+    });
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
       authUserUrl: 'https://test-domain.pagerduty.com',
     });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: 'some page',
+      nextPage: null,
     });
 
     const [result, { step }] = setup({
