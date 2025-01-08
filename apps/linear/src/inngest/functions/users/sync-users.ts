@@ -7,13 +7,21 @@ import { getUsers, getAuthUser } from '@/connectors/linear/users';
 import { type LinearUser } from '@/connectors/linear/users';
 import { nangoAPIClient } from '@/common/nango';
 
-const formatElbaUser = ({ user, authUserId }: { user: LinearUser; authUserId: string }): User => ({
+const formatElbaUser = ({
+  user,
+  authUserId,
+  workspaceUrlKey,
+}: {
+  user: LinearUser;
+  authUserId: string;
+  workspaceUrlKey: string;
+}): User => ({
   id: user.id,
   displayName: user.displayName,
   email: user.email,
   additionalEmails: [],
   isSuspendable: user.id !== authUserId,
-  url: `https://linear.app/${user.organization.urlKey}/settings/members`,
+  url: `https://linear.app/${workspaceUrlKey}/settings/members`,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -56,7 +64,9 @@ export const syncUsers = inngest.createFunction(
       const result = await getUsers({ accessToken: credentials.access_token, afterCursor: page });
       const { authUserId } = await getAuthUser(credentials.access_token);
 
-      const users = result.validUsers.map((user) => formatElbaUser({ user, authUserId }));
+      const users = result.validUsers.map((user) =>
+        formatElbaUser({ user, authUserId, workspaceUrlKey: result.workspaceUrlKey })
+      );
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

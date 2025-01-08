@@ -9,15 +9,15 @@ const linearUserSchema = z.object({
   displayName: z.string(),
   active: z.boolean(),
   admin: z.boolean(),
-  organization: z.object({
-    urlKey: z.string(),
-  }),
 });
 
 export type LinearUser = z.infer<typeof linearUserSchema>;
 
 const linearResponseSchema = z.object({
   data: z.object({
+    organization: z.object({
+      urlKey: z.string(),
+    }),
     users: z.object({
       nodes: z.array(z.unknown()),
       pageInfo: z.object({
@@ -43,6 +43,9 @@ export const getUsers = async ({ accessToken, afterCursor }: GetUsersParams) => 
   const query = {
     query: `
       query($afterCursor: String, $perPage: Int) {
+        organization {
+          urlKey
+        }
         users(first: $perPage, after: $afterCursor) {
           nodes {
             id
@@ -51,9 +54,6 @@ export const getUsers = async ({ accessToken, afterCursor }: GetUsersParams) => 
             name
             active
             admin
-            organization {
-              urlKey
-            }
           }
           pageInfo {
             hasNextPage
@@ -103,6 +103,7 @@ export const getUsers = async ({ accessToken, afterCursor }: GetUsersParams) => 
   }
 
   return {
+    workspaceUrlKey: data.organization.urlKey,
     validUsers,
     invalidUsers,
     nextPage: data.users.pageInfo.hasNextPage ? data.users.pageInfo.endCursor : null,

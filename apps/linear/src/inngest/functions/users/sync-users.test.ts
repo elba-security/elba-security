@@ -11,15 +11,14 @@ const nangoConnectionId = 'nango-connection-id';
 const syncStartedAt = Date.now();
 const syncedBefore = Date.now();
 
+const workspaceUrlKey = 'workspace-url-key';
+
 const users: usersConnector.LinearUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
   displayName: `name-${i}`,
   email: `user-${i}@foo.bar`,
   active: true,
   admin: false,
-  organization: {
-    urlKey: 'workspace-url-key',
-  },
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'linear/users.sync.requested');
@@ -36,6 +35,7 @@ describe('synchronize-users', () => {
       authUserId: 'auth-user',
     });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
+      workspaceUrlKey,
       validUsers: users,
       invalidUsers: [],
       nextPage: 'some page',
@@ -68,6 +68,7 @@ describe('synchronize-users', () => {
   test('should finalize the sync when there is a no next page', async () => {
     const elba = spyOnElba();
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
+      workspaceUrlKey,
       validUsers: users,
       invalidUsers: [],
       nextPage: null,
