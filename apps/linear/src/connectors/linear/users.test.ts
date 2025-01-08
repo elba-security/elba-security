@@ -12,6 +12,7 @@ const nextCursor = '1';
 const userId = 'test-id';
 
 const authUserId = 'test-auth-user-id';
+const workspaceUrlKey = 'workspace-url-key';
 
 const validUsers: LinearUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
@@ -19,9 +20,6 @@ const validUsers: LinearUser[] = Array.from({ length: 5 }, (_, i) => ({
   email: `user-${i}@foo.bar`,
   active: true,
   admin: false,
-  organization: {
-    urlKey: 'workspace-url-key',
-  },
 }));
 
 const invalidUsers = [];
@@ -42,6 +40,9 @@ describe('users connector', () => {
 
           return Response.json({
             data: {
+              organization: {
+                urlKey: workspaceUrlKey,
+              },
               users: {
                 nodes: [...validUsers, ...invalidUsers],
                 pageInfo: {
@@ -59,6 +60,7 @@ describe('users connector', () => {
       await expect(
         getUsers({ accessToken: validToken, afterCursor: 'start' })
       ).resolves.toStrictEqual({
+        workspaceUrlKey,
         validUsers,
         invalidUsers,
         nextPage: nextCursor,
@@ -69,6 +71,7 @@ describe('users connector', () => {
       await expect(
         getUsers({ accessToken: validToken, afterCursor: endCursor })
       ).resolves.toStrictEqual({
+        workspaceUrlKey,
         validUsers,
         invalidUsers,
         nextPage: null,
