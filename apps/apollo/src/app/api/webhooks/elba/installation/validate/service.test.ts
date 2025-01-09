@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { spyOnElba } from '@elba-security/test-utils';
 import { inngest } from '@/inngest/client';
+import * as usersConnector from '@/connectors/apollo/users';
 import * as nangoAPI from '@/common/nango';
 import { validateSourceInstallation } from './service';
 
@@ -8,6 +9,13 @@ const organisationId = '00000000-0000-0000-0000-000000000002';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const now = Date.now();
+
+const users: usersConnector.ApolloUser[] = Array.from({ length: 2 }, (_, i) => ({
+  id: `45a76301-f1dd-4a77-b12f-9d7d3fca3c9${i}`,
+  name: `name-${i}`,
+  email: `user-${i}@foo.bar`,
+  deleted: false,
+}));
 
 describe('validateSourceInstallation', () => {
   beforeAll(() => {
@@ -23,11 +31,16 @@ describe('validateSourceInstallation', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey: 'api-key' },
       }),
     });
 
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
+    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: 1,
+    });
 
     await validateSourceInstallation({
       organisationId,
@@ -51,7 +64,7 @@ describe('validateSourceInstallation', () => {
           nangoConnectionId,
           isFirstSync: true,
           syncStartedAt: now,
-          page: null,
+          page: 1,
         },
       },
     ]);
