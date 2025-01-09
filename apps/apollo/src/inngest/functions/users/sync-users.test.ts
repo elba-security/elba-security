@@ -1,6 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/apollo/users';
+import * as nangoAPIClient from '@/common/nango';
 import { synchronizeUsers } from './sync-users';
 
 const nextPage = 2;
@@ -24,14 +25,14 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey: 'api-key' },
       }),
     }));
 
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: 1,
+      nextPage: 2,
     });
 
     const [result, { step }] = setup({
@@ -40,7 +41,7 @@ describe('sync-users', () => {
       nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
-      page: 1,
+      page: 2,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -63,7 +64,7 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey: 'api-key' },
       }),
     }));
 
