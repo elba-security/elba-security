@@ -10,6 +10,14 @@ const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const now = Date.now();
 
+const users: usersConnector.SendgridUser[] = Array.from({ length: 2 }, (_, i) => ({
+  username: `username-${i}`,
+  email: `user-${i}@foo.bar`,
+  first_name: `first_name-${i}`,
+  last_name: `last_name-${i}`,
+  user_type: 'teammate',
+}));
+
 describe('validateSourceInstallation', () => {
   beforeAll(() => {
     vi.setSystemTime(now);
@@ -24,13 +32,16 @@ describe('validateSourceInstallation', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey: 'api-key' },
       }),
     });
 
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserId: 'auth-user-id',
+
+    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: 1,
     });
 
     await validateSourceInstallation({

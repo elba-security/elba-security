@@ -61,7 +61,7 @@ describe('sendgrid-schedule-users-sync', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'sendgrid-sync-users',
+      'synchronize-users',
       [...regionOrganisations].flatMap(([region, organisations]) =>
         organisations.map(({ id: organisationId, nangoConnectionId }) => ({
           name: 'sendgrid/users.sync.requested',

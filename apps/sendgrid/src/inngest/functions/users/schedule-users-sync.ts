@@ -39,7 +39,7 @@ export const scheduleUsersSync = inngest.createFunction(
 
     if (organisations.length) {
       await step.sendEvent(
-        'sendgrid-sync-users',
+        'synchronize-users',
         organisations.map(({ organisationId, nangoConnectionId, region }) => ({
           name: 'sendgrid/users.sync.requested',
           data: {

@@ -33,7 +33,7 @@ describe('sync-users', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: 2,
+      nextPage,
     });
 
     const [result, { step }] = setup({
