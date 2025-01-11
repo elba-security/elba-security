@@ -14,7 +14,6 @@ const authUserId = 12345;
 const validUsers: AircallUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: i,
   name: `name-${i}`,
-  availability_status: 'available',
   email: `user-${i}@foo.bar`,
 }));
 

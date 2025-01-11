@@ -6,7 +6,6 @@ import { AircallError } from '../common/error';
 const aircallUserSchema = z.object({
   id: z.number(),
   name: z.string(),
-  availability_status: z.string(),
   email: z.string(),
 });
 
@@ -58,6 +57,8 @@ export const getUsers = async ({ token, nextPageLink }: GetUsersParams) => {
 
   for (const node of users) {
     const result = aircallUserSchema.safeParse(node);
+    // User should be validated based on the status, at the moment we don't have any option to validate the user,
+    // `availability_status` key gives current working status of the User. not actual status of the user.
     if (result.success) {
       validUsers.push(result.data);
     } else {
