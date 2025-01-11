@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { GustoError } from '../common/error';
 
 const gustoUserSchema = z.object({
@@ -44,6 +44,7 @@ export const getUsers = async ({ accessToken, page, companyId }: GetUsersParams)
     headers: {
       Accept: 'application/json',
       Authorization: `Bearer ${accessToken}`,
+      'X-Gusto-API-Version': '2024-04-01',
     },
   });
 
@@ -66,7 +67,7 @@ export const getUsers = async ({ accessToken, page, companyId }: GetUsersParams)
       invalidUsers.push(user);
     }
   }
-  // Extract pagination information from headers
+
   const totalPages = Number(response.headers.get('X-Total-Pages'));
   return {
     validUsers,
@@ -83,6 +84,7 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
+      'X-Gusto-API-Version': '2024-04-01',
     },
     body: JSON.stringify({
       effective_date: String(today), // Use today's date
@@ -146,6 +148,7 @@ export const getAuthUser = async ({ accessToken, adminId, companyId }: GetAuthUs
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
+      'X-Gusto-API-Version': '2024-04-01',
     },
   });
 
@@ -163,10 +166,12 @@ export const getAuthUser = async ({ accessToken, adminId, companyId }: GetAuthUs
   }
 
   const authUserEmail = result.data.find((user) => user.uuid === adminId)?.email;
+
   if (!authUserEmail) {
     logger.error('Invalid Gusto auth user response', { resData });
     throw new GustoError('Invalid Gusto auth user response');
   }
+
   return {
     authUserEmail,
   };
