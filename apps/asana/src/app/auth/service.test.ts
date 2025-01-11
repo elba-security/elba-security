@@ -20,6 +20,7 @@ const getTokenData = {
   accessToken,
   refreshToken,
   expiresIn,
+  authUserId,
 };
 
 const organisation = {
