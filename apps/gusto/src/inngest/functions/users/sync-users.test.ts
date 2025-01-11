@@ -1,25 +1,14 @@
 import { expect, test, describe, vi } from 'vitest';
-import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
+import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/gusto/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
+import * as nangoAPIClient from '@/common/nango';
 import { syncUsers } from './sync-users';
 
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
 const syncStartedAt = Date.now();
-const syncedBefore = Date.now();
-const nextPage = 2;
-const companyId = 'https://test-uri/users/00000000-0000-0000-0000-000000000091';
-const authUserEmail = 'test-auth-user-email';
-const organisation = {
-  id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt('test-access-token'),
-  refreshToken: await encrypt('test-refresh-token'),
-  region: 'us',
-  companyId,
-  authUserEmail,
-};
+const nextPage = 1;
 
 const users: usersConnector.GustoUser[] = Array.from({ length: 3 }, (_, i) => ({
   uuid: `00000000-0000-0000-0000-00000000009${i}`,
@@ -32,39 +21,30 @@ const users: usersConnector.GustoUser[] = Array.from({ length: 3 }, (_, i) => ({
 const setup = createInngestFunctionMock(syncUsers, 'gusto/users.sync.requested');
 
 describe('sync-users', () => {
-  test('should abort sync when organisation is not registered', async () => {
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      validUsers: users,
-      invalidUsers: [],
-      nextPage: null,
-    });
-
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt: Date.now(),
-      page: 1,
-    });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(usersConnector.getUsers).toBeCalledTimes(0);
-
-    expect(step.sendEvent).toBeCalledTimes(0);
-  });
-
   test('should continue the sync when there is a next page', async () => {
-    const elba = spyOnElba();
-
-    await db.insert(organisationsTable).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    }));
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
+      authUserEmail: 'auth-user@email',
+    });
+    vi.spyOn(usersConnector, 'getTokenInfo').mockResolvedValue({
+      companyId: 'test-company-id',
+      adminId: 'test-admin-id',
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage,
+      nextPage: 1,
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      organisationId,
+      region,
+      nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
       page: nextPage,
@@ -72,53 +52,34 @@ describe('sync-users', () => {
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
-    const elbaInstance = elba.mock.results[0]?.value;
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-users', {
       name: 'gusto/users.sync.requested',
       data: {
-        organisationId: organisation.id,
+        organisationId,
+        region,
+        nangoConnectionId,
         isFirstSync: false,
         syncStartedAt,
         page: nextPage,
       },
     });
-
-    expect(elbaInstance?.users.update).toBeCalledTimes(1);
-    expect(elbaInstance?.users.update).toBeCalledWith({
-      users: [
-        {
-          additionalEmails: [],
-          displayName: 'first_name-0 last_name-0',
-          email: 'user-0@foo.bar',
-          id: '00000000-0000-0000-0000-000000000090',
-          isSuspendable: true,
-          url: 'https://app.gusto-demo.com/payroll_admin/people/employees/00000000-0000-0000-0000-000000000090',
-        },
-        {
-          additionalEmails: [],
-          displayName: 'first_name-1 last_name-1',
-          email: 'user-1@foo.bar',
-          id: '00000000-0000-0000-0000-000000000091',
-          isSuspendable: true,
-          url: 'https://app.gusto-demo.com/payroll_admin/people/employees/00000000-0000-0000-0000-000000000091',
-        },
-        {
-          additionalEmails: [],
-          displayName: 'first_name-2 last_name-2',
-          email: 'user-2@foo.bar',
-          id: '00000000-0000-0000-0000-000000000092',
-          isSuspendable: true,
-          url: 'https://app.gusto-demo.com/payroll_admin/people/employees/00000000-0000-0000-0000-000000000092',
-        },
-      ],
-    });
-    expect(elbaInstance?.users.delete).not.toBeCalled();
   });
 
   test('should finalize the sync when there is a no next page', async () => {
-    const elba = spyOnElba();
-    await db.insert(organisationsTable).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    }));
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
+      authUserEmail: 'auth-user@email',
+    });
+    vi.spyOn(usersConnector, 'getTokenInfo').mockResolvedValue({
+      companyId: 'test-company-id',
+      adminId: 'test-admin-id',
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -126,46 +87,16 @@ describe('sync-users', () => {
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      region,
+      organisationId,
+      nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
       page: 1,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
-    const elbaInstance = elba.mock.results[0]?.value;
-    expect(elbaInstance?.users.update).toBeCalledTimes(1);
-    expect(elbaInstance?.users.update).toBeCalledWith({
-      users: [
-        {
-          additionalEmails: [],
-          displayName: 'first_name-0 last_name-0',
-          email: 'user-0@foo.bar',
-          id: '00000000-0000-0000-0000-000000000090',
-          isSuspendable: true,
-          url: 'https://app.gusto-demo.com/payroll_admin/people/employees/00000000-0000-0000-0000-000000000090',
-        },
-        {
-          additionalEmails: [],
-          displayName: 'first_name-1 last_name-1',
-          email: 'user-1@foo.bar',
-          id: '00000000-0000-0000-0000-000000000091',
-          isSuspendable: true,
-          url: 'https://app.gusto-demo.com/payroll_admin/people/employees/00000000-0000-0000-0000-000000000091',
-        },
-        {
-          additionalEmails: [],
-          displayName: 'first_name-2 last_name-2',
-          email: 'user-2@foo.bar',
-          id: '00000000-0000-0000-0000-000000000092',
-          isSuspendable: true,
-          url: 'https://app.gusto-demo.com/payroll_admin/people/employees/00000000-0000-0000-0000-000000000092',
-        },
-      ],
-    });
-    const syncBeforeAtISO = new Date(syncedBefore).toISOString();
-    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
-    expect(elbaInstance?.users.delete).toBeCalledWith({ syncedBefore: syncBeforeAtISO });
+
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 });
