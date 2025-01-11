@@ -2693,6 +2693,9 @@ importers:
       '@elba-security/logger':
         specifier: workspace:*
         version: link:../../packages/logger
+      '@elba-security/nango':
+        specifier: workspace:*
+        version: link:../../packages/nango
       '@elba-security/nextjs':
         specifier: workspace:*
         version: link:../../packages/nextjs
