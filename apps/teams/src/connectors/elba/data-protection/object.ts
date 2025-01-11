@@ -1,5 +1,5 @@
 import type { DataProtectionObject } from '@elba-security/sdk';
-import type { MicrosoftMessage } from '@/connectors/microsoft/types';
+import { type MicrosoftMessageObjectWithoutContent } from '@/connectors/elba/types';
 import type { MessageMetadata } from './metadata';
 
 export const convertISOToDate = (isoDate: string) => {
@@ -24,7 +24,7 @@ export const formatDataProtectionObject = ({
   replyId?: string;
   membershipType: string;
   channelName: string;
-  message: Omit<MicrosoftMessage, 'replies@odata.nextLink' | 'replies'>;
+  message: MicrosoftMessageObjectWithoutContent;
 }): DataProtectionObject => {
   const creationDate = convertISOToDate(message.createdDateTime);
 

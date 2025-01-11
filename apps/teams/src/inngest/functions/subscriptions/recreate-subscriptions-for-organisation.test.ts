@@ -1,5 +1,5 @@
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
 import { encrypt } from '@/common/crypto';
 import * as subscriptionsConnector from '@/connectors/microsoft/subscriptions/subscriptions';
@@ -27,7 +27,7 @@ const subscriptions = [
     id: '98449620-9738-4a9c-8db0-1e4ef5a6a1e8',
     resource: subscriptionResource,
     changeType: 'created,updated,deleted',
-    organisationId: '98449620-9738-4a9c-8db0-1e4ef5a6a9e8',
+    tenantId: organisation.tenantId,
   },
 ];
 
@@ -43,8 +43,12 @@ const setup = createInngestFunctionMock(
 );
 
 describe('reconnectSubscriptions', () => {
+  beforeEach(async () => {
+    await db.delete(subscriptionsTable);
+  });
+
   test('should abort the subscription when the organisation is not registered', async () => {
-    const [result] = setup({ organisationId: invalidOrganisationId });
+    const [result] = setup({ organisationId: invalidOrganisationId, tenantId: 'tenant-id' });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
   });
@@ -61,7 +65,7 @@ describe('reconnectSubscriptions', () => {
       .spyOn(subscriptionsConnector, 'createSubscription')
       .mockResolvedValue(null);
 
-    const [result] = setup({ organisationId: organisation.id });
+    const [result] = setup({ organisationId: organisation.id, tenantId: organisation.tenantId });
 
     await expect(result).resolves.toStrictEqual({
       message: 'There are no subscriptions to save to the database.',
@@ -94,7 +98,7 @@ describe('reconnectSubscriptions', () => {
       .spyOn(subscriptionsConnector, 'createSubscription')
       .mockResolvedValue(createdSubscription);
 
-    const [result] = setup({ organisationId: organisation.id });
+    const [result] = setup({ organisationId: organisation.id, tenantId: organisation.tenantId });
 
     await expect(result).resolves.toStrictEqual({
       message: 'Subscriptions successfully recreated',

@@ -5,6 +5,7 @@ import { env } from '@/env';
 import {
   createSubscription,
   deleteSubscription,
+  getSubscriptions,
   refreshSubscription,
 } from '@/connectors/microsoft/subscriptions/subscriptions';
 import { encrypt } from '@/common/crypto';
@@ -28,6 +29,9 @@ const subscriptionResource =
   Math.random() > 0.5 ? 'teams/getAllChannels' : 'teams/team-id-1/channels/channel-id-1/messages';
 
 const subscriptionChangeType = Math.random() > 0.5 ? 'created,updated,deleted' : 'created,deleted';
+
+const skipToken = 'skip-token';
+const nextSkipToken = 'next-skip-token';
 
 const subscription = {
   id: 'subscription-id',
@@ -192,6 +196,44 @@ describe('subscriptions connector', () => {
 
     test("shouldn't throw when there an error", async () => {
       await expect(deleteSubscription(invalidToken, subscription.id)).resolves.toBeNull();
+    });
+  });
+
+  describe('getSubscriptions', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.MICROSOFT_API_URL}/subscriptions`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          const url = new URL(request.url);
+          const requestedSkipToken = url.searchParams.get('$skiptoken');
+
+          const nextPageUrl = new URL(url);
+          nextPageUrl.searchParams.set('$skiptoken', nextSkipToken);
+
+          return new Response(
+            JSON.stringify({
+              value: [subscription],
+              ...(requestedSkipToken && {
+                '@odata.nextLink': decodeURIComponent(nextPageUrl.toString()),
+              }),
+            })
+          );
+        })
+      );
+    });
+
+    test('should throw when the token is invalid', async () => {
+      await expect(getSubscriptions(invalidToken)).rejects.toBeInstanceOf(MicrosoftError);
+    });
+
+    test('should return subscriptions', async () => {
+      await expect(getSubscriptions(encryptedToken, skipToken)).resolves.toStrictEqual({
+        subscriptions: [subscription],
+        nextSkipToken,
+      });
     });
   });
 });

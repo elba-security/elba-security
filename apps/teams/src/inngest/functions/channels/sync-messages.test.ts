@@ -264,11 +264,10 @@ describe('sync-messages', () => {
   test('should continue the sync when there is a next page', async () => {
     await db.insert(organisationsTable).values(organisation);
     await db.insert(channelsTable).values({
-      id: `${organisation.id}:${data.channelId}`,
       membershipType: 'standard',
       displayName: 'channel',
       organisationId: organisation.id,
-      channelId: data.channelId,
+      id: data.channelId,
     });
 
     const elba = spyOnElba();
@@ -321,11 +320,10 @@ describe('sync-messages', () => {
   test('should finalize the sync when there is no next page', async () => {
     await db.insert(organisationsTable).values(organisation);
     await db.insert(channelsTable).values({
-      id: `${organisation.id}:${data.channelId}`,
       membershipType: 'standard',
       displayName: 'channel',
       organisationId: organisation.id,
-      channelId: data.channelId,
+      id: data.channelId,
     });
 
     const elba = spyOnElba();
