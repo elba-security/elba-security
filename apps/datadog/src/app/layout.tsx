@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Elba x Datadog',
-  description: 'Official Elba x Datadog integration.',
+  description: 'Elba x Datadog',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
