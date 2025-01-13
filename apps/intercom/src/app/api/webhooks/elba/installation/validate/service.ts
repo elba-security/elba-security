@@ -1,6 +1,7 @@
 import { serializeLogObject } from '@elba-security/logger/src/serialize';
+import { logger } from '@elba-security/logger';
 import { nangoAPIClient } from '@/common/nango';
-import { getCurrentAdminInfos } from '@/connectors/intercom/users';
+import { getAuthUser } from '@/connectors/intercom/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
 import { mapElbaConnectionError } from '@/connectors/common/error';
@@ -24,7 +25,8 @@ export const validateSourceInstallation = async ({
       throw new Error('Could not retrieve Nango credentials');
     }
 
-    await getCurrentAdminInfos(credentials.access_token);
+    await getAuthUser(credentials.access_token);
+
     await elba.connectionStatus.update({
       errorType: null,
     });
@@ -51,6 +53,13 @@ export const validateSourceInstallation = async ({
 
     return { message: 'Source installation validated' };
   } catch (error) {
+    logger.error('Error validating source installation', {
+      organisationId,
+      region,
+      nangoConnectionId,
+      error,
+    });
+
     const errorType = mapElbaConnectionError(error);
     await elba.connectionStatus.update({
       errorType: errorType || 'unknown',

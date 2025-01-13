@@ -25,8 +25,8 @@ describe('synchronize-users', () => {
         credentials: { access_token: 'access-token' },
       }),
     }));
-    vi.spyOn(usersConnector, 'getCurrentAdminInfos').mockResolvedValue({
-      app: { id_code: 'workspace-id' },
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
+      workspaceId: 'workspace-id',
     });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -66,8 +66,8 @@ describe('synchronize-users', () => {
         credentials: { access_token: 'access-token' },
       }),
     }));
-    vi.spyOn(usersConnector, 'getCurrentAdminInfos').mockResolvedValue({
-      app: { id_code: 'workspace-id' },
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
+      workspaceId: 'workspace-id',
     });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,

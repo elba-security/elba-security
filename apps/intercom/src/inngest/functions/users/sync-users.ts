@@ -2,7 +2,7 @@ import type { User } from '@elba-security/sdk';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { inngest } from '@/inngest/client';
-import { getUsers, getCurrentAdminInfos } from '@/connectors/intercom/users';
+import { getUsers, getAuthUser } from '@/connectors/intercom/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { nangoAPIClient } from '@/common/nango';
 import { type IntercomUser } from '@/connectors/intercom/users';
@@ -58,11 +58,9 @@ export const syncUsers = inngest.createFunction(
       }
 
       const result = await getUsers({ accessToken: credentials.access_token, page });
-      const currentAdmin = await getCurrentAdminInfos(credentials.access_token);
+      const { workspaceId } = await getAuthUser(credentials.access_token);
 
-      const users = result.validUsers.map((user) =>
-        formatElbaUser({ user, workspaceId: currentAdmin.app.id_code })
-      );
+      const users = result.validUsers.map((user) => formatElbaUser({ user, workspaceId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

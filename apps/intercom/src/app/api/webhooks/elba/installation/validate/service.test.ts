@@ -29,8 +29,8 @@ describe('validateSourceInstallation', () => {
     });
 
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
-    vi.spyOn(usersConnector, 'getCurrentAdminInfos').mockResolvedValue({
-      app: { id_code: 'workspace-id' },
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
+      workspaceId: 'workspace-id',
     });
 
     await validateSourceInstallation({
