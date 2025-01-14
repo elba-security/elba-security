@@ -8,9 +8,8 @@ import { type BrevoUser, getUsers } from './users';
 
 const validApiKey = 'test-api-key';
 const invalidApiKey = 'foo-bar';
-const totalPage = 15;
 
-const validNextPageUsers: BrevoUser[] = Array.from({ length: 5 }, (_, i) => ({
+const validUsers: BrevoUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: '0442f541-45d2-487a-9e4b-de03ce4c559e',
   status: `active`,
   email: `user-${i}@foo.bar`,
@@ -22,45 +21,22 @@ const invalidUsers = [];
 describe('getBrevoUsers', () => {
   beforeEach(() => {
     const resolver: ResponseResolver = ({ request }) => {
-      if (request.headers.get('X-Api-Key') !== validApiKey) {
+      if (request.headers.get('api-key') !== validApiKey) {
         return new Response(undefined, { status: 401 });
       }
 
-      const urlObj = new URL(request.url);
-      const page = urlObj.searchParams.get('page') || '1';
-
-      const returnData =
-        totalPage < parseInt(page, 10)
-          ? {
-              users: [],
-              pagination: {
-                page,
-                total_pages: totalPage,
-              },
-            }
-          : {
-              users: validNextPageUsers,
-              pagination: {
-                page,
-                total_pages: totalPage,
-              },
-            };
+      const returnData = {
+        users: validUsers,
+      };
 
       return Response.json(returnData);
     };
-    server.use(http.get(`${env.BREVO_API_BASE_URL}/v1/users/search`, resolver));
+    server.use(http.get(`${env.BREVO_API_BASE_URL}/organization/invited/users`, resolver));
   });
 
-  test('should return users and nextPage when the apiKey is valid and their is another page', async () => {
+  test('should return all users when the apiKey is valid', async () => {
     await expect(getUsers(validApiKey)).resolves.toStrictEqual({
-      validUsers: validNextPageUsers,
-      invalidUsers,
-    });
-  });
-
-  test('should return users and no nextPage when the apiKey is valid and their is no other page', async () => {
-    await expect(getUsers(validApiKey)).resolves.toStrictEqual({
-      validUsers: [],
+      validUsers,
       invalidUsers,
     });
   });

@@ -12,9 +12,9 @@ const now = Date.now();
 
 const users: usersConnector.BrevoUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `45a76301-f1dd-4a77-b12f-9d7d3fca3c9${i}`,
-  name: `name-${i}`,
+  status: `active`,
   email: `user-${i}@foo.bar`,
-  deleted: false,
+  is_owner: false,
 }));
 
 describe('validateSourceInstallation', () => {

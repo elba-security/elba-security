@@ -35,7 +35,7 @@ describe('rate-limit middleware', () => {
       // @ts-expect-error this is a mock
       response: {
         status: 429,
-        headers: new Headers({ 'x-sib-ratelimit-reset': '1' }),
+        headers: new Headers({ 'x-sib-ratelimit-reset': '60' }),
       },
     });
 

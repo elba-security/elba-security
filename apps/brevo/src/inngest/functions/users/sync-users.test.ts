@@ -20,42 +20,6 @@ const syncStartedAt = Date.now();
 const setup = createInngestFunctionMock(synchronizeUsers, 'brevo/users.sync.requested');
 
 describe('sync-users', () => {
-  test('should continue the sync when the organization is registered', async () => {
-    // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
-      getConnection: vi.fn().mockResolvedValue({
-        credentials: { apiKey: 'api-key' },
-      }),
-    }));
-
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      validUsers: users,
-      invalidUsers: [],
-    });
-
-    const [result, { step }] = setup({
-      organisationId,
-      region,
-      nangoConnectionId,
-      isFirstSync: false,
-      syncStartedAt,
-    });
-
-    await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
-
-    expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('synchronize-users', {
-      name: 'brevo/users.sync.requested',
-      data: {
-        organisationId,
-        region,
-        nangoConnectionId,
-        isFirstSync: false,
-        syncStartedAt,
-      },
-    });
-  });
-
   test('should finalize the sync when there is a no next page', async () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
