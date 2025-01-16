@@ -36,7 +36,7 @@ export type GetUsersParams = {
   page?: string | null;
 };
 
-export const getCurrentAdminInfos = async (accessToken: string) => {
+export const getAuthUser = async (accessToken: string) => {
   const response = await fetch(`${env.INTERCOM_API_BASE_URL}/me`, {
     method: 'GET',
     headers: {
@@ -51,7 +51,15 @@ export const getCurrentAdminInfos = async (accessToken: string) => {
   }
 
   const resData: unknown = await response.json();
-  return intercomMeSchema.parse(resData);
+  const result = intercomMeSchema.safeParse(resData);
+
+  if (!result.success) {
+    throw new IntercomError('Could not parse current admin', { response });
+  }
+
+  return {
+    workspaceId: result.data.app.id_code,
+  };
 };
 
 export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
