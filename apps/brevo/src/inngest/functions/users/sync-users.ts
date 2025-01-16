@@ -70,7 +70,6 @@ export const synchronizeUsers = inngest.createFunction(
       await elba.users.update({ users });
     }
 
-    // delete the elba users that has been sent before this sync
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );
