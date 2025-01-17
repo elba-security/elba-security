@@ -31,7 +31,7 @@ export const getUsers = async (apiKey: string) => {
   });
 
   if (!response.ok) {
-    throw new BrevoError('API request failed', { response });
+    throw new BrevoError('Could not retrieve users', { response });
   }
 
   const resData: unknown = await response.json();
