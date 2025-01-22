@@ -1,19 +1,31 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { MySaasError } from '@/connectors/commons/error';
+import { ServiceError } from '@/connectors/common/error';
 
 /**
- * This middleware, `rateLimitMiddleware`, is designed for use with the Inngest serverless framework.
- * It aims to handle rate limiting scenarios encountered when interacting with external SaaS APIs.
- * The middleware checks for specific errors (instances of MySaaSError) that indicate a rate limit has been reached,
- * and it responds by creating a RetryAfterError. This error includes the retry time based on the 'Retry-After' header
- * provided by the SaaS service, enabling the function to delay its next execution attempt accordingly.
+ * This middleware handles rate limiting scenarios encountered when interacting with external SaaS APIs.
+ * It intercepts errors from your API calls and converts rate limit responses into RetryAfterError instances,
+ * which Inngest uses to properly schedule retries.
  *
- * Key Features:
- * - Intercepts function output to check for rate limit errors.
- * - Handles MySaaSError, specifically looking for a 'Retry-After' header in the error response.
- * - Generates a RetryAfterError to reschedule the function run, preventing immediate retries that could violate the SaaS's rate limits.
+ * The middleware specifically:
+ * 1. Checks for ServiceError instances (extend this class for your API-specific errors)
+ * 2. Looks for 429 (Too Many Requests) status codes
+ * 3. Uses the 'Retry-After' header to determine the delay, defaulting to 60 seconds
  *
- * Note: This is a generic middleware template and might require adjustments to fit specific SaaS APIs' error handling and rate limiting schemes.
+ * To use with your specific API:
+ * 1. Ensure your API errors extend ServiceError
+ * 2. Verify your API returns proper 429 status codes
+ * 3. Check if your API uses a different rate limit response format
+ *
+ * Example customization:
+ * ```typescript
+ * if (error instanceof ServiceError) {
+ *   // Add custom rate limit detection logic
+ *   if (error.response?.headers.get('x-rate-limit-remaining') === '0') {
+ *     const retryAfter = error.response.headers.get('x-rate-limit-reset') || 60;
+ *     // Handle custom rate limit format
+ *   }
+ * }
+ * ```
  */
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',
@@ -26,26 +38,26 @@ export const rateLimitMiddleware = new InngestMiddleware({
               result: { error, ...result },
               ...context
             } = ctx;
-            const retryAfter =
-              error instanceof MySaasError && error.response?.headers.get('Retry-After');
 
-            if (!retryAfter) {
+            if (!(error instanceof ServiceError)) {
               return;
             }
 
-            return {
-              ...context,
-              result: {
-                ...result,
-                error: new RetryAfterError(
-                  `MySaaS rate limit reached by '${fn.name}'`,
-                  retryAfter,
-                  {
-                    cause: error,
-                  }
-                ),
-              },
-            };
+            if (error.response?.status === 429) {
+              const retryAfter = error.response.headers.get('retry-after') || 60;
+
+              return {
+                ...context,
+                result: {
+                  ...result,
+                  error: new RetryAfterError(
+                    `Rate limit reached by '${fn.name}'`,
+                    `${retryAfter}s`,
+                    { cause: error }
+                  ),
+                },
+              };
+            }
           },
         };
       },

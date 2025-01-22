@@ -1,20 +1,70 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { type ConnectionErrorType } from '@elba-security/sdk';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { elbaConnectionErrorMiddleware } from './middlewares/elba-connection-error-middleware';
+import packageJson from '../../package.json';
+
+/**
+ * Inngest client configuration for handling asynchronous events in the integration.
+ * The client is configured with:
+ *
+ * 1. Event Schemas:
+ *    - app.installed: Triggered when the integration is successfully installed
+ *    - app.uninstalled: Triggered when the integration encounters a fatal error
+ *    - users.sync.requested: Triggered to start user synchronization
+ *
+ * 2. Middleware:
+ *    - rateLimitMiddleware: Handles rate limiting (429) responses
+ *    - elbaConnectionErrorMiddleware: Maps errors to Elba connection states
+ *
+ * 3. Logging:
+ *    - Uses the Elba logger for consistent log formatting
+ *
+ * Events are namespaced using the integration name from package.json:
+ * Example for "@elba-security/bitbucket":
+ * - bitbucket/app.installed
+ * - bitbucket/app.uninstalled
+ * - bitbucket/users.sync.requested
+ */
+
+// Extract the integration name from the package name (e.g., "@elba-security/bitbucket" -> "bitbucket")
+const integrationName =
+  packageJson.name
+    .split('/')
+    .pop()
+    ?.replace(/^@elba-security\//, '') ?? '';
 
 export const inngest = new Inngest({
-  id: '{SaaS}',
+  id: integrationName,
   schemas: new EventSchemas().fromRecord<{
-    '{SaaS}/users.page_sync.requested': {
+    // Triggered when the integration is successfully installed
+    [`${integrationName}/app.installed`]: {
+      data: {
+        organisationId: string;
+      };
+    };
+    // Triggered when a fatal error occurs (e.g., revoked access)
+    [`${integrationName}/app.uninstalled`]: {
       data: {
         organisationId: string;
         region: string;
+        errorType: ConnectionErrorType;
+        errorMetadata?: unknown;
+      };
+    };
+    // Triggered to start or continue user synchronization
+    [`${integrationName}/users.sync.requested`]: {
+      data: {
+        organisationId: string;
+        region: string;
+        nangoConnectionId: string;
         isFirstSync: boolean;
         syncStartedAt: number;
-        page: number | null;
+        page: string | null;
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [rateLimitMiddleware, elbaConnectionErrorMiddleware],
   logger,
 });

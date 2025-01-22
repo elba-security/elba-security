@@ -1,73 +1,141 @@
+# Elba Integration Template
+
+This template provides a foundation for building integrations with Elba Security. It follows the same structure as our production integrations like Bitbucket.
+
+## Features
+
+- **OAuth Authentication**: Pre-configured OAuth flow using [Nango](https://nango.dev/)
+- **Event Handling**: Event-driven architecture using [Inngest](https://www.inngest.com/)
+- **Type Safety**: Full TypeScript support with proper type definitions
+- **Testing**: Ready-to-use testing setup with Vitest
+
 ## Getting Started
 
-Rename `.env.local.example` to `.env.local`.
+1. Copy `.env.local.example` to `.env.local` and fill in the required environment variables:
 
-This file will be used for local development environment.
+   ```
+   ELBA_API_BASE_URL=
+   ELBA_SOURCE_ID=
+   ELBA_WEBHOOK_SECRET=
+   NANGO_INTEGRATION_ID=
+   ```
 
-### Setting up node integration
+2. Install dependencies:
 
-If your integration does not support **edge runtime** some files has to be edited:
+   ```bash
+   pnpm install
+   ```
 
-- `docker-compose.yml`: remove the `pg_proxy` service
-- `vitest/setup-msw-handlers`: remove the first arguments of `setupServer()`, setting a passthrough
-- `src/database/client.ts`: replace this file by `client.node.ts` (and remove it)
-- `vitest.config.js`: update `environment` to `'node'`
-- `package.json`: remove dependency `"@neondatabase/serverless"`
-- remove each `route.ts` exports of `preferredRegion` & `runtime` constants.
+3. Start the development server:
+   ```bash
+   pnpm dev
+   ```
 
-### Setting up edge-runtime integration
+## Project Structure
 
-If your integration does supports **edge runtime** you just have to remove file ending with `.node.ts` like `src/database/client.node.ts`.
-
-### Running the integration
-
-First of all, ensure that the PostgreSQL database is running. You can start it by executing the following command:
-
-```bash
-pnpm database:up
+```
+src/
+├── app/
+│   └── api/
+│       └── webhooks/
+│           └── elba/
+│               └── installation/
+│                   └── validate/
+│                       ├── route.ts    # Installation validation webhook
+│                       └── service.ts  # Installation validation logic
+├── common/
+│   └── nango.ts        # Nango client configuration
+├── connectors/
+│   ├── common/
+│   │   └── error.ts    # Error mapping utilities
+│   └── elba/
+│       └── client.ts   # Elba client utilities
+└── inngest/
+    └── client.ts       # Inngest client configuration
 ```
 
-To apply the migration, run:
+## Features
 
-```bash
-pnpm database:migrate
+### Installation Validation
+
+The template includes a webhook-based installation flow that:
+
+1. Validates the Nango connection
+2. Verifies access to the source API
+3. Triggers initial sync events
+
+### Error Handling
+
+Built-in error management features:
+
+- Automatic mapping of common errors (401, 403, etc.)
+- Connection status updates
+- Error logging and serialization
+
+## Development
+
+1. Add your source-specific validation logic in `src/app/api/webhooks/elba/installation/validate/service.ts`
+2. Implement your resource sync handlers
+3. Add any additional webhooks needed for your integration
+
+## Testing
+
+1. Copy `.env.test` to `.env.test.local` and configure test environment variables
+2. Run tests:
+   ```bash
+   pnpm test
+   ```
+
+## Authentication Flow
+
+1. User initiates OAuth flow through the installation URL
+2. User is redirected to the service's OAuth consent screen
+3. After consent, user is redirected back to `/api/auth/callback`
+4. Nango handles token exchange and storage
+5. Organization is registered with Elba
+6. Initial sync is triggered via Inngest events
+
+## Event Types
+
+The template includes the following Inngest events:
+
+```typescript
+'app/installed': {
+  data: {
+    organizationId: string;
+  }
+}
+
+'app/uninstalled': {
+  data: {
+    organizationId: string;
+    region: string;
+    errorType: ConnectionErrorType;
+    errorMetadata?: unknown;
+  }
+}
+
+'sync/requested': {
+  data: {
+    organizationId: string;
+    region: string;
+    nangoConnectionId: string;
+    isFirstSync: boolean;
+    syncStartedAt: number;
+    page: string | null;
+  }
+}
 ```
 
-Next, run the nextjs development server with the command:
+## Error Handling
 
-```bash
-pnpm dev
-```
+The template includes built-in error handling for:
 
-To be able to run Inngest functions, it's essential to have a local Inngest client operational. Start it using:
+- OAuth authentication failures
+- Rate limiting (via middleware)
+- Connection errors (unauthorized, not admin)
+- API errors with proper error mapping
 
-```bash
-pnpm dev:inngest
-```
+## Contributing
 
-_Once the Inngest client is running, it will send requests to the `localhost:4000/api/inngest` route to gather information about your functions, including events and cron triggers. Inngest also provides a user interface, accessible in your web browser, where you can monitor function invocations, attempt retries, and more._
-
-### Database migrations
-
-To create a new migration file within the `/drizzle` directory, execute the following command:
-
-```bash
-pnpm database:generate
-```
-
-After generating the migration, apply it by running:
-
-```bash
-pnpm database:migrate
-```
-
-Important Considerations:
-
-- **Single Migration Requirement**: Your integration should include only one migration before merging into the staging environment. If you need to regenerate the contents of your `/drizzle` folder, ensure that you delete the existing folder first.
-
-- **Handling drizzle-orm Errors**: In cases where `drizzle-orm` encounters an error during the migration process, it's advisable to unmount and remount your database container. This can be achieved with the `database:down` and `database:up` commands, respectively. Once this is done, you can attempt the migration again.
-
-### Example implementation
-
-The template contains an example implementation that will guide you to reach our requirements. Make sure
-to adapt this example to your need and remove the disclamer comments before creating your first PR.
+Please refer to the main repository's [CONTRIBUTING.md](../../CONTRIBUTING.md) for guidelines.
