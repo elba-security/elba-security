@@ -8,6 +8,16 @@
 
 This repository is the hub for elba's integrations. Each integration within this repository plays an essential role as middleware. They serve as the connecting bridge between a variety of SaaS APIs and elba's open API.
 
+### Core Purpose
+
+Each integration's primary responsibility is to synchronize user data from SaaS platforms to Elba's system. This involves:
+
+1. **User Data Collection**: Fetching users from the SaaS platform's API
+2. **Data Transformation**: Converting the SaaS-specific user format to Elba's expected format
+3. **Synchronization**: Keeping Elba's system updated through:
+   - Initial sync during installation
+   - Periodic sync requests
+
 ### Functionality and Data Handling
 
 These integrations are designed to collect and manage data, including details about SaaS users, third-party applications, and different types of data such as files and messages.
