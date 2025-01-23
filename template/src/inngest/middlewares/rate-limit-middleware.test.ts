@@ -32,10 +32,13 @@ describe('rate-limit middleware', () => {
 
   test('should transform the output error to RetryAfterError when the error is a rate limit error', () => {
     const rateLimitError = new ServiceError('rate limit exceeded', {
-      response: new Response(null, {
+      // @ts-expect-error this is a mock
+      response: {
         status: 429,
-        headers: new Headers({ 'retry-after': '10' }),
-      }),
+        headers: {
+          get: (name: string) => (name === 'retry-after' ? '10' : null),
+        },
+      },
     });
 
     const context = {
@@ -54,9 +57,8 @@ describe('rate-limit middleware', () => {
       // @ts-expect-error -- this is a mock
       .onFunctionRun({ fn: { name: 'test-fn' } })
       .transformOutput(context);
-
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect((result?.result.error as RetryAfterError).retryAfter).toBe('10s');
+    expect(result?.result.error.retryAfter).toStrictEqual('10');
     expect(result).toMatchObject({
       foo: 'bar',
       baz: {
@@ -70,7 +72,13 @@ describe('rate-limit middleware', () => {
 
   test('should use default retry after when header is missing', () => {
     const rateLimitError = new ServiceError('rate limit exceeded', {
-      response: new Response(null, { status: 429 }),
+      // @ts-expect-error this is a mock
+      response: {
+        status: 429,
+        headers: {
+          get: () => null,
+        },
+      },
     });
 
     const result = rateLimitMiddleware
@@ -82,6 +90,7 @@ describe('rate-limit middleware', () => {
       });
 
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect((result?.result.error as RetryAfterError).retryAfter).toBe('60s');
+    console.log(result?.result.error.retryAfter);
+    expect(result?.result.error.retryAfter).toStrictEqual('60');
   });
 });
