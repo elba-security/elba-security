@@ -8,7 +8,7 @@ import { inngest } from '@/inngest/client';
 /**
  * Schedules periodic user synchronization for all organizations.
  * This function:
- * 1. Runs on a cron schedule defined in env.SOURCE_USERS_SYNC_CRON
+ * 1. Runs on a cron schedule defined in env.SYNC_CRON
  * 2. Fetches all organizations from each Elba region
  * 3. Triggers user sync for each valid organization
  * 4. Handles cases where Nango connection is missing
@@ -18,7 +18,7 @@ export const scheduleUsersSync = inngest.createFunction(
     id: '{{name}}-schedule-users-syncs',
     retries: 5,
   },
-  { cron: env.SOURCE_USERS_SYNC_CRON },
+  { cron: env.SYNC_CRON },
   async ({ step }) => {
     // Fetch organizations from all regions in parallel
     const regionOrganisations = await Promise.all(

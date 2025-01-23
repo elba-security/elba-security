@@ -3,7 +3,6 @@ import { logger } from '@elba-security/logger';
 import { type ConnectionErrorType } from '@elba-security/sdk';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 import { elbaConnectionErrorMiddleware } from './middlewares/elba-connection-error-middleware';
-import packageJson from '../../package.json';
 
 /**
  * Inngest client configuration for handling asynchronous events in the integration.
@@ -29,16 +28,12 @@ import packageJson from '../../package.json';
  */
 
 export const inngest = new Inngest({
-  id: integrationName,
+  id: '{{name}}',
   schemas: new EventSchemas().fromRecord<{
-    // Triggered when the integration is successfully installed
-    [`{{name}}/app.installed`]: {
-      data: {
-        organisationId: string;
-      };
+    '{{name}}/app.installed': {
+      data: { organisationId: string };
     };
-    // Triggered when a fatal error occurs (e.g., revoked access)
-    [`{{name}}/app.uninstalled`]: {
+    '{{name}}/app.uninstalled': {
       data: {
         organisationId: string;
         region: string;
@@ -46,8 +41,7 @@ export const inngest = new Inngest({
         errorMetadata?: unknown;
       };
     };
-    // Triggered to start or continue user synchronization
-    [`{{name}}/users.sync.requested`]: {
+    '{{name}}/users.sync.requested': {
       data: {
         organisationId: string;
         region: string;

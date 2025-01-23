@@ -11,6 +11,8 @@ This template provides a foundation for building integrations with Elba Security
 
 ## Getting Started
 
+### Development Setup
+
 1. Copy `.env.local.example` to `.env.local` and fill in the required environment variables:
 
    ```
@@ -29,6 +31,19 @@ This template provides a foundation for building integrations with Elba Security
 3. Start the development server:
    ```bash
    pnpm dev
+   ```
+
+### Testing Setup
+
+1. The `.env.test` file contains default test values and is committed to the repository
+2. For local test overrides:
+   ```bash
+   cp .env.test .env.test.local
+   ```
+3. Modify `.env.test.local` with your test-specific values (this file is git-ignored)
+4. Run tests:
+   ```bash
+   pnpm test
    ```
 
 ## Project Structure
@@ -78,13 +93,19 @@ Built-in error management features:
 2. Implement your resource sync handlers
 3. Add any additional webhooks needed for your integration
 
-## Testing
+## Environment Files
 
-1. Copy `.env.test` to `.env.test.local` and configure test environment variables
-2. Run tests:
-   ```bash
-   pnpm test
-   ```
+The template uses several environment files for different purposes:
+
+- `.env.local.example` → `.env.local`: Development environment variables
+- `.env.test`: Default test values (committed to repo)
+- `.env.test.local`: Local test overrides (git-ignored)
+
+This pattern ensures:
+
+- Consistent test values across the team
+- Easy local development setup
+- Safe local overrides without affecting the repository
 
 ## Authentication & Installation Flow
 

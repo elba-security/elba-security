@@ -2,39 +2,83 @@
 
 # elba security
 
-## Introduction
+## Overview
 
-### Repository Overview
+This repository is the hub for elba's integrations, providing middleware between various SaaS platforms and elba's security platform.
 
-This repository is the hub for elba's integrations. Each integration within this repository plays an essential role as middleware. They serve as the connecting bridge between a variety of SaaS APIs and elba's open API.
+### Core Features
 
-### Core Purpose
+- **User Synchronization**: Automatic user data collection and updates from SaaS platforms
+- **OAuth Authentication**: Secure authentication flow using [Nango](https://nango.dev/)
+- **Event-Driven Architecture**: Reliable event handling with [Inngest](https://www.inngest.com/)
+- **Type Safety**: Full TypeScript support with proper type definitions
+- **Testing**: Comprehensive test setup with Vitest
 
-Each integration's primary responsibility is to synchronize user data from SaaS platforms to Elba's system. This involves:
+### Integration Capabilities
 
-1. **User Data Collection**: Fetching users from the SaaS platform's API
-2. **Data Transformation**: Converting the SaaS-specific user format to Elba's expected format
-3. **Synchronization**: Keeping Elba's system updated through:
-   - Initial sync during installation
-   - Periodic sync requests
+Each integration:
 
-### Functionality and Data Handling
-
-These integrations are designed to collect and manage data, including details about SaaS users, third-party applications, and different types of data such as files and messages.
-
-### Integration Actions and Webhooks
-
-elba uses webhooks to manage certain actions within these integrations. These actions include a variety of tasks such as altering user permissions and accessing files, ensuring smooth and effective interactions between elba interface and software services.
-
-### License
-
-[Elastic License 2.0 (ELv2)](./LICENSE)
+1. **Collects User Data**: Fetches users and their permissions from SaaS platforms
+2. **Transforms Data**: Converts platform-specific formats to elba's format
+3. **Maintains Sync**: Keeps data updated through initial and periodic syncs
+4. **Handles Events**: Processes webhooks for real-time updates
+5. **Manages Errors**: Provides robust error handling and reporting
 
 ## Getting Started
 
-- **Installation**: Clone the repository and install dependencies using `pnpm install` command.
+### Prerequisites
 
-- **Creating your integration**: Instructions on how to start a new integration are located in [CONTRIBUTING.md](https://github.com/elba-security/elba-security/blob/staging/CONTRIBUTING.MD).
+- Node.js v22
+- pnpm
 
-- **Documentation**:
-  - [architecture.md](https://github.com/elba-security/elba-security/blob/staging/docs/architecture.md) outlines the architectural design principles and structures we follow.
+### Creating a New Integration
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/elba-security/elba-security.git
+   cd elba-security
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+3. Generate a new integration:
+
+   ```bash
+   pnpm generate
+   ```
+
+4. Follow the integration-specific README in your generated app directory.
+
+## Project Structure
+
+```
+apps/                   # Integration implementations
+├── bitbucket/         # Bitbucket integration
+├── cal-com/          # Cal.com integration
+└── ...               # Other integrations
+packages/              # Shared packages and utilities
+template/              # Integration template
+docs/                  # Documentation
+```
+
+## Documentation
+
+- [Contributing Guide](./CONTRIBUTING.md): Guidelines for contributing to the project
+- [Architecture](./docs/architecture.md): Detailed architecture documentation
+- [Template README](./template/README.md): Integration template documentation
+
+## Development Flow
+
+1. Generate a new integration using `pnpm generate`
+2. Implement the required endpoints and event handlers
+3. Add tests for your implementation
+4. Submit a pull request following our contribution guidelines
+
+## License
+
+[Elastic License 2.0 (ELv2)](./LICENSE)
