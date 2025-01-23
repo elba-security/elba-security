@@ -60,7 +60,33 @@ This document tracks important learnings and best practices for developing integ
   - Test both success and error scenarios
   - Verify all side effects (API calls, events, logs)
 
-### 2. Error Handling
+### 2. Authentication & OAuth
+
+- **Key Principles**:
+
+  - Never implement OAuth flows directly in integrations
+  - Always use Nango for authentication handling
+  - Validate credential structure from Nango
+
+- **Standard Pattern**:
+
+  ```typescript
+  // Getting credentials from Nango
+  const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+  if (!('access_token' in credentials)) {
+    throw new Error('Invalid credentials structure');
+  }
+  ```
+
+- **Common Mistakes**:
+  - ❌ Implementing OAuth flows in the integration
+  - ❌ Storing access tokens directly
+  - ❌ Not validating credential structure
+  - ✅ Using Nango for all OAuth operations
+  - ✅ Proper credential validation
+  - ✅ Clean error handling for auth failures
+
+### 3. Error Handling
 
 - **Types & Recovery**:
 
@@ -78,7 +104,7 @@ This document tracks important learnings and best practices for developing integ
   });
   ```
 
-### 3. User Synchronization
+### 4. User Synchronization
 
 - **Data Flow**:
 
@@ -93,7 +119,7 @@ This document tracks important learnings and best practices for developing integ
   - Handle rate limiting
   - Clean up old data efficiently
 
-### 4. Installation Validation
+### 5. Installation Validation
 
 - **Required Steps**:
 

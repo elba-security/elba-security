@@ -27,6 +27,39 @@ The route file (`route.ts`) is responsible for handling the requests data extrac
 
 The service file (`service.ts`) focuses exclusively on business logic. It should neither create a `Response` object nor read properties from the `Request`. If external API data access is required, the service should import a function from a connector.
 
+## Authentication Flow
+
+The authentication with source platforms (like Bitbucket, Cal.com, etc.) is handled entirely by [Nango](https://nango.dev/), our OAuth provider:
+
+### How it Works
+
+1. **External OAuth Flow**:
+
+   - Nango handles the complete OAuth flow with the source platform
+   - This happens outside of our integration code
+   - Integrations never implement OAuth flows directly
+
+2. **Integration Authentication**:
+
+   ```typescript
+   // Example: Getting source API credentials
+   const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+   if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+     throw new Error('Could not retrieve Nango credentials');
+   }
+   // Use credentials.access_token for API calls
+   ```
+
+3. **Flow Diagram**:
+   ```
+   ┌────────┐    ┌───────┐    ┌─────────────┐    ┌──────────┐
+   │  User  │───>│ Nango │───>│ Integration │───>│ Source   │
+   │        │    │ OAuth │    │             │    │   API    │
+   └────────┘    └───────┘    └─────────────┘    └──────────┘
+                     │
+                     └── Provides nangoConnectionId
+   ```
+
 ## `/common`
 
 Common utilities and shared configurations:
