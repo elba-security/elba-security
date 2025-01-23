@@ -51,7 +51,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
                 result: {
                   ...result,
                   error: new RetryAfterError(
-                    `Rate limit reached by '${fn.name}'`,
+                    `{{name}} rate limit reached by '${fn.name}'`,
                     `${retryAfter}s`,
                     { cause: error }
                   ),
