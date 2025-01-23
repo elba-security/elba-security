@@ -86,38 +86,39 @@ Built-in error management features:
    pnpm test
    ```
 
-## Authentication Flow
+## Authentication & Installation Flow
 
-1. User initiates OAuth flow through the installation URL
-2. User is redirected to the service's OAuth consent screen
-3. After consent, user is redirected back to `/api/auth/callback`
-4. Nango handles token exchange and storage
-5. Organization is registered with Elba
-6. Initial sync is triggered via Inngest events
+The authentication flow happens entirely in Elba's SaaS platform. Once completed:
+
+1. Elba calls the integration's webhook endpoint `/api/webhooks/elba/installation/validate`
+2. The integration performs additional checks (e.g., verifying admin permissions)
+3. If validation succeeds, initial sync events are triggered
+
+For implementation details, see `src/app/api/webhooks/elba/installation/validate/`.
 
 ## Event Types
 
 The template includes the following Inngest events:
 
 ```typescript
-'app/installed': {
+'{{name}}/app.installed': {
   data: {
-    organizationId: string;
+    organisationId: string;
   }
 }
 
-'app/uninstalled': {
+'{{name}}/app.uninstalled': {
   data: {
-    organizationId: string;
+    organisationId: string;
     region: string;
     errorType: ConnectionErrorType;
     errorMetadata?: unknown;
   }
 }
 
-'sync/requested': {
+'{{name}}/users.sync.requested': {
   data: {
-    organizationId: string;
+    organisationId: string;
     region: string;
     nangoConnectionId: string;
     isFirstSync: boolean;

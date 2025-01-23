@@ -5,8 +5,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Integration Template',
-  description: 'Template for building Elba Security integrations',
+  title: `Elba x {{name}}`,
+  description: 'Elba x {{name}}',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -43,29 +43,25 @@ Before you begin, ensure that you have the following installed on your machine:
 
 Once you have the prerequisites installed, you're ready to create a new SaaS integration. Here's how you can do it:
 
-1. Navigate to the Integrations Directory:
-
-Change to the `apps/` directory where our SaaS integrations live:
+1. Navigate to the root directory of the repository:
 
 ```bash
-cd apps/
+cd elba-security
 ```
 
-2. Create a New Next.js Application:
-
-You'll be using our custom Next.js template to create a new app. When running the command below, make sure to replace `{SaaS}` with the name of the SaaS you're integrating, formatted in [kebab-case](https://en.wikipedia.org/wiki/Letter_case#Special_case_styles) (all lowercase, words separated by hyphens).
-
-Run the following command to create a new Next.js app:
+2. Run the integration generator:
 
 ```bash
-pnpm create next-app {SaaS} -e https://github.com/elba-security/elba-security/tree/main/template
+pnpm generate
 ```
 
-For example, if you're adding an integration for _"Awesome Service"_, you would run:
+3. When prompted, enter your integration name in kebab-case format (e.g., `awesome-service`).
 
-```bash
-pnpm create next-app awesome-service -e https://github.com/elba-security/elba-security/tree/main/template
-```
+The generator will:
+
+- Create a new Next.js app in the `apps/` directory
+- Set up the correct package name (`@elba-security/your-integration`)
+- Copy all the necessary template files and configurations
 
 > Don't forget to read the `README.md` file generated at the root of your integration folder.
 

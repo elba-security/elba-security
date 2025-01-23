@@ -4,14 +4,6 @@ import { nangoAPIClient } from '@/common/nango';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
 import { mapElbaConnectionError } from '@/connectors/common/error';
-import packageJson from '../../../../../../../package.json';
-
-// Extract the integration name from the package name (e.g., "@elba-security/bitbucket" -> "bitbucket")
-const integrationName =
-  packageJson.name
-    .split('/')
-    .pop()
-    ?.replace(/^@elba-security\//, '') ?? '';
 
 export const validateSourceInstallation = async ({
   organisationId,
@@ -41,13 +33,13 @@ export const validateSourceInstallation = async ({
 
     await inngest.send([
       {
-        name: `${integrationName}/app.installed`,
+        name: '{{name}}/app.installed',
         data: {
           organisationId,
         },
       },
       {
-        name: `${integrationName}/users.sync.requested`,
+        name: '{{name}}/users.sync.requested',
         data: {
           organisationId,
           region,

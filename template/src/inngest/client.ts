@@ -28,24 +28,17 @@ import packageJson from '../../package.json';
  * - bitbucket/users.sync.requested
  */
 
-// Extract the integration name from the package name (e.g., "@elba-security/bitbucket" -> "bitbucket")
-const integrationName =
-  packageJson.name
-    .split('/')
-    .pop()
-    ?.replace(/^@elba-security\//, '') ?? '';
-
 export const inngest = new Inngest({
   id: integrationName,
   schemas: new EventSchemas().fromRecord<{
     // Triggered when the integration is successfully installed
-    [`${integrationName}/app.installed`]: {
+    [`{{name}}/app.installed`]: {
       data: {
         organisationId: string;
       };
     };
     // Triggered when a fatal error occurs (e.g., revoked access)
-    [`${integrationName}/app.uninstalled`]: {
+    [`{{name}}/app.uninstalled`]: {
       data: {
         organisationId: string;
         region: string;
@@ -54,7 +47,7 @@ export const inngest = new Inngest({
       };
     };
     // Triggered to start or continue user synchronization
-    [`${integrationName}/users.sync.requested`]: {
+    [`{{name}}/users.sync.requested`]: {
       data: {
         organisationId: string;
         region: string;

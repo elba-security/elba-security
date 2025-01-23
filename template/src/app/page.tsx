@@ -9,5 +9,6 @@
  * to the Elba dashboard after installation.
  */
 export default function Home() {
-  return <main>Elba x SaaS</main>;
+  const title = `Elba x {{name}}`;
+  return <main>{title}</main>;
 }
