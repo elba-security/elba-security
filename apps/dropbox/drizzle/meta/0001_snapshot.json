@@ -1,0 +1,69 @@
+{
+  "id": "5228746a-95c5-4239-baa4-ab867a9dd66a",
+  "prevId": "b188927a-0f87-47ae-af74-cb0031993d21",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "shared_links": {
+      "name": "shared_links",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organisation_id": {
+          "name": "organisation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_member_id": {
+          "name": "team_member_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "link_access_level": {
+          "name": "link_access_level",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "path_lower": {
+          "name": "path_lower",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "shared_links_url_path_lower_pk": {
+          "name": "shared_links_url_path_lower_pk",
+          "columns": [
+            "url",
+            "path_lower"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

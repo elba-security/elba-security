@@ -1,11 +1,12 @@
-import { decrypt } from '@/common/crypto';
 import { getFilesMetadataMembersAndMapDetails } from '@/connectors/dropbox/files';
 import { getFoldersMetadataMembersAndMapDetails } from '@/connectors/dropbox/folders';
 import { type Folder, type File, getFoldersAndFiles } from '@/connectors/dropbox/folders-and-files';
-import { createElbaClient } from '@/connectors/elba/client';
-import { getOrganisation } from '@/database/organisations';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { getSharedLinks } from '@/database/shared-links';
 import { inngest } from '@/inngest/client';
+import { nangoAPIClient } from '@/common/nango';
+import { getAuthenticatedAdmin } from '@/connectors/dropbox/users';
+import { getCurrentUserAccount } from '@/connectors/dropbox/users';
 
 export const syncFoldersAndFiles = inngest.createFunction(
   {
@@ -33,15 +34,18 @@ export const syncFoldersAndFiles = inngest.createFunction(
   },
   { event: 'dropbox/data_protection.folder_and_files.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, teamMemberId, cursor } = event.data;
-    const { accessToken, adminTeamMemberId, pathRoot, region } =
-      await getOrganisation(organisationId);
+    const { organisationId, teamMemberId, cursor, nangoConnectionId, region } = event.data;
 
-    const decryptedToken = await decrypt(accessToken);
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new Error('Could not retrieve Nango credentials');
+      }
+    const { teamMemberId: adminTeamMemberId } = await getAuthenticatedAdmin(credentials.access_token);
+    const { rootNamespaceId: pathRoot } = await getCurrentUserAccount({ accessToken: credentials.access_token, teamMemberId });
 
     const { foldersAndFiles, nextCursor } = await step.run('fetch-folders-and-files', async () => {
       return await getFoldersAndFiles({
-        accessToken: decryptedToken,
+        accessToken: credentials.access_token,
         teamMemberId,
         pathRoot,
         isAdmin: teamMemberId === adminTeamMemberId,
@@ -86,7 +90,7 @@ export const syncFoldersAndFiles = inngest.createFunction(
 
     const filesToAdd = await step.run('fetch-folders-and-map-details', async () => {
       return getFilesMetadataMembersAndMapDetails({
-        accessToken: decryptedToken,
+        accessToken: credentials.access_token,
         teamMemberId,
         files,
         sharedLinks,
@@ -95,14 +99,14 @@ export const syncFoldersAndFiles = inngest.createFunction(
 
     const foldersToAdd = await step.run('fetch-folders-and-map-details', async () => {
       return getFoldersMetadataMembersAndMapDetails({
-        accessToken: decryptedToken,
+        accessToken: credentials.access_token,
         teamMemberId,
         folders,
         sharedLinks,
       });
     });
 
-    const elba = createElbaClient({ organisationId, region });
+    const elba = createElbaOrganisationClient({ organisationId, region });
 
     const entries = [...foldersToAdd, ...filesToAdd];
 

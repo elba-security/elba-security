@@ -1,9 +1,8 @@
-import { decrypt } from '@/common/crypto';
 import { getUsers } from '@/connectors/dropbox/users';
-import { createElbaClient } from '@/connectors/elba/client';
-import { getOrganisation } from '@/database/organisations';
 import { deleteSharedLinks } from '@/database/shared-links';
 import { inngest } from '@/inngest/client';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
+import { nangoAPIClient } from '@/common/nango';
 
 export const startFolderAndFileSync = inngest.createFunction(
   {
@@ -27,14 +26,19 @@ export const startFolderAndFileSync = inngest.createFunction(
     event: 'dropbox/data_protection.folder_and_files.start.sync.requested',
   },
   async ({ event, step }) => {
-    const { organisationId, cursor, syncStartedAt } = event.data;
-    const organisation = await getOrganisation(organisationId);
-    const elba = createElbaClient({ organisationId, region: organisation.region });
-    const accessToken = await decrypt(organisation.accessToken);
+    const { organisationId, cursor, syncStartedAt, nangoConnectionId, region } = event.data;
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new Error('Could not retrieve Nango credentials');
+    }
 
     const { validUsers, cursor: nextCursor } = await step.run('list-users', async () => {
       return await getUsers({
-        accessToken,
+        accessToken: credentials.access_token,
         cursor,
       });
     });
@@ -53,6 +57,8 @@ export const startFolderAndFileSync = inngest.createFunction(
           validUsers.map((user) => ({
             name: 'dropbox/data_protection.folder_and_files.sync.requested',
             data: {
+              nangoConnectionId,
+              region,
               organisationId,
               teamMemberId: user.profile.team_member_id,
               syncStartedAt,
@@ -74,7 +80,6 @@ export const startFolderAndFileSync = inngest.createFunction(
       });
       return { status: 'ongoing' };
     }
-
     await step.run('delete-objects', async () => {
       await elba.dataProtection.deleteObjects({
         syncedBefore: new Date(syncStartedAt).toISOString(),

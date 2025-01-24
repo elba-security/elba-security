@@ -1,29 +1,14 @@
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { NonRetriableError } from 'inngest/components/NonRetriableError';
-import * as crypto from '@/common/crypto';
+import * as nangoAPI from '@/common/nango';
 import * as permissionsConnector from '@/connectors/dropbox/permissions';
 import * as sharedLinksConnector from '@/connectors/dropbox/shared-links';
-import { encrypt } from '@/common/crypto';
-import { organisationsTable, type Organisation } from '@/database/schema';
-import { db } from '@/database/client';
 import { deleteObjectPermissions } from './delete-object-permissions';
+import * as usersConnector from '@/connectors/dropbox/users';
 
-const validToken = 'valid-token';
-
-const newTokens = {
-  accessToken: 'new-access-token',
-  refreshToken: 'new-refresh-token',
-};
-
-const organisation: Omit<Organisation, 'createdAt'> = {
-  id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt(newTokens.accessToken),
-  refreshToken: await encrypt(newTokens.accessToken),
-  adminTeamMemberId: 'admin-team-member-id',
-  rootNamespaceId: 'root-namespace-id',
-  region: 'us',
-};
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const nangoConnectionId = 'nango-connection-id';
+const region = 'us';
 
 const setup = createInngestFunctionMock(
   deleteObjectPermissions,
@@ -32,28 +17,7 @@ const setup = createInngestFunctionMock(
 
 describe('deleteObjectPermissions', () => {
   beforeEach(() => {
-    vi.spyOn(crypto, 'decrypt').mockResolvedValue(validToken);
-  });
-
-  test('should abort sync when organisation is not registered', async () => {
-    vi.spyOn(permissionsConnector, 'removePermission').mockResolvedValue(new Response());
-    vi.spyOn(sharedLinksConnector, 'getSharedLinksByPath').mockResolvedValue([]);
-    const [result] = setup({
-      objectId: 'object-id',
-      organisationId: '00000000-0000-0000-0000-000000000010',
-      metadata: {
-        type: 'folder',
-        isPersonal: false,
-        ownerId: 'owner-id',
-      },
-      permission: {
-        id: 'permission-id',
-        metadata: null,
-      },
-    });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-    expect(permissionsConnector.removePermission).toBeCalledTimes(0);
+    vi.restoreAllMocks();
   });
 
   test.each([
@@ -68,13 +32,25 @@ describe('deleteObjectPermissions', () => {
       objectId: 'file-id',
     },
   ])('should remove the team members from $type', async ({ type, objectId, email }) => {
-    await db.insert(organisationsTable).values(organisation);
     vi.spyOn(permissionsConnector, 'removePermission').mockResolvedValue(new Response());
     vi.spyOn(sharedLinksConnector, 'getSharedLinksByPath').mockResolvedValue([]);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'valid-token' },
+      }),
+    });
+    vi.spyOn(usersConnector, 'getAuthenticatedAdmin').mockResolvedValue({
+      teamMemberId: 'admin-team-member-id',
+    });
+    vi.spyOn(usersConnector, 'getCurrentUserAccount').mockResolvedValue({
+      rootNamespaceId: 'root-namespace-id',
+      teamMemberId: 'team-memeber-id',
+    });
 
     const [result] = setup({
       objectId,
-      organisationId: organisation.id,
+      organisationId,
       metadata: {
         type: type as 'file' | 'folder',
         isPersonal: false,
@@ -84,6 +60,8 @@ describe('deleteObjectPermissions', () => {
         id: email, // email is used as permission id
         metadata: null,
       },
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -124,12 +102,31 @@ describe('deleteObjectPermissions', () => {
   });
 
   test('should revoke the shared link', async () => {
-    await db.insert(organisationsTable).values(organisation);
     vi.spyOn(permissionsConnector, 'removePermission').mockResolvedValue(new Response());
-
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'valid-token' },
+      }),
+    });
+    vi.spyOn(usersConnector, 'getAuthenticatedAdmin').mockResolvedValue({
+      teamMemberId: 'admin-team-member-id',
+    });
+    vi.spyOn(usersConnector, 'getCurrentUserAccount').mockResolvedValue({
+      rootNamespaceId: 'root-namespace-id',
+      teamMemberId: 'team-memeber-id',
+    });
+    vi.spyOn(sharedLinksConnector, 'getSharedLinksByPath').mockResolvedValue([
+      {
+        id: 'shared-link-id',
+        url: 'https://www.dropbox.com/sh/2',
+        linkAccessLevel: 'viewer',
+        pathLower: 'path-lower',
+      },
+    ]);
     const [result] = setup({
       objectId: 'object-id',
-      organisationId: organisation.id,
+      organisationId,
       metadata: {
         type: 'folder',
         isPersonal: false,
@@ -141,6 +138,8 @@ describe('deleteObjectPermissions', () => {
           sharedLinks: ['https://www.dropbox.com/sh/1', 'https://www.dropbox.com/sh/2'],
         },
       },
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -165,7 +164,19 @@ describe('deleteObjectPermissions', () => {
   });
 
   test('should revoke the leftover shared link', async () => {
-    await db.insert(organisationsTable).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'valid-token' },
+      }),
+    });
+    vi.spyOn(usersConnector, 'getAuthenticatedAdmin').mockResolvedValue({
+      teamMemberId: 'admin-team-member-id',
+    });
+    vi.spyOn(usersConnector, 'getCurrentUserAccount').mockResolvedValue({
+      rootNamespaceId: 'root-namespace-id',
+      teamMemberId: 'team-memeber-id',
+    });
     vi.spyOn(permissionsConnector, 'removePermission').mockResolvedValue(new Response());
     vi.spyOn(sharedLinksConnector, 'getSharedLinksByPath').mockResolvedValue([
       {
@@ -178,7 +189,7 @@ describe('deleteObjectPermissions', () => {
 
     const [result, { step }] = setup({
       objectId: 'object-id',
-      organisationId: organisation.id,
+      organisationId,
       metadata: {
         type: 'folder',
         isPersonal: false,
@@ -190,6 +201,8 @@ describe('deleteObjectPermissions', () => {
           sharedLinks: ['https://www.dropbox.com/sh/1', 'https://www.dropbox.com/sh/2'],
         },
       },
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -229,6 +242,8 @@ describe('deleteObjectPermissions', () => {
             sharedLinks: ['https://www.dropbox.com/sh/2'],
           },
         },
+        nangoConnectionId,
+        region,
       },
     });
   });

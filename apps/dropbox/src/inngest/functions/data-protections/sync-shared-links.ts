@@ -1,8 +1,7 @@
-import { decrypt } from '@/common/crypto';
 import { getSharedLinks } from '@/connectors/dropbox/shared-links';
-import { getOrganisation } from '@/database/organisations';
 import { insertSharedLinks } from '@/database/shared-links';
 import { inngest } from '@/inngest/client';
+import { nangoAPIClient } from '@/common/nango';
 
 export const syncSharedLinks = inngest.createFunction(
   {
@@ -18,15 +17,16 @@ export const syncSharedLinks = inngest.createFunction(
   },
   { event: 'dropbox/data_protection.shared_links.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, cursor, teamMemberId, isPersonal, pathRoot } = event.data;
+    const { organisationId, cursor, teamMemberId, isPersonal, pathRoot, nangoConnectionId } = event.data;
 
-    const { accessToken } = await getOrganisation(organisationId);
-
-    const decryptedAccessToken = await decrypt(accessToken);
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new Error('Could not retrieve Nango credentials');
+    }
 
     const { links: sharedLinks, nextCursor } = await step.run('fetch-shared-links', async () => {
       return await getSharedLinks({
-        accessToken: decryptedAccessToken,
+        accessToken: credentials.access_token,
         teamMemberId,
         isPersonal,
         pathRoot,

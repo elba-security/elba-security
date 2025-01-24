@@ -5,6 +5,8 @@ import { deleteThirdPartyAppsObject } from './service';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const userId = 'team-member-id-1';
 const appId = 'app-id-1';
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
 
 describe('deleteThirdPartyAppsObject', () => {
   test('should send request to delete third party objects', async () => {
@@ -14,6 +16,8 @@ describe('deleteThirdPartyAppsObject', () => {
       organisationId,
       userId,
       appId,
+      nangoConnectionId,
+      region,
     });
 
     expect(send).toBeCalledTimes(1);
@@ -23,6 +27,8 @@ describe('deleteThirdPartyAppsObject', () => {
         organisationId,
         userId,
         appId,
+        nangoConnectionId,
+        region,
       },
     });
   });

@@ -2,6 +2,9 @@ import { expect, test, describe, vi } from 'vitest';
 import { inngest } from '@/inngest/client';
 import { deleteDataProtectionObjectPermissions } from './service';
 
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
+
 describe('deleteDataProtectionObjectPermissions', () => {
   test('should send request to delete the object permissions', async () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
@@ -25,6 +28,8 @@ describe('deleteDataProtectionObjectPermissions', () => {
           metadata: null,
         },
       ],
+      nangoConnectionId,
+      region,
     });
 
     expect(send).toBeCalledTimes(1);
@@ -44,6 +49,8 @@ describe('deleteDataProtectionObjectPermissions', () => {
               sharedLinks: ['https://dropbox.com/link-1', 'https://dropbox.com/link-2'],
             },
           },
+          nangoConnectionId,
+          region,
         },
         name: 'dropbox/data_protection.delete_object_permission.requested',
       },
@@ -60,6 +67,8 @@ describe('deleteDataProtectionObjectPermissions', () => {
             id: 'permission-id-2',
             metadata: null,
           },
+          nangoConnectionId,
+          region,
         },
         name: 'dropbox/data_protection.delete_object_permission.requested',
       },
