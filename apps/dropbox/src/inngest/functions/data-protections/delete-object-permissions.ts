@@ -1,9 +1,10 @@
 import { logger } from '@elba-security/logger';
-import { decrypt } from '@/common/crypto';
+import { nangoAPIClient } from '@/common/nango';
 import { removePermission } from '@/connectors/dropbox/permissions';
-import { getOrganisation } from '@/database/organisations';
 import { inngest } from '@/inngest/client';
 import { getSharedLinksByPath } from '@/connectors/dropbox/shared-links';
+import { getCurrentUserAccount } from '@/connectors/dropbox/users';
+import { getAuthenticatedAdmin } from '@/connectors/dropbox/users';
 
 export const deleteObjectPermissions = inngest.createFunction(
   {
@@ -19,15 +20,23 @@ export const deleteObjectPermissions = inngest.createFunction(
   },
   { event: 'dropbox/data_protection.delete_object_permission.requested' },
   async ({ event, step }) => {
-    const { organisationId, objectId, metadata, permission } = event.data;
-    const { accessToken, adminTeamMemberId, pathRoot } = await getOrganisation(organisationId);
+    const { objectId, metadata, permission, nangoConnectionId } = event.data;
 
-    const decryptedAccessToken = await decrypt(accessToken);
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new Error('Could not retrieve Nango credentials');
+    }
+    const { teamMemberId } = await getAuthenticatedAdmin(credentials.access_token);
+    const { rootNamespaceId: pathRoot } = await getCurrentUserAccount({
+      accessToken: credentials.access_token,
+      teamMemberId,
+    });
 
     const result = await step.run('delete-permission', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       return await removePermission({
-        accessToken: decryptedAccessToken,
-        adminTeamMemberId,
+        accessToken: credentials.access_token,
+        adminTeamMemberId: teamMemberId,
         objectId,
         metadata,
         permission,
@@ -43,8 +52,8 @@ export const deleteObjectPermissions = inngest.createFunction(
       const path = isFile ? objectId : `ns:${objectId}`;
 
       const sharedLinks = await getSharedLinksByPath({
-        accessToken: decryptedAccessToken,
         teamMemberId: metadata.ownerId,
+        accessToken: credentials.access_token,
         pathRoot,
         isPersonal: metadata.isPersonal,
         path,

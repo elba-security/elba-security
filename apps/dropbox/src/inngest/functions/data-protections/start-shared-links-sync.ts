@@ -1,7 +1,6 @@
-import { decrypt } from '@/common/crypto';
 import { getUsers } from '@/connectors/dropbox/users';
-import { getOrganisation } from '@/database/organisations';
 import { inngest } from '@/inngest/client';
+import { nangoAPIClient } from '@/common/nango';
 
 export const startSharedLinksSync = inngest.createFunction(
   {
@@ -17,21 +16,24 @@ export const startSharedLinksSync = inngest.createFunction(
   },
   { event: 'dropbox/data_protection.shared_links.start.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, isFirstSync, syncStartedAt, cursor } = event.data;
+    const { organisationId, isFirstSync, syncStartedAt, cursor, nangoConnectionId, region } = event.data;
 
-    const organisation = await getOrganisation(organisationId);
-
-    const accessToken = await decrypt(organisation.accessToken);
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new Error('Could not retrieve Nango credentials');
+    }
 
     const { validUsers, cursor: nextCursor } = await step.run('list-users', async () => {
       return await getUsers({
-        accessToken,
+        accessToken: credentials.access_token,
         cursor,
       });
     });
 
     if (validUsers.length > 0) {
       const job = {
+        region,
+        nangoConnectionId,
         organisationId,
         syncStartedAt,
         isFirstSync,
@@ -90,6 +92,8 @@ export const startSharedLinksSync = inngest.createFunction(
     await step.sendEvent('start-folder-and-files-sync', {
       name: 'dropbox/data_protection.folder_and_files.start.sync.requested',
       data: {
+        region,
+        nangoConnectionId,
         organisationId,
         syncStartedAt,
         isFirstSync,

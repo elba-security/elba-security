@@ -1,34 +1,27 @@
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { NonRetriableError } from 'inngest';
-import * as crypto from '@/common/crypto';
-import { organisationsTable, type Organisation } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
-import { db } from '@/database/client';
+import { describe, expect, test, vi } from 'vitest';
+import * as nangoAPI from '@/common/nango';
 import * as sharedLinkConnector from '@/connectors/dropbox/shared-links';
 import { syncSharedLinks } from './sync-shared-links';
+
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const nangoConnectionId = 'nango-connection-id';
+const region = 'us';
 
 const now = Date.now();
 const nextCursor = 'next-page-cursor';
 const teamMemberId = 'team-member-id-1';
 
-const organisation: Omit<Organisation, 'createdAt'> = {
-  id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt('test-access-token'),
-  refreshToken: await encrypt('test-refresh-token'),
-  adminTeamMemberId: 'admin-team-member-id',
-  rootNamespaceId: 'root-namespace-id',
-  region: 'us',
-};
-
 const setupArgs = {
-  organisationId: organisation.id,
+  organisationId,
   teamMemberId,
   isFirstSync: false,
   syncStartedAt: now,
   cursor: null,
   isPersonal: false,
   pathRoot: '10000',
+  nangoConnectionId,
+  region,
 };
 
 const sharedLinks = [
@@ -52,19 +45,13 @@ const setup = createInngestFunctionMock(
 );
 
 describe('syncSharedLinks', () => {
-  beforeEach(() => {
-    vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
-  });
-
-  test('should abort sync when organisation is not registered', async () => {
-    const [result, { step }] = setup(setupArgs);
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-    expect(step.sendEvent).toBeCalledTimes(0);
-  });
-
   test('should fetch shared links of a member and insert into db & should call the event itself to fetch next page', async () => {
-    await db.insert(organisationsTable).values(organisation).execute();
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
     vi.spyOn(sharedLinkConnector, 'getSharedLinks').mockResolvedValue({
       links: sharedLinks,
       nextCursor,
@@ -77,7 +64,7 @@ describe('syncSharedLinks', () => {
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('sync-shared-links-next-page', {
       data: {
-        organisationId: organisation.id,
+        organisationId,
         isFirstSync: false,
         isPersonal: false,
         syncStartedAt: now,
@@ -90,7 +77,13 @@ describe('syncSharedLinks', () => {
   });
 
   test('should fetch shared links of a member and insert into db & should call the waitFore event', async () => {
-    await db.insert(organisationsTable).values(organisation).execute();
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
+
     vi.spyOn(sharedLinkConnector, 'getSharedLinks').mockResolvedValue({
       links: sharedLinks,
       nextCursor: null,
@@ -106,7 +99,7 @@ describe('syncSharedLinks', () => {
         cursor: null,
         isFirstSync: false,
         isPersonal: false,
-        organisationId: organisation.id,
+        organisationId,
         syncStartedAt: now,
         teamMemberId,
         pathRoot: '10000',

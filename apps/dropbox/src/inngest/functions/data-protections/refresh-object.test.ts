@@ -1,31 +1,16 @@
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { NonRetriableError } from 'inngest/components/NonRetriableError';
-import * as crypto from '@/common/crypto';
-import { encrypt } from '@/common/crypto';
-import { organisationsTable, type Organisation } from '@/database/schema';
-import { db } from '@/database/client';
+import * as nangoAPI from '@/common/nango';
 import * as foldersAndFilesConnector from '@/connectors/dropbox/folders-and-files';
 import * as foldersConnector from '@/connectors/dropbox/folders';
 import * as sharedLinksConnector from '@/connectors/dropbox/shared-links';
 import { env } from '@/common/env';
 import { refreshObject } from './refresh-object';
+import * as usersConnector from '@/connectors/dropbox/users';
 
-const validToken = 'valid-token';
-
-const newTokens = {
-  accessToken: 'new-access-token',
-  refreshToken: 'new-refresh-token',
-};
-
-const organisation: Omit<Organisation, 'createdAt'> = {
-  id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt(newTokens.accessToken),
-  refreshToken: await encrypt(newTokens.accessToken),
-  adminTeamMemberId: 'admin-team-member-id',
-  rootNamespaceId: 'root-namespace-id',
-  region: 'us',
-};
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const nangoConnectionId = 'nango-connection-id';
+const region = 'us';
 
 const setup = createInngestFunctionMock(
   refreshObject,
@@ -34,32 +19,24 @@ const setup = createInngestFunctionMock(
 
 describe('refreshObject', () => {
   beforeEach(() => {
-    vi.spyOn(crypto, 'decrypt').mockResolvedValue(validToken);
-  });
-
-  test('should abort sync when organisation is not registered', async () => {
-    const elba = spyOnElba();
-    vi.spyOn(foldersAndFilesConnector, 'getFolderOrFileMetadataByPath');
-
-    const [result] = setup({
-      organisationId: organisation.id,
-      id: 'source-object-id',
-      metadata: {
-        isPersonal: true,
-        ownerId: 'team-member-id-1',
-        type: 'folder',
-      },
-    });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(elba).toBeCalledTimes(0);
-    expect(foldersAndFilesConnector.getFolderOrFileMetadataByPath).toBeCalledTimes(0);
+    vi.restoreAllMocks();
   });
 
   test('should delete the object in elba if the file is not exist in the source', async () => {
-    await db.insert(organisationsTable).values(organisation);
     const elba = spyOnElba();
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'valid-token' },
+      }),
+    });
+    vi.spyOn(usersConnector, 'getAuthenticatedAdmin').mockResolvedValue({
+      teamMemberId: 'admin-team-member-id',
+    });
+    vi.spyOn(usersConnector, 'getCurrentUserAccount').mockResolvedValue({
+      rootNamespaceId: 'root-namespace-id',
+      teamMemberId: 'team-memeber-id',
+    });
     vi.spyOn(foldersAndFilesConnector, 'getFolderOrFileMetadataByPath').mockResolvedValue({
       error_summary: 'not_found',
       error: {
@@ -73,21 +50,23 @@ describe('refreshObject', () => {
     vi.spyOn(sharedLinksConnector, 'getSharedLinksByPath');
 
     const [result] = setup({
-      organisationId: organisation.id,
+      organisationId,
       id: 'source-object-id',
       metadata: {
         isPersonal: true,
         ownerId: 'team-member-id-1',
         type: 'folder',
       },
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      organisationId: organisation.id,
-      region: organisation.region,
+      organisationId,
+      region,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });
@@ -101,9 +80,21 @@ describe('refreshObject', () => {
   });
 
   test('should successfully refresh the requested file or folder', async () => {
-    await db.insert(organisationsTable).values(organisation);
-
     const elba = spyOnElba();
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'valid-token' },
+      }),
+    });
+
+    vi.spyOn(usersConnector, 'getAuthenticatedAdmin').mockResolvedValue({
+      teamMemberId: 'admin-team-member-id',
+    });
+    vi.spyOn(usersConnector, 'getCurrentUserAccount').mockResolvedValue({
+      rootNamespaceId: 'root-namespace-id',
+      teamMemberId: 'team-memeber-id',
+    });
     vi.spyOn(foldersAndFilesConnector, 'getFolderOrFileMetadataByPath').mockResolvedValue({
       '.tag': 'folder',
       id: 'id:folder-id-1',
@@ -155,20 +146,22 @@ describe('refreshObject', () => {
 
     const [result] = setup({
       id: 'source-object-id',
-      organisationId: organisation.id,
+      organisationId,
       metadata: {
         ownerId: 'team-member-id-1',
         isPersonal: false,
         type: 'folder',
       },
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      organisationId: organisation.id,
-      region: organisation.region,
+      organisationId,
+      region,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });

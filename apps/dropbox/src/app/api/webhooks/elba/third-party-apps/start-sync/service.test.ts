@@ -4,6 +4,8 @@ import { startThirdPartySync } from './service';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const syncStartAt = '2021-01-01T00:00:00.000Z';
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
 
 describe('triggerThirdPartyAppsScan', () => {
   afterEach(() => {
@@ -14,7 +16,7 @@ describe('triggerThirdPartyAppsScan', () => {
     vi.setSystemTime(syncStartAt);
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
-    await startThirdPartySync(organisationId);
+    await startThirdPartySync({ organisationId, nangoConnectionId, region });
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
@@ -24,6 +26,8 @@ describe('triggerThirdPartyAppsScan', () => {
         isFirstSync: true,
         syncStartedAt: 1609459200000,
         cursor: null,
+        nangoConnectionId,
+        region,
       },
     });
   });

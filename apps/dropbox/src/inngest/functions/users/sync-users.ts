@@ -1,10 +1,11 @@
 import type { User } from '@elba-security/sdk';
+import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { type DropboxTeamMember, getUsers } from '@/connectors/dropbox/users';
 import { inngest } from '@/inngest/client';
-import { decrypt } from '@/common/crypto';
-import { createElbaClient } from '@/connectors/elba/client';
-import { getOrganisation } from '@/database/organisations';
+import { getAuthenticatedAdmin } from '@/connectors/dropbox/users';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
+import { nangoAPIClient } from '@/common/nango';
 
 const formatElbaUser = ({
   adminTeamMemberId,
@@ -45,20 +46,26 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'dropbox/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, cursor } = event.data;
-
-    const organisation = await getOrganisation(organisationId);
-
-    const elba = createElbaClient({ organisationId, region: organisation.region });
-    const accessToken = await decrypt(organisation.accessToken);
+    const { organisationId, syncStartedAt, cursor , nangoConnectionId, region} = event.data;
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
 
     const nextPage = await step.run('list-users', async () => {
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
+      const { teamMemberId: adminTeamMemberId } = await getAuthenticatedAdmin(credentials.access_token);
+
       const {
         validUsers,
         invalidUsers,
         cursor: nextCursor,
       } = await getUsers({
-        accessToken,
+        accessToken: credentials.access_token,
         cursor,
       });
 
@@ -68,7 +75,7 @@ export const syncUsers = inngest.createFunction(
 
       if (validUsers.length > 0) {
         const users = validUsers.map((user) =>
-          formatElbaUser({ adminTeamMemberId: organisation.adminTeamMemberId, user })
+          formatElbaUser({ adminTeamMemberId, user })
         );
         await elba.users.update({ users });
       }

@@ -58,7 +58,7 @@ export const getFoldersPermissions = async ({
         );
 
         if (!response.ok) {
-          throw await DropboxError.fromResponse('Could not retrieve shared links', { response });
+          throw new DropboxError('Could not retrieve shared links', { response });
         }
 
         const data: unknown = await response.json();
@@ -124,7 +124,7 @@ export const getFoldersMetadata = async ({
       });
 
       if (!response.ok) {
-        throw await DropboxError.fromResponse('Could not retrieve shared links', { response });
+        throw new DropboxError('Could not retrieve shared links', { response });
       }
 
       const data: unknown = await response.json();

@@ -13,10 +13,9 @@ export const rateLimitMiddleware = new InngestMiddleware({
               ...context
             } = ctx;
 
-            if (!(error instanceof DropboxError)) {
+            if (!(error instanceof DropboxError) || !error.response) {
               return;
             }
-
             if (error.response.status === 429) {
               const retryAfter = error.response.headers.get('retry-after') || 60;
 

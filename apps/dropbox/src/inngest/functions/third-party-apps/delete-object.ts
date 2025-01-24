@@ -1,8 +1,7 @@
 import { inngest } from '@/inngest/client';
-import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
-import { getOrganisation } from '@/database/organisations';
 import { revokeMemberLinkedApp } from '@/connectors/dropbox/apps';
+import { nangoAPIClient } from '@/common/nango';
 
 export const deleteThirdPartyAppsObject = inngest.createFunction(
   {
@@ -18,13 +17,15 @@ export const deleteThirdPartyAppsObject = inngest.createFunction(
   },
   { event: 'dropbox/third_party_apps.delete_object.requested' },
   async ({ step, event }) => {
-    const { organisationId, userId, appId } = event.data;
-    const organisation = await getOrganisation(organisationId);
-    const accessToken = await decrypt(organisation.accessToken);
+    const { userId, appId, nangoConnectionId } = event.data;
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new Error('Could not retrieve Nango credentials');
+    }
 
     await step.run('delete-object', async () => {
       await revokeMemberLinkedApp({
-        accessToken,
+        accessToken: credentials.access_token,
         teamMemberId: userId,
         appId,
       });

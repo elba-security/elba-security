@@ -9,7 +9,11 @@ export const deleteDataProtectionObjectPermissions = async ({
   id: objectId,
   metadata,
   permissions,
+  nangoConnectionId,
+  region,
 }: {
+  nangoConnectionId: string;
+  region: string;
   organisationId: string;
   id: string;
   metadata: unknown;
@@ -39,6 +43,8 @@ export const deleteDataProtectionObjectPermissions = async ({
         organisationId,
         metadata: metadataResult.data,
         permission,
+        nangoConnectionId,
+        region,
       },
     }))
   );
