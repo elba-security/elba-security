@@ -1,6 +1,6 @@
 /**
  * DISCLAIMER:
- * The tests provided in this file are specifically designed for the `syncUsersPage` function example.
+ * The tests provided in this file are specifically designed for the `syncUsers` function example.
  * These tests serve as a conceptual framework and are not intended to be used as definitive tests in a production environment.
  * They are meant to illustrate potential test scenarios and methodologies that might be relevant for a SaaS integration.
  * Developers should create their own tests tailored to the specific implementation details and requirements of their SaaS integration.
