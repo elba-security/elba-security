@@ -1,6 +1,20 @@
 import type { PlopTypes } from '@turbo/gen';
+import fs from 'fs';
 
 export default function generator(plop: PlopTypes.NodePlopAPI): void {
+  plop.setActionType('renameSourceFolder', (answers: any) => {
+    const data = answers;
+    const sourcePath = `${data.turbo.paths.root}/apps/${data.name}/src/connectors/source`;
+    const destPath = `${data.turbo.paths.root}/apps/${data.name}/src/connectors/${data.name}`;
+
+    try {
+      fs.renameSync(sourcePath, destPath);
+      return `Successfully renamed ${sourcePath} to ${destPath}`;
+    } catch (error) {
+      return `Failed to rename folder: ${error}`;
+    }
+  });
+
   plop.setGenerator('integration', {
     description: 'Create a new Elba integration',
     prompts: [
@@ -37,6 +51,9 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
           pkg.name = `@elba-security/${answers.name}`;
           return JSON.stringify(pkg, null, 2);
         },
+      },
+      {
+        type: 'renameSourceFolder',
       },
     ],
   });
