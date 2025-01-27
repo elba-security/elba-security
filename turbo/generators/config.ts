@@ -1,19 +1,12 @@
 import type { PlopTypes } from '@turbo/gen';
 import fs from 'fs';
+import path from 'path';
 
 export default function generator(plop: PlopTypes.NodePlopAPI): void {
-  plop.setActionType('renameSourceFolder', (answers: any) => {
-    const data = answers;
-    const sourcePath = `${data.turbo.paths.root}/apps/${data.name}/src/connectors/source`;
-    const destPath = `${data.turbo.paths.root}/apps/${data.name}/src/connectors/${data.name}`;
+  const rootDir = path.resolve(__dirname, '../..');
 
-    try {
-      fs.renameSync(sourcePath, destPath);
-      return `Successfully renamed ${sourcePath} to ${destPath}`;
-    } catch (error) {
-      return `Failed to rename folder: ${error}`;
-    }
-  });
+  // Helper function to process the name
+  plop.setHelper('upper', (text) => text.toUpperCase().replace(/-/g, '_'));
 
   plop.setGenerator('integration', {
     description: 'Create a new Elba integration',
@@ -30,31 +23,57 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         },
       },
     ],
-    actions: [
-      {
-        type: 'addMany',
-        destination: '{{turbo.paths.root}}/apps/{{name}}',
-        templateFiles: '{{turbo.paths.root}}/template/**/*',
-        base: '{{turbo.paths.root}}/template',
-        transform: (content: string, data) => {
-          return content.replace(/\{\{name\}\}/g, data.name);
+    actions: function (data) {
+      if (!data?.name) {
+        throw new Error('Integration name is required');
+      }
+
+      return [
+        // First create the directory structure
+        {
+          type: 'addMany',
+          destination: path.join(rootDir, 'apps', '{{name}}'),
+          templateFiles: [
+            path.join(rootDir, 'template', '**/*'),
+            '!' + path.join(rootDir, 'template', '.env*'),
+            '!' + path.join(rootDir, 'template', 'src/connectors/source/**'),
+          ],
+          base: path.join(rootDir, 'template'),
+          globOptions: {
+            dot: true,
+          },
         },
-        globOptions: {
-          dot: true,
+        // Add env files with proper transformation
+        {
+          type: 'add',
+          path: path.join(rootDir, 'apps', '{{name}}', '.env.test'),
+          templateFile: path.join(rootDir, 'template', '.env.test'),
+          force: true,
         },
-      },
-      {
-        type: 'modify',
-        path: '{{turbo.paths.root}}/apps/{{name}}/package.json',
-        transform: (content: string, answers: { name: string }) => {
-          const pkg = JSON.parse(content);
-          pkg.name = `@elba-security/${answers.name}`;
-          return JSON.stringify(pkg, null, 2);
+        {
+          type: 'add',
+          path: path.join(rootDir, 'apps', '{{name}}', '.env.local.example'),
+          templateFile: path.join(rootDir, 'template', '.env.local.example'),
+          force: true,
         },
-      },
-      {
-        type: 'renameSourceFolder',
-      },
-    ],
+        // Copy source folder contents to renamed folder
+        {
+          type: 'addMany',
+          destination: path.join(rootDir, 'apps', '{{name}}', 'src/connectors', '{{name}}'),
+          templateFiles: path.join(rootDir, 'template', 'src/connectors/source/**'),
+          base: path.join(rootDir, 'template', 'src/connectors/source'),
+        },
+        // Update package.json
+        {
+          type: 'modify',
+          path: path.join(rootDir, 'apps', '{{name}}', 'package.json'),
+          transform: (content: string, answers: { name: string }) => {
+            const pkg = JSON.parse(content);
+            pkg.name = `@elba-security/${answers.name}`;
+            return JSON.stringify(pkg, null, 2);
+          },
+        },
+      ];
+    },
   });
 }

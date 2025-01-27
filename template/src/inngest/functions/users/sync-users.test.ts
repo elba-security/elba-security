@@ -38,11 +38,11 @@ describe('syncUsers', () => {
 
     // TODO: Add your source-specific mocks here
     // Example:
-    // vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-    //   validUsers: users,
-    //   invalidUsers: [],
-    //   nextPage: 'next-page-token',
-    // });
+    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: 'next-page-token',
+    });
 
     const [result, { step }] = setup({
       organisationId,
@@ -80,11 +80,11 @@ describe('syncUsers', () => {
 
     // TODO: Add your source-specific mocks here
     // Example:
-    // vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-    //   validUsers: users,
-    //   invalidUsers: [],
-    //   nextPage: null,
-    // });
+    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: null,
+    });
 
     const [result, { step }] = setup({
       organisationId,

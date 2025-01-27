@@ -87,10 +87,10 @@ export const syncUsers = inngest.createFunction(
       }
 
       // TODO: Replace with your source-specific user fetching logic
-      // const result = await getUsers({
-      //   accessToken: credentials.access_token,
-      //   page,
-      // });
+      const result = await getUsers({
+        accessToken: credentials.access_token,
+        page,
+      });
 
       // Placeholder for demonstration
       const result = {
