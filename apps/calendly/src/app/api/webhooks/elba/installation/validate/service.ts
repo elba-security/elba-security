@@ -79,6 +79,7 @@ export const validateSourceInstallation = async ({
       nangoConnectionId,
       error,
     });
+
     const errorType = mapElbaConnectionError(error);
     await elba.connectionStatus.update({
       errorType: errorType || 'unknown',

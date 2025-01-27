@@ -1,20 +1,23 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
-import { LinearError } from '../common/error';
+import { LinearError, LinearNotAdminError } from '../common/error';
 
 const linearUserSchema = z.object({
   id: z.string(),
-  username: z.string(),
-  name: z.string(),
-  active: z.boolean(),
   email: z.string().optional(),
+  displayName: z.string(),
+  active: z.boolean(),
+  admin: z.boolean(),
 });
 
 export type LinearUser = z.infer<typeof linearUserSchema>;
 
 const linearResponseSchema = z.object({
   data: z.object({
+    organization: z.object({
+      urlKey: z.string(),
+    }),
     users: z.object({
       nodes: z.array(z.unknown()),
       pageInfo: z.object({
@@ -25,16 +28,6 @@ const linearResponseSchema = z.object({
   }),
 });
 
-const authUserResponseSchema = z.object({
-  data: z.object({
-    viewer: z.object({
-      id: z.string(),
-    }),
-    organization: z.object({
-      urlKey: z.string(),
-    }),
-  }),
-});
 export type GetUsersParams = {
   accessToken: string;
   afterCursor?: string | null;
@@ -50,13 +43,17 @@ export const getUsers = async ({ accessToken, afterCursor }: GetUsersParams) => 
   const query = {
     query: `
       query($afterCursor: String, $perPage: Int) {
+        organization {
+          urlKey
+        }
         users(first: $perPage, after: $afterCursor) {
           nodes {
             id
-            username: name
-            name: displayName
-            active
             email
+            displayName
+            name
+            active
+            admin
           }
           pageInfo {
             hasNextPage
@@ -95,6 +92,10 @@ export const getUsers = async ({ accessToken, afterCursor }: GetUsersParams) => 
   for (const user of data.users.nodes) {
     const result = linearUserSchema.safeParse(user);
     if (result.success) {
+      if (!result.data.active) {
+        continue;
+      }
+
       validUsers.push(result.data);
     } else {
       invalidUsers.push(user);
@@ -102,6 +103,7 @@ export const getUsers = async ({ accessToken, afterCursor }: GetUsersParams) => 
   }
 
   return {
+    workspaceUrlKey: data.organization.urlKey,
     validUsers,
     invalidUsers,
     nextPage: data.users.pageInfo.hasNextPage ? data.users.pageInfo.endCursor : null,
@@ -133,15 +135,24 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
   }
 };
 
+const authUserResponseSchema = z.object({
+  data: z.object({
+    viewer: z.object({
+      id: z.string(),
+      active: z.boolean(),
+      admin: z.boolean(),
+    }),
+  }),
+});
+
 export const getAuthUser = async (accessToken: string) => {
   const query = {
     query: `
-      query WhoAmIAndAndOrganisation {
-        organization {
-          urlKey
-        }
+      query WhoAmI {
         viewer {
           id
+          active
+          admin
         }
       }
     `,
@@ -169,8 +180,11 @@ export const getAuthUser = async (accessToken: string) => {
     throw new LinearError('Invalid Linear auth-user id response');
   }
 
+  if (!result.data.data.viewer.active || !result.data.data.viewer.admin) {
+    throw new LinearNotAdminError('Auth user is not an admin or is not active');
+  }
+
   return {
     authUserId: result.data.data.viewer.id,
-    workspaceUrlKey: result.data.data.organization.urlKey,
   };
 };

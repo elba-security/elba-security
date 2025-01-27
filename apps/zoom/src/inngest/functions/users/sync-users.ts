@@ -1,14 +1,11 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/zoom/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
+import { getUsers , getAuthUser } from '@/connectors/zoom/users';
 import { type ZoomUser } from '@/connectors/zoom/users';
-import { createElbaClient } from '@/connectors/elba/client';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
+import { nangoAPIClient } from '@/common/nango';
 
 enum ZoomUserRole {
   Owner = '0',
@@ -51,29 +48,25 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'zoom/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, nangoConnectionId, region, syncStartedAt, page } = event.data;
 
-    const [organisation] = await db
-      .select({
-        token: organisationsTable.accessToken,
-        region: organisationsTable.region,
-        authUserId: organisationsTable.authUserId,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken: token, page });
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
+      const result = await getUsers({ accessToken: credentials.access_token, page });
+      const { authUserId } = await getAuthUser(credentials.access_token);
 
       const users = result.validUsers.map((user) => {
         return formatElbaUser({
-          authUserId: organisation.authUserId,
+          authUserId,
           user,
         });
       });
