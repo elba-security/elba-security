@@ -1,5 +1,5 @@
 {
-  "id": "5228746a-95c5-4239-baa4-ab867a9dd66a",
+  "id": "840659c6-3fab-4ef8-b21b-16ff2ec9c27e",
   "prevId": "b188927a-0f87-47ae-af74-cb0031993d21",
   "version": "5",
   "dialect": "pg",
@@ -50,10 +50,7 @@
       "compositePrimaryKeys": {
         "shared_links_url_path_lower_pk": {
           "name": "shared_links_url_path_lower_pk",
-          "columns": [
-            "url",
-            "path_lower"
-          ]
+          "columns": ["url", "path_lower"]
         }
       },
       "uniqueConstraints": {}

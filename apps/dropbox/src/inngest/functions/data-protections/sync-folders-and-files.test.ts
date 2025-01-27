@@ -6,6 +6,7 @@ import * as fileAndFolderConnector from '@/connectors/dropbox/folders-and-files'
 import * as filesConnector from '@/connectors/dropbox/files';
 import * as foldersConnector from '@/connectors/dropbox/folders';
 import { db } from '@/database/client';
+import * as usersConnector from '@/connectors/dropbox/users';
 import { syncFoldersAndFiles } from './sync-folders-and-files';
 import {
   mockElbaObject,
@@ -40,6 +41,15 @@ describe('syncFoldersAndFiles', () => {
         credentials: { access_token: 'access-token' },
       }),
     });
+    vi.spyOn(usersConnector, 'getAuthenticatedAdmin').mockResolvedValue({
+      teamMemberId: 'admin-team-member-id',
+    });
+
+    vi.spyOn(usersConnector, 'getCurrentUserAccount').mockResolvedValue({
+      rootNamespaceId: 'root-namespace-id',
+      teamMemberId: 'admin-team-member-id',
+    });
+
     await db.insert(sharedLinksTable).values(mockSharedLinks);
 
     const elba = spyOnElba();
@@ -84,6 +94,8 @@ describe('syncFoldersAndFiles', () => {
         isFirstSync: false,
         syncStartedAt,
         teamMemberId,
+        nangoConnectionId,
+        region,
       },
       name: 'dropbox/data_protection.folder_and_files.sync.requested',
     });
@@ -96,6 +108,7 @@ describe('syncFoldersAndFiles', () => {
         credentials: { access_token: 'access-token' },
       }),
     });
+
     await db.insert(sharedLinksTable).values(mockSharedLinks);
 
     const elba = spyOnElba();

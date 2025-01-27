@@ -71,6 +71,8 @@ describe('syncSharedLinks', () => {
         teamMemberId: 'team-member-id-1',
         cursor: nextCursor,
         pathRoot: '10000',
+        nangoConnectionId,
+        region,
       },
       name: 'dropbox/data_protection.shared_links.sync.requested',
     });
@@ -103,6 +105,8 @@ describe('syncSharedLinks', () => {
         syncStartedAt: now,
         teamMemberId,
         pathRoot: '10000',
+        nangoConnectionId,
+        region,
       },
       name: 'dropbox/data_protection.shared_links.sync.completed',
     });

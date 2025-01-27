@@ -27,7 +27,6 @@ const setup = createInngestFunctionMock(
 );
 
 describe('startFolderAndFileSync', () => {
-  
   test('should fetch team members of the organisation & trigger events to synchronize folders and files', async () => {
     const elba = spyOnElba();
     // @ts-expect-error -- this is a mock
@@ -55,7 +54,7 @@ describe('startFolderAndFileSync', () => {
 
     expect(usersConnector.getUsers).toBeCalledTimes(1);
     expect(usersConnector.getUsers).toBeCalledWith({
-      accessToken: 'access-token',
+      accessToken: 'valid-token',
       cursor: null,
     });
 

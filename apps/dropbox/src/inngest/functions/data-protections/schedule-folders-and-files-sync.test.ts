@@ -101,7 +101,9 @@ describe('scheduleDataProtectionSync', () => {
     const [result, { step }] = setup();
 
     await expect(result).rejects.toStrictEqual(
-      new NonRetriableError('Failed to schedule folders and files sync due to missing nango connection ID')
+      new NonRetriableError(
+        'Failed to schedule folders and files sync due to missing nango connection ID'
+      )
     );
 
     expect(step.sendEvent).toBeCalledTimes(1);
