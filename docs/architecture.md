@@ -69,13 +69,29 @@ Common utilities and shared configurations:
 
 ## `/connectors`
 
-The `connectors` contain various files, each exporting functions that interact with the integrated SaaS. Each connector should address a single concern:
+The `connectors` directory contains pure API interactions with external services. Each subdirectory focuses on a specific service:
 
-### `/common`
+```
+├── connectors/
+│   ├── source/    # External API calls (no dependencies)
+│   │   ├── users.ts
+│   │   ├── groups.ts
+│   │   └── organisations.ts
+│   └── elba/      # Pre-configured Elba client
+│       └── client.ts
+```
 
-- `error.ts`: Error mapping utilities for handling connection errors
+### `/source`
+
+The `source` directory (e.g. `github`) contains modules that make direct API calls to the integrated service (e.g. Notion, Cal.com). These modules:
+
+- Should not have any external dependencies
+- Take all required parameters (API tokens, base URLs) as arguments
+- Return data or throw errors
 
 ### `/elba`
+
+The `elba` directory contains a pre-configured Elba client for use across the integration.
 
 - `client.ts`: Elba client configuration and organization-specific utilities
 
