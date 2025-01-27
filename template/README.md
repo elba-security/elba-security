@@ -63,10 +63,14 @@ src/
 ├── connectors/
 │   ├── common/
 │   │   └── error.ts    # Error mapping utilities
-│   └── elba/
-│       └── client.ts   # Elba client utilities
+│   ├── elba/
+│   │   └── client.ts   # Elba client utilities
+│   └── {{name}}/       # Your integration-specific code
+│       └── users.ts    # Integration-specific API calls and types
 └── inngest/
-    └── client.ts       # Inngest client configuration
+    ├── client.ts       # Inngest client configuration
+    └── functions/      # Integration-specific event handlers
+        └── users/      # User synchronization functions
 ```
 
 ## Features
