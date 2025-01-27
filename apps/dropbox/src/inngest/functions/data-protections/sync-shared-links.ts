@@ -17,16 +17,19 @@ export const syncSharedLinks = inngest.createFunction(
   },
   { event: 'dropbox/data_protection.shared_links.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, cursor, teamMemberId, isPersonal, pathRoot, nangoConnectionId } = event.data;
+    const { organisationId, cursor, teamMemberId, isPersonal, pathRoot, nangoConnectionId } =
+      event.data;
 
     const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
     if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
       throw new Error('Could not retrieve Nango credentials');
     }
 
+    const accessToken = credentials.access_token;
+
     const { links: sharedLinks, nextCursor } = await step.run('fetch-shared-links', async () => {
       return await getSharedLinks({
-        accessToken: credentials.access_token,
+        accessToken,
         teamMemberId,
         isPersonal,
         pathRoot,

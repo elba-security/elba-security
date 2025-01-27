@@ -1,7 +1,7 @@
-import { env } from '@/common/env';
 import { elbaRegions } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
+import { env } from '@/common/env';
 import { createElbaGlobalClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
 
@@ -9,7 +9,6 @@ export const scheduleDataProtectionSync = inngest.createFunction(
   { id: 'dropbox-schedule-data-protection-sync' },
   { cron: env.DROPBOX_DATA_PROTECTION_SYNC_CRON },
   async ({ step }) => {
-    
     const syncStartedAt = Date.now();
 
     const regionOrganisations = await Promise.all(
@@ -67,6 +66,5 @@ export const scheduleDataProtectionSync = inngest.createFunction(
     }
 
     return { organisations };
-
   }
 );

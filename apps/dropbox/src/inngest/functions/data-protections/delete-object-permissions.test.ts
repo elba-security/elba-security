@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as nangoAPI from '@/common/nango';
 import * as permissionsConnector from '@/connectors/dropbox/permissions';
 import * as sharedLinksConnector from '@/connectors/dropbox/shared-links';
-import { deleteObjectPermissions } from './delete-object-permissions';
 import * as usersConnector from '@/connectors/dropbox/users';
+import { deleteObjectPermissions } from './delete-object-permissions';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const nangoConnectionId = 'nango-connection-id';

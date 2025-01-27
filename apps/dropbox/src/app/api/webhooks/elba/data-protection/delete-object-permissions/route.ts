@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { parseWebhookEventData } from '@elba-security/sdk';
-import { logger } from '@elba-security/logger';
 import { deleteDataProtectionObjectPermissions } from './service';
 
 export async function POST(request: Request) {
@@ -10,8 +9,9 @@ export async function POST(request: Request) {
     parseWebhookEventData('data_protection.delete_object_permissions_requested', data);
 
   if (!nangoConnectionId) {
-    logger.error('Missing nango connection ID', { organisationId });
-    throw new Error(`Missing nango connection ID for organisation ID ${organisationId}`);
+    throw new Error(
+      `Nango connection id was not provided for the organisation with ID ${organisationId}`
+    );
   }
 
   await deleteDataProtectionObjectPermissions({

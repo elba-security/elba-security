@@ -5,8 +5,7 @@ import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { getSharedLinks } from '@/database/shared-links';
 import { inngest } from '@/inngest/client';
 import { nangoAPIClient } from '@/common/nango';
-import { getAuthenticatedAdmin } from '@/connectors/dropbox/users';
-import { getCurrentUserAccount } from '@/connectors/dropbox/users';
+import { getAuthenticatedAdmin, getCurrentUserAccount } from '@/connectors/dropbox/users';
 
 export const syncFoldersAndFiles = inngest.createFunction(
   {
@@ -36,16 +35,24 @@ export const syncFoldersAndFiles = inngest.createFunction(
   async ({ event, step }) => {
     const { organisationId, teamMemberId, cursor, nangoConnectionId, region } = event.data;
 
-      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new Error('Could not retrieve Nango credentials');
-      }
-    const { teamMemberId: adminTeamMemberId } = await getAuthenticatedAdmin(credentials.access_token);
-    const { rootNamespaceId: pathRoot } = await getCurrentUserAccount({ accessToken: credentials.access_token, teamMemberId });
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new Error('Could not retrieve Nango credentials');
+    }
+    const { teamMemberId: adminTeamMemberId } = await getAuthenticatedAdmin(
+      credentials.access_token
+    );
+
+    const { rootNamespaceId: pathRoot } = await getCurrentUserAccount({
+      accessToken: credentials.access_token,
+      teamMemberId: adminTeamMemberId,
+    });
+
+    const accessToken = credentials.access_token;
 
     const { foldersAndFiles, nextCursor } = await step.run('fetch-folders-and-files', async () => {
       return await getFoldersAndFiles({
-        accessToken: credentials.access_token,
+        accessToken,
         teamMemberId,
         pathRoot,
         isAdmin: teamMemberId === adminTeamMemberId,
@@ -90,7 +97,7 @@ export const syncFoldersAndFiles = inngest.createFunction(
 
     const filesToAdd = await step.run('fetch-folders-and-map-details', async () => {
       return getFilesMetadataMembersAndMapDetails({
-        accessToken: credentials.access_token,
+        accessToken,
         teamMemberId,
         files,
         sharedLinks,
@@ -99,7 +106,7 @@ export const syncFoldersAndFiles = inngest.createFunction(
 
     const foldersToAdd = await step.run('fetch-folders-and-map-details', async () => {
       return getFoldersMetadataMembersAndMapDetails({
-        accessToken: credentials.access_token,
+        accessToken,
         teamMemberId,
         folders,
         sharedLinks,

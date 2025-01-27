@@ -1,5 +1,5 @@
-import { inngest } from '@/inngest/client';
 import { NonRetriableError } from 'inngest';
+import { inngest } from '@/inngest/client';
 import { env } from '@/common/env';
 import { getMemberLinkedApps } from '@/connectors/dropbox/apps';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
@@ -23,18 +23,19 @@ export const refreshThirdPartyAppsObject = inngest.createFunction(
     const { organisationId, appId, userId, nangoConnectionId, region } = event.data;
 
     const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
     }
-    
+
     const elba = createElbaOrganisationClient({
       organisationId,
       region,
     });
 
+    const accessToken = credentials.access_token;
     await step.run('list-apps', async () => {
       const { apps } = await getMemberLinkedApps({
-        accessToken: credentials.access_token,
+        accessToken,
         teamMemberId: userId,
       });
 

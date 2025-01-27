@@ -3,8 +3,7 @@ import { getFilesMetadataMembersAndMapDetails } from '@/connectors/dropbox/files
 import { getFoldersMetadataMembersAndMapDetails } from '@/connectors/dropbox/folders';
 import { getFolderOrFileMetadataByPath } from '@/connectors/dropbox/folders-and-files';
 import { getSharedLinksByPath } from '@/connectors/dropbox/shared-links';
-import { getAuthenticatedAdmin } from '@/connectors/dropbox/users';
-import { getCurrentUserAccount } from '@/connectors/dropbox/users';
+import { getAuthenticatedAdmin, getCurrentUserAccount } from '@/connectors/dropbox/users';
 import { nangoAPIClient } from '@/common/nango';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
@@ -35,7 +34,7 @@ export const refreshObject = inngest.createFunction(
       organisationId,
       metadata: { ownerId, type, isPersonal },
       nangoConnectionId,
-      region
+      region,
     } = event.data;
 
     const isFile = type === 'file';
@@ -45,8 +44,13 @@ export const refreshObject = inngest.createFunction(
     if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
       throw new NonRetriableError('Could not retrieve Nango credentials');
     }
-    const { teamMemberId } = await getAuthenticatedAdmin(credentials.access_token);
-    const { rootNamespaceId: pathRoot } = await getCurrentUserAccount({ accessToken: credentials.access_token, teamMemberId });
+    const { teamMemberId: adminTeamMemberId } = await getAuthenticatedAdmin(
+      credentials.access_token
+    );
+    const { rootNamespaceId: pathRoot } = await getCurrentUserAccount({
+      accessToken: credentials.access_token,
+      teamMemberId: adminTeamMemberId,
+    });
 
     const elba = createElbaOrganisationClient({ organisationId, region });
 

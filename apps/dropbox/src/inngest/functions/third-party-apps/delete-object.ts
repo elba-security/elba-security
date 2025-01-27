@@ -23,9 +23,11 @@ export const deleteThirdPartyAppsObject = inngest.createFunction(
       throw new Error('Could not retrieve Nango credentials');
     }
 
+    const accessToken = credentials.access_token;
+
     await step.run('delete-object', async () => {
       await revokeMemberLinkedApp({
-        accessToken: credentials.access_token,
+        accessToken,
         teamMemberId: userId,
         appId,
       });

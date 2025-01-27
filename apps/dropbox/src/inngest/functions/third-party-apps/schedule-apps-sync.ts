@@ -1,7 +1,7 @@
-import { env } from '@/common/env';
 import { elbaRegions } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
+import { env } from '@/common/env';
 import { createElbaGlobalClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
 

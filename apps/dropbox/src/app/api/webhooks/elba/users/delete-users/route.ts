@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { parseWebhookEventData } from '@elba-security/sdk';
-import { logger } from '@elba-security/logger';
 import { deleteUsers } from './service';
 
 export async function POST(request: NextRequest) {
@@ -13,8 +12,9 @@ export async function POST(request: NextRequest) {
   } = parseWebhookEventData('users.delete_users_requested', data);
 
   if (!nangoConnectionId) {
-    logger.error('Missing nango connection ID', { organisationId });
-    throw new Error(`Missing nango connection ID for organisation ID ${organisationId}`);
+    throw new Error(
+      `Nango connection id was not provided for the organisation with ID ${organisationId}`
+    );
   }
 
   await deleteUsers({ organisationId, region, nangoConnectionId, userIds });

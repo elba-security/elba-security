@@ -5,8 +5,8 @@ import * as foldersAndFilesConnector from '@/connectors/dropbox/folders-and-file
 import * as foldersConnector from '@/connectors/dropbox/folders';
 import * as sharedLinksConnector from '@/connectors/dropbox/shared-links';
 import { env } from '@/common/env';
-import { refreshObject } from './refresh-object';
 import * as usersConnector from '@/connectors/dropbox/users';
+import { refreshObject } from './refresh-object';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const nangoConnectionId = 'nango-connection-id';

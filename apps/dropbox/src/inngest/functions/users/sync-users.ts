@@ -46,7 +46,7 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'dropbox/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, cursor , nangoConnectionId, region} = event.data;
+    const { organisationId, syncStartedAt, cursor, nangoConnectionId, region } = event.data;
     const elba = createElbaOrganisationClient({
       organisationId,
       region,
@@ -58,7 +58,9 @@ export const syncUsers = inngest.createFunction(
         throw new NonRetriableError('Could not retrieve Nango credentials');
       }
 
-      const { teamMemberId: adminTeamMemberId } = await getAuthenticatedAdmin(credentials.access_token);
+      const { teamMemberId: adminTeamMemberId } = await getAuthenticatedAdmin(
+        credentials.access_token
+      );
 
       const {
         validUsers,
@@ -74,9 +76,7 @@ export const syncUsers = inngest.createFunction(
       }
 
       if (validUsers.length > 0) {
-        const users = validUsers.map((user) =>
-          formatElbaUser({ adminTeamMemberId, user })
-        );
+        const users = validUsers.map((user) => formatElbaUser({ adminTeamMemberId, user }));
         await elba.users.update({ users });
       }
 

@@ -36,9 +36,14 @@ export const startFolderAndFileSync = inngest.createFunction(
       throw new Error('Could not retrieve Nango credentials');
     }
 
+    // Using an intermediate variable because direct object property assignment
+    // with credentials.access_token causes TypeScript union type inference issues.
+    // The intermediate variable allows type widening and makes the assignment valid.
+    const accessToken = credentials.access_token;
+
     const { validUsers, cursor: nextCursor } = await step.run('list-users', async () => {
       return await getUsers({
-        accessToken: credentials.access_token,
+        accessToken,
         cursor,
       });
     });
@@ -80,6 +85,7 @@ export const startFolderAndFileSync = inngest.createFunction(
       });
       return { status: 'ongoing' };
     }
+
     await step.run('delete-objects', async () => {
       await elba.dataProtection.deleteObjects({
         syncedBefore: new Date(syncStartedAt).toISOString(),

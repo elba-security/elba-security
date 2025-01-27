@@ -3,8 +3,7 @@ import { nangoAPIClient } from '@/common/nango';
 import { removePermission } from '@/connectors/dropbox/permissions';
 import { inngest } from '@/inngest/client';
 import { getSharedLinksByPath } from '@/connectors/dropbox/shared-links';
-import { getCurrentUserAccount } from '@/connectors/dropbox/users';
-import { getAuthenticatedAdmin } from '@/connectors/dropbox/users';
+import { getCurrentUserAccount, getAuthenticatedAdmin } from '@/connectors/dropbox/users';
 
 export const deleteObjectPermissions = inngest.createFunction(
   {
@@ -26,17 +25,25 @@ export const deleteObjectPermissions = inngest.createFunction(
     if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
       throw new Error('Could not retrieve Nango credentials');
     }
-    const { teamMemberId } = await getAuthenticatedAdmin(credentials.access_token);
+
+    const { teamMemberId: adminTeamMemberId } = await getAuthenticatedAdmin(
+      credentials.access_token
+    );
+
+    // Using an intermediate variable because direct object property assignment
+    // with credentials.access_token causes TypeScript union type inference issues.
+    // The intermediate variable allows type widening and makes the assignment valid.
+    const accessToken = credentials.access_token;
+
     const { rootNamespaceId: pathRoot } = await getCurrentUserAccount({
-      accessToken: credentials.access_token,
-      teamMemberId,
+      accessToken,
+      teamMemberId: adminTeamMemberId,
     });
 
     const result = await step.run('delete-permission', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       return await removePermission({
-        accessToken: credentials.access_token,
-        adminTeamMemberId: teamMemberId,
+        accessToken,
+        adminTeamMemberId,
         objectId,
         metadata,
         permission,
@@ -53,7 +60,7 @@ export const deleteObjectPermissions = inngest.createFunction(
 
       const sharedLinks = await getSharedLinksByPath({
         teamMemberId: metadata.ownerId,
-        accessToken: credentials.access_token,
+        accessToken,
         pathRoot,
         isPersonal: metadata.isPersonal,
         path,
