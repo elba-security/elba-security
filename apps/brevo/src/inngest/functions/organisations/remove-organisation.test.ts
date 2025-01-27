@@ -6,7 +6,7 @@ import { removeOrganisation } from './remove-organisation';
 const region = 'us';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 
-const setup = createInngestFunctionMock(removeOrganisation, 'front/app.uninstalled');
+const setup = createInngestFunctionMock(removeOrganisation, 'brevo/app.uninstalled');
 
 describe('remove-organisation', () => {
   test('should remove given organisation', async () => {
