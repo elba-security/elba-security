@@ -15,7 +15,11 @@ process.env.VITEST_ENVIRONMENT = environment;
 
 export default defineConfig({
   test: {
-    setupFiles: ['@elba-security/test-utils/vitest/setup-msw-handlers'],
+    globalSetup: '@elba-security/test-utils/vitest/global-setup',
+    setupFiles: [
+      '@elba-security/test-utils/vitest/setup-database',
+      '@elba-security/test-utils/vitest/setup-msw-handlers',
+    ],
     environment,
     poolOptions: {
       threads: {
