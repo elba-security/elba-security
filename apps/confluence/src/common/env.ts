@@ -41,11 +41,9 @@ export const env = z
     DATA_PROTECTION_REFRESH_OBJECT_MAX_RETRY: zEnvRetry(),
     DATA_PROTECTION_SYNC_PAGES_MAX_RETRY: zEnvRetry(),
     DATA_PROTECTION_SYNC_SPACES_MAX_RETRY: zEnvRetry(),
-    REMOVE_ORGANISATION_MAX_RETRY: zEnvRetry(),
     USERS_SYNC_GROUPS_BATCH_SIZE: zNatural().default(25),
     USERS_SYNC_GROUP_USERS_MAX_RETRY: zEnvRetry(),
     USERS_SYNC_MAX_RETRY: zEnvRetry(),
-    USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     NANGO_INTEGRATION_ID: z.string().min(1),
     NANGO_SECRET_KEY: z.string().min(1),
   })
