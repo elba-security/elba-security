@@ -11,6 +11,8 @@ beforeEach(async () => {
 
   const pg = postgres(process.env.DATABASE_URL);
   const db = drizzle(pg);
-  await db.execute(sql`DELETE FROM organisations`);
+  await db.execute(
+    sql`DO $$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'organisations') THEN DELETE FROM "organisations"; END IF; END $$`
+  );
   await pg.end();
 });

@@ -3,6 +3,8 @@ import { inngest } from '@/inngest/client';
 import { refreshDataProtectionObject } from './service';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
 
 describe('refreshDataProtectionObject', () => {
   test('should send request to refresh object', async () => {
@@ -15,6 +17,8 @@ describe('refreshDataProtectionObject', () => {
         type: 'file',
         isPersonal: true,
       },
+      nangoConnectionId,
+      region,
     });
 
     expect(send).toBeCalledTimes(1);
@@ -28,6 +32,8 @@ describe('refreshDataProtectionObject', () => {
           type: 'file',
           isPersonal: true,
         },
+        nangoConnectionId,
+        region,
       },
     });
   });

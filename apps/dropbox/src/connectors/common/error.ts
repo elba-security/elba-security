@@ -1,30 +1,31 @@
+import { type MapConnectionErrorFn } from '@elba-security/inngest';
+import { NangoConnectionError } from '@elba-security/nango';
+
 export class DropboxError extends Error {
   response: Response;
 
-  constructor(message: string, response: Response, errorText: string) {
+  constructor(message: string, { response }: { response: Response }) {
     super(message);
     this.name = 'DropboxError';
     this.response = response;
-    this.cause = errorText;
-
-    this.logError(); // Log the error or perform any other necessary action
+    void this.extractErrorText().then((errorText) => {
+      this.cause = errorText;
+      this.logError();
+    });
   }
 
-  static async fromResponse(
-    message: string,
-    {
-      response,
-    }: {
-      response: Response;
-    }
-  ): Promise<DropboxError> {
-    let errorText: string | null = null;
+  private async extractErrorText(): Promise<string> {
     try {
-      errorText = await response.clone().text();
+      const errorText = await this.response.clone().text();
+      try {
+        const errorJson = JSON.parse(errorText) as unknown;
+        return JSON.stringify(errorJson, null, 2);
+      } catch {
+        return errorText;
+      }
     } catch (e) {
-      errorText = response.statusText;
+      return this.response.statusText;
     }
-    return new DropboxError(message, response, errorText);
   }
 
   logError() {
@@ -38,3 +39,19 @@ export class DropboxError extends Error {
     console.error('Dropbox API Error:', JSON.stringify(errorDetails, null, 2));
   }
 }
+
+export class DropboxNotAdminError extends DropboxError {}
+
+export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
+  if (error instanceof NangoConnectionError && error.response.status === 404) {
+    return 'unauthorized';
+  }
+  if (error instanceof DropboxError && error.response.status === 401) {
+    return 'unauthorized';
+  }
+  if (error instanceof DropboxNotAdminError) {
+    return 'not_admin';
+  }
+
+  return null;
+};
