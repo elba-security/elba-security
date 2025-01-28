@@ -1,28 +1,28 @@
 import { type MapConnectionErrorFn } from '@elba-security/inngest';
 import { NangoConnectionError } from '@elba-security/nango';
 
-type FrontErrorOptions = { response?: Response };
+type BrevoErrorOptions = { response?: Response };
 
-export class FrontError extends Error {
+export class BrevoError extends Error {
   response?: Response;
 
-  constructor(message: string, { response }: FrontErrorOptions = {}) {
+  constructor(message: string, { response }: BrevoErrorOptions = {}) {
     super(message);
     this.response = response;
-    this.name = 'FrontError';
+    this.name = 'BrevoError';
   }
 }
 
-export class FrontNotAdminError extends FrontError {}
+export class BrevoNotAdminError extends BrevoError {}
 
 export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   if (error instanceof NangoConnectionError && error.response.status === 404) {
     return 'unauthorized';
   }
-  if (error instanceof FrontError && error.response?.status !== 401) {
+  if (error instanceof BrevoError && error.response?.status === 401) {
     return 'unauthorized';
   }
-  if (error instanceof FrontNotAdminError) {
+  if (error instanceof BrevoNotAdminError) {
     return 'not_admin';
   }
 

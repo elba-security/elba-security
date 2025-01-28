@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import { RetryAfterError } from 'inngest';
-import { FrontError } from '@/connectors/common/error';
+import { BrevoError } from '@/connectors/common/error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
-describe('rateLimitMiddleware', () => {
+describe('rate-limit middleware', () => {
   test('should not transform the output when their is no error', () => {
     expect(
       rateLimitMiddleware
@@ -16,7 +16,7 @@ describe('rateLimitMiddleware', () => {
     ).toBeUndefined();
   });
 
-  test('should not transform the output when the error is not about Front rate limit', () => {
+  test('should not transform the output when the error is not about brevo rate limit', () => {
     expect(
       rateLimitMiddleware
         .init()
@@ -30,12 +30,12 @@ describe('rateLimitMiddleware', () => {
     ).toBeUndefined();
   });
 
-  test('should transform the output error to RetryAfterError when the error is about Front rate limit', () => {
-    const rateLimitError = new FrontError('foo bar', {
+  test('should transform the output error to RetryAfterError when the error is about  rate limit', () => {
+    const rateLimitError = new BrevoError('foo bar', {
       // @ts-expect-error this is a mock
       response: {
         status: 429,
-        headers: new Headers({ 'retry-after': '60' }),
+        headers: new Headers({ 'x-sib-ratelimit-reset': '60' }),
       },
     });
 

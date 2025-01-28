@@ -7,10 +7,9 @@ import { inngest } from '../../client';
 
 export const scheduleUsersSync = inngest.createFunction(
   {
-    id: 'front-schedule-users-syncs',
-    retries: 5,
+    id: 'brevo-schedule-users-syncs',
   },
-  { cron: env.FRONT_USERS_SYNC_CRON },
+  { cron: env.BREVO_USERS_SYNC_CRON },
   async ({ step }) => {
     const regionOrganisations = await Promise.all(
       elbaRegions.map((region) =>
@@ -42,16 +41,15 @@ export const scheduleUsersSync = inngest.createFunction(
 
     if (organisations.length) {
       await step.sendEvent(
-        'sync-users',
+        'synchronize-users',
         organisations.map(({ organisationId, nangoConnectionId, region }) => ({
-          name: 'front/users.sync.requested',
+          name: 'brevo/users.sync.requested',
           data: {
             isFirstSync: false,
             organisationId,
             nangoConnectionId,
             region,
             syncStartedAt: Date.now(),
-            page: null,
           },
         }))
       );

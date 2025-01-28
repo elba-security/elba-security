@@ -3,17 +3,17 @@ import { inngest } from '@/inngest/client';
 
 export const removeOrganisation = inngest.createFunction(
   {
-    id: 'front-remove-organisation',
+    id: 'brevo-remove-organisation',
     retries: 5,
     cancelOn: [
       {
-        event: 'front/app.installed',
+        event: 'brevo/app.installed',
         match: 'data.organisationId',
       },
     ],
   },
   {
-    event: 'front/app.uninstalled',
+    event: 'brevo/app.uninstalled',
   },
   async ({ event }) => {
     const { organisationId, region, errorType, errorMetadata } = event.data;
