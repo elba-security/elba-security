@@ -6,9 +6,7 @@ import * as sharedLinksConnector from '@/connectors/dropbox/shared-links';
 import * as usersConnector from '@/connectors/dropbox/users';
 import { deleteObjectPermissions } from './delete-object-permissions';
 
-const organisationId = '00000000-0000-0000-0000-000000000001';
 const nangoConnectionId = 'nango-connection-id';
-const region = 'us';
 
 const setup = createInngestFunctionMock(
   deleteObjectPermissions,
@@ -50,7 +48,6 @@ describe('deleteObjectPermissions', () => {
 
     const [result] = setup({
       objectId,
-      organisationId,
       metadata: {
         type: type as 'file' | 'folder',
         isPersonal: false,
@@ -61,7 +58,6 @@ describe('deleteObjectPermissions', () => {
         metadata: null,
       },
       nangoConnectionId,
-      region,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -126,7 +122,6 @@ describe('deleteObjectPermissions', () => {
     ]);
     const [result] = setup({
       objectId: 'object-id',
-      organisationId,
       metadata: {
         type: 'folder',
         isPersonal: false,
@@ -139,7 +134,6 @@ describe('deleteObjectPermissions', () => {
         },
       },
       nangoConnectionId,
-      region,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -189,7 +183,6 @@ describe('deleteObjectPermissions', () => {
 
     const [result, { step }] = setup({
       objectId: 'object-id',
-      organisationId,
       metadata: {
         type: 'folder',
         isPersonal: false,
@@ -202,7 +195,6 @@ describe('deleteObjectPermissions', () => {
         },
       },
       nangoConnectionId,
-      region,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -230,7 +222,6 @@ describe('deleteObjectPermissions', () => {
       name: 'dropbox/data_protection.delete_object_permission.requested',
       data: {
         objectId: 'object-id',
-        organisationId: '00000000-0000-0000-0000-000000000001',
         metadata: {
           type: 'folder',
           isPersonal: false,
@@ -243,7 +234,6 @@ describe('deleteObjectPermissions', () => {
           },
         },
         nangoConnectionId,
-        region,
       },
     });
   });

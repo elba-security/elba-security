@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
   const {
     ids: userIds,
     organisationId,
-    region,
     nangoConnectionId,
   } = parseWebhookEventData('users.delete_users_requested', data);
 
@@ -17,7 +16,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  await deleteUsers({ organisationId, region, nangoConnectionId, userIds });
+  await deleteUsers({ nangoConnectionId, userIds });
 
   return new NextResponse();
 }

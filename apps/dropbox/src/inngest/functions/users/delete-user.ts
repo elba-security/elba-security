@@ -15,13 +15,13 @@ export const deleteUser = inngest.createFunction(
   },
   { event: 'dropbox/users.delete.requested' },
   async ({ event }) => {
-    const { userId, nangoConnectionId } = event.data;
+    const { nangoConnectionId, userId } = event.data;
 
     const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
     }
-    
+
     await suspendUser({
       accessToken: credentials.access_token,
       teamMemberId: userId,

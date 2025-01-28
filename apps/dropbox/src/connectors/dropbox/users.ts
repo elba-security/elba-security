@@ -38,9 +38,7 @@ export const getAuthenticatedAdmin = async (accessToken: string) => {
   const result = authenticatedAdminSchema.safeParse(data);
 
   if (!result.success) {
-    throw new Error('Not able to get the Dropbox authenticated admin details', {
-      cause: result.error,
-    });
+    throw new DropboxError('Not able to get the Dropbox authenticated admin details', { response });
   }
 
   return {

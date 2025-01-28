@@ -34,10 +34,8 @@ export const inngest = new Inngest({
     };
     'dropbox/users.delete.requested': {
       data: {
-        organisationId: string;
-        userId: string;
-        region: string;
         nangoConnectionId: string;
+        userId: string;
       };
     };
     'dropbox/third_party_apps.sync.requested': {
@@ -62,9 +60,7 @@ export const inngest = new Inngest({
     };
     'dropbox/third_party_apps.delete_object.requested': {
       data: {
-        region: string;
         nangoConnectionId: string;
-        organisationId: string;
         userId: string;
         appId: string;
       };
@@ -140,10 +136,8 @@ export const inngest = new Inngest({
     };
     'dropbox/data_protection.delete_object_permission.requested': {
       data: {
-        region: string;
         nangoConnectionId: string;
         objectId: string;
-        organisationId: string;
         metadata: FileMetadata;
         permission: Permission;
       };

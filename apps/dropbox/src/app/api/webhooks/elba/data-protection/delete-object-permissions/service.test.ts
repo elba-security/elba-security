@@ -2,7 +2,6 @@ import { expect, test, describe, vi } from 'vitest';
 import { inngest } from '@/inngest/client';
 import { deleteDataProtectionObjectPermissions } from './service';
 
-const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 
 describe('deleteDataProtectionObjectPermissions', () => {
@@ -10,7 +9,7 @@ describe('deleteDataProtectionObjectPermissions', () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
     await deleteDataProtectionObjectPermissions({
       id: 'file-id-1',
-      organisationId: '00000000-0000-0000-0000-000000000001',
+
       metadata: {
         ownerId: 'team-member-id-1',
         type: 'file',
@@ -29,7 +28,6 @@ describe('deleteDataProtectionObjectPermissions', () => {
         },
       ],
       nangoConnectionId,
-      region,
     });
 
     expect(send).toBeCalledTimes(1);
@@ -42,7 +40,6 @@ describe('deleteDataProtectionObjectPermissions', () => {
             type: 'file',
           },
           objectId: 'file-id-1',
-          organisationId: '00000000-0000-0000-0000-000000000001',
           permission: {
             id: 'permission-id-1',
             metadata: {
@@ -50,7 +47,6 @@ describe('deleteDataProtectionObjectPermissions', () => {
             },
           },
           nangoConnectionId,
-          region,
         },
         name: 'dropbox/data_protection.delete_object_permission.requested',
       },
@@ -62,13 +58,11 @@ describe('deleteDataProtectionObjectPermissions', () => {
             type: 'file',
           },
           objectId: 'file-id-1',
-          organisationId: '00000000-0000-0000-0000-000000000001',
           permission: {
             id: 'permission-id-2',
             metadata: null,
           },
           nangoConnectionId,
-          region,
         },
         name: 'dropbox/data_protection.delete_object_permission.requested',
       },

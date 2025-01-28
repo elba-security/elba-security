@@ -4,9 +4,7 @@ import * as nangoAPI from '@/common/nango';
 import * as appsConnectors from '@/connectors/dropbox/apps';
 import { deleteThirdPartyAppsObject } from './delete-object';
 
-const organisationId = '00000000-0000-0000-0000-000000000001';
 const nangoConnectionId = 'nango-connection-id';
-const region = 'us';
 
 const setup = createInngestFunctionMock(
   deleteThirdPartyAppsObject,
@@ -24,11 +22,9 @@ describe('deleteThirdPartyAppsObject', () => {
     vi.spyOn(appsConnectors, 'revokeMemberLinkedApp').mockResolvedValue(undefined);
 
     const [result] = setup({
-      organisationId,
       userId: 'team-member-id',
       appId: 'app-id',
       nangoConnectionId,
-      region,
     });
     await expect(result).resolves.toBeUndefined();
 

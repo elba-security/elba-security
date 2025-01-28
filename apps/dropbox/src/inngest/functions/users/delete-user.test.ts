@@ -5,9 +5,7 @@ import * as usersConnector from '@/connectors/dropbox/users';
 import { deleteUser } from './delete-user';
 
 const userId = 'user-id';
-const organisationId = '00000000-0000-0000-0000-000000000001';
 const nangoConnectionId = 'nango-connection-id';
-const region = 'us';
 
 const setup = createInngestFunctionMock(deleteUser, 'dropbox/users.delete.requested');
 
@@ -21,7 +19,7 @@ describe('deleteUser', () => {
       }),
     });
 
-    const [result] = setup({ organisationId, region, nangoConnectionId, userId });
+    const [result] = setup({ nangoConnectionId, userId });
 
     await expect(result).resolves.toStrictEqual(undefined);
 
