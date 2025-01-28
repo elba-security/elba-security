@@ -11,7 +11,6 @@ export const env = z
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
     DROPBOX_API_BASE_URL: z.string().url().default('https://api.dropboxapi.com'),
-    DROPBOX_APP_INSTALL_URL: z.string().url().default('https://www.dropbox.com/oauth2/authorize'),
     DROPBOX_DELETE_USER_CONCURRENCY: zEnvInt().default(1),
     DROPBOX_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     DROPBOX_DATA_PROTECTION_SYNC_CRON: z.string().default('0 0 * * 3,7'),
