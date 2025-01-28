@@ -1,61 +1,31 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { organisationsTable, usersTable } from '@/database/schema';
 import * as groupsConnector from '@/connectors/confluence/groups';
 import { env } from '@/common/env';
-import { accessToken, organisation } from '../__mocks__/organisations';
+import { accessToken } from '../__mocks__/organisations';
 import { syncUsers } from './sync-users';
 import { syncGroupUsers } from './sync-group-users';
 
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const instanceId = 'instance-id';
 const syncStartedAt = Date.now();
-
-const users = Array.from({ length: 100 }, (_, i) => ({
-  id: `user-${i}`,
-  displayName: `display name ${i}`,
-  publicName: `public name ${i}`,
-  organisationId: organisation.id,
-  lastSyncAt: new Date(syncStartedAt - 1000),
-}));
 
 const setup = createInngestFunctionMock(syncUsers, 'confluence/users.sync.requested');
 
 describe('sync-users', () => {
-  test('should abort sync when organisation is not registered', async () => {
-    const elba = spyOnElba();
-    vi.spyOn(groupsConnector, 'getGroupIds').mockResolvedValue({
-      groupIds: [],
-      cursor: null,
-    });
-
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      syncStartedAt,
-      isFirstSync: true,
-      cursor: null,
-    });
-    step.invoke.mockResolvedValue(undefined);
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(groupsConnector.getGroupIds).toBeCalledTimes(0);
-    expect(elba).toBeCalledTimes(0);
-    expect(step.invoke).toBeCalledTimes(0);
-    expect(step.sendEvent).toBeCalledTimes(0);
-  });
-
   test('should continue the sync when their is more groups', async () => {
     const elba = spyOnElba();
-    await db.insert(organisationsTable).values(organisation);
-    await db.insert(usersTable).values(users);
     vi.spyOn(groupsConnector, 'getGroupIds').mockResolvedValue({
       groupIds: Array.from({ length: 10 }, (_, i) => `group-${i}`),
       cursor: 10,
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      nangoConnectionId,
+      region,
+      organisationId,
       syncStartedAt,
       isFirstSync: true,
       cursor: null,
@@ -69,7 +39,7 @@ describe('sync-users', () => {
     expect(groupsConnector.getGroupIds).toBeCalledTimes(1);
     expect(groupsConnector.getGroupIds).toBeCalledWith({
       accessToken,
-      instanceId: organisation.instanceId,
+      instanceId,
       cursor: null,
       limit: 25,
     });
@@ -81,7 +51,7 @@ describe('sync-users', () => {
         data: {
           isFirstSync: true,
           cursor: null,
-          organisationId: organisation.id,
+          organisationId,
           syncStartedAt,
           groupId: `group-${i}`,
         },
@@ -92,7 +62,7 @@ describe('sync-users', () => {
     expect(step.sendEvent).toBeCalledWith('request-next-groups-sync', {
       name: 'confluence/users.sync.requested',
       data: {
-        organisationId: organisation.id,
+        organisationId,
         syncStartedAt,
         isFirstSync: true,
         cursor: 10,
@@ -100,21 +70,19 @@ describe('sync-users', () => {
     });
 
     expect(elba).toBeCalledTimes(0);
-
-    await expect(db.select().from(usersTable)).resolves.toHaveLength(users.length);
   });
 
   test('should finalize the sync when their is no more groups', async () => {
     const elba = spyOnElba();
-    await db.insert(organisationsTable).values(organisation);
-    await db.insert(usersTable).values(users);
     vi.spyOn(groupsConnector, 'getGroupIds').mockResolvedValue({
       groupIds: Array.from({ length: 10 }, (_, i) => `group-${i}`),
       cursor: null,
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      nangoConnectionId,
+      region,
+      organisationId,
       syncStartedAt,
       isFirstSync: true,
       cursor: 10,
@@ -128,7 +96,7 @@ describe('sync-users', () => {
     expect(groupsConnector.getGroupIds).toBeCalledTimes(1);
     expect(groupsConnector.getGroupIds).toBeCalledWith({
       accessToken,
-      instanceId: organisation.instanceId,
+      instanceId,
       cursor: 10,
       limit: 25,
     });
@@ -141,7 +109,7 @@ describe('sync-users', () => {
         data: {
           isFirstSync: true,
           cursor: null,
-          organisationId: organisation.id,
+          organisationId,
           syncStartedAt,
           groupId: `group-${i}`,
         },
@@ -153,8 +121,8 @@ describe('sync-users', () => {
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      organisationId: organisation.id,
-      region: organisation.region,
+      organisationId,
+      region,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });
@@ -164,7 +132,5 @@ describe('sync-users', () => {
     expect(elbaInstance?.users.delete).toBeCalledWith({
       syncedBefore: new Date(syncStartedAt).toISOString(),
     });
-
-    await expect(db.select().from(usersTable)).resolves.toHaveLength(0);
   });
 });

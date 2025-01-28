@@ -774,6 +774,9 @@ importers:
       '@elba-security/logger':
         specifier: workspace:*
         version: link:../../packages/logger
+      '@elba-security/nango':
+        specifier: workspace:*
+        version: link:../../packages/nango
       '@elba-security/nextjs':
         specifier: workspace:*
         version: link:../../packages/nextjs
@@ -783,15 +786,9 @@ importers:
       '@elba-security/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      '@elba-security/utils':
-        specifier: workspace:*
-        version: link:../../packages/utils
       '@neondatabase/serverless':
         specifier: 'catalog:'
         version: 0.9.4
-      date-fns:
-        specifier: 'catalog:'
-        version: 3.6.0
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
@@ -853,9 +850,6 @@ importers:
       postgres:
         specifier: 'catalog:'
         version: 3.4.4
-      testcontainers:
-        specifier: 'catalog:'
-        version: 10.10.0
       typescript:
         specifier: 'catalog:'
         version: 5.5.3

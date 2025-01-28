@@ -1,8 +1,9 @@
+import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { deleteSpacePermission } from '@/connectors/confluence/space-permissions';
-import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
-import { getOrganisation } from '../../common/organisations';
+import { nangoAPIClient } from '@/common/nango';
+import { getInstance } from '@/connectors/confluence/auth';
 
 export const deleteSpacePermissions = inngest.createFunction(
   {
@@ -27,15 +28,19 @@ export const deleteSpacePermissions = inngest.createFunction(
     event: 'confluence/data_protection.delete_space_permissions.requested',
   },
   async ({ event }) => {
-    const { organisationId, spaceKey, permissionIds } = event.data;
-    const organisation = await getOrganisation(organisationId);
-    const accessToken = await decrypt(organisation.accessToken);
+    const { spaceKey, permissionIds, nangoConnectionId } = event.data;
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
+    }
+    const instance = await getInstance(credentials.access_token);
+    const accessToken = credentials.access_token;
 
     await Promise.all(
       permissionIds.map((permissionId) =>
         deleteSpacePermission({
           accessToken,
-          instanceId: organisation.instanceId,
+          instanceId: instance.id,
           spaceKey,
           id: permissionId,
         })

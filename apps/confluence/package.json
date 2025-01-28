@@ -20,12 +20,11 @@
     "@elba-security/config": "workspace:*",
     "@elba-security/inngest": "workspace:*",
     "@elba-security/logger": "workspace:*",
+    "@elba-security/nango": "workspace:*",
     "@elba-security/nextjs": "workspace:*",
     "@elba-security/schemas": "workspace:*",
     "@elba-security/sdk": "workspace:*",
-    "@elba-security/utils": "workspace:*",
     "@neondatabase/serverless": "catalog:",
-    "date-fns": "catalog:",
     "drizzle-orm": "catalog:",
     "inngest": "catalog:",
     "next": "catalog:",
@@ -48,7 +47,6 @@
     "inngest-cli": "catalog:",
     "msw": "catalog:",
     "postgres": "catalog:",
-    "testcontainers": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

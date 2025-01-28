@@ -1,10 +1,11 @@
+import { NonRetriableError } from 'inngest';
 import { getPagesWithRestrictions } from '@/connectors/confluence/pages';
 import { inngest } from '@/inngest/client';
 import { formatPageObject } from '@/connectors/elba/data-protection/objects';
-import { decrypt } from '@/common/crypto';
-import { createElbaClient } from '@/connectors/elba/client';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
-import { getOrganisation } from '../../common/organisations';
+import { nangoAPIClient } from '@/common/nango';
+import { getInstance } from '@/connectors/confluence/auth';
 
 export const syncPages = inngest.createFunction(
   {
@@ -33,24 +34,30 @@ export const syncPages = inngest.createFunction(
     event: 'confluence/data_protection.pages.sync.requested',
   },
   async ({ event, step }) => {
-    const { organisationId, cursor, syncStartedAt, isFirstSync } = event.data;
+    const { organisationId, cursor, syncStartedAt, isFirstSync, nangoConnectionId, region } =
+      event.data;
 
-    const organisation = await step.run('get-organisation', () => getOrganisation(organisationId));
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
+    }
+    const instance = await getInstance(credentials.access_token);
 
-    const elba = createElbaClient(organisation.id, organisation.region);
+    const elba = createElbaOrganisationClient({ organisationId, region });
+    const accessToken = credentials.access_token;
 
     const nextCursor = await step.run('paginate-pages', async () => {
       const result = await getPagesWithRestrictions({
-        accessToken: await decrypt(organisation.accessToken),
-        instanceId: organisation.instanceId,
+        accessToken,
+        instanceId: instance.id,
         cursor,
         limit: env.DATA_PROTECTION_PAGES_BATCH_SIZE,
       });
       const objects = result.pages
         .map((page) =>
           formatPageObject(page, {
-            instanceUrl: organisation.instanceUrl,
-            instanceId: organisation.instanceId,
+            instanceUrl: instance.url,
+            instanceId: instance.id,
           })
         )
         .filter((object) => object.permissions.length > 0);
@@ -64,6 +71,8 @@ export const syncPages = inngest.createFunction(
       await step.sendEvent('request-next-pages-sync', {
         name: 'confluence/data_protection.pages.sync.requested',
         data: {
+          nangoConnectionId,
+          region,
           organisationId,
           isFirstSync,
           syncStartedAt,
