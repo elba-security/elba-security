@@ -5,23 +5,23 @@ import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 import { elbaConnectionErrorMiddleware } from './middlewares/elba-connection-error-middleware';
 
 export const inngest = new Inngest({
-  id: 'front',
+  id: 'brevo',
   schemas: new EventSchemas().fromRecord<{
-    'front/users.sync.requested': {
+    'brevo/users.sync.requested': {
       data: {
         organisationId: string;
-        isFirstSync: boolean;
-        syncStartedAt: number;
         region: string;
         nangoConnectionId: string;
+        isFirstSync: boolean;
+        syncStartedAt: number;
       };
     };
-    'front/app.installed': {
+    'brevo/app.installed': {
       data: {
         organisationId: string;
       };
     };
-    'front/app.uninstalled': {
+    'brevo/app.uninstalled': {
       data: {
         organisationId: string;
         region: string;
@@ -30,6 +30,6 @@ export const inngest = new Inngest({
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware, elbaConnectionErrorMiddleware],
+  middleware: [elbaConnectionErrorMiddleware, rateLimitMiddleware],
   logger,
 });

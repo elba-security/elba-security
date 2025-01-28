@@ -61,17 +61,16 @@ describe('schedule-users-syncs', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'sync-users',
+      'synchronize-users',
       [...regionOrganisations].flatMap(([region, organisations]) =>
         organisations.map(({ id: organisationId, nangoConnectionId }) => ({
-          name: 'front/users.sync.requested',
+          name: 'brevo/users.sync.requested',
           data: {
             region,
             organisationId,
             nangoConnectionId,
             syncStartedAt: now,
             isFirstSync: false,
-            page: null,
           },
         }))
       )
@@ -108,19 +107,18 @@ describe('schedule-users-syncs', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'sync-users',
+      'synchronize-users',
       [...regionOrganisations]
         .filter(([region]) => region !== 'us')
         .flatMap(([region, organisations]) =>
           organisations.map(({ id: organisationId, nangoConnectionId }) => ({
-            name: 'front/users.sync.requested',
+            name: 'brevo/users.sync.requested',
             data: {
               region,
               organisationId,
               nangoConnectionId,
               syncStartedAt: now,
               isFirstSync: false,
-              page: null,
             },
           }))
         )
