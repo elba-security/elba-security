@@ -3,6 +3,9 @@ import { ZodError } from 'zod';
 import { inngest } from '@/inngest/client';
 import { refreshDataProtectionObject } from './service';
 
+const nangoConnectionId = 'nango-connection-id';
+const region = 'us';
+
 const eventData = {
   organisationId: 'organisation-id',
   id: 'object-id',
@@ -11,6 +14,8 @@ const eventData = {
     type: 'personal',
     key: 'space-key',
   },
+  nangoConnectionId,
+  region,
 };
 
 describe('webhook refreshDataProtectionObject', () => {
@@ -25,6 +30,8 @@ describe('webhook refreshDataProtectionObject', () => {
         organisationId: eventData.organisationId,
         objectId: eventData.id,
         metadata: eventData.metadata,
+        nangoConnectionId,
+        region,
       },
     });
   });

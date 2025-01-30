@@ -1,3 +1,4 @@
+import { NonRetriableError } from 'inngest';
 import { getPageWithRestrictions } from '@/connectors/confluence/pages';
 import { inngest } from '@/inngest/client';
 import { formatPageObject, formatSpaceObject } from '@/connectors/elba/data-protection/objects';
@@ -7,10 +8,10 @@ import type {
   SpaceObjectMetadata,
 } from '@/connectors/elba/data-protection/metadata';
 import { getSpaceWithPermissions } from '@/connectors/confluence/spaces';
-import { decrypt } from '@/common/crypto';
-import { createElbaClient } from '@/connectors/elba/client';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
-import { getOrganisation } from '../../common/organisations';
+import { nangoAPIClient } from '@/common/nango';
+import { getInstance } from '@/connectors/confluence/auth';
 import { getOrganisationUsers } from '../../common/users';
 
 type GetDataProtectionObjectParams = {
@@ -105,21 +106,26 @@ export const refreshDataProtectionObject = inngest.createFunction(
     event: 'confluence/data_protection.refresh_object.requested',
   },
   async ({ event, step }) => {
-    const { organisationId, objectId, metadata } = event.data;
+    const { organisationId, objectId, metadata, nangoConnectionId, region } = event.data;
 
-    const organisation = await step.run('get-organisation', () => getOrganisation(organisationId));
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
+    }
+    const instance = await getInstance(credentials.access_token);
+    const accessToken = credentials.access_token;
 
     return step.run('refresh-object', async () => {
       const object = await getDataProtectionObject({
         objectId,
         metadata,
         organisationId,
-        instanceId: organisation.instanceId,
-        instanceUrl: organisation.instanceUrl,
-        accessToken: await decrypt(organisation.accessToken),
+        instanceId: instance.id,
+        instanceUrl: instance.url,
+        accessToken,
       });
 
-      const elba = createElbaClient(organisation.id, organisation.region);
+      const elba = createElbaOrganisationClient({ organisationId, region });
 
       if (object && object.permissions.length > 0) {
         await elba.dataProtection.updateObjects({ objects: [object] });
