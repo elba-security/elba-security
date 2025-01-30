@@ -30,7 +30,7 @@ export const getAuthenticatedAdmin = async (accessToken: string) => {
   });
 
   if (!response.ok) {
-    throw await DropboxError.fromResponse('Could not retrieve user details', { response });
+    throw new DropboxError('Could not retrieve user details', { response });
   }
 
   const data: unknown = await response.json();
@@ -38,9 +38,7 @@ export const getAuthenticatedAdmin = async (accessToken: string) => {
   const result = authenticatedAdminSchema.safeParse(data);
 
   if (!result.success) {
-    throw new Error('Not able to get the Dropbox authenticated admin details', {
-      cause: result.error,
-    });
+    throw new DropboxError('Not able to get the Dropbox authenticated admin details', { response });
   }
 
   return {
@@ -79,7 +77,7 @@ export const getCurrentUserAccount = async ({
   });
 
   if (!response.ok) {
-    throw await DropboxError.fromResponse('Could not retrieve user details', { response });
+    throw new DropboxError('Could not retrieve user details', { response });
   }
 
   const data: unknown = await response.json();
@@ -158,7 +156,7 @@ export const getUsers = async ({
       });
 
   if (!response.ok) {
-    throw await DropboxError.fromResponse('Could not retrieve team members', { response });
+    throw new DropboxError('Could not retrieve team members', { response });
   }
 
   const data: unknown = await response.json();
@@ -215,6 +213,6 @@ export const suspendUser = async ({
 
   // Possible Errors: https://www.dropbox.com/developers/documentation/http/teams#team-members-suspend
   if (!response.ok && response.status !== 404) {
-    throw await DropboxError.fromResponse('Could not suspend user', { response });
+    throw new DropboxError('Could not suspend user', { response });
   }
 };

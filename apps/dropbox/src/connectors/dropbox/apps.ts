@@ -44,7 +44,7 @@ export const getLinkedApps = async ({
   if (!response.ok) {
     const error = await response.text();
     logger.error('Could not retrieve linked apps', { error });
-    throw await DropboxError.fromResponse('Could not retrieve linked apps', { response });
+    throw new DropboxError('Could not retrieve linked apps', { response });
   }
 
   const data: unknown = await response.json();
@@ -52,7 +52,7 @@ export const getLinkedApps = async ({
   const result = linkedAppsResponseSchema.safeParse(data);
 
   if (!result.success) {
-    throw await DropboxError.fromResponse('Could not parse linked apps response', { response });
+    throw new DropboxError('Could not parse linked apps response', { response });
   }
 
   const { apps, cursor: nextCursor } = result.data;
@@ -82,7 +82,7 @@ export const getMemberLinkedApps = async ({
   });
 
   if (!response.ok) {
-    throw await DropboxError.fromResponse('Could not retrieve linked apps', { response });
+    throw new DropboxError('Could not retrieve linked apps', { response });
   }
 
   const data: unknown = await response.json();
@@ -90,7 +90,7 @@ export const getMemberLinkedApps = async ({
   const result = linkedAppsSchema.omit({ team_member_id: true }).safeParse(data);
 
   if (!result.success) {
-    throw await DropboxError.fromResponse('Could not parse linked apps response', { response });
+    throw new DropboxError('Could not parse linked apps response', { response });
   }
 
   return {
@@ -121,6 +121,6 @@ export const revokeMemberLinkedApp = async ({
   });
 
   if (!response.ok && response.status !== 409) {
-    throw await DropboxError.fromResponse('Could not revoke linked apps', { response });
+    throw new DropboxError('Could not revoke linked apps', { response });
   }
 };
