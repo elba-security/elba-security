@@ -108,7 +108,7 @@ describe('schedule-users-syncs', () => {
 
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith(
-      'synchronize-users',
+      'request-users-syncs',
       [...regionOrganisations]
         .filter(([region]) => region !== 'us')
         .flatMap(([region, organisations]) =>

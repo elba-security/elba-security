@@ -2,6 +2,8 @@ import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import * as groupsConnector from '@/connectors/confluence/groups';
 import { env } from '@/common/env';
+import * as nangoAPI from '@/common/nango';
+import * as authConnector from '@/connectors/confluence/auth';
 import { accessToken } from '../__mocks__/organisations';
 import { syncUsers } from './sync-users';
 import { syncGroupUsers } from './sync-group-users';
@@ -10,12 +12,23 @@ const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const instanceId = 'instance-id';
+
 const syncStartedAt = Date.now();
 
 const setup = createInngestFunctionMock(syncUsers, 'confluence/users.sync.requested');
 
 describe('sync-users', () => {
   test('should continue the sync when their is more groups', async () => {
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
+    vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+      id: 'test-instance-id',
+      url: 'test-instance-url',
+    });
     const elba = spyOnElba();
     vi.spyOn(groupsConnector, 'getGroupIds').mockResolvedValue({
       groupIds: Array.from({ length: 10 }, (_, i) => `group-${i}`),
@@ -73,6 +86,16 @@ describe('sync-users', () => {
   });
 
   test('should finalize the sync when their is no more groups', async () => {
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
+    vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+      id: 'test-instance-id',
+      url: 'test-instance-url',
+    });
     const elba = spyOnElba();
     vi.spyOn(groupsConnector, 'getGroupIds').mockResolvedValue({
       groupIds: Array.from({ length: 10 }, (_, i) => `group-${i}`),

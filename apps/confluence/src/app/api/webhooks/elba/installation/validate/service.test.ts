@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { spyOnElba } from '@elba-security/test-utils';
 import { inngest } from '@/inngest/client';
 import * as nangoAPI from '@/common/nango';
+import * as authConnector from '@/connectors/confluence/auth';
 import { validateSourceInstallation } from './service';
 
 const organisationId = '00000000-0000-0000-0000-000000000002';
@@ -25,6 +26,10 @@ describe('validateSourceInstallation', () => {
       getConnection: vi.fn().mockResolvedValue({
         credentials: { access_token: 'access-token' },
       }),
+    });
+    vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+      id: 'test-instance-id',
+      url: 'test-instance-url',
     });
 
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
@@ -51,7 +56,7 @@ describe('validateSourceInstallation', () => {
           nangoConnectionId,
           isFirstSync: true,
           syncStartedAt: now,
-          page: null,
+          cursor: null,
         },
       },
     ]);

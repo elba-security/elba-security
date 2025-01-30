@@ -2,12 +2,19 @@ import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
-import { organisationsTable, usersTable } from '@/database/schema';
+import * as nangoAPI from '@/common/nango';
+import * as authConnector from '@/connectors/confluence/auth';
+import { usersTable } from '@/database/schema';
 import * as groupsConnector from '@/connectors/confluence/groups';
 import { env } from '@/common/env';
 import { formatElbaUser } from '@/connectors/elba/users/users';
-import { accessToken, organisation } from '../__mocks__/organisations';
+import { accessToken } from '../__mocks__/organisations';
 import { syncGroupUsers } from './sync-group-users';
+
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const instanceId = 'instance-id';
 
 const syncStartedAt = Date.now();
 const groupId = 'group-id';
@@ -39,7 +46,7 @@ const users = Array.from({ length: 100 }, (_, i) => ({
   id: `user-${i}`,
   displayName: `display name ${i}`,
   publicName: `public name ${i}`,
-  organisationId: organisation.id,
+  organisationId,
   lastSyncAt: new Date(syncStartedAt - 1000),
 }));
 
@@ -50,6 +57,16 @@ const setup = createInngestFunctionMock(
 
 describe('sync-group-users', () => {
   test('should abort sync when organisation is not registered', async () => {
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
+    vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+      id: 'test-instance-id',
+      url: 'test-instance-url',
+    });
     const elba = spyOnElba();
     vi.spyOn(groupsConnector, 'getGroupMembers').mockResolvedValue({
       members: [],
@@ -57,11 +74,13 @@ describe('sync-group-users', () => {
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      organisationId,
       isFirstSync: false,
       syncStartedAt,
       groupId,
       cursor: null,
+      nangoConnectionId,
+      region,
     });
     step.invoke.mockResolvedValue(undefined);
 
@@ -74,8 +93,17 @@ describe('sync-group-users', () => {
   });
 
   test('should continue the sync when their is more group member', async () => {
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
+    vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+      id: 'test-instance-id',
+      url: 'test-instance-url',
+    });
     const elba = spyOnElba();
-    await db.insert(organisationsTable).values(organisation);
     await db.insert(usersTable).values(users);
     vi.spyOn(groupsConnector, 'getGroupMembers').mockResolvedValue({
       members,
@@ -83,11 +111,13 @@ describe('sync-group-users', () => {
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      organisationId,
       isFirstSync: false,
       syncStartedAt,
       groupId,
       cursor: null,
+      nangoConnectionId,
+      region,
     });
     step.invoke.mockResolvedValue(undefined);
 
@@ -96,15 +126,15 @@ describe('sync-group-users', () => {
     expect(groupsConnector.getGroupMembers).toBeCalledTimes(1);
     expect(groupsConnector.getGroupMembers).toBeCalledWith({
       accessToken,
-      instanceId: organisation.instanceId,
+      instanceId,
       groupId,
       cursor: null,
     });
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      organisationId: organisation.id,
-      region: organisation.region,
+      organisationId,
+      region,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });
@@ -119,7 +149,7 @@ describe('sync-group-users', () => {
     expect(step.invoke).toBeCalledWith('request-next-group-users-sync', {
       function: syncGroupUsers,
       data: {
-        organisationId: organisation.id,
+        organisationId,
         isFirstSync: false,
         syncStartedAt,
         groupId,
@@ -131,8 +161,17 @@ describe('sync-group-users', () => {
   });
 
   test('should finalize the sync when their is no more page', async () => {
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
+    vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+      id: 'test-instance-id',
+      url: 'test-instance-url',
+    });
     const elba = spyOnElba();
-    await db.insert(organisationsTable).values(organisation);
     await db.insert(usersTable).values(users);
     vi.spyOn(groupsConnector, 'getGroupMembers').mockResolvedValue({
       members,
@@ -140,11 +179,13 @@ describe('sync-group-users', () => {
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      organisationId,
       isFirstSync: false,
       syncStartedAt,
       groupId,
       cursor: null,
+      nangoConnectionId,
+      region,
     });
     step.invoke.mockResolvedValue(undefined);
 
@@ -153,15 +194,15 @@ describe('sync-group-users', () => {
     expect(groupsConnector.getGroupMembers).toBeCalledTimes(1);
     expect(groupsConnector.getGroupMembers).toBeCalledWith({
       accessToken,
-      instanceId: organisation.instanceId,
+      instanceId,
       groupId,
       cursor: null,
     });
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      organisationId: organisation.id,
-      region: organisation.region,
+      organisationId,
+      region,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });

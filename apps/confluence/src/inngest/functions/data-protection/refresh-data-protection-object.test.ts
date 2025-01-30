@@ -1,6 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
+import * as nangoAPI from '@/common/nango';
+import * as authConnector from '@/connectors/confluence/auth';
 import * as spacesConnector from '@/connectors/confluence/spaces';
 import * as pagesConnector from '@/connectors/confluence/pages';
 import type {
@@ -8,12 +9,17 @@ import type {
   SpaceObjectMetadata,
 } from '@/connectors/elba/data-protection/metadata';
 import { db } from '@/database/client';
-import { organisationsTable, usersTable } from '@/database/schema';
+import { usersTable } from '@/database/schema';
 import { env } from '@/common/env';
-import { accessToken, organisation, organisationUsers } from '../__mocks__/organisations';
+import { accessToken, organisationUsers } from '../__mocks__/organisations';
 import { spaceWithPermissions, spaceWithPermissionsObject } from '../__mocks__/confluence-spaces';
 import { pageWithRestrictions, pageWithRestrictionsObject } from '../__mocks__/confluence-pages';
 import { refreshDataProtectionObject } from './refresh-data-protection-object';
+
+const organisationId = '00000000-0000-0000-0000-000000000002';
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
+const instanceId = 'test-instance-id';
 
 const objectId = 'object-id';
 
@@ -39,42 +45,34 @@ const setup = createInngestFunctionMock(
 );
 
 describe('refresh-data-protection-object', () => {
-  test('should abort when organisation is not registered', async () => {
-    const elba = spyOnElba();
-    vi.spyOn(spacesConnector, 'getSpaceWithPermissions').mockResolvedValue(null);
-    vi.spyOn(pagesConnector, 'getPageWithRestrictions').mockResolvedValue(null);
-    const [result] = setup({
-      objectId,
-      organisationId: organisation.id,
-      metadata: pageObjectMetadata,
-    });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(elba).toBeCalledTimes(0);
-
-    expect(spacesConnector.getSpaceWithPermissions).toBeCalledTimes(0);
-    expect(pagesConnector.getPageWithRestrictions).toBeCalledTimes(0);
-  });
-
   describe('when object is a space', () => {
     test('should delete object when space does not exists', async () => {
       const elba = spyOnElba();
-      await db.insert(organisationsTable).values(organisation);
-
+      // @ts-expect-error -- this is a mock
+      vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+        getConnection: vi.fn().mockResolvedValue({
+          credentials: { access_token: 'access-token' },
+        }),
+      });
+      vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+        id: 'test-instance-id',
+        url: 'test-instance-url',
+      });
       vi.spyOn(spacesConnector, 'getSpaceWithPermissions').mockResolvedValue(null);
       vi.spyOn(pagesConnector, 'getPageWithRestrictions').mockResolvedValue(null);
       const [result] = setup({
         objectId,
-        organisationId: organisation.id,
+        organisationId,
         metadata: personalSpaceObjectMetadata,
+        nangoConnectionId,
+        region,
       });
 
       await expect(result).resolves.toStrictEqual({ result: 'deleted' });
 
       expect(spacesConnector.getSpaceWithPermissions).toBeCalledTimes(1);
       expect(spacesConnector.getSpaceWithPermissions).toBeCalledWith({
-        instanceId: organisation.instanceId,
+        instanceId,
         accessToken,
         id: objectId,
         permissionsMaxPage: 1,
@@ -83,8 +81,8 @@ describe('refresh-data-protection-object', () => {
 
       expect(elba).toBeCalledTimes(1);
       expect(elba).toBeCalledWith({
-        organisationId: organisation.id,
-        region: organisation.region,
+        organisationId,
+        region,
         apiKey: env.ELBA_API_KEY,
         baseUrl: env.ELBA_API_BASE_URL,
       });
@@ -97,23 +95,34 @@ describe('refresh-data-protection-object', () => {
     });
 
     test('should refresh object when space exists and is personal', async () => {
+      // @ts-expect-error -- this is a mock
+      vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+        getConnection: vi.fn().mockResolvedValue({
+          credentials: { access_token: 'access-token' },
+        }),
+      });
+      vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+        id: 'test-instance-id',
+        url: 'test-instance-url',
+      });
       const elba = spyOnElba();
-      await db.insert(organisationsTable).values(organisation);
       await db.insert(usersTable).values(organisationUsers);
 
       vi.spyOn(spacesConnector, 'getSpaceWithPermissions').mockResolvedValue(spaceWithPermissions);
       vi.spyOn(pagesConnector, 'getPageWithRestrictions').mockResolvedValue(null);
       const [result] = setup({
         objectId,
-        organisationId: organisation.id,
+        organisationId,
         metadata: personalSpaceObjectMetadata,
+        nangoConnectionId,
+        region,
       });
 
       await expect(result).resolves.toStrictEqual({ result: 'updated' });
 
       expect(spacesConnector.getSpaceWithPermissions).toBeCalledTimes(1);
       expect(spacesConnector.getSpaceWithPermissions).toBeCalledWith({
-        instanceId: organisation.instanceId,
+        instanceId,
         accessToken,
         id: objectId,
         permissionsMaxPage: 1,
@@ -122,8 +131,8 @@ describe('refresh-data-protection-object', () => {
 
       expect(elba).toBeCalledTimes(1);
       expect(elba).toBeCalledWith({
-        organisationId: organisation.id,
-        region: organisation.region,
+        organisationId,
+        region,
         apiKey: env.ELBA_API_KEY,
         baseUrl: env.ELBA_API_BASE_URL,
       });
@@ -136,23 +145,34 @@ describe('refresh-data-protection-object', () => {
     });
 
     test('should refresh object when space exists and is global', async () => {
+      // @ts-expect-error -- this is a mock
+      vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+        getConnection: vi.fn().mockResolvedValue({
+          credentials: { access_token: 'access-token' },
+        }),
+      });
+      vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+        id: 'test-instance-id',
+        url: 'test-instance-url',
+      });
       const elba = spyOnElba();
-      await db.insert(organisationsTable).values(organisation);
       await db.insert(usersTable).values(organisationUsers);
 
       vi.spyOn(spacesConnector, 'getSpaceWithPermissions').mockResolvedValue(spaceWithPermissions);
       vi.spyOn(pagesConnector, 'getPageWithRestrictions').mockResolvedValue(null);
       const [result] = setup({
         objectId,
-        organisationId: organisation.id,
+        organisationId,
         metadata: globalSpaceObjectMetadata,
+        nangoConnectionId,
+        region,
       });
 
       await expect(result).resolves.toStrictEqual({ result: 'updated' });
 
       expect(spacesConnector.getSpaceWithPermissions).toBeCalledTimes(1);
       expect(spacesConnector.getSpaceWithPermissions).toBeCalledWith({
-        instanceId: organisation.instanceId,
+        instanceId,
         accessToken,
         id: objectId,
         permissionsMaxPage: 10,
@@ -161,8 +181,8 @@ describe('refresh-data-protection-object', () => {
 
       expect(elba).toBeCalledTimes(1);
       expect(elba).toBeCalledWith({
-        organisationId: organisation.id,
-        region: organisation.region,
+        organisationId,
+        region,
         apiKey: env.ELBA_API_KEY,
         baseUrl: env.ELBA_API_BASE_URL,
       });
@@ -177,15 +197,26 @@ describe('refresh-data-protection-object', () => {
 
   describe('when object is a page', () => {
     test('should delete object when page does not exists', async () => {
+      // @ts-expect-error -- this is a mock
+      vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+        getConnection: vi.fn().mockResolvedValue({
+          credentials: { access_token: 'access-token' },
+        }),
+      });
+      vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+        id: 'test-instance-id',
+        url: 'test-instance-url',
+      });
       const elba = spyOnElba();
-      await db.insert(organisationsTable).values(organisation);
 
       vi.spyOn(spacesConnector, 'getSpaceWithPermissions').mockResolvedValue(null);
       vi.spyOn(pagesConnector, 'getPageWithRestrictions').mockResolvedValue(null);
       const [result] = setup({
         objectId,
-        organisationId: organisation.id,
+        organisationId,
         metadata: pageObjectMetadata,
+        nangoConnectionId,
+        region,
       });
 
       await expect(result).resolves.toStrictEqual({ result: 'deleted' });
@@ -193,15 +224,15 @@ describe('refresh-data-protection-object', () => {
       expect(spacesConnector.getSpaceWithPermissions).toBeCalledTimes(0);
       expect(pagesConnector.getPageWithRestrictions).toBeCalledTimes(1);
       expect(pagesConnector.getPageWithRestrictions).toBeCalledWith({
-        instanceId: organisation.instanceId,
+        instanceId,
         accessToken,
         id: objectId,
       });
 
       expect(elba).toBeCalledTimes(1);
       expect(elba).toBeCalledWith({
-        organisationId: organisation.id,
-        region: organisation.region,
+        organisationId,
+        region,
         apiKey: env.ELBA_API_KEY,
         baseUrl: env.ELBA_API_BASE_URL,
       });
@@ -214,16 +245,27 @@ describe('refresh-data-protection-object', () => {
     });
 
     test('should refresh object when page exists', async () => {
+      // @ts-expect-error -- this is a mock
+      vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+        getConnection: vi.fn().mockResolvedValue({
+          credentials: { access_token: 'access-token' },
+        }),
+      });
+      vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+        id: 'test-instance-id',
+        url: 'test-instance-url',
+      });
       const elba = spyOnElba();
-      await db.insert(organisationsTable).values(organisation);
       await db.insert(usersTable).values(organisationUsers);
 
       vi.spyOn(spacesConnector, 'getSpaceWithPermissions').mockResolvedValue(null);
       vi.spyOn(pagesConnector, 'getPageWithRestrictions').mockResolvedValue(pageWithRestrictions);
       const [result] = setup({
         objectId,
-        organisationId: organisation.id,
+        organisationId,
         metadata: pageObjectMetadata,
+        nangoConnectionId,
+        region,
       });
 
       await expect(result).resolves.toStrictEqual({ result: 'updated' });
@@ -231,15 +273,15 @@ describe('refresh-data-protection-object', () => {
       expect(spacesConnector.getSpaceWithPermissions).toBeCalledTimes(0);
       expect(pagesConnector.getPageWithRestrictions).toBeCalledTimes(1);
       expect(pagesConnector.getPageWithRestrictions).toBeCalledWith({
-        instanceId: organisation.instanceId,
+        instanceId,
         accessToken,
         id: objectId,
       });
 
       expect(elba).toBeCalledTimes(1);
       expect(elba).toBeCalledWith({
-        organisationId: organisation.id,
-        region: organisation.region,
+        organisationId,
+        region,
         apiKey: env.ELBA_API_KEY,
         baseUrl: env.ELBA_API_BASE_URL,
       });
