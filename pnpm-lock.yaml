@@ -850,6 +850,9 @@ importers:
       postgres:
         specifier: 'catalog:'
         version: 3.4.4
+      testcontainers:
+        specifier: 'catalog:'
+        version: 10.10.0
       typescript:
         specifier: 'catalog:'
         version: 5.5.3

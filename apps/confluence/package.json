@@ -47,6 +47,7 @@
     "inngest-cli": "catalog:",
     "msw": "catalog:",
     "postgres": "catalog:",
+    "testcontainers": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }
