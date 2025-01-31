@@ -1,73 +1,167 @@
+# Elba Integration Template
+
+This template provides a foundation for building integrations with Elba Security. It follows the same structure as our production integrations like Bitbucket.
+
+## Features
+
+- **OAuth Authentication**: Pre-configured OAuth flow using [Nango](https://nango.dev/)
+- **Event Handling**: Event-driven architecture using [Inngest](https://www.inngest.com/)
+- **Type Safety**: Full TypeScript support with proper type definitions
+- **Testing**: Ready-to-use testing setup with Vitest
+
 ## Getting Started
 
-Rename `.env.local.example` to `.env.local`.
+### Development Setup
 
-This file will be used for local development environment.
+1. Copy `.env.local.example` to `.env.local` and fill in the required environment variables:
 
-### Setting up node integration
+   ```
+   ELBA_API_BASE_URL=
+   ELBA_SOURCE_ID=
+   ELBA_WEBHOOK_SECRET=
+   NANGO_INTEGRATION_ID=
+   ```
 
-If your integration does not support **edge runtime** some files has to be edited:
+2. Install dependencies:
 
-- `docker-compose.yml`: remove the `pg_proxy` service
-- `vitest/setup-msw-handlers`: remove the first arguments of `setupServer()`, setting a passthrough
-- `src/database/client.ts`: replace this file by `client.node.ts` (and remove it)
-- `vitest.config.js`: update `environment` to `'node'`
-- `package.json`: remove dependency `"@neondatabase/serverless"`
-- remove each `route.ts` exports of `preferredRegion` & `runtime` constants.
+   ```bash
+   pnpm install
+   ```
 
-### Setting up edge-runtime integration
+3. Start the development server:
+   ```bash
+   pnpm dev
+   ```
 
-If your integration does supports **edge runtime** you just have to remove file ending with `.node.ts` like `src/database/client.node.ts`.
+### Testing Setup
 
-### Running the integration
+1. The `.env.test` file contains default test values and is committed to the repository
+2. For local test overrides:
+   ```bash
+   cp .env.test .env.test.local
+   ```
+3. Modify `.env.test.local` with your test-specific values (this file is git-ignored)
+4. Run tests:
+   ```bash
+   pnpm test
+   ```
 
-First of all, ensure that the PostgreSQL database is running. You can start it by executing the following command:
+## Project Structure
 
-```bash
-pnpm database:up
+```
+src/
+├── app/
+│   └── api/
+│       └── webhooks/
+│           └── elba/
+│               └── installation/
+│                   └── validate/
+│                       ├── route.ts    # Installation validation webhook
+│                       └── service.ts  # Installation validation logic
+├── common/
+│   └── nango.ts        # Nango client configuration
+├── connectors/
+│   ├── common/
+│   │   └── error.ts    # Error mapping utilities
+│   ├── elba/
+│   │   └── client.ts   # Elba client utilities
+│   └── {{name}}/       # Your integration-specific code
+│       └── users.ts    # Integration-specific API calls and types
+└── inngest/
+    ├── client.ts       # Inngest client configuration
+    └── functions/      # Integration-specific event handlers
+        └── users/      # User synchronization functions
 ```
 
-To apply the migration, run:
+## Features
 
-```bash
-pnpm database:migrate
+### Installation Validation
+
+The template includes a webhook-based installation flow that:
+
+1. Validates the Nango connection
+2. Verifies access to the source API
+3. Triggers initial sync events
+
+### Error Handling
+
+Built-in error management features:
+
+- Automatic mapping of common errors (401, 403, etc.)
+- Connection status updates
+- Error logging and serialization
+
+## Development
+
+1. Add your source-specific validation logic in `src/app/api/webhooks/elba/installation/validate/service.ts`
+2. Implement your resource sync handlers
+3. Add any additional webhooks needed for your integration
+
+## Environment Files
+
+The template uses several environment files for different purposes:
+
+- `.env.local.example` → `.env.local`: Development environment variables
+- `.env.test`: Default test values (committed to repo)
+- `.env.test.local`: Local test overrides (git-ignored)
+
+This pattern ensures:
+
+- Consistent test values across the team
+- Easy local development setup
+- Safe local overrides without affecting the repository
+
+## Authentication & Installation Flow
+
+The authentication flow happens entirely in Elba's SaaS platform. Once completed:
+
+1. Elba calls the integration's webhook endpoint `/api/webhooks/elba/installation/validate`
+2. The integration performs additional checks (e.g., verifying admin permissions)
+3. If validation succeeds, initial sync events are triggered
+
+For implementation details, see `src/app/api/webhooks/elba/installation/validate/`.
+
+## Event Types
+
+The template includes the following Inngest events:
+
+```typescript
+'{{name}}/app.installed': {
+  data: {
+    organisationId: string;
+  }
+}
+
+'{{name}}/app.uninstalled': {
+  data: {
+    organisationId: string;
+    region: string;
+    errorType: ConnectionErrorType;
+    errorMetadata?: unknown;
+  }
+}
+
+'{{name}}/users.sync.requested': {
+  data: {
+    organisationId: string;
+    region: string;
+    nangoConnectionId: string;
+    isFirstSync: boolean;
+    syncStartedAt: number;
+    page: string | null;
+  }
+}
 ```
 
-Next, run the nextjs development server with the command:
+## Error Handling
 
-```bash
-pnpm dev
-```
+The template includes built-in error handling for:
 
-To be able to run Inngest functions, it's essential to have a local Inngest client operational. Start it using:
+- OAuth authentication failures
+- Rate limiting (via middleware)
+- Connection errors (unauthorized, not admin)
+- API errors with proper error mapping
 
-```bash
-pnpm dev:inngest
-```
+## Contributing
 
-_Once the Inngest client is running, it will send requests to the `localhost:4000/api/inngest` route to gather information about your functions, including events and cron triggers. Inngest also provides a user interface, accessible in your web browser, where you can monitor function invocations, attempt retries, and more._
-
-### Database migrations
-
-To create a new migration file within the `/drizzle` directory, execute the following command:
-
-```bash
-pnpm database:generate
-```
-
-After generating the migration, apply it by running:
-
-```bash
-pnpm database:migrate
-```
-
-Important Considerations:
-
-- **Single Migration Requirement**: Your integration should include only one migration before merging into the staging environment. If you need to regenerate the contents of your `/drizzle` folder, ensure that you delete the existing folder first.
-
-- **Handling drizzle-orm Errors**: In cases where `drizzle-orm` encounters an error during the migration process, it's advisable to unmount and remount your database container. This can be achieved with the `database:down` and `database:up` commands, respectively. Once this is done, you can attempt the migration again.
-
-### Example implementation
-
-The template contains an example implementation that will guide you to reach our requirements. Make sure
-to adapt this example to your need and remove the disclamer comments before creating your first PR.
+Please refer to the main repository's [CONTRIBUTING.md](../../CONTRIBUTING.md) for guidelines.
