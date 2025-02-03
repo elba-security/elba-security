@@ -2,7 +2,7 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { LinearError } from '../common/error';
+import { LinearError, LinearNotAdminError } from '../common/error';
 import type { LinearUser } from './users';
 import { getUsers, deleteUser, getAuthUser } from './users';
 
@@ -12,14 +12,14 @@ const nextCursor = '1';
 const userId = 'test-id';
 
 const authUserId = 'test-auth-user-id';
-const workspaceUrlKey = 'test-workspace-url-key';
+const workspaceUrlKey = 'workspace-url-key';
 
 const validUsers: LinearUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
-  name: `first_name-${i}`,
-  username: `username-${i}`,
+  displayName: `first_name-${i}`,
   email: `user-${i}@foo.bar`,
   active: true,
+  admin: false,
 }));
 
 const invalidUsers = [];
@@ -40,6 +40,9 @@ describe('users connector', () => {
 
           return Response.json({
             data: {
+              organization: {
+                urlKey: workspaceUrlKey,
+              },
               users: {
                 nodes: [...validUsers, ...invalidUsers],
                 pageInfo: {
@@ -57,6 +60,7 @@ describe('users connector', () => {
       await expect(
         getUsers({ accessToken: validToken, afterCursor: 'start' })
       ).resolves.toStrictEqual({
+        workspaceUrlKey,
         validUsers,
         invalidUsers,
         nextPage: nextCursor,
@@ -67,6 +71,7 @@ describe('users connector', () => {
       await expect(
         getUsers({ accessToken: validToken, afterCursor: endCursor })
       ).resolves.toStrictEqual({
+        workspaceUrlKey,
         validUsers,
         invalidUsers,
         nextPage: null,
@@ -105,33 +110,45 @@ describe('users connector', () => {
     });
   });
 
+  const setup = (
+    {
+      hasAdminRole,
+    }: {
+      hasAdminRole: boolean;
+    } = {
+      hasAdminRole: true,
+    }
+  ) => {
+    server.use(
+      http.post(`${env.LINEAR_API_BASE_URL}/graphql`, ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
+        }
+
+        return Response.json({
+          data: {
+            viewer: { id: authUserId, admin: hasAdminRole, active: true },
+          },
+        });
+      })
+    );
+  };
   describe('getAuthUser', () => {
-    // mock token API endpoint using msw
-    beforeEach(() => {
-      server.use(
-        http.post(`${env.LINEAR_API_BASE_URL}/graphql`, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-
-          return Response.json({
-            data: {
-              viewer: { id: authUserId },
-              organization: { urlKey: workspaceUrlKey },
-            },
-          });
-        })
-      );
-    });
-
     test('should return authUserId and workspace url when the token is valid', async () => {
+      setup();
       await expect(getAuthUser(validToken)).resolves.toStrictEqual({
         authUserId,
-        workspaceUrlKey,
       });
+    });
+    test('should throw error when the auth user is not an admin', async () => {
+      setup({
+        hasAdminRole: false,
+      });
+      await expect(getAuthUser(validToken)).rejects.toBeInstanceOf(LinearNotAdminError);
     });
 
     test('should throws when the token is invalid', async () => {
+      setup();
       await expect(getAuthUser('foo-bar')).rejects.toBeInstanceOf(LinearError);
     });
   });
