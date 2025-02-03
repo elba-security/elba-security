@@ -1,13 +1,10 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
-import { createElbaClient } from '@/connectors/elba/client';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { type FrontUser } from '@/connectors/front/users';
+import { nangoAPIClient } from '@/common/nango';
 import { getUsers } from '@/connectors/front/users';
 
 const formatElbaUserDisplayName = (user: FrontUser) => {
@@ -50,26 +47,22 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'front/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt } = event.data;
+    const { organisationId, nangoConnectionId, region, syncStartedAt } = event.data;
 
-    const [organisation] = await db
-      .select({
-        token: organisationsTable.accessToken,
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
 
     await step.run('list-users', async () => {
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
       // Teammates API doesn't support pagination (it is verified with support team)
       // https://dev.frontapp.com/reference/list-teammates
-      const result = await getUsers(token);
+      const result = await getUsers(credentials.access_token);
 
       const users = result.validUsers.map(formatElbaUser);
 

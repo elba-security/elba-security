@@ -1,5 +1,6 @@
 import { SlackAPIClient } from 'slack-web-api-client';
 import { logger } from '@elba-security/logger';
+import { eq } from 'drizzle-orm';
 import { encrypt } from '@/common/crypto';
 import { env } from '@/common/env';
 import { getSlackMissingScopes } from '@/connectors/slack/oauth';
@@ -74,6 +75,11 @@ export const handleSlackInstallation = async ({
 
     const encryptedToken = await encrypt(accessToken);
 
+    // As there is a unique constraint on `teams.elba_organisation_id`
+    // and as the insert on conflict target is on `teams.id`
+    // we need to delete the team with this organisation id if any
+    // otherwise an organisation can't connect to a new slack workspace
+    await db.delete(teamsTable).where(eq(teamsTable.elbaOrganisationId, organisationId));
     await db
       .insert(teamsTable)
       .values({
@@ -87,6 +93,8 @@ export const handleSlackInstallation = async ({
       .onConflictDoUpdate({
         target: [teamsTable.id],
         set: {
+          elbaOrganisationId: organisationId,
+          elbaRegion: region,
           url: result.data.url,
           token: encryptedToken,
           adminId: response.authed_user.id,

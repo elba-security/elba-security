@@ -1,11 +1,8 @@
-import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUser as deleteDatadogUser } from '@/connectors/datadog/users';
-import { decrypt } from '@/common/crypto';
+import { nangoAPIClient } from '@/common/nango';
 import { env } from '@/common/env';
+import { nangoConnectionConfigSchema, nangoCredentialsSchema } from '@/connectors/common/nango';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -28,28 +25,24 @@ export const deleteUser = inngest.createFunction(
   },
   { event: 'datadog/users.delete.requested' },
   async ({ event }) => {
-    const { userId, organisationId } = event.data;
+    const { nangoConnectionId, userId } = event.data;
 
-    const [organisation] = await db
-      .select({
-        apiKey: organisationsTable.apiKey,
-        appKey: organisationsTable.appKey,
-        sourceRegion: organisationsTable.sourceRegion,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve ${userId}`);
+    const { credentials, connection_config: connectionConfig } =
+      await nangoAPIClient.getConnection(nangoConnectionId);
+    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
+    if (!nangoCredentialsResult.success) {
+      throw new Error('Could not retrieve Nango credentials');
     }
-
-    const apiKey = await decrypt(organisation.apiKey);
+    const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
+    if (!nangoConnectionConfigResult.success) {
+      throw new Error('Could not retrieve Nango connection config data');
+    }
 
     await deleteDatadogUser({
       userId,
-      apiKey,
-      appKey: organisation.appKey,
-      sourceRegion: organisation.sourceRegion,
+      apiKey: nangoCredentialsResult.data.apiKey,
+      appKey: nangoConnectionConfigResult.data.applicationKey,
+      sourceRegion: nangoConnectionConfigResult.data.siteParameter,
     });
   }
 );

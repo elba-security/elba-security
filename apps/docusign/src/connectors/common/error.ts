@@ -19,7 +19,7 @@ export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   if (error instanceof NangoConnectionError && error.response.status === 404) {
     return 'unauthorized';
   }
-  if (error instanceof DocusignError && error.response?.status !== 401) {
+  if (error instanceof DocusignError && error.response?.status === 401) {
     return 'unauthorized';
   }
   if (error instanceof DocusignNotAdminError) {
