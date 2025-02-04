@@ -13,6 +13,8 @@ export class AircallError extends Error {
   }
 }
 
+export class AircallNotAdminError extends AircallError {}
+
 export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   if (error instanceof NangoConnectionError && error.response.status === 404) {
     return 'unauthorized';
@@ -20,5 +22,9 @@ export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   if (error instanceof AircallError && error.response?.status !== 401) {
     return 'unauthorized';
   }
+  if (error instanceof AircallNotAdminError) {
+    return 'not_admin';
+  }
+
   return null;
 };
