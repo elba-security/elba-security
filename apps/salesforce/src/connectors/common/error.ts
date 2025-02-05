@@ -13,17 +13,12 @@ export class SalesforceError extends Error {
   }
 }
 
-export class SalesforceNotAdminError extends SalesforceError {}
-
 export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   if (error instanceof NangoConnectionError && error.response.status === 404) {
     return 'unauthorized';
   }
   if (error instanceof SalesforceError && error.response?.status === 401) {
     return 'unauthorized';
-  }
-  if (error instanceof SalesforceNotAdminError) {
-    return 'not_admin';
   }
 
   return null;
