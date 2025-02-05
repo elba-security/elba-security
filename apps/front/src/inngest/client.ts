@@ -1,6 +1,8 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { type ConnectionErrorType } from '@elba-security/sdk';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { elbaConnectionErrorMiddleware } from './middlewares/elba-connection-error-middleware';
 
 export const inngest = new Inngest({
   id: 'front',
@@ -10,6 +12,8 @@ export const inngest = new Inngest({
         organisationId: string;
         isFirstSync: boolean;
         syncStartedAt: number;
+        region: string;
+        nangoConnectionId: string;
       };
     };
     'front/app.installed': {
@@ -20,21 +24,12 @@ export const inngest = new Inngest({
     'front/app.uninstalled': {
       data: {
         organisationId: string;
-      };
-    };
-    'front/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
-      };
-    };
-    'front/users.delete.requested': {
-      data: {
-        organisationId: string;
-        userId: string;
+        region: string;
+        errorType: ConnectionErrorType;
+        errorMetadata?: unknown;
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [rateLimitMiddleware, elbaConnectionErrorMiddleware],
   logger,
 });
