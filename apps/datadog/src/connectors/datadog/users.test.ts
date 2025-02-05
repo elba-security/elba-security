@@ -11,7 +11,7 @@ const endPage = 2;
 const nextPage = 1;
 const testId = 'test-id';
 const appKey = 'test-appKey';
-const sourceRegion = 'EU1';
+const sourceRegion = 'datadoghq.eu';
 const totalCount = 20;
 const totalFilteredCount = 41;
 
