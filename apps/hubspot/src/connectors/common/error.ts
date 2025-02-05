@@ -13,17 +13,12 @@ export class HubspotError extends Error {
   }
 }
 
-export class HubspotNotAdminError extends HubspotError {}
-
 export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   if (error instanceof NangoConnectionError && error.response.status === 404) {
     return 'unauthorized';
   }
   if (error instanceof HubspotError && error.response?.status === 401) {
     return 'unauthorized';
-  }
-  if (error instanceof HubspotNotAdminError) {
-    return 'not_admin';
   }
 
   return null;
