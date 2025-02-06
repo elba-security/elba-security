@@ -68,7 +68,7 @@ docs/                  # Documentation
 
 ## Documentation
 
-- [Contributing Guide](./CONTRIBUTING.md): Guidelines for contributing to the project
+- [Contributing Guide](./CONTRIBUTING.MD): Guidelines for contributing to the project
 - [Architecture](./docs/architecture.md): Detailed architecture documentation
 - [Template README](./template/README.md): Integration template documentation
 
