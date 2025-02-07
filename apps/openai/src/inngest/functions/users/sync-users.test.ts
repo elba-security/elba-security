@@ -6,6 +6,8 @@ import type { OpenAiUser } from '@/connectors/openai/users';
 import { syncUsers } from './sync-users';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
+const organizationId = 'test-id';
+const userId = 'test-user-id';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const apiKey = 'test-api-key';
@@ -39,6 +41,11 @@ describe('sync-users', () => {
       invalidUsers: [],
     });
 
+    vi.spyOn(usersConnector, 'getTokenOwnerInfo').mockResolvedValue({
+      organization: { role: 'owner', id: organizationId, personal: false },
+      userId,
+    });
+
     const [result, { step }] = setup({
       organisationId,
       region,
@@ -53,7 +60,7 @@ describe('sync-users', () => {
     expect(usersConnector.getUsers).toBeCalledTimes(1);
     expect(usersConnector.getUsers).toBeCalledWith({
       apiKey,
-      organizationId: organisationId,
+      organizationId,
     });
   });
 });

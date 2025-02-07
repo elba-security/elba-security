@@ -2,13 +2,17 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { spyOnElba } from '@elba-security/test-utils';
 import { inngest } from '@/inngest/client';
 import * as nangoAPI from '@/common/nango';
+import * as usersConnector from '@/connectors/openai/users';
 import { validateSourceInstallation } from './service';
 
 const organisationId = '00000000-0000-0000-0000-000000000002';
+const organizationId = 'test-id';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
-const now = Date.now();
 const apiKey = 'test-api-key';
+const userId = 'test-user-id';
+
+const now = Date.now();
 
 describe('validateSourceInstallation', () => {
   beforeAll(() => {
@@ -27,7 +31,10 @@ describe('validateSourceInstallation', () => {
         credentials: { apiKey },
       }),
     });
-
+    vi.spyOn(usersConnector, 'getTokenOwnerInfo').mockResolvedValue({
+      organization: { role: 'owner', id: organizationId, personal: false },
+      userId,
+    });
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
 
     await validateSourceInstallation({
@@ -70,7 +77,10 @@ describe('validateSourceInstallation', () => {
         credentials: {},
       }),
     });
-
+    vi.spyOn(usersConnector, 'getTokenOwnerInfo').mockResolvedValue({
+      organization: { role: 'owner', id: organizationId, personal: false },
+      userId,
+    });
     await expect(
       validateSourceInstallation({
         organisationId,

@@ -1,6 +1,6 @@
 import type { User } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
-import { type OpenAiUser, getUsers } from '@/connectors/openai/users';
+import { type OpenAiUser, getUsers, getTokenOwnerInfo } from '@/connectors/openai/users';
 import { inngest } from '@/inngest/client';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { nangoCredentialsSchema } from '@/connectors/common/nango';
@@ -64,9 +64,13 @@ export const syncUsers = inngest.createFunction(
       }
 
       const apiKey = nangoCredentialsResult.data.apiKey;
+      const { organization } = await getTokenOwnerInfo(apiKey);
+      if (!organization?.id) {
+        throw new Error("The given API key doesn't belong to an organization");
+      }
 
       const result = await getUsers({
-        organizationId: organisationId,
+        organizationId: organization.id,
         apiKey,
       });
       const users = result.validUsers.map(formatElbaUser);
