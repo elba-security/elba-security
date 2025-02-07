@@ -26,17 +26,22 @@ export const deleteUser = inngest.createFunction(
     event: 'openai/users.delete.requested',
   },
   async ({ event }) => {
-    const { userId, organisationId, nangoConnectionId } = event.data;
+    const { userId, nangoConnectionId } = event.data;
 
     const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
     const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
     if (!nangoCredentialsResult.success) {
       throw new Error('Could not retrieve Nango credentials');
     }
+    const apiKey = nangoCredentialsResult.data.apiKey;
+    const { organization } = await usersConnector.getTokenOwnerInfo(apiKey);
+    if (!organization?.id) {
+      throw new Error("The given API key doesn't belong to an organization");
+    }
 
     await usersConnector.deleteUser({
       userId,
-      organizationId: organisationId,
+      organizationId: organization.id,
       apiKey: nangoCredentialsResult.data.apiKey,
     });
   }

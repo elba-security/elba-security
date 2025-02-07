@@ -5,6 +5,7 @@ import * as usersConnector from '@/connectors/openai/users';
 import { deleteUser } from './delete-user';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
+const organizationId = 'test-id';
 const nangoConnectionId = 'nango-connection-id';
 const region = 'us';
 const userId = 'user-id';
@@ -25,6 +26,11 @@ describe('delete-user-request', () => {
         credentials: { apiKey },
       }),
     });
+    vi.spyOn(usersConnector, 'getTokenOwnerInfo').mockResolvedValue({
+      organization: { role: 'owner', id: organizationId, personal: false },
+      userId,
+    });
+
     const [result] = setup({ organisationId, region, nangoConnectionId, userId });
 
     await expect(result).resolves.toStrictEqual(undefined);
@@ -32,7 +38,7 @@ describe('delete-user-request', () => {
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     expect(usersConnector.deleteUser).toBeCalledWith({
       userId,
-      organizationId: organisationId,
+      organizationId,
       apiKey,
     });
   });
