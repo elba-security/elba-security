@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, count, eq, not } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import { env } from '@/env';
@@ -15,12 +15,13 @@ export const removeOrganisation = inngest.createFunction(
   {
     event: 'teams/app.uninstalled',
   },
-  async ({ event }) => {
+  async ({ event, step }) => {
     const { organisationId } = event.data;
     const [organisation] = await db
       .select({
         region: organisationsTable.region,
         token: organisationsTable.token,
+        tenantId: organisationsTable.tenantId,
       })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
@@ -29,19 +30,40 @@ export const removeOrganisation = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const subscriptions = await db
-      .select({
-        subscriptionId: subscriptionsTable.id,
-      })
-      .from(subscriptionsTable)
-      .where(eq(subscriptionsTable.organisationId, organisationId));
-
-    if (subscriptions.length) {
-      await Promise.all(
-        subscriptions.map((subscription) =>
-          deleteSubscription(organisation.token, subscription.subscriptionId)
+    const [countResponse] = await db
+      .select({ countOfOrganisationsWithSameTenant: count() })
+      .from(organisationsTable)
+      .where(
+        and(
+          eq(organisationsTable.tenantId, organisation.tenantId),
+          not(eq(organisationsTable.id, organisationId))
         )
       );
+
+    // We should only delete subscriptions if it is the last organisation in the same tenant.
+    if (countResponse && countResponse.countOfOrganisationsWithSameTenant === 0) {
+      const subscriptions = await db
+        .select({
+          subscriptionId: subscriptionsTable.id,
+        })
+        .from(subscriptionsTable)
+        .where(eq(subscriptionsTable.tenantId, organisation.tenantId));
+
+      if (subscriptions.length) {
+        await step.run(
+          'delete-subscriptions-in-tenant',
+          async () =>
+            await Promise.all(
+              subscriptions.map((subscription) =>
+                deleteSubscription(organisation.token, subscription.subscriptionId)
+              )
+            )
+        );
+
+        await db
+          .delete(subscriptionsTable)
+          .where(eq(subscriptionsTable.tenantId, organisation.tenantId));
+      }
     }
 
     const elba = createElbaClient(organisationId, organisation.region);

@@ -3,6 +3,7 @@ import { logger } from '@elba-security/logger';
 import { createElbaTrialIssuesLimitExceededMiddleware } from '@elba-security/inngest';
 import type { WebhookPayload } from '@/app/api/webhooks/microsoft/event-handler/service';
 import type { MessageMetadata } from '@/connectors/elba/data-protection/metadata';
+import { type MicrosoftMessageObjectWithoutContent } from '@/connectors/elba/types';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
 
 type InngestClient = typeof inngest;
@@ -98,6 +99,7 @@ export const inngest = new Inngest({
     'teams/channels.subscription.requested': {
       data: {
         organisationId: string;
+        tenantId: string;
       };
     };
     'teams/channel.subscription.requested': {
@@ -105,12 +107,31 @@ export const inngest = new Inngest({
         teamId: string;
         channelId: string;
         organisationId: string;
-        uniqueChannelInOrganisationId: string;
+        tenantId: string;
       };
     };
     'teams/teams.webhook.event.received': {
       data: {
         payload: WebhookPayload;
+      };
+    };
+    'teams/data.protection.object.upsert.requested': {
+      data: {
+        organisationId: string;
+        region: string;
+        teamId: string;
+        teamName: string;
+        channelId: string;
+        messageId: string;
+        replyId?: string;
+        message: MicrosoftMessageObjectWithoutContent;
+      };
+    };
+    'teams/data.protection.object.delete.requested': {
+      data: {
+        organisationId: string;
+        region: string;
+        messageId: string;
       };
     };
     'teams/subscription.refresh.requested': {
@@ -136,6 +157,13 @@ export const inngest = new Inngest({
     'teams/subscriptions.recreate.requested': {
       data: {
         organisationId: string;
+        tenantId: string;
+      };
+    };
+    'teams/subscriptions.remove.requested': {
+      data: {
+        tenantId: string;
+        skipToken: string | null;
       };
     };
   }>(),

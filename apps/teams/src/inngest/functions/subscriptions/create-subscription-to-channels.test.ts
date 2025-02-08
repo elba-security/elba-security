@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { NonRetriableError } from 'inngest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { encrypt } from '@/common/crypto';
@@ -28,6 +28,7 @@ const subscription = {
 
 const data = {
   organisationId: organisation.id,
+  tenantId: organisation.tenantId,
 };
 
 const setup = createInngestFunctionMock(
@@ -36,6 +37,10 @@ const setup = createInngestFunctionMock(
 );
 
 describe('create-subscription-to-channels', () => {
+  beforeEach(async () => {
+    await db.delete(subscriptionsTable);
+  });
+
   test('should abort the subscription when the organisation is not registered', async () => {
     const [result] = setup(data);
 
@@ -46,11 +51,13 @@ describe('create-subscription-to-channels', () => {
     await db.insert(organisationsTable).values(organisation);
     await db
       .insert(subscriptionsTable)
-      .values({ ...subscription, organisationId: organisation.id });
+      .values({ ...subscription, tenantId: organisation.tenantId });
 
     const [result] = setup(data);
 
-    await expect(result).resolves.toBeNull();
+    await expect(result).resolves.toBe(
+      `Subscription for resource - teams/getAllChannels in tenant - ${organisation.tenantId} already exists`
+    );
   });
 
   test('should exit if the subscription fail', async () => {
@@ -79,7 +86,9 @@ describe('create-subscription-to-channels', () => {
       .mockResolvedValue(subscription);
     const [result] = setup(data);
 
-    await expect(result).resolves.toBeUndefined();
+    await expect(result).resolves.toBe(
+      `Subscription successfully created for resource - teams/getAllChannels in tenant - ${data.tenantId}`
+    );
 
     expect(createSubscription).toBeCalledWith({
       encryptToken: organisation.token,

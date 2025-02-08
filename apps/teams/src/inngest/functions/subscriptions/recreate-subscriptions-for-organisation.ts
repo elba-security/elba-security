@@ -12,10 +12,14 @@ import {
 export const recreateSubscriptionsForOrganisation = inngest.createFunction(
   {
     id: 'teams/recreate-subscriptions-for-organisation',
+    concurrency: {
+      key: 'event.data.tenantId',
+      limit: 1,
+    },
   },
   { event: 'teams/subscriptions.recreate.requested' },
   async ({ event, step }) => {
-    const { organisationId } = event.data;
+    const { organisationId, tenantId } = event.data;
 
     const [organisation] = await db
       .select({
@@ -28,7 +32,7 @@ export const recreateSubscriptionsForOrganisation = inngest.createFunction(
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
-    const subscriptions = await step.run('get-subscriptions', async () =>
+    const subscriptions = await step.run('get-subscriptions-from-database', async () =>
       db
         .select({
           subscriptionId: subscriptionsTable.id,
@@ -36,7 +40,7 @@ export const recreateSubscriptionsForOrganisation = inngest.createFunction(
           changeType: subscriptionsTable.changeType,
         })
         .from(subscriptionsTable)
-        .where(eq(subscriptionsTable.organisationId, organisationId))
+        .where(eq(subscriptionsTable.tenantId, tenantId))
     );
 
     if (!subscriptions.length) {
@@ -52,9 +56,7 @@ export const recreateSubscriptionsForOrganisation = inngest.createFunction(
     );
 
     await step.run('remove-subscriptions-in-db', async () => {
-      await db
-        .delete(subscriptionsTable)
-        .where(eq(subscriptionsTable.organisationId, organisationId));
+      await db.delete(subscriptionsTable).where(eq(subscriptionsTable.tenantId, tenantId));
     });
 
     const subscriptionsToSave = await step.run('create-subscriptions', async () => {
@@ -86,7 +88,7 @@ export const recreateSubscriptionsForOrganisation = inngest.createFunction(
     await step.run('save-subscriptions', async () => {
       await db.insert(subscriptionsTable).values(
         subscriptionsToSave.map((subscription) => ({
-          organisationId,
+          tenantId,
           id: subscription.id,
           resource: subscription.resource,
           changeType: subscription.changeType,

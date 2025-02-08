@@ -8,7 +8,7 @@ import { decrypt } from '@/common/crypto';
 import { getMessages } from '@/connectors/microsoft/messages/messages';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
-import { chunkObjects, mapInvalidMessageData } from '@/common/utils';
+import { chunkObjects, mapInvalidMessageData, omitMessageContent } from '@/common/utils';
 
 export const syncMessages = inngest.createFunction(
   {
@@ -100,7 +100,7 @@ export const syncMessages = inngest.createFunction(
               organisationId,
               membershipType,
               replyId: 'replyId' in message ? message.replyId : undefined,
-              message,
+              message: omitMessageContent(message),
             });
           });
 

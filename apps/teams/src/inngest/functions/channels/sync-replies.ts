@@ -8,7 +8,7 @@ import { decrypt } from '@/common/crypto';
 import { getReplies } from '@/connectors/microsoft/replies/replies';
 import { createElbaClient } from '@/connectors/elba/client';
 import { formatDataProtectionObject } from '@/connectors/elba/data-protection/object';
-import { mapInvalidMessageData } from '@/common/utils';
+import { mapInvalidMessageData, omitMessageContent } from '@/common/utils';
 
 export const syncReplies = inngest.createFunction(
   {
@@ -83,7 +83,9 @@ export const syncReplies = inngest.createFunction(
         });
       }
 
-      const filterReplies = replies.validReplies.filter((reply) => reply.messageType === 'message');
+      const filterReplies = replies.validReplies
+        .filter((reply) => reply.messageType === 'message')
+        .map(omitMessageContent);
 
       return { nextSkipToken: replies.nextSkipToken, validReplies: filterReplies };
     });

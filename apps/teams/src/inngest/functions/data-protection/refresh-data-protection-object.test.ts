@@ -27,8 +27,7 @@ const organisation = {
 };
 
 const channel = {
-  id: `${organisation.id}:channel-id`,
-  channelId: 'channel-id',
+  id: 'channel-id',
   membershipType: 'standard',
   displayName: 'channel-name',
   organisationId: organisation.id,
@@ -196,7 +195,7 @@ describe('refresh-data-protection-object', () => {
     const getTeam = vi.spyOn(teamConnector, 'getTeam').mockResolvedValue(team);
     await expect(result).resolves.toBeUndefined();
 
-    expect(getTeam).toBeCalledWith(organisation.token, messageMetadata.teamId);
+    expect(getTeam).toBeCalledWith(await decrypt(organisation.token), messageMetadata.teamId);
     expect(getTeam).toBeCalledTimes(1);
 
     expect(getMessage).toBeCalledWith({
@@ -279,7 +278,7 @@ describe('refresh-data-protection-object', () => {
     const getTeam = vi.spyOn(teamConnector, 'getTeam').mockResolvedValue(team);
     await expect(result).resolves.toBeUndefined();
 
-    expect(getTeam).toBeCalledWith(organisation.token, messageMetadata.teamId);
+    expect(getTeam).toBeCalledWith(await decrypt(organisation.token), messageMetadata.teamId);
     expect(getTeam).toBeCalledTimes(1);
     expect(getReply).toBeCalledWith({
       token: await decrypt(organisation.token),

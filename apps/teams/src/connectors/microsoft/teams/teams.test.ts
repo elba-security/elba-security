@@ -4,12 +4,10 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/env';
 import type { MicrosoftTeam } from '@/connectors/microsoft/teams/teams';
 import { getTeam, getTeams } from '@/connectors/microsoft/teams/teams';
-import { encrypt } from '@/common/crypto';
 import { MicrosoftError } from '../commons/error';
 
 const validToken = 'token-1234';
-const encryptedToken = await encrypt(validToken);
-const invalidEncryptedToken = await encrypt('some-text');
+const invalidToken = 'some-text';
 const startSkipToken = 'start-skip-token';
 const endSkipToken = 'end-skip-token';
 const nextSkipToken = 'next-skip-token';
@@ -119,15 +117,15 @@ describe('teamsConnector', () => {
     });
 
     test('should return the team when the token and teamId are valid ', async () => {
-      await expect(getTeam(encryptedToken, team.id)).resolves.toStrictEqual(team);
+      await expect(getTeam(validToken, team.id)).resolves.toStrictEqual(team);
     });
 
     test('should throw when the token is invalid', async () => {
-      await expect(getTeam(invalidEncryptedToken, team.id)).rejects.toBeInstanceOf(MicrosoftError);
+      await expect(getTeam(invalidToken, team.id)).rejects.toBeInstanceOf(MicrosoftError);
     });
 
     test('should return null when the token is invalid, and team invalid', async () => {
-      await expect(getTeam(encryptedToken, 'invalid-team-id')).resolves.toBeNull();
+      await expect(getTeam(validToken, 'invalid-team-id')).resolves.toBeNull();
     });
   });
 });
