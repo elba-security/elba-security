@@ -1,7 +1,8 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { type ConnectionErrorType } from '@elba-security/sdk';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
-import { unauthorizedMiddleware } from './middlewares/unauthorized-middleware';
+import { elbaConnectionErrorMiddleware } from './middlewares/elba-connection-error-middleware';
 
 export const inngest = new Inngest({
   id: 'jira',
@@ -12,6 +13,8 @@ export const inngest = new Inngest({
         isFirstSync: boolean;
         syncStartedAt: number;
         page: string | null;
+        region: string;
+        nangoConnectionId: string;
       };
     };
     'jira/app.installed': {
@@ -22,15 +25,20 @@ export const inngest = new Inngest({
     'jira/app.uninstalled': {
       data: {
         organisationId: string;
+        region: string;
+        errorType: ConnectionErrorType;
+        errorMetadata?: unknown;
       };
     };
     'jira/users.delete.requested': {
       data: {
         userId: string;
         organisationId: string;
+        region: string;
+        nangoConnectionId: string;
       };
     };
   }>(),
-  middleware: [unauthorizedMiddleware, rateLimitMiddleware],
+  middleware: [elbaConnectionErrorMiddleware, rateLimitMiddleware],
   logger,
 });
