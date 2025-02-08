@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import { AsanaError } from '../common/error';
 
@@ -33,9 +32,13 @@ export type DeleteUsersParams = {
   workspaceId: string;
 };
 
-const authUserIdResponseSchema = z.object({
+const getUserResponseSchema = z.object({
   data: z.object({
-    gid: z.string(),
+    workspaces: z.array(
+      z.object({
+        gid: z.string(),
+      })
+    ),
   }),
 });
 
@@ -109,8 +112,8 @@ export const deleteUser = async ({ userId, workspaceId, accessToken }: DeleteUse
   }
 };
 
-export const getAuthUser = async ({ accessToken }: { accessToken: string }) => {
-  const url = new URL(`${env.ASANA_API_BASE_URL}/users/me`);
+export const getUser = async ({ accessToken, userId }: { accessToken: string; userId: string }) => {
+  const url = new URL(`${env.ASANA_API_BASE_URL}/users/${userId}`);
 
   const response = await fetch(url.toString(), {
     method: 'GET',
@@ -126,13 +129,21 @@ export const getAuthUser = async ({ accessToken }: { accessToken: string }) => {
 
   const resData: unknown = await response.json();
 
-  const result = authUserIdResponseSchema.safeParse(resData);
+  const result = getUserResponseSchema.safeParse(resData);
+
   if (!result.success) {
-    logger.error('Invalid Asana auth-user id response', { resData });
-    throw new AsanaError('Invalid Asana auth-user id response');
+    throw new AsanaError('Could not parse workspace response');
   }
 
-  return {
-    authUserId: result.data.data.gid,
-  };
+  if (result.data.data.workspaces.length === 0) {
+    throw new AsanaError('No workspace found');
+  }
+
+  const workspaceIds = result.data.data.workspaces.map((workspace) => workspace.gid);
+
+  if (!workspaceIds.length) {
+    throw new AsanaError('No Main workspace found');
+  }
+
+  return workspaceIds;
 };

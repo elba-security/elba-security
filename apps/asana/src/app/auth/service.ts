@@ -17,8 +17,7 @@ export const setupOrganisation = async ({
   code,
   region,
 }: SetupOrganisationParams) => {
-  const { accessToken, refreshToken, expiresIn } = await getToken(code);
-  const { authUserId } = await getAuthUser({ accessToken });
+  const { accessToken, refreshToken, expiresIn, authUserId } = await getToken(code);
 
   const encryptedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
