@@ -4,7 +4,7 @@ import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import { env } from '@/common/env';
+import { env } from '@/common/env/server';
 import { removeOrganisation } from './remove-organisation';
 
 const organisation = {
