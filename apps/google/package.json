@@ -25,6 +25,7 @@
     "@elba-security/sdk": "workspace:*",
     "@googleapis/admin": "^15.0.0",
     "@googleapis/drive": "^8.7.0",
+    "@jrmdayn/googleapis-batcher": "^0.8.0",
     "@neondatabase/serverless": "catalog:",
     "@t3-oss/env-nextjs": "^0.7.1",
     "drizzle-orm": "catalog:",

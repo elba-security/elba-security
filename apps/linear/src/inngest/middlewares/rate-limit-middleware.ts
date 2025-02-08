@@ -40,7 +40,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
 
             // We are not sure of  retry-after header value, so we set it to 60 seconds
             // https://developers.linear.app/docs/graphql/working-with-the-graphql-api/rate-limiting
-            const retryAfter = error.response.headers.get('Retry-After') || 60;
+            const retryAfter = error.response.headers.get('retry-after') || 60;
 
             return {
               ...context,

@@ -1,14 +1,11 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { getUsers } from '@/connectors/docusign/users';
-import { db } from '@/database/client';
 import { inngest } from '@/inngest/client';
 import { type DocusignUser } from '@/connectors/docusign/users';
-import { organisationsTable } from '@/database/schema';
-import { createElbaClient } from '@/connectors/elba/client';
-import { nangoAPIClient } from '@/common/nango/api';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
+import { nangoAPIClient } from '@/common/nango';
 import { getAuthUser } from '@/connectors/docusign/auth';
 
 const formatElbaUserDisplayName = (user: DocusignUser) => {
@@ -59,26 +56,15 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'docusign/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, nangoConnectionId, region, syncStartedAt, page } = event.data;
 
-    const [organisation] = await db
-      .select({
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const elba = createElbaClient({
+    const elba = createElbaOrganisationClient({
       organisationId,
-      region: organisation.region,
+      region,
     });
 
     const nextPage = await step.run('list-users', async () => {
-      const { credentials } = await nangoAPIClient.getConnection(organisationId);
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
       if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
         throw new NonRetriableError('Could not retrieve Nango credentials');
       }
