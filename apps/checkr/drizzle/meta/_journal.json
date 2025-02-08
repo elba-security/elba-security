@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1717758249700,
+      "tag": "0000_optimal_zodiak",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1728281254872,
+      "tag": "0001_natural_gabe_jones",
+      "breakpoints": true
+    }
+  ]
+}
