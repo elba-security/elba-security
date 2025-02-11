@@ -1,4 +1,4 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import * as spacesConnector from '@/connectors/confluence/spaces';
 import { db } from '@/database/client';
@@ -10,10 +10,10 @@ import { accessToken, organisationUsers } from '../__mocks__/organisations';
 import { spaceWithPermissions, spaceWithPermissionsObject } from '../__mocks__/confluence-spaces';
 import { syncSpaces } from './sync-spaces';
 
-const organisationId = '00000000-0000-0000-0000-000000000002';
+const organisationId = '10000000-0000-0000-0000-000000000000';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
-const instanceId = 'test-instance-id';
+const instanceId = '1234';
 
 const syncStartedAt = Date.now();
 
@@ -23,6 +23,10 @@ const setup = createInngestFunctionMock(
 );
 
 describe('sync-pages', () => {
+  beforeEach(async () => {
+    await db.delete(usersTable).execute();
+  });
+
   describe('when type is global', () => {
     test('should continue the global spaces sync when their is more pages', async () => {
       // @ts-expect-error -- this is a mock
@@ -32,8 +36,8 @@ describe('sync-pages', () => {
         }),
       });
       vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
-        id: 'test-instance-id',
-        url: 'test-instance-url',
+        id: '1234',
+        url: 'http://foo.bar',
       });
       await db.insert(usersTable).values(organisationUsers);
       const elba = spyOnElba();
@@ -88,6 +92,8 @@ describe('sync-pages', () => {
           syncStartedAt,
           type: 'global',
           cursor: 'next-cursor',
+          nangoConnectionId,
+          region,
         },
       });
     });
@@ -100,8 +106,8 @@ describe('sync-pages', () => {
         }),
       });
       vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
-        id: 'test-instance-id',
-        url: 'test-instance-url',
+        id: '1234',
+        url: 'http://foo.bar',
       });
       await db.insert(usersTable).values(organisationUsers);
       const elba = spyOnElba();
@@ -109,6 +115,7 @@ describe('sync-pages', () => {
         cursor: null,
         spaces: [spaceWithPermissions],
       });
+
       const [result, { step }] = setup({
         organisationId,
         isFirstSync: false,
@@ -156,6 +163,8 @@ describe('sync-pages', () => {
           syncStartedAt,
           type: 'personal',
           cursor: null,
+          nangoConnectionId,
+          region,
         },
       });
     });
@@ -170,8 +179,8 @@ describe('sync-pages', () => {
         }),
       });
       vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
-        id: 'test-instance-id',
-        url: 'test-instance-url',
+        id: '1234',
+        url: 'http://foo.bar',
       });
       await db.insert(usersTable).values(organisationUsers);
       const elba = spyOnElba();
@@ -226,6 +235,8 @@ describe('sync-pages', () => {
           syncStartedAt,
           type: 'personal',
           cursor: 'next-cursor',
+          nangoConnectionId,
+          region,
         },
       });
     });
@@ -238,8 +249,8 @@ describe('sync-pages', () => {
         }),
       });
       vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
-        id: 'test-instance-id',
-        url: 'test-instance-url',
+        id: '1234',
+        url: 'http://foo.bar',
       });
       await db.insert(usersTable).values(organisationUsers);
       const elba = spyOnElba();
@@ -293,6 +304,8 @@ describe('sync-pages', () => {
           isFirstSync: false,
           syncStartedAt,
           cursor: null,
+          nangoConnectionId,
+          region,
         },
       });
     });

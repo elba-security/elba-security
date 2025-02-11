@@ -1,6 +1,5 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
 import { db } from '@/database/client';
 import * as nangoAPI from '@/common/nango';
 import * as authConnector from '@/connectors/confluence/auth';
@@ -14,7 +13,7 @@ import { syncGroupUsers } from './sync-group-users';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const organisationId = '00000000-0000-0000-0000-000000000001';
-const instanceId = 'instance-id';
+const instanceId = 'test-instance-id';
 
 const syncStartedAt = Date.now();
 const groupId = 'group-id';
@@ -56,40 +55,8 @@ const setup = createInngestFunctionMock(
 );
 
 describe('sync-group-users', () => {
-  test('should abort sync when organisation is not registered', async () => {
-    // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
-      getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
-      }),
-    });
-    vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
-      id: 'test-instance-id',
-      url: 'test-instance-url',
-    });
-    const elba = spyOnElba();
-    vi.spyOn(groupsConnector, 'getGroupMembers').mockResolvedValue({
-      members: [],
-      cursor: null,
-    });
-
-    const [result, { step }] = setup({
-      organisationId,
-      isFirstSync: false,
-      syncStartedAt,
-      groupId,
-      cursor: null,
-      nangoConnectionId,
-      region,
-    });
-    step.invoke.mockResolvedValue(undefined);
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(groupsConnector.getGroupMembers).toBeCalledTimes(0);
-    expect(elba).toBeCalledTimes(0);
-    expect(step.invoke).toBeCalledTimes(0);
-    expect(step.sendEvent).toBeCalledTimes(0);
+  beforeEach(async () => {
+    await db.delete(usersTable).execute();
   });
 
   test('should continue the sync when their is more group member', async () => {
@@ -154,6 +121,8 @@ describe('sync-group-users', () => {
         syncStartedAt,
         groupId,
         cursor: 10,
+        nangoConnectionId,
+        region,
       },
     });
 

@@ -11,7 +11,7 @@ import { syncGroupUsers } from './sync-group-users';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const organisationId = '00000000-0000-0000-0000-000000000001';
-const instanceId = 'instance-id';
+const instanceId = 'test-instance-id';
 
 const syncStartedAt = Date.now();
 
@@ -67,6 +67,8 @@ describe('sync-users', () => {
           organisationId,
           syncStartedAt,
           groupId: `group-${i}`,
+          nangoConnectionId,
+          region,
         },
         timeout: '0.5d',
       });
@@ -79,6 +81,8 @@ describe('sync-users', () => {
         syncStartedAt,
         isFirstSync: true,
         cursor: 10,
+        nangoConnectionId,
+        region,
       },
     });
 
@@ -135,6 +139,8 @@ describe('sync-users', () => {
           organisationId,
           syncStartedAt,
           groupId: `group-${i}`,
+          nangoConnectionId,
+          region,
         },
         timeout: '0.5d',
       });

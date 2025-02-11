@@ -1,4 +1,4 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import * as pagesConnector from '@/connectors/confluence/pages';
 import { db } from '@/database/client';
@@ -13,7 +13,7 @@ import { syncPages } from './sync-pages';
 const organisationId = '00000000-0000-0000-0000-000000000002';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
-const instanceId = 'test-instance-id';
+const instanceId = '1234';
 
 const syncStartedAt = Date.now();
 
@@ -23,6 +23,10 @@ const setup = createInngestFunctionMock(
 );
 
 describe('sync-pages', () => {
+  beforeEach(async () => {
+    await db.delete(usersTable).execute();
+  });
+
   test('should continue the sync when their is more pages', async () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
@@ -31,8 +35,8 @@ describe('sync-pages', () => {
       }),
     });
     vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
-      id: 'test-instance-id',
-      url: 'test-instance-url',
+      id: '1234',
+      url: 'http://foo.bar',
     });
     await db.insert(usersTable).values(organisationUsers);
     const elba = spyOnElba();
@@ -83,6 +87,8 @@ describe('sync-pages', () => {
         isFirstSync: false,
         syncStartedAt,
         cursor: 'next-cursor',
+        nangoConnectionId,
+        region,
       },
     });
   });
@@ -95,8 +101,8 @@ describe('sync-pages', () => {
       }),
     });
     vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
-      id: 'test-instance-id',
-      url: 'test-instance-url',
+      id: '1234',
+      url: 'http://foo.bar',
     });
     await db.insert(usersTable).values(organisationUsers);
     const elba = spyOnElba();

@@ -1,4 +1,4 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import * as nangoAPI from '@/common/nango';
 import * as authConnector from '@/connectors/confluence/auth';
@@ -16,10 +16,10 @@ import { spaceWithPermissions, spaceWithPermissionsObject } from '../__mocks__/c
 import { pageWithRestrictions, pageWithRestrictionsObject } from '../__mocks__/confluence-pages';
 import { refreshDataProtectionObject } from './refresh-data-protection-object';
 
-const organisationId = '00000000-0000-0000-0000-000000000002';
+const organisationId = '10000000-0000-0000-0000-000000000000';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
-const instanceId = 'test-instance-id';
+const instanceId = '1234';
 
 const objectId = 'object-id';
 
@@ -45,6 +45,10 @@ const setup = createInngestFunctionMock(
 );
 
 describe('refresh-data-protection-object', () => {
+  beforeEach(async () => {
+    await db.delete(usersTable).execute();
+  });
+
   describe('when object is a space', () => {
     test('should delete object when space does not exists', async () => {
       const elba = spyOnElba();
@@ -55,8 +59,8 @@ describe('refresh-data-protection-object', () => {
         }),
       });
       vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
-        id: 'test-instance-id',
-        url: 'test-instance-url',
+        id: '1234',
+        url: 'http://foo.bar',
       });
       vi.spyOn(spacesConnector, 'getSpaceWithPermissions').mockResolvedValue(null);
       vi.spyOn(pagesConnector, 'getPageWithRestrictions').mockResolvedValue(null);
@@ -102,8 +106,8 @@ describe('refresh-data-protection-object', () => {
         }),
       });
       vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
-        id: 'test-instance-id',
-        url: 'test-instance-url',
+        id: '1234',
+        url: 'http://foo.bar',
       });
       const elba = spyOnElba();
       await db.insert(usersTable).values(organisationUsers);
@@ -152,8 +156,8 @@ describe('refresh-data-protection-object', () => {
         }),
       });
       vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
-        id: 'test-instance-id',
-        url: 'test-instance-url',
+        id: '1234',
+        url: 'http://foo.bar',
       });
       const elba = spyOnElba();
       await db.insert(usersTable).values(organisationUsers);
@@ -204,8 +208,8 @@ describe('refresh-data-protection-object', () => {
         }),
       });
       vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
-        id: 'test-instance-id',
-        url: 'test-instance-url',
+        id: '1234',
+        url: 'http://foo.bar',
       });
       const elba = spyOnElba();
 
@@ -252,8 +256,8 @@ describe('refresh-data-protection-object', () => {
         }),
       });
       vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
-        id: 'test-instance-id',
-        url: 'test-instance-url',
+        id: '1234',
+        url: 'http://foo.bar',
       });
       const elba = spyOnElba();
       await db.insert(usersTable).values(organisationUsers);
