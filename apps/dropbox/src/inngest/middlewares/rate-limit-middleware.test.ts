@@ -30,8 +30,8 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should transform the output error to RetryAfterError when the error is about Doppler rate limit', async () => {
-    const rateLimitError = await DropboxError.fromResponse('foo bar', {
+  test('should transform the output error to RetryAfterError when the error is about Doppler rate limit', () => {
+    const rateLimitError = new DropboxError('foo bar', {
       // @ts-expect-error this is a mock
       response: {
         status: 429,

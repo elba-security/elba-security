@@ -1,17 +1,17 @@
 import { inngest } from '@/inngest/client';
 
 export const deleteUsers = async ({
+  nangoConnectionId,
   userIds,
-  organisationId,
 }: {
+  nangoConnectionId: string;
   userIds: string[];
-  organisationId: string;
 }) => {
   await inngest.send(
     userIds.map((userId) => ({
       name: 'dropbox/users.delete.requested',
       data: {
-        organisationId,
+        nangoConnectionId,
         userId,
       },
     }))

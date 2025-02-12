@@ -1,10 +1,10 @@
+import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
-import { getOrganisation } from '@/database/organisations';
-import { createElbaClient } from '@/connectors/elba/client';
 import { getMemberLinkedApps } from '@/connectors/dropbox/apps';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { formatThirdPartyObjects } from '@/connectors/elba/third-party-apps';
+import { nangoAPIClient } from '@/common/nango';
 
 export const refreshThirdPartyAppsObject = inngest.createFunction(
   {
@@ -20,13 +20,19 @@ export const refreshThirdPartyAppsObject = inngest.createFunction(
   },
   { event: 'dropbox/third_party_apps.refresh_objects.requested' },
   async ({ step, event }) => {
-    const { organisationId, appId, userId } = event.data;
+    const { organisationId, appId, userId, nangoConnectionId, region } = event.data;
 
-    const organisation = await getOrganisation(organisationId);
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
+    }
 
-    const elba = createElbaClient({ organisationId, region: organisation.region });
-    const accessToken = await decrypt(organisation.accessToken);
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
 
+    const accessToken = credentials.access_token;
     await step.run('list-apps', async () => {
       const { apps } = await getMemberLinkedApps({
         accessToken,

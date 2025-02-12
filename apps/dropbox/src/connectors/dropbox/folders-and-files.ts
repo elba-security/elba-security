@@ -91,7 +91,7 @@ export const getFoldersAndFiles = async ({
   );
 
   if (!response.ok) {
-    throw await DropboxError.fromResponse('Could not retrieve files & folders', { response });
+    throw new DropboxError('Could not retrieve files & folders', { response });
   }
 
   const data: unknown = await response.json();
@@ -168,7 +168,7 @@ export const getFolderOrFileMetadataByPath = async ({
       }
     }
 
-    throw await DropboxError.fromResponse('Could not retrieve folder or file metadata', {
+    throw new DropboxError('Could not retrieve folder or file metadata', {
       response,
     });
   }
