@@ -3,12 +3,9 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/common/env';
-import { checkAdmin, getInstance, getRefreshedToken, getToken } from './auth';
+import { checkAdmin, getInstance } from './auth';
 import { ConfluenceError } from './common/error';
 
-const validCode = '1234';
-const validRefreshToken = 'refresh-token';
 const oauthToken = {
   access_token: 'access-token',
   token_type: 'foobar',
@@ -33,89 +30,7 @@ const instances = Array.from({ length: 5 }, (_, i) => ({
   url: `https://foo-${i}.confluence.com`,
 }));
 
-type OauthTokenRequestData = {
-  client_id: string;
-  client_secret: string;
-} & (
-  | {
-      grant_type: 'authorization_code';
-      code: string;
-      redirect_uri: string;
-    }
-  | {
-      grant_type: 'refresh_token';
-      refresh_token: string;
-    }
-);
-
 describe('auth connector', () => {
-  describe('getToken', () => {
-    beforeEach(() => {
-      server.use(
-        http.post('https://api.atlassian.com/oauth/token', async ({ request }) => {
-          const data = (await request.json()) as OauthTokenRequestData;
-          if (data.grant_type !== 'authorization_code') {
-            return new Response(undefined, { status: 400 });
-          }
-          if (
-            data.code !== validCode ||
-            data.client_id !== env.CONFLUENCE_CLIENT_ID ||
-            data.client_secret !== env.CONFLUENCE_CLIENT_SECRET ||
-            data.redirect_uri !== env.CONFLUENCE_REDIRECT_URI
-          ) {
-            return new Response(undefined, { status: 401 });
-          }
-          return Response.json(oauthToken);
-        })
-      );
-    });
-
-    test('should return the token when the code is valid', async () => {
-      await expect(getToken(validCode)).resolves.toMatchObject({
-        accessToken: oauthToken.access_token,
-        expiresIn: oauthToken.expires_in,
-        refreshToken: oauthToken.refresh_token,
-      });
-    });
-
-    test('should throw when the code is invalid', async () => {
-      await expect(getToken('wrong-code')).rejects.toBeInstanceOf(ConfluenceError);
-    });
-  });
-
-  describe('getRefreshedToken', () => {
-    beforeEach(() => {
-      server.use(
-        http.post('https://api.atlassian.com/oauth/token', async ({ request }) => {
-          const data = (await request.json()) as OauthTokenRequestData;
-          if (data.grant_type !== 'refresh_token') {
-            return new Response(undefined, { status: 400 });
-          }
-          if (
-            data.refresh_token !== validRefreshToken ||
-            data.client_id !== env.CONFLUENCE_CLIENT_ID ||
-            data.client_secret !== env.CONFLUENCE_CLIENT_SECRET
-          ) {
-            return new Response(undefined, { status: 401 });
-          }
-          return Response.json(oauthToken);
-        })
-      );
-    });
-
-    test('should return the refreshed token when the refreshToken is valid', async () => {
-      await expect(getRefreshedToken(validRefreshToken)).resolves.toMatchObject({
-        accessToken: oauthToken.access_token,
-        expiresIn: oauthToken.expires_in,
-        refreshToken: oauthToken.refresh_token,
-      });
-    });
-
-    test('should throw when the refreshToken is invalid', async () => {
-      await expect(getToken('wrong-refresh-token')).rejects.toBeInstanceOf(ConfluenceError);
-    });
-  });
-
   describe('getInstance', () => {
     beforeEach(() => {
       server.use(

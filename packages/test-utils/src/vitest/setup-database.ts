@@ -11,6 +11,15 @@ beforeEach(async () => {
 
   const pg = postgres(process.env.DATABASE_URL);
   const db = drizzle(pg);
-  await db.execute(sql`DELETE FROM organisations`);
+  await db.execute(sql`
+    DO $$
+    BEGIN
+        DELETE FROM organisations;
+    EXCEPTION
+        WHEN undefined_table THEN
+            -- Table does not exist; ignore the error
+            NULL;
+    END$$;
+  `);
   await pg.end();
 });
