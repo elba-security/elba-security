@@ -62,12 +62,13 @@ export const validateSourceInstallation = async ({
 
     return { message: 'Source installation validated' };
   } catch (error) {
-    logger.error(
-      `Source installation validation failed for the organisations with id=${organisationId}`,
-      {
-        error,
-      }
-    );
+    logger.error('Failed to validate installation', {
+      organisationId,
+      region,
+      nangoConnectionId,
+      error,
+    });
+
     const errorType = mapElbaConnectionError(error);
     await elba.connectionStatus.update({
       errorType: errorType || 'unknown',
