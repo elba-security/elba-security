@@ -29,7 +29,7 @@ describe('users connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${subDomain}/api/v2/users`, ({ request }) => {
+        http.get(`https://${subDomain}.zendesk.com/api/v2/users`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -75,12 +75,15 @@ describe('users connector', () => {
   describe('suspendUser', () => {
     beforeEach(() => {
       server.use(
-        http.put<{ userId: string }>(`${subDomain}/api/v2/users/${userId}`, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
+        http.put<{ userId: string }>(
+          `https://${subDomain}.zendesk.com/api/v2/users/${userId}`,
+          ({ request }) => {
+            if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+              return new Response(undefined, { status: 401 });
+            }
+            return new Response(undefined, { status: 200 });
           }
-          return new Response(undefined, { status: 200 });
-        })
+        )
       );
     });
 
@@ -106,7 +109,7 @@ describe('users connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${subDomain}/api/v2/account`, ({ request }) => {
+        http.get(`https://${subDomain}.zendesk.com/api/v2/account`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }

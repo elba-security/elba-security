@@ -1,11 +1,8 @@
-import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { suspendUser as suspendZendeskUser } from '@/connectors/zendesk/users';
-import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
+import { nangoAPIClient } from '@/common/nango';
+import { nangoConnectionConfigSchema } from '@/connectors/common/nango';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -28,22 +25,22 @@ export const deleteUser = inngest.createFunction(
   },
   { event: 'zendesk/users.delete.requested' },
   async ({ event }) => {
-    const { userId, organisationId } = event.data;
+    const { nangoConnectionId, userId } = event.data;
 
-    const [organisation] = await db
-      .select({
-        token: organisationsTable.accessToken,
-        subDomain: organisationsTable.subDomain,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+    const { credentials, connection_config: connectionConfig } =
+      await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new Error('Could not retrieve Nango credentials');
     }
-    const accessToken = await decrypt(organisation.token);
-    const subDomain = organisation.subDomain;
+    const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
+    if (!nangoConnectionConfigResult.success) {
+      throw new Error('Could not retrieve Nango connection config data');
+    }
 
-    await suspendZendeskUser({ userId, accessToken, subDomain });
+    await suspendZendeskUser({
+      userId,
+      accessToken: credentials.access_token,
+      subDomain: nangoConnectionConfigResult.data.subdomain,
+    });
   }
 );
