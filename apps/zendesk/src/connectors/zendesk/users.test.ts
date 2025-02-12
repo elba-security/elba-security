@@ -9,10 +9,9 @@ const validToken = 'token-1234';
 const userId = 'test-user-id';
 const ownerId = 10000000;
 const endPage = 'end-page';
-const endPageLink = `https://some-subdomain/api/v2/users?page=${endPage}&per_page=1&role%5B%5D=admin&role%5B%5D=agent`;
-const nextPageLink =
-  'https://some-subdomain/api/v2/users?page=2&per_page=1&role%5B%5D=admin&role%5B%5D=agent';
-const subDomain = 'https://some-subdomain';
+const subDomain = 'some-subdomain';
+const endPageLink = `https://${subDomain}.zendesk.com/api/v2/users?page=${endPage}&per_page=1&role%5B%5D=admin&role%5B%5D=agent`;
+const nextPageLink = `https://${subDomain}.zendesk.com/api/v2/users?page=2&per_page=1&role%5B%5D=admin&role%5B%5D=agent`;
 
 const validUsers: ZendeskUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: i,

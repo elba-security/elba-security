@@ -1,7 +1,7 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/zendesk/users';
-import * as nangoAPIClient from '@/common/nango';
+import * as nangoAPI from '@/common/nango';
 import { syncUsers } from './sync-users';
 
 const subDomain = 'https://some-subdomain';
@@ -24,11 +24,12 @@ const setup = createInngestFunctionMock(syncUsers, 'zendesk/users.sync.requested
 describe('synchronize-users', () => {
   test('should continue the sync when there is a next page', async () => {
     // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
         credentials: { access_token: 'access-token' },
+        connection_config: { subdomain: 'subdomain' },
       }),
-    }));
+    });
 
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -68,16 +69,17 @@ describe('synchronize-users', () => {
 
   test('should finalize the sync when there is a no next page', async () => {
     // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
         credentials: { access_token: 'access-token' },
+        connection_config: { subdomain: 'subdomain' },
       }),
-    }));
+    });
 
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: nextPageLink,
+      nextPage: null,
     });
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
       authUserId: 'auth-user',

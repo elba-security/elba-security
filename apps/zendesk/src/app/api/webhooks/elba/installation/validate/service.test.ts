@@ -25,6 +25,7 @@ describe('validateSourceInstallation', () => {
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
         credentials: { access_token: 'access-token' },
+        connection_config: { subdomain: 'subdomain' },
       }),
     });
 

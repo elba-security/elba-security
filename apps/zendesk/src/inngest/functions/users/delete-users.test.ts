@@ -5,8 +5,8 @@ import * as nangoAPI from '@/common/nango';
 import { deleteUser } from './delete-users';
 
 const userId = 'user-id';
-const accessToken = 'test-access-token';
-const subDomain = 'some-subdomain';
+const accessToken = 'access-token';
+const subDomain = 'subdomain';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const nangoConnectionId = 'nango-connection-id';
 const region = 'us';
@@ -24,6 +24,7 @@ describe('deleteUser', () => {
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
         credentials: { access_token: 'access-token' },
+        connection_config: { subdomain: 'subdomain' },
       }),
     });
 
