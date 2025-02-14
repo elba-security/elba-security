@@ -16,8 +16,6 @@ const validUsers: SendgridUser[] = Array.from(
   (_, i) => ({
     username: `username-${i}`,
     email: `user-${i}@foo.bar`,
-    first_name: `first_name-${i}`,
-    last_name: `last_name-${i}`,
     user_type: 'teammate',
   })
 );
