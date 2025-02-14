@@ -6,8 +6,6 @@ import { getNextOffsetFromLink } from '../common/pagination';
 const sendgridUserSchema = z.object({
   username: z.string().min(1),
   email: z.string().min(1),
-  first_name: z.string().min(1),
-  last_name: z.string().min(1),
   user_type: z.string().min(1), // 'owner' | 'admin' | 'teammate'
 });
 

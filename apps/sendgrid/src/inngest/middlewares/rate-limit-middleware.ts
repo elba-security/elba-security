@@ -18,7 +18,7 @@ export const rateLimitMiddleware = new InngestMiddleware({
             }
 
             if (error.response?.status === 429) {
-              const resetTimestamp = error.response.headers.get('x-ratelimit-reset'); // in seconds, Request can be made after this time
+              const resetTimestamp = error.response.headers.get('X-RateLimit-Reset'); // in seconds, Request can be made after this time
               const currentTime = Math.floor(Date.now() / 1000);
               const retryAfter = resetTimestamp ? parseInt(resetTimestamp, 10) - currentTime : 60;
 

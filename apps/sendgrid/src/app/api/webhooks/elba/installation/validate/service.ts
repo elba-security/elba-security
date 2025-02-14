@@ -26,7 +26,7 @@ export const validateSourceInstallation = async ({
       throw new Error('Could not retrieve Nango credentials');
     }
 
-    await getUsers({ apiKey: nangoCredentialsResult.data.apiKey, after: 1 });
+    await getUsers({ apiKey: nangoCredentialsResult.data.apiKey, offset: 1 });
 
     await elba.connectionStatus.update({
       errorType: null,
@@ -47,7 +47,7 @@ export const validateSourceInstallation = async ({
           nangoConnectionId,
           isFirstSync: true,
           syncStartedAt: Date.now(),
-          page: null,
+          page: 0,
         },
       },
     ]);
