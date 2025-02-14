@@ -11,8 +11,8 @@ export const env = z
     SENDGRID_API_BASE_URL: z.string().min(1).default('https://api.sendgrid.com'),
     SENDGRID_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     SENDGRID_USERS_SYNC_CONCURRENCY: zEnvInt().default(1),
-    SENDGRID_DELETE_USER_CONCURRENCY: zEnvInt().default(1),
-    SENDGRID_USERS_SYNC_BATCH_SIZE: zEnvInt().default(300), // Default=500, MAX=500
+    SENDGRID_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
+    SENDGRID_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
     NANGO_INTEGRATION_ID: z.string().min(1),
     NANGO_SECRET_KEY: z.string().min(1),
   })
