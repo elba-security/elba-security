@@ -4,13 +4,15 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { AsanaError } from '../common/error';
 import type { AsanaUser } from './users';
-import { getUsers, deleteUser } from './users';
+import { getUsers, deleteUser, getAuthUser } from './users';
 
 const validToken = 'token-1234';
 const endPage = '3';
 const nextPage = '2';
 const userId = 'test-user-id';
 const workspaceId = '000000';
+const invalidToken = 'invalid-token';
+const authUserId = 'test-auth-user-id';
 
 const validUsers: AsanaUser[] = Array.from({ length: 5 }, (_, i) => ({
   gid: `gid-${i}`,
@@ -24,7 +26,6 @@ const invalidUsers = [];
 
 describe('users connector', () => {
   describe('getUsers', () => {
-    // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
         http.get(`${env.ASANA_API_BASE_URL}/users`, ({ request }) => {
@@ -67,7 +68,7 @@ describe('users connector', () => {
   describe('deleteUser', () => {
     beforeEach(() => {
       server.use(
-        http.post<{ userId: string }>(
+        http.post<{ userIds: string }>(
           `${env.ASANA_API_BASE_URL}/workspaces/:workspaceId/removeUser`,
           ({ request }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
@@ -95,6 +96,35 @@ describe('users connector', () => {
       await expect(
         deleteUser({ accessToken: 'invalidToken', workspaceId, userId })
       ).rejects.toBeInstanceOf(AsanaError);
+    });
+  });
+
+  describe('getAuthUser', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.ASANA_API_BASE_URL}/users/me`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          const responseData = {
+            data: {
+              gid: authUserId,
+            },
+          };
+          return Response.json(responseData);
+        })
+      );
+    });
+
+    test('should return users and nextPage when the token is valid and their is another page', async () => {
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+        authUserId,
+      });
+    });
+
+    test('should throws when the token is invalid', async () => {
+      await expect(getAuthUser(invalidToken)).rejects.toBeInstanceOf(AsanaError);
     });
   });
 });
