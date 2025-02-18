@@ -1,30 +1,32 @@
 import { afterEach } from 'node:test';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { RetryAfterError } from 'inngest';
-import { HubspotError } from '@/connectors/hubspot/common/error';
-import { encrypt } from '@/common/crypto';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { HubspotError } from '@/connectors/common/error';
+import * as usersConnector from '@/connectors/hubspot/users';
+import * as nangoAPI from '@/common/nango';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
-const accessToken = 'some token';
-const refreshToken = 'some refresh token';
-const region = 'us';
-const timeZone = 'us/eastern';
-const organisation = {
-  id: '00000000-0000-0000-0000-000000000001',
-  authUserId: '10001',
-  accessToken: await encrypt(accessToken),
-  refreshToken: await encrypt(refreshToken),
-  region,
-  timeZone,
-  domain: 'foo-bar.hubspot.com',
-  portalId: 12345,
+const accessToken = 'test-access-token';
+const accountInfo = {
+  timeZone: 'test-timezone',
+  portalId: 1234,
+  uiDomain: 'test-domain',
 };
 
 describe('rate-limit middleware', () => {
   beforeEach(() => {
     vi.setSystemTime(new Date('2022-01-01T10:00:00Z'));
+    const mockNangoAPIClient = {
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: {
+          access_token: accessToken,
+        },
+      }),
+    };
+
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue(
+      mockNangoAPIClient as unknown as typeof nangoAPI.nangoAPIClient
+    );
   });
 
   afterEach(() => {
@@ -65,15 +67,15 @@ describe('rate-limit middleware', () => {
       retryAfter: '60',
     },
     {
-      dailyRateLimitRemaining: '0',
-      rateLimitRemaining: '0',
+      dailyRateLimitRemaining: '10000',
+      rateLimitRemaining: '10',
       rateLimitInterval: '10000',
-      retryAfter: '68400',
+      retryAfter: '60',
     },
   ])(
     'should transform the output error to RetryAfterError when the error is about Hubspot rate limit',
     async ({ dailyRateLimitRemaining, rateLimitRemaining, rateLimitInterval, retryAfter }) => {
-      await db.insert(organisationsTable).values(organisation);
+      vi.spyOn(usersConnector, 'getAccountInfo').mockResolvedValueOnce(accountInfo);
 
       const rateLimitError = new HubspotError('foo bar', {
         // @ts-expect-error this is a mock

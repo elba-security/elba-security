@@ -22,6 +22,12 @@ const asanaResponseSchema = z.object({
     .optional(),
 });
 
+const getAuthUserResponseData = z.object({
+  data: z.object({
+    gid: z.string(),
+  }),
+});
+
 export type GetUsersParams = {
   accessToken: string;
   page?: string | null;
@@ -32,12 +38,6 @@ export type DeleteUsersParams = {
   userId: string;
   workspaceId: string;
 };
-
-const authUserIdResponseSchema = z.object({
-  data: z.object({
-    gid: z.string(),
-  }),
-});
 
 export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   const url = new URL(`${env.ASANA_API_BASE_URL}/users`);
@@ -86,7 +86,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   };
 };
 
-export const deleteUser = async ({ userId, workspaceId, accessToken }: DeleteUsersParams) => {
+export const deleteUser = async ({ accessToken, workspaceId, userId }: DeleteUsersParams) => {
   const response = await fetch(`${env.ASANA_API_BASE_URL}/workspaces/${workspaceId}/removeUser`, {
     method: 'post',
     headers: {
@@ -109,7 +109,7 @@ export const deleteUser = async ({ userId, workspaceId, accessToken }: DeleteUse
   }
 };
 
-export const getAuthUser = async ({ accessToken }: { accessToken: string }) => {
+export const getAuthUser = async (accessToken: string) => {
   const url = new URL(`${env.ASANA_API_BASE_URL}/users/me`);
 
   const response = await fetch(url.toString(), {
@@ -126,7 +126,8 @@ export const getAuthUser = async ({ accessToken }: { accessToken: string }) => {
 
   const resData: unknown = await response.json();
 
-  const result = authUserIdResponseSchema.safeParse(resData);
+  const result = getAuthUserResponseData.safeParse(resData);
+
   if (!result.success) {
     logger.error('Invalid Asana auth-user id response', { resData });
     throw new AsanaError('Invalid Asana auth-user id response');
