@@ -7,10 +7,12 @@
     "test": "turbo run test",
     "type-check": "turbo run type-check",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "generate": "turbo gen integration"
   },
   "devDependencies": {
     "@elba-security/tsconfig": "workspace:*",
+    "@turbo/gen": "^1.12.4",
     "dotenv": "catalog:",
     "drizzle-kit": "catalog:",
     "eslint": "catalog:",
@@ -20,13 +22,13 @@
     "turbo": "latest"
   },
   "engines": {
-    "node": "20",
+    "node": "22",
     "pnpm": ">=9.5.0"
   },
   "name": "elba-security",
   "packageManager": "pnpm@9.5.0",
   "lint-staged": {
-    "!(template/**/*)*.{js,jsx,ts,tsx}": "eslint --fix",
+    "!(template/**/*|turbo/generators/**)*.{js,jsx,ts,tsx}": "eslint --fix",
     "*.{js,jsx,ts,tsx,json,css,md}": "prettier --write"
   },
   "pnpm": {

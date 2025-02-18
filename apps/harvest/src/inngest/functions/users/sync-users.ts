@@ -1,14 +1,11 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/harvest/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
+import { getUsers, getCompanyDomain, getAuthUser } from '@/connectors/harvest/users';
+import { nangoAPIClient } from '@/common/nango';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { type HarvestUser } from '@/connectors/harvest/users';
-import { createElbaClient } from '@/connectors/elba/client';
 
 const formatElbaUserDisplayName = (user: HarvestUser) => {
   if (user.first_name && user.last_name) {
@@ -74,28 +71,22 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'harvest/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, nangoConnectionId, region, syncStartedAt, page } = event.data;
 
-    const [organisation] = await db
-      .select({
-        accessToken: organisationsTable.accessToken,
-        authUserId: organisationsTable.authUserId,
-        companyDomain: organisationsTable.companyDomain,
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const elba = createElbaClient({ organisationId, region: organisation.region });
-    const accessToken = await decrypt(organisation.accessToken);
-    const authUserId = organisation.authUserId;
-    const companyDomain = organisation.companyDomain;
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken, page });
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
+
+      const result = await getUsers({ accessToken: credentials.access_token, page });
+      const { authUserId } = await getAuthUser(credentials.access_token);
+      const { companyDomain } = await getCompanyDomain(credentials.access_token);
 
       const users = result.validUsers.map((user) =>
         formatElbaUser({ user, authUserId, companyDomain })

@@ -1,4 +1,4 @@
-import { updateConnectionStatusSchema } from '@elba-security/schemas';
+import { updateConnectionStatusDataSchema } from '@elba-security/schemas';
 import { createRoute } from '../utils';
 
 const path = '/connection-status';
@@ -6,7 +6,7 @@ const path = '/connection-status';
 export const updateConnectionStatusRoute = createRoute({
   path,
   method: 'post',
-  schema: updateConnectionStatusSchema,
+  schema: updateConnectionStatusDataSchema,
 });
 
 export const connectionStatusRoutes = [updateConnectionStatusRoute];

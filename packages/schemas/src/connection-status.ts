@@ -11,9 +11,9 @@ export const connectionErrorTypeSchema = z.enum([
 
 export type ConnectionErrorType = zInfer<typeof connectionErrorTypeSchema>;
 
-export const updateConnectionStatusSchema = z.object({
+export const updateConnectionStatusDataSchema = z.object({
   errorType: connectionErrorTypeSchema.nullable(),
   errorMetadata: jsonSchema,
 });
 
-export type UpdateConnectionStatus = zInfer<typeof updateConnectionStatusSchema>;
+export type UpdateConnectionStatusData = zInfer<typeof updateConnectionStatusDataSchema>;
