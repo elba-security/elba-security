@@ -30,14 +30,6 @@ export const inngest = new Inngest({
         errorMetadata?: unknown;
       };
     };
-    'apollo/users.delete.requested': {
-      data: {
-        userId: string;
-        organisationId: string;
-        region: string;
-        nangoConnectionId: string;
-      };
-    };
   }>(),
   middleware: [elbaConnectionErrorMiddleware, rateLimitMiddleware],
   logger,

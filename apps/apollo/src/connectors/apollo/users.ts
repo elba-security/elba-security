@@ -71,18 +71,3 @@ export const getUsers = async ({ apiKey, after }: GetUsersParams) => {
     nextPage: pagination.total_pages > after ? parseInt(pagination.page, 10) + 1 : null,
   };
 };
-
-export const deleteUser = async ({ userId, apiKey }: DeleteUserParams) => {
-  const url = new URL(`${env.APOLLO_API_BASE_URL}/v1/users/${userId}`);
-
-  const response = await fetch(url.toString(), {
-    method: 'DELETE',
-    headers: {
-      'X-Api-Key': apiKey,
-    },
-  });
-
-  if (!response.ok && response.status !== 404) {
-    throw new ApolloError(`Could not delete user with Id: ${userId}`, { response });
-  }
-};
