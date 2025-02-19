@@ -4,6 +4,8 @@ import { startDataProtectionSync } from './service';
 
 const now = Date.now();
 const organisationId = 'organisation-id';
+const nangoConnectionId = 'nango-connection-id';
+const region = 'us';
 
 describe('webhook startDataProtectionSync', () => {
   beforeAll(() => {
@@ -16,7 +18,9 @@ describe('webhook startDataProtectionSync', () => {
 
   test('should request data protection sync when metadata is valid', async () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
-    await expect(startDataProtectionSync(organisationId)).resolves.toBeUndefined();
+    await expect(
+      startDataProtectionSync({ organisationId, nangoConnectionId, region })
+    ).resolves.toBeUndefined();
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
@@ -27,6 +31,8 @@ describe('webhook startDataProtectionSync', () => {
         syncStartedAt: now,
         type: 'global',
         cursor: null,
+        nangoConnectionId,
+        region,
       },
     });
   });
