@@ -3,7 +3,7 @@ import { logger } from '@elba-security/logger';
 import { NonRetriableError } from 'inngest';
 import { z } from 'zod';
 import { inngest } from '@/inngest/client';
-import { getUsers, getAuthUser } from '@/connectors/salesforce/users';
+import { getUsers } from '@/connectors/salesforce/users';
 import { nangoAPIClient } from '@/common/nango';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { type SalesforceUser } from '@/connectors/salesforce/users';
@@ -23,17 +23,14 @@ const formatElbaUserEmail = (user: SalesforceUser): string | undefined => {
 const formatElbaUser = ({
   user,
   instanceUrl,
-  authUserId,
 }: {
   user: SalesforceUser;
   instanceUrl: string;
-  authUserId: string;
 }): User => ({
   id: user.Id,
   displayName: user.Name,
   email: formatElbaUserEmail(user),
   additionalEmails: [],
-  isSuspendable: user.Id !== authUserId,
   role: user.Profile?.Name,
   url: `${instanceUrl}/lightning/r/User/${user.Id}/view`,
 });
@@ -90,16 +87,11 @@ export const syncUsers = inngest.createFunction(
         instanceUrl,
         offset: page,
       });
-      const { userId: authUserId } = await getAuthUser({
-        accessToken: credentials.access_token,
-        instanceUrl,
-      });
 
       const users = result.validUsers.map((user) =>
         formatElbaUser({
           user,
           instanceUrl,
-          authUserId,
         })
       );
 

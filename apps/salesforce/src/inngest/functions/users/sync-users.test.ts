@@ -32,9 +32,7 @@ describe('sync-users', () => {
         },
       }),
     }));
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      userId: 'auth-user',
-    });
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -76,9 +74,7 @@ describe('sync-users', () => {
         },
       }),
     }));
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      userId: 'auth-user',
-    });
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
