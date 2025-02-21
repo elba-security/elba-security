@@ -9,7 +9,6 @@ export const env = z
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     SALESFORCE_APP_INSTALL_URL: z.string().url().default('https://login.salesforce.com'),
-    SALESFORCE_DELETE_USER_CONCURRENCY: z.coerce.number().int().positive().default(5),
     SALESFORCE_USERS_SYNC_CONCURRENCY: zEnvInt().default(1),
     SALESFORCE_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     SALESFORCE_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),

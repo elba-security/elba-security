@@ -30,14 +30,6 @@ export const inngest = new Inngest({
         errorMetadata?: unknown;
       };
     };
-    'salesforce/users.delete.requested': {
-      data: {
-        organisationId: string;
-        userId: string;
-        region: string;
-        nangoConnectionId: string;
-      };
-    };
   }>(),
   middleware: [rateLimitMiddleware, elbaConnectionErrorMiddleware],
   logger,
