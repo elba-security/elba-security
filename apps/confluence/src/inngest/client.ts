@@ -1,5 +1,6 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { type ConnectionErrorType } from '@elba-security/sdk';
 import { createElbaTrialIssuesLimitExceededMiddleware } from '@elba-security/inngest';
 import type {
   DataProtectionObjectMetadata,
@@ -7,18 +8,15 @@ import type {
   SpaceObjectPermissionMetadata,
 } from '@/connectors/elba/data-protection/metadata';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { elbaConnectionErrorMiddleware } from './middlewares/elba-connection-error-middleware';
 
 export const inngest = new Inngest({
   id: 'confluence',
   schemas: new EventSchemas().fromRecord<{
-    'confluence/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
-      };
-    };
     'confluence/data_protection.delete_object_permissions.requested': {
       data: {
+        nangoConnectionId: string;
+        region: string;
         objectId: string;
         organisationId: string;
         metadata: DataProtectionObjectMetadata;
@@ -30,6 +28,8 @@ export const inngest = new Inngest({
     };
     'confluence/data_protection.delete_page_restrictions.requested': {
       data: {
+        nangoConnectionId: string;
+        region: string;
         organisationId: string;
         pageId: string;
         userIds: string[];
@@ -37,6 +37,8 @@ export const inngest = new Inngest({
     };
     'confluence/data_protection.delete_space_permissions.requested': {
       data: {
+        nangoConnectionId: string;
+        region: string;
         organisationId: string;
         spaceKey: string;
         permissionIds: string[];
@@ -44,6 +46,8 @@ export const inngest = new Inngest({
     };
     'confluence/data_protection.refresh_object.requested': {
       data: {
+        nangoConnectionId: string;
+        region: string;
         objectId: string;
         organisationId: string;
         metadata: DataProtectionObjectMetadata;
@@ -51,6 +55,8 @@ export const inngest = new Inngest({
     };
     'confluence/data_protection.pages.sync.requested': {
       data: {
+        nangoConnectionId: string;
+        region: string;
         organisationId: string;
         isFirstSync: boolean;
         syncStartedAt: number;
@@ -59,6 +65,8 @@ export const inngest = new Inngest({
     };
     'confluence/data_protection.spaces.sync.requested': {
       data: {
+        nangoConnectionId: string;
+        region: string;
         organisationId: string;
         isFirstSync: boolean;
         syncStartedAt: number;
@@ -68,6 +76,8 @@ export const inngest = new Inngest({
     };
     'confluence/users.sync.requested': {
       data: {
+        nangoConnectionId: string;
+        region: string;
         organisationId: string;
         isFirstSync: boolean;
         syncStartedAt: number;
@@ -76,6 +86,8 @@ export const inngest = new Inngest({
     };
     'confluence/users.group_users.sync.requested': {
       data: {
+        nangoConnectionId: string;
+        region: string;
         organisationId: string;
         isFirstSync: boolean;
         syncStartedAt: number;
@@ -91,6 +103,9 @@ export const inngest = new Inngest({
     'confluence/app.uninstalled': {
       data: {
         organisationId: string;
+        region: string;
+        errorType: ConnectionErrorType;
+        errorMetadata?: unknown;
       };
     };
     'confluence/sync.cancel': {
@@ -101,6 +116,7 @@ export const inngest = new Inngest({
   }>(),
   middleware: [
     rateLimitMiddleware,
+    elbaConnectionErrorMiddleware,
     createElbaTrialIssuesLimitExceededMiddleware('confluence/sync.cancel'),
   ],
   logger,
