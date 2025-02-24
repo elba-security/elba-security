@@ -118,7 +118,7 @@ export const getAuthUser = async (accessToken: string) => {
 
   // check admin role
   if (result.data.user.role !== 'owner') {
-    throw new PagerdutyNotAdminError('Auth user is not an account owner or admin');
+    throw new PagerdutyNotAdminError('Auth user is not an account owner');
   }
 
   return {
