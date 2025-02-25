@@ -154,7 +154,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -242,7 +242,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -324,7 +324,7 @@ importers:
         version: 3.6.0
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -415,7 +415,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -503,7 +503,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -591,7 +591,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -679,7 +679,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -758,7 +758,86 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+      next:
+        specifier: 'catalog:'
+        version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react:
+        specifier: 'catalog:'
+        version: 18.2.0
+      react-dom:
+        specifier: 'catalog:'
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: 'catalog:'
+        version: 3.23.8
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: 'catalog:'
+        version: 3.2.0
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: 'catalog:'
+        version: 14.2.4
+      '@types/node':
+        specifier: 'catalog:'
+        version: 20.14.2
+      '@types/react':
+        specifier: 'catalog:'
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 18.2.25
+      dotenv:
+        specifier: 'catalog:'
+        version: 16.4.5
+      eslint:
+        specifier: 'catalog:'
+        version: 8.57.0
+      inngest-cli:
+        specifier: 'catalog:'
+        version: 1.1.0
+      msw:
+        specifier: 'catalog:'
+        version: 2.3.1(typescript@5.5.3)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.5.3
+      vitest:
+        specifier: 'catalog:'
+        version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
+
+  apps/clickup:
+    dependencies:
+      '@elba-security/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@elba-security/inngest':
+        specifier: workspace:*
+        version: link:../../packages/inngest
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@elba-security/nango':
+        specifier: workspace:*
+        version: link:../../packages/nango
+      '@elba-security/nextjs':
+        specifier: workspace:*
+        version: link:../../packages/nextjs
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      inngest:
+        specifier: 'catalog:'
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -846,7 +925,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -934,7 +1013,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1022,7 +1101,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1110,7 +1189,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1198,7 +1277,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1298,7 +1377,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1395,7 +1474,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1483,7 +1562,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1571,7 +1650,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -1686,7 +1765,7 @@ importers:
         version: 9.6.3
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1792,7 +1871,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1880,7 +1959,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1974,7 +2053,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2068,7 +2147,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2165,7 +2244,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2253,7 +2332,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2344,7 +2423,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       jose:
         specifier: ^5.2.4
         version: 5.2.4
@@ -2438,7 +2517,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2529,7 +2608,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2626,7 +2705,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2726,7 +2805,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2823,7 +2902,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2923,7 +3002,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3023,7 +3102,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3126,7 +3205,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3226,7 +3305,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3326,7 +3405,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       jose:
         specifier: ^5.2.4
         version: 5.2.4
@@ -3426,7 +3505,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3523,7 +3602,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3611,7 +3690,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3755,7 +3834,7 @@ importers:
     devDependencies:
       '@vercel/style-guide':
         specifier: ^6.0.0
-        version: 6.0.0(@next/eslint-plugin-next@14.2.4)(eslint@8.57.0)(prettier@3.0.3)(typescript@5.5.3)(vitest@1.6.0)
+        version: 6.0.0(@next/eslint-plugin-next@14.2.4)(eslint@8.57.0)(prettier@3.0.3)(typescript@5.5.3)(vitest@1.6.0(@types/node@20.14.2))
       eslint-config-turbo:
         specifier: ^2.3.3
         version: 2.3.3(eslint@8.57.0)
@@ -3801,7 +3880,7 @@ importers:
         version: 8.57.0
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4)(typescript@5.5.3)
       typescript:
         specifier: 'catalog:'
         version: 5.5.3
@@ -3989,7 +4068,7 @@ importers:
         version: 8.57.0
       inngest:
         specifier: 'catalog:'
-        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+        version: 3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
       msw:
         specifier: 'catalog:'
         version: 2.3.1(typescript@5.5.3)
@@ -5848,10 +5927,6 @@ packages:
     resolution: {integrity: sha512-rQ1+kcj+ttHG0MKVGBUXwayCCF1oh39BF5COIpRzuCEv8Mwjv0XucrI2ExNTOn9IlLifGClWQcU9BrZORvtw6Q==}
     engines: {node: '>=6'}
 
-  clsx@2.1.1:
-    resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
-    engines: {node: '>=6'}
-
   co@4.6.0:
     resolution: {integrity: sha512-QVb0dM5HvG+uaxitm8wONl7jltx8dqhfU33DcqtOZcLSVIKSDDLDi7+0LbAKiyI8hD9u42m2YxXSkMGWThaecQ==}
     engines: {iojs: '>= 1.0.0', node: '>= 0.12.0'}
@@ -6069,10 +6144,6 @@ packages:
 
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
-
-  deepmerge@4.3.1:
-    resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
-    engines: {node: '>=0.10.0'}
 
   defaults@1.0.4:
     resolution: {integrity: sha512-eFuaLoy/Rxalv2kr+lqMlUnrDWV+3j4pljOIJgLIhI058IQfWJ7vXhyEIHu+HtC738klGALYxOKDO0bQP3tg8A==}
@@ -6705,9 +6776,6 @@ packages:
   esquery@1.5.0:
     resolution: {integrity: sha512-YQLXUplAwJgCydQ78IMJywZCceoqk1oH01OERdSAJc/7U2AylwjhSCLDEtqwg811idIS/9fIU5GjG73IgjKMVg==}
     engines: {node: '>=0.10'}
-
-  esrap@1.4.3:
-    resolution: {integrity: sha512-Xddc1RsoFJ4z9nR7W7BFaEPIp4UXoeQ0+077UdWLxbafMQFyU79sQJMk7kxNgRwQ9/aVgaKacCHC2pUACGwmYw==}
 
   esrecurse@4.3.0:
     resolution: {integrity: sha512-KmfKL3b6G+RXvP8N1vr3Tq1kL/oCFgn2NYXEtqP8/L3pKapUA4G8cFVaoF3SU323CD4XypR/ffioHmkti6/Tag==}
@@ -8941,16 +9009,6 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  svelte-hmr@0.16.0:
-    resolution: {integrity: sha512-Gyc7cOS3VJzLlfj7wKS0ZnzDVdv3Pn2IuVeJPk9m2skfhcu5bq3wtIZyQGggr7/Iim5rH5cncyQft/kRLupcnA==}
-    engines: {node: ^12.20 || ^14.13.1 || >= 16}
-    peerDependencies:
-      svelte: ^3.19.0 || ^4.0.0
-
-  svelte@5.19.2:
-    resolution: {integrity: sha512-Ww1uLgdX5MdQrAO5zfU1dWUh6zqiPR6uIbwqm8a+4eQ+tNEYHRPgypvKKfHh9lmTkmJ30PWZ2O5qX8aS+PblRQ==}
-    engines: {node: '>=18'}
-
   swap-case@1.1.2:
     resolution: {integrity: sha512-BAmWG6/bx8syfc6qXPprof3Mn5vQgf5dwdUNJhsNqU9WdPt5P+ES/wQ5bxfijy8zwZgZZHslC3iAsxsuQMCzJQ==}
 
@@ -10419,9 +10477,8 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2))':
+  '@sveltejs/kit@2.5.10':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2))
       '@types/cookie': 0.6.0
       cookie: 0.6.0
       devalue: 5.0.0
@@ -10433,34 +10490,7 @@ snapshots:
       sade: 1.8.1
       set-cookie-parser: 2.6.0
       sirv: 2.0.4
-      svelte: 5.19.2
       tiny-glob: 0.2.9
-      vite: 5.3.2(@types/node@20.14.2)
-    optional: true
-
-  '@sveltejs/vite-plugin-svelte-inspector@2.1.0(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2))':
-    dependencies:
-      '@sveltejs/vite-plugin-svelte': 3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2))
-      debug: 4.3.7
-      svelte: 5.19.2
-      vite: 5.3.2(@types/node@20.14.2)
-    transitivePeerDependencies:
-      - supports-color
-    optional: true
-
-  '@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2))':
-    dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 2.1.0(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2))
-      debug: 4.3.7
-      deepmerge: 4.3.1
-      kleur: 4.1.5
-      magic-string: 0.30.12
-      svelte: 5.19.2
-      svelte-hmr: 0.16.0(svelte@5.19.2)
-      vite: 5.3.2(@types/node@20.14.2)
-      vitefu: 0.2.5(vite@5.3.2(@types/node@20.14.2))
-    transitivePeerDependencies:
-      - supports-color
     optional: true
 
   '@swc/counter@0.1.3': {}
@@ -10877,7 +10907,7 @@ snapshots:
       ts-morph: 12.0.0
     optional: true
 
-  '@vercel/style-guide@6.0.0(@next/eslint-plugin-next@14.2.4)(eslint@8.57.0)(prettier@3.0.3)(typescript@5.5.3)(vitest@1.6.0)':
+  '@vercel/style-guide@6.0.0(@next/eslint-plugin-next@14.2.4)(eslint@8.57.0)(prettier@3.0.3)(typescript@5.5.3)(vitest@1.6.0(@types/node@20.14.2))':
     dependencies:
       '@babel/core': 7.24.7
       '@babel/eslint-parser': 7.24.7(@babel/core@7.24.7)(eslint@8.57.0)
@@ -10897,7 +10927,7 @@ snapshots:
       eslint-plugin-testing-library: 6.2.2(eslint@8.57.0)(typescript@5.5.3)
       eslint-plugin-tsdoc: 0.2.17
       eslint-plugin-unicorn: 51.0.1(eslint@8.57.0)
-      eslint-plugin-vitest: 0.3.26(@typescript-eslint/eslint-plugin@7.15.0(@typescript-eslint/parser@7.15.0(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0)(typescript@5.5.3)(vitest@1.6.0)
+      eslint-plugin-vitest: 0.3.26(@typescript-eslint/eslint-plugin@7.15.0(@typescript-eslint/parser@7.15.0(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0)(typescript@5.5.3)(vitest@1.6.0(@types/node@20.14.2))
       prettier-plugin-packagejson: 2.5.0(prettier@3.0.3)
     optionalDependencies:
       '@next/eslint-plugin-next': 14.2.4
@@ -11525,9 +11555,6 @@ snapshots:
 
   clsx@2.0.0: {}
 
-  clsx@2.1.1:
-    optional: true
-
   co@4.6.0:
     optional: true
 
@@ -11710,9 +11737,6 @@ snapshots:
   deep-extend@0.6.0: {}
 
   deep-is@0.1.4: {}
-
-  deepmerge@4.3.1:
-    optional: true
 
   defaults@1.0.4:
     dependencies:
@@ -12408,7 +12432,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-vitest@0.3.26(@typescript-eslint/eslint-plugin@7.15.0(@typescript-eslint/parser@7.15.0(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0)(typescript@5.5.3)(vitest@1.6.0):
+  eslint-plugin-vitest@0.3.26(@typescript-eslint/eslint-plugin@7.15.0(@typescript-eslint/parser@7.15.0(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0)(typescript@5.5.3)(vitest@1.6.0(@types/node@20.14.2)):
     dependencies:
       '@typescript-eslint/utils': 7.15.0(eslint@8.57.0)(typescript@5.5.3)
       eslint: 8.57.0
@@ -12497,11 +12521,6 @@ snapshots:
   esquery@1.5.0:
     dependencies:
       estraverse: 5.3.0
-
-  esrap@1.4.3:
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.0
-    optional: true
 
   esrecurse@4.3.0:
     dependencies:
@@ -13160,7 +13179,7 @@ snapshots:
       - encoding
       - supports-color
 
-  inngest@3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3):
+  inngest@3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3):
     dependencies:
       '@types/debug': 4.1.12
       canonicalize: 1.0.8
@@ -13174,7 +13193,7 @@ snapshots:
       strip-ansi: 5.2.0
       zod: 3.22.4
     optionalDependencies:
-      '@sveltejs/kit': 2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.19.2)(vite@5.3.2(@types/node@20.14.2))
+      '@sveltejs/kit': 2.5.10
       '@vercel/node': 2.15.10
       aws-lambda: 1.0.7
       express: 4.19.2
@@ -13183,6 +13202,34 @@ snapshots:
       hono: 4.4.10
       koa: 2.15.3
       next: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      typescript: 5.5.3
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  inngest@3.25.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4)(typescript@5.5.3):
+    dependencies:
+      '@types/debug': 4.1.12
+      canonicalize: 1.0.8
+      chalk: 4.1.2
+      cross-fetch: 4.0.0
+      debug: 4.3.7
+      hash.js: 1.1.7
+      json-stringify-safe: 5.0.1
+      ms: 2.1.3
+      serialize-error-cjs: 0.1.3
+      strip-ansi: 5.2.0
+      zod: 3.22.4
+    optionalDependencies:
+      '@sveltejs/kit': 2.5.10
+      '@vercel/node': 2.15.10
+      aws-lambda: 1.0.7
+      express: 4.19.2
+      fastify: 4.27.0
+      h3: 1.9.0
+      hono: 4.4.10
+      koa: 2.15.3
+      next: 14.2.4
       typescript: 5.5.3
     transitivePeerDependencies:
       - encoding
@@ -15029,29 +15076,6 @@ snapshots:
       has-flag: 4.0.0
 
   supports-preserve-symlinks-flag@1.0.0: {}
-
-  svelte-hmr@0.16.0(svelte@5.19.2):
-    dependencies:
-      svelte: 5.19.2
-    optional: true
-
-  svelte@5.19.2:
-    dependencies:
-      '@ampproject/remapping': 2.3.0
-      '@jridgewell/sourcemap-codec': 1.5.0
-      '@types/estree': 1.0.6
-      acorn: 8.14.0
-      acorn-typescript: 1.4.13(acorn@8.14.0)
-      aria-query: 5.3.2
-      axobject-query: 4.1.0
-      clsx: 2.1.1
-      esm-env: 1.2.1
-      esrap: 1.4.3
-      is-reference: 3.0.3
-      locate-character: 3.0.0
-      magic-string: 0.30.12
-      zimmerframe: 1.1.2
-    optional: true
 
   swap-case@1.1.2:
     dependencies:
