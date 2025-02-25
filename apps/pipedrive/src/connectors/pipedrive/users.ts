@@ -62,7 +62,7 @@ export const getUsers = async ({ accessToken, page, apiDomain }: GetUsersParams)
 
   const resData: unknown = await response.json();
 
-  const { data, additional_data: addtionalData } = pipedriveResponseSchema.parse(resData);
+  const { data, additional_data: additionalData } = pipedriveResponseSchema.parse(resData);
 
   const validUsers: PipedriveUser[] = [];
   const invalidUsers: unknown[] = [];
@@ -86,8 +86,8 @@ export const getUsers = async ({ accessToken, page, apiDomain }: GetUsersParams)
   return {
     validUsers,
     invalidUsers,
-    nextPage: addtionalData.pagination?.more_items_in_collection
-      ? addtionalData.pagination.next_start
+    nextPage: additionalData.pagination?.more_items_in_collection
+      ? additionalData.pagination.next_start
       : null,
   };
 };
