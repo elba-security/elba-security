@@ -27,6 +27,9 @@ export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   if (error instanceof ClickUpNotAdminError) {
     return 'not_admin';
   }
+  if (error instanceof ClickUpMultipleWorkspaceError) {
+    return 'multiple_workspaces_not_supported';
+  }
 
   return null;
 };
