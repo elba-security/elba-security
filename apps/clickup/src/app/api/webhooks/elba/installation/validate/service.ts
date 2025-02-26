@@ -4,7 +4,7 @@ import { nangoAPIClient } from '@/common/nango';
 import { getTeamIds } from '@/connectors/clickup/teams';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
-import { mapElbaConnectionError } from '@/connectors/common/error';
+import { mapElbaConnectionError, ClickUpMultipleWorkspaceError } from '@/connectors/common/error';
 
 export const validateSourceInstallation = async ({
   organisationId,
@@ -25,7 +25,11 @@ export const validateSourceInstallation = async ({
       throw new Error('Could not retrieve Nango credentials');
     }
 
-    await getTeamIds(credentials.access_token);
+    const teamIds = await getTeamIds(credentials.access_token);
+
+    if (teamIds.length > 1) {
+      throw new ClickUpMultipleWorkspaceError('User has selected multiple workspaces');
+    }
     await elba.connectionStatus.update({
       errorType: null,
     });
