@@ -4,7 +4,7 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { SalesforceError } from '../common/error';
 import type { SalesforceUser } from './users';
-import { getUsers, deleteUser, getAuthUser } from './users';
+import { getUsers, getAuthUser } from './users';
 
 const validToken = 'token-1234';
 const userId = 'test-id';
@@ -111,40 +111,6 @@ describe('users connector', () => {
     test('should throw SalesforceError when token is invalid', async () => {
       await expect(
         getAuthUser({ accessToken: 'invalidToken', instanceUrl })
-      ).rejects.toBeInstanceOf(SalesforceError);
-    });
-  });
-
-  describe('deleteUser', () => {
-    beforeEach(() => {
-      server.use(
-        http.patch<{ userId: string }>(
-          `${instanceUrl}/services/data/v60.0/sobjects/User/${userId}`,
-          ({ request }) => {
-            if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-              return new Response(undefined, { status: 401 });
-            }
-            return new Response(undefined, { status: 200 });
-          }
-        )
-      );
-    });
-
-    test('should delete user successfully when token is valid', async () => {
-      await expect(
-        deleteUser({ accessToken: validToken, userId, instanceUrl })
-      ).resolves.not.toThrow();
-    });
-
-    test('should not throw when the user is not found', async () => {
-      await expect(
-        deleteUser({ accessToken: validToken, userId, instanceUrl })
-      ).resolves.toBeUndefined();
-    });
-
-    test('should throw SalesforceError when token is invalid', async () => {
-      await expect(
-        deleteUser({ accessToken: 'invalidToken', userId, instanceUrl })
       ).rejects.toBeInstanceOf(SalesforceError);
     });
   });

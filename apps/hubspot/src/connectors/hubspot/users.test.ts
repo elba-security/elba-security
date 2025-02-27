@@ -2,14 +2,19 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { HubspotError } from './common/error';
+import { HubspotError } from '../common/error';
 import type { HubspotUser } from './users';
-import { getUsers, deleteUser, getAuthUser } from './users';
+import { getUsers, deleteUser, getAuthUser, getAccountInfo } from './users';
 
 const validToken = 'token-1234';
 const endPage = '3';
 const nextPage = '2';
 const testId = 'test-id';
+const accountInfo = {
+  timeZone: 'us/eastern',
+  uiDomain: 'foo-bar.hubspot.com',
+  portalId: 123413121,
+};
 
 const validUsers: HubspotUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
@@ -83,7 +88,7 @@ describe('users connector', () => {
     });
 
     test('should get the auth user information', async () => {
-      await expect(getAuthUser(validToken)).resolves.toStrictEqual({ userId: '1234' });
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({ authUserId: '1234' });
     });
 
     test('should throw HubspotError when token is invalid', async () => {
@@ -131,6 +136,27 @@ describe('users connector', () => {
       await expect(
         deleteUser({ accessToken: 'invalidToken', userId: testId })
       ).rejects.toBeInstanceOf(HubspotError);
+    });
+  });
+
+  describe('getAccountInfo', () => {
+    beforeEach(() => {
+      server.use(
+        http.get(`${env.HUBSPOT_API_BASE_URL}/account-info/v3/details`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+          return Response.json(accountInfo);
+        })
+      );
+    });
+
+    test('should return the accessToken when the code is valid', async () => {
+      await expect(getAccountInfo(validToken)).resolves.toStrictEqual(accountInfo);
+    });
+
+    test('should throw when the code is invalid', async () => {
+      await expect(getAccountInfo('wrong-code')).rejects.toBeInstanceOf(HubspotError);
     });
   });
 });
