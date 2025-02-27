@@ -9,10 +9,9 @@ const validToken = 'token-1234';
 const userId = 'test-user-id';
 const ownerId = 10000000;
 const endPage = 'end-page';
-const endPageLink = `https://some-subdomain/api/v2/users?page=${endPage}&per_page=1&role%5B%5D=admin&role%5B%5D=agent`;
-const nextPageLink =
-  'https://some-subdomain/api/v2/users?page=2&per_page=1&role%5B%5D=admin&role%5B%5D=agent';
-const subDomain = 'https://some-subdomain';
+const subDomain = 'some-subdomain';
+const endPageLink = `https://${subDomain}.zendesk.com/api/v2/users?page=${endPage}&per_page=1&role%5B%5D=admin&role%5B%5D=agent`;
+const nextPageLink = `https://${subDomain}.zendesk.com/api/v2/users?page=2&per_page=1&role%5B%5D=admin&role%5B%5D=agent`;
 
 const validUsers: ZendeskUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: i,
@@ -29,7 +28,7 @@ describe('users connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${subDomain}/api/v2/users`, ({ request }) => {
+        http.get(`https://${subDomain}.zendesk.com/api/v2/users`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -75,12 +74,15 @@ describe('users connector', () => {
   describe('suspendUser', () => {
     beforeEach(() => {
       server.use(
-        http.put<{ userId: string }>(`${subDomain}/api/v2/users/${userId}`, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
+        http.put<{ userId: string }>(
+          `https://${subDomain}.zendesk.com/api/v2/users/${userId}`,
+          ({ request }) => {
+            if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+              return new Response(undefined, { status: 401 });
+            }
+            return new Response(undefined, { status: 200 });
           }
-          return new Response(undefined, { status: 200 });
-        })
+        )
       );
     });
 
@@ -106,7 +108,7 @@ describe('users connector', () => {
     // mock token API endpoint using msw
     beforeEach(() => {
       server.use(
-        http.get(`${subDomain}/api/v2/account`, ({ request }) => {
+        http.get(`https://${subDomain}.zendesk.com/api/v2/account`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
