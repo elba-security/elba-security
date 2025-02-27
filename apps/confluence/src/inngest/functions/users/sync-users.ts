@@ -1,10 +1,11 @@
+import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { getGroupIds } from '@/connectors/confluence/groups';
-import { decrypt } from '@/common/crypto';
 import { deleteUsers } from '@/inngest/common/users';
-import { createElbaClient } from '@/connectors/elba/client';
 import { env } from '@/common/env';
-import { getOrganisation } from '../../common/organisations';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
+import { nangoAPIClient } from '@/common/nango';
+import { getInstance } from '@/connectors/confluence/auth';
 import { syncGroupUsers } from './sync-group-users';
 
 export const syncUsers = inngest.createFunction(
@@ -30,13 +31,19 @@ export const syncUsers = inngest.createFunction(
     event: 'confluence/users.sync.requested',
   },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, isFirstSync, cursor } = event.data;
+    const { organisationId, syncStartedAt, isFirstSync, cursor, nangoConnectionId, region } =
+      event.data;
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
+    }
+    const instance = await getInstance(credentials.access_token);
+    const accessToken = credentials.access_token;
 
-    const organisation = await step.run('get-organisation', () => getOrganisation(organisationId));
     const { groupIds, cursor: nextCursor } = await step.run('list-group-ids', async () =>
       getGroupIds({
-        accessToken: await decrypt(organisation.accessToken),
-        instanceId: organisation.instanceId,
+        accessToken,
+        instanceId: instance.id,
         cursor,
         limit: env.USERS_SYNC_GROUPS_BATCH_SIZE,
       })
@@ -47,6 +54,8 @@ export const syncUsers = inngest.createFunction(
         step.invoke(`sync-group-users-${groupId}`, {
           function: syncGroupUsers,
           data: {
+            nangoConnectionId,
+            region,
             isFirstSync: event.data.isFirstSync,
             cursor: null,
             organisationId,
@@ -62,6 +71,8 @@ export const syncUsers = inngest.createFunction(
       await step.sendEvent('request-next-groups-sync', {
         name: 'confluence/users.sync.requested',
         data: {
+          nangoConnectionId,
+          region,
           organisationId,
           isFirstSync,
           syncStartedAt,
@@ -74,7 +85,7 @@ export const syncUsers = inngest.createFunction(
     }
 
     await step.run('finalize', async () => {
-      const elba = createElbaClient(organisation.id, organisation.region);
+      const elba = createElbaOrganisationClient({ organisationId, region });
       await elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() });
       await deleteUsers({ organisationId, syncStartedAt });
     });

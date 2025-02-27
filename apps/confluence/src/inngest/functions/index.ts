@@ -6,7 +6,6 @@ import { scheduleDataProtectionSyncs } from './data-protection/schedule-data-pro
 import { syncPages } from './data-protection/sync-pages';
 import { syncSpaces } from './data-protection/sync-spaces';
 import { removeOrganisation } from './organisations/remove-organisation';
-import { refreshToken } from './token/refresh-token';
 import { scheduleUsersSyncs } from './users/schedule-users-syncs';
 import { syncGroupUsers } from './users/sync-group-users';
 import { syncUsers } from './users/sync-users';
@@ -16,7 +15,6 @@ export const inngestFunctions = [
   deletePageRestrictions,
   deleteSpacePermissions,
   refreshDataProtectionObject,
-  refreshToken,
   removeOrganisation,
   scheduleDataProtectionSyncs,
   scheduleUsersSyncs,

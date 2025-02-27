@@ -1,8 +1,11 @@
 import { expect, test, describe } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { organisation } from '../__mocks__/organisations';
 import { deleteObjectPermissions } from './delete-object-permissions';
+
+const organisationId = '00000000-0000-0000-0000-000000000002';
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
 
 const pageId = 'page-id';
 const spaceId = 'space-id';
@@ -13,6 +16,8 @@ const pagePermissions = Array.from({ length: 100 }, (_, i) => ({
   metadata: {
     userId: 'user-id',
   },
+  nangoConnectionId,
+  region,
 }));
 
 const spacePermissions = Array.from({ length: 100 }, (_, i) => ({
@@ -20,6 +25,8 @@ const spacePermissions = Array.from({ length: 100 }, (_, i) => ({
   metadata: {
     ids: ['1', '2'],
   },
+  nangoConnectionId,
+  region,
 }));
 
 const setup = createInngestFunctionMock(
@@ -30,12 +37,14 @@ const setup = createInngestFunctionMock(
 describe('delete-objects-permissions', () => {
   test('should request page restrictions deletion when object is a page', async () => {
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      organisationId,
       permissions: pagePermissions,
       objectId: pageId,
       metadata: {
         objectType: 'page',
       },
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -48,11 +57,13 @@ describe('delete-objects-permissions', () => {
       Array.from({ length: batchCount }, (_, i) => ({
         name: 'confluence/data_protection.delete_page_restrictions.requested',
         data: {
-          organisationId: organisation.id,
+          organisationId,
           userIds: pagePermissions
             .slice(i * batchSize, (i + 1) * batchSize)
             .map((permission) => permission.metadata.userId),
           pageId,
+          nangoConnectionId,
+          region,
         },
       }))
     );
@@ -60,7 +71,7 @@ describe('delete-objects-permissions', () => {
 
   test('should request space permissions deletion when object is a space', async () => {
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      organisationId,
       permissions: spacePermissions,
       objectId: spaceId,
       metadata: {
@@ -68,6 +79,8 @@ describe('delete-objects-permissions', () => {
         type: 'personal',
         key: spaceKey,
       },
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -81,9 +94,11 @@ describe('delete-objects-permissions', () => {
       Array.from({ length: batchCount }, (_, i) => ({
         name: 'confluence/data_protection.delete_space_permissions.requested',
         data: {
-          organisationId: organisation.id,
+          organisationId,
           permissionIds: permissionIds.slice(i * batchSize, (i + 1) * batchSize),
           spaceKey,
+          nangoConnectionId,
+          region,
         },
       }))
     );
