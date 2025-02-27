@@ -7,13 +7,14 @@ export const connectionErrorTypeSchema = z.enum([
   'unauthorized',
   'unknown',
   'unsupported_plan',
+  'multiple_workspaces_not_supported',
 ]);
 
 export type ConnectionErrorType = zInfer<typeof connectionErrorTypeSchema>;
 
-export const updateConnectionStatusSchema = z.object({
+export const updateConnectionStatusDataSchema = z.object({
   errorType: connectionErrorTypeSchema.nullable(),
   errorMetadata: jsonSchema,
 });
 
-export type UpdateConnectionStatus = zInfer<typeof updateConnectionStatusSchema>;
+export type UpdateConnectionStatusData = zInfer<typeof updateConnectionStatusDataSchema>;
