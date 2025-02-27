@@ -41,7 +41,7 @@ export type DeleteUsersParams = {
 };
 
 export const getUsers = async ({ accessToken, page, subDomain }: GetUsersParams) => {
-  const url = new URL(`${subDomain}/api/v2/users`);
+  const url = new URL(`https://${subDomain}.zendesk.com/api/v2/users`);
 
   url.searchParams.append('query', 'is_suspended:false');
   url.searchParams.append('role[]', 'admin');
@@ -87,7 +87,7 @@ const zenDeskAuthUserSchema = z.object({
 });
 
 export const getAuthUser = async ({ accessToken, subDomain }: GetUsersParams) => {
-  const url = new URL(`${subDomain}/api/v2/users/me`);
+  const url = new URL(`https://${subDomain}.zendesk.com/api/v2/users/me`);
   const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
@@ -115,7 +115,7 @@ export const getAuthUser = async ({ accessToken, subDomain }: GetUsersParams) =>
 
 // Owner of the organization cannot be deleted
 export const suspendUser = async ({ userId, accessToken, subDomain }: DeleteUsersParams) => {
-  const response = await fetch(`${subDomain}/api/v2/users/${userId}`, {
+  const response = await fetch(`https://${subDomain}.zendesk.com/api/v2/users/${userId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -134,7 +134,7 @@ export const suspendUser = async ({ userId, accessToken, subDomain }: DeleteUser
 };
 
 export const getOwnerId = async ({ accessToken, subDomain }: GetOwnerIdParams) => {
-  const response = await fetch(`${subDomain}/api/v2/account`, {
+  const response = await fetch(`https://${subDomain}.zendesk.com/api/v2/account`, {
     method: 'GET',
     headers: {
       Accept: 'application/json',
