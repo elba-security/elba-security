@@ -1,6 +1,8 @@
 import { EventSchemas, Inngest } from 'inngest';
 import { logger } from '@elba-security/logger';
+import { type ConnectionErrorType } from '@elba-security/sdk';
 import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { elbaConnectionErrorMiddleware } from './middlewares/elba-connection-error-middleware';
 
 export const inngest = new Inngest({
   id: 'hubspot',
@@ -11,6 +13,8 @@ export const inngest = new Inngest({
         isFirstSync: boolean;
         syncStartedAt: number;
         page: string | null;
+        region: string;
+        nangoConnectionId: string;
       };
     };
     'hubspot/app.installed': {
@@ -21,27 +25,20 @@ export const inngest = new Inngest({
     'hubspot/app.uninstalled': {
       data: {
         organisationId: string;
-      };
-    };
-    'hubspot/token.refresh.requested': {
-      data: {
-        organisationId: string;
-        expiresAt: number;
+        region: string;
+        errorType: ConnectionErrorType;
+        errorMetadata?: unknown;
       };
     };
     'hubspot/users.delete.requested': {
       data: {
         organisationId: string;
         userId: string;
-      };
-    };
-    'hubspot/timezone.refresh.requested': {
-      data: {
-        organisationId: string;
+        nangoConnectionId: string;
         region: string;
       };
     };
   }>(),
-  middleware: [rateLimitMiddleware],
+  middleware: [rateLimitMiddleware, elbaConnectionErrorMiddleware],
   logger,
 });
