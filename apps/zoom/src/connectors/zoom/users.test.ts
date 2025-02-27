@@ -2,7 +2,7 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
-import { ZoomError } from '../common/error';
+import { ZoomError, ZoomNotAdminError } from '../common/error';
 import type { ZoomUser } from './users';
 import { getUsers, deactivateUser, getAuthUser } from './users';
 
@@ -100,28 +100,40 @@ describe('users connector', () => {
     });
   });
 
+  const setup = (
+    { hasValidUserRole }: { hasValidUserRole: boolean } = { hasValidUserRole: true }
+  ) => {
+    server.use(
+      http.get(`${env.ZOOM_API_BASE_URL}/users/me`, ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          return new Response(undefined, { status: 401 });
+        }
+
+        return Response.json({
+          id: 'current-auth-user-id',
+          role_name: hasValidUserRole ? 'Admin' : 'User',
+        });
+      })
+    );
+  };
+
   describe('getAuthUsers', () => {
-    beforeEach(() => {
-      server.use(
-        http.get(`${env.ZOOM_API_BASE_URL}/users/me`, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-
-          return Response.json({
-            id: 'current-auth-user-id',
-          });
-        })
-      );
-    });
-
     test('should return the current authenticated user', async () => {
+      setup();
       await expect(getAuthUser(validToken)).resolves.toStrictEqual({
         authUserId: 'current-auth-user-id',
       });
     });
 
+    test('should throw error when the auth user is not an admin or owner', async () => {
+      setup({
+        hasValidUserRole: false,
+      });
+      await expect(getAuthUser(validToken)).rejects.toBeInstanceOf(ZoomNotAdminError);
+    });
+
     test('should throws when the token is invalid', async () => {
+      setup();
       await expect(getAuthUser('foo-bar')).rejects.toBeInstanceOf(ZoomError);
     });
   });

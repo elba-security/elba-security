@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
-import { ZoomError } from '../common/error';
+import { ZoomError, ZoomNotAdminError } from '../common/error';
 
 const zoomUserSchema = z.object({
   id: z.string(),
@@ -98,6 +98,7 @@ export const deactivateUser = async ({ userId, accessToken }: DeleteUsersParams)
 
 const authUserResponseSchema = z.object({
   id: z.string(),
+  role_name: z.string(),
 });
 
 export const getAuthUser = async (accessToken: string) => {
@@ -124,6 +125,12 @@ export const getAuthUser = async (accessToken: string) => {
     throw new Error('Invalid Zoom auth user  response', {
       cause: result.error,
     });
+  }
+
+  // Zoom has its own validation for admin and owner roles since out OAuth apps asks for admin permissions, normal user can't install the app
+  // however, we are doing this check here to be sure
+  if (!['Owner', 'Admin'].includes(result.data.role_name)) {
+    throw new ZoomNotAdminError('Auth user is not an account owner or admin');
   }
 
   return {
