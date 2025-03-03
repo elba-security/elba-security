@@ -41,7 +41,6 @@ export const deleteObjectPermissions = inngest.createFunction(
     });
 
     const result = await step.run('delete-permission', async () => {
-       
       return await removePermission({
         accessToken,
         adminTeamMemberId,

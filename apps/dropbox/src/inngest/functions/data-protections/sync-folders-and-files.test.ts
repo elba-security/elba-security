@@ -108,6 +108,7 @@ describe('syncFoldersAndFiles', () => {
         credentials: { access_token: 'access-token' },
       }),
     });
+
     await db.insert(sharedLinksTable).values(mockSharedLinks);
 
     const elba = spyOnElba();
