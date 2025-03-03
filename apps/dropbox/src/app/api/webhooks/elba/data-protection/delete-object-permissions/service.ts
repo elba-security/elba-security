@@ -5,12 +5,12 @@ import {
 } from '@/connectors/elba/data-protection/files';
 
 export const deleteDataProtectionObjectPermissions = async ({
-  organisationId,
   id: objectId,
   metadata,
   permissions,
+  nangoConnectionId,
 }: {
-  organisationId: string;
+  nangoConnectionId: string;
   id: string;
   metadata: unknown;
   permissions: unknown;
@@ -36,9 +36,9 @@ export const deleteDataProtectionObjectPermissions = async ({
       name: 'dropbox/data_protection.delete_object_permission.requested',
       data: {
         objectId,
-        organisationId,
         metadata: metadataResult.data,
         permission,
+        nangoConnectionId,
       },
     }))
   );

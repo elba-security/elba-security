@@ -1,9 +1,9 @@
 import { logger } from '@elba-security/logger';
-import { decrypt } from '@/common/crypto';
+import { nangoAPIClient } from '@/common/nango';
 import { removePermission } from '@/connectors/dropbox/permissions';
-import { getOrganisation } from '@/database/organisations';
 import { inngest } from '@/inngest/client';
 import { getSharedLinksByPath } from '@/connectors/dropbox/shared-links';
+import { getCurrentUserAccount, getAuthenticatedAdmin } from '@/connectors/dropbox/users';
 
 export const deleteObjectPermissions = inngest.createFunction(
   {
@@ -19,14 +19,30 @@ export const deleteObjectPermissions = inngest.createFunction(
   },
   { event: 'dropbox/data_protection.delete_object_permission.requested' },
   async ({ event, step }) => {
-    const { organisationId, objectId, metadata, permission } = event.data;
-    const { accessToken, adminTeamMemberId, pathRoot } = await getOrganisation(organisationId);
+    const { objectId, metadata, permission, nangoConnectionId } = event.data;
 
-    const decryptedAccessToken = await decrypt(accessToken);
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new Error('Could not retrieve Nango credentials');
+    }
+
+    const { teamMemberId: adminTeamMemberId } = await getAuthenticatedAdmin(
+      credentials.access_token
+    );
+
+    // Using an intermediate variable because direct object property assignment
+    // with credentials.access_token causes TypeScript union type inference issues.
+    // The intermediate variable allows type widening and makes the assignment valid.
+    const accessToken = credentials.access_token;
+
+    const { rootNamespaceId: pathRoot } = await getCurrentUserAccount({
+      accessToken,
+      teamMemberId: adminTeamMemberId,
+    });
 
     const result = await step.run('delete-permission', async () => {
       return await removePermission({
-        accessToken: decryptedAccessToken,
+        accessToken,
         adminTeamMemberId,
         objectId,
         metadata,
@@ -43,8 +59,8 @@ export const deleteObjectPermissions = inngest.createFunction(
       const path = isFile ? objectId : `ns:${objectId}`;
 
       const sharedLinks = await getSharedLinksByPath({
-        accessToken: decryptedAccessToken,
         teamMemberId: metadata.ownerId,
+        accessToken,
         pathRoot,
         isPersonal: metadata.isPersonal,
         path,

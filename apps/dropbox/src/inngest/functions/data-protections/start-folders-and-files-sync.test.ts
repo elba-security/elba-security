@@ -1,28 +1,14 @@
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { NonRetriableError } from 'inngest/components/NonRetriableError';
-import * as crypto from '@/common/crypto';
+import { describe, expect, test, vi } from 'vitest';
+import * as nangoAPI from '@/common/nango';
 import * as usersConnector from '@/connectors/dropbox/users';
-import { encrypt } from '@/common/crypto';
-import { organisationsTable, type Organisation } from '@/database/schema';
-import { db } from '@/database/client';
 import { startFolderAndFileSync } from './start-folders-and-files-sync';
 
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const nangoConnectionId = 'nango-connection-id';
+const region = 'us';
+
 const syncStartedAt = Date.now();
-
-const newTokens = {
-  accessToken: 'new-access-token',
-  refreshToken: 'new-refresh-token',
-};
-
-const organisation: Omit<Organisation, 'createdAt'> = {
-  id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt(newTokens.accessToken),
-  refreshToken: await encrypt(newTokens.accessToken),
-  adminTeamMemberId: 'admin-team-member-id',
-  rootNamespaceId: 'root-namespace-id',
-  region: 'us',
-};
 
 const users: usersConnector.DropboxTeamMember[] = Array.from({ length: 2 }, (_, i) => ({
   profile: {
@@ -41,32 +27,14 @@ const setup = createInngestFunctionMock(
 );
 
 describe('startFolderAndFileSync', () => {
-  beforeEach(() => {
-    vi.spyOn(crypto, 'decrypt').mockResolvedValue(newTokens.accessToken);
-  });
-
-  test('should abort sync when organisation is not registered', async () => {
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      validUsers: [],
-      invalidUsers: [],
-      cursor: null,
-    });
-
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt: Date.now(),
-      cursor: null,
-    });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-    expect(usersConnector.getUsers).toBeCalledTimes(0);
-    expect(step.sendEvent).toBeCalledTimes(0);
-  });
-
   test('should fetch team members of the organisation & trigger events to synchronize folders and files', async () => {
-    await db.insert(organisationsTable).values(organisation);
     const elba = spyOnElba();
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'valid-token' },
+      }),
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -74,17 +42,19 @@ describe('startFolderAndFileSync', () => {
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      organisationId,
       isFirstSync: false,
       syncStartedAt,
       cursor: null,
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toBeUndefined();
 
     expect(usersConnector.getUsers).toBeCalledTimes(1);
     expect(usersConnector.getUsers).toBeCalledWith({
-      accessToken: newTokens.accessToken,
+      accessToken: 'valid-token',
       cursor: null,
     });
 
@@ -95,7 +65,7 @@ describe('startFolderAndFileSync', () => {
         {
           event: 'dropbox/data_protection.folder_and_files.sync.completed',
           timeout: '1day',
-          if: `async.data.organisationId == '${organisation.id}' && async.data.teamMemberId == '${profile.team_member_id}'`,
+          if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${profile.team_member_id}'`,
         }
       );
     });
@@ -106,11 +76,13 @@ describe('startFolderAndFileSync', () => {
       users.map((user) => ({
         name: 'dropbox/data_protection.folder_and_files.sync.requested',
         data: {
-          organisationId: organisation.id,
+          organisationId,
           teamMemberId: user.profile.team_member_id,
           syncStartedAt,
           isFirstSync: false,
           cursor: null,
+          nangoConnectionId,
+          region,
         },
       }))
     );
@@ -122,8 +94,13 @@ describe('startFolderAndFileSync', () => {
   });
 
   test('should fetch team members of the organisation, trigger events to synchronize folders and files & trigger next page', async () => {
-    await db.insert(organisationsTable).values(organisation);
     const elba = spyOnElba();
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -131,17 +108,19 @@ describe('startFolderAndFileSync', () => {
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      organisationId,
       isFirstSync: false,
       syncStartedAt,
       cursor: null,
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
     expect(usersConnector.getUsers).toBeCalledTimes(1);
     expect(usersConnector.getUsers).toBeCalledWith({
-      accessToken: newTokens.accessToken,
+      accessToken: 'access-token',
       cursor: null,
     });
 
@@ -152,7 +131,7 @@ describe('startFolderAndFileSync', () => {
         {
           event: 'dropbox/data_protection.folder_and_files.sync.completed',
           timeout: '1day',
-          if: `async.data.organisationId == '${organisation.id}' && async.data.teamMemberId == '${profile.team_member_id}'`,
+          if: `async.data.organisationId == '${organisationId}' && async.data.teamMemberId == '${profile.team_member_id}'`,
         }
       );
     });
@@ -163,11 +142,13 @@ describe('startFolderAndFileSync', () => {
       users.map((user) => ({
         name: 'dropbox/data_protection.folder_and_files.sync.requested',
         data: {
-          organisationId: organisation.id,
+          organisationId,
           teamMemberId: user.profile.team_member_id,
           syncStartedAt,
           isFirstSync: false,
           cursor: null,
+          nangoConnectionId,
+          region,
         },
       }))
     );
@@ -175,10 +156,12 @@ describe('startFolderAndFileSync', () => {
     expect(step.sendEvent).toBeCalledWith('start-folder-and-files-sync', {
       name: 'dropbox/data_protection.folder_and_files.start.sync.requested',
       data: {
-        organisationId: organisation.id,
+        organisationId,
         cursor: 'next-cursor',
         syncStartedAt,
         isFirstSync: false,
+        nangoConnectionId,
+        region,
       },
     });
     const elbaInstance = elba.mock.results[0]?.value;

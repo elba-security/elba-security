@@ -4,13 +4,19 @@ import { deleteUsers } from './service';
 
 export async function POST(request: NextRequest) {
   const data: unknown = await request.json();
+  const {
+    ids: userIds,
+    organisationId,
+    nangoConnectionId,
+  } = parseWebhookEventData('users.delete_users_requested', data);
 
-  const { ids: userIds, organisationId } = parseWebhookEventData(
-    'users.delete_users_requested',
-    data
-  );
+  if (!nangoConnectionId) {
+    throw new Error(
+      `Nango connection id was not provided for the organisation with ID ${organisationId}`
+    );
+  }
 
-  await deleteUsers({ userIds, organisationId });
+  await deleteUsers({ nangoConnectionId, userIds });
 
   return new NextResponse();
 }

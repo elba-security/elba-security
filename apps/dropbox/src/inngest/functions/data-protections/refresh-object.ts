@@ -1,10 +1,11 @@
-import { decrypt } from '@/common/crypto';
+import { NonRetriableError } from 'inngest';
 import { getFilesMetadataMembersAndMapDetails } from '@/connectors/dropbox/files';
 import { getFoldersMetadataMembersAndMapDetails } from '@/connectors/dropbox/folders';
 import { getFolderOrFileMetadataByPath } from '@/connectors/dropbox/folders-and-files';
 import { getSharedLinksByPath } from '@/connectors/dropbox/shared-links';
-import { createElbaClient } from '@/connectors/elba/client';
-import { getOrganisation } from '@/database/organisations';
+import { getAuthenticatedAdmin, getCurrentUserAccount } from '@/connectors/dropbox/users';
+import { nangoAPIClient } from '@/common/nango';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
 
 export const refreshObject = inngest.createFunction(
@@ -32,19 +33,29 @@ export const refreshObject = inngest.createFunction(
       id: sourceObjectId,
       organisationId,
       metadata: { ownerId, type, isPersonal },
+      nangoConnectionId,
+      region,
     } = event.data;
 
     const isFile = type === 'file';
     const path = isFile ? sourceObjectId : `ns:${sourceObjectId}`;
 
-    const { accessToken, pathRoot, region } = await getOrganisation(organisationId);
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
+    }
+    const { teamMemberId: adminTeamMemberId } = await getAuthenticatedAdmin(
+      credentials.access_token
+    );
+    const { rootNamespaceId: pathRoot } = await getCurrentUserAccount({
+      accessToken: credentials.access_token,
+      teamMemberId: adminTeamMemberId,
+    });
 
-    const decryptedAccessToken = await decrypt(accessToken);
-
-    const elba = createElbaClient({ organisationId, region });
+    const elba = createElbaOrganisationClient({ organisationId, region });
 
     const fileMetadata = await getFolderOrFileMetadataByPath({
-      accessToken: decryptedAccessToken,
+      accessToken: credentials.access_token,
       teamMemberId: ownerId,
       pathRoot,
       isAdmin: !isPersonal,
@@ -59,7 +70,7 @@ export const refreshObject = inngest.createFunction(
     }
 
     const sharedLinks = await getSharedLinksByPath({
-      accessToken: decryptedAccessToken,
+      accessToken: credentials.access_token,
       teamMemberId: ownerId,
       pathRoot,
       isPersonal,
@@ -67,7 +78,7 @@ export const refreshObject = inngest.createFunction(
     });
 
     const entityDetails = {
-      accessToken: decryptedAccessToken,
+      accessToken: credentials.access_token,
       teamMemberId: ownerId,
       sharedLinks,
     };
