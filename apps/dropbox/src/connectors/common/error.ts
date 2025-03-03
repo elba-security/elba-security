@@ -2,11 +2,10 @@ import { type MapConnectionErrorFn } from '@elba-security/inngest';
 import { NangoConnectionError } from '@elba-security/nango';
 
 export class DropboxError extends Error {
-  response: Response;
+  response?: Response;
 
   constructor(message: string, { response }: { response: Response }) {
     super(message);
-    this.name = 'DropboxError';
     this.response = response;
     void this.extractErrorText().then((errorText) => {
       this.cause = errorText;

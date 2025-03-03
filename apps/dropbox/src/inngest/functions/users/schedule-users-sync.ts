@@ -64,7 +64,6 @@ export const scheduleUsersSync = inngest.createFunction(
         'Failed to schedule users sync due to missing nango connection ID'
       );
     }
-
     return { organisations };
   }
 );
