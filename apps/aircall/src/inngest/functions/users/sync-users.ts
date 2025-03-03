@@ -1,14 +1,11 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
-import { getUsers } from '@/connectors/aircall/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
+import { getUsers, getAuthUser } from '@/connectors/aircall/users';
 import { inngest } from '@/inngest/client';
+import { nangoAPIClient } from '@/common/nango';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { type AircallUser } from '@/connectors/aircall/users';
-import { createElbaClient } from '@/connectors/elba/client';
-import { decrypt } from '@/common/crypto';
 
 const formatElbaUser = ({ user, authUserId }: { user: AircallUser; authUserId: string }): User => {
   return {
@@ -35,34 +32,23 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'aircall/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, nangoConnectionId, region, syncStartedAt, page } = event.data;
 
-    const [organisation] = await db
-      .select({
-        token: organisationsTable.accessToken,
-        authUserId: organisationsTable.authUserId,
-        region: organisationsTable.region,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const elba = createElbaClient({
+    const elba = createElbaOrganisationClient({
       organisationId,
-      region: organisation.region,
+      region,
     });
 
-    const token = await decrypt(organisation.token);
-    const authUserId = organisation.authUserId;
-
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ token, nextPageLink: page });
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new NonRetriableError('Could not retrieve Nango credentials');
+      }
 
-      const users = result.validUsers
-        .filter(({ availability_status: status }) => status === 'available')
-        .map((user) => formatElbaUser({ user, authUserId }));
+      const result = await getUsers({ token: credentials.access_token, nextPageLink: page });
+      const { authUserId } = await getAuthUser(credentials.access_token);
+
+      const users = result.validUsers.map((user) => formatElbaUser({ user, authUserId }));
 
       if (result.invalidUsers.length > 0) {
         logger.warn('Retrieved users contains invalid data', {

@@ -124,22 +124,3 @@ export const getAuthUser = async ({
     userId: result.data.user_id,
   };
 };
-
-export const deleteUser = async ({ accessToken, instanceUrl, userId }: DeleteUsersParams) => {
-  const url = new URL(`${instanceUrl}/services/data/v60.0/sobjects/User/${userId}`);
-
-  const response = await fetch(url.toString(), {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({
-      IsActive: false,
-    }),
-  });
-
-  if (!response.ok && response.status !== 404) {
-    throw new SalesforceError(`Could not delete user with Id: ${userId}`, { response });
-  }
-};

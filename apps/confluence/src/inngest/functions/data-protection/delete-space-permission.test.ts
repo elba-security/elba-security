@@ -1,11 +1,15 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
+import * as nangoAPI from '@/common/nango';
 import * as spacePermissionsConnector from '@/connectors/confluence/space-permissions';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { accessToken, organisation } from '../__mocks__/organisations';
+import * as authConnector from '@/connectors/confluence/auth';
+import { accessToken } from '../__mocks__/organisations';
 import { deleteSpacePermissions } from './delete-space-permission';
+
+const organisationId = '00000000-0000-0000-0000-000000000002';
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
+const instanceId = 'test-instance-id';
 
 const spaceKey = 'space-key';
 const permissionIds = Array.from({ length: 10 }, (_, i) => `permission-${i}`);
@@ -16,26 +20,24 @@ const setup = createInngestFunctionMock(
 );
 
 describe('delete-space-permissions', () => {
-  test('should abort when organisation is not registered', async () => {
-    vi.spyOn(spacePermissionsConnector, 'deleteSpacePermission').mockResolvedValue();
-    const [result] = setup({
-      organisationId: organisation.id,
-      spaceKey,
-      permissionIds,
-    });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(spacePermissionsConnector.deleteSpacePermission).toBeCalledTimes(0);
-  });
-
   test('should delete space permissions', async () => {
-    await db.insert(organisationsTable).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
+    vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+      id: 'test-instance-id',
+      url: 'test-instance-url',
+    });
     vi.spyOn(spacePermissionsConnector, 'deleteSpacePermission').mockResolvedValue();
     const [result] = setup({
-      organisationId: organisation.id,
+      organisationId,
       spaceKey,
       permissionIds,
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toBeUndefined();
@@ -43,7 +45,7 @@ describe('delete-space-permissions', () => {
     for (let i = 0; i < permissionIds.length; i++) {
       expect(spacePermissionsConnector.deleteSpacePermission).toHaveBeenNthCalledWith(i + 1, {
         accessToken,
-        instanceId: organisation.instanceId,
+        instanceId,
         spaceKey,
         id: `permission-${i}`,
       });
