@@ -28,19 +28,24 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         throw new Error('Integration name is required');
       }
 
+      // Normalize paths for glob patterns (ensure they use forward slashes regardless of platform)
+      const templateDir = path.join(rootDir, 'template');
+      const normalizedTemplateDir = templateDir.replace(/\\/g, '/');
+
       return [
         // First create the directory structure
         {
           type: 'addMany',
           destination: path.join(rootDir, 'apps', '{{name}}'),
           templateFiles: [
-            path.join(rootDir, 'template', '**/*'),
-            '!' + path.join(rootDir, 'template', '.env*'),
-            '!' + path.join(rootDir, 'template', 'src/connectors/source/**'),
+            `${normalizedTemplateDir}/**/*`,
+            `!${normalizedTemplateDir}/.env*`,
+            `!${normalizedTemplateDir}/src/connectors/{{name}}/**`,
           ],
-          base: path.join(rootDir, 'template'),
+          base: templateDir,
           globOptions: {
             dot: true,
+            windowsPathsNoEscape: true, // Prevent escaping of Windows paths
           },
         },
         // Add env files with proper transformation
@@ -60,8 +65,11 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         {
           type: 'addMany',
           destination: path.join(rootDir, 'apps', '{{name}}', 'src/connectors', '{{name}}'),
-          templateFiles: path.join(rootDir, 'template', 'src/connectors/source/**'),
-          base: path.join(rootDir, 'template', 'src/connectors/source'),
+          templateFiles: `${normalizedTemplateDir}/src/connectors/{{name}}/**`,
+          base: path.join(rootDir, 'template', 'src/connectors/{{name}}'),
+          globOptions: {
+            windowsPathsNoEscape: true, // Prevent escaping of Windows paths
+          },
         },
         // Update package.json
         {
