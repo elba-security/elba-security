@@ -22,7 +22,7 @@
     "turbo": "latest"
   },
   "engines": {
-    "node": "22",
+    "node": "22.x",
     "pnpm": ">=9.5.0"
   },
   "name": "elba-security",
