@@ -2735,7 +2735,7 @@ importers:
         specifier: 'catalog:'
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
 
-  apps/pipedrive:
+  apps/pagerduty:
     dependencies:
       '@elba-security/config':
         specifier: workspace:*
@@ -2814,7 +2814,7 @@ importers:
         specifier: 'catalog:'
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
 
-  apps/salesforce:
+  apps/pipedrive:
     dependencies:
       '@elba-security/config':
         specifier: workspace:*
@@ -8894,7 +8894,6 @@ packages:
 
   serialize-error-cjs@0.1.3:
     resolution: {integrity: sha512-GXwbHkufrNZ87O7DUEvWhR8eBnOqiXtHsOXakkJliG7eLDmjh6gDlbJbMZFFbUx0J5sXKgwq4NFCs41dF5MhiA==}
-    deprecated: Rolling release, please update to 0.2.0
 
   serve-static@1.15.0:
     resolution: {integrity: sha512-XGuRDNjXUijsUL0vl6nSD7cwURuzEgglbOaFuZM9g3kwDXOWVTck0jLzjPzGD+TazWbboZYu52/9/XPdUgne9g==}
