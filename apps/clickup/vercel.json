@@ -1,0 +1,8 @@
+{
+  "ignoreCommand": "npx turbo-ignore --fallback=HEAD^1",
+  "functions": {
+    "src/app/api/**/*": {
+      "maxDuration": 60
+    }
+  }
+}
