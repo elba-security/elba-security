@@ -7,6 +7,7 @@ export const connectionErrorTypeSchema = z.enum([
   'unauthorized',
   'unknown',
   'unsupported_plan',
+  'multiple_workspaces_not_supported',
 ]);
 
 export type ConnectionErrorType = zInfer<typeof connectionErrorTypeSchema>;

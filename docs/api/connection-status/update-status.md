@@ -12,11 +12,11 @@ POST /api/rest/connection-status
 
 Supported attributes:
 
-| Attribute                   | Type           | Required | Description                                                                                                                           |
-| --------------------------- | -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `organisationId` **(uuid)** | string         | Yes      | Unique identifier for the organisation.                                                                                               |
-| `errorType`                 | string or null | Yes      | The type of error. Supported values are `not_admin`, `unauthorized`, `unknown`, `unsupported_plan`. Use `null` when there is no error |
-| `errorMetadata`             | object         | No       | The metadata related to the error.                                                                                                    |
+| Attribute                   | Type           | Required | Description                                                                                                                                                                |
+| --------------------------- | -------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `organisationId` **(uuid)** | string         | Yes      | Unique identifier for the organisation.                                                                                                                                    |
+| `errorType`                 | string or null | Yes      | The type of error. Supported values are `not_admin`, `unauthorized`, `unknown`, `unsupported_plan`, `multiple_workspaces_not_supported`. Use `null` when there is no error |
+| `errorMetadata`             | object         | No       | The metadata related to the error.                                                                                                                                         |
 
 Example requests:
 

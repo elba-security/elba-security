@@ -3,9 +3,12 @@ import { ZodError } from 'zod';
 import { inngest } from '@/inngest/client';
 import { deleteDataProtectionObjectPermissions } from './service';
 
+const nangoConnectionId = 'nango-connection-id';
+const region = 'us';
+
 const spaceEventData = {
-  region: 'eu' as const,
-  nangoConnectionId: null,
+  region: 'us' as const,
+  nangoConnectionId,
   organisationId: 'organisation-id',
   id: 'object-id',
   metadata: {
@@ -22,8 +25,8 @@ const spaceEventData = {
 };
 
 const invalidSpaceEventData = {
-  region: 'eu' as const,
-  nangoConnectionId: null,
+  region: 'us' as const,
+  nangoConnectionId,
   organisationId: 'organisation-id',
   id: 'object-id',
   metadata: {
@@ -48,8 +51,8 @@ const invalidSpaceEventData = {
 };
 
 const pageEventData = {
-  region: 'eu' as const,
-  nangoConnectionId: null,
+  region: 'us' as const,
+  nangoConnectionId,
   organisationId: 'organisation-id',
   id: 'object-id',
   metadata: {
@@ -65,7 +68,7 @@ const pageEventData = {
 
 const invalidPageEventData = {
   region: 'eu' as const,
-  nangoConnectionId: null,
+  nangoConnectionId,
   organisationId: 'organisation-id',
   id: 'object-id',
   metadata: {
@@ -88,7 +91,7 @@ const invalidPageEventData = {
 describe('webhook deleteDataProtectionObjectPermissions', () => {
   test('should request data protection object permissions deletion when the object is a space', async () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
-    await expect(deleteDataProtectionObjectPermissions(spaceEventData)).resolves.toBeUndefined();
+    await deleteDataProtectionObjectPermissions(spaceEventData);
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
@@ -98,13 +101,15 @@ describe('webhook deleteDataProtectionObjectPermissions', () => {
         objectId: spaceEventData.id,
         metadata: spaceEventData.metadata,
         permissions: spaceEventData.permissions,
+        nangoConnectionId,
+        region,
       },
     });
   });
 
   test('should request data protection object permissions deletion when the object is a page', async () => {
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
-    await expect(deleteDataProtectionObjectPermissions(pageEventData)).resolves.toBeUndefined();
+    await deleteDataProtectionObjectPermissions(pageEventData);
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
@@ -114,6 +119,8 @@ describe('webhook deleteDataProtectionObjectPermissions', () => {
         objectId: pageEventData.id,
         metadata: pageEventData.metadata,
         permissions: pageEventData.permissions,
+        nangoConnectionId,
+        region,
       },
     });
   });

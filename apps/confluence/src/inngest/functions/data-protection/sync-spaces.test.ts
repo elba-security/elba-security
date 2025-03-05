@@ -1,13 +1,19 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
 import * as spacesConnector from '@/connectors/confluence/spaces';
 import { db } from '@/database/client';
-import { organisationsTable, usersTable } from '@/database/schema';
+import * as nangoAPI from '@/common/nango';
+import * as authConnector from '@/connectors/confluence/auth';
+import { usersTable } from '@/database/schema';
 import { env } from '@/common/env';
-import { accessToken, organisation, organisationUsers } from '../__mocks__/organisations';
+import { accessToken, organisationUsers } from '../__mocks__/organisations';
 import { spaceWithPermissions, spaceWithPermissionsObject } from '../__mocks__/confluence-spaces';
 import { syncSpaces } from './sync-spaces';
+
+const organisationId = '10000000-0000-0000-0000-000000000000';
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
+const instanceId = '1234';
 
 const syncStartedAt = Date.now();
 
@@ -17,31 +23,22 @@ const setup = createInngestFunctionMock(
 );
 
 describe('sync-pages', () => {
-  test('should abort when organisation is not registered', async () => {
-    const elba = spyOnElba();
-    vi.spyOn(spacesConnector, 'getSpacesWithPermissions').mockResolvedValue({
-      cursor: null,
-      spaces: [],
-    });
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt,
-      type: 'global',
-      cursor: null,
-    });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(step.sendEvent).toBeCalledTimes(0);
-    expect(elba).toBeCalledTimes(0);
-
-    expect(spacesConnector.getSpacesWithPermissions).toBeCalledTimes(0);
+  beforeEach(async () => {
+    await db.delete(usersTable).execute();
   });
 
   describe('when type is global', () => {
     test('should continue the global spaces sync when their is more pages', async () => {
-      await db.insert(organisationsTable).values(organisation);
+      // @ts-expect-error -- this is a mock
+      vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+        getConnection: vi.fn().mockResolvedValue({
+          credentials: { access_token: 'access-token' },
+        }),
+      });
+      vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+        id: '1234',
+        url: 'http://foo.bar',
+      });
       await db.insert(usersTable).values(organisationUsers);
       const elba = spyOnElba();
       vi.spyOn(spacesConnector, 'getSpacesWithPermissions').mockResolvedValue({
@@ -49,11 +46,13 @@ describe('sync-pages', () => {
         spaces: [spaceWithPermissions],
       });
       const [result, { step }] = setup({
-        organisationId: organisation.id,
+        organisationId,
         isFirstSync: false,
         syncStartedAt,
         type: 'global',
         cursor: null,
+        nangoConnectionId,
+        region,
       });
 
       await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -61,7 +60,7 @@ describe('sync-pages', () => {
       expect(spacesConnector.getSpacesWithPermissions).toBeCalledTimes(1);
       expect(spacesConnector.getSpacesWithPermissions).toBeCalledWith({
         accessToken,
-        instanceId: organisation.instanceId,
+        instanceId,
         cursor: null,
         type: 'global',
         limit: env.DATA_PROTECTION_GLOBAL_SPACE_BATCH_SIZE,
@@ -71,8 +70,8 @@ describe('sync-pages', () => {
       expect(elba).toBeCalledTimes(1);
 
       expect(elba).toBeCalledWith({
-        organisationId: organisation.id,
-        region: organisation.region,
+        organisationId,
+        region,
         apiKey: env.ELBA_API_KEY,
         baseUrl: env.ELBA_API_BASE_URL,
       });
@@ -88,29 +87,43 @@ describe('sync-pages', () => {
       expect(step.sendEvent).toBeCalledWith('request-next-spaces-sync', {
         name: 'confluence/data_protection.spaces.sync.requested',
         data: {
-          organisationId: organisation.id,
+          organisationId,
           isFirstSync: false,
           syncStartedAt,
           type: 'global',
           cursor: 'next-cursor',
+          nangoConnectionId,
+          region,
         },
       });
     });
 
     test('should start the personal spaces sync when their is more no pages', async () => {
-      await db.insert(organisationsTable).values(organisation);
+      // @ts-expect-error -- this is a mock
+      vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+        getConnection: vi.fn().mockResolvedValue({
+          credentials: { access_token: 'access-token' },
+        }),
+      });
+      vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+        id: '1234',
+        url: 'http://foo.bar',
+      });
       await db.insert(usersTable).values(organisationUsers);
       const elba = spyOnElba();
       vi.spyOn(spacesConnector, 'getSpacesWithPermissions').mockResolvedValue({
         cursor: null,
         spaces: [spaceWithPermissions],
       });
+
       const [result, { step }] = setup({
-        organisationId: organisation.id,
+        organisationId,
         isFirstSync: false,
         syncStartedAt,
         type: 'global',
         cursor: null,
+        nangoConnectionId,
+        region,
       });
 
       await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -118,7 +131,7 @@ describe('sync-pages', () => {
       expect(spacesConnector.getSpacesWithPermissions).toBeCalledTimes(1);
       expect(spacesConnector.getSpacesWithPermissions).toBeCalledWith({
         accessToken,
-        instanceId: organisation.instanceId,
+        instanceId,
         cursor: null,
         type: 'global',
         limit: env.DATA_PROTECTION_GLOBAL_SPACE_BATCH_SIZE,
@@ -128,8 +141,8 @@ describe('sync-pages', () => {
       expect(elba).toBeCalledTimes(1);
 
       expect(elba).toBeCalledWith({
-        organisationId: organisation.id,
-        region: organisation.region,
+        organisationId,
+        region,
         apiKey: env.ELBA_API_KEY,
         baseUrl: env.ELBA_API_BASE_URL,
       });
@@ -145,11 +158,13 @@ describe('sync-pages', () => {
       expect(step.sendEvent).toBeCalledWith('request-next-spaces-sync', {
         name: 'confluence/data_protection.spaces.sync.requested',
         data: {
-          organisationId: organisation.id,
+          organisationId,
           isFirstSync: false,
           syncStartedAt,
           type: 'personal',
           cursor: null,
+          nangoConnectionId,
+          region,
         },
       });
     });
@@ -157,7 +172,16 @@ describe('sync-pages', () => {
 
   describe('when type is personal', () => {
     test('should continue the personal spaces sync when their is more pages', async () => {
-      await db.insert(organisationsTable).values(organisation);
+      // @ts-expect-error -- this is a mock
+      vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+        getConnection: vi.fn().mockResolvedValue({
+          credentials: { access_token: 'access-token' },
+        }),
+      });
+      vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+        id: '1234',
+        url: 'http://foo.bar',
+      });
       await db.insert(usersTable).values(organisationUsers);
       const elba = spyOnElba();
       vi.spyOn(spacesConnector, 'getSpacesWithPermissions').mockResolvedValue({
@@ -165,11 +189,13 @@ describe('sync-pages', () => {
         spaces: [spaceWithPermissions],
       });
       const [result, { step }] = setup({
-        organisationId: organisation.id,
+        organisationId,
         isFirstSync: false,
         syncStartedAt,
         type: 'personal',
         cursor: null,
+        nangoConnectionId,
+        region,
       });
 
       await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -177,7 +203,7 @@ describe('sync-pages', () => {
       expect(spacesConnector.getSpacesWithPermissions).toBeCalledTimes(1);
       expect(spacesConnector.getSpacesWithPermissions).toBeCalledWith({
         accessToken,
-        instanceId: organisation.instanceId,
+        instanceId,
         cursor: null,
         type: 'personal',
         limit: env.DATA_PROTECTION_PERSONAL_SPACE_BATCH_SIZE,
@@ -187,8 +213,8 @@ describe('sync-pages', () => {
       expect(elba).toBeCalledTimes(1);
 
       expect(elba).toBeCalledWith({
-        organisationId: organisation.id,
-        region: organisation.region,
+        organisationId,
+        region,
         apiKey: env.ELBA_API_KEY,
         baseUrl: env.ELBA_API_BASE_URL,
       });
@@ -204,17 +230,28 @@ describe('sync-pages', () => {
       expect(step.sendEvent).toBeCalledWith('request-next-spaces-sync', {
         name: 'confluence/data_protection.spaces.sync.requested',
         data: {
-          organisationId: organisation.id,
+          organisationId,
           isFirstSync: false,
           syncStartedAt,
           type: 'personal',
           cursor: 'next-cursor',
+          nangoConnectionId,
+          region,
         },
       });
     });
 
     test('should start the pages sync when their is more no pages', async () => {
-      await db.insert(organisationsTable).values(organisation);
+      // @ts-expect-error -- this is a mock
+      vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+        getConnection: vi.fn().mockResolvedValue({
+          credentials: { access_token: 'access-token' },
+        }),
+      });
+      vi.spyOn(authConnector, 'getInstance').mockResolvedValue({
+        id: '1234',
+        url: 'http://foo.bar',
+      });
       await db.insert(usersTable).values(organisationUsers);
       const elba = spyOnElba();
       vi.spyOn(spacesConnector, 'getSpacesWithPermissions').mockResolvedValue({
@@ -222,11 +259,13 @@ describe('sync-pages', () => {
         spaces: [spaceWithPermissions],
       });
       const [result, { step }] = setup({
-        organisationId: organisation.id,
+        organisationId,
         isFirstSync: false,
         syncStartedAt,
         type: 'personal',
         cursor: null,
+        nangoConnectionId,
+        region,
       });
 
       await expect(result).resolves.toStrictEqual({ status: 'completed' });
@@ -234,7 +273,7 @@ describe('sync-pages', () => {
       expect(spacesConnector.getSpacesWithPermissions).toBeCalledTimes(1);
       expect(spacesConnector.getSpacesWithPermissions).toBeCalledWith({
         accessToken,
-        instanceId: organisation.instanceId,
+        instanceId,
         cursor: null,
         type: 'personal',
         limit: env.DATA_PROTECTION_PERSONAL_SPACE_BATCH_SIZE,
@@ -244,8 +283,8 @@ describe('sync-pages', () => {
       expect(elba).toBeCalledTimes(1);
 
       expect(elba).toBeCalledWith({
-        organisationId: organisation.id,
-        region: organisation.region,
+        organisationId,
+        region,
         apiKey: env.ELBA_API_KEY,
         baseUrl: env.ELBA_API_BASE_URL,
       });
@@ -261,10 +300,12 @@ describe('sync-pages', () => {
       expect(step.sendEvent).toBeCalledWith('request-pages-sync', {
         name: 'confluence/data_protection.pages.sync.requested',
         data: {
-          organisationId: organisation.id,
+          organisationId,
           isFirstSync: false,
           syncStartedAt,
           cursor: null,
+          nangoConnectionId,
+          region,
         },
       });
     });

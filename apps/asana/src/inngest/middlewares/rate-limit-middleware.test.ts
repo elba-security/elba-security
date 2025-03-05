@@ -3,7 +3,7 @@ import { RetryAfterError } from 'inngest';
 import { AsanaError } from '@/connectors/common/error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
-describe('rate-limit middleware', () => {
+describe('rateLimitMiddleware', () => {
   test('should not transform the output when their is no error', () => {
     expect(
       rateLimitMiddleware
@@ -16,7 +16,7 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should not transform the output when the error is not about Doppler rate limit', () => {
+  test('should not transform the output when the error is not about Asana rate limit', () => {
     expect(
       rateLimitMiddleware
         .init()
@@ -30,7 +30,7 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should transform the output error to RetryAfterError when the error is about Doppler rate limit', () => {
+  test('should transform the output error to RetryAfterError when the error is about Asana rate limit', () => {
     const rateLimitError = new AsanaError('foo bar', {
       // @ts-expect-error this is a mock
       response: {

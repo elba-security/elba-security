@@ -9,7 +9,6 @@ if (error) {
   throw new Error(`Could not find environment variables file: .env.test`);
 }
 
-// use 'node' if your integration is not compatible with edge runtime
 const environment: BuiltinEnvironment = 'edge-runtime';
 
 process.env.VITEST_ENVIRONMENT = environment;

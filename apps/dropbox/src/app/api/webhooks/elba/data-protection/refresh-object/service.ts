@@ -5,10 +5,14 @@ export const refreshDataProtectionObject = async ({
   id,
   organisationId,
   metadata,
+  region,
+  nangoConnectionId,
 }: {
   id: string;
   organisationId: string;
   metadata: unknown;
+  region: string;
+  nangoConnectionId: string;
 }) => {
   const result = fileMetadataSchema.safeParse(metadata);
 
@@ -22,6 +26,8 @@ export const refreshDataProtectionObject = async ({
       id,
       organisationId,
       metadata: result.data,
+      region,
+      nangoConnectionId,
     },
   });
 };

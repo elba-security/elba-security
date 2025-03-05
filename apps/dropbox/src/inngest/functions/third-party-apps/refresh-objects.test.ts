@@ -1,24 +1,14 @@
-import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
-import * as crypto from '@/common/crypto';
-import { db } from '@/database/client';
-import type { Organisation } from '@/database/schema';
-import { organisationsTable } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
+import * as nangoAPI from '@/common/nango';
 import * as appsConnector from '@/connectors/dropbox/apps';
 import { env } from '@/common/env';
 import { refreshThirdPartyAppsObject } from './refresh-objects';
 import { createLinkedApps } from './__mocks__/member-linked-apps';
 
-const organisation: Omit<Organisation, 'createdAt'> = {
-  id: '00000000-0000-0000-0000-000000000001',
-  accessToken: await encrypt('test-access-token'),
-  refreshToken: await encrypt('test-refresh-token'),
-  adminTeamMemberId: 'admin-team-member-id',
-  rootNamespaceId: 'root-namespace-id',
-  region: 'us',
-};
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const nangoConnectionId = 'nango-connection-id';
+const region = 'us';
 
 const setup = createInngestFunctionMock(
   refreshThirdPartyAppsObject,
@@ -26,53 +16,33 @@ const setup = createInngestFunctionMock(
 );
 
 describe('refreshThirdPartyAppsObject', () => {
-  beforeEach(() => {
-    vi.spyOn(crypto, 'decrypt').mockResolvedValue('token');
-  });
-
-  afterAll(() => {
-    vi.restoreAllMocks();
-  });
-
-  test('should abort refresh when organisation is not registered', async () => {
-    vi.spyOn(appsConnector, 'getMemberLinkedApps').mockResolvedValue({
-      apps: [],
-    });
-
-    const elba = spyOnElba();
-    const [result] = setup({
-      organisationId: organisation.id,
-      userId: 'team-member-id',
-      appId: 'app-id',
-      isFirstSync: false,
-    });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(elba).toBeCalledTimes(0);
-    expect(appsConnector.getMemberLinkedApps).toBeCalledTimes(0);
-  });
-
   test("should request elba to delete when the user does't have any linked apps", async () => {
-    await db.insert(organisationsTable).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
     const elba = spyOnElba();
     vi.spyOn(appsConnector, 'getMemberLinkedApps').mockResolvedValue({
       apps: [],
     });
 
     const [result] = setup({
-      organisationId: organisation.id,
+      organisationId,
       userId: 'team-member-id',
       appId: 'app-id',
       isFirstSync: false,
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      organisationId: organisation.id,
-      region: organisation.region,
+      organisationId,
+      region,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });
@@ -92,7 +62,12 @@ describe('refreshThirdPartyAppsObject', () => {
   });
 
   test('should request elba to delete when the the app is not found in the source & rest of the apps should be refreshed', async () => {
-    await db.insert(organisationsTable).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
     const elba = spyOnElba();
     vi.spyOn(appsConnector, 'getMemberLinkedApps').mockResolvedValue({
       apps: createLinkedApps({
@@ -102,18 +77,20 @@ describe('refreshThirdPartyAppsObject', () => {
     });
 
     const [result] = setup({
-      organisationId: organisation.id,
+      organisationId,
       userId: 'team-member-id',
       appId: 'app-id-10',
       isFirstSync: false,
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      organisationId: organisation.id,
-      region: organisation.region,
+      organisationId,
+      region,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });
@@ -164,22 +141,29 @@ describe('refreshThirdPartyAppsObject', () => {
   });
 
   test('should fetch all the apps connected by the member and send to elba', async () => {
-    await db.insert(organisationsTable).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
     const elba = spyOnElba();
 
     const [result] = setup({
-      organisationId: organisation.id,
+      organisationId,
       userId: 'team-member-id',
       appId: 'app-id',
       isFirstSync: false,
+      nangoConnectionId,
+      region,
     });
 
     await expect(result).resolves.toBeUndefined();
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
-      organisationId: organisation.id,
-      region: organisation.region,
+      organisationId,
+      region,
       apiKey: env.ELBA_API_KEY,
       baseUrl: env.ELBA_API_BASE_URL,
     });

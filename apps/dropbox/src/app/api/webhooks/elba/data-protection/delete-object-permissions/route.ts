@@ -5,12 +5,23 @@ import { deleteDataProtectionObjectPermissions } from './service';
 export async function POST(request: Request) {
   const data: unknown = await request.json();
 
-  const { id, organisationId, metadata, permissions } = parseWebhookEventData(
+  const { id, organisationId, metadata, permissions, nangoConnectionId } = parseWebhookEventData(
     'data_protection.delete_object_permissions_requested',
     data
   );
 
-  await deleteDataProtectionObjectPermissions({ id, organisationId, metadata, permissions });
+  if (!nangoConnectionId) {
+    throw new Error(
+      `Nango connection id was not provided for the organisation with ID ${organisationId}`
+    );
+  }
+
+  await deleteDataProtectionObjectPermissions({
+    id,
+    metadata,
+    permissions,
+    nangoConnectionId,
+  });
 
   return new NextResponse();
 }

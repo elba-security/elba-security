@@ -1,12 +1,9 @@
-import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUser as deleteAsanaUser } from '@/connectors/asana/users';
-import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
-import { getWorkspaceIds } from '@/connectors/asana/auth';
+import { nangoAPIClient } from '@/common/nango';
+import { getWorkspaceIds } from '@/connectors/asana/workspaces';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -29,20 +26,16 @@ export const deleteUser = inngest.createFunction(
   },
   { event: 'asana/users.delete.requested' },
   async ({ event, step }) => {
-    const { userId, organisationId } = event.data;
+    const { userId, nangoConnectionId } = event.data;
 
-    const [organisation] = await db
-      .select({
-        accessToken: organisationsTable.accessToken,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
 
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve ${organisationId}`);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
     }
 
-    const accessToken = await decrypt(organisation.accessToken);
+    const accessToken = credentials.access_token;
+
     const workspaceIds = await step.run('get-workspace-ids', async () => {
       return getWorkspaceIds(accessToken);
     });

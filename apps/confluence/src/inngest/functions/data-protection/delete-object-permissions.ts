@@ -36,7 +36,8 @@ export const deleteObjectPermissions = inngest.createFunction(
     event: 'confluence/data_protection.delete_object_permissions.requested',
   },
   async ({ event, step }) => {
-    const { organisationId, objectId, permissions, metadata } = event.data;
+    const { organisationId, objectId, permissions, metadata, nangoConnectionId, region } =
+      event.data;
 
     // To avoid creating too many events: we delete permissions/restrictions in batches.
     if (metadata.objectType === 'page') {
@@ -46,6 +47,8 @@ export const deleteObjectPermissions = inngest.createFunction(
           (pagePermissions) => ({
             name: 'confluence/data_protection.delete_page_restrictions.requested',
             data: {
+              nangoConnectionId,
+              region,
               organisationId,
               userIds: pagePermissions.map(
                 (permission) => (permission.metadata as PageObjectPermissionMetadata).userId
@@ -66,6 +69,8 @@ export const deleteObjectPermissions = inngest.createFunction(
         ).map((permissionIds) => ({
           name: 'confluence/data_protection.delete_space_permissions.requested',
           data: {
+            nangoConnectionId,
+            region,
             organisationId,
             spaceKey: metadata.key,
             permissionIds,

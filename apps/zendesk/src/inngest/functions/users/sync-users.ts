@@ -1,14 +1,11 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
 import { logger } from '@elba-security/logger';
-import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
-import { getUsers } from '@/connectors/zendesk/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { decrypt } from '@/common/crypto';
+import { getUsers, getAuthUser, getOwnerId } from '@/connectors/zendesk/users';
+import { nangoAPIClient } from '@/common/nango';
 import { type ZendeskUser } from '@/connectors/zendesk/users';
-import { createElbaClient } from '@/connectors/elba/client';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
+import { nangoConnectionConfigSchema } from '@/connectors/common/nango';
 
 const formatElbaUser = ({
   user,
@@ -27,7 +24,7 @@ const formatElbaUser = ({
   role: user.role,
   additionalEmails: [],
   isSuspendable: ![ownerId, authUserId].includes(String(user.id)),
-  url: `${subDomain}/admin/people/team/members/${user.id}`,
+  url: `https://${subDomain}.zendesk.com/admin/people/team/members/${user.id}`,
 });
 
 export const syncUsers = inngest.createFunction(
@@ -54,29 +51,30 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'zendesk/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, page } = event.data;
+    const { organisationId, nangoConnectionId, region, syncStartedAt, page } = event.data;
 
-    const [organisation] = await db
-      .select({
-        token: organisationsTable.accessToken,
-        region: organisationsTable.region,
-        subDomain: organisationsTable.subDomain,
-        ownerId: organisationsTable.ownerId,
-        authUserId: organisationsTable.authUserId,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const elba = createElbaClient({ organisationId, region: organisation.region });
-    const token = await decrypt(organisation.token);
-
-    const { subDomain, ownerId, authUserId } = organisation;
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
 
     const nextPage = await step.run('list-users', async () => {
-      const result = await getUsers({ accessToken: token, page, subDomain });
+      const { credentials, connection_config: connectionConfig } =
+        await nangoAPIClient.getConnection(nangoConnectionId);
+      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+        throw new Error('Could not retrieve Nango credentials');
+      }
+      const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
+      if (!nangoConnectionConfigResult.success) {
+        throw new Error('Could not retrieve Nango connection config data');
+      }
+
+      const subDomain = nangoConnectionConfigResult.data.subdomain;
+      const accessToken = credentials.access_token;
+
+      const result = await getUsers({ accessToken, page, subDomain });
+      const { authUserId } = await getAuthUser({ accessToken, subDomain });
+      const { ownerId } = await getOwnerId({ accessToken, subDomain });
 
       const users = result.validUsers
         .filter(({ active }) => active)
