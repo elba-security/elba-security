@@ -71,6 +71,7 @@ describe('schedule-users-syncs', () => {
             nangoConnectionId,
             syncStartedAt: Date.now(),
             isFirstSync: true,
+            page: null,
           },
         }))
       )
@@ -119,6 +120,7 @@ describe('schedule-users-syncs', () => {
               nangoConnectionId,
               syncStartedAt: now,
               isFirstSync: true,
+              page: null,
             },
           }))
         )

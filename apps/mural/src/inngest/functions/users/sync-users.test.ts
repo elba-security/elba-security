@@ -36,6 +36,7 @@ describe('sync-users', () => {
       nextPage: null,
     });
     vi.spyOn(usersConnector, 'getWorkspaceIds').mockResolvedValue('workspace-id');
+    vi.spyOn(usersConnector, 'getMurals').mockResolvedValue('mural-id');
 
     const [result] = setup({
       region,
