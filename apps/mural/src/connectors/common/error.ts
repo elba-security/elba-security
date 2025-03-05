@@ -13,8 +13,6 @@ export class MuralError extends Error {
   }
 }
 
-export class MuralNotAdminError extends MuralError {}
-
 export class MuralMultipleWorkspaceError extends MuralError {}
 
 export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
@@ -23,9 +21,6 @@ export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   }
   if (error instanceof MuralError && error.response?.status === 401) {
     return 'unauthorized';
-  }
-  if (error instanceof MuralNotAdminError) {
-    return 'not_admin';
   }
   if (error instanceof MuralMultipleWorkspaceError) {
     return 'multiple_workspaces_not_supported';
