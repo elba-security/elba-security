@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '@/common/env';
-import { MuralMultipleWorkspaceError , MuralError } from '@/connectors/common/error';
+import { MuralMultipleWorkspaceError, MuralError } from '@/connectors/common/error';
 
 const getUsersResponseSchema = z.object({
   value: z.array(z.unknown()),
@@ -57,7 +57,7 @@ export const getUsers = async ({ token, muralId, page }: GetUsersParams) => {
   return {
     validUsers,
     invalidUsers,
-    nextPage: resultData.next ?? null,
+    nextPage: validUsers.length > 0 ? resultData.next ?? null : null, // They return the next param even when users are an empty array
   };
 };
 

@@ -18,7 +18,18 @@ export const rateLimitMiddleware = new InngestMiddleware({
             }
 
             if (error.response?.status === 429) {
-              const retryAfter = error.response.headers.get('retry-after') || 60;
+              const headers = error.response.headers;
+              let retryAfter = 60;
+
+              // Check for x-ratelimit-reset
+              const resetTimestamp = headers.get('x-ratelimit-reset');
+              if (resetTimestamp) {
+                const resetTime = parseInt(resetTimestamp, 10);
+                if (!isNaN(resetTime)) {
+                  const currentTime = Math.floor(Date.now() / 1000);
+                  retryAfter = Math.max(0, resetTime - currentTime);
+                }
+              }
 
               return {
                 ...context,

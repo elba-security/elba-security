@@ -31,11 +31,15 @@ describe('rate-limit middleware', () => {
   });
 
   test('should transform the output error to RetryAfterError when the error is about Mural rate limit', () => {
-    const rateLimitError = new MuralError('foo bar', {
+    // Mock current time
+    const currentTime = Math.floor(Date.now() / 1000);
+    const resetTime = currentTime + 30; // Simulate reset happening in 30 seconds
+
+    const rateLimitError = new MuralError('Rate limit exceeded', {
       // @ts-expect-error this is a mock
       response: {
         status: 429,
-        headers: new Headers({ 'retry-after': '10' }),
+        headers: new Headers({ 'x-ratelimit-reset': resetTime.toString() }),
       },
     });
 
@@ -56,7 +60,7 @@ describe('rate-limit middleware', () => {
       .onFunctionRun({ fn: { name: 'foo' } })
       .transformOutput(context);
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect(result?.result.error.retryAfter).toStrictEqual('10');
+    expect(result?.result.error.retryAfter).toStrictEqual('30');
     expect(result).toMatchObject({
       foo: 'bar',
       baz: {
