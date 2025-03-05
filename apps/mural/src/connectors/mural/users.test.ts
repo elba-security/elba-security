@@ -109,7 +109,7 @@ describe('getMurals', () => {
     );
   });
 
-  test('should fetch workspaces when token is valid', async () => {
+  test('should fetch murals when token is valid', async () => {
     const result = await getMurals({ token: validToken, workspaceId });
     expect(result).toEqual(muralId);
   });
