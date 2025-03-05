@@ -118,7 +118,7 @@ export const getMurals = async ({ token, workspaceId }: { token: string; workspa
   });
 
   if (!response.ok) {
-    throw new MuralError('Failed to fetch workspaces', { response });
+    throw new MuralError('Failed to fetch murals', { response });
   }
 
   const resData: unknown = await response.json();
