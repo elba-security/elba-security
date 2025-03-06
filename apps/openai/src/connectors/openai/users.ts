@@ -3,10 +3,9 @@ import { env } from '@/common/env';
 import { OpenAiError } from '../common/error';
 
 const openAiUserSchema = z.object({
-  role: z.string(),
-  is_service_account: z.literal(false),
   user: z.object({
-    object: z.literal('user'),
+    object: z.literal('organization.user'),
+    role: z.string(),
     id: z.string().min(1),
     name: z.string(),
     email: z.string(),
@@ -29,12 +28,14 @@ const openAiMeSchema = z.object({
 export type OpenAiUser = z.infer<typeof openAiUserSchema>;
 
 const getUsersResponseDataSchema = z.object({
-  members: z.object({ data: z.array(z.unknown()) }),
+  data: z.array(z.unknown()),
+  last_id: z.string(),
+  has_more: z.boolean(),
 });
 
 type GetUsersParams = {
   apiKey: string;
-  organizationId: string;
+  page?: string | null;
 };
 
 export const getTokenOwnerInfo = async (apiKey: string) => {
@@ -58,8 +59,16 @@ export const getTokenOwnerInfo = async (apiKey: string) => {
   return { userId: id, organization };
 };
 
-export const getUsers = async ({ apiKey, organizationId }: GetUsersParams) => {
-  const response = await fetch(`${env.OPENAI_API_BASE_URL}/organizations/${organizationId}/users`, {
+export const getUsers = async ({ apiKey, page }: GetUsersParams) => {
+  const url = new URL(`${env.OPENAI_API_BASE_URL}/organizations/users`);
+
+  url.searchParams.append('limit', `${env.OPENAI_USERS_SYNC_BATCH_SIZE}`);
+
+  if (page) {
+    url.searchParams.append('after', page);
+  }
+
+  const response = await fetch(`${env.OPENAI_API_BASE_URL}/organizations/users`, {
     headers: { Authorization: `Bearer ${apiKey}` },
   });
 
@@ -69,12 +78,12 @@ export const getUsers = async ({ apiKey, organizationId }: GetUsersParams) => {
 
   const resData: unknown = await response.json();
 
-  const { members } = getUsersResponseDataSchema.parse(resData);
+  const resultData = getUsersResponseDataSchema.parse(resData);
 
   const validUsers: OpenAiUser[] = [];
   const invalidUsers: unknown[] = [];
 
-  for (const member of members.data) {
+  for (const member of resultData.data) {
     const result = openAiUserSchema.safeParse(member);
 
     if (result.success) {
@@ -87,23 +96,20 @@ export const getUsers = async ({ apiKey, organizationId }: GetUsersParams) => {
   return {
     validUsers,
     invalidUsers,
+    nextPage: resultData.has_more ? resultData.last_id : null,
   };
 };
 
 type DeleteUserParams = {
   apiKey: string;
-  organizationId: string;
   userId: string;
 };
 
-export const deleteUser = async ({ apiKey, organizationId, userId }: DeleteUserParams) => {
-  const response = await fetch(
-    `${env.OPENAI_API_BASE_URL}/organizations/${organizationId}/users/${userId}`,
-    {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${apiKey}` },
-    }
-  );
+export const deleteUser = async ({ apiKey, userId }: DeleteUserParams) => {
+  const response = await fetch(`${env.OPENAI_API_BASE_URL}/organizations/users/${userId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${apiKey}` },
+  });
 
   if (!response.ok && response.status !== 404) {
     throw new OpenAiError(`Could not delete user with Id: ${userId}`, { response });

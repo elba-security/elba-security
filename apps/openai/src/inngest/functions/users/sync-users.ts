@@ -1,6 +1,6 @@
 import type { User } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
-import { type OpenAiUser, getUsers, getTokenOwnerInfo } from '@/connectors/openai/users';
+import { type OpenAiUser, getUsers } from '@/connectors/openai/users';
 import { inngest } from '@/inngest/client';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { nangoCredentialsSchema } from '@/connectors/common/nango';
@@ -13,9 +13,9 @@ const formatElbaUser = (user: OpenAiUser): User => ({
   id: user.user.id,
   displayName: user.user.name,
   email: user.user.email,
-  role: user.role, // 'owner' | 'reader'
+  role: user.user.role, // 'owner' | 'reader'
   additionalEmails: [],
-  isSuspendable: user.role !== 'owner',
+  isSuspendable: user.user.role !== 'owner',
   url: 'https://platform.openai.com/settings/organization/team',
 });
 
@@ -49,7 +49,7 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'openai/users.sync.requested' },
   async ({ event, step }) => {
-    const { organisationId, syncStartedAt, nangoConnectionId, region } = event.data;
+    const { organisationId, syncStartedAt, nangoConnectionId, region, page } = event.data;
 
     const elba = createElbaOrganisationClient({
       organisationId,
@@ -64,14 +64,10 @@ export const syncUsers = inngest.createFunction(
       }
 
       const apiKey = nangoCredentialsResult.data.apiKey;
-      const { organization } = await getTokenOwnerInfo(apiKey);
-      if (!organization?.id) {
-        throw new Error("The given API key doesn't belong to an organization");
-      }
 
       const result = await getUsers({
-        organizationId: organization.id,
         apiKey,
+        page,
       });
       const users = result.validUsers.map(formatElbaUser);
 
