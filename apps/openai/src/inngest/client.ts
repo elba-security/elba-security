@@ -14,6 +14,7 @@ export const inngest = new Inngest({
         syncStartedAt: number;
         region: string;
         nangoConnectionId: string;
+        page: string | null;
       };
     };
     'openai/app.uninstalled': {

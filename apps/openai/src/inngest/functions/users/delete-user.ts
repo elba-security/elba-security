@@ -34,15 +34,10 @@ export const deleteUser = inngest.createFunction(
       throw new Error('Could not retrieve Nango credentials');
     }
     const apiKey = nangoCredentialsResult.data.apiKey;
-    const { organization } = await usersConnector.getTokenOwnerInfo(apiKey);
-    if (!organization?.id) {
-      throw new Error("The given API key doesn't belong to an organization");
-    }
 
     await usersConnector.deleteUser({
       userId,
-      organizationId: organization.id,
-      apiKey: nangoCredentialsResult.data.apiKey,
+      apiKey,
     });
   }
 );

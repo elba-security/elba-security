@@ -13,10 +13,9 @@ const nangoConnectionId = 'nango-connection-id';
 const apiKey = 'test-api-key';
 
 export const users: OpenAiUser[] = Array.from({ length: 10 }, (_, i) => ({
-  role: 'admin',
-  is_service_account: false,
   user: {
-    object: 'user',
+    role: 'admin',
+    object: 'organization.user',
     id: `userId-${i}`,
     name: `username-${i}`,
     email: `username-${i}@foo.bar`,
@@ -39,6 +38,7 @@ describe('sync-users', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
+      nextPage: null,
     });
 
     vi.spyOn(usersConnector, 'getTokenOwnerInfo').mockResolvedValue({
@@ -52,6 +52,7 @@ describe('sync-users', () => {
       nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
+      page: null,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });

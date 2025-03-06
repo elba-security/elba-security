@@ -47,6 +47,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
             region,
             syncStartedAt: Date.now(),
             isFirstSync: false,
+            page: null,
           },
         }))
       );
