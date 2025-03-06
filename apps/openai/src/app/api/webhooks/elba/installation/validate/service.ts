@@ -32,15 +32,8 @@ export const validateSourceInstallation = async ({
     });
 
     const apiKey = nangoCredentialsResult.data.apiKey;
-    const { userId, organization } = await getTokenOwnerInfo(apiKey);
+    const { organization } = await getTokenOwnerInfo(apiKey);
 
-    // This check is not the cleanest. Sadly the endpoint doesn't return `is_service_account`
-    // user are always prefixed with `user-` but service accounts aren't
-    // If an admin creates a service account with a name starting with `user-` this will fail
-    // We should probably rely on email attribute as it's null for service accounts
-    if (userId.startsWith('user-')) {
-      throw new Error("The given API key doesn't belong to a service account");
-    }
     if (organization?.personal) {
       throw new Error("Personal organizations aren't supported");
     }

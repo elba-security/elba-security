@@ -3,13 +3,11 @@ import { env } from '@/common/env';
 import { OpenAiError } from '../common/error';
 
 const openAiUserSchema = z.object({
-  user: z.object({
-    object: z.literal('organization.user'),
-    role: z.string(),
-    id: z.string().min(1),
-    name: z.string(),
-    email: z.string(),
-  }),
+  object: z.literal('organization.user'),
+  role: z.string(),
+  id: z.string().min(1),
+  name: z.string(),
+  email: z.string(),
 });
 
 const openAiMeSchema = z.object({
@@ -60,7 +58,7 @@ export const getTokenOwnerInfo = async (apiKey: string) => {
 };
 
 export const getUsers = async ({ apiKey, page }: GetUsersParams) => {
-  const url = new URL(`${env.OPENAI_API_BASE_URL}/organizations/users`);
+  const url = new URL(`${env.OPENAI_API_BASE_URL}/organization/users`);
 
   url.searchParams.append('limit', `${env.OPENAI_USERS_SYNC_BATCH_SIZE}`);
 
@@ -68,7 +66,7 @@ export const getUsers = async ({ apiKey, page }: GetUsersParams) => {
     url.searchParams.append('after', page);
   }
 
-  const response = await fetch(`${env.OPENAI_API_BASE_URL}/organizations/users`, {
+  const response = await fetch(url.toString(), {
     headers: { Authorization: `Bearer ${apiKey}` },
   });
 
@@ -77,7 +75,6 @@ export const getUsers = async ({ apiKey, page }: GetUsersParams) => {
   }
 
   const resData: unknown = await response.json();
-
   const resultData = getUsersResponseDataSchema.parse(resData);
 
   const validUsers: OpenAiUser[] = [];
@@ -106,7 +103,7 @@ type DeleteUserParams = {
 };
 
 export const deleteUser = async ({ apiKey, userId }: DeleteUserParams) => {
-  const response = await fetch(`${env.OPENAI_API_BASE_URL}/organizations/users/${userId}`, {
+  const response = await fetch(`${env.OPENAI_API_BASE_URL}/organization/users/${userId}`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${apiKey}` },
   });

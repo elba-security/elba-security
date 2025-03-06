@@ -10,12 +10,12 @@ import { nangoAPIClient } from '@/common/nango';
 // Allowing to remove all owners of the organisation would be a security risk.
 // therefore, if the admin wants to remove the owner, they can remove it from the OpenAi platform
 const formatElbaUser = (user: OpenAiUser): User => ({
-  id: user.user.id,
-  displayName: user.user.name,
-  email: user.user.email,
-  role: user.user.role, // 'owner' | 'reader'
+  id: user.id,
+  displayName: user.name,
+  email: user.email,
+  role: user.role, // 'owner' | 'reader'
   additionalEmails: [],
-  isSuspendable: user.user.role !== 'owner',
+  isSuspendable: user.role !== 'owner',
   url: 'https://platform.openai.com/settings/organization/team',
 });
 

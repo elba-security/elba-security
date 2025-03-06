@@ -13,13 +13,11 @@ const nangoConnectionId = 'nango-connection-id';
 const apiKey = 'test-api-key';
 
 export const users: OpenAiUser[] = Array.from({ length: 10 }, (_, i) => ({
-  user: {
-    role: 'admin',
-    object: 'organization.user',
-    id: `userId-${i}`,
-    name: `username-${i}`,
-    email: `username-${i}@foo.bar`,
-  },
+  role: 'admin',
+  object: 'organization.user',
+  id: `userId-${i}`,
+  name: `username-${i}`,
+  email: `username-${i}@foo.bar`,
 }));
 
 const syncStartedAt = Date.now();
