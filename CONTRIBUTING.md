@@ -65,6 +65,39 @@ The generator will:
 
 > Don't forget to read the `README.md` file generated at the root of your integration folder.
 
+### Making Reviews Easier
+
+To make the review process more efficient, follow these steps to separate template-generated code from your integration-specific changes:
+
+1. **Commit the template-generated code immediately after generation:**
+
+```bash
+git add apps/your-integration
+git commit -m "chore: initial template generation for your-integration"
+```
+
+2. **Now make your integration-specific changes** in separate, focused commits.
+
+3. **In your PR description, include the commit hash of your template generation commit:**
+   - Example: "Template baseline: 1a2b3c4"
+   - This allows reviewers to easily find your baseline
+
+This approach enables reviewers to see just the difference between the template and your custom implementation, rather than having to review all the generated template code.
+
+#### For Reviewers
+
+When reviewing an integration PR, you can focus only on the changes made to the template:
+
+1. Find the template baseline commit hash from the PR description
+2. Use GitHub's comparison view:
+   - Go to the "Files changed" tab in the PR
+   - Near the top, click the dropdown that says "Compare"
+   - Select "specific commit range"
+   - For the base, enter the template generation commit hash
+   - For the comparison, use the latest commit
+
+You can also construct a URL directly: `https://github.com/elba-security/repository-name/compare/[template-commit-sha]...[latest-commit-sha]`
+
 ## How to open a pull request
 
 Opening a Pull Request (PR) on a public repository on GitHub involves a series of steps. Here's a general guide on how to do it:
