@@ -11,9 +11,7 @@ const nangoConnectionId = 'nango-connection-id';
 const validUsers: usersConnector.MiroUser[] = [
   {
     id: 'user-id',
-    firstName: 'test-first-name',
     email: 'test-user-@foo.bar',
-    lastName: 'test-last-name',
   },
 ];
 
@@ -35,8 +33,7 @@ describe('sync-users', () => {
       invalidUsers,
       nextPage: null,
     });
-    vi.spyOn(usersConnector, 'getTokenInfo').mockResolvedValue('workspace-id');
-    vi.spyOn(usersConnector, 'getMiros').mockResolvedValue('miro-id');
+    vi.spyOn(usersConnector, 'getTokenInfo').mockResolvedValue('org-id');
 
     const [result] = setup({
       region,
