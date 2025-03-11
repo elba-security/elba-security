@@ -37,7 +37,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
       }
     }
 
-    if (organisations.length) {
+    if (organisations.length > 0) {
       await step.sendEvent(
         'sync-users',
         organisations.map(({ organisationId, nangoConnectionId, region }) => ({
