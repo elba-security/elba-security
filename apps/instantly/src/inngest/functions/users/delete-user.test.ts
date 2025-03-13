@@ -6,8 +6,6 @@ import { deleteUser } from './delete-user';
 
 const userId = 'user-id';
 const apiKey = 'test-access-token';
-const domain = 'test-domain';
-const email = 'test@email';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const nangoConnectionId = 'nango-connection-id';
@@ -25,12 +23,10 @@ describe('deleteUser', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { username: email, password: apiKey },
-        connection_config: {
-          subdomain: domain,
-        },
+        credentials: { apiKey },
       }),
     });
+
     const [result] = setup({ organisationId, region, nangoConnectionId, userId });
 
     await expect(result).resolves.toStrictEqual(undefined);
@@ -39,8 +35,6 @@ describe('deleteUser', () => {
     expect(usersConnector.deleteUser).toBeCalledWith({
       userId,
       apiKey,
-      domain,
-      email,
     });
   });
 });

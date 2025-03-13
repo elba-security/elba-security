@@ -55,7 +55,7 @@ describe('rate-limit middleware', () => {
       .onFunctionRun({ fn: { name: 'foo' } })
       .transformOutput(context);
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect(result?.result.error.retryAfter).toStrictEqual('10');
+    expect(result?.result.error.retryAfter).toStrictEqual('60');
     expect(result).toMatchObject({
       foo: 'bar',
       baz: {

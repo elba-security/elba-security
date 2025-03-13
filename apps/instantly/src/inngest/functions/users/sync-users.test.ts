@@ -8,15 +8,12 @@ const organisationId = '00000000-0000-0000-0000-000000000001';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const syncStartedAt = Date.now();
-const nextPage = 1;
+const nextPage = 'next-page';
 const apiKey = 'test-access-token';
-const domain = 'test-domain';
-const email = 'test@email';
 const users: usersConnector.InstantlyUser[] = Array.from({ length: 2 }, (_, i) => ({
-  accountId: `id-${i}`,
-  displayName: `displayName-${i}`,
-  emailAddress: `user-${i}@foo.bar`,
-  accountType: 'atlassian',
+  id: `id-${i}`,
+  email: `user-${i}@foo.bar`,
+  accepted: true,
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'instantly/users.sync.requested');
@@ -24,17 +21,12 @@ const setup = createInngestFunctionMock(syncUsers, 'instantly/users.sync.request
 describe('synchronize-users', () => {
   test('should continue the sync when there is a next page', async () => {
     // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { username: email, password: apiKey },
-        connection_config: {
-          subdomain: domain,
-        },
+        credentials: { apiKey },
       }),
-    }));
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserId: 'auth-user',
     });
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -47,7 +39,7 @@ describe('synchronize-users', () => {
       nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
-      page: '1',
+      page: 'next-page',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -70,19 +62,14 @@ describe('synchronize-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { username: email, password: apiKey },
-        connection_config: {
-          subdomain: domain,
-        },
+        credentials: { apiKey },
       }),
     }));
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserId: 'auth-user',
-    });
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: 0,
+      nextPage: null,
     });
 
     const [result, { step }] = setup({

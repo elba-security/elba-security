@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { spyOnElba } from '@elba-security/test-utils';
 import { inngest } from '@/inngest/client';
 import * as usersConnector from '@/connectors/instantly/users';
+import type { InstantlyUser } from '@/connectors/instantly/users';
 import * as nangoAPI from '@/common/nango';
 import { validateSourceInstallation } from './service';
 
@@ -10,8 +11,14 @@ const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const now = Date.now();
 const apiKey = 'test-access-token';
-const domain = 'test-domain';
-const email = 'test@email';
+
+const validUsers: InstantlyUser[] = Array.from({ length: 5 }, (_, i) => ({
+  id: `id-${i}`,
+  email: `user-${i}@foo.bar`,
+  accepted: true,
+}));
+
+const invalidUsers = [];
 
 describe('validateSourceInstallation', () => {
   beforeAll(() => {
@@ -27,16 +34,15 @@ describe('validateSourceInstallation', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { username: email, password: apiKey },
-        connection_config: {
-          subdomain: domain,
-        },
+        credentials: { apiKey },
       }),
     });
 
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserId: 'auth-user-id',
+    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
+      validUsers,
+      invalidUsers,
+      nextPage: null,
     });
 
     await validateSourceInstallation({
