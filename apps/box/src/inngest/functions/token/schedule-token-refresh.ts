@@ -4,7 +4,7 @@ import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 
 export const scheduleTokenRefresh = inngest.createFunction(
-  { id: 'onedrive-schedule-token-refresh' },
+  { id: 'box-schedule-token-refresh' },
   { cron: env.TOKEN_REFRESH_CRON },
   async ({ step }) => {
     const organisations = await db
