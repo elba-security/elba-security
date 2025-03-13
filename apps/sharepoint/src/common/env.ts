@@ -35,6 +35,7 @@ export const env = z
     ENCRYPTION_KEY: z.string().min(1),
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
+    TOKEN_REFRESH_CRON: z.string().default('*/30 * * * *'),
     USERS_SYNC_CRON: z.string().default('0 0 * * 1-5'),
     USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
     SITES_SYNC_BATCH_SIZE: zEnvInt().default(100),

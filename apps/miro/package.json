@@ -36,7 +36,6 @@
     "@types/react-dom": "catalog:",
     "dotenv": "catalog:",
     "eslint": "catalog:",
-    "inngest-cli": "catalog:",
     "msw": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

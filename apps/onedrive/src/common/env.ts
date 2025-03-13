@@ -29,9 +29,9 @@ export const env = z
     MICROSOFT_DATA_PROTECTION_ITEM_SYNC_SIZE: zEnvInt()
       .min(1)
       .default(MICROSOFT_DATA_PROTECTION_ITEM_SYNC_SIZE_DEFAULT_VALUE),
-    MICROSOFT_DATA_PROTECTION_ITEMS_PERMISSIONS_RATE_LIMIT: zEnvInt().min(1).default(25),
     MICROSOFT_DATA_PROTECTION_ITEMS_PERMISSIONS_RATE_LIMIT_PERIOD:
       zInngestTimeStringSchema.default('1s'),
+    MICROSOFT_DATA_PROTECTION_ITEMS_PERMISSIONS_RATE_LIMIT: zEnvInt().min(1).default(25),
     MICROSOFT_DATA_PROTECTION_ITEMS_SYNC_CONCURRENCY: zEnvInt().min(1).default(1),
     MICROSOFT_DATA_PROTECTION_REFRESH_DELETE_CONCURRENCY: zEnvInt().min(1).default(10),
     MICROSOFT_DATA_PROTECTION_SYNC_CHUNK_SIZE: zEnvInt().min(1).default(100),
@@ -42,6 +42,7 @@ export const env = z
       .default('https://login.microsoftonline.com/organizations/adminconsent'),
     MICROSOFT_REDIRECT_URI: z.string().url(),
     SUBSCRIPTION_EXPIRATION_DAYS: z.string().default('25'),
+    TOKEN_REFRESH_CRON: z.string().default('*/30 * * * *'),
     USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
     USERS_SYNC_CRON: z.string().default('0 0 * * 1-5'),
     VERCEL_ENV: z.string().min(1).optional(),

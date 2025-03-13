@@ -11,6 +11,7 @@ import { syncDeltaItems } from './data-protection/sync-delta-items';
 import { refreshSubscription } from './subscriptions/refresh-subscription';
 import { removeSubscription } from './subscriptions/remove-subscription';
 import { removeOrganisation } from './organisations/remove-organisation';
+import { scheduleTokenRefresh } from './token/schedule-token-refresh';
 
 export const inngestFunctions = [
   deleteDataProtectionItemPermissions,
@@ -20,6 +21,7 @@ export const inngestFunctions = [
   removeOrganisation,
   removeSubscription,
   scheduleDataProtectionSyncJobs,
+  scheduleTokenRefresh,
   scheduleUsersSyncs,
   syncDeltaItems,
   syncDrives,

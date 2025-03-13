@@ -28,7 +28,6 @@ export const inngest = new Inngest({
     'sharepoint/token.refresh.requested': {
       data: {
         organisationId: string;
-        expiresAt: number;
       };
     };
     'sharepoint/data_protection.sync.requested': {

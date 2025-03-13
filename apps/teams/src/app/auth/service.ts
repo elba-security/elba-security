@@ -1,4 +1,3 @@
-import { addSeconds } from 'date-fns/addSeconds';
 import { getToken } from '@/connectors/microsoft/auth/auth';
 import { encrypt } from '@/common/crypto';
 import { organisationsTable } from '@/database/schema';
@@ -17,7 +16,7 @@ export const setupOrganisation = async ({
   region,
   tenantId,
 }: SetupOrganisationParams) => {
-  const { token, expiresIn } = await getToken(tenantId);
+  const { token } = await getToken(tenantId);
 
   try {
     // we test the installation: microsoft API takes time to propagate it through its services
@@ -58,13 +57,6 @@ export const setupOrganisation = async ({
         isFirstSync: true,
         syncStartedAt: Date.now(),
         skipToken: null,
-      },
-    },
-    {
-      name: 'teams/token.refresh.requested',
-      data: {
-        organisationId,
-        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
       },
     },
   ]);

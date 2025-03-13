@@ -26,7 +26,6 @@ export const inngest = new Inngest({
     'sentry/token.refresh.requested': {
       data: {
         organisationId: string;
-        expiresAt: number;
       };
     };
     'sentry/users.delete.requested': {
