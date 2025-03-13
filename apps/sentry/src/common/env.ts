@@ -20,7 +20,7 @@ export const env = z
     SENTRY_REDIRECT_URI: z.string().url(),
     SENTRY_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
     SENTRY_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    TOKEN_REFRESH_CRON: z.string().default('*/30 * * * *'),
+    TOKEN_REFRESH_CRON: z.string().default('0 */6 * * *'),
     VERCEL_ENV: z.string().min(1).optional(),
   })
   .parse(process.env);

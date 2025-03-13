@@ -20,7 +20,7 @@ export const env = z
     GUSTO_REDIRECT_URI: z.string().url(),
     GUSTO_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),
     GUSTO_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    TOKEN_REFRESH_CRON: z.string().default('*/30 * * * *'),
+    TOKEN_REFRESH_CRON: z.string().default('0 * * * *'),
     VERCEL_ENV: z.string().min(1).optional(),
   })
   .parse(process.env);
