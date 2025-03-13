@@ -37,7 +37,7 @@ export const removeOrganisation = inngest.createFunction(
       .where(eq(subscriptionsTable.organisationId, organisationId));
 
     if (subscriptions.length) {
-      await Promise.all(
+      await Promise.allSettled(
         subscriptions.map((subscription) =>
           deleteSubscription(organisation.token, subscription.subscriptionId)
         )
