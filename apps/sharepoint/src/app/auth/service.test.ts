@@ -80,13 +80,6 @@ describe('setupOrganisation', () => {
           skipToken: null,
         },
       },
-      {
-        name: 'sharepoint/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: now.getTime() + expiresIn * 1000,
-        },
-      },
     ]);
   });
 
@@ -140,13 +133,6 @@ describe('setupOrganisation', () => {
           isFirstSync: true,
           syncStartedAt: now.getTime(),
           skipToken: null,
-        },
-      },
-      {
-        name: 'sharepoint/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: now.getTime() + expiresIn * 1000,
         },
       },
     ]);

@@ -28,7 +28,6 @@ export const inngest = new Inngest({
     'onedrive/token.refresh.requested': {
       data: {
         organisationId: string;
-        expiresAt: number;
       };
     };
     'onedrive/data_protection.sync.requested': {

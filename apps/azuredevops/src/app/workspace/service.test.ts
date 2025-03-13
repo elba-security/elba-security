@@ -96,13 +96,6 @@ describe('setupOrganisation', () => {
           organisationId: organisation.id,
         },
       },
-      {
-        name: 'azuredevops/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: now.getTime() + 60 * 1000,
-        },
-      },
     ]);
   });
 

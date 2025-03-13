@@ -92,13 +92,6 @@ describe('setupOrganisation', () => {
           region,
         },
       },
-      {
-        name: 'box/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: now.getTime() + 60 * 1000,
-        },
-      },
     ]);
   });
 
@@ -154,13 +147,6 @@ describe('setupOrganisation', () => {
         data: {
           organisationId: organisation.id,
           region,
-        },
-      },
-      {
-        name: 'box/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: now.getTime() + 60 * 1000,
         },
       },
     ]);

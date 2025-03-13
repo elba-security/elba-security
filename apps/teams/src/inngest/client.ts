@@ -28,7 +28,6 @@ export const inngest = new Inngest({
     'teams/token.refresh.requested': {
       data: {
         organisationId: string;
-        expiresAt: number;
       };
     };
     'teams/users.sync.requested': {

@@ -19,7 +19,7 @@ export const setupOrganisation = async ({
   installationId,
   organizationSlug,
 }: SetupOrganisationParams) => {
-  const { accessToken, refreshToken, expiresAt } = await getToken(code, installationId);
+  const { accessToken, refreshToken } = await getToken(code, installationId);
 
   const encryptedAccessToken = await encrypt(accessToken);
   const encodedRefreshToken = await encrypt(refreshToken);
@@ -60,13 +60,6 @@ export const setupOrganisation = async ({
       data: {
         organisationId,
         region,
-      },
-    },
-    {
-      name: 'sentry/token.refresh.requested',
-      data: {
-        organisationId,
-        expiresAt: new Date(expiresAt).getTime(),
       },
     },
   ]);

@@ -26,7 +26,6 @@ export const inngest = new Inngest({
     'azuredevops/token.refresh.requested': {
       data: {
         organisationId: string;
-        expiresAt: number;
       };
     };
     'azuredevops/users.delete.requested': {

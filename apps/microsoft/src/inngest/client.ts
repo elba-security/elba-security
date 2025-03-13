@@ -61,7 +61,6 @@ export const inngest = new Inngest({
     'microsoft/token.refresh.requested': {
       data: {
         organisationId: string;
-        expiresAt: number;
       };
     };
   }>(),

@@ -1,8 +1,5 @@
-import { subMinutes } from 'date-fns/subMinutes';
-import { addSeconds } from 'date-fns/addSeconds';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { failureRetry } from '@elba-security/inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -17,7 +14,6 @@ export const refreshToken = inngest.createFunction(
       key: 'event.data.organisationId',
       limit: 1,
     },
-    onFailure: failureRetry(),
     middleware: [unauthorizedMiddleware],
     cancelOn: [
       {
@@ -32,41 +28,25 @@ export const refreshToken = inngest.createFunction(
     retries: 5,
   },
   { event: 'onedrive/token.refresh.requested' },
-  async ({ event, step }) => {
-    const { organisationId, expiresAt } = event.data;
+  async ({ event }) => {
+    const { organisationId } = event.data;
 
-    await step.sleepUntil('wait-before-expiration', subMinutes(new Date(expiresAt), 15));
+    const [organisation] = await db
+      .select({ tenantId: organisationsTable.tenantId })
+      .from(organisationsTable)
+      .where(eq(organisationsTable.id, organisationId));
 
-    const nextExpiresAt = await step.run('refresh-token', async () => {
-      const [organisation] = await db
-        .select({
-          tenantId: organisationsTable.tenantId,
-        })
-        .from(organisationsTable)
-        .where(eq(organisationsTable.id, organisationId));
+    if (!organisation) {
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+    }
 
-      if (!organisation) {
-        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-      }
+    const { token } = await getToken(organisation.tenantId);
 
-      const { token, expiresIn } = await getToken(organisation.tenantId);
+    const encryptedToken = await encrypt(token);
 
-      const encryptedToken = await encrypt(token);
-
-      await db
-        .update(organisationsTable)
-        .set({ token: encryptedToken })
-        .where(eq(organisationsTable.id, organisationId));
-
-      return addSeconds(new Date(), expiresIn);
-    });
-
-    await step.sendEvent('next-refresh', {
-      name: 'onedrive/token.refresh.requested',
-      data: {
-        organisationId,
-        expiresAt: new Date(nextExpiresAt).getTime(),
-      },
-    });
+    await db
+      .update(organisationsTable)
+      .set({ token: encryptedToken })
+      .where(eq(organisationsTable.id, organisationId));
   }
 );

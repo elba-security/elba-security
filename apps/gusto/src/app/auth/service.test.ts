@@ -106,13 +106,6 @@ describe('setupOrganisation', () => {
           organisationId: organisation.id,
         },
       },
-      {
-        name: 'gusto/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: now.getTime() + 60 * 1000,
-        },
-      },
     ]);
   });
 
@@ -167,13 +160,6 @@ describe('setupOrganisation', () => {
         name: 'gusto/app.installed',
         data: {
           organisationId: organisation.id,
-        },
-      },
-      {
-        name: 'gusto/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: now.getTime() + 60 * 1000,
         },
       },
     ]);

@@ -5,9 +5,9 @@ import { deleteUser } from './users/delete-users';
 import { refreshToken } from './token/refresh-token';
 
 export const inngestFunctions = [
+  deleteUser,
   refreshToken,
   removeOrganisation,
   scheduleUsersSync,
   syncUsers,
-  deleteUser,
 ];
