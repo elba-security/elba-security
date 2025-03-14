@@ -42,42 +42,44 @@ export const syncUsers = inngest.createFunction(
   },
   { event: 'clickup/users.sync.requested' },
   async ({ event, step, logger }) => {
-    const { organisationId, nangoConnectionId, region } = event.data;
+    const { organisationId, nangoConnectionId, region, syncStartedAt } = event.data;
 
     const elba = createElbaOrganisationClient({
       organisationId,
       region,
     });
 
-    await step.run('list-users', async () => {
-      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
-      }
-      const teamIds = await getTeamIds(credentials.access_token);
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
+      throw new NonRetriableError('Could not retrieve Nango credentials');
+    }
+    const teamIds = await getTeamIds(credentials.access_token);
 
-      const result = await getUsers({
-        token: credentials.access_token,
-        teamId: teamIds[0].id,
-      });
-      const users = result.validUsers.map((user) =>
-        formatElbaUser({
-          teamId: teamIds[0].id,
-          user,
-        })
-      );
-
-      if (result.invalidUsers.length > 0) {
-        logger.warn('Retrieved users contains invalid data', {
-          organisationId,
-          invalidUsers: result.invalidUsers,
-        });
-      }
-
-      if (users.length > 0) {
-        await elba.users.update({ users });
-      }
+    const result = await getUsers({
+      token: credentials.access_token,
+      teamId: teamIds[0].id,
     });
+    const users = result.validUsers.map((user) =>
+      formatElbaUser({
+        teamId: teamIds[0].id,
+        user,
+      })
+    );
+
+    if (result.invalidUsers.length > 0) {
+      logger.warn('Retrieved users contains invalid data', {
+        organisationId,
+        invalidUsers: result.invalidUsers,
+      });
+    }
+
+    if (users.length > 0) {
+      await elba.users.update({ users });
+    }
+
+    await step.run('finalize', () =>
+      elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
+    );
 
     return {
       status: 'completed',
