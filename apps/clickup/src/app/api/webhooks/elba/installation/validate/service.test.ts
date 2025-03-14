@@ -99,4 +99,41 @@ describe('validateSourceInstallation', () => {
       errorType: 'unknown',
     });
   });
+  it('should throw ClickUpMultipleWorkspaceError when the multiple teams exist', async () => {
+    const elba = spyOnElba();
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { access_token: 'access-token' },
+      }),
+    });
+
+    vi.spyOn(teamIdsConnector, 'getTeamIds').mockResolvedValue([
+      {
+        id: 'team-id-0',
+      },
+      {
+        id: 'team-id-1',
+      },
+    ]);
+
+    await validateSourceInstallation({
+      organisationId,
+      nangoConnectionId,
+      region,
+    });
+
+    const elbaInstance = elba.mock.results[0]?.value;
+    expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
+    expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
+      errorMetadata: {
+        cause: undefined,
+        name: 'ClickUpError',
+        message: 'User has selected multiple workspaces',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- convenience
+        stack: expect.any(String),
+      },
+      errorType: 'multiple_workspaces_not_supported',
+    });
+  });
 });
