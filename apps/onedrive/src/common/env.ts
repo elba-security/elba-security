@@ -42,6 +42,7 @@ export const env = z
       .default('https://login.microsoftonline.com/organizations/adminconsent'),
     MICROSOFT_REDIRECT_URI: z.string().url(),
     SUBSCRIPTION_EXPIRATION_DAYS: z.string().default('25'),
+    SUBSCRIPTION_REMOVAL_BATCH_SIZE: zEnvInt().default(100),
     TOKEN_REFRESH_CRON: z.string().default('*/30 * * * *'),
     USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
     USERS_SYNC_CRON: z.string().default('0 0 * * 1-5'),

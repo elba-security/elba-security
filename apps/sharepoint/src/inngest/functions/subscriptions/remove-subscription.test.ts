@@ -1,6 +1,5 @@
 import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
 import * as removeSubscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
 import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
@@ -23,7 +22,7 @@ const organisation = {
   region: 'us',
 };
 
-const sharePoint = {
+const subscription = {
   organisationId,
   siteId,
   driveId,
@@ -31,11 +30,6 @@ const sharePoint = {
   subscriptionExpirationDate: '2024-04-25 00:00:00.000000',
   subscriptionClientState: clientState,
   delta: deltaToken,
-};
-
-const setupData = {
-  subscriptionId: sharePoint.subscriptionId,
-  organisationId: organisation.id,
 };
 
 const setup = createInngestFunctionMock(
@@ -46,55 +40,59 @@ const setup = createInngestFunctionMock(
 describe('remove-subscription', () => {
   beforeEach(async () => {
     await db.insert(organisationsTable).values(organisation);
-    await db
-      .insert(subscriptionsTable)
-      .values(sharePoint)
-      .onConflictDoUpdate({
-        target: [subscriptionsTable.organisationId, subscriptionsTable.driveId],
-
-        set: {
-          subscriptionId: sharePoint.subscriptionId,
-          subscriptionExpirationDate: sharePoint.subscriptionExpirationDate,
-          subscriptionClientState: sharePoint.subscriptionClientState,
-          delta: sharePoint.delta,
-        },
-      });
   });
 
-  test('should abort removing when record not found', async () => {
+  test('should stop and send completed event when there is no subscription left', async () => {
     vi.spyOn(removeSubscriptionConnector, 'removeSubscription').mockResolvedValue(undefined);
 
-    const [result, { step }] = setup({
-      ...setupData,
-      organisationId: '15a76301-f1dd-4a77-b12a-9d7d3fca3c92', // fake id
-    });
+    const [result, { step }] = setup({ organisationId });
 
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
+    await expect(result).resolves.toEqual({ status: 'completed' });
 
     expect(removeSubscriptionConnector.removeSubscription).toBeCalledTimes(0);
-    expect(step.sendEvent).toBeCalledTimes(0);
+
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toHaveBeenCalledWith('remove-subscription-completed', {
+      data: { organisationId },
+      name: 'sharepoint/subscriptions.remove.completed',
+    });
   });
 
-  test('should run removeSubscription when data is valid', async () => {
+  test('should delete subscription and trigger next job when there are subscriptions', async () => {
+    await db
+      .insert(subscriptionsTable)
+      .values(subscription)
+      .onConflictDoUpdate({
+        target: [subscriptionsTable.organisationId, subscriptionsTable.driveId],
+        set: {
+          subscriptionId: subscription.subscriptionId,
+          subscriptionExpirationDate: subscription.subscriptionExpirationDate,
+          subscriptionClientState: subscription.subscriptionClientState,
+          delta: subscription.delta,
+        },
+      });
+
     vi.spyOn(removeSubscriptionConnector, 'removeSubscription').mockResolvedValue(undefined);
 
-    const [result, { step }] = setup(setupData);
+    const [result, { step }] = setup({ organisationId });
 
-    await expect(result).resolves.toBeUndefined();
+    await expect(result).resolves.toEqual({ status: 'ongoing' });
 
     expect(removeSubscriptionConnector.removeSubscription).toBeCalledTimes(1);
     expect(removeSubscriptionConnector.removeSubscription).toBeCalledWith({
-      subscriptionId: 'some-subscription-id',
-      token: 'test-token',
+      subscriptionId,
+      token,
     });
 
+    const subscriptions = await db
+      .select({ subscriptionId: subscriptionsTable.subscriptionId })
+      .from(subscriptionsTable);
+    expect(subscriptions.length).toStrictEqual(0);
+
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('remove-subscription-completed', {
-      name: 'sharepoint/subscriptions.remove.completed',
-      data: {
-        subscriptionId,
-        organisationId,
-      },
+    expect(step.sendEvent).toBeCalledWith('remove-organisation-subscriptions', {
+      data: { organisationId },
+      name: 'sharepoint/subscriptions.remove.triggered',
     });
   });
 });

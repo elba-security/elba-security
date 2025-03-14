@@ -93,13 +93,11 @@ export const inngest = new Inngest({
     };
     'onedrive/subscriptions.remove.triggered': {
       data: {
-        subscriptionId: string;
         organisationId: string;
       };
     };
     'onedrive/subscriptions.remove.completed': {
       data: {
-        subscriptionId: string;
         organisationId: string;
       };
     };

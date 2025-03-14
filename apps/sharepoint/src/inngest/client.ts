@@ -104,13 +104,11 @@ export const inngest = new Inngest({
     };
     'sharepoint/subscriptions.remove.triggered': {
       data: {
-        subscriptionId: string;
         organisationId: string;
       };
     };
     'sharepoint/subscriptions.remove.completed': {
       data: {
-        subscriptionId: string;
         organisationId: string;
       };
     };
