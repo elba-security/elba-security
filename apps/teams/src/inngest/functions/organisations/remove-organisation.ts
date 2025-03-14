@@ -23,6 +23,7 @@ export const removeOrganisation = inngest.createFunction(
       .where(eq(organisationsTable.id, organisationId));
 
     if (!organisation) {
+      logger.info('Organisation not found');
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
@@ -30,6 +31,8 @@ export const removeOrganisation = inngest.createFunction(
       .select({ subscriptionId: subscriptionsTable.id })
       .from(subscriptionsTable)
       .where(eq(subscriptionsTable.organisationId, organisationId));
+
+    logger.info('Organisation subscriptions', { organisation, subscriptions });
 
     if (subscriptions.length) {
       await Promise.all([
