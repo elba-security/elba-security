@@ -43,6 +43,7 @@ export const env = z
     REPLIES_SYNC_MAX_RETRY: zEnvRetry(),
     SUBSCRIBE_EXPIRATION_DAYS: z.string(),
     SUBSCRIBE_SYNC_MAX_RETRY: zEnvRetry(),
+    SUBSCRIPTION_REMOVAL_BATCH_SIZE: z.coerce.number().int().positive().default(100),
     TEAMS_CHANNELS_SYNC_CONCURRENCY: z.coerce.number().int().positive().default(15),
     TEAMS_MESSAGES_SYNC_CONCURRENCY: z.coerce.number().int().positive().default(10),
     TEAMS_REPLIES_SYNC_CONCURRENCY: z.coerce.number().int().positive().default(10),

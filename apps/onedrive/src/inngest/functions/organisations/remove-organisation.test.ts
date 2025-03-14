@@ -15,8 +15,8 @@ const organisation = {
   region: 'us',
 };
 
-const oneDrives = Array.from({ length: 5 }, (_, i) => ({
-  organisationId: '45a76301-f1dd-4a77-b12f-9d7d3fca3c90',
+const subscriptions = Array.from({ length: 5 }, (_, i) => ({
+  organisationId: organisation.id,
   userId: `user-id-${i}`,
   subscriptionId: `subscription-id-${i}`,
   subscriptionClientState: `some-random-client-state-${i}`,
@@ -39,37 +39,27 @@ describe('remove-organisation', () => {
   test("should remove given organisation when it's registered", async () => {
     const elba = spyOnElba();
     await db.insert(organisationsTable).values(organisation);
-    await db.insert(subscriptionsTable).values(oneDrives);
+    await db.insert(subscriptionsTable).values(subscriptions);
 
     const [result, { step }] = setup({ organisationId: organisation.id });
 
     await expect(result).resolves.toBeUndefined();
 
-    expect(step.waitForEvent).toBeCalledTimes(oneDrives.length);
-
-    for (const [i, subscription] of oneDrives.entries()) {
-      expect(step.waitForEvent).nthCalledWith(
-        i + 1,
-        `wait-for-remove-subscription-complete-${subscription.subscriptionId}`,
-        {
-          event: 'onedrive/subscriptions.remove.completed',
-          timeout: '30d',
-          if: `async.data.organisationId == '${subscription.organisationId}' && async.data.subscriptionId == '${subscription.subscriptionId}'`,
-        }
-      );
-    }
+    expect(step.waitForEvent).toBeCalledTimes(1);
+    expect(step.waitForEvent).toBeCalledWith(
+      `wait-for-remove-organisation-subscriptions-complete`,
+      {
+        event: 'onedrive/subscriptions.remove.completed',
+        timeout: '30d',
+        if: `async.data.organisationId == '${organisation.id}'`,
+      }
+    );
 
     expect(step.sendEvent).toHaveBeenCalledTimes(1);
-    expect(step.sendEvent).toHaveBeenCalledWith(
-      'subscription-remove-triggered',
-      oneDrives.map(({ organisationId, subscriptionId }) => ({
-        name: 'onedrive/subscriptions.remove.triggered',
-        data: {
-          organisationId,
-          subscriptionId,
-        },
-      }))
-    );
+    expect(step.sendEvent).toHaveBeenCalledWith('subscription-remove-triggered', {
+      name: 'onedrive/subscriptions.remove.triggered',
+      data: { organisationId: organisation.id },
+    });
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({

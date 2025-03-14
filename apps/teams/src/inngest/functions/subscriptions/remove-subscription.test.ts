@@ -1,6 +1,5 @@
 import { expect, test, describe, vi, beforeEach } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
 import * as removeSubscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
 import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { encrypt } from '@/common/crypto';
@@ -30,16 +29,30 @@ const subscription = {
   changeType,
 };
 
-const setupData = {
-  subscriptionId: subscription.id,
-  organisationId: organisation.id,
-};
-
 const setup = createInngestFunctionMock(removeSubscription, 'teams/subscriptions.remove.triggered');
 
 describe('remove-subscription', () => {
   beforeEach(async () => {
     await db.insert(organisationsTable).values(organisation);
+  });
+
+  test('should stop and send completed event when there is no subscription left', async () => {
+    vi.spyOn(removeSubscriptionConnector, 'deleteSubscription').mockResolvedValue(null);
+
+    const [result, { step }] = setup({ organisationId });
+
+    await expect(result).resolves.toEqual({ status: 'completed' });
+
+    expect(removeSubscriptionConnector.deleteSubscription).toBeCalledTimes(0);
+
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toHaveBeenCalledWith('remove-subscription-completed', {
+      data: { organisationId },
+      name: 'teams/subscriptions.remove.completed',
+    });
+  });
+
+  test('should delete subscription and trigger next job when there are subscriptions', async () => {
     await db
       .insert(subscriptionsTable)
       .values(subscription)
@@ -52,28 +65,12 @@ describe('remove-subscription', () => {
           resource: subscription.resource,
         },
       });
-  });
 
-  test('should abort removing when record not found', async () => {
     vi.spyOn(removeSubscriptionConnector, 'deleteSubscription').mockResolvedValue(null);
 
-    const [result, { step }] = setup({
-      ...setupData,
-      organisationId: '15a76301-f1dd-4a77-b12a-9d7d3fca3c92', // fake id
-    });
+    const [result, { step }] = setup({ organisationId });
 
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(removeSubscriptionConnector.deleteSubscription).toBeCalledTimes(0);
-    expect(step.sendEvent).toBeCalledTimes(0);
-  });
-
-  test('should run removeSubscription when data is valid', async () => {
-    vi.spyOn(removeSubscriptionConnector, 'deleteSubscription').mockResolvedValue(null);
-
-    const [result, { step }] = setup(setupData);
-
-    await expect(result).resolves.toBeUndefined();
+    await expect(result).resolves.toEqual({ status: 'ongoing' });
 
     expect(removeSubscriptionConnector.deleteSubscription).toBeCalledTimes(1);
     expect(removeSubscriptionConnector.deleteSubscription).toBeCalledWith(
@@ -81,13 +78,13 @@ describe('remove-subscription', () => {
       subscriptionId
     );
 
+    const subscriptions = await db.select({ id: subscriptionsTable.id }).from(subscriptionsTable);
+    expect(subscriptions.length).toStrictEqual(0);
+
     expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('remove-subscription-completed', {
-      name: 'teams/subscriptions.remove.completed',
-      data: {
-        subscriptionId,
-        organisationId,
-      },
+    expect(step.sendEvent).toBeCalledWith('remove-organisation-subscriptions', {
+      data: { organisationId },
+      name: 'teams/subscriptions.remove.triggered',
     });
   });
 });

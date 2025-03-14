@@ -25,10 +25,6 @@ const subscriptionsArray = Array.from({ length: 5 }, (_, i) => ({
   changeType: 'created,updated,deleted',
 }));
 
-const selectSubscriptions = Array.from({ length: 5 }, (_, i) => ({
-  subscriptionId: `subscription-id-${i}`,
-}));
-
 const setup = createInngestFunctionMock(removeOrganisation, 'teams/app.uninstalled');
 
 describe('remove-organisation', () => {
@@ -50,31 +46,22 @@ describe('remove-organisation', () => {
 
     await expect(result).resolves.toBeUndefined();
 
-    expect(step.waitForEvent).toBeCalledTimes(selectSubscriptions.length);
+    expect(step.waitForEvent).toBeCalledTimes(1);
 
-    for (const [i, subscription] of selectSubscriptions.entries()) {
-      expect(step.waitForEvent).toHaveBeenNthCalledWith(
-        i + 1,
-        `wait-for-remove-subscription-complete-${subscription.subscriptionId}`,
-        {
-          event: 'teams/subscriptions.remove.completed',
-          timeout: '30d',
-          if: `async.data.organisationId == '${organisation.id}' && async.data.subscriptionId == '${subscription.subscriptionId}'`,
-        }
-      );
-    }
+    expect(step.waitForEvent).toHaveBeenCalledWith(
+      `wait-for-remove-organisation-subscriptions-complete`,
+      {
+        event: 'teams/subscriptions.remove.completed',
+        timeout: '30d',
+        if: `async.data.organisationId == '${organisation.id}'`,
+      }
+    );
 
     expect(step.sendEvent).toHaveBeenCalledTimes(1);
-    expect(step.sendEvent).toHaveBeenCalledWith(
-      'subscription-remove-triggered',
-      selectSubscriptions.map(({ subscriptionId }) => ({
-        name: 'teams/subscriptions.remove.triggered',
-        data: {
-          organisationId: organisation.id,
-          subscriptionId,
-        },
-      }))
-    );
+    expect(step.sendEvent).toHaveBeenCalledWith('subscription-remove-triggered', {
+      name: 'teams/subscriptions.remove.triggered',
+      data: { organisationId: organisation.id },
+    });
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
