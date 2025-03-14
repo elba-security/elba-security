@@ -14,26 +14,25 @@ export const removeOrganisation = inngest.createFunction(
   {
     event: 'teams/app.uninstalled',
   },
-  async ({ event, step }) => {
+  async ({ event, step, logger }) => {
     const { organisationId } = event.data;
+    logger.info(`Removing organisation ${organisationId}`);
     const [organisation] = await db
-      .select({
-        region: organisationsTable.region,
-        token: organisationsTable.token,
-      })
+      .select({ region: organisationsTable.region })
       .from(organisationsTable)
       .where(eq(organisationsTable.id, organisationId));
 
     if (!organisation) {
+      logger.info('Organisation not found');
       throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
     }
 
     const subscriptions = await db
-      .select({
-        subscriptionId: subscriptionsTable.id,
-      })
+      .select({ subscriptionId: subscriptionsTable.id })
       .from(subscriptionsTable)
       .where(eq(subscriptionsTable.organisationId, organisationId));
+
+    logger.info('Organisation subscriptions', { organisation, subscriptions });
 
     if (subscriptions.length) {
       await Promise.all([
