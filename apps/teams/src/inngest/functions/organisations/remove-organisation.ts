@@ -4,7 +4,6 @@ import { db } from '@/database/client';
 import { env } from '@/env';
 import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { createElbaClient } from '@/connectors/elba/client';
-import { deleteSubscription } from '@/connectors/microsoft/subscriptions/subscriptions';
 import { inngest } from '../../client';
 
 export const removeOrganisation = inngest.createFunction(
@@ -15,7 +14,7 @@ export const removeOrganisation = inngest.createFunction(
   {
     event: 'teams/app.uninstalled',
   },
-  async ({ event }) => {
+  async ({ event, step }) => {
     const { organisationId } = event.data;
     const [organisation] = await db
       .select({
@@ -37,11 +36,25 @@ export const removeOrganisation = inngest.createFunction(
       .where(eq(subscriptionsTable.organisationId, organisationId));
 
     if (subscriptions.length) {
-      await Promise.allSettled(
-        subscriptions.map((subscription) =>
-          deleteSubscription(organisation.token, subscription.subscriptionId)
-        )
-      );
+      await Promise.all([
+        ...subscriptions.map(({ subscriptionId }) =>
+          step.waitForEvent(`wait-for-remove-subscription-complete-${subscriptionId}`, {
+            event: 'teams/subscriptions.remove.completed',
+            timeout: '30d',
+            if: `async.data.organisationId == '${organisationId}' && async.data.subscriptionId == '${subscriptionId}'`,
+          })
+        ),
+        step.sendEvent(
+          'subscription-remove-triggered',
+          subscriptions.map(({ subscriptionId }) => ({
+            name: 'teams/subscriptions.remove.triggered',
+            data: {
+              organisationId,
+              subscriptionId,
+            },
+          }))
+        ),
+      ]);
     }
 
     const elba = createElbaClient(organisationId, organisation.region);

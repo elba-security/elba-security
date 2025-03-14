@@ -137,6 +137,18 @@ export const inngest = new Inngest({
         organisationId: string;
       };
     };
+    'teams/subscriptions.remove.triggered': {
+      data: {
+        subscriptionId: string;
+        organisationId: string;
+      };
+    };
+    'teams/subscriptions.remove.completed': {
+      data: {
+        subscriptionId: string;
+        organisationId: string;
+      };
+    };
   }>(),
   middleware: [
     rateLimitMiddleware,

@@ -1,13 +1,15 @@
-import { createSubscriptionToChannels } from '@/inngest/functions/subscriptions/create-subscription-to-channels';
-import { createSubscriptionToChannelMessages } from '@/inngest/functions/subscriptions/create-subscription-to-channel-messages';
-import { refreshSubscription } from '@/inngest/functions/subscriptions/refresh-subscription';
-import { startRecreateSubscriptionsForOrganisations } from '@/inngest/functions/subscriptions/start-recreate-subscriptions-for-organisations';
-import { recreateSubscriptionsForOrganisation } from '@/inngest/functions/subscriptions/recreate-subscriptions-for-organisation';
+import { createSubscriptionToChannels } from './create-subscription-to-channels';
+import { createSubscriptionToChannelMessages } from './create-subscription-to-channel-messages';
+import { refreshSubscription } from './refresh-subscription';
+import { startRecreateSubscriptionsForOrganisations } from './start-recreate-subscriptions-for-organisations';
+import { recreateSubscriptionsForOrganisation } from './recreate-subscriptions-for-organisation';
+import { removeSubscription } from './remove-subscription';
 
 export const subscriptionsFunctions = [
-  createSubscriptionToChannels,
   createSubscriptionToChannelMessages,
-  refreshSubscription,
-  startRecreateSubscriptionsForOrganisations,
+  createSubscriptionToChannels,
   recreateSubscriptionsForOrganisation,
+  refreshSubscription,
+  removeSubscription,
+  startRecreateSubscriptionsForOrganisations,
 ];
