@@ -19,7 +19,6 @@
     "@elba-security/nango": "workspace:*",
     "@elba-security/nextjs": "workspace:*",
     "@elba-security/sdk": "workspace:*",
-    "date-fns": "^3.2.0",
     "inngest": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
@@ -37,7 +36,6 @@
     "@types/react-dom": "catalog:",
     "dotenv": "catalog:",
     "eslint": "catalog:",
-    "inngest-cli": "catalog:",
     "msw": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

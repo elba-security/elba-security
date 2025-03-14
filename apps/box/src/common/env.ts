@@ -25,6 +25,7 @@ export const env = z
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     ENCRYPTION_KEY: z.string().min(1),
+    TOKEN_REFRESH_CRON: z.string().default('*/30 * * * *'),
     TOKEN_REFRESH_MAX_RETRY: zEnvRetry(),
     VERCEL_ENV: z.string().min(1).optional(),
   })

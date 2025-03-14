@@ -49,16 +49,11 @@ describe('refresh-token', () => {
       expiresAt,
     });
 
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      expiresAt: new Date(expiresAt).getTime(),
-    });
+    const [result] = setup({ organisationId: organisation.id });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(authConnector.getRefreshToken).toBeCalledTimes(0);
-
-    expect(step.sendEvent).toBeCalledTimes(0);
   });
 
   test('should update encrypted tokens and schedule the next refresh', async () => {
@@ -69,10 +64,7 @@ describe('refresh-token', () => {
       expiresAt,
     });
 
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      expiresAt: new Date(expiresAt).getTime(),
-    });
+    const [result] = setup({ organisationId: organisation.id });
 
     await expect(result).resolves.toBe(undefined);
 
@@ -92,14 +84,5 @@ describe('refresh-token', () => {
 
     expect(authConnector.getRefreshToken).toBeCalledTimes(1);
     expect(authConnector.getRefreshToken).toBeCalledWith(newTokens.refreshToken, installationId);
-
-    expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('next-refresh', {
-      name: 'sentry/token.refresh.requested',
-      data: {
-        organisationId: organisation.id,
-        expiresAt: new Date(expiresAt).getTime(),
-      },
-    });
   });
 });

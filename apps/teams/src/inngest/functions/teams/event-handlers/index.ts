@@ -1,12 +1,12 @@
-import { channelCreatedHandler } from '@/inngest/functions/teams/event-handlers/channel-created';
 import type { TeamsWebhookHandlerContext } from '@/inngest/functions/teams/handle-team-webhook-event';
-import { channelDeletedHandler } from '@/inngest/functions/teams/event-handlers/channel-deleted';
 import type { WebhookPayload } from '@/app/api/webhooks/microsoft/event-handler/service';
 import { EventType } from '@/app/api/webhooks/microsoft/event-handler/service';
-import { messageCreatedOrUpdatedHandler } from '@/inngest/functions/teams/event-handlers/message-created-updated';
-import { replyCreatedOrUpdatedHandler } from '@/inngest/functions/teams/event-handlers/reply-created-updated';
-import { messageDeletedHandler } from '@/inngest/functions/teams/event-handlers/message-deleted';
-import { replyDeletedHandler } from '@/inngest/functions/teams/event-handlers/reply-deleted';
+import { channelDeletedHandler } from './channel-deleted';
+import { channelCreatedHandler } from './channel-created';
+import { messageCreatedOrUpdatedHandler } from './message-created-updated';
+import { replyCreatedOrUpdatedHandler } from './reply-created-updated';
+import { messageDeletedHandler } from './message-deleted';
+import { replyDeletedHandler } from './reply-deleted';
 
 export type TeamsEventHandler = (
   event: WebhookPayload,

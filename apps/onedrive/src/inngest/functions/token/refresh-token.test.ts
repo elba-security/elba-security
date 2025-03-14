@@ -1,4 +1,4 @@
-import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
+import { expect, test, describe, vi } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
@@ -20,38 +20,22 @@ const organisation = {
   region: 'us',
 };
 
-const now = new Date();
-// current token expires in an hour
-const expiresAt = now.getTime() + 60 * 1000;
-// next token duration
 const expiresIn = 60 * 1000;
 
 const setup = createInngestFunctionMock(refreshToken, 'onedrive/token.refresh.requested');
 
 describe('refresh-token', () => {
-  beforeAll(() => {
-    vi.setSystemTime(now);
-  });
-
-  afterAll(() => {
-    vi.useRealTimers();
-  });
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(authConnector, 'getToken').mockResolvedValue({
       token: newToken,
       expiresIn,
     });
 
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      expiresAt,
-    });
+    const [result] = setup({ organisationId: organisation.id });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(authConnector.getToken).toBeCalledTimes(0);
-
-    expect(step.sendEvent).toBeCalledTimes(0);
   });
 
   test('should update encrypted token and schedule the next refresh', async () => {
@@ -61,10 +45,7 @@ describe('refresh-token', () => {
       expiresIn,
     });
 
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      expiresAt,
-    });
+    const [result] = setup({ organisationId: organisation.id });
 
     await expect(result).resolves.toBe(undefined);
 
@@ -76,21 +57,5 @@ describe('refresh-token', () => {
 
     expect(authConnector.getToken).toBeCalledTimes(1);
     expect(authConnector.getToken).toBeCalledWith(organisation.tenantId);
-
-    expect(step.sleepUntil).toBeCalledTimes(1);
-    expect(step.sleepUntil).toBeCalledWith(
-      'wait-before-expiration',
-      new Date(expiresAt - 15 * 60 * 1000)
-    );
-
-    // check that the function continue the pagination process
-    expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('next-refresh', {
-      name: 'onedrive/token.refresh.requested',
-      data: {
-        organisationId: organisation.id,
-        expiresAt: now.getTime() + expiresIn * 1000,
-      },
-    });
   });
 });

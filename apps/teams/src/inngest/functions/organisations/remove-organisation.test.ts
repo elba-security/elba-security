@@ -1,4 +1,4 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
@@ -6,7 +6,6 @@ import { db } from '@/database/client';
 import { organisationsTable, subscriptionsTable } from '@/database/schema';
 import { env } from '@/env';
 import { encrypt } from '@/common/crypto';
-import * as subscriptionConnector from '@/connectors/microsoft/subscriptions/subscriptions';
 import { removeOrganisation } from './remove-organisation';
 
 const token = 'token';
@@ -47,19 +46,36 @@ describe('remove-organisation', () => {
     await db.insert(organisationsTable).values(organisation);
     await db.insert(subscriptionsTable).values(subscriptionsArray);
 
-    const deleteSubscription = vi
-      .spyOn(subscriptionConnector, 'deleteSubscription')
-      // @ts-expect-error -- this is a mock
-      .mockResolvedValue(undefined);
-
-    const [result] = setup({ organisationId: organisation.id });
+    const [result, { step }] = setup({ organisationId: organisation.id });
 
     await expect(result).resolves.toBeUndefined();
 
-    selectSubscriptions.forEach((subscription) => {
-      expect(deleteSubscription).toBeCalledWith(organisation.token, subscription.subscriptionId);
-    });
-    expect(deleteSubscription).toBeCalledTimes(5);
+    expect(step.waitForEvent).toBeCalledTimes(selectSubscriptions.length);
+
+    for (const [i, subscription] of selectSubscriptions.entries()) {
+      expect(step.waitForEvent).toHaveBeenNthCalledWith(
+        i + 1,
+        `wait-for-remove-subscription-complete-${subscription.subscriptionId}`,
+        {
+          event: 'teams/subscriptions.remove.completed',
+          timeout: '30d',
+          if: `async.data.organisationId == '${organisation.id}' && async.data.subscriptionId == '${subscription.subscriptionId}'`,
+        }
+      );
+    }
+
+    expect(step.sendEvent).toHaveBeenCalledTimes(1);
+    expect(step.sendEvent).toHaveBeenCalledWith(
+      'subscription-remove-triggered',
+      selectSubscriptions.map(({ subscriptionId }) => ({
+        name: 'teams/subscriptions.remove.triggered',
+        data: {
+          organisationId: organisation.id,
+          subscriptionId,
+        },
+      }))
+    );
+
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
       organisationId: organisation.id,

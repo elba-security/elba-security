@@ -1,4 +1,3 @@
-import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -17,7 +16,7 @@ export const setupOrganisation = async ({
   region,
   tenantId,
 }: SetupOrganisationParams) => {
-  const { token, expiresIn } = await getToken(tenantId);
+  const { token } = await getToken(tenantId);
 
   try {
     // we test the installaton: microsoft API takes time to propagate it through its services
@@ -53,13 +52,6 @@ export const setupOrganisation = async ({
         isFirstSync: true,
         syncStartedAt: Date.now(),
         skipToken: null,
-      },
-    },
-    {
-      name: 'sharepoint/token.refresh.requested',
-      data: {
-        organisationId,
-        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
       },
     },
   ]);

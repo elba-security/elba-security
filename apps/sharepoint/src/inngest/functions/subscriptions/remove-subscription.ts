@@ -11,15 +11,19 @@ export const removeSubscription = inngest.createFunction(
     id: 'sharepoint-remove-subscription',
     cancelOn: [
       {
-        event: 'sharepoint/app.uninstalled',
-        match: 'data.organisationId',
-      },
-      {
         event: 'sharepoint/app.installed',
         match: 'data.organisationId',
       },
     ],
     retries: 5,
+    onFailure: async ({ event, step }) => {
+      const { organisationId, subscriptionId } = event.data.event.data;
+
+      await step.sendEvent('subscription-removal-failed', {
+        name: 'sharepoint/subscriptions.remove.completed',
+        data: { organisationId, subscriptionId },
+      });
+    },
   },
   { event: 'sharepoint/subscriptions.remove.triggered' },
   async ({ event, step }) => {

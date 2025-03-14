@@ -26,7 +26,6 @@ export const inngest = new Inngest({
     'box/token.refresh.requested': {
       data: {
         organisationId: string;
-        expiresAt: number;
       };
     };
     'box/users.delete.requested': {
