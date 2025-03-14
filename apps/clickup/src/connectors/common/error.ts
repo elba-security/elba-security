@@ -13,8 +13,6 @@ export class ClickUpError extends Error {
   }
 }
 
-export class ClickUpNotAdminError extends ClickUpError {}
-
 export class ClickUpMultipleWorkspaceError extends ClickUpError {}
 
 export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
@@ -23,9 +21,6 @@ export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   }
   if (error instanceof ClickUpError && error.response?.status === 401) {
     return 'unauthorized';
-  }
-  if (error instanceof ClickUpNotAdminError) {
-    return 'not_admin';
   }
   if (error instanceof ClickUpMultipleWorkspaceError) {
     return 'multiple_workspaces_not_supported';
