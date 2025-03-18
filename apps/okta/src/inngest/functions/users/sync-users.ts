@@ -29,7 +29,7 @@ const formatElbaUser = ({
   authMethod: undefined,
   additionalEmails: [],
   isSuspendable: user.id !== ownerId,
-  url: `https://${subDomain}-admin.okta.com/admin/users/`,
+  url: `https://${subDomain}-admin.okta.com/admin/user/profile/view/${user.id}`,
 });
 
 export const syncUsers = inngest.createFunction(

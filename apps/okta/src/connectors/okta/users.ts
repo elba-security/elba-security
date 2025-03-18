@@ -25,6 +25,12 @@ export type GetAuthUserParams = {
   subDomain: string;
 };
 
+export type DeleteUsersParams = {
+  token: string;
+  userId: string;
+  subDomain: string;
+};
+
 export type OktaUser = z.infer<typeof oktaUserSchema>;
 
 export const getUsers = async ({ token, subDomain, page }: GetUsersParams) => {
@@ -87,4 +93,18 @@ export const getAuthUser = async ({ token, subDomain }: GetAuthUserParams) => {
   }
 
   return result.data.id;
+};
+
+export const deleteUser = async ({ userId, token, subDomain }: DeleteUsersParams) => {
+  const response = await fetch(`https://${subDomain}.okta.com/api/v1/users/${userId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok && response.status !== 404) {
+    throw new OktaError(`Could not delete user with Id: ${userId}`, { response });
+  }
 };
