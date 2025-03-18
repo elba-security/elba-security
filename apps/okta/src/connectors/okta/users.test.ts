@@ -6,31 +6,44 @@ import { OktaError } from '../common/error';
 import { getUsers, getAuthUser, type OktaUser } from './users';
 
 const validToken = 'token-1234';
-const subDomain = 'test-org-id';
-const endPageToken = 'end-page-token';
-const nextPageToken = 'next-page-token';
+const subDomain = 'test-subdomain';
+const endPage = 'end-page';
+const nextPage = 'http://test-subdomain.okta.com/api/v1/users?limit=10&after=next-page';
 
-const validUsers: OktaUser[] = Array.from({ length: 5 }, (_, i) => ({
-  id: `id-${i}`,
-  email: `user-${i}@foo.bar`,
-}));
+const validUsers: OktaUser[] = [
+  {
+    id: 'user-id',
+    profile: {
+      firstName: 'first-name',
+      lastName: 'last-name',
+      email: 'test-user-@foo.bar',
+    },
+  },
+];
 
 const invalidUsers = [];
 
 describe('getUsers', () => {
   beforeEach(() => {
     server.use(
-      http.get(`${env.OKTA_API_BASE_URL}/v2/orgs/${subDomain}/members`, ({ request }) => {
+      http.get(`https://${subDomain}.okta.com/api/v1/users`, ({ request }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
         const url = new URL(request.url);
-        const cursor = url.searchParams.get('cursor');
-        const responseData = {
-          data: validUsers,
-          cursor: cursor === endPageToken ? null : nextPageToken,
-        };
-        return Response.json(responseData);
+        const after = url.searchParams.get('after');
+
+        let linkHeader = '';
+
+        if (after !== endPage) {
+          linkHeader += `<http://${subDomain}.okta.com/api/v1/users?limit=${env.OKTA_USERS_SYNC_BATCH_SIZE}&after=next-page>; rel="next";`;
+        }
+
+        return Response.json(validUsers, {
+          headers: {
+            link: linkHeader,
+          },
+        });
       })
     );
   });
@@ -43,7 +56,7 @@ describe('getUsers', () => {
     expect(result).toEqual({
       validUsers,
       invalidUsers,
-      nextPage: nextPageToken,
+      nextPage,
     });
   });
 
@@ -60,14 +73,12 @@ describe('getUsers', () => {
 describe('getAuthUser', () => {
   beforeEach(() => {
     server.use(
-      http.get(`${env.OKTA_API_BASE_URL}/v1/oauth-token`, ({ request }) => {
+      http.get(`https://${subDomain}.okta.com/api/v1/users/me`, ({ request }) => {
         if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
           return new Response(undefined, { status: 401 });
         }
         const responseData = {
-          organization: {
-            id: subDomain,
-          },
+          id: 'test-auth-id',
         };
         return Response.json(responseData);
       })
@@ -75,11 +86,11 @@ describe('getAuthUser', () => {
   });
 
   test('should fetch workspaces when token is valid', async () => {
-    const result = await getAuthUser(validToken);
-    expect(result).toEqual(subDomain);
+    const result = await getAuthUser({ token: validToken, subDomain });
+    expect(result).toEqual('test-auth-id');
   });
 
   test('should throw OktaError when token is invalid', async () => {
-    await expect(getAuthUser('invalidToken')).rejects.toThrowError(OktaError);
+    await expect(getAuthUser({ token: 'invalidToken', subDomain })).rejects.toThrowError(OktaError);
   });
 });

@@ -11,7 +11,11 @@ const nangoConnectionId = 'nango-connection-id';
 const validUsers: usersConnector.OktaUser[] = [
   {
     id: 'user-id',
-    email: 'test-user-@foo.bar',
+    profile: {
+      firstName: 'first-name',
+      lastName: 'last-name',
+      email: 'test-user-@foo.bar',
+    },
   },
 ];
 
@@ -25,6 +29,9 @@ describe('sync-users', () => {
     vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
       getConnection: vi.fn().mockResolvedValue({
         credentials: { access_token: 'access-token' },
+        connection_config: {
+          subdomain: 'test-sub-domain',
+        },
       }),
     }));
 
@@ -33,7 +40,7 @@ describe('sync-users', () => {
       invalidUsers,
       nextPage: null,
     });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue('org-id');
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue('auth-user-id');
 
     const [result] = setup({
       region,
