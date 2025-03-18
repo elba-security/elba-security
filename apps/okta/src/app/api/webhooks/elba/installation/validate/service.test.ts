@@ -32,7 +32,7 @@ describe('validateSourceInstallation', () => {
     }));
 
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue('workspace-id');
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue('auth-user-id');
 
     await validateSourceInstallation({
       organisationId,

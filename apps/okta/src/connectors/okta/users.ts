@@ -75,7 +75,7 @@ export const getAuthUser = async ({ token, subDomain }: GetAuthUserParams) => {
   });
 
   if (!response.ok) {
-    throw new OktaError('Failed to fetch workspaces', { response });
+    throw new OktaError('Failed to fetch auth user', { response });
   }
 
   const resData: unknown = await response.json();
@@ -83,7 +83,7 @@ export const getAuthUser = async ({ token, subDomain }: GetAuthUserParams) => {
   const result = getAuthUserSchema.safeParse(resData);
 
   if (!result.success) {
-    throw new OktaError('Invalid workspace data structure', { response });
+    throw new OktaError('Invalid auth user data structure', { response });
   }
 
   return result.data.id;

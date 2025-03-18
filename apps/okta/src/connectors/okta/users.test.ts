@@ -85,7 +85,7 @@ describe('getAuthUser', () => {
     );
   });
 
-  test('should fetch workspaces when token is valid', async () => {
+  test('should fetch auth user when token is valid', async () => {
     const result = await getAuthUser({ token: validToken, subDomain });
     expect(result).toEqual('test-auth-id');
   });
