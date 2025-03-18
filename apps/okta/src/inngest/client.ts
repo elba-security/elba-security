@@ -30,6 +30,14 @@ export const inngest = new Inngest({
         errorMetadata?: unknown;
       };
     };
+    'okta/users.delete.requested': {
+      data: {
+        organisationId: string;
+        userId: string;
+        region: string;
+        nangoConnectionId: string;
+      };
+    };
   }>(),
   middleware: [rateLimitMiddleware, elbaConnectionErrorMiddleware],
   logger,
