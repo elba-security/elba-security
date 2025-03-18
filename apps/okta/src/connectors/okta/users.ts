@@ -33,11 +33,7 @@ export const getUsers = async ({ token, subDomain, page }: GetUsersParams) => {
   url.searchParams.append('filter', 'status eq "ACTIVE"');
   url.searchParams.append('limit', `${env.OKTA_USERS_SYNC_BATCH_SIZE}`);
 
-  if (page) {
-    url.searchParams.append('cursor', page);
-  }
-
-  const response = await fetch(url.toString(), {
+  const response = await fetch(page ?? url.toString(), {
     headers: { Authorization: `Bearer ${token}` },
   });
 

@@ -8,9 +8,8 @@ export const env = z
     ELBA_API_BASE_URL: z.string().url(),
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
-    OKTA_API_BASE_URL: z.string().url().default('https://api.okta.com'),
     OKTA_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    OKTA_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
+    OKTA_USERS_SYNC_BATCH_SIZE: zEnvInt().default(10),
     NANGO_INTEGRATION_ID: z.string().min(1),
     NANGO_SECRET_KEY: z.string().min(1),
   })
