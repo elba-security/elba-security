@@ -2634,6 +2634,82 @@ importers:
         specifier: 'catalog:'
         version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
 
+  apps/okta:
+    dependencies:
+      '@elba-security/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@elba-security/inngest':
+        specifier: workspace:*
+        version: link:../../packages/inngest
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@elba-security/nango':
+        specifier: workspace:*
+        version: link:../../packages/nango
+      '@elba-security/nextjs':
+        specifier: workspace:*
+        version: link:../../packages/nextjs
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      inngest:
+        specifier: 'catalog:'
+        version: 3.25.1(@sveltejs/kit@2.5.10(@sveltejs/vite-plugin-svelte@3.1.2(svelte@5.23.0)(vite@5.3.2(@types/node@20.14.2)))(svelte@5.23.0)(vite@5.3.2(@types/node@20.14.2)))(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
+      next:
+        specifier: 'catalog:'
+        version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react:
+        specifier: 'catalog:'
+        version: 18.2.0
+      react-dom:
+        specifier: 'catalog:'
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: 'catalog:'
+        version: 3.23.8
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: 'catalog:'
+        version: 3.2.0
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: 'catalog:'
+        version: 14.2.4
+      '@types/node':
+        specifier: 'catalog:'
+        version: 20.14.2
+      '@types/react':
+        specifier: 'catalog:'
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 18.2.25
+      dotenv:
+        specifier: 'catalog:'
+        version: 16.4.5
+      eslint:
+        specifier: 'catalog:'
+        version: 8.57.0
+      msw:
+        specifier: 'catalog:'
+        version: 2.3.1(typescript@5.5.3)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.5.3
+      vitest:
+        specifier: 'catalog:'
+        version: 1.6.0(@edge-runtime/vm@3.2.0)(@types/node@20.14.2)
+
   apps/onedrive:
     dependencies:
       '@elba-security/config':
