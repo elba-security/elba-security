@@ -7,8 +7,9 @@ import { PandadocError } from '../common/error';
 import { type PandadocUser } from './users';
 import { getUsers } from './users';
 
-const startOffset = 0;
 const apiKey = 'test-api-key';
+const nextPage = 1;
+const endPage = 2;
 
 const validUsers: PandadocUser[] = Array.from(
   { length: env.PANDADOC_USERS_SYNC_BATCH_SIZE * 10 },
@@ -26,62 +27,29 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       const resolver: ResponseResolver = ({ request }) => {
-        if (request.headers.get('Authorization') !== `Bearer ${apiKey}`) {
+        if (request.headers.get('Authorization') !== `API-Key ${apiKey}`) {
           return new Response(undefined, { status: 401 });
         }
-
         const url = new URL(request.url);
-        const page = Number(url.searchParams.get('page')) || 0;
-        const limit = Number(url.searchParams.get('limit'));
-
-        const isEndReached = page + limit >= validUsers.length;
-
-        let linkHeader = '';
-
-        if (!isEndReached) {
-          linkHeader += `<http://api.pandadoc.com/v3/resource?limit=${limit}&page=${
-            page + limit
-          }>; rel="next"; title="${1 + page / limit}",`;
-        }
-
-        // prev
-        linkHeader += `<http://api.pandadoc.com/v3/resource?limit=${limit}&page=${Math.min(
-          0,
-          page - limit
-        )}>; rel="prev"; title="1",`;
-        // last
-        linkHeader += `<http://api.pandadoc.com/v3/resource?limit=${limit}&page=${
-          Math.floor(validUsers.length / limit) * limit
-        }>; rel="last"; title="${Math.floor(validUsers.length / limit)}",`;
-        // first
-        linkHeader += `<http://api.pandadoc.com/v3/resource?limit=${limit}&page=0>; rel="first"; title="1"`;
-
-        return Response.json(
-          {
-            result: validUsers.slice(page, page + limit),
-          },
-          {
-            headers: {
-              Link: linkHeader,
-            },
-          }
-        );
+        const page = url.searchParams.get('page') || '1';
+        const responseData = {
+          results: page === String(endPage) ? [] : validUsers,
+        };
+        return Response.json(responseData);
       };
-      server.use(http.get(`${env.PANDADOC_API_BASE_URL}/v3/teammates`, resolver));
+      server.use(http.get(`${env.PANDADOC_API_BASE_URL}/public/v1/users`, resolver));
     });
-
     test('should return users and nextPage when the key is valid and their is another page', async () => {
-      await expect(getUsers({ apiKey, page: startOffset })).resolves.toStrictEqual({
-        validUsers: validUsers.slice(startOffset, startOffset + env.PANDADOC_USERS_SYNC_BATCH_SIZE),
+      await expect(getUsers({ apiKey, page: nextPage })).resolves.toStrictEqual({
+        validUsers,
         invalidUsers,
-        nextPage: startOffset + env.PANDADOC_USERS_SYNC_BATCH_SIZE,
+        nextPage: nextPage + 1,
       });
     });
 
     test('should return users and no nextPage when the key is valid and their is no other page', async () => {
-      const page = validUsers.length - Math.floor(env.PANDADOC_USERS_SYNC_BATCH_SIZE / 2);
-      await expect(getUsers({ apiKey, page })).resolves.toStrictEqual({
-        validUsers: validUsers.slice(page, validUsers.length),
+      await expect(getUsers({ apiKey, page: endPage })).resolves.toStrictEqual({
+        validUsers: [],
         invalidUsers,
         nextPage: null,
       });
@@ -91,7 +59,7 @@ describe('users connector', () => {
       await expect(
         getUsers({
           apiKey: 'foo-id',
-          page: 0,
+          page: 1,
         })
       ).rejects.toBeInstanceOf(PandadocError);
     });

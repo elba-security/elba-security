@@ -13,7 +13,6 @@ export type PandadocUser = z.infer<typeof pandadocUserSchema>;
 
 const pandadocResponseSchema = z.object({
   results: z.array(z.unknown()),
-  total: z.number(),
 });
 
 export type GetUsersParams = {

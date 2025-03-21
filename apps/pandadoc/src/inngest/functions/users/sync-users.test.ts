@@ -10,11 +10,10 @@ const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 
 const users: usersConnector.PandadocUser[] = Array.from({ length: 2 }, (_, i) => ({
-  username: `username-${i}`,
+  user_id: `user_id-${i}`,
   email: `user-${i}@foo.bar`,
   first_name: `first_name-${i}`,
   last_name: `last_name-${i}`,
-  user_type: 'teammate',
 }));
 
 const syncStartedAt = Date.now();
