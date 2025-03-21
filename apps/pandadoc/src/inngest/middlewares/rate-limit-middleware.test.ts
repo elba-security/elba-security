@@ -4,7 +4,7 @@ import { PandadocError } from '@/connectors/common/error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
 describe('rateLimitMiddleware', () => {
-  test('should not transform the output when their is no error', () => {
+  test('should not transform the output when there is no error', () => {
     expect(
       rateLimitMiddleware
         .init()
