@@ -1,4 +1,3 @@
-import { addSeconds } from 'date-fns/addSeconds';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
@@ -35,7 +34,7 @@ export const setupOrganisation = async ({ workspaceId }: SetupOrganisationParams
     throw new Error('Invalid auth cookie');
   }
 
-  const { organisationId, accessToken, refreshToken, expiresIn, region } = result.data;
+  const { organisationId, accessToken, refreshToken, region } = result.data;
 
   const { hasValidSecuritySettings } = await checkWorkspaceSetting({ accessToken, workspaceId });
 
@@ -84,13 +83,6 @@ export const setupOrganisation = async ({ workspaceId }: SetupOrganisationParams
       name: 'azuredevops/app.installed',
       data: {
         organisationId,
-      },
-    },
-    {
-      name: 'azuredevops/token.refresh.requested',
-      data: {
-        organisationId,
-        expiresAt: addSeconds(new Date(), parseInt(expiresIn, 10)).getTime(),
       },
     },
   ]);

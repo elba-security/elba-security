@@ -26,7 +26,6 @@ export const inngest = new Inngest({
     'gusto/token.refresh.requested': {
       data: {
         organisationId: string;
-        expiresAt: number;
       };
     };
     'gusto/users.delete.requested': {

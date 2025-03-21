@@ -11,15 +11,19 @@ export const removeSubscription = inngest.createFunction(
     id: 'onedrive-remove-subscription',
     cancelOn: [
       {
-        event: 'onedrive/app.uninstalled',
-        match: 'data.organisationId',
-      },
-      {
         event: 'onedrive/app.installed',
         match: 'data.organisationId',
       },
     ],
     retries: 5,
+    onFailure: async ({ event, step }) => {
+      const { organisationId, subscriptionId } = event.data.event.data;
+
+      await step.sendEvent('subscription-removal-failed', {
+        name: 'onedrive/subscriptions.remove.completed',
+        data: { organisationId, subscriptionId },
+      });
+    },
   },
   { event: 'onedrive/subscriptions.remove.triggered' },
   async ({ event, step }) => {

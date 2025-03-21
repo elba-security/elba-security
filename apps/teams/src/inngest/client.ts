@@ -28,7 +28,6 @@ export const inngest = new Inngest({
     'teams/token.refresh.requested': {
       data: {
         organisationId: string;
-        expiresAt: number;
       };
     };
     'teams/users.sync.requested': {
@@ -135,6 +134,18 @@ export const inngest = new Inngest({
     };
     'teams/subscriptions.recreate.requested': {
       data: {
+        organisationId: string;
+      };
+    };
+    'teams/subscriptions.remove.triggered': {
+      data: {
+        subscriptionId: string;
+        organisationId: string;
+      };
+    };
+    'teams/subscriptions.remove.completed': {
+      data: {
+        subscriptionId: string;
         organisationId: string;
       };
     };

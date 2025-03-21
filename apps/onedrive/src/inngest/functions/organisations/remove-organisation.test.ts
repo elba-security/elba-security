@@ -47,19 +47,29 @@ describe('remove-organisation', () => {
 
     expect(step.waitForEvent).toBeCalledTimes(oneDrives.length);
 
-    for (let i = 0; i < oneDrives.length; i++) {
-      const oneDrive = oneDrives[i];
-
+    for (const [i, subscription] of oneDrives.entries()) {
       expect(step.waitForEvent).nthCalledWith(
         i + 1,
-        `wait-for-remove-subscription-complete-${oneDrive?.subscriptionId}`,
+        `wait-for-remove-subscription-complete-${subscription.subscriptionId}`,
         {
           event: 'onedrive/subscriptions.remove.completed',
           timeout: '30d',
-          if: `async.data.organisationId == '${oneDrive?.organisationId}' && async.data.subscriptionId == '${oneDrive?.subscriptionId}'`,
+          if: `async.data.organisationId == '${subscription.organisationId}' && async.data.subscriptionId == '${subscription.subscriptionId}'`,
         }
       );
     }
+
+    expect(step.sendEvent).toHaveBeenCalledTimes(1);
+    expect(step.sendEvent).toHaveBeenCalledWith(
+      'subscription-remove-triggered',
+      oneDrives.map(({ organisationId, subscriptionId }) => ({
+        name: 'onedrive/subscriptions.remove.triggered',
+        data: {
+          organisationId,
+          subscriptionId,
+        },
+      }))
+    );
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({

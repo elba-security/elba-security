@@ -84,13 +84,6 @@ describe('setupOrganisation', () => {
           region,
         },
       },
-      {
-        name: 'sentry/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: new Date(expiresAt).getTime(),
-        },
-      },
     ]);
   });
 
@@ -137,13 +130,6 @@ describe('setupOrganisation', () => {
         data: {
           organisationId: organisation.id,
           region,
-        },
-      },
-      {
-        name: 'sentry/token.refresh.requested',
-        data: {
-          organisationId: organisation.id,
-          expiresAt: new Date(expiresAt).getTime(),
         },
       },
     ]);

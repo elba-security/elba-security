@@ -1,7 +1,5 @@
-import { subMinutes } from 'date-fns/subMinutes';
 import { and, eq } from 'drizzle-orm';
 import { NonRetriableError } from 'inngest';
-import { failureRetry } from '@elba-security/inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -26,57 +24,41 @@ export const refreshToken = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
-    onFailure: failureRetry(),
     middleware: [unauthorizedMiddleware],
     retries: 5,
   },
   { event: 'sentry/token.refresh.requested' },
-  async ({ event, step }) => {
-    const { organisationId, expiresAt } = event.data;
+  async ({ event }) => {
+    const { organisationId } = event.data;
 
-    await step.sleepUntil('wait-before-expiration', subMinutes(expiresAt, 30));
+    const [organisation] = await db
+      .select({
+        refreshToken: organisationsTable.refreshToken,
+        installationId: organisationsTable.installationId,
+      })
+      .from(organisationsTable)
+      .where(and(eq(organisationsTable.id, organisationId)));
 
-    const nextExpiresAt = await step.run('refresh-token', async () => {
-      const [organisation] = await db
-        .select({
-          refreshToken: organisationsTable.refreshToken,
-          installationId: organisationsTable.installationId,
-        })
-        .from(organisationsTable)
-        .where(and(eq(organisationsTable.id, organisationId)));
+    if (!organisation) {
+      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+    }
 
-      if (!organisation) {
-        throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-      }
+    const refreshTokenInfo = await decrypt(organisation.refreshToken);
 
-      const refreshTokenInfo = await decrypt(organisation.refreshToken);
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await getRefreshToken(
+      refreshTokenInfo,
+      organisation.installationId
+    );
 
-      const {
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
-        expiresAt: tokenExpiresAt,
-      } = await getRefreshToken(refreshTokenInfo, organisation.installationId);
+    const encryptedAccessToken = await encrypt(newAccessToken);
+    const encryptedRefreshToken = await encrypt(newRefreshToken);
 
-      const encryptedAccessToken = await encrypt(newAccessToken);
-      const encryptedRefreshToken = await encrypt(newRefreshToken);
-
-      await db
-        .update(organisationsTable)
-        .set({
-          accessToken: encryptedAccessToken,
-          refreshToken: encryptedRefreshToken,
-        })
-        .where(eq(organisationsTable.id, organisationId));
-
-      return new Date(tokenExpiresAt).getTime();
-    });
-
-    await step.sendEvent('next-refresh', {
-      name: 'sentry/token.refresh.requested',
-      data: {
-        organisationId,
-        expiresAt: new Date(nextExpiresAt).getTime(),
-      },
-    });
+    await db
+      .update(organisationsTable)
+      .set({
+        accessToken: encryptedAccessToken,
+        refreshToken: encryptedRefreshToken,
+      })
+      .where(eq(organisationsTable.id, organisationId));
   }
 );

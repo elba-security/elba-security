@@ -1,4 +1,4 @@
-import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
+import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { NonRetriableError } from 'inngest';
 import { eq } from 'drizzle-orm';
@@ -26,39 +26,24 @@ const organisation = {
   authUserId: 'test-auth-user-id',
   region: 'us',
 };
-const now = new Date();
-// current token expires in an hour
-const expiresAt = now.getTime() + 60 * 1000;
+
 // next token duration
 const expiresIn = 60 * 1000;
 
 const setup = createInngestFunctionMock(refreshToken, 'box/token.refresh.requested');
 
 describe('refresh-token', () => {
-  beforeAll(() => {
-    vi.setSystemTime(now);
-  });
-
-  afterAll(() => {
-    vi.useRealTimers();
-  });
-
   test('should abort sync when organisation is not registered', async () => {
     vi.spyOn(authConnector, 'getRefreshToken').mockResolvedValue({
       ...newTokens,
       expiresIn,
     });
 
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      expiresAt,
-    });
+    const [result] = setup({ organisationId: organisation.id });
 
     await expect(result).rejects.toBeInstanceOf(NonRetriableError);
 
     expect(authConnector.getRefreshToken).toBeCalledTimes(0);
-
-    expect(step.sendEvent).toBeCalledTimes(0);
   });
 
   test('should update encrypted tokens and schedule the next refresh', async () => {
@@ -69,10 +54,7 @@ describe('refresh-token', () => {
       expiresIn,
     });
 
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      expiresAt,
-    });
+    const [result] = setup({ organisationId: organisation.id });
 
     await expect(result).resolves.toBe(undefined);
 
@@ -92,14 +74,5 @@ describe('refresh-token', () => {
 
     expect(authConnector.getRefreshToken).toBeCalledTimes(1);
     expect(authConnector.getRefreshToken).toBeCalledWith(newTokens.refreshToken);
-
-    expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('next-refresh', {
-      name: 'box/token.refresh.requested',
-      data: {
-        organisationId: organisation.id,
-        expiresAt: now.getTime() + expiresIn * 1000,
-      },
-    });
   });
 });

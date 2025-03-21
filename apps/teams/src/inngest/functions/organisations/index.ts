@@ -1,3 +1,3 @@
-import { removeOrganisation } from '@/inngest/functions/organisations/remove-organisation';
+import { removeOrganisation } from './remove-organisation';
 
 export const organisationsFunctions = [removeOrganisation];

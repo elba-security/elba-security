@@ -1,4 +1,3 @@
-import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/gusto/auth';
@@ -17,7 +16,7 @@ export const setupOrganisation = async ({
   code,
   region,
 }: SetupOrganisationParams) => {
-  const { accessToken, refreshToken, expiresIn } = await getToken(code);
+  const { accessToken, refreshToken } = await getToken(code);
   const { companyId, adminId } = await getTokenInfo(accessToken);
   const { authUserEmail } = await getAuthUser({ accessToken, adminId, companyId });
 
@@ -59,13 +58,6 @@ export const setupOrganisation = async ({
       name: 'gusto/app.installed',
       data: {
         organisationId,
-      },
-    },
-    {
-      name: 'gusto/token.refresh.requested',
-      data: {
-        organisationId,
-        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
       },
     },
   ]);

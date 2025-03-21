@@ -17,6 +17,7 @@
     "drizzle-kit": "catalog:",
     "eslint": "catalog:",
     "husky": "^8.0.3",
+    "inngest-cli": "catalog:",
     "lint-staged": "^15.2.2",
     "prettier": "^3.0.3",
     "turbo": "latest"

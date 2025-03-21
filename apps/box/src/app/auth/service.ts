@@ -1,4 +1,3 @@
-import { addSeconds } from 'date-fns/addSeconds';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { getToken } from '@/connectors/box/auth';
@@ -17,7 +16,7 @@ export const setupOrganisation = async ({
   code,
   region,
 }: SetupOrganisationParams) => {
-  const { accessToken, refreshToken, expiresIn } = await getToken(code);
+  const { accessToken, refreshToken } = await getToken(code);
   const { authUserId } = await getAuthUser({ accessToken });
 
   const encryptedAccessToken = await encrypt(accessToken);
@@ -57,13 +56,6 @@ export const setupOrganisation = async ({
       data: {
         organisationId,
         region,
-      },
-    },
-    {
-      name: 'box/token.refresh.requested',
-      data: {
-        organisationId,
-        expiresAt: addSeconds(new Date(), expiresIn).getTime(),
       },
     },
   ]);

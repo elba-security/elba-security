@@ -8,6 +8,7 @@ import { scheduleAppsSyncs } from './third-party-apps/schedule-apps-syncs';
 import { scheduleUsersSyncs } from './users/schedule-users-syncs';
 import { syncApps } from './third-party-apps/sync-apps';
 import { syncUsers } from './users/sync-users';
+import { scheduleTokenRefresh } from './token/schedule-token-refresh';
 
 export const inngestFunctions = [
   getAppOauthGrants,
@@ -17,6 +18,7 @@ export const inngestFunctions = [
   removeOrganisation,
   revokeAppPermission,
   scheduleAppsSyncs,
+  scheduleTokenRefresh,
   scheduleUsersSyncs,
   syncApps,
   syncUsers,
