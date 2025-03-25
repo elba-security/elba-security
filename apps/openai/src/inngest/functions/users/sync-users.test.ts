@@ -59,7 +59,7 @@ describe('sync-users', () => {
     expect(usersConnector.getUsers).toBeCalledTimes(1);
     expect(usersConnector.getUsers).toBeCalledWith({
       apiKey,
-      organizationId,
+      page: null,
     });
   });
 });

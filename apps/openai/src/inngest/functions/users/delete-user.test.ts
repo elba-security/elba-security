@@ -38,7 +38,6 @@ describe('delete-user-request', () => {
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     expect(usersConnector.deleteUser).toBeCalledWith({
       userId,
-      organizationId,
       apiKey,
     });
   });
