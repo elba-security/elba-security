@@ -10,22 +10,15 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "type-check": "tsc --noEmit",
-    "database:up": "docker-compose -p openai --profile edge --env-file=.env.local up -d",
-    "database:down": "docker-compose -p openai down --volumes",
-    "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
-    "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@elba-security/config": "workspace:*",
-    "@elba-security/design-system": "workspace:*",
     "@elba-security/inngest": "workspace:*",
     "@elba-security/logger": "workspace:*",
+    "@elba-security/nango": "workspace:*",
     "@elba-security/nextjs": "workspace:*",
     "@elba-security/sdk": "workspace:*",
-    "@elba-security/utils": "workspace:*",
-    "@neondatabase/serverless": "catalog:",
-    "drizzle-orm": "catalog:",
     "inngest": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
@@ -44,8 +37,6 @@
     "dotenv": "catalog:",
     "eslint": "catalog:",
     "msw": "catalog:",
-    "postgres": "catalog:",
-    "testcontainers": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }
