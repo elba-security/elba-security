@@ -16,7 +16,7 @@ const formatElbaUser = (user: OpenAiUser): User => ({
   role: user.role, // 'owner' | 'reader'
   additionalEmails: [],
   isSuspendable: user.role !== 'owner',
-  url: 'https://platform.openai.com/settings/organization/team',
+  url: 'https://platform.openai.com/settings/organization/members',
 });
 
 export type SyncUsersEventType = {
