@@ -70,7 +70,7 @@ describe('schedule-users-syncs', () => {
             organisationId,
             nangoConnectionId,
             syncStartedAt: Date.now(),
-            isFirstSync: true,
+            isFirstSync: false,
           },
         }))
       )
@@ -118,7 +118,7 @@ describe('schedule-users-syncs', () => {
               organisationId,
               nangoConnectionId,
               syncStartedAt: now,
-              isFirstSync: true,
+              isFirstSync: false,
             },
           }))
         )

@@ -47,7 +47,7 @@ export const scheduleUsersSyncs = inngest.createFunction(
             nangoConnectionId,
             region,
             syncStartedAt: Date.now(),
-            isFirstSync: true,
+            isFirstSync: false,
           },
         }))
       );
