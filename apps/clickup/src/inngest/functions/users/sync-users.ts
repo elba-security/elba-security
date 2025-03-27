@@ -12,7 +12,6 @@ const formatElbaUser = ({ teamId, user }: { teamId: string; user: ClickUpUser })
   displayName: user.username || user.email,
   email: user.email,
   role: user.role,
-  authMethod: undefined,
   additionalEmails: [],
   isSuspendable: user.role !== 'owner',
   url: `https://app.clickup.com/${teamId}/settings/team/${teamId}/users`,
