@@ -1,23 +1,22 @@
 import type { User } from '@elba-security/sdk';
-import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
+import { logger } from '@elba-security/logger';
 import { type OpenAiUser, getUsers } from '@/connectors/openai/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
-import { createElbaClient } from '@/connectors/elba/client';
+import { createElbaOrganisationClient } from '@/connectors/elba/client';
+import { nangoCredentialsSchema } from '@/connectors/common/nango';
+import { nangoAPIClient } from '@/common/nango';
 
 // An organisation can have multiple owners, but only one can be the actual owner.
 // Allowing to remove all owners of the organisation would be a security risk.
 // therefore, if the admin wants to remove the owner, they can remove it from the OpenAi platform
 const formatElbaUser = (user: OpenAiUser): User => ({
-  id: user.user.id,
-  displayName: user.user.name,
-  email: user.user.email,
+  id: user.id,
+  displayName: user.name,
+  email: user.email,
   role: user.role, // 'owner' | 'reader'
   additionalEmails: [],
   isSuspendable: user.role !== 'owner',
-  url: 'https://platform.openai.com/settings/organization/team',
+  url: 'https://platform.openai.com/settings/organization/members',
 });
 
 export type SyncUsersEventType = {
@@ -49,24 +48,26 @@ export const syncUsers = inngest.createFunction(
     ],
   },
   { event: 'openai/users.sync.requested' },
-  async ({ event, step, logger }) => {
-    const { organisationId, syncStartedAt } = event.data;
+  async ({ event, step }) => {
+    const { organisationId, syncStartedAt, nangoConnectionId, region, page } = event.data;
 
-    const [organisation] = await db
-      .select()
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
-    }
-
-    const elba = createElbaClient(organisationId, organisation.region);
+    const elba = createElbaOrganisationClient({
+      organisationId,
+      region,
+    });
 
     await step.run('list-users', async () => {
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
+      if (!nangoCredentialsResult.success) {
+        throw new Error('Could not retrieve Nango credentials');
+      }
+
+      const apiKey = nangoCredentialsResult.data.apiKey;
+
       const result = await getUsers({
-        organizationId: organisation.organizationId,
-        apiKey: organisation.apiKey,
+        apiKey,
+        page,
       });
       const users = result.validUsers.map(formatElbaUser);
 

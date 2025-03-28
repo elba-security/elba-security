@@ -10,49 +10,40 @@ const organizationId = 'valid-organization-id';
 const userId = 'test-user-id';
 
 export const users: OpenAiUser[] = Array.from({ length: 10 }, (_, i) => ({
+  object: 'organization.user',
   role: 'admin',
-  is_service_account: false,
-  user: {
-    object: 'user',
-    id: `userId-${i}`,
-    name: `username-${i}`,
-    email: `username-${i}@foo.bar`,
-  },
+  id: `userId-${i}`,
+  name: `username-${i}`,
+  email: `username-${i}@foo.bar`,
 }));
 
 describe('getOpenAiUsers', () => {
   beforeEach(() => {
     server.use(
       http.get<{ organizationId: string }>(
-        `https://api.openai.com/v1/organizations/:organizationId/users`,
-        ({ request, params }) => {
+        `https://api.openai.com/v1/organization/users`,
+        ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${apiKey}`) {
             return new Response(undefined, { status: 401 });
           }
-          if (params.organizationId !== organizationId) {
-            return new Response(undefined, { status: 404 });
-          }
-          return Response.json({ members: { data: users } });
+
+          return Response.json({
+            data: users,
+            has_more: true,
+            last_id: 'last_id',
+          });
         }
       )
     );
   });
 
-  test('should fetch users when apiKey and organizationId are valid', async () => {
-    const result = await getUsers({ apiKey, organizationId });
+  test('should fetch users when apiKey', async () => {
+    const result = await getUsers({ apiKey });
     expect(result.validUsers).toEqual(users);
   });
 
   test('should throws when apiKey is invalid', async () => {
-    await expect(getUsers({ apiKey: 'wrong-api-key', organizationId })).rejects.toBeInstanceOf(
-      OpenAiError
-    );
-  });
-
-  test('should throws when organizationId is invalid', async () => {
-    await expect(
-      getUsers({ apiKey, organizationId: 'wron-organization-id' })
-    ).rejects.toBeInstanceOf(OpenAiError);
+    await expect(getUsers({ apiKey: 'wrong-api-key' })).rejects.toBeInstanceOf(OpenAiError);
   });
 });
 
@@ -60,7 +51,7 @@ describe('deleteUser', () => {
   beforeEach(() => {
     server.use(
       http.delete<{ organizationId: string; userId: string }>(
-        `https://api.openai.com/v1/organizations/:organizationId/users/:userId`,
+        `https://api.openai.com/v1/organization/users/:userId`,
         ({ request, params }) => {
           if (request.headers.get('Authorization') !== `Bearer ${apiKey}`) {
             return new Response(undefined, { status: 401 });
@@ -75,18 +66,16 @@ describe('deleteUser', () => {
   });
 
   test('should delete user when it does exist', async () => {
-    await expect(deleteUser({ apiKey, organizationId, userId })).resolves.toBe(undefined);
+    await expect(deleteUser({ apiKey, userId })).resolves.toBe(undefined);
   });
 
   test('should not throw when it does not exist', async () => {
-    await expect(deleteUser({ apiKey, organizationId, userId: 'wrong-user-id' })).resolves.toBe(
-      undefined
-    );
+    await expect(deleteUser({ apiKey, userId: 'wrong-user-id' })).resolves.toBe(undefined);
   });
 
   test('should throws when apiKey is invalid', async () => {
-    await expect(
-      deleteUser({ apiKey: 'wrong-api-key', organizationId, userId })
-    ).rejects.toBeInstanceOf(OpenAiError);
+    await expect(deleteUser({ apiKey: 'wrong-api-key', userId })).rejects.toBeInstanceOf(
+      OpenAiError
+    );
   });
 });

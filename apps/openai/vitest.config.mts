@@ -9,18 +9,13 @@ if (error) {
   throw new Error(`Could not find environment variables file: .env.test`);
 }
 
-// use 'node' if your integration is not compatible with edge runtime
 const environment: BuiltinEnvironment = 'edge-runtime';
 
 process.env.VITEST_ENVIRONMENT = environment;
 
 export default defineConfig({
   test: {
-    globalSetup: '@elba-security/test-utils/vitest/global-setup',
-    setupFiles: [
-      '@elba-security/test-utils/vitest/setup-database',
-      '@elba-security/test-utils/vitest/setup-msw-handlers',
-    ],
+    setupFiles: ['@elba-security/test-utils/vitest/setup-msw-handlers'],
     environment,
     poolOptions: {
       threads: {
