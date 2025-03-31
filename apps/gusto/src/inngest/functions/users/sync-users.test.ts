@@ -1,13 +1,14 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/gusto/users';
+import * as nangoAPIClient from '@/common/nango';
 import { syncUsers } from './sync-users';
 
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const syncStartedAt = Date.now();
-const nextPage = 2;
+const nextPage = 1;
 
 const users: usersConnector.GustoUser[] = Array.from({ length: 3 }, (_, i) => ({
   uuid: `00000000-0000-0000-0000-00000000009${i}`,
@@ -38,6 +39,10 @@ describe('sync-users', () => {
     }));
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
       authUserEmail: 'auth-user@email',
+    });
+    vi.spyOn(usersConnector, 'getTokenInfo').mockResolvedValue({
+      companyId: 'test-company-id',
+      adminId: 'test-admin-id',
     });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -80,10 +85,14 @@ describe('sync-users', () => {
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
       authUserEmail: 'auth-user@email',
     });
+    vi.spyOn(usersConnector, 'getTokenInfo').mockResolvedValue({
+      companyId: 'test-company-id',
+      adminId: 'test-admin-id',
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: 1,
+      nextPage: null,
     });
 
     const [result, { step }] = setup({
