@@ -1,9 +1,7 @@
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/gusto/users';
-import { organisationsTable } from '@/database/schema';
-import { db } from '@/database/client';
-import * as nangoAPI from '@/common/nango/api';
+import * as nangoAPI from '@/common/nango';
 import { deleteUser } from './delete-users';
 
 const userId = 'user-id';
@@ -32,9 +30,8 @@ describe('deleteUser', () => {
     );
   });
 
-  test('should delete users', async () => {
+  test('should delete user', async () => {
     vi.spyOn(usersConnector, 'deleteUser').mockResolvedValueOnce();
-    await db.insert(organisationsTable).values(organisation);
 
     const [result] = setup({ userId, organisationId: organisation.id });
 

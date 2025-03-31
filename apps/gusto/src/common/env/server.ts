@@ -11,13 +11,11 @@ export const env = z
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     DATABASE_URL: z.string().min(1),
     DATABASE_PROXY_PORT: zEnvInt().optional(),
-    VERCEL_ENV: z.string().min(1).optional(),
     GUSTO_API_BASE_URL: z.string().url(),
     GUSTO_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
     GUSTO_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),
     GUSTO_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
+    NANGO_INTEGRATION_ID: z.string().min(1),
     NANGO_SECRET_KEY: z.string().min(1),
-    NEXT_PUBLIC_NANGO_INTEGRATION_ID: z.string().min(1),
-    NEXT_PUBLIC_NANGO_PUBLIC_KEY: z.string().min(1),
   })
   .parse(process.env);
