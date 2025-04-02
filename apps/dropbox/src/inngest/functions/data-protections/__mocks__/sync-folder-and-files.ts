@@ -74,6 +74,7 @@ export const mockGetFilesMetadataMembersAndMapDetails: GetFilesMetadataMembersAn
     },
     name: 'file-1.pdf',
     ownerId: 'dbmid:team-member-id-1',
+    updatedAt: '2021-09-01T00:00:00Z',
     permissions: [
       {
         email: 'team-member-email-1@foo.com',
@@ -93,6 +94,7 @@ export const mockGetFilesMetadataMembersAndMapDetails: GetFilesMetadataMembersAn
     },
     name: 'file-2.pdf',
     ownerId: 'dbmid:team-member-id-1',
+    updatedAt: '2021-09-01T00:00:00Z',
     permissions: [
       {
         email: 'team-member-email-1@foo.com',
@@ -211,6 +213,7 @@ export const mockElbaObject = [
     },
     name: 'file-1.pdf',
     ownerId: 'dbmid:team-member-id-1',
+    updatedAt: '2021-09-01T00:00:00Z',
     permissions: [
       {
         email: 'team-member-email-1@foo.com',
@@ -230,6 +233,7 @@ export const mockElbaObject = [
     },
     name: 'file-2.pdf',
     ownerId: 'dbmid:team-member-id-1',
+    updatedAt: '2021-09-01T00:00:00Z',
     permissions: [
       {
         email: 'team-member-email-1@foo.com',

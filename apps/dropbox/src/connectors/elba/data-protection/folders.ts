@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { type DataProtectionPermission } from '@elba-security/schemas';
+import { type DataProtectionObject } from '@elba-security/sdk';
 import { type Folder } from '@/connectors/dropbox/folders-and-files';
 import { type FolderAndFilePermissions } from './permissions';
 
@@ -37,7 +38,7 @@ export const formatFoldersToAdd = ({
 }: {
   folders: FolderToAdd[];
   teamMemberId: string;
-}) => {
+}): DataProtectionObject[] => {
   return folders.flatMap((folder) => {
     const sourceOwner = folder.permissions.find((permission) => permission.role === 'owner');
     const isPersonal = sourceOwner?.team_member_id === teamMemberId;
@@ -75,6 +76,6 @@ export const formatFoldersToAdd = ({
           metadata,
         };
       }) as DataProtectionPermission[],
-    };
+    } as const satisfies DataProtectionObject;
   });
 };
