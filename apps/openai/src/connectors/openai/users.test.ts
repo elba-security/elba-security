@@ -1,9 +1,10 @@
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
+import { env } from '@/common/env';
 import { OpenAiError } from '../common/error';
 import type { OpenAiUser } from './users';
-import { deleteUser, getUsers } from './users';
+import { deleteUser, getUsers, getTokenOwnerInfo } from './users';
 
 const apiKey = 'valid-api-key';
 const organizationId = 'valid-organization-id';
@@ -77,5 +78,39 @@ describe('deleteUser', () => {
     await expect(deleteUser({ apiKey: 'wrong-api-key', userId })).rejects.toBeInstanceOf(
       OpenAiError
     );
+  });
+});
+
+describe('getTokenOwnerInfo', () => {
+  beforeEach(() => {
+    server.use(
+      http.get<{ organizationId: string }>(`${env.OPENAI_API_BASE_URL}/me`, ({ request }) => {
+        if (request.headers.get('Authorization') !== `Bearer ${apiKey}`) {
+          return new Response(undefined, { status: 401 });
+        }
+
+        return Response.json({
+          id: 'test-id',
+          orgs: {
+            data: [
+              {
+                personal: false,
+                id: 'test-org-id',
+                role: 'owner',
+              },
+            ],
+          },
+        });
+      })
+    );
+  });
+
+  test('should fetch users when apiKey', async () => {
+    const result = await getTokenOwnerInfo(apiKey);
+    expect(result.userId).toEqual('test-id');
+  });
+
+  test('should throws when apiKey is invalid', async () => {
+    await expect(getTokenOwnerInfo('wrong-api-key')).rejects.toBeInstanceOf(OpenAiError);
   });
 });
