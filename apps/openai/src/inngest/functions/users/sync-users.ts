@@ -56,7 +56,7 @@ export const syncUsers = inngest.createFunction(
       region,
     });
 
-    await step.run('list-users', async () => {
+    const nextPage = await step.run('list-users', async () => {
       const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
       const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
       if (!nangoCredentialsResult.success) {
@@ -78,10 +78,23 @@ export const syncUsers = inngest.createFunction(
       if (users.length > 0) {
         await elba.users.update({ users });
       }
+
+      return result.nextPage;
     });
 
-    // It seems OpenAI doesn't support pagination nor limit.
-    // We should keep an eye on this in case they support it in the future.
+    if (nextPage) {
+      await step.sendEvent('sync-users', {
+        name: 'openai/users.sync.requested',
+        data: {
+          ...event.data,
+          page: nextPage,
+        },
+      });
+      return {
+        status: 'ongoing',
+      };
+    }
+
     await step.run('finalize', () =>
       elba.users.delete({ syncedBefore: new Date(syncStartedAt).toISOString() })
     );

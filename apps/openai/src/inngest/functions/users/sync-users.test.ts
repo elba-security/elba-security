@@ -62,4 +62,80 @@ describe('sync-users', () => {
       page: null,
     });
   });
+
+  test('should continue the sync when there is a next page', async () => {
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { apiKey },
+      }),
+    }));
+
+    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: 'some after',
+    });
+
+    vi.spyOn(usersConnector, 'getTokenOwnerInfo').mockResolvedValue({
+      organization: { role: 'owner', id: organizationId, personal: false },
+      userId,
+    });
+
+    const [result, { step }] = setup({
+      organisationId,
+      region,
+      nangoConnectionId,
+      isFirstSync: false,
+      syncStartedAt,
+      page: 'some after',
+    });
+
+    await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith('sync-users', {
+      name: 'openai/users.sync.requested',
+      data: {
+        organisationId,
+        region,
+        nangoConnectionId,
+        isFirstSync: false,
+        syncStartedAt,
+        page: 'some after',
+      },
+    });
+  });
+
+  test('should finalize the sync when there is a no next page', async () => {
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { apiKey },
+      }),
+    }));
+
+    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
+      validUsers: users,
+      invalidUsers: [],
+      nextPage: null,
+    });
+
+    vi.spyOn(usersConnector, 'getTokenOwnerInfo').mockResolvedValue({
+      organization: { role: 'owner', id: organizationId, personal: false },
+      userId,
+    });
+
+    const [result, { step }] = setup({
+      region,
+      organisationId,
+      nangoConnectionId,
+      isFirstSync: false,
+      syncStartedAt,
+      page: null,
+    });
+
+    await expect(result).resolves.toStrictEqual({ status: 'completed' });
+
+    expect(step.sendEvent).toBeCalledTimes(0);
+  });
 });
