@@ -70,4 +70,4 @@ Important Considerations:
 ### Example implementation
 
 The template contains an example implementation that will guide you to reach our requirements. Make sure
-to adapt this example to your needs and remove the disclaimer comments before creating your first PR
+to adapt this example to your need and remove the disclamer comments before creating your first PR.
