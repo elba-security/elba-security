@@ -72,7 +72,10 @@ export const syncUsers = inngest.createFunction(
       const users = result.validUsers.map(formatElbaUser);
 
       if (result.invalidUsers.length > 0) {
-        logger.error('Invalid users found', { organisationId, invalidUsers: result.invalidUsers });
+        logger.warn('Retrieved users contains invalid data', {
+          organisationId,
+          invalidUsers: result.invalidUsers,
+        });
       }
 
       if (users.length > 0) {
