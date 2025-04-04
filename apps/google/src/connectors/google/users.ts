@@ -15,8 +15,13 @@ export const googleUserSchema = z.object({
   emails: z
     .array(
       z.object({
-        address: z.string().email(),
+        address: z.string(),
       })
+    )
+    // As the additional emails could have invalid format like `*@domain.local`
+    // We use zod transform to filter out invalid emails and avoid user parsing failure
+    .transform((emails) =>
+      emails.filter((email) => z.string().email().safeParse(email.address).success)
     )
     .optional(),
   isEnrolledIn2Sv: z.boolean().optional(),
