@@ -90,12 +90,16 @@ export const syncDataProtectionDrive = inngest.createFunction(
       });
     });
 
+    // We only keep files that are shared (`shared` attribute is not available on shared drives)
+    // so we don't filter on `shared === true` as it would ignore every shared drives files
+    const sharedFiles = files.filter((file) => file.shared !== false);
+
     const objects = await step.run('list-files-permissions', async () => {
       const filesPermissionsResult = await Promise.allSettled(
-        files.map(async (googleFile) => {
+        sharedFiles.map(async (sharedFile) => {
           const filePermissions = await listAllGoogleFileNonInheritedPermissions({
             auth: authClient,
-            fileId: googleFile.id,
+            fileId: sharedFile.id,
             ...(driveId ? { pageSize: 100 } : {}), // For personal drives, we can retrieve every permissions by omitting pageSize
           });
 
@@ -104,7 +108,7 @@ export const syncDataProtectionDrive = inngest.createFunction(
           }
 
           return formatDataProtectionObject({
-            file: googleFile,
+            file: sharedFile,
             owner: managerUserId,
             permissions: filePermissions,
           });
