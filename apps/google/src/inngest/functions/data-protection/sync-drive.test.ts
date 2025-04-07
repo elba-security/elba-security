@@ -23,10 +23,16 @@ describe('sync-data-protection-drive', () => {
           name: 'file 1',
           sha256Checksum: 'sha256-checksum-1',
           viewedByMeTime: '2024-01-01T00:00:00Z',
+          shared: true,
         },
         {
           id: 'file-id-2',
           name: 'file 2',
+        },
+        {
+          id: 'file-id-3',
+          name: 'file 3 not shared',
+          shared: false,
         },
       ],
       nextPageToken: 'next-page-token',
@@ -176,10 +182,16 @@ describe('sync-data-protection-drive', () => {
           name: 'file 1',
           sha256Checksum: 'sha256-checksum-1',
           viewedByMeTime: '2024-01-01T00:00:00Z',
+          shared: true,
         },
         {
           id: 'file-id-2',
           name: 'file 2',
+        },
+        {
+          id: 'file-id-3',
+          name: 'file 3 not shared',
+          shared: false,
         },
       ],
       nextPageToken: null,
