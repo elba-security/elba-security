@@ -7,8 +7,9 @@ import type { OutreachUser } from './users';
 import { getUsers, deleteUser } from './users';
 
 const validToken = 'token-1234';
-const endPageOffset = 'https://api.outreach.io/api/v2/users?page[size]=3';
-const nextPageOffset = 'https://api.outreach.io/api/v2/users?page[size]=2';
+const endPageOffset = '3';
+const nextPageUrl = 'https://api.outreach.io/api/v2/users?page[size]=2';
+const endPageUrl = 'https://api.outreach.io/api/v2/users?page[size]=3';
 const userId = 'test-user-id';
 
 const validUsers: OutreachUser[] = Array.from({ length: 5 }, (_, i) => ({
@@ -33,11 +34,10 @@ describe('users connector', () => {
           }
 
           const url = new URL(request.url);
-          const offset = url.searchParams.get('offset') || '0';
+          const offset = url.searchParams.get('page[size]') || '0';
           const responseData = {
-            users: validUsers,
-            offset: parseInt(offset, 10),
-            more: offset !== endPageOffset,
+            data: validUsers,
+            links: offset !== endPageOffset ? { next: nextPageUrl } : {},
           };
           return Response.json(responseData);
         })
@@ -45,19 +45,17 @@ describe('users connector', () => {
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(
-        getUsers({ accessToken: validToken, page: nextPageOffset })
-      ).resolves.toStrictEqual({
-        validUsers,
-        invalidUsers,
-        nextPage: parseInt(nextPageOffset, 10) + 1,
-      });
+      await expect(getUsers({ accessToken: validToken, page: nextPageUrl })).resolves.toStrictEqual(
+        {
+          validUsers,
+          invalidUsers,
+          nextPage: nextPageUrl,
+        }
+      );
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(
-        getUsers({ accessToken: validToken, page: endPageOffset })
-      ).resolves.toStrictEqual({
+      await expect(getUsers({ accessToken: validToken, page: endPageUrl })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
         nextPage: null,

@@ -10,6 +10,19 @@ const organisationId = '00000000-0000-0000-0000-000000000002';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const now = Date.now();
+const nextPage = 'https://api.outreach.io/api/v2/users?page[size]=2';
+
+const validUsers: usersConnector.OutreachUser[] = Array.from({ length: 5 }, (_, i) => ({
+  id: i,
+  attributes: {
+    firstName: `firstName-${i}`,
+    lastName: `lastName-${i}`,
+    email: `user-${i}@foo.bar`,
+    locked: false,
+  },
+}));
+
+const invalidUsers = [];
 
 describe('validateSourceInstallation', () => {
   beforeAll(() => {
@@ -30,8 +43,10 @@ describe('validateSourceInstallation', () => {
     });
 
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserUrl: 'https://test-url.outreach.com',
+    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
+      validUsers,
+      invalidUsers,
+      nextPage,
     });
 
     await validateSourceInstallation({
@@ -76,7 +91,7 @@ describe('validateSourceInstallation', () => {
       }),
     });
 
-    vi.spyOn(usersConnector, 'getAuthUser').mockRejectedValue(new OutreachNotAdminError(''));
+    vi.spyOn(usersConnector, 'getUsers').mockRejectedValue(new OutreachNotAdminError(''));
 
     await expect(
       validateSourceInstallation({
