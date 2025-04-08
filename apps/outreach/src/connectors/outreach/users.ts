@@ -82,7 +82,7 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
     body: JSON.stringify({
       data: {
         type: 'user',
-        id: userId,
+        id: parseInt(userId),
         attributes: {
           locked: true,
         },
