@@ -1,9 +1,7 @@
-import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import * as usersConnector from '@/connectors/openai/users';
 import { inngest } from '@/inngest/client';
+import { nangoCredentialsSchema } from '@/connectors/common/nango';
+import { nangoAPIClient } from '@/common/nango';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -28,21 +26,18 @@ export const deleteUser = inngest.createFunction(
     event: 'openai/users.delete.requested',
   },
   async ({ event }) => {
-    const { userId, organisationId } = event.data;
+    const { userId, nangoConnectionId } = event.data;
 
-    const [organisation] = await db
-      .select()
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve organisation with id=${organisationId}`);
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
+    if (!nangoCredentialsResult.success) {
+      throw new Error('Could not retrieve Nango credentials');
     }
+    const apiKey = nangoCredentialsResult.data.apiKey;
 
     await usersConnector.deleteUser({
       userId,
-      organizationId: organisation.organizationId,
-      apiKey: organisation.apiKey,
+      apiKey,
     });
   }
 );
