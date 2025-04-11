@@ -70,7 +70,7 @@ export const getUsers = async ({ apiKey, domain, page }: GetUsersParams) => {
   return {
     validUsers,
     invalidUsers,
-    nextPage: total > offset + limit ? offset + limit - 1 : null,
+    nextPage: total > offset + limit ? offset + limit : null,
   };
 };
 

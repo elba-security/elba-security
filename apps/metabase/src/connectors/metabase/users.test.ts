@@ -51,7 +51,7 @@ describe('users connector', () => {
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage: nextPageOffset,
+        nextPage: nextPageOffset + limit,
       });
     });
 
