@@ -10,6 +10,14 @@ const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const now = Date.now();
 
+const users: usersConnector.MetabaseUser[] = Array.from({ length: 2 }, (_, i) => ({
+  id: i,
+  first_name: `first_name-${i}`,
+  last_name: `last_name-${i}`,
+  email: `user-${i}@foo.bar`,
+  is_superuser: true,
+}));
+
 describe('validateSourceInstallation', () => {
   beforeAll(() => {
     vi.setSystemTime(now);
@@ -24,13 +32,14 @@ describe('validateSourceInstallation', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey: 'api-key' },
+        connection_config: { domain: 'test-domain' },
       }),
     });
 
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      validUsers: [],
+      validUsers: users,
       invalidUsers: [],
       nextPage: 1,
     });
@@ -57,7 +66,7 @@ describe('validateSourceInstallation', () => {
           nangoConnectionId,
           isFirstSync: true,
           syncStartedAt: now,
-          page: null,
+          page: 0,
         },
       },
     ]);

@@ -1,16 +1,15 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
-import { env } from '@/common/env';
 import { MetabaseError } from '../common/error';
 import type { MetabaseUser } from './users';
 import { getUsers, deleteUser } from './users';
 
 const validToken = 'token-1234';
-const endPageOffset = 3;
-const nextPageOffset = 2;
-const limit = 20;
-const total = 50;
+const endPageOffset = 2;
+const nextPageOffset = 1;
+const limit = 1;
+const total = 3;
 const domain = 'test-domain';
 const userId = 'test-user-id';
 
@@ -28,15 +27,15 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       server.use(
-        http.get(`${env.METABASE_API_BASE_URL}/users`, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+        http.get(`https://${domain}.metabaseapp.com/api/user`, ({ request }) => {
+          if (request.headers.get('x-api-key') !== validToken) {
             return new Response(undefined, { status: 401 });
           }
 
           const url = new URL(request.url);
           const offset = url.searchParams.get('offset') || '0';
           const responseData = {
-            users: validUsers,
+            data: validUsers,
             offset: parseInt(offset, 10),
             limit,
             total,
@@ -77,9 +76,9 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.delete<{ userId: string }>(
-          `${env.METABASE_API_BASE_URL}/users/${userId}`,
+          `https://${domain}.metabaseapp.com/api/user/${userId}`,
           ({ request }) => {
-            if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            if (request.headers.get('x-api-key') !== validToken) {
               return new Response(undefined, { status: 401 });
             }
             return new Response(undefined, { status: 200 });

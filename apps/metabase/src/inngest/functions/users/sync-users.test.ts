@@ -11,11 +11,11 @@ const nangoConnectionId = 'nango-connection-id';
 const syncStartedAt = Date.now();
 
 const users: usersConnector.MetabaseUser[] = Array.from({ length: 2 }, (_, i) => ({
-  id: `id-${i}`,
-  name: `userName-${i}`,
-  role: 'admin',
+  id: i,
+  first_name: `first_name-${i}`,
+  last_name: `last_name-${i}`,
   email: `user-${i}@foo.bar`,
-  invitation_sent: false,
+  is_superuser: true,
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'metabase/users.sync.requested');
@@ -25,12 +25,11 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey: 'api-key' },
+        connection_config: { domain: 'test-domain' },
       }),
     });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserUrl: 'https://test-domain.metabase.com',
-    });
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -43,7 +42,7 @@ describe('sync-users', () => {
       nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
-      page: '1',
+      page: 0,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -57,7 +56,7 @@ describe('sync-users', () => {
         nangoConnectionId,
         isFirstSync: false,
         syncStartedAt,
-        page: '1',
+        page: 1,
       },
     });
   });
@@ -66,12 +65,11 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey: 'api-key' },
+        connection_config: { domain: 'test-domain' },
       }),
     });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserUrl: 'https://test-domain.metabase.com',
-    });
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],

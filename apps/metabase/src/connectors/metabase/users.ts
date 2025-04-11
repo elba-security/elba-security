@@ -14,7 +14,7 @@ export type MetabaseUser = z.infer<typeof metabaseUserSchema>;
 
 const metabaseResponseSchema = z.object({
   data: z.array(z.unknown()),
-  total: z.number().nullable(),
+  total: z.number(),
   limit: z.number(),
   offset: z.number(),
 });
@@ -70,19 +70,19 @@ export const getUsers = async ({ apiKey, domain, page }: GetUsersParams) => {
   return {
     validUsers,
     invalidUsers,
-    nextPage: total > offset + limit ? offset + limit : null,
+    nextPage: total > offset + limit ? offset + limit - 1 : null,
   };
 };
 
 // Owner of the organization cannot be deleted
 export const deleteUser = async ({ userId, apiKey, domain }: DeleteUsersParams) => {
-  const url = new URL(`https://${domain}.metabaseapp.com/user/${userId}`);
+  const url = new URL(`https://${domain}.metabaseapp.com/api/user/${userId}`);
 
   const response = await fetch(url.toString(), {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
+      'x-api-key': apiKey,
     },
   });
 
