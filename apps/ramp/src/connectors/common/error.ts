@@ -13,17 +13,12 @@ export class RampError extends Error {
   }
 }
 
-export class RampNotAdminError extends RampError {}
-
 export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
   if (error instanceof NangoConnectionError && error.response.status === 404) {
     return 'unauthorized';
   }
   if (error instanceof RampError && error.response?.status === 401) {
     return 'unauthorized';
-  }
-  if (error instanceof RampNotAdminError) {
-    return 'not_admin';
   }
 
   return null;
