@@ -10,6 +10,19 @@ const organisationId = '00000000-0000-0000-0000-000000000002';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const now = Date.now();
+const nextPageUrl =
+  'https://demo-api.ramp.com/developer/v1/users?page_size=2&start=01962487-9f30-79fd-9a74-4f5948618d93';
+
+const validUsers: usersConnector.RampUser[] = Array.from({ length: 5 }, (_, i) => ({
+  id: `id-${i}`,
+  first_name: `firstName-${i}`,
+  last_name: `lastName-${i}`,
+  role: 'BUSINESS_ADMIN',
+  email: `user-${i}@foo.bar`,
+  status: 'USER_ACTIVE',
+}));
+
+const invalidUsers = [];
 
 describe('validateSourceInstallation', () => {
   beforeAll(() => {
@@ -30,8 +43,10 @@ describe('validateSourceInstallation', () => {
     });
 
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserUrl: 'https://test-url.ramp.com',
+    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
+      validUsers,
+      invalidUsers,
+      nextPage: nextPageUrl,
     });
 
     await validateSourceInstallation({
@@ -76,7 +91,7 @@ describe('validateSourceInstallation', () => {
       }),
     });
 
-    vi.spyOn(usersConnector, 'getAuthUser').mockRejectedValue(new RampNotAdminError(''));
+    vi.spyOn(usersConnector, 'getUsers').mockRejectedValue(new RampNotAdminError(''));
 
     await expect(
       validateSourceInstallation({

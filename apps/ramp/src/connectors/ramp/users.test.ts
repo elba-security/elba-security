@@ -7,16 +7,18 @@ import type { RampUser } from './users';
 import { getUsers, deleteUser } from './users';
 
 const validToken = 'token-1234';
-const endPageOffset = '3';
-const nextPageOffset = '2';
+const endPageOffset = 'https://demo-api.ramp.com/developer/v1/users?page_size=2';
+const nextPageUrl =
+  'https://demo-api.ramp.com/developer/v1/users?page_size=2&start=01962487-9f30-79fd-9a74-4f5948618d93';
 const userId = 'test-user-id';
 
 const validUsers: RampUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
-  name: `userName-${i}`,
-  role: 'owner',
+  first_name: `firstName-${i}`,
+  last_name: `lastName-${i}`,
+  role: 'BUSINESS_ADMIN',
   email: `user-${i}@foo.bar`,
-  invitation_sent: false,
+  status: 'USER_ACTIVE',
 }));
 
 const invalidUsers = [];
@@ -25,17 +27,18 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       server.use(
-        http.get(`${env.RAMP_API_BASE_URL}/users`, ({ request }) => {
+        http.get(`${env.RAMP_API_BASE_URL}/developer/v1/users`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
 
           const url = new URL(request.url);
-          const offset = url.searchParams.get('offset') || '0';
+          const offset = url.searchParams.get('start');
           const responseData = {
-            users: validUsers,
-            offset: parseInt(offset, 10),
-            more: offset !== endPageOffset,
+            data: validUsers,
+            page: {
+              next: offset ? nextPageUrl : null,
+            },
           };
           return Response.json(responseData);
         })
@@ -43,13 +46,13 @@ describe('users connector', () => {
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(
-        getUsers({ accessToken: validToken, page: nextPageOffset })
-      ).resolves.toStrictEqual({
-        validUsers,
-        invalidUsers,
-        nextPage: parseInt(nextPageOffset, 10) + 1,
-      });
+      await expect(getUsers({ accessToken: validToken, page: nextPageUrl })).resolves.toStrictEqual(
+        {
+          validUsers,
+          invalidUsers,
+          nextPage: nextPageUrl,
+        }
+      );
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
@@ -70,8 +73,8 @@ describe('users connector', () => {
   describe('deleteUser', () => {
     beforeEach(() => {
       server.use(
-        http.delete<{ userId: string }>(
-          `${env.RAMP_API_BASE_URL}/users/${userId}`,
+        http.patch<{ userId: string }>(
+          `${env.RAMP_API_BASE_URL}/developer/v1/users/${userId}/deactivate`,
           ({ request }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(undefined, { status: 401 });
