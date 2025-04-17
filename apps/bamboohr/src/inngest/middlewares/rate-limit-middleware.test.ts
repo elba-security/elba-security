@@ -16,7 +16,7 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should not transform the output when the error is not about PagerDuty rate limit', () => {
+  test('should not transform the output when the error is not about Bamboohr rate limit', () => {
     expect(
       rateLimitMiddleware
         .init()

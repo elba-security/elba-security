@@ -43,7 +43,7 @@ describe('users connector', () => {
       );
     });
 
-    test('should return users and nextPage when the token is valid and their is another page', async () => {
+    test('should return users when the token is valid', async () => {
       await expect(getUsers({ userName, password, subDomain })).resolves.toStrictEqual({
         validUsers: [
           {
@@ -65,29 +65,7 @@ describe('users connector', () => {
       });
     });
 
-    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(getUsers({ userName, password, subDomain })).resolves.toStrictEqual({
-        validUsers: [
-          {
-            employeeId: 1,
-            firstName: 'firstName-1',
-            lastName: 'lastName-1',
-            email: 'user-1@foo.bar',
-            status: 'enabled',
-          },
-          {
-            employeeId: 2,
-            firstName: 'firstName-2',
-            lastName: 'lastName-2',
-            email: 'user-2@foo.bar',
-            status: 'enabled',
-          },
-        ],
-        invalidUsers: [],
-      });
-    });
-
-    test('should throws when the token is invalid', async () => {
+    test('should throw when the token is invalid', async () => {
       await expect(getUsers({ userName: 'foo-bar', password, subDomain })).rejects.toBeInstanceOf(
         BamboohrError
       );
