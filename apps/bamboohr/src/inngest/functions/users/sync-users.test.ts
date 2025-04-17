@@ -7,75 +7,42 @@ import { syncUsers } from './sync-users';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
+const userName = 'user-name';
+const password = 'password';
+const subDomain = 'test-domain';
 
 const syncStartedAt = Date.now();
-
-const users: usersConnector.BamboohrUser[] = Array.from({ length: 2 }, (_, i) => ({
-  id: `id-${i}`,
-  name: `userName-${i}`,
-  role: 'admin',
-  email: `user-${i}@foo.bar`,
-  invitation_sent: false,
-}));
 
 const setup = createInngestFunctionMock(syncUsers, 'bamboohr/users.sync.requested');
 
 describe('sync-users', () => {
-  test('should continue the sync when there is a next page', async () => {
-    // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
-      getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
-      }),
-    });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserUrl: 'https://test-domain.bamboohr.com',
-    });
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      validUsers: users,
-      invalidUsers: [],
-      nextPage: 1,
-    });
-
-    const [result, { step }] = setup({
-      organisationId,
-      region,
-      nangoConnectionId,
-      isFirstSync: false,
-      syncStartedAt,
-      page: '1',
-    });
-
-    await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
-
-    expect(step.sendEvent).toBeCalledTimes(1);
-    expect(step.sendEvent).toBeCalledWith('sync-users', {
-      name: 'bamboohr/users.sync.requested',
-      data: {
-        organisationId,
-        region,
-        nangoConnectionId,
-        isFirstSync: false,
-        syncStartedAt,
-        page: '1',
-      },
-    });
-  });
-
   test('should finalize the sync when there is a no next page', async () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { username: userName, password },
+        connection_config: { subdomain: subDomain },
       }),
     });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserUrl: 'https://test-domain.bamboohr.com',
-    });
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      validUsers: users,
+      validUsers: [
+        {
+          employeeId: 1,
+          firstName: 'firstName-1',
+          lastName: 'lastName-1',
+          email: 'user-1@foo.bar',
+          status: 'enabled',
+        },
+        {
+          employeeId: 2,
+          firstName: 'firstName-2',
+          lastName: 'lastName-2',
+          email: 'user-2@foo.bar',
+          status: 'enabled',
+        },
+      ],
       invalidUsers: [],
-      nextPage: null,
     });
 
     const [result, { step }] = setup({
@@ -84,7 +51,6 @@ describe('sync-users', () => {
       nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
-      page: null,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });

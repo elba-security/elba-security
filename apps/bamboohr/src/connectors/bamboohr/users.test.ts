@@ -3,66 +3,94 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { BamboohrError } from '../common/error';
-import type { BamboohrUser } from './users';
 import { getUsers } from './users';
 
-const validToken = 'token-1234';
-const endPageOffset = '3';
-const nextPageOffset = '2';
-
-const validUsers: BamboohrUser[] = Array.from({ length: 5 }, (_, i) => ({
-  id: `id-${i}`,
-  name: `userName-${i}`,
-  role: 'owner',
-  email: `user-${i}@foo.bar`,
-  invitation_sent: false,
-}));
-
-const invalidUsers = [];
+const userName = 'user-name';
+const password = 'password';
+const subDomain = 'test-domain';
+const validEncodedKey = btoa(`${userName}:${password}`);
 
 describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       server.use(
-        http.get(`${env.BAMBOOHR_API_BASE_URL}/users`, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
+        http.get(
+          `${env.BAMBOOHR_API_BASE_URL}/api/gateway.php/${subDomain}/v1/meta/users`,
+          ({ request }) => {
+            if (request.headers.get('Authorization') !== `Basic ${validEncodedKey}`) {
+              return new Response(undefined, { status: 401 });
+            }
 
-          const url = new URL(request.url);
-          const offset = url.searchParams.get('offset') || '0';
-          const responseData = {
-            users: validUsers,
-            offset: parseInt(offset, 10),
-            more: offset !== endPageOffset,
-          };
-          return Response.json(responseData);
-        })
+            const responseData = {
+              '0001': {
+                employeeId: 1,
+                firstName: 'firstName-1',
+                lastName: 'lastName-1',
+                email: 'user-1@foo.bar',
+                status: 'enabled',
+              },
+              '0002': {
+                employeeId: 2,
+                firstName: 'firstName-2',
+                lastName: 'lastName-2',
+                email: 'user-2@foo.bar',
+                status: 'enabled',
+              },
+            };
+            return Response.json(responseData);
+          }
+        )
       );
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(
-        getUsers({ accessToken: validToken, page: nextPageOffset })
-      ).resolves.toStrictEqual({
-        validUsers,
-        invalidUsers,
-        nextPage: parseInt(nextPageOffset, 10) + 1,
+      await expect(getUsers({ userName, password, subDomain })).resolves.toStrictEqual({
+        validUsers: [
+          {
+            employeeId: 1,
+            firstName: 'firstName-1',
+            lastName: 'lastName-1',
+            email: 'user-1@foo.bar',
+            status: 'enabled',
+          },
+          {
+            employeeId: 2,
+            firstName: 'firstName-2',
+            lastName: 'lastName-2',
+            email: 'user-2@foo.bar',
+            status: 'enabled',
+          },
+        ],
+        invalidUsers: [],
       });
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(
-        getUsers({ accessToken: validToken, page: endPageOffset })
-      ).resolves.toStrictEqual({
-        validUsers,
-        invalidUsers,
-        nextPage: null,
+      await expect(getUsers({ userName, password, subDomain })).resolves.toStrictEqual({
+        validUsers: [
+          {
+            employeeId: 1,
+            firstName: 'firstName-1',
+            lastName: 'lastName-1',
+            email: 'user-1@foo.bar',
+            status: 'enabled',
+          },
+          {
+            employeeId: 2,
+            firstName: 'firstName-2',
+            lastName: 'lastName-2',
+            email: 'user-2@foo.bar',
+            status: 'enabled',
+          },
+        ],
+        invalidUsers: [],
       });
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(getUsers({ accessToken: 'foo-bar' })).rejects.toBeInstanceOf(BamboohrError);
+      await expect(getUsers({ userName: 'foo-bar', password, subDomain })).rejects.toBeInstanceOf(
+        BamboohrError
+      );
     });
   });
 });
