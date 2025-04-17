@@ -30,7 +30,7 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should transform the output error to RetryAfterError when the error is about PagerDuty rate limit', () => {
+  test('should transform the output error to RetryAfterError when the error is about Bamboohr rate limit', () => {
     const rateLimitError = new BamboohrError('foo bar', {
       // @ts-expect-error this is a mock
       response: {
