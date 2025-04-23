@@ -1,6 +1,7 @@
 import type { GetEvents, GetFunctionInput } from 'inngest';
 import { EventSchemas, Inngest } from 'inngest';
 import { encryptionMiddleware } from '@elba-security/inngest';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 import type { InngestEvents } from './functions';
 import { slackRateLimitMiddleware } from './middlewares/slack-rate-limit';
@@ -14,6 +15,7 @@ export const inngest = new Inngest({
     slackRateLimitMiddleware,
     elbaTrialIssuesLimitExceededMiddleware,
   ],
+  logger,
 });
 
 type InngestClient = typeof inngest;
