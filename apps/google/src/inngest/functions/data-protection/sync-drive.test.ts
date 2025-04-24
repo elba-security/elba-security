@@ -22,7 +22,8 @@ describe('sync-data-protection-drive', () => {
           id: 'file-id-1',
           name: 'file 1',
           sha256Checksum: 'sha256-checksum-1',
-          viewedByMeTime: '2024-01-01T00:00:00Z',
+          viewedByMeTime: '2024-01-02T00:00:00Z',
+          modifiedTime: '2024-01-01T00:00:00Z',
           shared: true,
         },
         {
@@ -112,7 +113,8 @@ describe('sync-data-protection-drive', () => {
         {
           contentHash: 'sha256-checksum-1',
           id: 'file-id-1',
-          lastAccessedAt: '2024-01-01T00:00:00Z',
+          lastAccessedAt: '2024-01-02T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
           metadata: {
             ownerId: 'user-id-1',
           },
@@ -181,7 +183,8 @@ describe('sync-data-protection-drive', () => {
           id: 'file-id-1',
           name: 'file 1',
           sha256Checksum: 'sha256-checksum-1',
-          viewedByMeTime: '2024-01-01T00:00:00Z',
+          viewedByMeTime: '2024-01-02T00:00:00Z',
+          modifiedTime: '2024-01-01T00:00:00Z',
           shared: true,
         },
         {
@@ -276,7 +279,8 @@ describe('sync-data-protection-drive', () => {
         {
           contentHash: 'sha256-checksum-1',
           id: 'file-id-1',
-          lastAccessedAt: '2024-01-01T00:00:00Z',
+          lastAccessedAt: '2024-01-02T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
           metadata: {
             ownerId: 'user-id-1',
           },

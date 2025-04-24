@@ -25,6 +25,7 @@ export const formatDataProtectionObject = ({
     ownerId: owner,
     url: `https://drive.google.com/open?id=${file.id}`,
     lastAccessedAt: file.viewedByMeTime,
+    updatedAt: file.modifiedTime,
     contentHash: file.sha256Checksum,
     permissions: permissions.map((permission) => formatDataProtectionObjectPermission(permission)),
     metadata: {
