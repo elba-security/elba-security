@@ -1,6 +1,6 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
-import { server } from '@elba-security/test-utils';
+import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
 import { env } from '@/common/env';
 import { MiroError } from '../common/error';
 import { getUsers, getTokenInfo, type MiroUser } from './users';

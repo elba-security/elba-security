@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { RetryAfterError } from 'inngest';
-import { ConfluenceError } from '@/connectors/confluence/common/error';
+import { ConfluenceError } from '@/connectors/common/error';
 import { rateLimitMiddleware } from './rate-limit-middleware';
 
 describe('rate-limit middleware', () => {

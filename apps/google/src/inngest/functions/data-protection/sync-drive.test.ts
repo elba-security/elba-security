@@ -76,7 +76,7 @@ describe('sync-data-protection-drive', () => {
     expect(googleFiles.listGoogleFiles).toBeCalledTimes(1);
     expect(googleFiles.listGoogleFiles).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       pageSize: 250,
       pageToken: undefined,
       q: '"me" in owners and mimeType != \'application/vnd.google-apps.folder\'',
@@ -87,12 +87,12 @@ describe('sync-data-protection-drive', () => {
     expect(googlePermissions.listAllGoogleFileNonInheritedPermissions).toBeCalledTimes(2);
     expect(googlePermissions.listAllGoogleFileNonInheritedPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       fileId: 'file-id-1',
     });
     expect(googlePermissions.listAllGoogleFileNonInheritedPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       fileId: 'file-id-2',
     });
 
@@ -237,7 +237,7 @@ describe('sync-data-protection-drive', () => {
     expect(googleFiles.listGoogleFiles).toBeCalledTimes(1);
     expect(googleFiles.listGoogleFiles).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       corpora: 'drive',
       driveId: 'drive-id-1',
       includeItemsFromAllDrives: true,
@@ -251,13 +251,13 @@ describe('sync-data-protection-drive', () => {
     expect(googlePermissions.listAllGoogleFileNonInheritedPermissions).toBeCalledTimes(2);
     expect(googlePermissions.listAllGoogleFileNonInheritedPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       fileId: 'file-id-1',
       pageSize: 100,
     });
     expect(googlePermissions.listAllGoogleFileNonInheritedPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       fileId: 'file-id-2',
       pageSize: 100,
     });

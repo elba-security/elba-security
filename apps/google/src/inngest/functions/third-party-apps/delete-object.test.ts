@@ -48,7 +48,7 @@ describe('delete-third-party-apps-object', () => {
     expect(serviceAccountClientSpy).toBeCalledTimes(1);
     expect(serviceAccountClientSpy).toBeCalledWith('admin@org.local', true);
 
-    const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+    const authClient = serviceAccountClientSpy.mock.settledResults[0]?.value as unknown;
 
     expect(googleTokens.deleteGoogleToken).toBeCalledTimes(1);
     expect(googleTokens.deleteGoogleToken).toBeCalledWith({

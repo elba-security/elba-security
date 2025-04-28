@@ -116,7 +116,7 @@ describe('sync-data-protection-shared-drives', () => {
     expect(googleDrives.listGoogleSharedDriveIds).toBeCalledTimes(1);
     expect(googleDrives.listGoogleSharedDriveIds).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       pageSize: 100,
       pageToken: undefined,
     });
@@ -137,19 +137,19 @@ describe('sync-data-protection-shared-drives', () => {
     expect(googlePermissions.listAllGoogleSharedDriveManagerPermissions).toBeCalledTimes(3);
     expect(googlePermissions.listAllGoogleSharedDriveManagerPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       fileId: 'shared-drive-id-1',
       pageSize: 100,
     });
     expect(googlePermissions.listAllGoogleSharedDriveManagerPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       fileId: 'shared-drive-id-2',
       pageSize: 100,
     });
     expect(googlePermissions.listAllGoogleSharedDriveManagerPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       fileId: 'shared-drive-id-3',
       pageSize: 100,
     });
@@ -157,7 +157,7 @@ describe('sync-data-protection-shared-drives', () => {
     expect(googleMembers.listAllGoogleMembers).toBeCalledTimes(1);
     expect(googleMembers.listAllGoogleMembers).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       groupKey: 'group@org.local',
       maxResults: 200,
       roles: 'OWNER',
@@ -336,7 +336,7 @@ describe('sync-data-protection-shared-drives', () => {
     expect(googleDrives.listGoogleSharedDriveIds).toBeCalledTimes(1);
     expect(googleDrives.listGoogleSharedDriveIds).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       pageSize: 100,
       pageToken: 'page-token',
     });
@@ -357,19 +357,19 @@ describe('sync-data-protection-shared-drives', () => {
     expect(googlePermissions.listAllGoogleSharedDriveManagerPermissions).toBeCalledTimes(3);
     expect(googlePermissions.listAllGoogleSharedDriveManagerPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       fileId: 'shared-drive-id-1',
       pageSize: 100,
     });
     expect(googlePermissions.listAllGoogleSharedDriveManagerPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       fileId: 'shared-drive-id-2',
       pageSize: 100,
     });
     expect(googlePermissions.listAllGoogleSharedDriveManagerPermissions).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       fileId: 'shared-drive-id-3',
       pageSize: 100,
     });
@@ -377,7 +377,7 @@ describe('sync-data-protection-shared-drives', () => {
     expect(googleMembers.listAllGoogleMembers).toBeCalledTimes(1);
     expect(googleMembers.listAllGoogleMembers).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       groupKey: 'group@org.local',
       maxResults: 200,
       roles: 'OWNER',
