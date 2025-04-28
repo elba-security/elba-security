@@ -1,6 +1,6 @@
 import { z } from 'zod';
+import { IntegrationError, IntegrationConnectionError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { ServiceError } from '../common/error';
 
 // Define the response schema for paginated user data from your source API
 // This is an example - adjust according to your source API's response format
@@ -50,10 +50,10 @@ type GetUsersParams = {
  */
 export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   // Construct the API URL - replace with your source API endpoint
-  const url = new URL(`${env.SOURCE_API_BASE_URL}/users`);
+  const url = new URL(`${env.{{upper name}}_API_BASE_URL}/users`);
 
   // Add any required query parameters
-  url.searchParams.append('limit', `${env.SOURCE_USERS_SYNC_BATCH_SIZE}`);
+  url.searchParams.append('limit', `${env.{{upper name}}_USERS_SYNC_BATCH_SIZE}`);
 
   // Make the API request
   const response = await fetch(page ?? url.toString(), {
@@ -65,7 +65,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   });
 
   if (!response.ok) {
-    throw new ServiceError('Could not retrieve users', { response });
+    throw new IntegrationError('Could not retrieve users', { response });
   }
 
   const resData: unknown = await response.json();
@@ -102,7 +102,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
  * Used for validating access tokens and permissions
  */
 export const getAuthUser = async (accessToken: string) => {
-  const response = await fetch(`${env.SOURCE_API_BASE_URL}/me`, {
+  const response = await fetch(`${env.{{upper name}}_API_BASE_URL}/me`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -111,7 +111,11 @@ export const getAuthUser = async (accessToken: string) => {
   });
 
   if (!response.ok) {
-    throw new ServiceError('Could not retrieve user', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' });
+    }
+
+    throw new IntegrationError('Could not retrieve user', { response });
   }
 
   const resData: unknown = await response.json();
@@ -119,12 +123,12 @@ export const getAuthUser = async (accessToken: string) => {
   const userResult = userSchema.safeParse(resData);
 
   if (!userResult.success) {
-    throw new ServiceError('Invalid auth user data', { response });
+    throw new IntegrationError('Invalid auth user data', { response });
   }
 
   // Add any additional validation specific to authenticated users
-  if (userResult.data.type !== 'user') {
-    throw new ServiceError('Invalid auth user type', { response });
+  if (userResult.data.type !== 'admin') {
+    throw new IntegrationConnectionError('User is not admin', { type: 'not_admin' });
   }
 
   return userResult.data;

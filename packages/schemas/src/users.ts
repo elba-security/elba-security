@@ -8,7 +8,7 @@ export const updateUsersSchema = z.object({
       id: z.string().min(1),
       email: z.string().email().optional(),
       displayName: z.string().min(1),
-      additionalEmails: z.array(z.string().email()),
+      additionalEmails: z.array(z.string().email()).optional(),
       role: z.string().min(1).optional(),
       authMethod: z.enum(['mfa', 'password', 'sso']).optional(),
       isSuspendable: z.boolean().optional(),
@@ -17,13 +17,17 @@ export const updateUsersSchema = z.object({
   ),
 });
 
+export type UpdateUsers = zInfer<typeof updateUsersSchema>;
+
 export const usersDeleteUsersRequestedWebhookDataSchema = baseWebhookSchema.and(
   z.object({
     ids: z.array(z.string().min(1)),
   })
 );
 
-export type UpdateUsers = zInfer<typeof updateUsersSchema>;
+export type UsersDeleteUsersRequestedWebhookData = z.infer<
+  typeof usersDeleteUsersRequestedWebhookDataSchema
+>;
 
 export const deleteUsersSchema = baseDeleteRequestSchema;
 

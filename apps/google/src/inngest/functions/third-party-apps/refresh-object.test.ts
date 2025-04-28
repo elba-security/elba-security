@@ -55,7 +55,7 @@ describe('refresh-third-party-apps-object', () => {
     expect(serviceAccountClientSpy).toBeCalledTimes(1);
     expect(serviceAccountClientSpy).toBeCalledWith('admin@org.local', true);
 
-    const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+    const authClient = serviceAccountClientSpy.mock.settledResults[0]?.value as unknown;
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({
@@ -129,7 +129,7 @@ describe('refresh-third-party-apps-object', () => {
     expect(serviceAccountClientSpy).toBeCalledTimes(1);
     expect(serviceAccountClientSpy).toBeCalledWith('admin@org.local', true);
 
-    const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+    const authClient = serviceAccountClientSpy.mock.settledResults[0]?.value as unknown;
 
     expect(elba).toBeCalledTimes(1);
     expect(elba).toBeCalledWith({

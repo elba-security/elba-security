@@ -60,7 +60,15 @@ export const dataProtectionContentRequestedWebhookDataSchema = baseWebhookSchema
   })
 );
 
+export type DataProtectionContentRequestedWebhookData = z.infer<
+  typeof dataProtectionContentRequestedWebhookDataSchema
+>;
+
 export const dataProtectionStartSyncRequestedWebhookDataSchema = baseWebhookSchema;
+
+export type DataProtectionStartSyncRequestedWebhookData = z.infer<
+  typeof dataProtectionStartSyncRequestedWebhookDataSchema
+>;
 
 export const dataProtectionObjectDeletedWebhookDataSchema = baseWebhookSchema.and(
   z.object({
@@ -69,12 +77,20 @@ export const dataProtectionObjectDeletedWebhookDataSchema = baseWebhookSchema.an
   })
 );
 
+export type DataProtectionObjectDeletedWebhookData = z.infer<
+  typeof dataProtectionObjectDeletedWebhookDataSchema
+>;
+
 export const dataProtectionRefreshObjectRequestedWebhookDataSchema = baseWebhookSchema.and(
   z.object({
     id: z.string().min(1),
     metadata: jsonSchema,
   })
 );
+
+export type DataProtectionRefreshObjectRequestedWebhookData = z.infer<
+  typeof dataProtectionRefreshObjectRequestedWebhookDataSchema
+>;
 
 export const dataProtectionDeleteObjectPermissionsRequestedDataSchema = baseWebhookSchema.and(
   z.object({

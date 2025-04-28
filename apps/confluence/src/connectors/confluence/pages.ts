@@ -1,4 +1,4 @@
-import { ConfluenceError } from './common/error';
+import { ConfluenceError } from '../common/error';
 import type { ConfluencePaginatedResponseDataV2 } from './common/pagination';
 import { getNextPaginationCursorV2 } from './common/pagination';
 import type { ConfluencePageRestrictions } from './page-restrictions';

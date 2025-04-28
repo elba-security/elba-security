@@ -1,14 +1,12 @@
 import * as elbaSdk from '@elba-security/sdk';
-import type { ElbaOptions } from '@elba-security/sdk/src/types';
-import type { MockInstance } from 'vitest';
-import { vi } from 'vitest';
+import { type MockedClass, vi } from 'vitest';
 
 const Elba = elbaSdk.Elba;
 
-type ElbaMock = MockInstance<[ElbaOptions], elbaSdk.Elba>;
+type ElbaMock = MockedClass<typeof elbaSdk.Elba>;
 
 export const spyOnElba = () =>
-  vi.spyOn(elbaSdk, 'Elba').mockImplementation((options: ElbaOptions) => {
+  vi.spyOn(elbaSdk, 'Elba').mockImplementation((options) => {
     const elba = new Elba(options);
     vi.spyOn(elba.dataProtection, 'updateObjects');
     vi.spyOn(elba.dataProtection, 'deleteObjects');

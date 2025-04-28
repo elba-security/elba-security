@@ -5,7 +5,7 @@ packages:
 catalog:
   '@neondatabase/serverless': 0.9.4
   drizzle-orm: 0.29.4
-  inngest: 3.25.1
+  inngest: 3.32.9
   next: 14.2.4
   react: ^18
   react-dom: ^18
@@ -26,6 +26,6 @@ catalog:
   tailwindcss: ^3.4.3
   postcss: ^8.4.47
   postgres: ^3.4.4
-  testcontainers: ^10.10.0
+  testcontainers: ^10.24.2
   typescript: ^5.5.2
-  vitest: 1.6.0
+  vitest: ^3.1.2

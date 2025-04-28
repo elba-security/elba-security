@@ -1,5 +1,5 @@
 import { type MapConnectionErrorFn } from '@elba-security/inngest';
-import { NangoConnectionError } from '@elba-security/nango';
+import { IntegrationConnectionError } from '@elba-security/common';
 
 type BrevoErrorOptions = { response?: Response };
 
@@ -16,8 +16,8 @@ export class BrevoError extends Error {
 export class BrevoNotAdminError extends BrevoError {}
 
 export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
-  if (error instanceof NangoConnectionError && error.response.status === 404) {
-    return 'unauthorized';
+  if (error instanceof IntegrationConnectionError) {
+    return error.type;
   }
   if (error instanceof BrevoError && error.response?.status === 401) {
     return 'unauthorized';
