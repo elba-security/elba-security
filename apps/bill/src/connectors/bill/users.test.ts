@@ -66,7 +66,7 @@ describe('users connector', () => {
       });
     });
 
-    test('should throws when the token is invalid', async () => {
+    test('should throw when the token is invalid', async () => {
       await expect(getUsers({ devKey: 'foo-bar', sessionId })).rejects.toBeInstanceOf(BillError);
     });
   });
