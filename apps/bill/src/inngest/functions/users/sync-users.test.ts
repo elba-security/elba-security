@@ -12,10 +12,10 @@ const syncStartedAt = Date.now();
 
 const users: usersConnector.BillUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
-  name: `userName-${i}`,
-  role: 'admin',
+  firstName: `firstName-${i}`,
+  lastName: `lastName-${i}`,
   email: `user-${i}@foo.bar`,
-  invitation_sent: false,
+  archived: false,
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'bill/users.sync.requested');
@@ -25,7 +25,7 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { dev_key: 'dev-key', session_id: 'session-id' },
       }),
     });
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
@@ -34,7 +34,7 @@ describe('sync-users', () => {
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: 1,
+      nextPage: 'next-page-cursor',
     });
 
     const [result, { step }] = setup({
@@ -43,7 +43,7 @@ describe('sync-users', () => {
       nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
-      page: '1',
+      page: 'next-page-cursor',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -57,7 +57,7 @@ describe('sync-users', () => {
         nangoConnectionId,
         isFirstSync: false,
         syncStartedAt,
-        page: '1',
+        page: 'next-page-cursor',
       },
     });
   });
@@ -66,7 +66,7 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { dev_key: 'dev-key', session_id: 'session-id' },
       }),
     });
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({

@@ -39,7 +39,6 @@ describe('rate-limit middleware', () => {
           Promise.resolve([
             {
               code: 'BDC_1322',
-              message: 'Max number of concurrent requests per organization reached.',
             },
           ]),
       },
@@ -62,7 +61,7 @@ describe('rate-limit middleware', () => {
       .onFunctionRun({ fn: { name: 'foo' } })
       .transformOutput(context);
     expect(result?.result.error).toBeInstanceOf(RetryAfterError);
-    expect(result?.result.error.retryAfter).toStrictEqual('60');
+    expect(result?.result.error.retryAfter).toStrictEqual('10');
     expect(result).toMatchObject({
       foo: 'bar',
       baz: {

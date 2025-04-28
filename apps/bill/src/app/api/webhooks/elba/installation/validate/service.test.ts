@@ -25,7 +25,7 @@ describe('validateSourceInstallation', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { dev_key: 'dev-key', session_id: 'session-id' },
       }),
     });
 
@@ -72,7 +72,7 @@ describe('validateSourceInstallation', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { dev_key: 'dev-key', session_id: 'session-id' },
       }),
     });
 
@@ -98,7 +98,7 @@ describe('validateSourceInstallation', () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- convenience
         stack: expect.any(String),
       },
-      errorType: 'not_admin',
+      errorType: 'unknown',
     });
   });
   it('should throw an error when the nango credentials are not valid', async () => {
