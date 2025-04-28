@@ -1,6 +1,6 @@
-import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { deleteUser as deleteBillUser } from '@/connectors/bill/users';
+import { nangoCredentialsSchema } from '@/connectors/common/nango';
 import { nangoAPIClient } from '@/common/nango';
 import { env } from '@/common/env';
 
@@ -19,10 +19,15 @@ export const deleteUser = inngest.createFunction(
 
     const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
 
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new NonRetriableError('Could not retrieve Nango credentials');
+    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
+    if (!nangoCredentialsResult.success) {
+      throw new Error('Could not retrieve Nango credentials');
     }
 
-    await deleteBillUser({ userId, devKey: credentials.access_token });
+    await deleteBillUser({
+      userId,
+      devKey: nangoCredentialsResult.data.dev_key,
+      sessionId: nangoCredentialsResult.data.session_id,
+    });
   }
 );
