@@ -41,7 +41,7 @@ export class ElbaInngestClient<
       sourceId: this.#sourceId,
       nangoClient: this.#nangoClient,
       nangoAuthType: this.#nangoAuthType,
-      inngest: this.inngest,
+      inngest: this.#inngest,
     } as const satisfies ElbaInngestConfig;
   }
 
@@ -131,7 +131,7 @@ export class ElbaInngestClient<
   public serve = () =>
     serve({
       client: this.#inngest,
-      functions: this.inngest.funcs,
+      functions: this.#inngest.funcs,
       streaming: 'allow',
     });
 }

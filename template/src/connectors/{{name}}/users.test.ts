@@ -69,12 +69,7 @@ describe('users connector', () => {
 
     test('should return users and no nextPage when the token is valid and there is no other page', async () => {
       // Test the final page of results
-      await expect(
-        getUsers({
-          accessToken: validToken,
-          page: nextUri,
-        })
-      ).resolves.toStrictEqual({
+      await expect(getUsers({ accessToken: validToken, page: nextUri })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
         nextPage: null,
@@ -96,7 +91,7 @@ describe('users connector', () => {
   });
 
   describe('getAuthUser', () => {
-    beforeEach(() => {
+    const setup = ({ isAdmin }: { isAdmin: boolean }) => {
       // Set up MSW to intercept authenticated user endpoint
       server.use(
         http.get(`${env.{{upper name}}_API_BASE_URL}/me`, ({ request }) => {
@@ -108,13 +103,14 @@ describe('users connector', () => {
           return Response.json({
             id: 'auth-user-1',
             name: 'Authenticated User',
-            type: 'admin',
+            type: isAdmin ? 'admin' : 'user',
           });
         })
       );
-    });
+    };
 
     test('should successfully retrieve and parse user data', async () => {
+      setup({ isAdmin: true });
       await expect(getAuthUser(validToken)).resolves.toStrictEqual({
         id: 'auth-user-1',
         name: 'Authenticated User',
@@ -122,7 +118,22 @@ describe('users connector', () => {
       });
     });
 
+    test('should throw when the authenticated user is not an admin', async () => {
+      setup({ isAdmin: false });
+      await expect(getAuthUser(validToken)).rejects.toStrictEqual(
+        new IntegrationConnectionError('User is not admin', {
+          type: 'not_admin',
+          metadata: {
+            id: 'auth-user-1',
+            name: 'Authenticated User',
+            type: 'user',
+          },
+        })
+      );
+    });
+
     test('should throw when the token is invalid', async () => {
+      setup({ isAdmin: false });
       await expect(getAuthUser('invalid-token')).rejects.toStrictEqual(
         new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' })
       );

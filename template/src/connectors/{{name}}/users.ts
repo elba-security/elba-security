@@ -123,12 +123,18 @@ export const getAuthUser = async (accessToken: string) => {
   const userResult = userSchema.safeParse(resData);
 
   if (!userResult.success) {
-    throw new IntegrationError('Invalid auth user data', { response });
+    throw new IntegrationConnectionError('Invalid auth user data', {
+      type: 'unknown',
+      metadata: { data: resData, errors: userResult.error.issues },
+    });
   }
 
   // Add any additional validation specific to authenticated users
   if (userResult.data.type !== 'admin') {
-    throw new IntegrationConnectionError('User is not admin', { type: 'not_admin' });
+    throw new IntegrationConnectionError('User is not admin', {
+      type: 'not_admin',
+      metadata: userResult.data,
+    });
   }
 
   return userResult.data;
