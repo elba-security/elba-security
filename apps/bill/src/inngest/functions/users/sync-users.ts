@@ -1,6 +1,5 @@
 import type { User } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
-import { env } from '@/common/env';
 import { inngest } from '@/inngest/client';
 import { getUsers, getAuthUser } from '@/connectors/bill/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
@@ -20,7 +19,7 @@ const formatElbaUser = ({ user, authUserId }: { user: BillUser; authUserId: stri
   displayName: formatElbaUserDisplayName(user),
   email: user.email,
   additionalEmails: [],
-  url: `${env.BILL_APP_BASE_URL}/neo3/settings/roles-and-permissions/users/${user.id}/profile`,
+  url: `https://app-stage02.us.bill.com/neo3/settings/roles-and-permissions/users/${user.id}/profile`,
   isSuspendable: user.id !== authUserId,
 });
 

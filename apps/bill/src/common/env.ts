@@ -9,7 +9,6 @@ export const env = z
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
     BILL_API_BASE_URL: z.string().url(),
-    BILL_APP_BASE_URL: z.string().url(),
     BILL_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
     BILL_USERS_SYNC_BATCH_SIZE: zEnvInt().default(20),
     BILL_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
