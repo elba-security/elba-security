@@ -1,8 +1,8 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
+import { IntegrationConnectionError, IntegrationError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { ZoomError, ZoomNotAdminError } from '../common/error';
 import type { ZoomUser } from './users';
 import { getUsers, deactivateUser, getAuthUser } from './users';
 
@@ -58,8 +58,52 @@ describe('users connector', () => {
       });
     });
 
-    test('should throws when the token is invalid', async () => {
-      await expect(getUsers({ accessToken: 'foo-bar' })).rejects.toBeInstanceOf(ZoomError);
+    test('should throw when the token is invalid', async () => {
+      await expect(getUsers({ accessToken: 'invalid-token' })).rejects.toStrictEqual(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a test
+        new IntegrationError('Could not retrieve users', { response: expect.any(Response) })
+      );
+    });
+  });
+
+  describe('getAuthUser', () => {
+    const setup = ({ isAdmin }: { isAdmin: boolean }) => {
+      server.use(
+        http.get(`${env.ZOOM_API_BASE_URL}/users/me`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          return Response.json({
+            id: 'current-auth-user-id',
+            role_name: isAdmin ? 'Admin' : 'User',
+          });
+        })
+      );
+    };
+
+    test('should return the current authenticated user', async () => {
+      setup({ isAdmin: true });
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+        authUserId: 'current-auth-user-id',
+      });
+    });
+
+    test('should throw when the authenticated user is not an admin or owner', async () => {
+      setup({ isAdmin: false });
+      await expect(getAuthUser(validToken)).rejects.toStrictEqual(
+        new IntegrationConnectionError('Authenticated user is not owner or admin', {
+          type: 'not_admin',
+          metadata: { id: 'current-auth-user-id', role_name: 'User' },
+        })
+      );
+    });
+
+    test('should throw when the token is invalid', async () => {
+      setup({ isAdmin: false });
+      await expect(getAuthUser('invalid-token')).rejects.toStrictEqual(
+        new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' })
+      );
     });
   });
 
@@ -93,48 +137,13 @@ describe('users connector', () => {
       ).resolves.not.toThrow();
     });
 
-    test('should throw ZoomError when token is invalid', async () => {
-      await expect(deactivateUser({ accessToken: 'invalidToken', userId })).rejects.toBeInstanceOf(
-        ZoomError
+    test('should throw IntegrationError when token is invalid', async () => {
+      await expect(deactivateUser({ accessToken: 'invalidToken', userId })).rejects.toStrictEqual(
+        new IntegrationError('Could not deactivate user with Id: test-id', {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a test
+          response: expect.any(Response),
+        })
       );
-    });
-  });
-
-  const setup = (
-    { hasValidUserRole }: { hasValidUserRole: boolean } = { hasValidUserRole: true }
-  ) => {
-    server.use(
-      http.get(`${env.ZOOM_API_BASE_URL}/users/me`, ({ request }) => {
-        if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-          return new Response(undefined, { status: 401 });
-        }
-
-        return Response.json({
-          id: 'current-auth-user-id',
-          role_name: hasValidUserRole ? 'Admin' : 'User',
-        });
-      })
-    );
-  };
-
-  describe('getAuthUsers', () => {
-    test('should return the current authenticated user', async () => {
-      setup();
-      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
-        authUserId: 'current-auth-user-id',
-      });
-    });
-
-    test('should throw error when the auth user is not an admin or owner', async () => {
-      setup({
-        hasValidUserRole: false,
-      });
-      await expect(getAuthUser(validToken)).rejects.toBeInstanceOf(ZoomNotAdminError);
-    });
-
-    test('should throws when the token is invalid', async () => {
-      setup();
-      await expect(getAuthUser('foo-bar')).rejects.toBeInstanceOf(ZoomError);
     });
   });
 });
