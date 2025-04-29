@@ -75,7 +75,7 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.post<{ userId: string }>(
-          `${env.BILL_API_BASE_URL}/users/${userId}/archive`,
+          `${env.BILL_API_BASE_URL}/connect/v3/users/${userId}/archive`,
           ({ request }) => {
             if (
               request.headers.get('devKey') !== devKey ||

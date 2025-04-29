@@ -86,7 +86,7 @@ export const getUsers = async ({ devKey, sessionId, page }: GetUsersParams) => {
 
 // Owner of the organization cannot be deleted
 export const deleteUser = async ({ userId, devKey, sessionId }: DeleteUsersParams) => {
-  const url = new URL(`${env.BILL_API_BASE_URL}/users/${userId}/archive`);
+  const url = new URL(`${env.BILL_API_BASE_URL}/connect/v3/users/${userId}/archive`);
 
   const response = await fetch(url.toString(), {
     method: 'POST',
