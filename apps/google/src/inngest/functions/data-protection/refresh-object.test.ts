@@ -23,7 +23,8 @@ describe('refresh-data-protection-object', () => {
         id: fileId as unknown as string,
         name: 'file-name',
         sha256Checksum: 'sha256-checksum',
-        viewedByMeTime: '2024-01-01T00:00:00Z',
+        viewedByMeTime: '2024-01-02T00:00:00Z',
+        modifiedTime: '2024-01-01T00:00:00Z',
       });
     });
 
@@ -102,7 +103,8 @@ describe('refresh-data-protection-object', () => {
         {
           contentHash: 'sha256-checksum',
           id: 'object-id',
-          lastAccessedAt: '2024-01-01T00:00:00Z',
+          lastAccessedAt: '2024-01-02T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
           metadata: {
             ownerId: 'user-id',
           },

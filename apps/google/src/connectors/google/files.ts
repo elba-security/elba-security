@@ -7,12 +7,20 @@ export const googleFileSchema = z.object({
   name: z.string().min(1),
   sha256Checksum: z.string().min(1).optional(),
   viewedByMeTime: z.string().min(1).optional(),
+  modifiedTime: z.string().min(1).optional(),
   shared: z.boolean().optional(),
 });
 
 export type GoogleFile = zInfer<typeof googleFileSchema>;
 
-const googleFileFields = ['id', 'name', 'sha256Checksum', 'viewedByMeTime', 'shared'];
+const googleFileFields = [
+  'id',
+  'name',
+  'sha256Checksum',
+  'viewedByMeTime',
+  'modifiedTime',
+  'shared',
+];
 
 export const getGoogleFile = async ({
   fields = googleFileFields.join(','),
