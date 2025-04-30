@@ -31,10 +31,7 @@ export const startFolderAndFileSync = inngest.createFunction(
       organisationId,
       region,
     });
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new Error('Could not retrieve Nango credentials');
-    }
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
 
     // Using an intermediate variable because direct object property assignment
     // with credentials.access_token causes TypeScript union type inference issues.

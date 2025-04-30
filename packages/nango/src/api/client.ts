@@ -1,6 +1,7 @@
 import { type AllAuthCredentials, type Connection } from '@nangohq/types';
 import { IntegrationConnectionError } from '@elba-security/common';
 import { NangoConnectionError } from './error';
+import { type CredentialsAuthTypes, type ConnectionType } from './types';
 
 export class NangoAPIClient {
   integrationId: string;
@@ -21,7 +22,10 @@ export class NangoAPIClient {
     this.#secretKey = secretKey;
   }
 
-  public getConnection = async (connectionId: string) => {
+  public getConnection = async <CredentialsType extends CredentialsAuthTypes>(
+    connectionId: string,
+    type: CredentialsType
+  ): Promise<ConnectionType<CredentialsType>> => {
     const response = await fetch(
       `https://${this.host}/connection/${connectionId}?provider_config_key=${this.integrationId}`,
       {
@@ -32,7 +36,6 @@ export class NangoAPIClient {
     if (!response.ok) {
       if (response.status === 404) {
         throw new IntegrationConnectionError('Nango connection not found', {
-          response,
           type: 'unauthorized',
         });
       }
@@ -40,24 +43,19 @@ export class NangoAPIClient {
       throw new NangoConnectionError('Failed to retrieve Nango connection', { response });
     }
 
-    const body: Connection = await response.json();
+    const connection = (await response.json()) as Connection;
 
-    return body;
-  };
-
-  public getCredentials = async (connectionId: string, type: AllAuthCredentials['type']) => {
-    const { credentials } = await this.getConnection(connectionId);
-
+    const { credentials, ...connectionData } = connection;
     if (!this.isCredentialType(credentials, type)) {
       throw new Error('Invalid credentials type');
     }
 
-    return credentials;
+    return { ...connectionData, credentials };
   };
 
   public isCredentialType = <
     Credentials extends AllAuthCredentials,
-    Type extends AllAuthCredentials['type'],
+    Type extends CredentialsAuthTypes,
   >(
     credentials: Credentials,
     type: Type

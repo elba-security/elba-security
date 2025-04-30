@@ -1,4 +1,3 @@
-import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { deleteUser as deleteClickUpUser } from '@/connectors/clickup/users';
 import { nangoAPIClient } from '@/common/nango';
@@ -19,11 +18,8 @@ export const deleteUser = inngest.createFunction(
   async ({ event, step }) => {
     const { nangoConnectionId, userId } = event.data;
 
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
 
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new NonRetriableError('Could not retrieve Nango credentials');
-    }
     const token = credentials.access_token;
     const teamIds = await getTeamIds(token);
 

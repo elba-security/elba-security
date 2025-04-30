@@ -4,7 +4,7 @@ import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/metabase/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { type MetabaseUser } from '@/connectors/metabase/users';
-import { nangoConnectionConfigSchema, nangoCredentialsSchema } from '@/connectors/common/nango';
+import { nangoConnectionConfigSchema } from '@/connectors/common/nango';
 import { nangoAPIClient } from '@/common/nango';
 
 const formatElbaUserDisplayName = (user: MetabaseUser) => {
@@ -57,18 +57,14 @@ export const syncUsers = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       const { credentials, connection_config: connectionConfig } =
-        await nangoAPIClient.getConnection(nangoConnectionId);
-      const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-      if (!nangoCredentialsResult.success) {
-        throw new Error('Could not retrieve Nango credentials');
-      }
+        await nangoAPIClient.getConnection(nangoConnectionId, 'API_KEY');
       const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
       if (!nangoConnectionConfigResult.success) {
         throw new Error('Could not retrieve Nango connection config data');
       }
 
       const result = await getUsers({
-        apiKey: nangoCredentialsResult.data.apiKey,
+        apiKey: credentials.apiKey,
         domain: nangoConnectionConfigResult.data.domain,
         page,
       });
