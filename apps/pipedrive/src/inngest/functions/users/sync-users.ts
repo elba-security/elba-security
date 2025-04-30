@@ -1,6 +1,5 @@
 import type { User } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
-import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/pipedrive/users';
 import { type PipedriveUser } from '@/connectors/pipedrive/users';
@@ -50,10 +49,7 @@ export const syncUsers = inngest.createFunction(
     });
 
     const nextPage = await step.run('list-users', async () => {
-      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
-      }
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
       const rawCredentials = nangoRawCredentialsSchema.parse(credentials.raw);
 
       const apiDomain = rawCredentials.api_domain;

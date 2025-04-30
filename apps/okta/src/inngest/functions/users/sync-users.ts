@@ -1,5 +1,4 @@
 import type { User } from '@elba-security/sdk';
-import { NonRetriableError } from 'inngest';
 import { getUsers, getAuthUser } from '@/connectors/okta/users';
 import { type OktaUser } from '@/connectors/okta/users';
 import { inngest } from '@/inngest/client';
@@ -65,11 +64,7 @@ export const syncUsers = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       const { credentials, connection_config: connectionConfig } =
-        await nangoAPIClient.getConnection(nangoConnectionId);
-
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
-      }
+        await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
 
       const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
 

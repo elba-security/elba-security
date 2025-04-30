@@ -2,7 +2,7 @@ import { inngest } from '@/inngest/client';
 import { deleteUser as deleteMetabaseUser } from '@/connectors/metabase/users';
 import { nangoAPIClient } from '@/common/nango';
 import { env } from '@/common/env';
-import { nangoConnectionConfigSchema, nangoCredentialsSchema } from '@/connectors/common/nango';
+import { nangoConnectionConfigSchema } from '@/connectors/common/nango';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -17,12 +17,10 @@ export const deleteUser = inngest.createFunction(
   async ({ event }) => {
     const { nangoConnectionId, userId } = event.data;
 
-    const { credentials, connection_config: connectionConfig } =
-      await nangoAPIClient.getConnection(nangoConnectionId);
-    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-    if (!nangoCredentialsResult.success) {
-      throw new Error('Could not retrieve Nango credentials');
-    }
+    const { credentials, connection_config: connectionConfig } = await nangoAPIClient.getConnection(
+      nangoConnectionId,
+      'API_KEY'
+    );
     const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
     if (!nangoConnectionConfigResult.success) {
       throw new Error('Could not retrieve Nango connection config data');
@@ -30,7 +28,7 @@ export const deleteUser = inngest.createFunction(
 
     await deleteMetabaseUser({
       userId,
-      apiKey: nangoCredentialsResult.data.apiKey,
+      apiKey: credentials.apiKey,
       domain: nangoConnectionConfigResult.data.domain,
     });
   }

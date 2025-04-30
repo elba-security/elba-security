@@ -68,16 +68,12 @@ This document tracks important learnings and best practices for developing integ
 
   - Never implement OAuth flows directly in integrations
   - Always use Nango for authentication handling
-  - Validate credential structure from Nango
 
 - **Standard Pattern**:
 
   ```typescript
   // Getting credentials from Nango
-  const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-  if (!('access_token' in credentials)) {
-    throw new Error('Invalid credentials structure');
-  }
+  const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
   ```
 
 - **Common Mistakes**:

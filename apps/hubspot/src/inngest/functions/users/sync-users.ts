@@ -1,6 +1,5 @@
 import type { User } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
-import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { getUsers, getAuthUser, getAccountInfo } from '@/connectors/hubspot/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
@@ -65,10 +64,7 @@ export const syncUsers = inngest.createFunction(
       region,
     });
     const nextPage = await step.run('list-users', async () => {
-      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
-      }
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
 
       const result = await getUsers({ accessToken: credentials.access_token, page });
       const { authUserId } = await getAuthUser(credentials.access_token);

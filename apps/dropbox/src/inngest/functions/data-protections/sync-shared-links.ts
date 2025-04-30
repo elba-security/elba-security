@@ -20,10 +20,7 @@ export const syncSharedLinks = inngest.createFunction(
     const { organisationId, cursor, teamMemberId, isPersonal, pathRoot, nangoConnectionId } =
       event.data;
 
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new Error('Could not retrieve Nango credentials');
-    }
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
 
     const accessToken = credentials.access_token;
 

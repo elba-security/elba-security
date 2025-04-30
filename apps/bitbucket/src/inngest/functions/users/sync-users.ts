@@ -1,5 +1,4 @@
 import type { User } from '@elba-security/sdk';
-import { NonRetriableError } from 'inngest';
 import { getWorkspaces } from '@/connectors/bitbucket/workspaces';
 import { getUsers, getAuthUser } from '@/connectors/bitbucket/users';
 import { type BitbucketUser } from '@/connectors/bitbucket/users';
@@ -53,10 +52,7 @@ export const syncUsers = inngest.createFunction(
     });
 
     const nextPage = await step.run('list-users', async () => {
-      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
-      }
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
       const workspaceIds = await getWorkspaces(credentials.access_token);
       const { uuid: authUserId } = await getAuthUser(credentials.access_token);
 

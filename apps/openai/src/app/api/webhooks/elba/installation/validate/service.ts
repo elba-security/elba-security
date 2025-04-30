@@ -3,7 +3,6 @@ import { logger } from '@elba-security/logger';
 import { nangoAPIClient } from '@/common/nango';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
-import { nangoCredentialsSchema } from '@/connectors/common/nango';
 import { mapElbaConnectionError } from '@/connectors/common/error';
 import { getTokenOwnerInfo } from '@/connectors/openai/users';
 
@@ -21,17 +20,13 @@ export const validateSourceInstallation = async ({
     region,
   });
   try {
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-    if (!nangoCredentialsResult.success) {
-      throw new Error('Could not retrieve Nango credentials');
-    }
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'API_KEY');
 
     await elba.connectionStatus.update({
       errorType: null,
     });
 
-    const apiKey = nangoCredentialsResult.data.apiKey;
+    const apiKey = credentials.apiKey;
     const { organization } = await getTokenOwnerInfo(apiKey);
 
     if (organization?.personal) {

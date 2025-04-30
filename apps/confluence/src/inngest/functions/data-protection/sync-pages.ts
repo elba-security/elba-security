@@ -1,4 +1,3 @@
-import { NonRetriableError } from 'inngest';
 import { getPagesWithRestrictions } from '@/connectors/confluence/pages';
 import { inngest } from '@/inngest/client';
 import { formatPageObject } from '@/connectors/elba/data-protection/objects';
@@ -37,10 +36,7 @@ export const syncPages = inngest.createFunction(
     const { organisationId, cursor, syncStartedAt, isFirstSync, nangoConnectionId, region } =
       event.data;
 
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new NonRetriableError('Could not retrieve Nango credentials');
-    }
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
     const instance = await getInstance(credentials.access_token);
 
     const elba = createElbaOrganisationClient({ organisationId, region });

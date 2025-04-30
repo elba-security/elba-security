@@ -73,9 +73,7 @@ describe('validateSourceInstallation', () => {
     const elba = spyOnElba();
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
-      getConnection: vi.fn().mockResolvedValue({
-        credentials: {},
-      }),
+      getConnection: vi.fn().mockRejectedValue(new Error('Could not retrieve Nango credentials')),
     });
     vi.spyOn(usersConnector, 'getTokenOwnerInfo').mockResolvedValue({
       organization: { role: 'owner', id: organizationId, personal: false },
