@@ -70,13 +70,7 @@ describe('users-sync', () => {
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
     expect(step.run).toHaveBeenCalledTimes(1);
-    expect(step.run).toHaveBeenCalledWith('list-users', getUsersFnMock, {
-      cursor: 'cursor',
-      nangoConnectionId: 'nango-connection-id',
-      organisationId: 'organisation-id',
-      region: 'eu',
-      syncStartedAt: '2025-01-01T00:00:00.000Z',
-    });
+    expect(step.run).toHaveBeenCalledWith('list-users', expect.any(Function));
 
     expect(getUsersFnMock).toHaveBeenCalledTimes(1);
     expect(getUsersFnMock).toHaveBeenCalledWith({

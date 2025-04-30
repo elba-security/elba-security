@@ -1,6 +1,5 @@
 import { type UpdateUsers, type BaseWebhookData } from '@elba-security/schemas';
 import {
-  // type GetUsersFn,
   type Cursor,
   type ElbaInngestConfig,
   type MaybeNangoAuthType,
@@ -46,16 +45,18 @@ export const createElbaUsersSyncFn = <NangoAuthType extends MaybeNangoAuthType, 
     async ({ event, step }) => {
       const { organisationId, nangoConnectionId, region, syncStartedAt } = event.data;
 
-      const accessToken = await getNangoConnection({
+      const connection = await getNangoConnection({
         nangoClient,
         nangoAuthType,
         nangoConnectionId,
       });
 
-      const { users, cursor } = await step.run(
-        'list-users',
-        getUsersFn as GetUsersFn<MaybeNangoAuthType, unknown>, // cast as unknown as step.run is lost with generic types
-        { ...event.data, connection: accessToken as never }
+      const { users, cursor } = await step.run('list-users', async () =>
+        // We need to explicitly cast cursor type to unknown as step.run is lost with generic types
+        (getUsersFn as GetUsersFn<NangoAuthType, unknown>)({
+          ...event.data,
+          connection: connection as never,
+        })
       );
 
       if (users.length) {
