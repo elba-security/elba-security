@@ -1,5 +1,5 @@
 import { type MapConnectionErrorFn } from '@elba-security/inngest';
-import { NangoConnectionError } from '@elba-security/nango';
+import { IntegrationConnectionError } from '@elba-security/common';
 
 type RampErrorOptions = { response?: Response };
 
@@ -14,8 +14,8 @@ export class RampError extends Error {
 }
 
 export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
-  if (error instanceof NangoConnectionError && error.response.status === 404) {
-    return 'unauthorized';
+  if (error instanceof IntegrationConnectionError) {
+    return error.type;
   }
   if (error instanceof RampError && error.response?.status === 401) {
     return 'unauthorized';
