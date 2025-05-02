@@ -20,11 +20,8 @@ export const validateSourceInstallation = async ({
     region,
   });
   try {
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new Error('Could not retrieve Nango credentials');
-    }
-    
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
+
     await getAuthenticatedAdmin(credentials.access_token);
 
     await elba.connectionStatus.update({

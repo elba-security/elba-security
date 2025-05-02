@@ -1,5 +1,5 @@
 import { type MapConnectionErrorFn } from '@elba-security/inngest';
-import { NangoConnectionError } from '@elba-security/nango';
+import { IntegrationConnectionError } from '@elba-security/common';
 
 export class DropboxError extends Error {
   response: Response;
@@ -43,8 +43,8 @@ export class DropboxError extends Error {
 export class DropboxNotAdminError extends DropboxError {}
 
 export const mapElbaConnectionError: MapConnectionErrorFn = (error) => {
-  if (error instanceof NangoConnectionError && error.response.status === 404) {
-    return 'unauthorized';
+  if (error instanceof IntegrationConnectionError) {
+    return error.type;
   }
   if (error instanceof DropboxError && error.response.status === 401) {
     return 'unauthorized';

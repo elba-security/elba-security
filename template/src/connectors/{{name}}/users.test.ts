@@ -1,14 +1,14 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
-import { server } from '@elba-security/test-utils';
+import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
+import { IntegrationConnectionError, IntegrationError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { ServiceError } from '../common/error';
 import type { SourceUser } from './users';
 import { getAuthUser, getUsers } from './users';
 
 // Test data setup
 const validToken = 'valid-token-1234';
-const nextUri = `${env.SOURCE_API_BASE_URL}/users?page=2`; // Example pagination URL
+const nextUri = `${env.{{upper name}}_API_BASE_URL}/users?page=2`; // Example pagination URL
 const endPosition = '2'; // Used to determine when to stop pagination
 
 // Create sample valid users for testing
@@ -33,7 +33,7 @@ describe('users connector', () => {
       // Set up MSW to intercept API calls
       // This mocks your source API's user endpoint
       server.use(
-        http.get(`${env.SOURCE_API_BASE_URL}/users`, ({ request }) => {
+        http.get(`${env.{{upper name}}_API_BASE_URL}/users`, ({ request }) => {
           // Validate the access token
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
@@ -69,12 +69,7 @@ describe('users connector', () => {
 
     test('should return users and no nextPage when the token is valid and there is no other page', async () => {
       // Test the final page of results
-      await expect(
-        getUsers({
-          accessToken: validToken,
-          page: nextUri,
-        })
-      ).resolves.toStrictEqual({
+      await expect(getUsers({ accessToken: validToken, page: nextUri })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
         nextPage: null,
@@ -83,7 +78,9 @@ describe('users connector', () => {
 
     test('should throw when the token is invalid', async () => {
       // Test error handling for invalid authentication
-      await expect(getUsers({ accessToken: 'invalid-token' })).rejects.toBeInstanceOf(ServiceError);
+      await expect(getUsers({ accessToken: 'invalid-token' })).rejects.toBeInstanceOf(
+        IntegrationError
+      );
     });
 
     // TODO: Add more test cases specific to your source API
@@ -94,10 +91,10 @@ describe('users connector', () => {
   });
 
   describe('getAuthUser', () => {
-    beforeEach(() => {
+    const setup = ({ isAdmin }: { isAdmin: boolean }) => {
       // Set up MSW to intercept authenticated user endpoint
       server.use(
-        http.get(`${env.SOURCE_API_BASE_URL}/me`, ({ request }) => {
+        http.get(`${env.{{upper name}}_API_BASE_URL}/me`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -106,22 +103,40 @@ describe('users connector', () => {
           return Response.json({
             id: 'auth-user-1',
             name: 'Authenticated User',
-            type: 'user',
+            type: isAdmin ? 'admin' : 'user',
           });
+        })
+      );
+    };
+
+    test('should successfully retrieve and parse user data', async () => {
+      setup({ isAdmin: true });
+      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+        id: 'auth-user-1',
+        name: 'Authenticated User',
+        type: 'admin',
+      });
+    });
+
+    test('should throw when the authenticated user is not an admin', async () => {
+      setup({ isAdmin: false });
+      await expect(getAuthUser(validToken)).rejects.toStrictEqual(
+        new IntegrationConnectionError('User is not admin', {
+          type: 'not_admin',
+          metadata: {
+            id: 'auth-user-1',
+            name: 'Authenticated User',
+            type: 'user',
+          },
         })
       );
     });
 
-    test('should successfully retrieve and parse user data', async () => {
-      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
-        id: 'auth-user-1',
-        name: 'Authenticated User',
-        type: 'user',
-      });
-    });
-
     test('should throw when the token is invalid', async () => {
-      await expect(getAuthUser('invalid-token')).rejects.toBeInstanceOf(ServiceError);
+      setup({ isAdmin: false });
+      await expect(getAuthUser('invalid-token')).rejects.toStrictEqual(
+        new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' })
+      );
     });
 
     // TODO: Add more test cases for authentication scenarios

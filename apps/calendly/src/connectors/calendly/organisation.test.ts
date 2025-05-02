@@ -1,6 +1,6 @@
 import { http } from 'msw';
 import { describe, expect, test } from 'vitest';
-import { server } from '@elba-security/test-utils';
+import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
 import { CalendlyError, CalendlyUnsupportedPlanError } from '../common/error';
 import { checkOrganisationPlan } from './organisation';
 

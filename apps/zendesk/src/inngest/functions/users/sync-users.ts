@@ -60,10 +60,7 @@ export const syncUsers = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       const { credentials, connection_config: connectionConfig } =
-        await nangoAPIClient.getConnection(nangoConnectionId);
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new Error('Could not retrieve Nango credentials');
-      }
+        await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
       const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
       if (!nangoConnectionConfigResult.success) {
         throw new Error('Could not retrieve Nango connection config data');

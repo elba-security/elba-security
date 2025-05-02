@@ -13,14 +13,12 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@elba-security/common": "workspace:*",
     "@elba-security/config": "workspace:*",
     "@elba-security/inngest": "workspace:*",
     "@elba-security/logger": "workspace:*",
-    "@elba-security/nango": "workspace:*",
     "@elba-security/nextjs": "workspace:*",
-    "@elba-security/sdk": "workspace:*",
     "@elba-security/utils": "workspace:*",
-    "inngest": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",

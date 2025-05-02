@@ -1,4 +1,4 @@
-import { InngestMiddleware, NonRetriableError, RetryAfterError } from 'inngest';
+import { InngestMiddleware, RetryAfterError } from 'inngest';
 import { addDays, differenceInSeconds, startOfDay } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { logger } from '@elba-security/logger';
@@ -14,12 +14,7 @@ const secondsUntilMidnight = (timezone: string): number => {
 };
 
 const getTimeZone = async (organisationId: string) => {
-  const { credentials } = await nangoAPIClient.getConnection(organisationId);
-  if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-    throw new NonRetriableError(
-      `Nango credentials are missing or invalid for the organisation with id=${organisationId}`
-    );
-  }
+  const { credentials } = await nangoAPIClient.getConnection(organisationId, 'OAUTH2');
   const { timeZone } = await getAccountInfo(credentials.access_token);
 
   return timeZone;
