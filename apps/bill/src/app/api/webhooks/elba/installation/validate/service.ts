@@ -21,7 +21,7 @@ export const validateSourceInstallation = async ({
     region,
   });
   try {
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'BILL');
     const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
     if (!nangoCredentialsResult.success) {
       throw new Error('Could not retrieve Nango credentials');
