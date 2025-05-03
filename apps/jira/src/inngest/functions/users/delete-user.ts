@@ -1,11 +1,8 @@
-import { eq } from 'drizzle-orm';
-import { NonRetriableError } from 'inngest';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { deleteUser as deleteSourceUser } from '@/connectors/jira/users';
-import { decrypt } from '@/common/crypto';
 import { env } from '@/common/env';
+import { nangoConnectionConfigSchema, nangoCredentialsSchema } from '@/connectors/common/nango';
+import { nangoAPIClient } from '@/common/nango';
 
 export const deleteUser = inngest.createFunction(
   {
@@ -28,28 +25,24 @@ export const deleteUser = inngest.createFunction(
   },
   { event: 'jira/users.delete.requested' },
   async ({ event }) => {
-    const { userId, organisationId } = event.data;
+    const { nangoConnectionId, userId } = event.data;
 
-    const [organisation] = await db
-      .select({
-        apiToken: organisationsTable.apiToken,
-        domain: organisationsTable.domain,
-        email: organisationsTable.email,
-      })
-      .from(organisationsTable)
-      .where(eq(organisationsTable.id, organisationId));
-
-    if (!organisation) {
-      throw new NonRetriableError(`Could not retrieve ${userId}`);
+    const { credentials, connection_config: connectionConfig } =
+      await nangoAPIClient.getConnection(nangoConnectionId);
+    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
+    if (!nangoCredentialsResult.success) {
+      throw new Error('Could not retrieve Nango credentials');
     }
-
-    const apiToken = await decrypt(organisation.apiToken);
+    const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
+    if (!nangoConnectionConfigResult.success) {
+      throw new Error('Could not retrieve Nango connection config data');
+    }
 
     await deleteSourceUser({
       userId,
-      apiToken,
-      domain: organisation.domain,
-      email: organisation.email,
+      apiToken: nangoCredentialsResult.data.password,
+      domain: nangoConnectionConfigResult.data.subdomain,
+      email: nangoCredentialsResult.data.username,
     });
   }
 );
