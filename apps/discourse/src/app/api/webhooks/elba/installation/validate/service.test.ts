@@ -68,7 +68,7 @@ describe('validateSourceInstallation', () => {
           nangoConnectionId,
           isFirstSync: true,
           syncStartedAt: now,
-          page: null,
+          page: 1,
         },
       },
     ]);
