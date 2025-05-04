@@ -1,7 +1,7 @@
 import { serializeLogObject } from '@elba-security/logger/src/serialize';
 import { logger } from '@elba-security/logger';
 import { nangoAPIClient } from '@/common/nango';
-import { getUsers } from '@/connectors/discourse/users';
+// import { getUsers } from '@/connectors/discourse/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { nangoConnectionConfigSchema, nangoCredentialsSchema } from '@/connectors/common/nango';
 import { inngest } from '@/inngest/client';
@@ -36,12 +36,12 @@ export const validateSourceInstallation = async ({
       throw new Error('Could not retrieve Nango connection config data');
     }
 
-    await getUsers({
-      apiKey: nangoCredentialsResult.data.apiKey,
-      defaultHost: nangoConnectionConfigResult.data.defaultHost,
-      apiUsername: nangoConnectionConfigResult.data.apiUsername,
-      page: 1,
-    });
+    // await getUsers({
+    //   apiKey: nangoCredentialsResult.data.apiKey,
+    //   defaultHost: nangoConnectionConfigResult.data.defaultHost,
+    //   apiUsername: nangoConnectionConfigResult.data.apiUsername,
+    //   page: 1,
+    // });
 
     await elba.connectionStatus.update({
       errorType: null,
