@@ -21,7 +21,8 @@ describe('deleteUser', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey: 'api-key' },
+        connection_config: { apiUsername: 'test-user-name', defaultHost: 'test-host' },
       }),
     });
     const [result] = setup({ organisationId, region, nangoConnectionId, userId });
@@ -31,7 +32,9 @@ describe('deleteUser', () => {
     expect(usersConnector.deleteUser).toBeCalledTimes(1);
     expect(usersConnector.deleteUser).toBeCalledWith({
       userId,
-      apiKey: 'access-token',
+      apiKey: 'api-key',
+      defaultHost: 'test-host',
+      apiUsername: 'test-user-name',
     });
   });
 });

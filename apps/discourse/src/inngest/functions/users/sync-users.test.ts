@@ -11,11 +11,11 @@ const nangoConnectionId = 'nango-connection-id';
 const syncStartedAt = Date.now();
 
 const users: usersConnector.DiscourseUser[] = Array.from({ length: 2 }, (_, i) => ({
-  id: `id-${i}`,
-  name: `userName-${i}`,
-  role: 'admin',
+  id: i,
+  username: `userName-${i}`,
   email: `user-${i}@foo.bar`,
-  invitation_sent: false,
+  active: false,
+  can_be_deleted: false,
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'discourse/users.sync.requested');
@@ -25,12 +25,11 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey: 'api-key' },
+        connection_config: { apiUsername: 'test-user-name', defaultHost: 'test-host' },
       }),
     });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserUrl: 'https://test-domain.discourse.com',
-    });
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -43,7 +42,7 @@ describe('sync-users', () => {
       nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
-      page: '1',
+      page: 1,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -57,7 +56,7 @@ describe('sync-users', () => {
         nangoConnectionId,
         isFirstSync: false,
         syncStartedAt,
-        page: '1',
+        page: 1,
       },
     });
   });
@@ -66,12 +65,11 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { apiKey: 'api-key' },
+        connection_config: { apiUsername: 'test-user-name', defaultHost: 'test-host' },
       }),
     });
-    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserUrl: 'https://test-domain.discourse.com',
-    });
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
