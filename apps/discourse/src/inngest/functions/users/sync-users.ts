@@ -78,7 +78,7 @@ export const syncUsers = inngest.createFunction(
       });
 
       const users = result.validUsers
-        .filter(({ active }) => active)
+        .filter(({ active, id }) => active && id > 0) // filter a discordbot and system user
         .map((user) => formatElbaUser({ user, defaultHost }));
 
       if (result.invalidUsers.length > 0) {
