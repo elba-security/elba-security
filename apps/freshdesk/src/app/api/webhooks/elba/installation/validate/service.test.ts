@@ -9,6 +9,9 @@ const organisationId = '00000000-0000-0000-0000-000000000002';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const now = Date.now();
+const userName = 'user-name';
+const password = 'password';
+const subDomain = 'test-domain';
 
 describe('validateSourceInstallation', () => {
   beforeAll(() => {
@@ -24,13 +27,14 @@ describe('validateSourceInstallation', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { username: userName, password },
+        connection_config: { subdomain: subDomain },
       }),
     });
 
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserEmail: 'https://test-url.freshdesk.com',
+      authUserEmail: 'test@email.com',
     });
 
     await validateSourceInstallation({
@@ -89,13 +93,13 @@ describe('validateSourceInstallation', () => {
     expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
     expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
       errorMetadata: {
-        name: 'FreshdeskError',
+        name: 'Error',
         cause: undefined,
-        message: '',
+        message: 'Could not retrieve Nango credentials',
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- convenience
         stack: expect.any(String),
       },
-      errorType: 'not_admin',
+      errorType: 'unknown',
     });
   });
   it('should throw an error when the nango credentials are not valid', async () => {

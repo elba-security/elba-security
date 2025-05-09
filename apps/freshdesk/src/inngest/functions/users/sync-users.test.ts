@@ -10,12 +10,17 @@ const nangoConnectionId = 'nango-connection-id';
 
 const syncStartedAt = Date.now();
 
+const userName = 'user-name';
+const password = 'password';
+const subDomain = 'test-domain';
+
 const users: usersConnector.FreshdeskUser[] = Array.from({ length: 2 }, (_, i) => ({
-  id: `id-${i}`,
-  name: `userName-${i}`,
-  role: 'admin',
-  email: `user-${i}@foo.bar`,
-  invitation_sent: false,
+  id: i,
+  contact: {
+    name: `name-${i}`,
+    email: `user-${i}@foo.bar`,
+    active: true,
+  },
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'freshdesk/users.sync.requested');
@@ -25,11 +30,12 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { username: userName, password },
+        connection_config: { subdomain: subDomain },
       }),
     });
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
-      authUserEmail: 'https://test-domain.freshdesk.com',
+      authUserEmail: 'test@email.com',
     });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
@@ -43,7 +49,7 @@ describe('sync-users', () => {
       nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
-      page: '1',
+      page: 1,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -57,7 +63,7 @@ describe('sync-users', () => {
         nangoConnectionId,
         isFirstSync: false,
         syncStartedAt,
-        page: '1',
+        page: 1,
       },
     });
   });
@@ -66,7 +72,8 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { username: userName, password },
+        connection_config: { subdomain: subDomain },
       }),
     });
     vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
