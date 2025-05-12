@@ -5,7 +5,7 @@ packages:
 catalog:
   '@neondatabase/serverless': 0.9.4
   drizzle-orm: 0.29.4
-  inngest: 3.32.9
+  inngest: 3.35.1
   next: 14.2.4
   react: ^18
   react-dom: ^18
@@ -21,7 +21,7 @@ catalog:
   dotenv: ^16.4.5
   drizzle-kit: ^0.20.6
   eslint: ^8
-  inngest-cli: ^1.1.0
+  inngest-cli: ^1.5.12
   msw: ^2.3.1
   tailwindcss: ^3.4.3
   postcss: ^8.4.47
