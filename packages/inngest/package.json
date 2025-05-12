@@ -16,6 +16,7 @@
     "@elba-security/utils": "workspace:*",
     "@elba-security/schemas": "workspace:*",
     "@elba-security/sdk": "workspace:*",
+    "inngest": "catalog:",
     "date-fns": "catalog:",
     "zod": "catalog:"
   },
@@ -26,11 +27,7 @@
     "@elba-security/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "eslint": "catalog:",
-    "inngest": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
-  },
-  "peerDependencies": {
-    "inngest": "catalog:"
   }
 }
