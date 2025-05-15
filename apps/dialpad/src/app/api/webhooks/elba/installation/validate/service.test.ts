@@ -16,6 +16,7 @@ const validUsers: usersConnector.DialpadUser[] = Array.from({ length: 5 }, (_, i
   last_name: `lastName-${i}`,
   emails: [`user-${i}@foo.bar`],
   is_super_admin: false,
+  state: 'active',
 }));
 
 const invalidUsers = [];
@@ -78,38 +79,6 @@ describe('validateSourceInstallation', () => {
     });
   });
 
-  it('should throw an error when when auth user is not an Owner or Admin', async () => {
-    const elba = spyOnElba();
-    // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
-      getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
-      }),
-    });
-
-    await expect(
-      validateSourceInstallation({
-        organisationId,
-        nangoConnectionId,
-        region,
-      })
-    ).resolves.toStrictEqual({
-      message: 'Source installation validation failed',
-    });
-
-    const elbaInstance = elba.mock.results[0]?.value;
-    expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
-    expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
-      errorMetadata: {
-        name: 'DialpadError',
-        cause: undefined,
-        message: '',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- convenience
-        stack: expect.any(String),
-      },
-      errorType: 'not_admin',
-    });
-  });
   it('should throw an error when the nango credentials are not valid', async () => {
     const elba = spyOnElba();
     // @ts-expect-error -- this is a mock

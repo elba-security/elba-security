@@ -7,8 +7,8 @@ import type { DialpadUser } from './users';
 import { getUsers, deleteUser } from './users';
 
 const validToken = 'token-1234';
-const endPageOffset = '3';
-const nextPageOffset = '2';
+const endPageCursor = 'endPage-cursor';
+const nextPageCursor = 'nextPage-cursor';
 const userId = 'test-user-id';
 
 const validUsers: DialpadUser[] = Array.from({ length: 5 }, (_, i) => ({
@@ -17,6 +17,7 @@ const validUsers: DialpadUser[] = Array.from({ length: 5 }, (_, i) => ({
   last_name: `lastName-${i}`,
   emails: [`user-${i}@foo.bar`],
   is_super_admin: false,
+  state: 'active',
 }));
 
 const invalidUsers = [];
@@ -25,18 +26,22 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       server.use(
-        http.get(`${env.DIALPAD_API_BASE_URL}/users`, ({ request }) => {
+        http.get(`${env.DIALPAD_API_BASE_URL}/api/v2/users`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
 
           const url = new URL(request.url);
-          const offset = url.searchParams.get('offset') || '0';
-          const responseData = {
-            users: validUsers,
-            offset: parseInt(offset, 10),
-            more: offset !== endPageOffset,
-          };
+          const cursor = url.searchParams.get('cursor') || '0';
+          const responseData =
+            cursor === endPageCursor
+              ? {
+                  items: validUsers,
+                }
+              : {
+                  items: validUsers,
+                  cursor: nextPageCursor,
+                };
           return Response.json(responseData);
         })
       );
@@ -44,17 +49,17 @@ describe('users connector', () => {
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
       await expect(
-        getUsers({ accessToken: validToken, page: nextPageOffset })
+        getUsers({ accessToken: validToken, page: nextPageCursor })
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage: parseInt(nextPageOffset, 10) + 1,
+        nextPage: nextPageCursor,
       });
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
       await expect(
-        getUsers({ accessToken: validToken, page: endPageOffset })
+        getUsers({ accessToken: validToken, page: endPageCursor })
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
@@ -70,8 +75,8 @@ describe('users connector', () => {
   describe('deleteUser', () => {
     beforeEach(() => {
       server.use(
-        http.delete<{ userId: string }>(
-          `${env.DIALPAD_API_BASE_URL}/users/${userId}`,
+        http.patch<{ userId: string }>(
+          `${env.DIALPAD_API_BASE_URL}/api/v2/users/${userId}`,
           ({ request }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(undefined, { status: 401 });

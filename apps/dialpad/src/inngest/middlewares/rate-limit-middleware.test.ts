@@ -16,7 +16,7 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should not transform the output when the error is not about PagerDuty rate limit', () => {
+  test('should not transform the output when the error is not about Dialpad rate limit', () => {
     expect(
       rateLimitMiddleware
         .init()
@@ -30,12 +30,11 @@ describe('rate-limit middleware', () => {
     ).toBeUndefined();
   });
 
-  test('should transform the output error to RetryAfterError when the error is about PagerDuty rate limit', () => {
+  test('should transform the output error to RetryAfterError when the error is about Dialpad rate limit', () => {
     const rateLimitError = new DialpadError('foo bar', {
       // @ts-expect-error this is a mock
       response: {
         status: 429,
-        headers: new Headers({ 'X-RateLimit-Reset': '60' }),
       },
     });
 
