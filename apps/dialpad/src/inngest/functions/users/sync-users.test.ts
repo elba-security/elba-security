@@ -12,10 +12,11 @@ const syncStartedAt = Date.now();
 
 const users: usersConnector.DialpadUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
-  name: `userName-${i}`,
-  role: 'admin',
-  email: `user-${i}@foo.bar`,
-  invitation_sent: false,
+  first_name: `firstName-${i}`,
+  last_name: `lastName-${i}`,
+  emails: [`user-${i}@foo.bar`],
+  is_super_admin: false,
+  state: 'active',
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'dialpad/users.sync.requested');
@@ -28,13 +29,11 @@ describe('sync-users', () => {
         credentials: { access_token: 'access-token' },
       }),
     });
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      authUserUrl: 'https://test-domain.dialpad.com',
-    });
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: 1,
+      nextPage: 'next-page-cursor',
     });
 
     const [result, { step }] = setup({
@@ -43,7 +42,7 @@ describe('sync-users', () => {
       nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
-      page: '1',
+      page: null,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -57,7 +56,7 @@ describe('sync-users', () => {
         nangoConnectionId,
         isFirstSync: false,
         syncStartedAt,
-        page: '1',
+        page: 'next-page-cursor',
       },
     });
   });
@@ -69,9 +68,7 @@ describe('sync-users', () => {
         credentials: { access_token: 'access-token' },
       }),
     });
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      authUserUrl: 'https://test-domain.dialpad.com',
-    });
+
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
