@@ -12,6 +12,7 @@ const syncStartedAt = Date.now();
 
 const users: usersConnector.DialpadUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
+  display_name: `displayName-${i}`,
   first_name: `firstName-${i}`,
   last_name: `lastName-${i}`,
   emails: [`user-${i}@foo.bar`],

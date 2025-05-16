@@ -13,6 +13,7 @@ const userId = 'test-user-id';
 
 const validUsers: DialpadUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
+  display_name: `displayName-${i}`,
   first_name: `firstName-${i}`,
   last_name: `lastName-${i}`,
   emails: [`user-${i}@foo.bar`],

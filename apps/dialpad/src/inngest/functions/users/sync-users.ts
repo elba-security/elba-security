@@ -11,6 +11,9 @@ const formatElbaUserDisplayName = (user: DialpadUser) => {
   if (user.first_name && user.last_name) {
     return `${user.first_name} ${user.last_name}`;
   }
+  if (user.emails[0] === undefined) {
+    return user.display_name;
+  }
   return user.emails[0];
 };
 

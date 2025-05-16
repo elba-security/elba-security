@@ -4,9 +4,10 @@ import { DialpadError } from '../common/error';
 
 const dialpadUserSchema = z.object({
   id: z.string(),
+  display_name: z.string(),
   first_name: z.string(),
   last_name: z.string(),
-  emails: z.array(z.string()),
+  emails: z.array(z.string().min(1)),
   is_super_admin: z.boolean(),
   state: z.string(), // active or suspended
 });
