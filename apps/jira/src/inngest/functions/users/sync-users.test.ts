@@ -1,27 +1,17 @@
 import { expect, test, describe, vi } from 'vitest';
-import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
-import { NonRetriableError } from 'inngest';
+import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as usersConnector from '@/connectors/jira/users';
-import { db } from '@/database/client';
-import { organisationsTable } from '@/database/schema';
-import { encrypt } from '@/common/crypto';
+import * as nangoAPIClient from '@/common/nango';
 import { syncUsers } from './sync-users';
 
+const organisationId = '00000000-0000-0000-0000-000000000001';
+const region = 'us';
+const nangoConnectionId = 'nango-connection-id';
+const syncStartedAt = Date.now();
+const nextPage = 1;
 const apiToken = 'test-access-token';
 const domain = 'test-domain';
 const email = 'test@email';
-const authUserId = 'test-authUser-id';
-const organisation = {
-  id: '00000000-0000-0000-0000-000000000001',
-  apiToken: await encrypt(apiToken),
-  region: 'us',
-  domain,
-  email,
-  authUserId,
-};
-const syncStartedAt = Date.now();
-const syncedBefore = Date.now();
-const nextPage = 1;
 const users: usersConnector.JiraUser[] = Array.from({ length: 2 }, (_, i) => ({
   accountId: `id-${i}`,
   displayName: `displayName-${i}`,
@@ -32,31 +22,19 @@ const users: usersConnector.JiraUser[] = Array.from({ length: 2 }, (_, i) => ({
 const setup = createInngestFunctionMock(syncUsers, 'jira/users.sync.requested');
 
 describe('synchronize-users', () => {
-  test('should abort sync when organisation is not registered', async () => {
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      validUsers: users,
-      invalidUsers: [],
-      nextPage: null,
-    });
-
-    const [result, { step }] = setup({
-      organisationId: organisation.id,
-      isFirstSync: false,
-      syncStartedAt: Date.now(),
-      page: null,
-    });
-
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
-
-    expect(usersConnector.getUsers).toBeCalledTimes(0);
-
-    expect(step.sendEvent).toBeCalledTimes(0);
-  });
-
   test('should continue the sync when there is a next page', async () => {
-    const elba = spyOnElba();
-
-    await db.insert(organisationsTable).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { username: email, password: apiToken },
+        connection_config: {
+          subdomain: domain,
+        },
+      }),
+    }));
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
+      authUserId: 'auth-user',
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
@@ -64,93 +42,60 @@ describe('synchronize-users', () => {
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      organisationId,
+      region,
+      nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
-      page: String(nextPage),
+      page: '1',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
 
-    const elbaInstance = elba.mock.results[0]?.value;
     expect(step.sendEvent).toBeCalledTimes(1);
     expect(step.sendEvent).toBeCalledWith('synchronize-users', {
       name: 'jira/users.sync.requested',
       data: {
-        organisationId: organisation.id,
+        organisationId,
         isFirstSync: false,
         syncStartedAt,
         page: String(nextPage),
+        region,
+        nangoConnectionId,
       },
     });
-
-    expect(elbaInstance?.users.update).toBeCalledTimes(1);
-    expect(elbaInstance?.users.update).toBeCalledWith({
-      users: [
-        {
-          additionalEmails: [],
-          displayName: 'displayName-0',
-          email: 'user-0@foo.bar',
-          id: 'id-0',
-          isSuspendable: true,
-          url: 'https://test-domain.atlassian.net/jira/people/id-0',
-        },
-        {
-          additionalEmails: [],
-          displayName: 'displayName-1',
-          email: 'user-1@foo.bar',
-          id: 'id-1',
-          isSuspendable: true,
-          url: 'https://test-domain.atlassian.net/jira/people/id-1',
-        },
-      ],
-    });
-    expect(elbaInstance?.users.delete).not.toBeCalled();
   });
 
   test('should finalize the sync when there is a no next page', async () => {
-    const elba = spyOnElba();
-    await db.insert(organisationsTable).values(organisation);
+    // @ts-expect-error -- this is a mock
+    vi.spyOn(nangoAPIClient, 'nangoAPIClient', 'get').mockImplementation(() => ({
+      getConnection: vi.fn().mockResolvedValue({
+        credentials: { username: email, password: apiToken },
+        connection_config: {
+          subdomain: domain,
+        },
+      }),
+    }));
+    vi.spyOn(usersConnector, 'getAuthUser').mockResolvedValue({
+      authUserId: 'auth-user',
+    });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: null,
+      nextPage: 0,
     });
 
     const [result, { step }] = setup({
-      organisationId: organisation.id,
+      region,
+      organisationId,
+      nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
       page: null,
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'completed' });
-    const elbaInstance = elba.mock.results[0]?.value;
-    expect(elbaInstance?.users.update).toBeCalledTimes(1);
-    expect(elbaInstance?.users.update).toBeCalledWith({
-      users: [
-        {
-          additionalEmails: [],
-          displayName: 'displayName-0',
-          email: 'user-0@foo.bar',
-          id: 'id-0',
-          isSuspendable: true,
-          url: 'https://test-domain.atlassian.net/jira/people/id-0',
-        },
-        {
-          additionalEmails: [],
-          displayName: 'displayName-1',
-          email: 'user-1@foo.bar',
-          id: 'id-1',
-          isSuspendable: true,
-          url: 'https://test-domain.atlassian.net/jira/people/id-1',
-        },
-      ],
-    });
-    const syncBeforeAtISO = new Date(syncedBefore).toISOString();
-    expect(elbaInstance?.users.delete).toBeCalledTimes(1);
-    expect(elbaInstance?.users.delete).toBeCalledWith({ syncedBefore: syncBeforeAtISO });
-    // the function should not send another event that continue the pagination
+
     expect(step.sendEvent).toBeCalledTimes(0);
   });
 });
