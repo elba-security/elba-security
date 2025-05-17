@@ -1,4 +1,4 @@
-import { ConfluenceError } from './common/error';
+import { ConfluenceError } from '../common/error';
 
 type GetInstanceResponseData = {
   id: string;

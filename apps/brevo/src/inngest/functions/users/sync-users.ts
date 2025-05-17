@@ -4,7 +4,6 @@ import { getUsers } from '@/connectors/brevo/users';
 import { inngest } from '@/inngest/client';
 import { type BrevoUser } from '@/connectors/brevo/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
-import { nangoCredentialsSchema } from '@/connectors/common/nango';
 import { nangoAPIClient } from '@/common/nango';
 
 const formatElbaUser = (user: BrevoUser): User => ({
@@ -47,13 +46,9 @@ export const synchronizeUsers = inngest.createFunction(
       region,
     });
 
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-    if (!nangoCredentialsResult.success) {
-      throw new Error('Could not retrieve Nango credentials');
-    }
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'API_KEY');
 
-    const result = await getUsers(nangoCredentialsResult.data.apiKey);
+    const result = await getUsers(credentials.apiKey);
 
     const users = result.validUsers
       .filter(({ status }) => status === 'active')

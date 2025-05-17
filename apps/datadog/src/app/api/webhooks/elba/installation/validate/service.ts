@@ -3,7 +3,7 @@ import { logger } from '@elba-security/logger';
 import { nangoAPIClient } from '@/common/nango';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
-import { nangoConnectionConfigSchema, nangoCredentialsSchema } from '@/connectors/common/nango';
+import { nangoConnectionConfigSchema } from '@/connectors/common/nango';
 import { mapElbaConnectionError } from '@/connectors/common/error';
 import { getAuthUser } from '@/connectors/datadog/users';
 
@@ -21,14 +21,10 @@ export const validateSourceInstallation = async ({
     region,
   });
   try {
-    const { credentials, connection_config: connectionConfig } =
-      await nangoAPIClient.getConnection(nangoConnectionId);
-
-    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-
-    if (!nangoCredentialsResult.success) {
-      throw new Error('Could not retrieve Nango credentials');
-    }
+    const { credentials, connection_config: connectionConfig } = await nangoAPIClient.getConnection(
+      nangoConnectionId,
+      'API_KEY'
+    );
 
     const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
 
@@ -37,7 +33,7 @@ export const validateSourceInstallation = async ({
     }
 
     await getAuthUser({
-      apiKey: nangoCredentialsResult.data.apiKey,
+      apiKey: credentials.apiKey,
       appKey: nangoConnectionConfigResult.data.applicationKey,
       sourceRegion: nangoConnectionConfigResult.data.siteParameter,
     });

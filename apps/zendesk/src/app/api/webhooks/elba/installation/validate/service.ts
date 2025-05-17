@@ -21,11 +21,10 @@ export const validateSourceInstallation = async ({
     region,
   });
   try {
-    const { credentials, connection_config: connectionConfig } =
-      await nangoAPIClient.getConnection(nangoConnectionId);
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new Error('Could not retrieve Nango credentials');
-    }
+    const { credentials, connection_config: connectionConfig } = await nangoAPIClient.getConnection(
+      nangoConnectionId,
+      'OAUTH2'
+    );
     const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
     if (!nangoConnectionConfigResult.success) {
       throw new Error('Could not retrieve Nango connection config data');

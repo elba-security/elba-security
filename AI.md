@@ -17,7 +17,8 @@ This document tracks important learnings and best practices for developing integ
 
 - ❌ **Mistake**: Mixing concerns and misplacing business logic
 - ✅ **Correct**:
-  ```
+
+  ```text
   src/
   ├── connectors/     # Pure API interactions only
   │   ├── source/    # External API calls (no dependencies)
@@ -25,6 +26,7 @@ This document tracks important learnings and best practices for developing integ
   ├── inngest/       # Business logic and orchestration
   └── app/          # Next.js routes and webhooks
   ```
+
 - 📝 **Example**: Business logic belongs in Inngest functions, not in connectors
 
 ### 3. Dependency & Configuration Management
@@ -66,16 +68,12 @@ This document tracks important learnings and best practices for developing integ
 
   - Never implement OAuth flows directly in integrations
   - Always use Nango for authentication handling
-  - Validate credential structure from Nango
 
 - **Standard Pattern**:
 
   ```typescript
   // Getting credentials from Nango
-  const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-  if (!('access_token' in credentials)) {
-    throw new Error('Invalid credentials structure');
-  }
+  const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
   ```
 
 - **Common Mistakes**:
@@ -91,11 +89,12 @@ This document tracks important learnings and best practices for developing integ
 - **Types & Recovery**:
 
   - `NonRetriableError` for permanent failures
-  - `ServiceError` for API-related errors
+  - `IntegrationError` for API-related errors
   - Map external errors appropriately
   - Update connection status on critical errors
 
 - **Logging**:
+
   ```typescript
   logger.error('Failed to validate installation', {
     organisationId,
@@ -130,6 +129,7 @@ This document tracks important learnings and best practices for developing integ
   5. Handle errors with status updates
 
 - **Example**:
+
   ```typescript
   try {
     await verifyAccess();

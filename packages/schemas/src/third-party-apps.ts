@@ -40,6 +40,10 @@ export type DeleteThirdPartyApps = zInfer<typeof deleteThirdPartyAppsSchema>;
 
 export const thirdPartyAppsStartSyncRequestedWebhookDataSchema = baseWebhookSchema;
 
+export type ThirdPartyAppsStartSyncRequestedWebhookData = z.infer<
+  typeof thirdPartyAppsStartSyncRequestedWebhookDataSchema
+>;
+
 export const thirdPartyAppsRefreshObjectRequestedWebhookDataSchema = baseWebhookSchema.and(
   z.object({
     userId: z.string(),
@@ -48,6 +52,10 @@ export const thirdPartyAppsRefreshObjectRequestedWebhookDataSchema = baseWebhook
   })
 );
 
+export type ThirdPartyAppsRefreshObjectRequestedWebhookData = z.infer<
+  typeof thirdPartyAppsRefreshObjectRequestedWebhookDataSchema
+>;
+
 export const thirdPartyAppsDeleteObjectRequestedWebhookDataSchema = baseWebhookSchema.and(
   z.object({
     userId: z.string(),
@@ -55,3 +63,7 @@ export const thirdPartyAppsDeleteObjectRequestedWebhookDataSchema = baseWebhookS
     metadata: jsonSchema,
   })
 );
+
+export type ThirdPartyAppsDeleteObjectRequestedWebhookData = z.infer<
+  typeof thirdPartyAppsDeleteObjectRequestedWebhookDataSchema
+>;

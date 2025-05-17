@@ -4,7 +4,6 @@ import { getUsers } from '@/connectors/apollo/users';
 import { inngest } from '@/inngest/client';
 import { type ApolloUser } from '@/connectors/apollo/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
-import { nangoCredentialsSchema } from '@/connectors/common/nango';
 import { nangoAPIClient } from '@/common/nango';
 
 const formatElbaUser = (user: ApolloUser): User => ({
@@ -47,14 +46,10 @@ export const synchronizeUsers = inngest.createFunction(
     });
 
     const nextPage = await step.run('list-users', async () => {
-      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-      const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-      if (!nangoCredentialsResult.success) {
-        throw new Error('Could not retrieve Nango credentials');
-      }
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'API_KEY');
 
       const result = await getUsers({
-        apiKey: nangoCredentialsResult.data.apiKey,
+        apiKey: credentials.apiKey,
         after: page,
       });
 

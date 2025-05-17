@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- needed for efficient type extraction */
 import { StepError, NonRetriableError, RetryAfterError } from 'inngest';
-import type { EventPayload, GetEvents, InngestFunction } from 'inngest';
+import type { EventPayload, GetEvents, InngestFunction, Context } from 'inngest';
 import { type Mock, vi } from 'vitest';
 
 type AnyInngestFunction = InngestFunction.Any;
@@ -51,11 +51,11 @@ type MockSetupReturns<
         : never;
     }[];
     step: {
-      run: Mock<unknown[], unknown>;
-      sendEvent: Mock<unknown[], unknown>;
-      waitForEvent: Mock<unknown[], unknown>;
-      sleepUntil: Mock<unknown[], unknown>;
-      invoke: Mock<unknown[], unknown>;
+      run: Mock<Context['step']['run']>;
+      sendEvent: Mock<Context['step']['sendEvent']>;
+      waitForEvent: Mock<Context['step']['waitForEvent']>;
+      sleepUntil: Mock<Context['step']['sleepUntil']>;
+      invoke: Mock<Context['step']['invoke']>;
     };
   },
 ];
@@ -88,18 +88,26 @@ export const createInngestFunctionMock =
   // @ts-expect-error -- this is a mock
   (data?: Data) => {
     const step = {
-      run: vi.fn().mockImplementation(async (name: string, stepHandler: () => Promise<unknown>) => {
-        try {
-          const result = await stepHandler();
-          return result;
-        } catch (error) {
-          if (!(error instanceof NonRetriableError || error instanceof RetryAfterError)) {
-            throw new StepError(name, error);
-          }
+      run: vi
+        .fn()
+        .mockImplementation(
+          async (
+            name: string,
+            stepHandler: (...input: unknown[]) => Promise<unknown>,
+            ...input: unknown[]
+          ) => {
+            try {
+              const result = await stepHandler(...input);
+              return result;
+            } catch (error) {
+              if (!(error instanceof NonRetriableError || error instanceof RetryAfterError)) {
+                throw new StepError(name, error);
+              }
 
-          throw error;
-        }
-      }),
+              throw error;
+            }
+          }
+        ),
       sendEvent: vi
         .fn()
         .mockImplementation(

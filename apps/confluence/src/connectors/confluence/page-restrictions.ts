@@ -1,4 +1,4 @@
-import { ConfluenceError } from './common/error';
+import { ConfluenceError } from '../common/error';
 import type { ConfluencePaginatedResponseDataV1 } from './common/pagination';
 
 export type ConfluenceOperationRestrictionUser = {
