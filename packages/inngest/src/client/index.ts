@@ -27,7 +27,7 @@ export class ElbaInngestClient<
 > {
   readonly #name: Name;
   readonly #sourceId: string;
-  readonly #nangoClient: NangoAPIClient | null = null;
+  readonly #nangoClient: NangoAPIClient | null;
   readonly #nangoAuthType: NangoAuthType;
   readonly #inngest: ElbaInngestInstance<Name, CustomEvents>;
 
@@ -68,6 +68,7 @@ export class ElbaInngestClient<
       }) {
     this.#name = name;
     this.#sourceId = sourceId;
+    this.#nangoAuthType = nangoAuthType;
     this.#inngest = new Inngest({
       id: this.#name,
       logger,
@@ -81,10 +82,8 @@ export class ElbaInngestClient<
         integrationId: nangoIntegrationId,
         secretKey: nangoSecretKey,
       });
-      this.#nangoAuthType = nangoAuthType;
     } else {
       this.#nangoClient = null;
-      this.#nangoAuthType = nangoAuthType;
     }
   }
 
