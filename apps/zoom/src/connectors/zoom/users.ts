@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
+import { IntegrationConnectionError, IntegrationError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { ZoomError, ZoomNotAdminError } from '../common/error';
 
 const zoomUserSchema = z.object({
   id: z.string(),
@@ -48,7 +48,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   });
 
   if (!response.ok) {
-    throw new ZoomError('Could not retrieve users', { response });
+    throw new IntegrationError('Could not retrieve users', { response });
   }
 
   const resData: unknown = await response.json();
@@ -92,7 +92,7 @@ export const deactivateUser = async ({ userId, accessToken }: DeleteUsersParams)
   });
 
   if (!response.ok && response.status !== 404) {
-    throw new ZoomError(`Could not deactivate user with Id: ${userId}`, { response });
+    throw new IntegrationError(`Could not deactivate user with Id: ${userId}`, { response });
   }
 };
 
@@ -113,7 +113,11 @@ export const getAuthUser = async (accessToken: string) => {
   });
 
   if (!response.ok) {
-    throw new ZoomError('Could not retrieve auth user', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' });
+    }
+
+    throw new IntegrationError('Could not retrieve authenticated user', { response });
   }
 
   const resData: unknown = await response.json();
@@ -121,16 +125,20 @@ export const getAuthUser = async (accessToken: string) => {
   const result = authUserResponseSchema.safeParse(resData);
 
   if (!result.success) {
-    logger.error('Invalid Zoom auth user  response', { resData });
-    throw new Error('Invalid Zoom auth user  response', {
-      cause: result.error,
+    logger.error('Invalid Zoom auth user response', { resData, error: result.error });
+    throw new IntegrationConnectionError('Invalid Zoom authenticated user response', {
+      type: 'unknown',
+      metadata: { data: resData, errors: result.error.issues },
     });
   }
 
   // Zoom has its own validation for admin and owner roles since out OAuth apps asks for admin permissions, normal user can't install the app
   // however, we are doing this check here to be sure
   if (!['Owner', 'Admin'].includes(result.data.role_name)) {
-    throw new ZoomNotAdminError('Auth user is not an account owner or admin');
+    throw new IntegrationConnectionError('Authenticated user is not owner or admin', {
+      type: 'not_admin',
+      metadata: result.data,
+    });
   }
 
   return {
