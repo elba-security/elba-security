@@ -1,4 +1,3 @@
-import { NonRetriableError } from 'inngest';
 import { getFilesMetadataMembersAndMapDetails } from '@/connectors/dropbox/files';
 import { getFoldersMetadataMembersAndMapDetails } from '@/connectors/dropbox/folders';
 import { getFolderOrFileMetadataByPath } from '@/connectors/dropbox/folders-and-files';
@@ -40,10 +39,7 @@ export const refreshObject = inngest.createFunction(
     const isFile = type === 'file';
     const path = isFile ? sourceObjectId : `ns:${sourceObjectId}`;
 
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new NonRetriableError('Could not retrieve Nango credentials');
-    }
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
     const { teamMemberId: adminTeamMemberId } = await getAuthenticatedAdmin(
       credentials.access_token
     );

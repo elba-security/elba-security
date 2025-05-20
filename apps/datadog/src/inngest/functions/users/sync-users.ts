@@ -4,7 +4,7 @@ import { getUsers, getAuthUser } from '@/connectors/datadog/users';
 import { type DatadogUser } from '@/connectors/datadog/users';
 import { inngest } from '@/inngest/client';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
-import { nangoConnectionConfigSchema, nangoCredentialsSchema } from '@/connectors/common/nango';
+import { nangoConnectionConfigSchema } from '@/connectors/common/nango';
 import { nangoAPIClient } from '@/common/nango';
 import { getDatadogRegionURL } from '@/connectors/datadog/regions';
 
@@ -77,17 +77,13 @@ export const syncUsers = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       const { credentials, connection_config: connectionConfig } =
-        await nangoAPIClient.getConnection(nangoConnectionId);
-      const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-      if (!nangoCredentialsResult.success) {
-        throw new Error('Could not retrieve Nango credentials');
-      }
+        await nangoAPIClient.getConnection(nangoConnectionId, 'API_KEY');
       const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
       if (!nangoConnectionConfigResult.success) {
         throw new Error('Could not retrieve Nango connection config data');
       }
 
-      const apiKey = nangoCredentialsResult.data.apiKey;
+      const apiKey = credentials.apiKey;
       const appKey = nangoConnectionConfigResult.data.applicationKey;
       const sourceRegion = nangoConnectionConfigResult.data.siteParameter;
       const { authUserId } = await getAuthUser({

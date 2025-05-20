@@ -10,24 +10,24 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@elba-security/common": "workspace:*",
     "@elba-security/logger": "workspace:*",
+    "@elba-security/nango": "workspace:*",
     "@elba-security/utils": "workspace:*",
     "@elba-security/schemas": "workspace:*",
     "@elba-security/sdk": "workspace:*",
+    "inngest": "catalog:",
     "date-fns": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@elba-security/eslint-config-custom": "workspace:*",
     "@elba-security/test-utils": "workspace:*",
+    "@elba-security/schemas": "workspace:*",
     "@elba-security/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "eslint": "catalog:",
-    "inngest": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
-  },
-  "peerDependencies": {
-    "inngest": "catalog:"
   }
 }

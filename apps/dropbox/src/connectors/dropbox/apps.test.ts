@@ -1,6 +1,6 @@
 import { http } from 'msw';
 import { beforeEach, describe, expect, test } from 'vitest';
-import { server } from '@elba-security/test-utils';
+import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
 import { env } from '@/common/env';
 import { DropboxError } from '../common/error';
 import { getLinkedApps, getMemberLinkedApps, revokeMemberLinkedApp } from './apps';

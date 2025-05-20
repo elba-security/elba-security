@@ -21,10 +21,7 @@ export const deleteObjectPermissions = inngest.createFunction(
   async ({ event, step }) => {
     const { objectId, metadata, permission, nangoConnectionId } = event.data;
 
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new Error('Could not retrieve Nango credentials');
-    }
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
 
     const { teamMemberId: adminTeamMemberId } = await getAuthenticatedAdmin(
       credentials.access_token

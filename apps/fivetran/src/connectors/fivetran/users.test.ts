@@ -1,7 +1,7 @@
 import type { ResponseResolver } from 'msw';
 import { http } from 'msw';
 import { expect, test, describe, beforeEach } from 'vitest';
-import { server } from '@elba-security/test-utils';
+import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
 import { env } from '@/common/env';
 import { FivetranError } from '../common/error';
 import { type FivetranUser, getUsers, deleteUser, getAuthUser } from './users';

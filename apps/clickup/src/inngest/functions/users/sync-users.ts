@@ -1,5 +1,4 @@
 import type { User } from '@elba-security/sdk';
-import { NonRetriableError } from 'inngest';
 import { getUsers } from '@/connectors/clickup/users';
 import { getTeamIds } from '@/connectors/clickup/teams';
 import { type ClickUpUser } from '@/connectors/clickup/users';
@@ -48,10 +47,7 @@ export const syncUsers = inngest.createFunction(
       region,
     });
 
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new NonRetriableError('Could not retrieve Nango credentials');
-    }
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
     const teamIds = await getTeamIds(credentials.access_token);
 
     const result = await getUsers({

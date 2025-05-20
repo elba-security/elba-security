@@ -1,5 +1,6 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
+import { StepError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable, usersTable } from '@/database/schema';
 import * as googleUsers from '@/connectors/google/users';
@@ -101,7 +102,7 @@ describe('sync-users', () => {
     expect(serviceAccountClientSpy).toBeCalledTimes(1);
     expect(serviceAccountClientSpy).toBeCalledWith('admin@org.local', true);
 
-    const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+    const authClient = serviceAccountClientSpy.mock.settledResults[0]?.value as unknown;
 
     expect(googleUsers.checkUserIsAdmin).toHaveBeenCalledTimes(1);
     expect(googleUsers.checkUserIsAdmin).toHaveBeenCalledWith({
@@ -266,7 +267,7 @@ describe('sync-users', () => {
     expect(serviceAccountClientSpy).toBeCalledTimes(1);
     expect(serviceAccountClientSpy).toBeCalledWith('admin@org.local', true);
 
-    const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+    const authClient = serviceAccountClientSpy.mock.settledResults[0]?.value as unknown;
 
     expect(googleUsers.checkUserIsAdmin).toHaveBeenCalledTimes(1);
     expect(googleUsers.checkUserIsAdmin).toHaveBeenCalledWith({
@@ -389,7 +390,7 @@ describe('sync-users', () => {
       syncStartedAt: '2024-01-02T00:00:00Z',
     });
 
-    await expect(result).rejects.toThrowError(userNotAdminError);
+    await expect(result).rejects.toThrowError(new StepError('list-users', userNotAdminError));
 
     expect(step.invoke).toBeCalledTimes(1);
     expect(step.invoke).toBeCalledWith('get-organisation', {
@@ -408,7 +409,7 @@ describe('sync-users', () => {
     expect(serviceAccountClientSpy).toBeCalledTimes(1);
     expect(serviceAccountClientSpy).toBeCalledWith('admin@org.local', true);
 
-    const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+    const authClient = serviceAccountClientSpy.mock.settledResults[0]?.value as unknown;
 
     expect(googleUsers.checkUserIsAdmin).toHaveBeenCalledTimes(1);
     expect(googleUsers.checkUserIsAdmin).toHaveBeenCalledWith({

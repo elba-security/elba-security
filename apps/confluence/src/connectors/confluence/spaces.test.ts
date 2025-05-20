@@ -2,8 +2,8 @@
 
 import { http } from 'msw';
 import { describe, expect, test, beforeEach, vi } from 'vitest';
-import { server } from '@elba-security/test-utils';
-import { ConfluenceError } from './common/error';
+import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
+import { ConfluenceError } from '../common/error';
 import * as spacePermissionsConnector from './space-permissions';
 import { getSpace, getSpaceWithPermissions, getSpaces, getSpacesWithPermissions } from './spaces';
 
