@@ -11,7 +11,9 @@ const discourseUserSchema = z.object({
 
 export type DiscourseUser = z.infer<typeof discourseUserSchema>;
 
-const discourseResponseSchema = z.array(z.unknown());
+const discourseResponseSchema = z.object({
+  users: z.array(z.unknown()),
+});
 
 export type GetUsersParams = {
   apiKey: string;
@@ -28,7 +30,7 @@ export type DeleteUsersParams = {
 };
 
 export const getUsers = async ({ apiKey, defaultHost, apiUsername, page }: GetUsersParams) => {
-  const url = new URL(`https://${defaultHost}/admin/users/list/active.json`);
+  const url = new URL(`https://${defaultHost}.discourse.group/admin/users/list/active.json`);
 
   if (page) {
     url.searchParams.append('page', String(page));
@@ -49,7 +51,7 @@ export const getUsers = async ({ apiKey, defaultHost, apiUsername, page }: GetUs
 
   const resData: unknown = await response.json();
 
-  const users = discourseResponseSchema.parse(resData);
+  const { users } = discourseResponseSchema.parse(resData);
 
   const validUsers: DiscourseUser[] = [];
   const invalidUsers: unknown[] = [];
@@ -77,7 +79,9 @@ export const deleteUser = async ({
   apiUsername,
   apiKey,
 }: DeleteUsersParams) => {
-  const url = new URL(`https://${defaultHost}/admin/users/${userId}/deactivate.json`);
+  const url = new URL(
+    `https://${defaultHost}.discourse.group/admin/users/${userId}/deactivate.json`
+  );
 
   const response = await fetch(url.toString(), {
     method: 'PUT',

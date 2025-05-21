@@ -26,16 +26,20 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       server.use(
-        http.get(`https://${defaultHost}/admin/users/list/active.json`, ({ request }) => {
-          if (request.headers.get('Api-Key') !== validApiKey) {
-            return new Response(undefined, { status: 401 });
-          }
+        http.get(
+          `https://${defaultHost}.discourse.group/admin/users/list/active.json`,
+          ({ request }) => {
+            if (request.headers.get('Api-Key') !== validApiKey) {
+              return new Response(undefined, { status: 401 });
+            }
 
-          const url = new URL(request.url);
-          const page = url.searchParams.get('page') || '1';
-          const responseData = parseInt(page, 10) !== endPage ? validUsers : [];
-          return Response.json(responseData);
-        })
+            const url = new URL(request.url);
+            const page = url.searchParams.get('page') || '1';
+            const responseData =
+              parseInt(page, 10) !== endPage ? { users: validUsers } : { users: [] };
+            return Response.json(responseData);
+          }
+        )
       );
     });
 
@@ -70,7 +74,7 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.put<{ userId: string }>(
-          `https://${defaultHost}/admin/users/${userId}/deactivate.json`,
+          `https://${defaultHost}.discourse.group/admin/users/${userId}/deactivate.json`,
           ({ request }) => {
             if (request.headers.get('Api-Key') !== validApiKey) {
               return new Response(undefined, { status: 401 });
