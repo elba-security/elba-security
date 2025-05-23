@@ -4,19 +4,20 @@ import { server } from '@elba-security/test-utils';
 import { env } from '@/common/env';
 import { GongError } from '../common/error';
 import type { GongUser } from './users';
-import { getUsers, deleteUser } from './users';
+import { getUsers } from './users';
 
-const validToken = 'token-1234';
-const endPageOffset = '3';
-const nextPageOffset = '2';
-const userId = 'test-user-id';
+const userName = 'username-1234';
+const password = 'password-1234';
+const endPageCursor = 'end-page-cursor';
+const nextPageCursor = 'next-page-cursor';
+const validEncodedKey = btoa(`${userName}:${password}`);
 
 const validUsers: GongUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: `id-${i}`,
-  name: `userName-${i}`,
-  role: 'owner',
-  email: `user-${i}@foo.bar`,
-  invitation_sent: false,
+  firstName: `firstName-${i}`,
+  lastName: `lastName-${i}`,
+  emailAddress: `user-${i}@foo.bar`,
+  active: false,
 }));
 
 const invalidUsers = [];
@@ -25,17 +26,21 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       server.use(
-        http.get(`${env.GONG_API_BASE_URL}/users`, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+        http.get(`${env.GONG_API_BASE_URL}/v2/users`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Basic ${validEncodedKey}`) {
             return new Response(undefined, { status: 401 });
           }
 
           const url = new URL(request.url);
-          const offset = url.searchParams.get('offset') || '0';
+          const cursor = url.searchParams.get('cursor');
           const responseData = {
             users: validUsers,
-            offset: parseInt(offset, 10),
-            more: offset !== endPageOffset,
+            records:
+              cursor !== endPageCursor
+                ? {
+                    cursor: nextPageCursor,
+                  }
+                : {},
           };
           return Response.json(responseData);
         })
@@ -43,19 +48,15 @@ describe('users connector', () => {
     });
 
     test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(
-        getUsers({ accessToken: validToken, page: nextPageOffset })
-      ).resolves.toStrictEqual({
+      await expect(getUsers({ userName, password, page: nextPageCursor })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
-        nextPage: parseInt(nextPageOffset, 10) + 1,
+        nextPage: nextPageCursor,
       });
     });
 
     test('should return users and no nextPage when the token is valid and their is no other page', async () => {
-      await expect(
-        getUsers({ accessToken: validToken, page: endPageOffset })
-      ).resolves.toStrictEqual({
+      await expect(getUsers({ userName, password, page: endPageCursor })).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
         nextPage: null,
@@ -63,37 +64,7 @@ describe('users connector', () => {
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(getUsers({ accessToken: 'foo-bar' })).rejects.toBeInstanceOf(GongError);
-    });
-  });
-
-  describe('deleteUser', () => {
-    beforeEach(() => {
-      server.use(
-        http.delete<{ userId: string }>(
-          `${env.GONG_API_BASE_URL}/users/${userId}`,
-          ({ request }) => {
-            if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-              return new Response(undefined, { status: 401 });
-            }
-            return new Response(undefined, { status: 200 });
-          }
-        )
-      );
-    });
-
-    test('should delete user successfully when token is valid', async () => {
-      await expect(deleteUser({ accessToken: validToken, userId })).resolves.not.toThrow();
-    });
-
-    test('should not throw when the user is not found', async () => {
-      await expect(deleteUser({ accessToken: validToken, userId })).resolves.toBeUndefined();
-    });
-
-    test('should throw GongError when token is invalid', async () => {
-      await expect(deleteUser({ accessToken: 'invalidToken', userId })).rejects.toBeInstanceOf(
-        GongError
-      );
+      await expect(getUsers({ userName, password: 'foo-bar' })).rejects.toBeInstanceOf(GongError);
     });
   });
 });

@@ -7,15 +7,17 @@ import { syncUsers } from './sync-users';
 const organisationId = '00000000-0000-0000-0000-000000000001';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
+const userName = 'username-1234';
+const password = 'password-1234';
 
 const syncStartedAt = Date.now();
 
 const users: usersConnector.GongUser[] = Array.from({ length: 2 }, (_, i) => ({
   id: `id-${i}`,
-  name: `userName-${i}`,
-  role: 'admin',
-  email: `user-${i}@foo.bar`,
-  invitation_sent: false,
+  firstName: `firstName-${i}`,
+  lastName: `lastName-${i}`,
+  emailAddress: `user-${i}@foo.bar`,
+  active: false,
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'gong/users.sync.requested');
@@ -25,16 +27,14 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { username: userName, password },
       }),
     });
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      authUserUrl: 'https://test-domain.gong.com',
-    });
+    
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],
-      nextPage: 1,
+      nextPage: 'next-page-cursor',
     });
 
     const [result, { step }] = setup({
@@ -43,7 +43,7 @@ describe('sync-users', () => {
       nangoConnectionId,
       isFirstSync: false,
       syncStartedAt,
-      page: '1',
+      page: 'next-page-cursor',
     });
 
     await expect(result).resolves.toStrictEqual({ status: 'ongoing' });
@@ -57,7 +57,7 @@ describe('sync-users', () => {
         nangoConnectionId,
         isFirstSync: false,
         syncStartedAt,
-        page: '1',
+        page: 'next-page-cursor',
       },
     });
   });
@@ -66,12 +66,10 @@ describe('sync-users', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { username: userName, password },
       }),
     });
-    vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      authUserUrl: 'https://test-domain.gong.com',
-    });
+    
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
       validUsers: users,
       invalidUsers: [],

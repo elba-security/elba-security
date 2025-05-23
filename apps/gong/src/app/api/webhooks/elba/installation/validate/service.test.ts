@@ -9,7 +9,18 @@ const organisationId = '00000000-0000-0000-0000-000000000002';
 const region = 'us';
 const nangoConnectionId = 'nango-connection-id';
 const now = Date.now();
+const userName = 'username-1234';
+const password = 'password-1234';
 
+const validUsers: usersConnector.GongUser[] = Array.from({ length: 5 }, (_, i) => ({
+  id: `id-${i}`,
+  firstName: `firstName-${i}`,
+  lastName: `lastName-${i}`,
+  emailAddress: `user-${i}@foo.bar`,
+  active: false,
+}));
+
+const invalidUsers = [];
 describe('validateSourceInstallation', () => {
   beforeAll(() => {
     vi.setSystemTime(now);
@@ -24,13 +35,15 @@ describe('validateSourceInstallation', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        credentials: { username: userName, password },
       }),
     });
 
     const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
     vi.spyOn(usersConnector, 'getUsers').mockResolvedValue({
-      authUserUrl: 'https://test-url.gong.com',
+      validUsers,
+      invalidUsers,
+      nextPage: null,
     });
 
     await validateSourceInstallation({
@@ -66,38 +79,6 @@ describe('validateSourceInstallation', () => {
     });
   });
 
-  it('should throw an error when when auth user is not an Owner or Admin', async () => {
-    const elba = spyOnElba();
-    // @ts-expect-error -- this is a mock
-    vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
-      getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
-      }),
-    });
-
-    await expect(
-      validateSourceInstallation({
-        organisationId,
-        nangoConnectionId,
-        region,
-      })
-    ).resolves.toStrictEqual({
-      message: 'Source installation validation failed',
-    });
-
-    const elbaInstance = elba.mock.results[0]?.value;
-    expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
-    expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
-      errorMetadata: {
-        name: 'GongError',
-        cause: undefined,
-        message: '',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- convenience
-        stack: expect.any(String),
-      },
-      errorType: 'not_admin',
-    });
-  });
   it('should throw an error when the nango credentials are not valid', async () => {
     const elba = spyOnElba();
     // @ts-expect-error -- this is a mock
