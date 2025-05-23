@@ -19,10 +19,6 @@ const gongResponseSchema = z.object({
   }),
 });
 
-const getUsersResponseData = z.object({
-  user: z.object({ html_url: z.string(), role: z.string() }),
-});
-
 export type GetUsersParams = {
   userName: string;
   password: string;
