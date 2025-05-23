@@ -1,0 +1,43 @@
+{
+  "name": "@elba-security/gong",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 4000",
+    "dev:inngest": "inngest-cli dev -u http://localhost:4000/api/inngest",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@elba-security/config": "workspace:*",
+    "@elba-security/inngest": "workspace:*",
+    "@elba-security/logger": "workspace:*",
+    "@elba-security/nango": "workspace:*",
+    "@elba-security/nextjs": "workspace:*",
+    "@elba-security/sdk": "workspace:*",
+    "inngest": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "catalog:",
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/test-utils": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
+    "@next/eslint-plugin-next": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "dotenv": "catalog:",
+    "eslint": "catalog:",
+    "msw": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
