@@ -123,8 +123,8 @@ export const getAuthUser = async ({ userName, password, subDomain }: GetAuthUser
   const result = getAuthUserResponseData.safeParse(data);
 
   if (!result.success) {
-    logger.error('Invalid Freshdesk auth user  response', { data });
-    throw new Error('Invalid Freshdesk auth user  response', {
+    logger.error('Invalid Freshdesk auth user response', { data });
+    throw new Error('Invalid Freshdesk auth user response', {
       cause: result.error,
     });
   }
