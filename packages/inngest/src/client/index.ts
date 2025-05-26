@@ -1,6 +1,12 @@
 import { logger } from '@elba-security/logger';
 import { NangoAPIClient } from '@elba-security/nango';
-import { type Combine, type EventPayload, Inngest, type StandardEventSchemas } from 'inngest';
+import {
+  type Combine,
+  type EventPayload,
+  Inngest,
+  type InngestFunction,
+  type StandardEventSchemas,
+} from 'inngest';
 import { type StandardEventSchema } from 'inngest/components/EventSchemas';
 import { serve } from 'inngest/next';
 import { createElbaConnectionErrorMiddleware } from './middlewares';
@@ -29,11 +35,7 @@ export class ElbaInngestClient<
   readonly #sourceId: string;
   readonly #nangoClient: NangoAPIClient | null;
   readonly #nangoAuthType: NangoAuthType;
-  readonly #inngest: ElbaInngestInstance<Name, CustomEvents>;
-
-  get inngest() {
-    return this.#inngest;
-  }
+  readonly inngest: ElbaInngestInstance<Name, CustomEvents>;
 
   get #config() {
     return {
@@ -41,7 +43,7 @@ export class ElbaInngestClient<
       sourceId: this.#sourceId,
       nangoClient: this.#nangoClient,
       nangoAuthType: this.#nangoAuthType,
-      inngest: this.#inngest,
+      inngest: this.inngest,
     } as const satisfies ElbaInngestConfig;
   }
 
@@ -69,7 +71,7 @@ export class ElbaInngestClient<
     this.#name = name;
     this.#sourceId = sourceId;
     this.#nangoAuthType = nangoAuthType;
-    this.#inngest = new Inngest({
+    this.inngest = new Inngest({
       id: this.#name,
       logger,
       middleware: [
@@ -127,10 +129,10 @@ export class ElbaInngestClient<
     createInstallationValidateFn<NangoAuthType>
   );
 
-  public serve = () =>
+  public serve = (fns: InngestFunction.Any[] = []) =>
     serve({
-      client: this.#inngest,
-      functions: this.#inngest.funcs,
+      client: this.inngest,
+      functions: [...new Set([...fns, ...this.inngest.funcs])],
       streaming: 'allow',
     });
 }
