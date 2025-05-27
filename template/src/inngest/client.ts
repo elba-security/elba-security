@@ -1,57 +1,31 @@
-import { EventSchemas, Inngest } from 'inngest';
-import { logger } from '@elba-security/logger';
-import { type ConnectionErrorType } from '@elba-security/sdk';
-import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
-import { elbaConnectionErrorMiddleware } from './middlewares/elba-connection-error-middleware';
+import { ElbaInngestClient } from '@elba-security/inngest';
+import { env } from '@/common/env';
+import { getUsers, getAuthUser } from '@/connectors/{{name}}/users';
 
-/**
- * Inngest client configuration for handling asynchronous events in the integration.
- * The client is configured with:
- *
- * 1. Event Schemas:
- *    - app.installed: Triggered when the integration is successfully installed
- *    - app.uninstalled: Triggered when the integration encounters a fatal error
- *    - users.sync.requested: Triggered to start user synchronization
- *
- * 2. Middleware:
- *    - rateLimitMiddleware: Handles rate limiting (429) responses
- *    - elbaConnectionErrorMiddleware: Maps errors to Elba connection states
- *
- * 3. Logging:
- *    - Uses the Elba logger for consistent log formatting
- *
- * Events are namespaced using the integration name from package.json:
- * Example for "@elba-security/bitbucket":
- * - bitbucket/app.installed
- * - bitbucket/app.uninstalled
- * - bitbucket/users.sync.requested
- */
+export const elbaInngestClient = new ElbaInngestClient({
+  name: '{{name}}',
+  nangoAuthType: 'OAUTH2',
+  nangoIntegrationId: env.NANGO_INTEGRATION_ID,
+  nangoSecretKey: env.NANGO_SECRET_KEY,
+  sourceId: env.ELBA_SOURCE_ID,
+});
 
-export const inngest = new Inngest({
-  id: '{{name}}',
-  schemas: new EventSchemas().fromRecord<{
-    '{{name}}/app.installed': {
-      data: { organisationId: string };
-    };
-    '{{name}}/app.uninstalled': {
-      data: {
-        organisationId: string;
-        region: string;
-        errorType: ConnectionErrorType;
-        errorMetadata?: unknown;
-      };
-    };
-    '{{name}}/users.sync.requested': {
-      data: {
-        organisationId: string;
-        region: string;
-        nangoConnectionId: string;
-        isFirstSync: boolean;
-        syncStartedAt: number;
-        page: string | null;
-      };
-    };
-  }>(),
-  middleware: [rateLimitMiddleware, elbaConnectionErrorMiddleware],
-  logger,
+elbaInngestClient.createElbaUsersSyncSchedulerFn(env.{{upper name}}_USERS_SYNC_CRON);
+
+elbaInngestClient.createElbaUsersSyncFn(async ({ connection, cursor }) => {
+  // TODO: Replace with your source-specific user fetching logic
+  const result = await getUsers({
+    accessToken: connection.credentials.access_token,
+    page: cursor,
+  });
+
+  return {
+    // TODO: Properly format user with your source-specific user details
+    users: result.validUsers.map(({ user }) => ({ id: user.id, displayName: user.name })),
+    cursor: result.nextPage,
+  };
+});
+
+elbaInngestClient.createInstallationValidateFn(async ({ connection }) => {
+  await getAuthUser(connection.credentials.access_token);
 });

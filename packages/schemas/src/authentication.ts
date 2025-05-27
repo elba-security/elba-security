@@ -6,3 +6,7 @@ export const authenticationRefreshObjectRequestedWebhookDataSchema = baseWebhook
     id: z.string().min(1),
   })
 );
+
+export type AuthenticationRefreshObjectRequestedData = z.infer<
+  typeof authenticationRefreshObjectRequestedWebhookDataSchema
+>;

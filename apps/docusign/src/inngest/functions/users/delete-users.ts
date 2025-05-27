@@ -1,4 +1,3 @@
-import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { deleteUsers as deleteDocusignUsers } from '@/connectors/docusign/users';
 import { env } from '@/common/env';
@@ -18,11 +17,7 @@ export const deleteUsers = inngest.createFunction(
   async ({ event }) => {
     const { nangoConnectionId, userIds } = event.data;
 
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new NonRetriableError('Could not retrieve Nango credentials');
-    }
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
 
     const { apiBaseUri, accountId } = await getAuthUser(credentials.access_token);
 

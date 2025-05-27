@@ -1,7 +1,7 @@
 import type { User } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
 import { inngest } from '@/inngest/client';
-import { nangoConnectionConfigSchema, nangoCredentialsSchema } from '@/connectors/common/nango';
+import { nangoConnectionConfigSchema } from '@/connectors/common/nango';
 import { getUsers, getAuthUser } from '@/connectors/freshdesk/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { type FreshdeskUser } from '@/connectors/freshdesk/users';
@@ -57,12 +57,7 @@ export const syncUsers = inngest.createFunction(
 
     const nextPage = await step.run('list-users', async () => {
       const { credentials, connection_config: connectionConfig } =
-        await nangoAPIClient.getConnection(nangoConnectionId);
-      const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-
-      if (!nangoCredentialsResult.success) {
-        throw new Error('Could not retrieve Nango credentials');
-      }
+        await nangoAPIClient.getConnection(nangoConnectionId, 'BASIC');
 
       const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
 
@@ -72,14 +67,14 @@ export const syncUsers = inngest.createFunction(
       const subDomain = nangoConnectionConfigResult.data.subdomain;
 
       const result = await getUsers({
-        userName: nangoCredentialsResult.data.username,
-        password: nangoCredentialsResult.data.password,
+        userName: credentials.username,
+        password: credentials.password,
         subDomain,
         page,
       });
       const { authUserEmail } = await getAuthUser({
-        userName: nangoCredentialsResult.data.username,
-        password: nangoCredentialsResult.data.password,
+        userName: credentials.username,
+        password: credentials.password,
         subDomain,
       });
 

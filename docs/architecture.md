@@ -43,15 +43,13 @@ The authentication with source platforms (like Bitbucket, Cal.com, etc.) is hand
 
    ```typescript
    // Example: Getting source API credentials
-   const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-   if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-     throw new Error('Could not retrieve Nango credentials');
-   }
+   const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
    // Use credentials.access_token for API calls
    ```
 
 3. **Flow Diagram**:
-   ```
+
+   ```text
    ┌────────┐    ┌───────┐    ┌─────────────┐    ┌──────────┐
    │  User  │───>│ Nango │───>│ Integration │───>│ Source   │
    │        │    │ OAuth │    │             │    │   API    │

@@ -60,11 +60,12 @@ describe('google-unauthorized-middleware', () => {
           error: unauthorizedError,
         },
       });
-    expect(result?.result.error.cause).toStrictEqual(unauthorizedError);
     expect(result).toStrictEqual({
       result: {
         data: 'test',
-        error: new NonRetriableError("Google unauthorized error for 'foo'"),
+        error: new NonRetriableError("Google unauthorized error for 'foo'", {
+          cause: unauthorizedError,
+        }),
       },
     });
 

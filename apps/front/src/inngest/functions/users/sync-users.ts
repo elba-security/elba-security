@@ -1,6 +1,5 @@
 import type { User } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
-import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { type FrontUser } from '@/connectors/front/users';
@@ -55,10 +54,7 @@ export const syncUsers = inngest.createFunction(
     });
 
     await step.run('list-users', async () => {
-      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
-      }
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
 
       // Teammates API doesn't support pagination (it is verified with support team)
       // https://dev.frontapp.com/reference/list-teammates

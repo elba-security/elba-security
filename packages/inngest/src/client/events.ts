@@ -1,0 +1,14 @@
+import {
+  type DeleteUsers,
+  type UpdateConnectionStatusData,
+  type UpdateUsers,
+} from '@elba-security/schemas';
+import { type InstallationEvents, type OrganisationEvents, type UsersEvents } from './functions';
+
+export type IntegrationEvents = InstallationEvents | OrganisationEvents | UsersEvents;
+
+export type ElbaOrganisationEvents = {
+  'connection_status.updated': UpdateConnectionStatusData;
+  'users.updated': UpdateUsers;
+  'users.deleted': DeleteUsers;
+};

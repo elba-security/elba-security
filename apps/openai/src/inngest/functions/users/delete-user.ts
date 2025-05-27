@@ -1,6 +1,5 @@
 import * as usersConnector from '@/connectors/openai/users';
 import { inngest } from '@/inngest/client';
-import { nangoCredentialsSchema } from '@/connectors/common/nango';
 import { nangoAPIClient } from '@/common/nango';
 
 export const deleteUser = inngest.createFunction(
@@ -28,12 +27,8 @@ export const deleteUser = inngest.createFunction(
   async ({ event }) => {
     const { userId, nangoConnectionId } = event.data;
 
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-    if (!nangoCredentialsResult.success) {
-      throw new Error('Could not retrieve Nango credentials');
-    }
-    const apiKey = nangoCredentialsResult.data.apiKey;
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'API_KEY');
+    const apiKey = credentials.apiKey;
 
     await usersConnector.deleteUser({
       userId,

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { http } from 'msw';
-import { server } from '@elba-security/test-utils';
+import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
 import { env } from '@/env';
 import {
   createSubscription,

@@ -17,7 +17,7 @@ export const deleteUser = inngest.createFunction(
   async ({ event }) => {
     const { nangoConnectionId, userId } = event.data;
 
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'BILL');
 
     const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
     if (!nangoCredentialsResult.success) {

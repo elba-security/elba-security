@@ -142,7 +142,6 @@ describe('registerOrganisation', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(userConnector, 'getUsers').mockResolvedValue(getUsersData);
     const wrongId = 'xfdhg-dsf';
-    const error = new Error(`invalid input syntax for type uuid: "${wrongId}"`);
 
     // assert that the function throws the mocked error
     await expect(
@@ -151,7 +150,7 @@ describe('registerOrganisation', () => {
         apiKey,
         region,
       })
-    ).rejects.toThrowError(error);
+    ).rejects.toThrowError(`invalid input syntax for type uuid: "${wrongId}"`);
 
     // ensure no organisation is added or updated in the database
     await expect(

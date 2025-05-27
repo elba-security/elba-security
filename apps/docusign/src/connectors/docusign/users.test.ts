@@ -1,6 +1,6 @@
 import { http } from 'msw';
 import { beforeEach, describe, expect, test } from 'vitest';
-import { server } from '@elba-security/test-utils';
+import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
 import { DocusignError } from '../common/error';
 import type { DocusignUser } from './users';
 import { deleteUsers, getUsers } from './users';

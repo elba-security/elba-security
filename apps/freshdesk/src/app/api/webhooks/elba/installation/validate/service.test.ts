@@ -3,6 +3,7 @@ import { spyOnElba } from '@elba-security/test-utils';
 import { inngest } from '@/inngest/client';
 import * as usersConnector from '@/connectors/freshdesk/users';
 import * as nangoAPI from '@/common/nango';
+import { FreshdeskError } from '@/connectors/common/error';
 import { validateSourceInstallation } from './service';
 
 const organisationId = '00000000-0000-0000-0000-000000000002';
@@ -75,9 +76,13 @@ describe('validateSourceInstallation', () => {
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
       getConnection: vi.fn().mockResolvedValue({
-        credentials: { access_token: 'access-token' },
+        type: 'BASIC',
+        credentials: { username: 'username', password: 'password' },
+        connection_config: { subdomain: 'subdomain' },
       }),
     });
+
+    vi.spyOn(usersConnector, 'getAuthUser').mockRejectedValue(new FreshdeskError(''));
 
     await expect(
       validateSourceInstallation({
@@ -93,9 +98,9 @@ describe('validateSourceInstallation', () => {
     expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);
     expect(elbaInstance?.connectionStatus.update).toBeCalledWith({
       errorMetadata: {
-        name: 'Error',
+        name: 'FreshdeskError',
         cause: undefined,
-        message: 'Could not retrieve Nango credentials',
+        message: '',
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- convenience
         stack: expect.any(String),
       },
@@ -106,9 +111,7 @@ describe('validateSourceInstallation', () => {
     const elba = spyOnElba();
     // @ts-expect-error -- this is a mock
     vi.spyOn(nangoAPI, 'nangoAPIClient', 'get').mockReturnValue({
-      getConnection: vi.fn().mockResolvedValue({
-        credentials: {},
-      }),
+      getConnection: vi.fn().mockRejectedValue(new Error('Could not retrieve Nango credentials')),
     });
 
     await expect(

@@ -8,6 +8,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@elba-security/common": "workspace:*",
     "@nangohq/types": "^0.42.20"
   },
   "devDependencies": {

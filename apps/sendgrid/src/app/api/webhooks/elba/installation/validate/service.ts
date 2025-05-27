@@ -3,7 +3,6 @@ import { logger } from '@elba-security/logger';
 import { nangoAPIClient } from '@/common/nango';
 import { getUsers } from '@/connectors/sendgrid/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
-import { nangoCredentialsSchema } from '@/connectors/common/nango';
 import { inngest } from '@/inngest/client';
 import { mapElbaConnectionError } from '@/connectors/common/error';
 
@@ -21,13 +20,9 @@ export const validateSourceInstallation = async ({
     region,
   });
   try {
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-    if (!nangoCredentialsResult.success) {
-      throw new Error('Could not retrieve Nango credentials');
-    }
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'API_KEY');
 
-    await getUsers({ apiKey: nangoCredentialsResult.data.apiKey, offset: 1 });
+    await getUsers({ apiKey: credentials.apiKey, offset: 1 });
 
     await elba.connectionStatus.update({
       errorType: null,

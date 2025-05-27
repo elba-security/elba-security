@@ -1,5 +1,6 @@
 import { expect, test, describe, vi } from 'vitest';
 import { createInngestFunctionMock, spyOnElba } from '@elba-security/test-utils';
+import { StepError } from 'inngest';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import * as googleDrives from '@/connectors/google/drives';
@@ -49,7 +50,7 @@ describe('sync-data-protection', () => {
     expect(serviceAccountClientSpy).toBeCalledTimes(1);
     expect(serviceAccountClientSpy).toBeCalledWith('admin@org1.local', true);
 
-    const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+    const authClient = serviceAccountClientSpy.mock.settledResults[0]?.value as unknown;
 
     expect(checkGoogleDriveAdminAccessSpy).toBeCalledTimes(1);
     expect(checkGoogleDriveAdminAccessSpy).toBeCalledWith({
@@ -130,7 +131,9 @@ describe('sync-data-protection', () => {
       syncStartedAt: '2024-01-01T00:00:00.000Z',
     });
 
-    await expect(result).rejects.toThrowError(unauthorizedError);
+    await expect(result).rejects.toThrowError(
+      new StepError('check-drive-access', unauthorizedError)
+    );
 
     expect(step.invoke).toBeCalledTimes(1);
     expect(step.invoke).toBeCalledWith('get-organisation', {
@@ -144,7 +147,7 @@ describe('sync-data-protection', () => {
     expect(serviceAccountClientSpy).toBeCalledTimes(1);
     expect(serviceAccountClientSpy).toBeCalledWith('admin@org1.local', true);
 
-    const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+    const authClient = serviceAccountClientSpy.mock.settledResults[0]?.value as unknown;
 
     expect(checkGoogleDriveAdminAccessSpy).toBeCalledTimes(1);
     expect(checkGoogleDriveAdminAccessSpy).toBeCalledWith({

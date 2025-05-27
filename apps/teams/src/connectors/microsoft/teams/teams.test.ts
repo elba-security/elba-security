@@ -1,6 +1,6 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
-import { server } from '@elba-security/test-utils';
+import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
 import { env } from '@/env';
 import type { MicrosoftTeam } from '@/connectors/microsoft/teams/teams';
 import { getTeam, getTeams } from '@/connectors/microsoft/teams/teams';

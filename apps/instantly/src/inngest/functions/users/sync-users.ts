@@ -3,7 +3,6 @@ import { logger } from '@elba-security/logger';
 import { type InstantlyUser, getUsers } from '@/connectors/instantly/users';
 import { inngest } from '@/inngest/client';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
-import { nangoCredentialsSchema } from '@/connectors/common/nango';
 import { nangoAPIClient } from '@/common/nango';
 
 const formatElbaUser = (user: InstantlyUser): User => ({
@@ -47,13 +46,9 @@ export const syncUsers = inngest.createFunction(
     });
 
     const nextPage = await step.run('list-users', async () => {
-      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-      const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-      if (!nangoCredentialsResult.success) {
-        throw new Error('Could not retrieve Nango credentials');
-      }
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'API_KEY');
 
-      const apiKey = nangoCredentialsResult.data.apiKey;
+      const apiKey = credentials.apiKey;
 
       const result = await getUsers({ apiKey, page });
 

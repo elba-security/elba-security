@@ -1,6 +1,6 @@
 import { inngest } from '@/inngest/client';
 import { deleteUser as deleteFreshdeskUser } from '@/connectors/freshdesk/users';
-import { nangoConnectionConfigSchema, nangoCredentialsSchema } from '@/connectors/common/nango';
+import { nangoConnectionConfigSchema } from '@/connectors/common/nango';
 import { nangoAPIClient } from '@/common/nango';
 import { env } from '@/common/env';
 
@@ -17,13 +17,10 @@ export const deleteUser = inngest.createFunction(
   async ({ event }) => {
     const { nangoConnectionId, userId } = event.data;
 
-    const { credentials, connection_config: connectionConfig } =
-      await nangoAPIClient.getConnection(nangoConnectionId);
-    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-
-    if (!nangoCredentialsResult.success) {
-      throw new Error('Could not retrieve Nango credentials');
-    }
+    const { credentials, connection_config: connectionConfig } = await nangoAPIClient.getConnection(
+      nangoConnectionId,
+      'BASIC'
+    );
 
     const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
 
@@ -34,8 +31,8 @@ export const deleteUser = inngest.createFunction(
 
     await deleteFreshdeskUser({
       userId,
-      userName: nangoCredentialsResult.data.username,
-      password: nangoCredentialsResult.data.password,
+      userName: credentials.username,
+      password: credentials.password,
       subDomain,
     });
   }

@@ -1,4 +1,3 @@
-import { NonRetriableError } from 'inngest';
 import { deletePageUserRestrictions } from '@/connectors/confluence/page-restrictions';
 import { inngest } from '@/inngest/client';
 import { nangoAPIClient } from '@/common/nango';
@@ -29,10 +28,7 @@ export const deletePageRestrictions = inngest.createFunction(
   },
   async ({ event }) => {
     const { pageId, userIds, nangoConnectionId } = event.data;
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-      throw new NonRetriableError('Could not retrieve Nango credentials');
-    }
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
     const instance = await getInstance(credentials.access_token);
     const accessToken = credentials.access_token;
     await Promise.all(

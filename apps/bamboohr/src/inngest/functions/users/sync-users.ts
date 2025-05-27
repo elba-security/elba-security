@@ -1,7 +1,7 @@
 import type { User } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
 import { inngest } from '@/inngest/client';
-import { nangoConnectionConfigSchema, nangoCredentialsSchema } from '@/connectors/common/nango';
+import { nangoConnectionConfigSchema } from '@/connectors/common/nango';
 import { getUsers } from '@/connectors/bamboohr/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { type BamboohrUser } from '@/connectors/bamboohr/users';
@@ -53,14 +53,10 @@ export const syncUsers = inngest.createFunction(
       region,
     });
 
-    const { credentials, connection_config: connectionConfig } =
-      await nangoAPIClient.getConnection(nangoConnectionId);
-
-    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-
-    if (!nangoCredentialsResult.success) {
-      throw new Error('Could not retrieve Nango credentials');
-    }
+    const { credentials, connection_config: connectionConfig } = await nangoAPIClient.getConnection(
+      nangoConnectionId,
+      'BASIC'
+    );
 
     const nangoConnectionConfigResult = nangoConnectionConfigSchema.safeParse(connectionConfig);
 
@@ -70,8 +66,8 @@ export const syncUsers = inngest.createFunction(
 
     const subDomain = nangoConnectionConfigResult.data.subdomain;
     const result = await getUsers({
-      userName: nangoCredentialsResult.data.username,
-      password: nangoCredentialsResult.data.password,
+      userName: credentials.username,
+      password: credentials.password,
       subDomain,
     });
 

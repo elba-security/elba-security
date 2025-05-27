@@ -2,9 +2,9 @@
 
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
-import { server } from '@elba-security/test-utils';
+import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
+import { ConfluenceError } from '../common/error';
 import { checkAdmin, getInstance } from './auth';
-import { ConfluenceError } from './common/error';
 
 const oauthToken = {
   access_token: 'access-token',

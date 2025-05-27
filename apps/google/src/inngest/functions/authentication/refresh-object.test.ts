@@ -61,7 +61,7 @@ describe('refresh-authentication-object', () => {
     expect(googleUsers.getGoogleUser).toBeCalledTimes(1);
     expect(googleUsers.getGoogleUser).toBeCalledWith({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a mock
-      auth: serviceAccountClientSpy.mock.results[0]?.value,
+      auth: serviceAccountClientSpy.mock.settledResults[0]?.value,
       userKey: 'user-id',
     });
 

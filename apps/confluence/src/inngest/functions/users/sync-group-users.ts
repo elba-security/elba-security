@@ -1,4 +1,3 @@
-import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { nangoAPIClient } from '@/common/nango';
@@ -36,10 +35,7 @@ export const syncGroupUsers = inngest.createFunction(
     } = event.data;
 
     const nextCursor = await step.run('paginate-group-users', async () => {
-      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
-      }
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
       const instance = await getInstance(credentials.access_token);
 
       const elba = createElbaOrganisationClient({ organisationId, region });

@@ -1,5 +1,5 @@
 import { InngestMiddleware, RetryAfterError } from 'inngest';
-import { ConfluenceError } from '@/connectors/confluence/common/error';
+import { ConfluenceError } from '@/connectors/common/error';
 
 export const rateLimitMiddleware = new InngestMiddleware({
   name: 'rate-limit',

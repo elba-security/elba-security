@@ -1,5 +1,4 @@
 import type { User } from '@elba-security/sdk';
-import { NonRetriableError } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { getUsers, getAuthUser } from '@/connectors/aircall/users';
 import { inngest } from '@/inngest/client';
@@ -40,10 +39,7 @@ export const syncUsers = inngest.createFunction(
     });
 
     const nextPage = await step.run('list-users', async () => {
-      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-      if (!('access_token' in credentials) || typeof credentials.access_token !== 'string') {
-        throw new NonRetriableError('Could not retrieve Nango credentials');
-      }
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
 
       const result = await getUsers({ token: credentials.access_token, nextPageLink: page });
       const { authUserId } = await getAuthUser(credentials.access_token);

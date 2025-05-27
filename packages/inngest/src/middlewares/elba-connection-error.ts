@@ -1,3 +1,4 @@
+import { IntegrationConnectionError } from '@elba-security/common';
 import { serializeLogObject } from '@elba-security/logger/src/serialize';
 import { elbaRegionSchema, type ConnectionErrorType } from '@elba-security/schemas';
 import { InngestMiddleware, NonRetriableError } from 'inngest';
@@ -34,7 +35,8 @@ export const createElbaConnectionErrorMiddleware = ({
                 ...context
               } = ctx;
 
-              const errorType = mapErrorFn(error);
+              const errorType =
+                error instanceof IntegrationConnectionError ? error.type : mapErrorFn(error);
               if (!errorType) {
                 return;
               }
@@ -56,9 +58,12 @@ export const createElbaConnectionErrorMiddleware = ({
                 ...context,
                 result: {
                   ...result,
-                  error: new NonRetriableError(`Detected '${errorType}' error in '${fn.name}'`, {
-                    cause: error,
-                  }),
+                  error: new NonRetriableError(
+                    `Detected '${errorType}' connection error in '${fn.name}'`,
+                    {
+                      cause: error,
+                    }
+                  ),
                 },
               };
             },

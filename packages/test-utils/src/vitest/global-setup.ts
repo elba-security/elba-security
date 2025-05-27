@@ -12,10 +12,10 @@ export const setup = async () => {
   const isEdgeEnvironment = process.env.VITEST_ENVIRONMENT === 'edge-runtime';
   stack = await new DockerComposeEnvironment('../..', 'docker-compose.yaml')
     .withWaitStrategy(
-      'postgres',
+      'postgres-1',
       Wait.forLogMessage(/.*database system is ready to accept connections.*/, 2)
     )
-    .withWaitStrategy('pg_proxy', Wait.forLogMessage(/.*Starting server on port.*/))
+    .withWaitStrategy('pg_proxy-1', Wait.forLogMessage(/.*Starting server on port.*/))
     .withProfiles(isEdgeEnvironment ? 'edge' : 'node')
     .up();
 

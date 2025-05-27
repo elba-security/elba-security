@@ -57,7 +57,7 @@ describe('delete-data-protection-object-permissions', () => {
     expect(serviceAccountClientSpy).toBeCalledTimes(1);
     expect(serviceAccountClientSpy).toBeCalledWith('user@org.local');
 
-    const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+    const authClient = serviceAccountClientSpy.mock.settledResults[0]?.value as unknown;
 
     expect(googlePermissions.deleteGooglePermission).toBeCalledTimes(3);
     expect(googlePermissions.deleteGooglePermission).toBeCalledWith({
@@ -125,7 +125,7 @@ describe('delete-data-protection-object-permissions', () => {
     expect(serviceAccountClientSpy).toBeCalledTimes(1);
     expect(serviceAccountClientSpy).toBeCalledWith('user@org.local');
 
-    const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+    const authClient = serviceAccountClientSpy.mock.settledResults[0]?.value as unknown;
 
     expect(googlePermissions.deleteGooglePermission).toBeCalledTimes(4);
     expect(googlePermissions.deleteGooglePermission).toBeCalledWith({

@@ -1,0 +1,21 @@
+{
+  "name": "@elba-security/common",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "lint": "eslint src",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@elba-security/schemas": "workspace:*"
+  },
+  "devDependencies": {
+    "@elba-security/eslint-config-custom": "workspace:*",
+    "@elba-security/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

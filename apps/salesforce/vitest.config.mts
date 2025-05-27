@@ -17,11 +17,6 @@ export default defineConfig({
   test: {
     setupFiles: ['@elba-security/test-utils/vitest/setup-msw-handlers'],
     environment,
-    poolOptions: {
-      threads: {
-        singleThread: true,
-      },
-    },
   },
   resolve: {
     alias: {

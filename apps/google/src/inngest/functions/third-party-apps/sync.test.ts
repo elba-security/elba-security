@@ -111,7 +111,7 @@ describe('sync-third-party-apps', () => {
     expect(step.run).toBeCalledWith('list-user-user-id-1-apps', expect.any(Function));
     expect(step.run).toBeCalledWith('list-user-user-id-2-apps', expect.any(Function));
 
-    const authClient = serviceAccountClientSpy.mock.results[0]?.value as unknown;
+    const authClient = serviceAccountClientSpy.mock.settledResults[0]?.value as unknown;
 
     expect(GoogleTokens.listGoogleTokens).toBeCalledTimes(2);
     expect(GoogleTokens.listGoogleTokens).toBeCalledWith({
