@@ -104,7 +104,6 @@ export const syncThirdPartyApps = inngest.createFunction(
 
     await step.run('finalize', async () => {
       const apps = formatApps(usersApps);
-
       await elba.thirdPartyApps.updateObjects({ apps });
     });
 

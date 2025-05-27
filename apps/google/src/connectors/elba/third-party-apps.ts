@@ -1,6 +1,22 @@
 import type { ThirdPartyAppsObject } from '@elba-security/sdk';
 import type { GoogleToken } from '../google/tokens';
 
+const cleanScopes = (scopes: string[]): string[] => {
+  return scopes.map((scope) => {
+    try {
+      const parsed = new URL(scope);
+
+      if (parsed.pathname === '/' && scope.endsWith('/')) {
+        return scope;
+      }
+      return scope.endsWith('/') ? scope.slice(0, -1) : scope;
+    } catch (error) {
+      // Valid scope, but not a valid URL
+      return scope;
+    }
+  });
+};
+
 export const formatApps = (
   userApps: { userId: string; apps: GoogleToken[] }[]
 ): ThirdPartyAppsObject[] => {
@@ -9,7 +25,7 @@ export const formatApps = (
     for (const { clientId, displayText, scopes } of apps) {
       const app = usersApps.get(clientId);
       if (app) {
-        app.users.push({ id: userId, scopes });
+        app.users.push({ id: userId, scopes: cleanScopes(scopes) });
       } else {
         usersApps.set(clientId, {
           id: clientId,
@@ -17,7 +33,7 @@ export const formatApps = (
           users: [
             {
               id: userId,
-              scopes,
+              scopes: cleanScopes(scopes),
             },
           ],
         });

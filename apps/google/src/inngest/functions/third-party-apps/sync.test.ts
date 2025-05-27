@@ -15,9 +15,16 @@ const setup = createInngestFunctionMock(
 
 const mockedDate = '2024-01-01T00:00:00.000Z';
 
+// Scopes
+const SCOPE_1 = 'https://example.com/scope/1';
+const SCOPE_2 = 'https://example.com/scope/2/'; // A scope ends with a forward slash
+const SCOPE_3 = 'openid'; // it could be a valid scope, but not a valid URL
+const SCOPE_2_AFTER_FORMATTED = 'https://example.com/scope/2'; // SCOPE_2 after being formatted
+
 describe('sync-third-party-apps', () => {
   beforeAll(() => {
     vi.setSystemTime(mockedDate);
+    vi.clearAllMocks();
   });
 
   afterAll(() => {
@@ -33,18 +40,18 @@ describe('sync-third-party-apps', () => {
         {
           clientId: 'client-id-1',
           displayText: 'app',
-          scopes: userKey === 'user-id-1' ? ['scope-1', 'scope-2'] : ['scope-2', 'scope-3'],
+          scopes: userKey === 'user-id-1' ? [SCOPE_1, SCOPE_2] : [SCOPE_2, SCOPE_3],
         },
         userKey === 'user-id-1'
           ? {
               clientId: 'client-id-2',
               displayText: 'app',
-              scopes: ['scope-1'],
+              scopes: [SCOPE_1],
             }
           : {
               clientId: 'client-id-3',
               displayText: 'app',
-              scopes: ['scope-2'],
+              scopes: [SCOPE_2],
             },
       ])
     );
@@ -132,19 +139,19 @@ describe('sync-third-party-apps', () => {
           id: 'client-id-1',
           name: 'app',
           users: [
-            { id: 'user-id-1', scopes: ['scope-1', 'scope-2'] },
-            { id: 'user-id-2', scopes: ['scope-2', 'scope-3'] },
+            { id: 'user-id-1', scopes: [SCOPE_1, SCOPE_2_AFTER_FORMATTED] },
+            { id: 'user-id-2', scopes: [SCOPE_2_AFTER_FORMATTED, SCOPE_3] },
           ],
         },
         {
           id: 'client-id-2',
           name: 'app',
-          users: [{ id: 'user-id-1', scopes: ['scope-1'] }],
+          users: [{ id: 'user-id-1', scopes: [SCOPE_1] }],
         },
         {
           id: 'client-id-3',
           name: 'app',
-          users: [{ id: 'user-id-2', scopes: ['scope-2'] }],
+          users: [{ id: 'user-id-2', scopes: [SCOPE_2_AFTER_FORMATTED] }],
         },
       ],
     });
@@ -170,18 +177,18 @@ describe('sync-third-party-apps', () => {
         {
           clientId: 'client-id-1',
           displayText: 'app',
-          scopes: userKey === 'user-id-1' ? ['scope-1', 'scope-2'] : ['scope-2', 'scope-3'],
+          scopes: userKey === 'user-id-1' ? [SCOPE_1, SCOPE_2] : [SCOPE_2, SCOPE_3],
         },
         userKey === 'user-id-1'
           ? {
               clientId: 'client-id-2',
               displayText: 'app',
-              scopes: ['scope-1'],
+              scopes: [SCOPE_1],
             }
           : {
               clientId: 'client-id-3',
               displayText: 'app',
-              scopes: ['scope-2'],
+              scopes: [SCOPE_2],
             },
       ])
     );
