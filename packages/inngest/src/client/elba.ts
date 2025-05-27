@@ -1,4 +1,5 @@
 import { type ElbaRegion, type OrganisationsGetResult } from '@elba-security/sdk';
+import { type SourceConnectionEmailScanningApp } from '@elba-security/schemas';
 import { referenceFunction, type InngestFunctionReference } from 'inngest';
 
 const regionSuffix = {
@@ -11,10 +12,34 @@ type ElbaFunctions = {
     input: { sourceId: string };
     output: OrganisationsGetResult;
   };
+  'connections.updated': {
+    input: {
+      sourceId: string;
+      organisationId: string;
+      detectionMethod: 'email_scanning';
+      apps: SourceConnectionEmailScanningApp[];
+    };
+    output: {
+      message: string;
+    };
+  };
+  'connections.deleted': {
+    input: {
+      sourceId: string;
+      detectionMethod: 'email_scanning';
+      organisationId: string;
+      syncedBefore: string;
+    };
+    output: {
+      message?: string;
+    };
+  };
 };
 
 const elbaInngestFunctionIds = {
   'organisations.list': 'listOrganisations',
+  'connections.updated': 'updateConnections',
+  'connections.deleted': 'deleteConnections',
 } as const satisfies Record<keyof ElbaFunctions, string>;
 
 export const referenceElbaFunction = <T extends keyof ElbaFunctions>(
