@@ -4797,18 +4797,12 @@ importers:
       '@elba-security/logger':
         specifier: workspace:*
         version: link:../../packages/logger
-      '@elba-security/nango':
-        specifier: workspace:*
-        version: link:../../packages/nango
       '@elba-security/nextjs':
         specifier: workspace:*
         version: link:../../packages/nextjs
-      '@elba-security/sdk':
+      '@elba-security/utils':
         specifier: workspace:*
-        version: link:../../packages/sdk
-      inngest:
-        specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: link:../../packages/utils
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
