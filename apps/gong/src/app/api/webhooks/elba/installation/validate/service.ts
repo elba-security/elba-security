@@ -2,7 +2,6 @@ import { serializeLogObject } from '@elba-security/logger/src/serialize';
 import { logger } from '@elba-security/logger';
 import { nangoAPIClient } from '@/common/nango';
 import { getUsers } from '@/connectors/gong/users';
-import { nangoCredentialsSchema } from '@/connectors/common/nango';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { inngest } from '@/inngest/client';
 import { mapElbaConnectionError } from '@/connectors/common/error';
@@ -21,17 +20,11 @@ export const validateSourceInstallation = async ({
     region,
   });
   try {
-    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
-    
-        const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-    
-        if (!nangoCredentialsResult.success) {
-          throw new Error('Could not retrieve Nango credentials');
-        }
+    const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'BASIC');
 
     await getUsers({
-      userName: nangoCredentialsResult.data.username,
-      password: nangoCredentialsResult.data.password,
+      userName: credentials.username,
+      password: credentials.password,
     });
     await elba.connectionStatus.update({
       errorType: null,

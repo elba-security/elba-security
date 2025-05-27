@@ -1,7 +1,6 @@
 import type { User } from '@elba-security/sdk';
 import { logger } from '@elba-security/logger';
 import { inngest } from '@/inngest/client';
-import { nangoCredentialsSchema } from '@/connectors/common/nango';
 import { getUsers } from '@/connectors/gong/users';
 import { createElbaOrganisationClient } from '@/connectors/elba/client';
 import { type GongUser } from '@/connectors/gong/users';
@@ -14,7 +13,7 @@ const formatElbaUserDisplayName = (user: GongUser) => {
   return user.emailAddress;
 };
 
-const formatElbaUser = ({ user }: { user: GongUser; }): User => ({
+const formatElbaUser = ({ user }: { user: GongUser }): User => ({
   id: user.id,
   displayName: formatElbaUserDisplayName(user),
   email: user.emailAddress,
@@ -54,16 +53,11 @@ export const syncUsers = inngest.createFunction(
     });
 
     const nextPage = await step.run('list-users', async () => {
-      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId);
+      const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'BASIC');
 
-    const nangoCredentialsResult = nangoCredentialsSchema.safeParse(credentials);
-
-    if (!nangoCredentialsResult.success) {
-      throw new Error('Could not retrieve Nango credentials');
-    }
       const result = await getUsers({
-        userName: nangoCredentialsResult.data.username,
-        password: nangoCredentialsResult.data.password,
+        userName: credentials.username,
+        password: credentials.password,
         page,
       });
 
