@@ -3,17 +3,15 @@ import type { GoogleToken } from '../google/tokens';
 
 const cleanScopes = (scopes: string[]): string[] => {
   return scopes.map((scope) => {
-    try {
+    if (URL.canParse(scope)) {
       const parsed = new URL(scope);
 
       if (parsed.pathname === '/' && scope.endsWith('/')) {
         return scope;
       }
       return scope.endsWith('/') ? scope.slice(0, -1) : scope;
-    } catch (error) {
-      // Valid scope, but not a valid URL
-      return scope;
     }
+    return scope;
   });
 };
 
