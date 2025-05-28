@@ -7,6 +7,7 @@ export const organisationsTable = pgTable('organisations', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   googleCustomerId: text('google_customer_id').notNull(),
   googleAdminEmail: text('google_admin_email').notNull(),
+  lastSyncStartedAt: timestamp('last_sync_started_at'),
 });
 
 export type Organisation = InferSelectModel<typeof organisationsTable>;

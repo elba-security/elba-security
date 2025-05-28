@@ -2521,9 +2521,18 @@ importers:
       '@elba-security/nextjs':
         specifier: workspace:*
         version: link:../../packages/nextjs
+      '@elba-security/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       '@elba-security/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@googleapis/gmail':
+        specifier: ^12.0.1
+        version: 12.0.1
       '@jrmdayn/googleapis-batcher':
         specifier: ^0.8.0
         version: 0.8.0(gaxios@6.3.0)(googleapis@144.0.0)
@@ -6463,6 +6472,10 @@ packages:
 
   '@googleapis/drive@8.7.0':
     resolution: {integrity: sha512-XAi6kfySIU4H3ivX2DpzTDce5UhNke5NxEWCL6tySEdcVqx+cmXJmkMqwfOAHJalEB5s9PPfdLBU29Xd5XlLSQ==}
+    engines: {node: '>=12.0.0'}
+
+  '@googleapis/gmail@12.0.1':
+    resolution: {integrity: sha512-74KIG6Ks3/mrjLwz5omate5N6drrJdZSCjwQr1hkPrXQ7LAvHST8bG8+L7O1NrHE+oddPgZ9XP4X5xwX5K1tPg==}
     engines: {node: '>=12.0.0'}
 
   '@grpc/grpc-js@1.13.3':
@@ -11863,6 +11876,13 @@ snapshots:
       - supports-color
 
   '@googleapis/drive@8.7.0':
+    dependencies:
+      googleapis-common: 7.0.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@googleapis/gmail@12.0.1':
     dependencies:
       googleapis-common: 7.0.0
     transitivePeerDependencies:

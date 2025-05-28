@@ -31,7 +31,7 @@ export const googleUserSchema = z.object({
 
 export type GoogleUser = zInfer<typeof googleUserSchema>;
 
-const googleBaseUserFields = ['id', 'primaryEmail'];
+export const googleBaseUserFields = ['id', 'primaryEmail'];
 
 const googleUserFields = [
   ...googleBaseUserFields,
