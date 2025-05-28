@@ -22,15 +22,13 @@ export const isInstallationCompleted = async ({
     return false;
   }
 
-  // TODO: implement checkGoogleGamilAdminAccess ??
-  // await checkGoogleDriveAdminAccess({ auth: authClient });
-
   await db
     .insert(organisationsTable)
     .values({ id: organisationId, region, googleAdminEmail, googleCustomerId })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
+        lastSyncStartedAt: null,
         googleCustomerId,
         googleAdminEmail,
       },

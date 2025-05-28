@@ -11,6 +11,16 @@ export const env = createEnv({
     ELBA_REDIRECT_URL: z.string().url(),
     ELBA_SOURCE_ID: z.string().uuid(),
     ELBA_WEBHOOK_SECRET: z.string().min(1),
+    ELBA_INNGEST_ENCRYPTION_KEY: z
+      .string()
+      .length(64)
+      .regex(/^(?:[0-9a-f]{2})+$/i),
+    ELBA_INNGEST_ENCRYPTION_KEY_IV: z
+      .string()
+      .length(32)
+      .regex(/^(?:[0-9a-f]{2})+$/i)
+      .default('7e8c2f9a1b0d6e3c5a4f8b1d9c0e7a3b'),
+    MAX_EMAIL_BODY_LENGTH: z.coerce.number().positive().default(1000),
     GOOGLE_AUTH_CLIENT_ID: z.string().min(1),
     GOOGLE_AUTH_CLIENT_SECRET: z.string().min(1),
     GOOGLE_AUTH_REDIRECT_URI: z.string().url(),

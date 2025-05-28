@@ -41,6 +41,7 @@ describe('remove-organisation', () => {
         googleAdminEmail: 'admin@org2.local',
         googleCustomerId: 'google-customer-id-2',
         id: '00000000-0000-0000-0000-000000000001',
+        lastSyncStartedAt: null,
         region: 'us',
       },
     ]);

@@ -2,7 +2,6 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import * as googleAuth from 'google-auth-library';
 import { inngest } from '@/inngest/client';
 import { db } from '@/database/client';
-import { GoogleDriveAccessDenied } from '@/connectors/google/errors';
 import { isInstallationCompleted } from './service';
 
 const JWT = googleAuth.JWT;
@@ -46,9 +45,7 @@ describe('isInstallationCompleted', () => {
       email: 'google-service-account-email',
       key: 'google-service-account-private-key',
       scopes: [
-        'https://www.googleapis.com/auth/admin.directory.group.member.readonly',
         'https://www.googleapis.com/auth/admin.directory.user.readonly',
-        'https://www.googleapis.com/auth/admin.directory.user.security',
         'https://www.googleapis.com/auth/gmail.readonly',
       ],
       subject: 'admin@org.local',
@@ -69,6 +66,7 @@ describe('isInstallationCompleted', () => {
         googleAdminEmail: 'admin@org.local',
         googleCustomerId: 'customer-id',
         id: '00000000-0000-0000-0000-000000000000',
+        lastSyncStartedAt: null,
         region: 'eu',
       },
     ]);
@@ -116,56 +114,7 @@ describe('isInstallationCompleted', () => {
       email: 'google-service-account-email',
       key: 'google-service-account-private-key',
       scopes: [
-        'https://www.googleapis.com/auth/admin.directory.group.member.readonly',
         'https://www.googleapis.com/auth/admin.directory.user.readonly',
-        'https://www.googleapis.com/auth/admin.directory.user.security',
-        'https://www.googleapis.com/auth/gmail.readonly',
-      ],
-      subject: 'admin@org.local',
-    });
-
-    const JWTInstance = serviceAccountClientSpy.mock.results[0]?.value as
-      | googleAuth.JWT
-      | undefined;
-
-    expect(JWTInstance?.authorize).toBeCalledTimes(1);
-    expect(JWTInstance?.authorize).toBeCalledWith();
-
-    const insertedOrganisations = await db.query.organisationsTable.findMany();
-    expect(insertedOrganisations).toStrictEqual([]);
-
-    expect(send).toBeCalledTimes(0);
-  });
-
-  it.skip('Should throw when access to Google Drive is denied', async () => {
-    const send = vi.spyOn(inngest, 'send').mockResolvedValue({ ids: [] });
-
-    const serviceAccountClientSpy = vi
-      .spyOn(googleAuth, 'JWT')
-      .mockImplementation((...options: ConstructorParameters<typeof googleAuth.JWT>) => {
-        const googleJWTClient = new JWT(...options);
-        vi.spyOn(googleJWTClient, 'authorize').mockResolvedValue();
-        return googleJWTClient;
-      });
-    const unauthorizedError = new GoogleDriveAccessDenied('Access to Google Drive has been denied');
-
-    const result = isInstallationCompleted({
-      googleAdminEmail: 'admin@org.local',
-      googleCustomerId: 'customer-id',
-      organisationId: '00000000-0000-0000-0000-000000000000',
-      region: 'eu',
-    });
-
-    await expect(result).rejects.toThrowError(unauthorizedError);
-
-    expect(serviceAccountClientSpy).toBeCalledTimes(1);
-    expect(serviceAccountClientSpy).toBeCalledWith({
-      email: 'google-service-account-email',
-      key: 'google-service-account-private-key',
-      scopes: [
-        'https://www.googleapis.com/auth/admin.directory.group.member.readonly',
-        'https://www.googleapis.com/auth/admin.directory.user.readonly',
-        'https://www.googleapis.com/auth/admin.directory.user.security',
         'https://www.googleapis.com/auth/gmail.readonly',
       ],
       subject: 'admin@org.local',
