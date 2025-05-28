@@ -1,6 +1,6 @@
 import { type ElbaRegion, type OrganisationsGetResult } from '@elba-security/sdk';
-import { type SourceConnectionEmailScanningApp } from '@elba-security/schemas';
 import { referenceFunction, type InngestFunctionReference } from 'inngest';
+import { type ElbaOrganisationEvents } from './events';
 
 const regionSuffix = {
   eu: null,
@@ -13,26 +13,12 @@ type ElbaFunctions = {
     output: OrganisationsGetResult;
   };
   'connections.updated': {
-    input: {
-      sourceId: string;
-      organisationId: string;
-      detectionMethod: 'email_scanning';
-      apps: SourceConnectionEmailScanningApp[];
-    };
-    output: {
-      message: string;
-    };
+    input: ElbaOrganisationEvents['connections.updated'];
+    output: never;
   };
   'connections.deleted': {
-    input: {
-      sourceId: string;
-      detectionMethod: 'email_scanning';
-      organisationId: string;
-      syncedBefore: string;
-    };
-    output: {
-      message?: string;
-    };
+    input: ElbaOrganisationEvents['connections.deleted'];
+    output: never;
   };
 };
 

@@ -136,3 +136,7 @@ export class ElbaInngestClient<
       streaming: 'allow',
     });
 }
+
+export { type ElbaOrganisationInngestEventSchemas } from './types';
+
+export { referenceElbaFunction } from './elba';

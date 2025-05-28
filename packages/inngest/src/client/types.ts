@@ -42,6 +42,13 @@ export type ElbaOrganisationInngestEvents = {
   };
 };
 
+// Can be used to extends elba organisation event schemas in an integration that self declare its inngest client.
+export type ElbaOrganisationInngestEventSchemas = {
+  [Event in keyof ElbaOrganisationEvents as `${ElbaRegion}/elba/${Event}`]: {
+    data: ElbaOrganisationEvents[Event] & ElbaOrganisationEventsBaseData;
+  };
+};
+
 export type ElbaInngestInstance<
   Name extends string = string,
   CustomEvents extends Record<string, EventPayload> = Record<never, unknown>,
