@@ -22,3 +22,17 @@ export const sourceConnectionEmailScanningAppSchema = baseSourceConnectionAppSch
 export type SourceConnectionEmailScanningApp = z.infer<
   typeof sourceConnectionEmailScanningAppSchema
 >;
+
+export const updateConnectionsObjectsSchema = z.object({
+  detection_method: z.literal('email_scanning'),
+  apps: z.array(sourceConnectionEmailScanningAppSchema),
+});
+
+export type UpdateConnectionsObjects = z.infer<typeof updateConnectionsObjectsSchema>;
+
+export const deleteConnectionsObjectsSchema = z.object({
+  detectionMethod: z.literal('email_scanning'),
+  syncedBefore: z.string().datetime(),
+});
+
+export type DeleteConnectionsObjects = z.infer<typeof deleteConnectionsObjectsSchema>;

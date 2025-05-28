@@ -30,7 +30,7 @@ export type IntegrationInngestEvents<Name extends string> = IntegrationEventsUni
   Name
 >;
 
-type ElbaOrganisationEventsBaseData = {
+export type ElbaOrganisationEventsBaseData = {
   sourceId: string;
   organisationId: string;
 };
@@ -38,13 +38,6 @@ type ElbaOrganisationEventsBaseData = {
 export type ElbaOrganisationInngestEvents = {
   [Event in keyof ElbaOrganisationEvents as `${ElbaRegion}/elba/${Event}`]: {
     name: `${ElbaRegion}/elba/${Event}`;
-    data: ElbaOrganisationEvents[Event] & ElbaOrganisationEventsBaseData;
-  };
-};
-
-// Can be used to extends elba organisation event schemas in an integration that self declare its inngest client.
-export type ElbaOrganisationInngestEventSchemas = {
-  [Event in keyof ElbaOrganisationEvents as `${ElbaRegion}/elba/${Event}`]: {
     data: ElbaOrganisationEvents[Event] & ElbaOrganisationEventsBaseData;
   };
 };

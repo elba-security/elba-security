@@ -26,6 +26,8 @@ import {
 } from './types';
 import { createElbaUsersSyncSchedulerFn } from './functions/users/schedule-sync';
 
+export { referenceElbaFunction } from './elba';
+
 export class ElbaInngestClient<
   Name extends string,
   NangoAuthType extends MaybeNangoAuthType,
@@ -136,7 +138,3 @@ export class ElbaInngestClient<
       streaming: 'allow',
     });
 }
-
-export { type ElbaOrganisationInngestEventSchemas } from './types';
-
-export { referenceElbaFunction } from './elba';
