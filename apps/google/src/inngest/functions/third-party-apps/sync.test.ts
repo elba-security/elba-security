@@ -19,8 +19,11 @@ const mockedDate = '2024-01-01T00:00:00.000Z';
 const SCOPE_1 = 'https://example.com/scope/1';
 const SCOPE_2 = 'https://example.com/scope/2/'; // A scope ends with a forward slash
 const SCOPE_3 = 'openid'; // it could be a valid scope, but not a valid URL
+const SCOPE_4 = 'https://example.com'; // Without any path
+const SCOPE_5 = 'https://example.com/'; // With pathname as '/'
 const SCOPE_2_AFTER_FORMATTED = 'https://example.com/scope/2'; // SCOPE_2 after being formatted
-
+const SCOPE_4_AFTER_FORMATTED = 'https://example.com/'; // SCOPE_4 after being formatted
+const SCOPE_5_AFTER_FORMATTED = 'https://example.com/'; // SCOPE_5 after being formatted
 describe('sync-third-party-apps', () => {
   beforeAll(() => {
     vi.setSystemTime(mockedDate);
@@ -40,7 +43,8 @@ describe('sync-third-party-apps', () => {
         {
           clientId: 'client-id-1',
           displayText: 'app',
-          scopes: userKey === 'user-id-1' ? [SCOPE_1, SCOPE_2] : [SCOPE_2, SCOPE_3],
+          scopes:
+            userKey === 'user-id-1' ? [SCOPE_1, SCOPE_2, SCOPE_4] : [SCOPE_2, SCOPE_3, SCOPE_5],
         },
         userKey === 'user-id-1'
           ? {
@@ -139,8 +143,14 @@ describe('sync-third-party-apps', () => {
           id: 'client-id-1',
           name: 'app',
           users: [
-            { id: 'user-id-1', scopes: [SCOPE_1, SCOPE_2_AFTER_FORMATTED] },
-            { id: 'user-id-2', scopes: [SCOPE_2_AFTER_FORMATTED, SCOPE_3] },
+            {
+              id: 'user-id-1',
+              scopes: [SCOPE_1, SCOPE_2_AFTER_FORMATTED, SCOPE_4_AFTER_FORMATTED],
+            },
+            {
+              id: 'user-id-2',
+              scopes: [SCOPE_2_AFTER_FORMATTED, SCOPE_3, SCOPE_5_AFTER_FORMATTED],
+            },
           ],
         },
         {
@@ -177,7 +187,8 @@ describe('sync-third-party-apps', () => {
         {
           clientId: 'client-id-1',
           displayText: 'app',
-          scopes: userKey === 'user-id-1' ? [SCOPE_1, SCOPE_2] : [SCOPE_2, SCOPE_3],
+          scopes:
+            userKey === 'user-id-1' ? [SCOPE_1, SCOPE_2, SCOPE_4] : [SCOPE_2, SCOPE_3, SCOPE_5],
         },
         userKey === 'user-id-1'
           ? {
