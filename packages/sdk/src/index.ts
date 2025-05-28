@@ -3,6 +3,7 @@ export * from './error';
 export * from './utils';
 export * from './webhooks';
 
+export type * from './resources/connections/types';
 export type * from './resources/connection-status/types';
 export type * from './resources/data-protection/types';
 export type * from './resources/organisations/types';

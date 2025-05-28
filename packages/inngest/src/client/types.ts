@@ -30,7 +30,7 @@ export type IntegrationInngestEvents<Name extends string> = IntegrationEventsUni
   Name
 >;
 
-type ElbaOrganisationEventsBaseData = {
+export type ElbaOrganisationEventsBaseData = {
   sourceId: string;
   organisationId: string;
 };
