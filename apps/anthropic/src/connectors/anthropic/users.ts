@@ -1,45 +1,29 @@
 import { z } from 'zod';
-import { IntegrationError, IntegrationConnectionError } from '@elba-security/common';
+import { IntegrationError } from '@elba-security/common';
 import { env } from '@/common/env';
 
-// Define the response schema for paginated user data from your source API
-// This is an example - adjust according to your source API's response format
-const getUsersResponseSchema = z.object({
-  // Define the array of users - using unknown initially as we'll validate each user separately
-  users: z.array(z.unknown()),
-  // Define pagination details - modify based on your source API's pagination mechanism
-  pagination: z.object({
-    nextPage: z.string().optional(),
-  }),
+const anthropicResponseSchema = z.object({
+  data: z.array(z.unknown()),
+  has_more: z.boolean(),
+  last_id: z.string().nullable(),
 });
 
-// Define the schema for a single user from your source API
-// This ensures type safety and validation of user data
-const userSchema = z.object({
-  // Required fields that match your source API's user object structure
+const anthropicUserSchema = z.object({
   id: z.string(),
   name: z.string(),
-  // Add any other required user fields from your source API
-  type: z.string(), // e.g., 'user', 'admin', etc.
+  email: z.string(),
+  role: z.string(),
 });
 
-// Export the complete user schema that includes any additional context
-// This is what will be used to validate user data before processing
-export const sourceUserSchema = z.object({
-  user: userSchema,
-  // Add any additional context needed for the user
-  metadata: z.object({
-    department: z.string().optional(),
-  }),
-});
+export type AnthropicUser = z.infer<typeof anthropicUserSchema>;
 
-// Export the type for use in other parts of the application
-export type SourceUser = z.infer<typeof sourceUserSchema>;
+export type DeleteUsersParams = {
+  userId: string;
+  apiKey: string;
+};
 
-// Parameters required to fetch users from your source API
 type GetUsersParams = {
-  accessToken: string;
-  // Add any other required parameters for fetching users
+  apiKey: string;
   page?: string | null;
 };
 
@@ -48,18 +32,20 @@ type GetUsersParams = {
  * @param params - Parameters required to fetch users
  * @returns Object containing valid users, invalid users, and pagination info
  */
-export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
-  // Construct the API URL - replace with your source API endpoint
-  const url = new URL(`${env.ANTHROPIC_API_BASE_URL}/users`);
+export const getUsers = async ({ apiKey, page }: GetUsersParams) => {
+  const url = new URL(`${env.ANTHROPIC_API_BASE_URL}/v1/organizations/users`);
 
-  // Add any required query parameters
   url.searchParams.append('limit', `${env.ANTHROPIC_USERS_SYNC_BATCH_SIZE}`);
 
-  // Make the API request
-  const response = await fetch(page ?? url.toString(), {
+  if (page) {
+    url.searchParams.append('after_id', page);
+  }
+
+  const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      'anthropic-version': '2023-06-01',
+      'x-api-key': apiKey,
       Accept: 'application/json',
     },
   });
@@ -70,20 +56,15 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
 
   const resData: unknown = await response.json();
 
-  // Validate the response structure
-  const result = getUsersResponseSchema.parse(resData);
+  const result = anthropicResponseSchema.parse(resData);
 
-  const validUsers: SourceUser[] = [];
+  const validUsers: AnthropicUser[] = [];
   const invalidUsers: unknown[] = [];
 
   // Validate each user and separate valid from invalid ones
-  for (const user of result.users) {
-    const userResult = sourceUserSchema.safeParse(user);
+  for (const user of result.data) {
+    const userResult = anthropicUserSchema.safeParse(user);
     if (userResult.success) {
-      // Add any additional filtering logic here
-      if (userResult.data.user.type !== 'user') {
-        continue;
-      }
       validUsers.push(userResult.data);
     } else {
       invalidUsers.push(user);
@@ -93,49 +74,23 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   return {
     validUsers,
     invalidUsers,
-    nextPage: result.pagination.nextPage ?? null,
+    nextPage: result.has_more ? result.last_id : null,
   };
 };
 
-/**
- * Fetches the authenticated user's information
- * Used for validating access tokens and permissions
- */
-export const getAuthUser = async (accessToken: string) => {
-  const response = await fetch(`${env.ANTHROPIC_API_BASE_URL}/me`, {
-    method: 'GET',
+export const deleteUser = async ({ userId, apiKey }: DeleteUsersParams) => {
+  const url = new URL(`${env.ANTHROPIC_API_BASE_URL}/v1/organizations/users/${userId}`);
+
+  const response = await fetch(url, {
+    method: 'DELETE',
     headers: {
-      Authorization: `Bearer ${accessToken}`,
       Accept: 'application/json',
+      'anthropic-version': '2023-06-01',
+      'x-api-key': apiKey,
     },
   });
 
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' });
-    }
-
-    throw new IntegrationError('Could not retrieve user', { response });
+  if (!response.ok && response.status !== 404) {
+    throw new IntegrationError(`Could not delete user with Id: ${userId}`, { response });
   }
-
-  const resData: unknown = await response.json();
-
-  const userResult = userSchema.safeParse(resData);
-
-  if (!userResult.success) {
-    throw new IntegrationConnectionError('Invalid auth user data', {
-      type: 'unknown',
-      metadata: { data: resData, errors: userResult.error.issues },
-    });
-  }
-
-  // Add any additional validation specific to authenticated users
-  if (userResult.data.type !== 'admin') {
-    throw new IntegrationConnectionError('User is not admin', {
-      type: 'not_admin',
-      metadata: userResult.data,
-    });
-  }
-
-  return userResult.data;
 };
