@@ -17,16 +17,11 @@ const cleanScopes = (scopes: string[]): string[] => {
 
     const url = new URL(scope);
 
-    if (url.pathname === '/') {
-      return url.origin + url.pathname;
+    if (url.pathname !== '/' && url.pathname.endsWith('/')) {
+      return `${url.origin}${url.pathname.slice(0, -1)}`;
     }
 
-    const currentPathname = url.pathname;
-    const normalizedPathname = currentPathname.endsWith('/')
-      ? currentPathname.slice(0, -1)
-      : currentPathname;
-
-    return url.origin + normalizedPathname;
+    return `${url.origin}${url.pathname}`;
   });
 };
 
