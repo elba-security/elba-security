@@ -37,3 +37,10 @@ elbaInngestClient.createElbaUsersDeleteFn({
     await deleteUser({ apiKey: connection.credentials.apiKey, userId: id });
   },
 });
+
+elbaInngestClient.createInstallationValidateFn(async ({ connection }) => {
+  await getUsers({
+    apiKey: connection.credentials.apiKey,
+    page: null,
+  });
+});
