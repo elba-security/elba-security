@@ -42,6 +42,12 @@ export type ElbaOrganisationInngestEvents = {
   };
 };
 
+export type PublicElbaOrganisationInngestEvents = {
+  [Event in keyof ElbaOrganisationEvents as `${ElbaRegion}/elba/${Event}`]: {
+    data: ElbaOrganisationEvents[Event] & ElbaOrganisationEventsBaseData;
+  };
+};
+
 export type ElbaInngestInstance<
   Name extends string = string,
   CustomEvents extends Record<string, EventPayload> = Record<never, unknown>,
