@@ -7,7 +7,6 @@ import type { BoxUser } from './users';
 import { getUsers, deleteUser, getAuthUser } from './users';
 
 const validToken = 'token-1234';
-const endPage = '2';
 const nextPage = '1';
 const userId = 'test-id';
 const nextPageTotalCount = 30;
