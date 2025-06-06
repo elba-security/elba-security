@@ -3,7 +3,7 @@ import { env } from '@/common/env';
 import { getUsers, deleteUser } from '@/connectors/discourse/users';
 
 export const elbaInngestClient = new ElbaInngestClient({
-  name: 'zoom',
+  name: 'discourse',
   nangoAuthType: 'API_KEY',
   nangoIntegrationId: env.NANGO_INTEGRATION_ID,
   nangoSecretKey: env.NANGO_SECRET_KEY,
