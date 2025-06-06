@@ -124,7 +124,7 @@ importers:
         version: 3.0.3
       turbo:
         specifier: latest
-        version: 2.3.3
+        version: 2.5.4
 
   apps/15five:
     dependencies:
@@ -154,7 +154,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -555,7 +555,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -880,7 +880,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -1211,7 +1211,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -1381,7 +1381,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -1630,7 +1630,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -1724,7 +1724,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -1815,7 +1815,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -2064,7 +2064,7 @@ importers:
         version: 7.3.1
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -2249,7 +2249,7 @@ importers:
         version: 0.7.1(typescript@5.5.3)(zod@3.23.8)
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       google-auth-library:
         specifier: ^9.6.3
         version: 9.6.3
@@ -2349,7 +2349,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -2762,7 +2762,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -3011,7 +3011,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -3427,7 +3427,7 @@ importers:
         version: 3.6.0
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -3562,6 +3562,103 @@ importers:
       msw:
         specifier: 'catalog:'
         version: 2.3.1(typescript@5.5.3)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.5.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.1.2(@edge-runtime/vm@3.2.0)(@types/debug@4.1.12)(@types/node@20.14.2)(msw@2.3.1(typescript@5.5.3))
+
+  apps/outlook:
+    dependencies:
+      '@elba-security/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@elba-security/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@elba-security/design-system':
+        specifier: workspace:*
+        version: link:../../packages/design-system
+      '@elba-security/inngest':
+        specifier: workspace:*
+        version: link:../../packages/inngest
+      '@elba-security/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@elba-security/nextjs':
+        specifier: workspace:*
+        version: link:../../packages/nextjs
+      '@elba-security/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@elba-security/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@neondatabase/serverless':
+        specifier: 'catalog:'
+        version: 0.9.4
+      '@t3-oss/env-nextjs':
+        specifier: ^0.7.1
+        version: 0.7.1(typescript@5.5.3)(zod@3.23.8)
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
+      inngest:
+        specifier: 'catalog:'
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+      next:
+        specifier: 'catalog:'
+        version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react:
+        specifier: 'catalog:'
+        version: 18.2.0
+      react-dom:
+        specifier: 'catalog:'
+        version: 18.2.0(react@18.2.0)
+      zod:
+        specifier: 'catalog:'
+        version: 3.23.8
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: 'catalog:'
+        version: 3.2.0
+      '@elba-security/eslint-config-custom':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      '@elba-security/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@elba-security/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@next/eslint-plugin-next':
+        specifier: 'catalog:'
+        version: 14.2.4
+      '@types/node':
+        specifier: 'catalog:'
+        version: 20.14.2
+      '@types/react':
+        specifier: 'catalog:'
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 18.2.25
+      dotenv:
+        specifier: 'catalog:'
+        version: 16.4.5
+      eslint:
+        specifier: 'catalog:'
+        version: 8.57.0
+      msw:
+        specifier: 'catalog:'
+        version: 2.3.1(typescript@5.5.3)
+      postgres:
+        specifier: 'catalog:'
+        version: 3.4.4
+      testcontainers:
+        specifier: 'catalog:'
+        version: 10.24.2
       typescript:
         specifier: 'catalog:'
         version: 5.5.3
@@ -4071,7 +4168,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -4241,7 +4338,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -4335,7 +4432,7 @@ importers:
         version: 3.6.0
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -4432,7 +4529,7 @@ importers:
         version: 0.7.1(typescript@5.5.3)(zod@3.23.8)
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -4526,7 +4623,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -4620,7 +4717,7 @@ importers:
         version: 3.6.0
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -4714,7 +4811,7 @@ importers:
         version: 0.9.4
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
@@ -5256,7 +5353,7 @@ importers:
         version: link:../sdk
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
+        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0)
       postgres:
         specifier: 'catalog:'
         version: 3.4.4
@@ -6527,6 +6624,9 @@ packages:
   '@types/pg@8.11.6':
     resolution: {integrity: sha512-/2WmmBXHLsfRqzfHW7BNZ8SbYzE8OSk7i3WjFYvfgRHj7S1xj+16Je5fUKv3lVdVzk/zn9TXOqf+avFCFIE0yQ==}
 
+  '@types/pg@8.15.4':
+    resolution: {integrity: sha512-I6UNVBAoYbvuWkkU3oosC8yxqH21f4/Jc4DK71JLG3dT2mdlGe1z+ep/LQGXaKaOgcvUrsQoPRqfgtMcvZiJhg==}
+
   '@types/promise.allsettled@1.0.6':
     resolution: {integrity: sha512-wA0UT0HeT2fGHzIFV9kWpYz5mdoyLxKrTgMdZQM++5h6pYAFH73HXcQhefg24nD1yivUFEn5KU+EF4b+CXJ4Wg==}
 
@@ -6974,9 +7074,6 @@ packages:
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
-
-  bare-events@2.2.2:
-    resolution: {integrity: sha512-h7z00dWdG0PYOQEvChhOSWvOfkIKsdZGkWr083FgN/HyoQuebSew/cgirYqh9SCuy/hRvxc5Vy6Fw8xAmYHLkQ==}
 
   bare-events@2.5.4:
     resolution: {integrity: sha512-+gFfDkR8pj4/TrWCGUGWmJIkBwuxPS5F+a5yWjOHQt2hHvNZd5YLzadjmDUtFmMM4y429bnKLa8bYBMHcYdnQA==}
@@ -9038,6 +9135,7 @@ packages:
 
   lodash.get@4.4.2:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
+    deprecated: This package is deprecated. Use the optional chaining (?.) operator instead.
 
   lodash.includes@4.3.0:
     resolution: {integrity: sha512-W3Bx6mdkRTGtlJISOvVD/lbqjTlPPUDTMnlXZFnVwi9NKJ6tiAk6LVdlhZMm17VZisqhKcgzpO5Wz91PCt5b0w==}
@@ -9568,6 +9666,12 @@ packages:
     resolution: {integrity: sha512-vE7JKRyES09KiunauX7nd2Q9/L7lhok4smP9RZTDeD4MVs72Dp2qNFVz39Nz5a0FVEW0BJR6C0DYrq6unoziZA==}
     engines: {node: '>= 14.16'}
 
+  pg-cloudflare@1.2.5:
+    resolution: {integrity: sha512-OOX22Vt0vOSRrdoUPKJ8Wi2OpE/o/h9T8X1s4qSkCedbNah9ei2W2765be8iMVxQUsvgT7zIAT2eIa9fs5+vtg==}
+
+  pg-connection-string@2.9.0:
+    resolution: {integrity: sha512-P2DEBKuvh5RClafLngkAuGe9OUlFV7ebu8w1kmaaOgPcpJd1RIFh7otETfI6hAR8YupOLFTY7nuvvIn7PLciUQ==}
+
   pg-int8@1.0.1:
     resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
     engines: {node: '>=4.0.0'}
@@ -9576,12 +9680,33 @@ packages:
     resolution: {integrity: sha512-BM/Thnrw5jm2kKLE5uJkXqqExRUY/toLHda65XgFTBTFYZyopbKjBe29Ii3RbkvlsMoFwD+tHeGaCjjv0gHlyw==}
     engines: {node: '>=4'}
 
-  pg-protocol@1.6.1:
-    resolution: {integrity: sha512-jPIlvgoD63hrEuihvIg+tJhoGjUsLPn6poJY9N5CnlPd91c2T18T/9zBtLxZSb1EhYxBRoZJtzScCaWlYLtktg==}
+  pg-pool@3.10.0:
+    resolution: {integrity: sha512-DzZ26On4sQ0KmqnO34muPcmKbhrjmyiO4lCCR0VwEd7MjmiKf5NTg/6+apUEu0NF7ESa37CGzFxH513CoUmWnA==}
+    peerDependencies:
+      pg: '>=8.0'
+
+  pg-protocol@1.10.0:
+    resolution: {integrity: sha512-IpdytjudNuLv8nhlHs/UrVBhU0e78J0oIS/0AVdTbWxSOkFUVdsHC/NrorO6nXsQNDTT1kzDSOMJubBQviX18Q==}
+
+  pg-types@2.2.0:
+    resolution: {integrity: sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==}
+    engines: {node: '>=4'}
 
   pg-types@4.0.2:
     resolution: {integrity: sha512-cRL3JpS3lKMGsKaWndugWQoLOCoP+Cic8oseVcbr0qhPzYD5DWXK+RZ9LY9wxRf7RQia4SCwQlXk0q6FCPrVng==}
     engines: {node: '>=10'}
+
+  pg@8.16.0:
+    resolution: {integrity: sha512-7SKfdvP8CTNXjMUzfcVTaI+TDzBEeaUnVwiVGZQD1Hh33Kpev7liQba9uLd4CfN8r9mCVsD0JIpq03+Unpz+kg==}
+    engines: {node: '>= 8.0.0'}
+    peerDependencies:
+      pg-native: '>=3.0.1'
+    peerDependenciesMeta:
+      pg-native:
+        optional: true
+
+  pgpass@1.0.5:
+    resolution: {integrity: sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==}
 
   picocolors@1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
@@ -9676,17 +9801,33 @@ packages:
     resolution: {integrity: sha512-56rxCq7G/XfB4EkXq9Egn5GCqugWvDFjafDOThIdMBsI15iqPqR5r15TfSr1YPYeEI19YeaXMCbY6u88Y76GLQ==}
     engines: {node: ^10 || ^12 || >=14}
 
+  postgres-array@2.0.0:
+    resolution: {integrity: sha512-VpZrUqU5A69eQyW2c5CA1jtLecCsN2U/bD6VilrFDWq5+5UIEVO7nazS3TEcHf1zuPYO/sqGvUvW62g86RXZuA==}
+    engines: {node: '>=4'}
+
   postgres-array@3.0.2:
     resolution: {integrity: sha512-6faShkdFugNQCLwucjPcY5ARoW1SlbnrZjmGl0IrrqewpvxvhSLHimCVzqeuULCbG0fQv7Dtk1yDbG3xv7Veog==}
     engines: {node: '>=12'}
+
+  postgres-bytea@1.0.0:
+    resolution: {integrity: sha512-xy3pmLuQqRBZBXDULy7KbaitYqLcmxigw14Q5sj8QBVLqEwXfeybIKVWiqAXTlcvdvb0+xkOtDbfQMOf4lST1w==}
+    engines: {node: '>=0.10.0'}
 
   postgres-bytea@3.0.0:
     resolution: {integrity: sha512-CNd4jim9RFPkObHSjVHlVrxoVQXz7quwNFpz7RY1okNNme49+sVyiTvTRobiLV548Hx/hb1BG+iE7h9493WzFw==}
     engines: {node: '>= 6'}
 
+  postgres-date@1.0.7:
+    resolution: {integrity: sha512-suDmjLVQg78nMK2UZ454hAG+OAW+HQPZ6n++TNDUX+L0+uUlLywnoxJKDou51Zm+zTCjrCl0Nq6J9C5hP9vK/Q==}
+    engines: {node: '>=0.10.0'}
+
   postgres-date@2.1.0:
     resolution: {integrity: sha512-K7Juri8gtgXVcDfZttFKVmhglp7epKb1K4pgrkLxehjqkrgPhfG6OO8LHLkfaqkbpjNRnra018XwAr1yQFWGcA==}
     engines: {node: '>=12'}
+
+  postgres-interval@1.2.0:
+    resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
+    engines: {node: '>=0.10.0'}
 
   postgres-interval@3.0.0:
     resolution: {integrity: sha512-BSNDnbyZCXSxgA+1f5UU2GmwhoI0aU5yMxRGO8CdFEcY2BQF9xm/7MqKnYoM1nJDk8nONNWDk9WeSmePFhQdlw==}
@@ -9784,9 +9925,6 @@ packages:
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
-
-  queue-tick@1.0.1:
-    resolution: {integrity: sha512-kJt5qhMxoszgU/62PLP1CJytzd2NKetjSRnyuj31fDd3Rlcz3fzlFdFLD1SItunPwyqEOkca6GbV612BWfaBag==}
 
   quick-format-unescaped@4.0.4:
     resolution: {integrity: sha512-tYC1Q1hgyRuHgloV/YXs2w15unPVh8qfu/qCTfhTYamaw7fyhumKa2yGpdSo87vY32rIclj+4fWYQXUMs9EHvg==}
@@ -10178,9 +10316,6 @@ packages:
     resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
     engines: {node: '>=10.0.0'}
 
-  streamx@2.16.1:
-    resolution: {integrity: sha512-m9QYj6WygWyWa3H1YY69amr4nVgy61xfjys7xO7kviL5rfIEc2naf+ewFiOA+aEJD7y0JO3h2GoiUv4TDwEGzQ==}
-
   streamx@2.22.0:
     resolution: {integrity: sha512-sLh1evHOzBy/iWRiR6d1zRcLao4gGZr3C1kzNz4fopCOKJb6xD9ub8Mpi9Mr1R6id5o43S+d93fI48UC5uM9aw==}
 
@@ -10479,38 +10614,38 @@ packages:
     resolution: {integrity: sha512-xHtFaKtHxM9LOklMmJdI3BEnQq/D5F73Of2E1GDrITi9sgoVkvIsrQUTY1G8FlmGtA+awCI4EBlTRRYxkL2sRg==}
     hasBin: true
 
-  turbo-darwin-64@2.3.3:
-    resolution: {integrity: sha512-bxX82xe6du/3rPmm4aCC5RdEilIN99VUld4HkFQuw+mvFg6darNBuQxyWSHZTtc25XgYjQrjsV05888w1grpaA==}
+  turbo-darwin-64@2.5.4:
+    resolution: {integrity: sha512-ah6YnH2dErojhFooxEzmvsoZQTMImaruZhFPfMKPBq8sb+hALRdvBNLqfc8NWlZq576FkfRZ/MSi4SHvVFT9PQ==}
     cpu: [x64]
     os: [darwin]
 
-  turbo-darwin-arm64@2.3.3:
-    resolution: {integrity: sha512-DYbQwa3NsAuWkCUYVzfOUBbSUBVQzH5HWUFy2Kgi3fGjIWVZOFk86ss+xsWu//rlEAfYwEmopigsPYSmW4X15A==}
+  turbo-darwin-arm64@2.5.4:
+    resolution: {integrity: sha512-2+Nx6LAyuXw2MdXb7pxqle3MYignLvS7OwtsP9SgtSBaMlnNlxl9BovzqdYAgkUW3AsYiQMJ/wBRb7d+xemM5A==}
     cpu: [arm64]
     os: [darwin]
 
-  turbo-linux-64@2.3.3:
-    resolution: {integrity: sha512-eHj9OIB0dFaP6BxB88jSuaCLsOQSYWBgmhy2ErCu6D2GG6xW3b6e2UWHl/1Ho9FsTg4uVgo4DB9wGsKa5erjUA==}
+  turbo-linux-64@2.5.4:
+    resolution: {integrity: sha512-5May2kjWbc8w4XxswGAl74GZ5eM4Gr6IiroqdLhXeXyfvWEdm2mFYCSWOzz0/z5cAgqyGidF1jt1qzUR8hTmOA==}
     cpu: [x64]
     os: [linux]
 
-  turbo-linux-arm64@2.3.3:
-    resolution: {integrity: sha512-NmDE/NjZoDj1UWBhMtOPmqFLEBKhzGS61KObfrDEbXvU3lekwHeoPvAMfcovzswzch+kN2DrtbNIlz+/rp8OCg==}
+  turbo-linux-arm64@2.5.4:
+    resolution: {integrity: sha512-/2yqFaS3TbfxV3P5yG2JUI79P7OUQKOUvAnx4MV9Bdz6jqHsHwc9WZPpO4QseQm+NvmgY6ICORnoVPODxGUiJg==}
     cpu: [arm64]
     os: [linux]
 
-  turbo-windows-64@2.3.3:
-    resolution: {integrity: sha512-O2+BS4QqjK3dOERscXqv7N2GXNcqHr9hXumkMxDj/oGx9oCatIwnnwx34UmzodloSnJpgSqjl8iRWiY65SmYoQ==}
+  turbo-windows-64@2.5.4:
+    resolution: {integrity: sha512-EQUO4SmaCDhO6zYohxIjJpOKRN3wlfU7jMAj3CgcyTPvQR/UFLEKAYHqJOnJtymbQmiiM/ihX6c6W6Uq0yC7mA==}
     cpu: [x64]
     os: [win32]
 
-  turbo-windows-arm64@2.3.3:
-    resolution: {integrity: sha512-dW4ZK1r6XLPNYLIKjC4o87HxYidtRRcBeo/hZ9Wng2XM/MqqYkAyzJXJGgRMsc0MMEN9z4+ZIfnSNBrA0b08ag==}
+  turbo-windows-arm64@2.5.4:
+    resolution: {integrity: sha512-oQ8RrK1VS8lrxkLriotFq+PiF7iiGgkZtfLKF4DDKsmdbPo0O9R2mQxm7jHLuXraRCuIQDWMIw6dpcr7Iykf4A==}
     cpu: [arm64]
     os: [win32]
 
-  turbo@2.3.3:
-    resolution: {integrity: sha512-DUHWQAcC8BTiUZDRzAYGvpSpGLiaOQPfYXlCieQbwUvmml/LRGIe3raKdrOPOoiX0DYlzxs2nH6BoWJoZrj8hA==}
+  turbo@2.5.4:
+    resolution: {integrity: sha512-kc8ZibdRcuWUG1pbYSBFWqmIjynlD8Lp7IB6U3vIzvOv9VG+6Sp8bzyeBWE3Oi8XV5KsQrznyRTBPvrf99E4mA==}
     hasBin: true
 
   tweetnacl@0.14.5:
@@ -10825,6 +10960,10 @@ packages:
   xmlbuilder@11.0.1:
     resolution: {integrity: sha512-fDlsI/kFEx7gLvbecc0/ohLG50fugQp8ryHzMTuW9vSa1GJ0XYWKnhsUx7oie3G98+r56aTQIUB4kht42R3JvA==}
     engines: {node: '>=4.0'}
+
+  xtend@4.0.2:
+    resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
+    engines: {node: '>=0.4'}
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -12043,8 +12182,15 @@ snapshots:
   '@types/pg@8.11.6':
     dependencies:
       '@types/node': 22.14.1
-      pg-protocol: 1.6.1
+      pg-protocol: 1.10.0
       pg-types: 4.0.2
+
+  '@types/pg@8.15.4':
+    dependencies:
+      '@types/node': 22.14.1
+      pg-protocol: 1.10.0
+      pg-types: 2.2.0
+    optional: true
 
   '@types/promise.allsettled@1.0.6': {}
 
@@ -12168,7 +12314,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 5.62.0
       '@typescript-eslint/visitor-keys': 5.62.0
-      debug: 4.3.7
+      debug: 4.4.0
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.6.2
@@ -12377,7 +12523,7 @@ snapshots:
 
   agent-base@7.1.0:
     dependencies:
-      debug: 4.3.7
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -12651,9 +12797,6 @@ snapshots:
   b4a@1.6.6: {}
 
   balanced-match@1.0.2: {}
-
-  bare-events@2.2.2:
-    optional: true
 
   bare-events@2.5.4:
     optional: true
@@ -13253,11 +13396,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0):
+  drizzle-orm@0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.15.4)(@types/react@18.2.79)(pg@8.16.0)(postgres@3.4.4)(react@18.2.0):
     optionalDependencies:
       '@neondatabase/serverless': 0.9.4
-      '@types/pg': 8.11.6
+      '@types/pg': 8.15.4
       '@types/react': 18.2.79
+      pg: 8.16.0
       postgres: 3.4.4
       react: 18.2.0
 
@@ -13490,7 +13634,7 @@ snapshots:
 
   esbuild-register@3.5.0(esbuild@0.19.8):
     dependencies:
-      debug: 4.3.7
+      debug: 4.4.0
       esbuild: 0.19.8
     transitivePeerDependencies:
       - supports-color
@@ -14250,7 +14394,7 @@ snapshots:
     dependencies:
       basic-ftp: 5.0.5
       data-uri-to-buffer: 6.0.2
-      debug: 4.3.7
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -14491,7 +14635,7 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.3.7
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -14505,7 +14649,7 @@ snapshots:
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.3.7
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -15549,7 +15693,7 @@ snapshots:
     dependencies:
       '@tootallnate/quickjs-emscripten': 0.23.0
       agent-base: 7.1.3
-      debug: 4.3.7
+      debug: 4.4.0
       get-uri: 6.0.4
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
@@ -15623,11 +15767,31 @@ snapshots:
 
   pathval@2.0.0: {}
 
+  pg-cloudflare@1.2.5:
+    optional: true
+
+  pg-connection-string@2.9.0:
+    optional: true
+
   pg-int8@1.0.1: {}
 
   pg-numeric@1.0.2: {}
 
-  pg-protocol@1.6.1: {}
+  pg-pool@3.10.0(pg@8.16.0):
+    dependencies:
+      pg: 8.16.0
+    optional: true
+
+  pg-protocol@1.10.0: {}
+
+  pg-types@2.2.0:
+    dependencies:
+      pg-int8: 1.0.1
+      postgres-array: 2.0.0
+      postgres-bytea: 1.0.0
+      postgres-date: 1.0.7
+      postgres-interval: 1.2.0
+    optional: true
 
   pg-types@4.0.2:
     dependencies:
@@ -15638,6 +15802,22 @@ snapshots:
       postgres-date: 2.1.0
       postgres-interval: 3.0.0
       postgres-range: 1.1.4
+
+  pg@8.16.0:
+    dependencies:
+      pg-connection-string: 2.9.0
+      pg-pool: 3.10.0(pg@8.16.0)
+      pg-protocol: 1.10.0
+      pg-types: 2.2.0
+      pgpass: 1.0.5
+    optionalDependencies:
+      pg-cloudflare: 1.2.5
+    optional: true
+
+  pgpass@1.0.5:
+    dependencies:
+      split2: 4.2.0
+    optional: true
 
   picocolors@1.0.0:
     optional: true
@@ -15730,13 +15910,27 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
+  postgres-array@2.0.0:
+    optional: true
+
   postgres-array@3.0.2: {}
+
+  postgres-bytea@1.0.0:
+    optional: true
 
   postgres-bytea@3.0.0:
     dependencies:
       obuf: 1.1.2
 
+  postgres-date@1.0.7:
+    optional: true
+
   postgres-date@2.1.0: {}
+
+  postgres-interval@1.2.0:
+    dependencies:
+      xtend: 4.0.2
+    optional: true
 
   postgres-interval@3.0.0: {}
 
@@ -15818,7 +16012,7 @@ snapshots:
   proxy-agent@6.5.0:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.3.7
+      debug: 4.4.0
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       lru-cache: 7.18.3
@@ -15848,8 +16042,6 @@ snapshots:
     optional: true
 
   queue-microtask@1.2.3: {}
-
-  queue-tick@1.0.1: {}
 
   quick-format-unescaped@4.0.4:
     optional: true
@@ -16218,7 +16410,7 @@ snapshots:
   socks-proxy-agent@8.0.5:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.3.7
+      debug: 4.4.0
       socks: 2.8.3
     transitivePeerDependencies:
       - supports-color
@@ -16307,20 +16499,12 @@ snapshots:
 
   streamsearch@1.1.0: {}
 
-  streamx@2.16.1:
-    dependencies:
-      fast-fifo: 1.3.2
-      queue-tick: 1.0.1
-    optionalDependencies:
-      bare-events: 2.2.2
-
   streamx@2.22.0:
     dependencies:
       fast-fifo: 1.3.2
       text-decoder: 1.2.3
     optionalDependencies:
       bare-events: 2.5.4
-    optional: true
 
   strict-event-emitter@0.5.1: {}
 
@@ -16509,7 +16693,7 @@ snapshots:
     dependencies:
       b4a: 1.6.6
       fast-fifo: 1.3.2
-      streamx: 2.16.1
+      streamx: 2.22.0
 
   tar@6.2.1:
     dependencies:
@@ -16550,7 +16734,6 @@ snapshots:
   text-decoder@1.2.3:
     dependencies:
       b4a: 1.6.6
-    optional: true
 
   text-table@0.2.0: {}
 
@@ -16731,32 +16914,32 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  turbo-darwin-64@2.3.3:
+  turbo-darwin-64@2.5.4:
     optional: true
 
-  turbo-darwin-arm64@2.3.3:
+  turbo-darwin-arm64@2.5.4:
     optional: true
 
-  turbo-linux-64@2.3.3:
+  turbo-linux-64@2.5.4:
     optional: true
 
-  turbo-linux-arm64@2.3.3:
+  turbo-linux-arm64@2.5.4:
     optional: true
 
-  turbo-windows-64@2.3.3:
+  turbo-windows-64@2.5.4:
     optional: true
 
-  turbo-windows-arm64@2.3.3:
+  turbo-windows-arm64@2.5.4:
     optional: true
 
-  turbo@2.3.3:
+  turbo@2.5.4:
     optionalDependencies:
-      turbo-darwin-64: 2.3.3
-      turbo-darwin-arm64: 2.3.3
-      turbo-linux-64: 2.3.3
-      turbo-linux-arm64: 2.3.3
-      turbo-windows-64: 2.3.3
-      turbo-windows-arm64: 2.3.3
+      turbo-darwin-64: 2.5.4
+      turbo-darwin-arm64: 2.5.4
+      turbo-linux-64: 2.5.4
+      turbo-linux-arm64: 2.5.4
+      turbo-windows-64: 2.5.4
+      turbo-windows-arm64: 2.5.4
 
   tweetnacl@0.14.5: {}
 
@@ -17155,6 +17338,9 @@ snapshots:
     optional: true
 
   xmlbuilder@11.0.1:
+    optional: true
+
+  xtend@4.0.2:
     optional: true
 
   y18n@5.0.8: {}
