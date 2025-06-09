@@ -35,8 +35,7 @@ describe('users connector', () => {
 
             const url = new URL(request.url);
             const page = url.searchParams.get('page') || '1';
-            const responseData =
-              parseInt(page, 10) !== endPage ? { users: validUsers } : { users: [] };
+            const responseData = parseInt(page, 10) !== endPage ? validUsers : [];
             return Response.json(responseData);
           }
         )

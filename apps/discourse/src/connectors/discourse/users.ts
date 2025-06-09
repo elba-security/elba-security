@@ -11,9 +11,7 @@ const discourseUserSchema = z.object({
 
 export type DiscourseUser = z.infer<typeof discourseUserSchema>;
 
-const discourseResponseSchema = z.object({
-  users: z.array(z.unknown()),
-});
+const discourseResponseSchema = z.array(z.unknown());
 
 export type GetUsersParams = {
   apiKey: string;
@@ -51,8 +49,7 @@ export const getUsers = async ({ apiKey, defaultHost, apiUsername, page }: GetUs
 
   const resData: unknown = await response.json();
 
-  const { users } = discourseResponseSchema.parse(resData);
-
+  const users= discourseResponseSchema.parse(resData);
   const validUsers: DiscourseUser[] = [];
   const invalidUsers: unknown[] = [];
 

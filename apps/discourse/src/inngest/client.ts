@@ -29,7 +29,7 @@ elbaInngestClient.createElbaUsersSyncFn(async ({ connection, cursor }) => {
       displayName: user.username,
       email: user.email ?? undefined,
       additionalEmails: [],
-      url: `https://${defaultHost}/admin/users/${user.id}/${user.username}`,
+      url: `https://${defaultHost}.discourse.group/admin/users/${user.id}/${user.username}`,
       isSuspendable: user.can_be_deleted,
     })),
     cursor: result.nextPage,
