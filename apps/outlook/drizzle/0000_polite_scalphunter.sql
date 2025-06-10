@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS "organisations" (
 	"tenant_id" text NOT NULL,
 	"region" text NOT NULL,
 	"token" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"last_sync_started_at" timestamp
 );
