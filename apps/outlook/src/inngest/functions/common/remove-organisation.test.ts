@@ -40,6 +40,7 @@ describe('remove-organisation', () => {
         createdAt: expect.any(Date),
         id: '791186a4-1df0-4c57-a442-ba4ff332b101',
         tenantId: 'f5151789-9d9d-4a94-ac74-7ac456422f26',
+        lastSyncStartedAt: null,
         token: 'token-org-2',
         region: 'us',
       },

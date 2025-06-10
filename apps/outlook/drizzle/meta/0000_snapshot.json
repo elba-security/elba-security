@@ -1,5 +1,5 @@
 {
-  "id": "cc137753-dc79-4751-8d9a-12e817fb6a98",
+  "id": "b61af23a-6f41-48ba-90b6-89f3877295df",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -38,6 +38,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "last_sync_started_at": {
+          "name": "last_sync_started_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
