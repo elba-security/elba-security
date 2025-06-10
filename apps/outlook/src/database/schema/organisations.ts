@@ -7,6 +7,7 @@ export const organisationsTable = pgTable('organisations', {
   region: text('region').notNull(),
   token: text('token').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  lastSyncStartedAt: timestamp('last_sync_started_at'),
 });
 
 export type Organisation = InferSelectModel<typeof organisationsTable>;

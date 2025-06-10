@@ -27,9 +27,19 @@ export const env = createEnv({
     OUTLOOK_AUTH_CLIENT_SECRET: z.string().min(1),
     OUTLOOK_AUTH_REDIRECT_URI: z.string().url(),
     USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().min(1),
+    MAIL_FOLDERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().min(1),
+    MESSAGES_SYNC_BATCH_SIZE: z.coerce.number().int().positive().min(1),
     USERS_SYNC_CONCURRENCY: z.coerce.number().int().positive().min(1),
     USERS_SYNC_CRON: z.string().min(1),
     VERCEL_ENV: z.string().min(1).optional(),
+    ELBA_INNGEST_ENCRYPTION_KEY: z
+      .string()
+      .length(64)
+      .regex(/^(?:[0-9a-f]{2})+$/i),
+    ELBA_INNGEST_ENCRYPTION_KEY_IV: z
+      .string()
+      .length(32)
+      .regex(/^(?:[0-9a-f]{2})+$/i),
     OUTLOOK_INSTALL_URL: z
       .string()
       .url()
@@ -40,6 +50,7 @@ export const env = createEnv({
     USERS_SYNC_MAX_RETRY: zEnvRetry(),
     TOKEN_REFRESH_MAX_RETRY: zEnvRetry(),
     TOKEN_REFRESH_CRON: z.string().default('*/30 * * * *'),
+    THIRD_PARTY_APPS_SYNC_CRON: z.string().min(1),
   },
   experimental__runtimeEnv: {},
 });
