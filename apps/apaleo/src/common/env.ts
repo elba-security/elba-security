@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-const zEnvInt = () => z.coerce.number().int().positive();
-
 export const env = z
   .object({
     // Elba configuration
