@@ -4,6 +4,7 @@ import { organisationsTable } from '@/database/schema/organisations';
 import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/microsoft/user';
 import { decrypt } from '@/common/crypto';
+import { getToken } from '@/inngest/functions/common/get-token';
 
 export type SyncThirdPartyAppsRequested = {
   'outlook/third_party_apps.sync.requested': {
@@ -11,7 +12,6 @@ export type SyncThirdPartyAppsRequested = {
       organisationId: string;
       region: 'eu' | 'us';
       tenantId: string;
-      token: string;
       syncStartedAt: string;
       lastSyncStartedAt: string | null;
       pageToken: string | null;
@@ -41,7 +41,7 @@ export const syncThirdPartyApps = inngest.createFunction(
     event: 'outlook/third_party_apps.sync.requested',
   },
   async ({ event, step }) => {
-    const { token, tenantId, pageToken, organisationId, region, lastSyncStartedAt, syncStartedAt } =
+    const { tenantId, pageToken, organisationId, region, lastSyncStartedAt, syncStartedAt } =
       event.data;
 
     const isFirstPage = !pageToken;
@@ -56,6 +56,14 @@ export const syncThirdPartyApps = inngest.createFunction(
           .where(eq(organisationsTable.id, organisationId));
       });
     }
+
+    const token = await step.invoke('get-token', {
+      function: getToken,
+      data: {
+        organisationId,
+      },
+      timeout: '1d',
+    });
 
     const { validUsers: users, nextSkipToken } = await step.run('list-users', async () => {
       return await getUsers({
@@ -72,7 +80,6 @@ export const syncThirdPartyApps = inngest.createFunction(
           name: 'outlook/third_party_apps.messages.sync.requested',
           data: {
             organisationId,
-            token,
             region,
             skipStep: null,
             syncFrom: lastSyncStartedAt,

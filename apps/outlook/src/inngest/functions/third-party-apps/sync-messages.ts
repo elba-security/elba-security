@@ -6,7 +6,6 @@ export type SyncMessagesRequested = {
   'outlook/third_party_apps.messages.sync.requested': {
     data: {
       organisationId: string;
-      token: string;
       region: 'eu' | 'us';
       userId: string;
       skipStep: string | null;
@@ -34,21 +33,20 @@ export const syncMessages = inngest.createFunction(
     event: 'outlook/third_party_apps.messages.sync.requested',
   },
   async ({ event, step }) => {
-    const { token, skipStep, organisationId, userId, syncFrom, syncTo, region } = event.data;
+    const { skipStep, organisationId, userId, syncFrom, syncTo, region } = event.data;
 
     const { nextSkip, messages } = await step.invoke('list-messages', {
       function: listOutlookMessages,
       data: {
         organisationId,
         userId,
-        token,
         skipStep,
         filter: formatGraphMessagesFilter({
           after: syncFrom ? new Date(syncFrom) : undefined,
           before: new Date(syncTo),
         }),
       },
-      timeout: '365d',
+      timeout: '3d',
     });
 
     if (messages.length > 0) {

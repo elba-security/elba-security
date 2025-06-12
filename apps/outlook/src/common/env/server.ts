@@ -27,7 +27,6 @@ export const env = createEnv({
     OUTLOOK_AUTH_CLIENT_SECRET: z.string().min(1),
     OUTLOOK_AUTH_REDIRECT_URI: z.string().url(),
     USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().min(1),
-    MAIL_FOLDERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().min(1),
     MESSAGES_SYNC_BATCH_SIZE: z.coerce.number().int().positive().min(1),
     USERS_SYNC_CONCURRENCY: z.coerce.number().int().positive().min(1),
     USERS_SYNC_CRON: z.string().min(1),
