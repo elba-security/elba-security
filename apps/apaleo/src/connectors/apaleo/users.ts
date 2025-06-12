@@ -66,7 +66,13 @@ export const deactivateUser = async ({ userId, accessToken }: DeleteUsersParams)
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({ enabled: false }),
+    body: JSON.stringify([
+      {
+        op: 'replace',
+        path: '/enabled',
+        value: false,
+      },
+    ]),
   });
 
   if (!response.ok && response.status !== 404) {
