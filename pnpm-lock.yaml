@@ -124,7 +124,7 @@ importers:
         version: 3.0.3
       turbo:
         specifier: latest
-        version: 2.3.3
+        version: 2.5.4
 
   apps/15five:
     dependencies:
@@ -157,7 +157,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -242,7 +242,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -394,7 +394,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -473,7 +473,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -550,6 +550,9 @@ importers:
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
         version: 0.7.1(typescript@5.5.3)(zod@3.23.8)
+      fast-xml-parser:
+        specifier: ^5.2.5
+        version: 5.2.5
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -596,6 +599,9 @@ importers:
       msw:
         specifier: 'catalog:'
         version: 2.3.1(typescript@5.5.3)
+      tsx:
+        specifier: ^3.12.2
+        version: 3.14.0
       typescript:
         specifier: 'catalog:'
         version: 5.5.3
@@ -634,7 +640,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -719,7 +725,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -798,7 +804,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -877,7 +883,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -959,7 +965,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1044,7 +1050,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1123,7 +1129,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1202,7 +1208,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1290,7 +1296,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1375,7 +1381,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1460,7 +1466,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1545,7 +1551,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1624,7 +1630,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1709,7 +1715,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1803,7 +1809,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1894,7 +1900,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1979,7 +1985,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2058,7 +2064,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2143,7 +2149,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -2234,7 +2240,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2331,7 +2337,7 @@ importers:
         version: 9.6.3
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2428,7 +2434,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2513,7 +2519,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2598,7 +2604,7 @@ importers:
         version: 3.2.0(date-fns@3.6.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2677,7 +2683,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2756,7 +2762,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2841,7 +2847,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2926,7 +2932,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3005,7 +3011,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3090,7 +3096,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       jose:
         specifier: ^5.2.4
         version: 5.2.4
@@ -3181,7 +3187,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3260,7 +3266,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3339,7 +3345,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3418,7 +3424,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3506,7 +3512,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3591,7 +3597,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3670,7 +3676,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3749,7 +3755,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3828,7 +3834,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3907,7 +3913,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3986,7 +3992,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -4065,7 +4071,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -4150,7 +4156,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -4235,7 +4241,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -4320,7 +4326,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -4414,7 +4420,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -4511,7 +4517,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -4605,7 +4611,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -4699,7 +4705,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       jose:
         specifier: ^5.2.4
         version: 5.2.4
@@ -4793,7 +4799,7 @@ importers:
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -4878,7 +4884,7 @@ importers:
         version: link:../../packages/sdk
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       next:
         specifier: 'catalog:'
         version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -5360,7 +5366,7 @@ importers:
         version: 8.57.0
       inngest:
         specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3)
+        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3)
       msw:
         specifier: 'catalog:'
         version: 2.3.1(typescript@5.5.3)
@@ -8270,6 +8276,10 @@ packages:
   fast-uri@2.3.1:
     resolution: {integrity: sha512-iC7SLdMJx2KGdBkhJ6UulbNfpeIGTMS3/OIJpPa1JkZu9DKVQmPtBBme9Esoa4XP2eLGaHBv4vzRqlolXKo9cg==}
 
+  fast-xml-parser@5.2.5:
+    resolution: {integrity: sha512-pfX9uG9Ki0yekDHx2SiuRIyFdyAr1kMIMitPvb0YBo8SUfKvia7w7FIyd/l6av85pFYRhZscS75MwMnbvY+hcQ==}
+    hasBin: true
+
   fastify@4.27.0:
     resolution: {integrity: sha512-ci9IXzbigB8dyi0mSy3faa3Bsj0xWAPb9JeT4KRzubdSb6pNhcADRUaXCBml6V1Ss/a05kbtQls5LBmhHydoTA==}
 
@@ -9114,6 +9124,7 @@ packages:
 
   lodash.get@4.4.2:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
+    deprecated: This package is deprecated. Use the optional chaining (?.) operator instead.
 
   lodash.includes@4.3.0:
     resolution: {integrity: sha512-W3Bx6mdkRTGtlJISOvVD/lbqjTlPPUDTMnlXZFnVwi9NKJ6tiAk6LVdlhZMm17VZisqhKcgzpO5Wz91PCt5b0w==}
@@ -10336,6 +10347,9 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
+  strnum@2.1.1:
+    resolution: {integrity: sha512-7ZvoFTiCnGxBtDqJ//Cu6fWtZtc7Y3x+QOirG15wztbdngGSkht27o2pyGWrVy0b4WAy3jbKmnoK6g5VlVNUUw==}
+
   styled-jsx@5.1.1:
     resolution: {integrity: sha512-pW7uC1l4mBZ8ugbiZrcIsiIvVx1UmTfw7UkC3Um2tmfUq9Bhk8IiyEIPl6F8agHgjzku6j0xQEZbfA5uSgSaCw==}
     engines: {node: '>= 12.0.0'}
@@ -10555,38 +10569,38 @@ packages:
     resolution: {integrity: sha512-xHtFaKtHxM9LOklMmJdI3BEnQq/D5F73Of2E1GDrITi9sgoVkvIsrQUTY1G8FlmGtA+awCI4EBlTRRYxkL2sRg==}
     hasBin: true
 
-  turbo-darwin-64@2.3.3:
-    resolution: {integrity: sha512-bxX82xe6du/3rPmm4aCC5RdEilIN99VUld4HkFQuw+mvFg6darNBuQxyWSHZTtc25XgYjQrjsV05888w1grpaA==}
+  turbo-darwin-64@2.5.4:
+    resolution: {integrity: sha512-ah6YnH2dErojhFooxEzmvsoZQTMImaruZhFPfMKPBq8sb+hALRdvBNLqfc8NWlZq576FkfRZ/MSi4SHvVFT9PQ==}
     cpu: [x64]
     os: [darwin]
 
-  turbo-darwin-arm64@2.3.3:
-    resolution: {integrity: sha512-DYbQwa3NsAuWkCUYVzfOUBbSUBVQzH5HWUFy2Kgi3fGjIWVZOFk86ss+xsWu//rlEAfYwEmopigsPYSmW4X15A==}
+  turbo-darwin-arm64@2.5.4:
+    resolution: {integrity: sha512-2+Nx6LAyuXw2MdXb7pxqle3MYignLvS7OwtsP9SgtSBaMlnNlxl9BovzqdYAgkUW3AsYiQMJ/wBRb7d+xemM5A==}
     cpu: [arm64]
     os: [darwin]
 
-  turbo-linux-64@2.3.3:
-    resolution: {integrity: sha512-eHj9OIB0dFaP6BxB88jSuaCLsOQSYWBgmhy2ErCu6D2GG6xW3b6e2UWHl/1Ho9FsTg4uVgo4DB9wGsKa5erjUA==}
+  turbo-linux-64@2.5.4:
+    resolution: {integrity: sha512-5May2kjWbc8w4XxswGAl74GZ5eM4Gr6IiroqdLhXeXyfvWEdm2mFYCSWOzz0/z5cAgqyGidF1jt1qzUR8hTmOA==}
     cpu: [x64]
     os: [linux]
 
-  turbo-linux-arm64@2.3.3:
-    resolution: {integrity: sha512-NmDE/NjZoDj1UWBhMtOPmqFLEBKhzGS61KObfrDEbXvU3lekwHeoPvAMfcovzswzch+kN2DrtbNIlz+/rp8OCg==}
+  turbo-linux-arm64@2.5.4:
+    resolution: {integrity: sha512-/2yqFaS3TbfxV3P5yG2JUI79P7OUQKOUvAnx4MV9Bdz6jqHsHwc9WZPpO4QseQm+NvmgY6ICORnoVPODxGUiJg==}
     cpu: [arm64]
     os: [linux]
 
-  turbo-windows-64@2.3.3:
-    resolution: {integrity: sha512-O2+BS4QqjK3dOERscXqv7N2GXNcqHr9hXumkMxDj/oGx9oCatIwnnwx34UmzodloSnJpgSqjl8iRWiY65SmYoQ==}
+  turbo-windows-64@2.5.4:
+    resolution: {integrity: sha512-EQUO4SmaCDhO6zYohxIjJpOKRN3wlfU7jMAj3CgcyTPvQR/UFLEKAYHqJOnJtymbQmiiM/ihX6c6W6Uq0yC7mA==}
     cpu: [x64]
     os: [win32]
 
-  turbo-windows-arm64@2.3.3:
-    resolution: {integrity: sha512-dW4ZK1r6XLPNYLIKjC4o87HxYidtRRcBeo/hZ9Wng2XM/MqqYkAyzJXJGgRMsc0MMEN9z4+ZIfnSNBrA0b08ag==}
+  turbo-windows-arm64@2.5.4:
+    resolution: {integrity: sha512-oQ8RrK1VS8lrxkLriotFq+PiF7iiGgkZtfLKF4DDKsmdbPo0O9R2mQxm7jHLuXraRCuIQDWMIw6dpcr7Iykf4A==}
     cpu: [arm64]
     os: [win32]
 
-  turbo@2.3.3:
-    resolution: {integrity: sha512-DUHWQAcC8BTiUZDRzAYGvpSpGLiaOQPfYXlCieQbwUvmml/LRGIe3raKdrOPOoiX0DYlzxs2nH6BoWJoZrj8hA==}
+  turbo@2.5.4:
+    resolution: {integrity: sha512-kc8ZibdRcuWUG1pbYSBFWqmIjynlD8Lp7IB6U3vIzvOv9VG+6Sp8bzyeBWE3Oi8XV5KsQrznyRTBPvrf99E4mA==}
     hasBin: true
 
   tweetnacl@0.14.5:
@@ -11911,7 +11925,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@sveltejs/kit@2.5.10(vite@5.3.2(@types/node@20.14.2))':
+  '@sveltejs/kit@2.5.10':
     dependencies:
       '@types/cookie': 0.6.0
       cookie: 0.6.0
@@ -11925,7 +11939,6 @@ snapshots:
       set-cookie-parser: 2.6.0
       sirv: 2.0.4
       tiny-glob: 0.2.9
-      vite: 5.3.2(@types/node@20.14.2)
     optional: true
 
   '@swc/counter@0.1.3': {}
@@ -14129,6 +14142,10 @@ snapshots:
   fast-uri@2.3.1:
     optional: true
 
+  fast-xml-parser@5.2.5:
+    dependencies:
+      strnum: 2.1.1
+
   fastify@4.27.0:
     dependencies:
       '@fastify/ajv-compiler': 3.5.0
@@ -14633,7 +14650,7 @@ snapshots:
       - encoding
       - supports-color
 
-  inngest@3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.5.3):
+  inngest@3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.5.3):
     dependencies:
       '@bufbuild/protobuf': 2.2.5
       '@inngest/ai': 0.1.3
@@ -14651,7 +14668,7 @@ snapshots:
       temporal-polyfill: 0.2.5
       zod: 3.22.4
     optionalDependencies:
-      '@sveltejs/kit': 2.5.10(vite@5.3.2(@types/node@20.14.2))
+      '@sveltejs/kit': 2.5.10
       '@vercel/node': 2.15.10
       aws-lambda: 1.0.7
       express: 4.19.2
@@ -14683,7 +14700,7 @@ snapshots:
       temporal-polyfill: 0.2.5
       zod: 3.22.4
     optionalDependencies:
-      '@sveltejs/kit': 2.5.10(vite@5.3.2(@types/node@20.14.2))
+      '@sveltejs/kit': 2.5.10
       '@vercel/node': 2.15.10
       aws-lambda: 1.0.7
       express: 4.19.2
@@ -16488,6 +16505,8 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
+  strnum@2.1.1: {}
+
   styled-jsx@5.1.1(react@18.2.0):
     dependencies:
       client-only: 0.0.1
@@ -16807,32 +16826,32 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  turbo-darwin-64@2.3.3:
+  turbo-darwin-64@2.5.4:
     optional: true
 
-  turbo-darwin-arm64@2.3.3:
+  turbo-darwin-arm64@2.5.4:
     optional: true
 
-  turbo-linux-64@2.3.3:
+  turbo-linux-64@2.5.4:
     optional: true
 
-  turbo-linux-arm64@2.3.3:
+  turbo-linux-arm64@2.5.4:
     optional: true
 
-  turbo-windows-64@2.3.3:
+  turbo-windows-64@2.5.4:
     optional: true
 
-  turbo-windows-arm64@2.3.3:
+  turbo-windows-arm64@2.5.4:
     optional: true
 
-  turbo@2.3.3:
+  turbo@2.5.4:
     optionalDependencies:
-      turbo-darwin-64: 2.3.3
-      turbo-darwin-arm64: 2.3.3
-      turbo-linux-64: 2.3.3
-      turbo-linux-arm64: 2.3.3
-      turbo-windows-64: 2.3.3
-      turbo-windows-arm64: 2.3.3
+      turbo-darwin-64: 2.5.4
+      turbo-darwin-arm64: 2.5.4
+      turbo-linux-64: 2.5.4
+      turbo-linux-arm64: 2.5.4
+      turbo-windows-64: 2.5.4
+      turbo-windows-arm64: 2.5.4
 
   tweetnacl@0.14.5: {}
 
