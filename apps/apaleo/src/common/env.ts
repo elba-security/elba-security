@@ -14,6 +14,5 @@ export const env = z
     // Source configuration
     APALEO_API_BASE_URL: z.string().url(),
     APALEO_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    APALEO_USERS_SYNC_BATCH_SIZE: zEnvInt().default(50),
   })
   .parse(process.env);
