@@ -63,6 +63,10 @@ describe('users connector', () => {
           const isTruncated = !marker;
           const user = isTruncated ? validUsers[0] : validUsers[1];
 
+          if (!user) {
+            return new Response(undefined, { status: 500 });
+          }
+
           const xmlResponse = `<?xml version="1.0" encoding="UTF-8"?>
 <ListUsersResponse>
   <ListUsersResult>
@@ -226,7 +230,8 @@ describe('users connector', () => {
 
           // Mock responses for all the cleanup operations
           if (action === 'ListAttachedUserPolicies') {
-            return new Response(`<?xml version="1.0" encoding="UTF-8"?>
+            return new Response(
+              `<?xml version="1.0" encoding="UTF-8"?>
 <ListAttachedUserPoliciesResponse>
   <ListAttachedUserPoliciesResult>
     <AttachedPolicies>
@@ -236,53 +241,67 @@ describe('users connector', () => {
       </member>
     </AttachedPolicies>
   </ListAttachedUserPoliciesResult>
-</ListAttachedUserPoliciesResponse>`, {
-              headers: { 'Content-Type': 'text/xml' },
-            });
+</ListAttachedUserPoliciesResponse>`,
+              {
+                headers: { 'Content-Type': 'text/xml' },
+              }
+            );
           }
 
           if (action === 'DetachUserPolicy') {
-            return new Response(`<?xml version="1.0" encoding="UTF-8"?>
+            return new Response(
+              `<?xml version="1.0" encoding="UTF-8"?>
 <DetachUserPolicyResponse>
   <ResponseMetadata>
     <RequestId>example-id</RequestId>
   </ResponseMetadata>
-</DetachUserPolicyResponse>`, {
-              headers: { 'Content-Type': 'text/xml' },
-            });
+</DetachUserPolicyResponse>`,
+              {
+                headers: { 'Content-Type': 'text/xml' },
+              }
+            );
           }
 
           if (action === 'ListUserPolicies') {
-            return new Response(`<?xml version="1.0" encoding="UTF-8"?>
+            return new Response(
+              `<?xml version="1.0" encoding="UTF-8"?>
 <ListUserPoliciesResponse>
   <ListUserPoliciesResult>
     <PolicyNames/>
   </ListUserPoliciesResult>
-</ListUserPoliciesResponse>`, {
-              headers: { 'Content-Type': 'text/xml' },
-            });
+</ListUserPoliciesResponse>`,
+              {
+                headers: { 'Content-Type': 'text/xml' },
+              }
+            );
           }
 
           if (action === 'ListGroupsForUser') {
-            return new Response(`<?xml version="1.0" encoding="UTF-8"?>
+            return new Response(
+              `<?xml version="1.0" encoding="UTF-8"?>
 <ListGroupsForUserResponse>
   <ListGroupsForUserResult>
     <Groups/>
   </ListGroupsForUserResult>
-</ListGroupsForUserResponse>`, {
-              headers: { 'Content-Type': 'text/xml' },
-            });
+</ListGroupsForUserResponse>`,
+              {
+                headers: { 'Content-Type': 'text/xml' },
+              }
+            );
           }
 
           if (action === 'ListAccessKeys') {
-            return new Response(`<?xml version="1.0" encoding="UTF-8"?>
+            return new Response(
+              `<?xml version="1.0" encoding="UTF-8"?>
 <ListAccessKeysResponse>
   <ListAccessKeysResult>
     <AccessKeyMetadata/>
   </ListAccessKeysResult>
-</ListAccessKeysResponse>`, {
-              headers: { 'Content-Type': 'text/xml' },
-            });
+</ListAccessKeysResponse>`,
+              {
+                headers: { 'Content-Type': 'text/xml' },
+              }
+            );
           }
 
           if (action === 'DeleteLoginProfile') {
@@ -291,14 +310,17 @@ describe('users connector', () => {
           }
 
           if (action === 'DeleteUser' && userName === 'john.doe') {
-            return new Response(`<?xml version="1.0" encoding="UTF-8"?>
+            return new Response(
+              `<?xml version="1.0" encoding="UTF-8"?>
 <DeleteUserResponse>
   <ResponseMetadata>
     <RequestId>5a7f3e1d-example</RequestId>
   </ResponseMetadata>
-</DeleteUserResponse>`, {
-              headers: { 'Content-Type': 'text/xml' },
-            });
+</DeleteUserResponse>`,
+              {
+                headers: { 'Content-Type': 'text/xml' },
+              }
+            );
           }
 
           return new Response(undefined, { status: 400 });
