@@ -82,6 +82,7 @@ export const getMessages = async ({ token, userId, skipStep, filter }: GetMessag
   const data = (await response.json()) as MicrosoftPaginatedResponse<object>;
 
   const messages: OutlookMessage[] = [];
+
   for (const message of data.value) {
     const result = listedMessageSchema.safeParse(message);
     if (result.success) {

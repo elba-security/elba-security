@@ -13,12 +13,11 @@ export const scheduleThirdPartyAppsSync = inngest.createFunction(
           lastSyncStartedAt: true,
           region: true,
           tenantId: true,
-          token: true,
         },
       });
     });
 
-    if (organisations.length) {
+    if (organisations.length > 0) {
       await step.sendEvent(
         'start-third-party-apps-sync',
         organisations.map((organisation) => ({
@@ -30,7 +29,6 @@ export const scheduleThirdPartyAppsSync = inngest.createFunction(
             lastSyncStartedAt: organisation.lastSyncStartedAt,
             pageToken: null,
             tenantId: organisation.tenantId,
-            token: organisation.token,
           },
         }))
       );
