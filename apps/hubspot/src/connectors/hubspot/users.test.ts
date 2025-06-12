@@ -1,8 +1,8 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
+import { IntegrationConnectionError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { HubspotError } from '../common/error';
 import type { HubspotUser } from './users';
 import { getUsers, deleteUser, getAuthUser, getAccountInfo } from './users';
 
@@ -64,7 +64,9 @@ describe('users connector', () => {
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(getUsers({ accessToken: 'foo-bar' })).rejects.toBeInstanceOf(HubspotError);
+      await expect(getUsers({ accessToken: 'foo-bar' })).rejects.toBeInstanceOf(
+        IntegrationConnectionError
+      );
     });
   });
 
@@ -91,8 +93,8 @@ describe('users connector', () => {
       await expect(getAuthUser(validToken)).resolves.toStrictEqual({ authUserId: '1234' });
     });
 
-    test('should throw HubspotError when token is invalid', async () => {
-      await expect(getAuthUser('invalid-token')).rejects.toBeInstanceOf(HubspotError);
+    test('should throw IntegrationConnectionError when token is invalid', async () => {
+      await expect(getAuthUser('invalid-token')).rejects.toBeInstanceOf(IntegrationConnectionError);
     });
   });
 
@@ -132,10 +134,10 @@ describe('users connector', () => {
       ).resolves.toBeUndefined();
     });
 
-    test('should throw HubspotError when token is invalid', async () => {
+    test('should throw IntegrationConnectionError when token is invalid', async () => {
       await expect(
         deleteUser({ accessToken: 'invalidToken', userId: testId })
-      ).rejects.toBeInstanceOf(HubspotError);
+      ).rejects.toBeInstanceOf(IntegrationConnectionError);
     });
   });
 
@@ -156,7 +158,7 @@ describe('users connector', () => {
     });
 
     test('should throw when the code is invalid', async () => {
-      await expect(getAccountInfo('wrong-code')).rejects.toBeInstanceOf(HubspotError);
+      await expect(getAccountInfo('wrong-code')).rejects.toBeInstanceOf(IntegrationConnectionError);
     });
   });
 });

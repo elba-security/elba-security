@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
+import { IntegrationError, IntegrationConnectionError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { HubspotError } from '../common/error';
 
 const hubspotUserSchema = z.object({
   id: z.string(),
@@ -54,7 +54,13 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   });
 
   if (!response.ok) {
-    throw new HubspotError('Could not retrieve users', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError('Could not retrieve users', { response });
   }
 
   const resData: unknown = await response.json();
@@ -99,7 +105,13 @@ export const getAuthUser = async (accessToken: string) => {
   });
 
   if (!response.ok) {
-    throw new HubspotError(`Couldn't get the auth user details`, { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError(`Couldn't get the auth user details`, { response });
   }
 
   const resData: unknown = await response.json();
@@ -107,7 +119,7 @@ export const getAuthUser = async (accessToken: string) => {
   const result = hubspotAuthUserSchema.safeParse(resData);
 
   if (!result.success) {
-    throw new HubspotError("Couldn't get the auth user details", { response });
+    throw new IntegrationError("Couldn't get the auth user details", { response });
   }
 
   return {
@@ -127,7 +139,13 @@ export const deleteUser = async ({ accessToken, userId }: DeleteUsersParams) => 
   });
 
   if (!response.ok && response.status !== 404) {
-    throw new HubspotError(`Could not delete user with Id: ${userId}`, { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError(`Could not delete user with Id: ${userId}`, { response });
   }
 };
 
@@ -143,7 +161,13 @@ export const getAccountInfo = async (token: string) => {
   });
 
   if (!response.ok) {
-    throw new HubspotError('Could not retrieve account info', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError('Could not retrieve account info', { response });
   }
   const data: unknown = await response.json();
 
