@@ -14,3 +14,13 @@ const nextSkipTokenFromNextLinkSchema = z.preprocess((value) => {
 
 // eslint-disable-next-line @typescript-eslint/unbound-method -- convenience
 export const getNextSkipTokenFromNextLink = nextSkipTokenFromNextLinkSchema.parse;
+
+const nextSkipFromNextLinkSchema = z.preprocess((value) => {
+  if (typeof value !== 'string') return null;
+
+  const nextLinkUrl = new URL(value);
+  return nextLinkUrl.searchParams.get('$skip');
+}, z.coerce.string().nullable());
+
+// eslint-disable-next-line @typescript-eslint/unbound-method -- convenience
+export const getNextSkipFromNextLink = nextSkipFromNextLinkSchema.parse;
