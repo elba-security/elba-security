@@ -269,15 +269,20 @@ export const getUserTags = async (
   return tags;
 };
 
-export const deleteUser = async ({ credentials, userName }: DeleteUserParams) => {
+// Helper function to make AWS IAM API calls
+const makeIAMRequest = async (
+  credentials: AWSConnection,
+  action: string,
+  params: Record<string, string>
+) => {
   const requestParams: AWSIAMRequestParams = {
     method: 'GET',
     service: 'iam',
     path: '/',
     params: {
-      Action: 'DeleteUser',
-      UserName: userName,
+      Action: action,
       Version: '2010-05-08',
+      ...params,
     },
   };
 
@@ -305,8 +310,137 @@ export const deleteUser = async ({ credentials, userName }: DeleteUserParams) =>
     },
   });
 
-  if (!response.ok && response.status !== 404) {
-    throw new IntegrationError(`Could not delete user: ${userName}`, { response });
+  return response;
+};
+
+export const deleteUser = async ({ credentials, userName }: DeleteUserParams) => {
+  // Before deleting a user, we need to:
+  // 1. Detach all managed policies
+  // 2. Delete all inline policies
+  // 3. Remove from all groups
+  // 4. Delete all access keys
+  // 5. Delete login profile
+  // 6. Delete MFA devices
+  
+  try {
+    // 1. List and detach managed policies
+    const attachedPoliciesResponse = await makeIAMRequest(credentials, 'ListAttachedUserPolicies', {
+      UserName: userName,
+    });
+    
+    if (attachedPoliciesResponse.ok) {
+      const xmlResponse = await attachedPoliciesResponse.text();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- XML parser returns unknown type
+      const resData = xmlParser.parse(xmlResponse);
+      
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment -- XML response structure
+      const policies = resData?.ListAttachedUserPoliciesResponse?.ListAttachedUserPoliciesResult?.AttachedPolicies?.member;
+      if (policies) {
+        const policyList = Array.isArray(policies) ? policies : [policies];
+        for (const policy of policyList) {
+           
+          await makeIAMRequest(credentials, 'DetachUserPolicy', {
+            UserName: userName,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- XML response structure
+            PolicyArn: policy.PolicyArn as string,
+          });
+        }
+      }
+    }
+
+    // 2. List and delete inline policies
+    const inlinePoliciesResponse = await makeIAMRequest(credentials, 'ListUserPolicies', {
+      UserName: userName,
+    });
+    
+    if (inlinePoliciesResponse.ok) {
+      const xmlResponse = await inlinePoliciesResponse.text();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- XML parser returns unknown type
+      const resData = xmlParser.parse(xmlResponse);
+      
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment -- XML response structure
+      const policies = resData?.ListUserPoliciesResponse?.ListUserPoliciesResult?.PolicyNames?.member;
+      if (policies) {
+        const policyList = Array.isArray(policies) ? policies : [policies];
+        for (const policyName of policyList) {
+          await makeIAMRequest(credentials, 'DeleteUserPolicy', {
+            UserName: userName,
+            PolicyName: policyName as string,
+          });
+        }
+      }
+    }
+
+    // 3. Remove from all groups
+    const groupsResponse = await makeIAMRequest(credentials, 'ListGroupsForUser', {
+      UserName: userName,
+    });
+    
+    if (groupsResponse.ok) {
+      const xmlResponse = await groupsResponse.text();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- XML parser returns unknown type
+      const resData = xmlParser.parse(xmlResponse);
+      
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment -- XML response structure
+      const groups = resData?.ListGroupsForUserResponse?.ListGroupsForUserResult?.Groups?.member;
+      if (groups) {
+        const groupList = Array.isArray(groups) ? groups : [groups];
+        for (const group of groupList) {
+           
+          await makeIAMRequest(credentials, 'RemoveUserFromGroup', {
+            UserName: userName,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- XML response structure
+            GroupName: group.GroupName as string,
+          });
+        }
+      }
+    }
+
+    // 4. Delete all access keys
+    const accessKeysResponse = await makeIAMRequest(credentials, 'ListAccessKeys', {
+      UserName: userName,
+    });
+    
+    if (accessKeysResponse.ok) {
+      const xmlResponse = await accessKeysResponse.text();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- XML parser returns unknown type
+      const resData = xmlParser.parse(xmlResponse);
+      
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment -- XML response structure
+      const accessKeys = resData?.ListAccessKeysResponse?.ListAccessKeysResult?.AccessKeyMetadata?.member;
+      if (accessKeys) {
+        const keyList = Array.isArray(accessKeys) ? accessKeys : [accessKeys];
+        for (const key of keyList) {
+           
+          await makeIAMRequest(credentials, 'DeleteAccessKey', {
+            UserName: userName,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- XML response structure
+            AccessKeyId: key.AccessKeyId as string,
+          });
+        }
+      }
+    }
+
+    // 5. Delete login profile (password)
+    await makeIAMRequest(credentials, 'DeleteLoginProfile', {
+      UserName: userName,
+    });
+
+    // 6. Finally, delete the user
+    const deleteResponse = await makeIAMRequest(credentials, 'DeleteUser', {
+      UserName: userName,
+    });
+
+    if (!deleteResponse.ok && deleteResponse.status !== 404) {
+      throw new IntegrationError(`Could not delete user: ${userName}`, { response: deleteResponse });
+    }
+  } catch (error) {
+    // If it's already an IntegrationError, re-throw it
+    if (error instanceof IntegrationError) {
+      throw error;
+    }
+    // Otherwise, wrap it
+    throw new IntegrationError(`Failed to delete user: ${userName}`, { cause: error });
   }
 };
 

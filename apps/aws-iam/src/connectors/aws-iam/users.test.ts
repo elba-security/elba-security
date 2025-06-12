@@ -224,20 +224,84 @@ describe('users connector', () => {
           const action = url.searchParams.get('Action');
           const userName = url.searchParams.get('UserName');
 
-          if (action !== 'DeleteUser' || userName !== 'john.doe') {
-            return new Response(undefined, { status: 400 });
+          // Mock responses for all the cleanup operations
+          if (action === 'ListAttachedUserPolicies') {
+            return new Response(`<?xml version="1.0" encoding="UTF-8"?>
+<ListAttachedUserPoliciesResponse>
+  <ListAttachedUserPoliciesResult>
+    <AttachedPolicies>
+      <member>
+        <PolicyArn>arn:aws:iam::aws:policy/ReadOnlyAccess</PolicyArn>
+        <PolicyName>ReadOnlyAccess</PolicyName>
+      </member>
+    </AttachedPolicies>
+  </ListAttachedUserPoliciesResult>
+</ListAttachedUserPoliciesResponse>`, {
+              headers: { 'Content-Type': 'text/xml' },
+            });
           }
 
-          const xmlResponse = `<?xml version="1.0" encoding="UTF-8"?>
+          if (action === 'DetachUserPolicy') {
+            return new Response(`<?xml version="1.0" encoding="UTF-8"?>
+<DetachUserPolicyResponse>
+  <ResponseMetadata>
+    <RequestId>example-id</RequestId>
+  </ResponseMetadata>
+</DetachUserPolicyResponse>`, {
+              headers: { 'Content-Type': 'text/xml' },
+            });
+          }
+
+          if (action === 'ListUserPolicies') {
+            return new Response(`<?xml version="1.0" encoding="UTF-8"?>
+<ListUserPoliciesResponse>
+  <ListUserPoliciesResult>
+    <PolicyNames/>
+  </ListUserPoliciesResult>
+</ListUserPoliciesResponse>`, {
+              headers: { 'Content-Type': 'text/xml' },
+            });
+          }
+
+          if (action === 'ListGroupsForUser') {
+            return new Response(`<?xml version="1.0" encoding="UTF-8"?>
+<ListGroupsForUserResponse>
+  <ListGroupsForUserResult>
+    <Groups/>
+  </ListGroupsForUserResult>
+</ListGroupsForUserResponse>`, {
+              headers: { 'Content-Type': 'text/xml' },
+            });
+          }
+
+          if (action === 'ListAccessKeys') {
+            return new Response(`<?xml version="1.0" encoding="UTF-8"?>
+<ListAccessKeysResponse>
+  <ListAccessKeysResult>
+    <AccessKeyMetadata/>
+  </ListAccessKeysResult>
+</ListAccessKeysResponse>`, {
+              headers: { 'Content-Type': 'text/xml' },
+            });
+          }
+
+          if (action === 'DeleteLoginProfile') {
+            // Can return 404 if no login profile exists
+            return new Response(undefined, { status: 404 });
+          }
+
+          if (action === 'DeleteUser' && userName === 'john.doe') {
+            return new Response(`<?xml version="1.0" encoding="UTF-8"?>
 <DeleteUserResponse>
   <ResponseMetadata>
     <RequestId>5a7f3e1d-example</RequestId>
   </ResponseMetadata>
-</DeleteUserResponse>`;
+</DeleteUserResponse>`, {
+              headers: { 'Content-Type': 'text/xml' },
+            });
+          }
 
-          return new Response(xmlResponse, {
-            headers: { 'Content-Type': 'text/xml' },
-          });
+          return new Response(undefined, { status: 400 });
         })
       );
 
