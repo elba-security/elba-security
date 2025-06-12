@@ -34,14 +34,7 @@ describe('users connector', () => {
       );
     });
 
-    test('should return users and nextPage when the token is valid and their is another page', async () => {
-      await expect(getUsers(validToken)).resolves.toStrictEqual({
-        validUsers,
-        invalidUsers,
-      });
-    });
-
-    test('should return users and no nextPage when the token is valid and their is no other page', async () => {
+    test('should return users when the token is valid', async () => {
       await expect(getUsers(validToken)).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
