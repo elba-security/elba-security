@@ -1,9 +1,18 @@
 import { z } from 'zod';
+import { XMLParser } from 'fast-xml-parser';
 import { IntegrationError } from '@elba-security/common';
 import { logger } from '@elba-security/logger';
 import { getAWSAuthHeader } from './auth';
 import type { AWSIAMRequestParams, AWSIAMUser, TagMember, AWSConnection } from './types';
 
+const xmlParser = new XMLParser({
+  ignoreAttributes: false,
+  removeNSPrefix: true,
+  parseTagValue: true,
+  trimValues: true,
+});
+
+ 
 const awsIAMUserSchema = z.object({
   UserId: z.string(),
   Path: z.string(),
@@ -56,6 +65,7 @@ export const getUsers = async ({ credentials, marker }: GetUsersParams) => {
   const response = await fetch(`https://iam.amazonaws.com/?${querystring}`, {
     method: 'GET',
     headers: {
+      Host: 'iam.amazonaws.com',
       'x-amz-date': date,
       Authorization: authorizationHeader,
     },
@@ -65,14 +75,22 @@ export const getUsers = async ({ credentials, marker }: GetUsersParams) => {
     throw new IntegrationError('Could not retrieve users', { response });
   }
 
-  const resData: unknown = await response.json();
+  const xmlResponse = await response.text();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- XML parser returns unknown type
+  const resData = xmlParser.parse(xmlResponse);
 
   // AWS IAM returns XML-to-JSON converted response
+   
   const listUsersResponse = z
     .object({
       ListUsersResponse: z.object({
         ListUsersResult: z.object({
-          Users: z.array(z.unknown()),
+          Users: z.union([
+            z.array(z.unknown()),
+            z.object({
+              member: z.union([z.array(z.unknown()), z.unknown()]),
+            }),
+          ]),
           IsTruncated: z.boolean(),
           Marker: z.string().optional(),
         }),
@@ -80,20 +98,40 @@ export const getUsers = async ({ credentials, marker }: GetUsersParams) => {
     })
     .parse(resData);
 
-  for (const user of listUsersResponse.ListUsersResponse.ListUsersResult.Users) {
+  // Handle the AWS XML response structure - Users can be an array or an object with 'member'
+  let users: unknown[] = [];
+   
+  const usersData = listUsersResponse.ListUsersResponse.ListUsersResult.Users;
+
+  if (Array.isArray(usersData)) {
+    users = usersData;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- AWS XML can return object with member
+  } else if (typeof usersData === 'object' && usersData !== null && 'member' in usersData) {
+     
+    const member = usersData.member;
+    users = Array.isArray(member) ? member : [member];
+  }
+
+  for (const user of users) {
+     
     const result = awsIAMUserSchema.safeParse(user);
+     
     if (result.success) {
+       
       validUsers.push(result.data);
     } else {
       invalidUsers.push(user);
     }
   }
 
+   
   const nextMarker = listUsersResponse.ListUsersResponse.ListUsersResult.IsTruncated
-    ? listUsersResponse.ListUsersResponse.ListUsersResult.Marker
+    ?  
+      listUsersResponse.ListUsersResponse.ListUsersResult.Marker
     : null;
 
   return {
+     
     validUsers,
     invalidUsers,
     nextMarker,
@@ -142,6 +180,7 @@ export const getUserTags = async (
     const response = await fetch(`https://iam.amazonaws.com/?${querystring}`, {
       method: 'GET',
       headers: {
+        Host: 'iam.amazonaws.com',
         'x-amz-date': date,
         Authorization: authorizationHeader,
       },
@@ -153,18 +192,39 @@ export const getUserTags = async (
       return [];
     }
 
-    const resData: unknown = await response.json();
+    const xmlResponse = await response.text();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- XML parser returns unknown type
+    const resData = xmlParser.parse(xmlResponse);
 
+     
     const listUserTagsResponse = z
       .object({
         ListUserTagsResponse: z.object({
           ListUserTagsResult: z.object({
-            Tags: z.array(
-              z.object({
-                Key: z.string(),
-                Value: z.string(),
-              })
-            ),
+            Tags: z
+              .union([
+                z.array(
+                  z.object({
+                    Key: z.string(),
+                    Value: z.string(),
+                  })
+                ),
+                z.object({
+                  member: z.union([
+                    z.array(
+                      z.object({
+                        Key: z.string(),
+                        Value: z.string(),
+                      })
+                    ),
+                    z.object({
+                      Key: z.string(),
+                      Value: z.string(),
+                    }),
+                  ]),
+                }),
+              ])
+              .optional(),
             IsTruncated: z.boolean(),
             Marker: z.string().optional(),
           }),
@@ -172,12 +232,35 @@ export const getUserTags = async (
       })
       .safeParse(resData);
 
+     
     if (listUserTagsResponse.success) {
-      tags.push(...listUserTagsResponse.data.ListUserTagsResponse.ListUserTagsResult.Tags);
+       
+      const tagsData = listUserTagsResponse.data.ListUserTagsResponse.ListUserTagsResult.Tags;
+
+      if (tagsData) {
+        if (Array.isArray(tagsData)) {
+           
+          tags.push(...tagsData);
+        } else if ('member' in tagsData) {
+           
+          const member = tagsData.member;
+          if (Array.isArray(member)) {
+             
+            tags.push(...member);
+          } else {
+             
+            tags.push(member);
+          }
+        }
+      }
+
+       
       marker = listUserTagsResponse.data.ListUserTagsResponse.ListUserTagsResult.IsTruncated
-        ? listUserTagsResponse.data.ListUserTagsResponse.ListUserTagsResult.Marker
+        ?  
+          listUserTagsResponse.data.ListUserTagsResponse.ListUserTagsResult.Marker
         : undefined;
     } else {
+       
       logger.error('Invalid user tags response', { userName, error: listUserTagsResponse.error });
       return [];
     }
@@ -198,7 +281,11 @@ export const deleteUser = async ({ credentials, userName }: DeleteUserParams) =>
     },
   };
 
-  const querystring = new URLSearchParams(requestParams.params).toString();
+  // Sort and construct query string
+  const sortedQueryParams = new Map(
+    Object.entries(requestParams.params).sort((a, b) => a[0].localeCompare(b[0]))
+  );
+  const querystring = new URLSearchParams(Array.from(sortedQueryParams)).toString();
 
   // Get AWS authorization header
   const { authorizationHeader, date } = getAWSAuthHeader(
@@ -212,6 +299,7 @@ export const deleteUser = async ({ credentials, userName }: DeleteUserParams) =>
   const response = await fetch(`https://iam.amazonaws.com/?${querystring}`, {
     method: 'GET',
     headers: {
+      Host: 'iam.amazonaws.com',
       'x-amz-date': date,
       Authorization: authorizationHeader,
     },
@@ -235,7 +323,11 @@ export const validateConnection = async (credentials: AWSConnection) => {
     },
   };
 
-  const querystring = new URLSearchParams(requestParams.params).toString();
+  // Sort and construct query string
+  const sortedQueryParams = new Map(
+    Object.entries(requestParams.params).sort((a, b) => a[0].localeCompare(b[0]))
+  );
+  const querystring = new URLSearchParams(Array.from(sortedQueryParams)).toString();
 
   const { authorizationHeader, date } = getAWSAuthHeader(
     credentials,
@@ -248,6 +340,7 @@ export const validateConnection = async (credentials: AWSConnection) => {
   const response = await fetch(`https://iam.amazonaws.com/?${querystring}`, {
     method: 'GET',
     headers: {
+      Host: 'iam.amazonaws.com',
       'x-amz-date': date,
       Authorization: authorizationHeader,
     },

@@ -20,6 +20,7 @@
     "@elba-security/nextjs": "workspace:*",
     "@elba-security/utils": "workspace:*",
     "@t3-oss/env-nextjs": "^0.7.1",
+    "fast-xml-parser": "^5.2.5",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
@@ -37,6 +38,7 @@
     "dotenv": "catalog:",
     "eslint": "catalog:",
     "msw": "catalog:",
+    "tsx": "^3.12.2",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }
