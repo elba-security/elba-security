@@ -1,50 +1,41 @@
 # Architecture
 
-This document outlines the architecture for integrations. It emphasizes the separation of concerns through an organized file structure.
+This document outlines the architecture for integrations using the modern ElbaInngestClient pattern.
 
-**Note:** Integrations are not expected to include React components. Routes should be utilized for handling webhooks and events.
+**Note:** Integrations are event-driven and do not include React components. All interactions happen through Inngest events and API routes.
 
 ## `/app`
 
-The `/app` folder contains the Next.js application structure, including the API endpoints and other routing-related files. This folder is essential when using the Next.js App Router.
+The `/app` folder contains the Next.js application structure with a single API endpoint for Inngest webhook handling.
 
-### `/api`
+### `/api/inngest`
 
-This directory houses the API endpoints. Each folder contains a file named `route.ts` that represents an accessible route, and usually a `service.ts` that's associated with the route file.
-
-### `/webhooks`
-
-The `/webhooks` directory contains all webhook endpoints that handle events from Elba and the integrated service. The main webhook endpoints are:
-
-- `/webhooks/elba/installation/validate`: Handles installation validation and triggers initial sync
-- Additional webhooks specific to your integration's needs
-
-### `route.ts`
-
-The route file (`route.ts`) is responsible for handling the requests data extraction and crafting responses. The business logic for the endpoint should reside in the corresponding `service.ts` file within the same directory.
-
-### `service.ts`
-
-The service file (`service.ts`) focuses exclusively on business logic. It should neither create a `Response` object nor read properties from the `Request`. If external API data access is required, the service should import a function from a connector.
+Contains the single route handler (`route.ts`) that processes all Inngest events. This replaces the multiple webhook endpoints used in legacy integrations.
 
 ## Authentication Flow
 
-The authentication with source platforms (like Bitbucket, Cal.com, etc.) is handled entirely by [Nango](https://nango.dev/), our OAuth provider:
+Authentication with source platforms is handled entirely by [Nango](https://nango.dev/):
 
 ### How it Works
 
-1. **External OAuth Flow**:
+1. **External Authentication**:
 
-   - Nango handles the complete OAuth flow with the source platform
+   - Nango handles OAuth2, API Key, and Basic Auth flows
    - This happens outside of our integration code
-   - Integrations never implement OAuth flows directly
+   - Integrations receive credentials through the `connection` object
 
 2. **Integration Authentication**:
 
    ```typescript
-   // Example: Getting source API credentials
-   const { credentials } = await nangoAPIClient.getConnection(nangoConnectionId, 'OAUTH2');
-   // Use credentials.access_token for API calls
+   // OAuth2
+   connection.credentials.access_token;
+
+   // API Key
+   connection.credentials.apiKey;
+
+   // Basic Auth
+   connection.credentials.username;
+   connection.credentials.password;
    ```
 
 3. **Flow Diagram**:
@@ -52,70 +43,108 @@ The authentication with source platforms (like Bitbucket, Cal.com, etc.) is hand
    ```text
    ┌────────┐    ┌───────┐    ┌─────────────┐    ┌──────────┐
    │  User  │───>│ Nango │───>│ Integration │───>│ Source   │
-   │        │    │ OAuth │    │             │    │   API    │
+   │        │    │ Auth  │    │   (Inngest) │    │   API    │
    └────────┘    └───────┘    └─────────────┘    └──────────┘
                      │
-                     └── Provides nangoConnectionId
+                     └── Provides credentials & connection config
    ```
 
 ## `/common`
 
 Common utilities and shared configurations:
 
-- `nango.ts`: Nango client configuration for OAuth handling
-- `env.ts`: Environment variable validation and typing
+- `env.ts`: Environment variable validation using Zod schemas
 
 ## `/connectors`
 
-The `connectors` directory contains pure API interactions with external services. Each subdirectory focuses on a specific service:
+The `connectors` directory contains pure API interactions with external services:
 
 ```
 ├── connectors/
-│   ├── source/    # External API calls (no dependencies)
-│   │   ├── users.ts
-│   │   ├── groups.ts
-│   │   └── organisations.ts
-│   └── elba/      # Pre-configured Elba client
-│       └── client.ts
+│   └── [source-name]/    # External API calls
+│       ├── users.ts      # User operations
+│       └── users.test.ts # Tests
 ```
 
-### `/source`
+### API Connectors
 
-The `source` directory (e.g. `github`) contains modules that make direct API calls to the integrated service (e.g. Notion, Cal.com). These modules:
+Connector modules should:
 
-- Should not have any external dependencies
-- Take all required parameters (API tokens, base URLs) as arguments
-- Return data or throw errors
-
-### `/elba`
-
-The `elba` directory contains a pre-configured Elba client for use across the integration.
-
-- `client.ts`: Elba client configuration and organization-specific utilities
+- Use Zod schemas for response validation
+- Handle pagination appropriately
+- Use standard error types (`IntegrationError`, `IntegrationConnectionError`)
+- Include comprehensive tests using MSW
 
 ## `/inngest`
 
-Code specific to [Inngest](https://www.inngest.com/) should be organized in this folder.
-
 ### `client.ts`
 
-`client.ts` initializes the Inngest client and defines events with their input data. Events follow a specific naming pattern:
+The heart of the integration, using ElbaInngestClient:
 
-- `{integrationName}/app.installed`: Triggered when the app is installed
-- `{integrationName}/app.uninstalled`: Triggered when the app is uninstalled
-- `{integrationName}/users.sync.requested`: Triggered to start user synchronization
+```typescript
+export const elbaInngestClient = new ElbaInngestClient({
+  name: 'integration-name',
+  nangoAuthType: 'OAUTH2' | 'API_KEY' | 'BASIC',
+  nangoIntegrationId: env.NANGO_INTEGRATION_ID,
+  nangoSecretKey: env.NANGO_SECRET_KEY,
+  sourceId: env.ELBA_SOURCE_ID,
+});
+```
 
-### `/middlewares`
+The client provides these methods:
 
-Inngest middlewares for error handling:
+- `createElbaUsersSyncSchedulerFn()`: Schedules periodic user syncs
+- `createElbaUsersSyncFn()`: Implements user synchronization logic
+- `createElbaUsersDeleteFn()`: Implements user deletion
+- `createInstallationValidateFn()`: Validates installations
 
-- `rate-limit-middleware.ts`: Handles rate limiting
-- `elba-connection-error-middleware.ts`: Handles connection errors and maps them to appropriate error types
+### Event Flow
+
+The ElbaInngestClient handles all event orchestration internally. Events are sent to Elba's own Inngest functions:
+
+- `{region}/elba/users.updated`: When users are synced
+- `{region}/elba/users.deleted`: When users are deleted
+- `{region}/elba/app.installed`: When app is installed
+- `{region}/elba/app.uninstalled`: When app is uninstalled
+
+## Key Differences from Legacy Pattern
+
+### Legacy Pattern (Deprecated)
+
+- Multiple webhook endpoints in `/app/api/webhooks/elba/*`
+- Direct Elba SDK calls requiring `ELBA_API_BASE_URL`
+- Manual event definitions
+- Separate function files in `/inngest/functions/*`
+- Uses `ELBA_WEBHOOK_SECRET` for webhook validation
+
+### Modern Pattern (Use This)
+
+- Single Inngest route handler at `/app/api/inngest/route.ts`
+- Event-based communication (no direct API calls)
+- All functions created via ElbaInngestClient methods
+- No `ELBA_API_BASE_URL` or `ELBA_WEBHOOK_SECRET` needed
+- Cleaner, more maintainable architecture
 
 ## Testing
 
-Tests should be placed alongside the files they test with a `.test.ts` extension. The template includes examples of:
+Tests should be placed alongside the files they test with a `.test.ts` extension:
 
-- Webhook endpoint testing
-- Service logic testing
-- Error handling testing
+- API connector tests using MSW for HTTP mocking
+- Pre-mocked Elba API endpoints via `@elba-security/test-utils`
+- Edge runtime environment for compatibility
+
+## Error Handling
+
+Use standardized error types:
+
+```typescript
+// General API errors
+throw new IntegrationError('Error message', { response });
+
+// Authentication/connection errors
+throw new IntegrationConnectionError('Unauthorized', {
+  type: 'unauthorized' | 'not_admin' | 'unknown',
+});
+```
+
+Connection errors trigger automatic status updates in Elba.
