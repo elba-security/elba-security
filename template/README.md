@@ -16,7 +16,6 @@ This template provides a foundation for building integrations with Elba Security
 1. Copy `.env.local.example` to `.env.local` and fill in the required environment variables:
 
    ```
-   ELBA_API_BASE_URL=
    ELBA_SOURCE_ID=
    ELBA_WEBHOOK_SECRET=
    NANGO_INTEGRATION_ID=

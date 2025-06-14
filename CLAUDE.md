@@ -81,6 +81,7 @@ Uses Inngest for async event processing. Two patterns exist:
    - Single `ElbaInngestClient` instance in `inngest/client.ts`
    - All functions created via client methods
    - Single route handler in `app/api/inngest/route.ts`
+   - **NO `ELBA_API_BASE_URL` needed** - uses event-based communication
    - See `INTEGRATION_REFACTORING_CHECKLIST.md` for migration guide
 
 #### File Organization
