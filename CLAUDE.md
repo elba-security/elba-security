@@ -147,3 +147,7 @@ Use standardized error types from `@elba-security/common`:
 - All secrets are managed through environment variables
 - Use the provided test utilities for consistent mocking
 - Run tests before committing to ensure nothing breaks
+
+## Personal Memories
+
+- We don't care about using a unique port. I am never running more than one integration locally
