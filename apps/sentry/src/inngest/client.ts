@@ -5,6 +5,7 @@ import { NonRetriableError } from 'inngest';
 import { z } from 'zod';
 import { env } from '@/common/env';
 import { getUsers, deleteUser } from '@/connectors/sentry/users';
+import { getOrganization } from '@/connectors/sentry/organizations';
 
 type User = UpdateUsers['users'][number];
 
@@ -41,10 +42,35 @@ const connectionConfigSchema = z.object({
   }),
 });
 
+// Type for the connection parameter
+type Connection = {
+  credentials: {
+    apiKey: string;
+  };
+  connection_config?: unknown;
+};
+
+// Helper function to get organization slug - either from config or by fetching from API
+const getOrganizationSlug = async (connection: Connection): Promise<string> => {
+  try {
+    // Try to get from connection config first
+    const config = connectionConfigSchema.safeParse(connection.connection_config);
+    if (config.success) {
+      return config.data.organization.slug;
+    }
+  } catch {
+    // Ignore parsing errors
+  }
+
+  // If not in config, fetch from API
+  const { apiKey } = connection.credentials;
+  const organization = await getOrganization(apiKey);
+  return organization.slug;
+};
+
 export const syncUsersFunction = elbaInngestClient.createElbaUsersSyncFn(
   async ({ connection, organisationId, cursor }) => {
-    const config = connectionConfigSchema.parse(connection.connection_config);
-    const organizationSlug = config.organization.slug;
+    const organizationSlug = await getOrganizationSlug(connection);
     const accessToken = connection.credentials.apiKey;
 
     const { validUsers, invalidUsers, nextPage } = await getUsers({
@@ -71,8 +97,7 @@ export const syncUsersFunction = elbaInngestClient.createElbaUsersSyncFn(
 export const deleteUserFunction = elbaInngestClient.createElbaUsersDeleteFn({
   isBatchDeleteSupported: false,
   deleteUsersFn: async ({ connection, id }) => {
-    const config = connectionConfigSchema.parse(connection.connection_config);
-    const organizationSlug = config.organization.slug;
+    const organizationSlug = await getOrganizationSlug(connection);
     const accessToken = connection.credentials.apiKey;
 
     await deleteUser({
@@ -85,8 +110,7 @@ export const deleteUserFunction = elbaInngestClient.createElbaUsersDeleteFn({
 
 export const validateInstallationFunction = elbaInngestClient.createInstallationValidateFn(
   async ({ connection, organisationId }) => {
-    const config = connectionConfigSchema.parse(connection.connection_config);
-    const organizationSlug = config.organization.slug;
+    const organizationSlug = await getOrganizationSlug(connection);
     const accessToken = connection.credentials.apiKey;
 
     try {
