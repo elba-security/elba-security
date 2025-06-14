@@ -25,7 +25,7 @@ const formatElbaUser = (user: {
 
 export const elbaInngestClient = new ElbaInngestClient({
   name: 'sentry',
-  nangoAuthType: 'OAUTH2',
+  nangoAuthType: 'API_KEY',
   nangoIntegrationId: env.NANGO_INTEGRATION_ID,
   nangoSecretKey: env.NANGO_SECRET_KEY,
   sourceId: env.ELBA_SOURCE_ID,
@@ -45,7 +45,7 @@ export const syncUsersFunction = elbaInngestClient.createElbaUsersSyncFn(
   async ({ connection, organisationId, cursor }) => {
     const config = connectionConfigSchema.parse(connection.connection_config);
     const organizationSlug = config.organization.slug;
-    const accessToken = connection.credentials.access_token;
+    const accessToken = connection.credentials.apiKey;
 
     const { validUsers, invalidUsers, nextPage } = await getUsers({
       accessToken,
@@ -73,7 +73,7 @@ export const deleteUserFunction = elbaInngestClient.createElbaUsersDeleteFn({
   deleteUsersFn: async ({ connection, id }) => {
     const config = connectionConfigSchema.parse(connection.connection_config);
     const organizationSlug = config.organization.slug;
-    const accessToken = connection.credentials.access_token;
+    const accessToken = connection.credentials.apiKey;
 
     await deleteUser({
       accessToken,
@@ -87,7 +87,7 @@ export const validateInstallationFunction = elbaInngestClient.createInstallation
   async ({ connection, organisationId }) => {
     const config = connectionConfigSchema.parse(connection.connection_config);
     const organizationSlug = config.organization.slug;
-    const accessToken = connection.credentials.access_token;
+    const accessToken = connection.credentials.apiKey;
 
     try {
       await getUsers({
