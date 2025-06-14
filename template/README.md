@@ -76,9 +76,9 @@ export const env = z
     NANGO_INTEGRATION_ID: z.string().min(1),
     NANGO_SECRET_KEY: z.string().min(1),
     // Add your integration-specific variables here
-    {{NAME}}_API_BASE_URL: z.string().url(),
-    {{NAME}}_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    {{NAME}}_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
+    {{name}}_API_BASE_URL: z.string().url(),
+    {{name}}_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
+    {{name}}_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
   })
   .parse(process.env);
 ```
