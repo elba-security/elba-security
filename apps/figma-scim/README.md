@@ -128,3 +128,5 @@ All requests use Bearer token authentication with the SCIM API token.
 - [Figma SCIM Documentation](https://help.figma.com/hc/en-us/articles/360040449773-Provision-Figma-with-SCIM)
 - [SCIM 2.0 Protocol](https://datatracker.ietf.org/doc/html/rfc7644)
 - [Nango Figma SCIM Integration](https://docs.nango.dev/integrations/all/figma-scim)
+
+DUMMY
