@@ -22,7 +22,6 @@ This integration enables Elba Security to manage Figma organization users throug
 ```bash
 # Elba Configuration
 ELBA_SOURCE_ID=                    # Your Elba source ID
-ELBA_API_BASE_URL=                 # Elba API base URL
 
 # Nango Configuration
 NANGO_INTEGRATION_ID=figma-scim   # Nango integration ID
