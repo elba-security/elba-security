@@ -1,6 +1,6 @@
 import { z } from 'zod';
+import { IntegrationError, IntegrationConnectionError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { SentryError } from '../common/error';
 import { getNextCursorFromHeader } from '../utils/pagination';
 
 const sentryUserSchema = z.object({
@@ -50,7 +50,13 @@ export const getUsers = async ({ accessToken, cursor, organizationSlug }: GetUse
   });
 
   if (!response.ok) {
-    throw new SentryError('Could not retrieve users', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError('Could not retrieve users', { response });
   }
 
   const resData: unknown = await response.json();
@@ -91,6 +97,12 @@ export const deleteUser = async ({ userId, organizationSlug, accessToken }: Dele
   );
 
   if (!response.ok && response.status !== 404) {
-    throw new SentryError(`Could not delete a user with Id: ${userId}`, { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError(`Could not delete a user with Id: ${userId}`, { response });
   }
 };

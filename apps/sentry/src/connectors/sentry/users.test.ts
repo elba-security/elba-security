@@ -1,8 +1,8 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
+import { IntegrationConnectionError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { SentryError } from '../common/error';
 import type { SentryUser } from './users';
 import { getUsers, deleteUser } from './users';
 
@@ -81,7 +81,7 @@ describe('users connector', () => {
 
     test('should throws when the token is invalid', async () => {
       await expect(getUsers({ accessToken: 'foo-bar', organizationSlug })).rejects.toBeInstanceOf(
-        SentryError
+        IntegrationConnectionError
       );
     });
   });
@@ -113,10 +113,10 @@ describe('users connector', () => {
       ).resolves.toBeUndefined();
     });
 
-    test('should throw SentryError when token is invalid', async () => {
+    test('should throw IntegrationConnectionError when token is invalid', async () => {
       await expect(
         deleteUser({ accessToken: 'invalidToken', organizationSlug, userId })
-      ).rejects.toBeInstanceOf(SentryError);
+      ).rejects.toBeInstanceOf(IntegrationConnectionError);
     });
   });
 });
