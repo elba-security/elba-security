@@ -4285,6 +4285,9 @@ importers:
 
   apps/sentry:
     dependencies:
+      '@elba-security/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@elba-security/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -4300,9 +4303,9 @@ importers:
       '@elba-security/nextjs':
         specifier: workspace:*
         version: link:../../packages/nextjs
-      '@elba-security/sdk':
+      '@elba-security/schemas':
         specifier: workspace:*
-        version: link:../../packages/sdk
+        version: link:../../packages/schemas
       '@elba-security/utils':
         specifier: workspace:*
         version: link:../../packages/utils
