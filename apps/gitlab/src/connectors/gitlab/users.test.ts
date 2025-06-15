@@ -156,7 +156,7 @@ describe('users connector', () => {
             avatar_url: null,
             web_url: 'https://gitlab.com/auth-user',
             created_at: '2023-01-01T00:00:00.000Z',
-            is_admin: isAdmin,
+            ...(isAdmin && { is_admin: true }),
           };
           return Response.json(authUser);
         })
@@ -194,7 +194,7 @@ describe('users connector', () => {
             avatar_url: null,
             web_url: 'https://gitlab.com/auth-user',
             created_at: '2023-01-01T00:00:00.000Z',
-            is_admin: false,
+            // is_admin field is omitted for non-admin users
           },
         })
       );
