@@ -84,22 +84,31 @@ GITLAB_USERS_SYNC_BATCH_SIZE= # Number of users per page (default: 100)
 
 ### User Sync
 
-- Fetches all active users from GitLab instance
-- Filters out bot users and inactive users
-- Marks admin users as non-suspendable
-- Supports keyset-based pagination via Link headers
+- Fetches all active users from GitLab instance using `/api/v4/users`
+- Filters out:
+  - Bot users (`bot: true`)
+  - External users (`external: true`)
+  - Non-active users (blocked, deactivated)
+- Admin-only fields (email, is_admin) are only visible when using admin token
+- Marks admin users as non-suspendable when the field is present
+- Supports pagination via Link headers
 
 ### User Deactivation
 
-- Uses GitLab's `/api/v4/users/:id/deactivate` endpoint
+- Uses GitLab's User Moderation API: `/api/v4/users/:id/deactivate`
 - Requires admin privileges
-- Handles cases where user is already deactivated or doesn't exist
+- Returns 201 on successful deactivation
+- Handles multiple error cases:
+  - 404: User not found (treated as success)
+  - 403: Insufficient permissions or user not eligible for deactivation
+  - 401: Invalid access token
 
-### Error Handling
+### API Compliance
 
-- `401 Unauthorized`: Invalid or expired access token
-- `403 Forbidden`: User lacks admin privileges
-- `404 Not Found`: User doesn't exist (treated as success)
+- User schema follows GitLab API v4 specification
+- `is_admin` field only present for admin users (not included for regular users)
+- Proper handling of nullable fields (`avatar_url`, `email`, etc.)
+- Query parameters for filtering: `active=true`, `blocked=false`
 
 ## Testing
 

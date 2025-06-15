@@ -2,27 +2,55 @@ import { z } from 'zod';
 import { IntegrationError, IntegrationConnectionError } from '@elba-security/common';
 import { env } from '@/common/env';
 
-// GitLab users API response schema
+// GitLab GET /users response schema (based on official API docs)
+// These fields are always present in the response
 const gitlabUserSchema = z.object({
   id: z.number(),
   username: z.string(),
-  email: z.string().email().nullable(),
+  name: z.string(),
+  state: z.enum(['active', 'blocked', 'deactivated']),
+  locked: z.boolean(),
+  avatar_url: z.string().nullable(),
+  web_url: z.string(),
+  // Admin-only fields that might be present
+  email: z.string().email().optional(), // Only visible to admins
+  created_at: z.string().optional(), // Only visible to admins
+  is_admin: z.boolean().optional(), // Only visible to admins
+  bot: z.boolean().optional(), // Not documented but seen in practice
+  external: z.boolean().optional(), // Optional field
+});
+
+export type GitLabUser = z.infer<typeof gitlabUserSchema>;
+
+// GitLab GET /user response schema (authenticated user)
+// This endpoint returns more fields than the users list
+const gitlabAuthUserSchema = z.object({
+  id: z.number(),
+  username: z.string(),
+  email: z.string().email(), // Always present for authenticated user
   name: z.string(),
   state: z.enum(['active', 'blocked', 'deactivated']),
   avatar_url: z.string().nullable(),
   web_url: z.string(),
   created_at: z.string(),
+  bio: z.string().nullable().optional(),
+  location: z.string().nullable().optional(),
+  public_email: z.string().nullable().optional(),
+  skype: z.string().optional(),
+  linkedin: z.string().optional(),
+  twitter: z.string().optional(),
+  discord: z.string().optional(),
+  organization: z.string().optional(),
+  job_title: z.string().optional(),
+  // Permission fields
+  can_create_group: z.boolean().optional(),
+  can_create_project: z.boolean().optional(),
+  // Admin status - only present when user is admin
   is_admin: z.boolean().optional(),
+  // Other fields we don't need but might be present
   bot: z.boolean().optional(),
-  // Additional fields we might need
   external: z.boolean().optional(),
-});
-
-export type GitLabUser = z.infer<typeof gitlabUserSchema>;
-
-// GitLab's response for authenticated user (GET /user)
-const gitlabAuthUserSchema = gitlabUserSchema.extend({
-  is_admin: z.boolean(),
+  two_factor_enabled: z.boolean().optional(),
 });
 
 export type GitLabAuthUser = z.infer<typeof gitlabAuthUserSchema>;
@@ -49,6 +77,8 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
     url.searchParams.set('sort', 'asc');
     // Only get active users
     url.searchParams.set('active', 'true');
+    // Don't include blocked users
+    url.searchParams.set('blocked', 'false');
   }
 
   // Make the API request
@@ -84,8 +114,16 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   for (const user of usersResult.data) {
     const userResult = gitlabUserSchema.safeParse(user);
     if (userResult.success) {
-      // Skip bots and inactive users
-      if (userResult.data.bot || userResult.data.state !== 'active') {
+      // Skip bots
+      if (userResult.data.bot === true) {
+        continue;
+      }
+      // Skip external users if needed
+      if (userResult.data.external === true) {
+        continue;
+      }
+      // Only include active users (double-check)
+      if (userResult.data.state !== 'active') {
         continue;
       }
       validUsers.push(userResult.data);
@@ -149,7 +187,9 @@ export const getAuthUser = async (accessToken: string) => {
   }
 
   // Check if user has admin privileges
-  if (!userResult.data.is_admin) {
+  // According to GitLab docs, is_admin is only present when user is admin
+  // For non-admin users, the field is not included in the response
+  if (userResult.data.is_admin !== true) {
     throw new IntegrationConnectionError('User is not admin', {
       type: 'not_admin',
       metadata: userResult.data,
@@ -161,6 +201,7 @@ export const getAuthUser = async (accessToken: string) => {
 
 /**
  * Deactivates a user in GitLab
+ * Uses the user moderation API endpoint
  * @param accessToken - The access token for authentication
  * @param userId - The ID of the user to deactivate
  */
@@ -179,9 +220,17 @@ export const deactivateUser = async (accessToken: string, userId: string) => {
     }
 
     if (response.status === 403) {
-      throw new IntegrationConnectionError('Insufficient permissions to deactivate user', {
-        type: 'not_admin',
-      });
+      // 403 can mean multiple things according to docs:
+      // - User lacks admin permissions
+      // - User is blocked
+      // - User is internal
+      // - User is not dormant (hasn't been inactive long enough)
+      throw new IntegrationConnectionError(
+        'Cannot deactivate user - insufficient permissions or user is not eligible',
+        {
+          type: 'not_admin',
+        }
+      );
     }
 
     if (response.status === 404) {
@@ -191,4 +240,6 @@ export const deactivateUser = async (accessToken: string, userId: string) => {
 
     throw new IntegrationError('Could not deactivate user', { response });
   }
+
+  // According to docs, successful deactivation returns 201
 };
