@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
+import { IntegrationError, IntegrationConnectionError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { SegmentError } from '../common/error';
 
 const segmentUserSchema = z.object({
   id: z.string(),
@@ -21,13 +21,13 @@ const segmentResponseSchema = z.object({
 });
 
 export type GetUsersParams = {
-  token: string;
+  accessToken: string;
   cursor?: string | null;
 };
 
 export type DeleteUsersParams = {
   userId: string;
-  token: string;
+  accessToken: string;
 };
 
 const workspaceNameResponseSchema = z.object({
@@ -38,7 +38,7 @@ const workspaceNameResponseSchema = z.object({
   }),
 });
 
-export const getUsers = async ({ token, cursor }: GetUsersParams) => {
+export const getUsers = async ({ accessToken, cursor }: GetUsersParams) => {
   const endpoint = new URL(`${env.SEGMENT_API_BASE_URL}/users`);
   endpoint.searchParams.append('pagination.count', String(env.SEGMENT_USERS_SYNC_BATCH_SIZE));
 
@@ -49,13 +49,19 @@ export const getUsers = async ({ token, cursor }: GetUsersParams) => {
   const response = await fetch(endpoint.toString(), {
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
   });
 
   if (!response.ok) {
-    throw new SegmentError('API request failed', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError('API request failed', { response });
   }
 
   const resData: unknown = await response.json();
@@ -83,33 +89,45 @@ export const getUsers = async ({ token, cursor }: GetUsersParams) => {
   };
 };
 
-export const deleteUser = async ({ userId, token }: DeleteUsersParams) => {
+export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => {
   const url = new URL(`${env.SEGMENT_API_BASE_URL}/users?userIds.0=${userId}`);
   const response = await fetch(url, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 
   if (!response.ok && response.status !== 404) {
-    throw new SegmentError(`Could not delete user with Id: ${userId}`, { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError(`Could not delete user with Id: ${userId}`, { response });
   }
 };
 
-export const getWorkspaceName = async ({ token }: { token: string }) => {
+export const getWorkspaceName = async ({ accessToken }: { accessToken: string }) => {
   const url = new URL(env.SEGMENT_API_BASE_URL);
   const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
   });
 
   if (!response.ok) {
-    throw new SegmentError('Could not retrieve workspace name', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError('Could not retrieve workspace name', { response });
   }
 
   const resData: unknown = await response.json();
@@ -117,7 +135,7 @@ export const getWorkspaceName = async ({ token }: { token: string }) => {
   const result = workspaceNameResponseSchema.safeParse(resData);
   if (!result.success) {
     logger.error('Invalid Segment workspace name response', { resData });
-    throw new SegmentError('Invalid Segment workspace name response');
+    throw new IntegrationError('Invalid Segment workspace name response', { response });
   }
 
   return {

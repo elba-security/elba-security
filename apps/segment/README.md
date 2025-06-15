@@ -1,73 +1,92 @@
+# Segment Integration
+
+This integration connects Segment with Elba to sync user data.
+
+## Features
+
+- User synchronization from Segment workspaces
+- User deletion/deactivation support
+- Automatic periodic syncing via cron schedule
+
+## Architecture
+
+This integration uses:
+
+- **Nango** for OAuth2 authentication with Segment
+- **ElbaInngestClient** for event-driven processing
+- **Edge runtime** for optimal performance
+
+## Environment Variables
+
+The following environment variables are required:
+
+```env
+# Elba Configuration
+ELBA_SOURCE_ID=             # Your Elba source ID
+
+# Nango Configuration
+NANGO_SECRET_KEY=           # Your Nango secret key
+NANGO_INTEGRATION_ID=       # Your Nango integration ID (e.g., "segment")
+
+# Segment Configuration
+SEGMENT_API_BASE_URL=       # Default: https://api.segmentapis.com
+SEGMENT_USERS_SYNC_CRON=    # Default: "0 0 * * *" (daily at midnight)
+SEGMENT_USERS_SYNC_BATCH_SIZE= # Default: 100
+```
+
 ## Getting Started
 
-Rename `.env.local.example` to `.env.local`.
+### Development
 
-This file will be used for local development environment.
+1. Copy `.env.local.example` to `.env.local` and fill in the required values
 
-### Setting up node integration
+2. Run the development server:
+   ```bash
+   pnpm dev
+   ```
 
-If your integration does not support **edge runtime** some files has to be edited:
+### Testing
 
-- `docker-compose.yml`: remove the `pg_proxy` service
-- `vitest/setup-msw-handlers`: remove the first arguments of `setupServer()`, setting a passthrough
-- `src/database/client.ts`: replace this file by `client.node.ts` (and remove it)
-- `vitest.config.js`: update `environment` to `'node'`
-- `package.json`: remove dependency `"@neondatabase/serverless"`
-- remove each `route.ts` exports of `preferredRegion` & `runtime` constants.
-
-### Setting up edge-runtime integration
-
-If your integration does supports **edge runtime** you just have to remove file ending with `.node.ts` like `src/database/client.node.ts`.
-
-### Running the integration
-
-First of all, ensure that the PostgreSQL database is running. You can start it by executing the following command:
+Run the test suite:
 
 ```bash
-pnpm database:up
+pnpm test
 ```
 
-To apply the migration, run:
+Run tests in watch mode:
 
 ```bash
-pnpm database:migrate
+pnpm test:watch
 ```
 
-Next, run the nextjs development server with the command:
+### Type Checking & Linting
 
 ```bash
-pnpm dev
+pnpm type-check
+pnpm lint
 ```
 
-To be able to run Inngest functions, it's essential to have a local Inngest client operational. Start it using:
+## API Endpoints
 
-```bash
-pnpm dev:inngest
-```
+- `GET/POST/PUT /api/inngest` - Inngest webhook handler
 
-_Once the Inngest client is running, it will send requests to the `localhost:4000/api/inngest` route to gather information about your functions, including events and cron triggers. Inngest also provides a user interface, accessible in your web browser, where you can monitor function invocations, attempt retries, and more._
+## How It Works
 
-### Database migrations
+1. **Authentication**: Users authenticate via OAuth2 through Nango
+2. **User Sync**: The integration fetches users from Segment's API and syncs them to Elba
+3. **Scheduled Sync**: A cron job runs periodically to keep user data in sync
+4. **User Management**: Supports deleting/deactivating users when removed from Elba
 
-To create a new migration file within the `/drizzle` directory, execute the following command:
+## Segment API Integration
 
-```bash
-pnpm database:generate
-```
+This integration uses the following Segment API endpoints:
 
-After generating the migration, apply it by running:
+- `GET /users` - Fetch workspace users with pagination
+- `DELETE /users` - Delete specific users
+- `GET /` - Get workspace information
 
-```bash
-pnpm database:migrate
-```
+## Notes
 
-Important Considerations:
-
-- **Single Migration Requirement**: Your integration should include only one migration before merging into the staging environment. If you need to regenerate the contents of your `/drizzle` folder, ensure that you delete the existing folder first.
-
-- **Handling drizzle-orm Errors**: In cases where `drizzle-orm` encounters an error during the migration process, it's advisable to unmount and remount your database container. This can be achieved with the `database:down` and `database:up` commands, respectively. Once this is done, you can attempt the migration again.
-
-### Example implementation
-
-The template contains an example implementation that will guide you to reach our requirements. Make sure
-to adapt this example to your need and remove the disclamer comments before creating your first PR.
+- All users are marked as suspendable since the API doesn't provide information about the authenticated user
+- User profile URLs direct to Segment's access management page for each user
+- The integration supports pagination for large user lists
