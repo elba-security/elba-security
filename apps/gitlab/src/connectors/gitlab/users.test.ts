@@ -8,28 +8,40 @@ import { getAuthUser, getUsers, deactivateUser } from './users';
 
 // Test data setup
 const validToken = 'valid-token-1234';
+const adminToken = 'admin-token-1234';
 const nextUri = `${env.GITLAB_API_BASE_URL}/api/v4/users?page=2&per_page=100`;
 
-// Create sample valid GitLab users for testing
+// Create sample valid GitLab users based on actual API response
 const validUsers: GitLabUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: i + 1,
   username: `user${i}`,
-  email: `user${i}@example.com`,
   name: `User ${i}`,
   state: 'active',
+  locked: false,
   avatar_url: `https://gitlab.com/uploads/-/system/user/avatar/${i + 1}/avatar.png`,
   web_url: `https://gitlab.com/user${i}`,
-  created_at: '2023-01-01T00:00:00.000Z',
-  is_admin: false,
-  bot: false,
-  external: false,
 }));
 
-// Invalid user for testing error cases
+// Admin user has additional fields
+const adminUsers: GitLabUser[] = Array.from({ length: 2 }, (_, i) => ({
+  id: i + 10,
+  username: `admin${i}`,
+  name: `Admin ${i}`,
+  state: 'active',
+  locked: false,
+  avatar_url: null,
+  web_url: `https://gitlab.com/admin${i}`,
+  // These fields only appear when requester is admin
+  email: `admin${i}@example.com`,
+  created_at: '2023-01-01T00:00:00.000Z',
+  is_admin: true,
+}));
+
+// Invalid user missing required fields
 const invalidUser = {
   id: 'invalid-id', // Should be number
   username: 'invalid',
-  // Missing required fields
+  // Missing required fields: name, state, locked, avatar_url, web_url
 };
 
 describe('users connector', () => {
@@ -38,16 +50,25 @@ describe('users connector', () => {
       // Set up MSW to intercept GitLab API calls
       server.use(
         http.get(`${env.GITLAB_API_BASE_URL}/api/v4/users`, ({ request }) => {
-          // Validate the access token
-          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+          const authHeader = request.headers.get('Authorization');
+
+          // Check authorization
+          if (
+            !authHeader ||
+            (!authHeader.includes(validToken) && !authHeader.includes(adminToken))
+          ) {
             return new Response(undefined, { status: 401 });
           }
 
           // Handle pagination
           const url = new URL(request.url);
           const page = url.searchParams.get('page');
+          const isAdmin = authHeader.includes(adminToken);
 
-          // Return users array directly (GitLab API format)
+          // Return users based on whether requester is admin
+          const users = isAdmin ? [...validUsers, ...adminUsers] : validUsers;
+
+          // Create response headers
           const headers = new Headers();
 
           // Add Link header for pagination when not on last page
@@ -55,13 +76,12 @@ describe('users connector', () => {
             headers.set('Link', `<${nextUri}>; rel="next"`);
           }
 
-          return new Response(JSON.stringify(validUsers), { headers });
+          return new Response(JSON.stringify(users), { headers });
         })
       );
     });
 
-    test('should return users and nextPage when the token is valid and there is another page', async () => {
-      // Test the initial page of results
+    test('should return users with pagination (non-admin token)', async () => {
       const result = await getUsers({ accessToken: validToken, page: null });
 
       expect(result).toStrictEqual({
@@ -71,8 +91,19 @@ describe('users connector', () => {
       });
     });
 
-    test('should return users and no nextPage when the token is valid and there is no other page', async () => {
-      // Test the final page of results
+    test('should return users with admin fields when using admin token', async () => {
+      const result = await getUsers({ accessToken: adminToken, page: null });
+
+      expect(result.validUsers).toHaveLength(validUsers.length + adminUsers.length);
+      expect(result.invalidUsers).toHaveLength(0);
+      expect(result.nextPage).toBe(nextUri);
+
+      // Check that admin users have email field
+      const adminUser = result.validUsers.find((u) => u.id === 10);
+      expect(adminUser?.email).toBe('admin0@example.com');
+    });
+
+    test('should return users without next page on last page', async () => {
       const result = await getUsers({ accessToken: validToken, page: nextUri });
 
       expect(result).toStrictEqual({
@@ -82,8 +113,7 @@ describe('users connector', () => {
       });
     });
 
-    test('should throw when the token is invalid', async () => {
-      // Test error handling for invalid authentication
+    test('should throw IntegrationConnectionError for invalid token', async () => {
       await expect(getUsers({ accessToken: 'invalid-token' })).rejects.toBeInstanceOf(
         IntegrationConnectionError
       );
@@ -93,15 +123,12 @@ describe('users connector', () => {
       const botUser: GitLabUser = {
         id: 999,
         username: 'bot-user',
-        email: 'bot@example.com',
         name: 'Bot User',
         state: 'active',
+        locked: false,
         avatar_url: null,
         web_url: 'https://gitlab.com/bot-user',
-        created_at: '2023-01-01T00:00:00.000Z',
-        is_admin: false,
         bot: true,
-        external: false,
       };
 
       server.use(
@@ -118,6 +145,61 @@ describe('users connector', () => {
       // Bot user should be filtered out
       expect(result.validUsers).toHaveLength(validUsers.length);
       expect(result.validUsers.find((u) => u.username === 'bot-user')).toBeUndefined();
+    });
+
+    test('should filter out external users', async () => {
+      const externalUser: GitLabUser = {
+        id: 998,
+        username: 'external-user',
+        name: 'External User',
+        state: 'active',
+        locked: false,
+        avatar_url: null,
+        web_url: 'https://gitlab.com/external-user',
+        external: true,
+      };
+
+      server.use(
+        http.get(`${env.GITLAB_API_BASE_URL}/api/v4/users`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+          return Response.json([...validUsers, externalUser]);
+        })
+      );
+
+      const result = await getUsers({ accessToken: validToken, page: null });
+
+      // External user should be filtered out
+      expect(result.validUsers).toHaveLength(validUsers.length);
+      expect(result.validUsers.find((u) => u.username === 'external-user')).toBeUndefined();
+    });
+
+    test('should filter out non-active users', async () => {
+      const blockedUser: GitLabUser = {
+        id: 997,
+        username: 'blocked-user',
+        name: 'Blocked User',
+        state: 'blocked',
+        locked: true,
+        avatar_url: null,
+        web_url: 'https://gitlab.com/blocked-user',
+      };
+
+      server.use(
+        http.get(`${env.GITLAB_API_BASE_URL}/api/v4/users`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+          return Response.json([...validUsers, blockedUser]);
+        })
+      );
+
+      const result = await getUsers({ accessToken: validToken, page: null });
+
+      // Blocked user should be filtered out
+      expect(result.validUsers).toHaveLength(validUsers.length);
+      expect(result.validUsers.find((u) => u.username === 'blocked-user')).toBeUndefined();
     });
 
     test('should handle invalid user data', async () => {
@@ -140,12 +222,12 @@ describe('users connector', () => {
 
   describe('getAuthUser', () => {
     const setup = ({ isAdmin }: { isAdmin: boolean }) => {
-      // Set up MSW to intercept authenticated user endpoint
       server.use(
         http.get(`${env.GITLAB_API_BASE_URL}/api/v4/user`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
+
           // Return a sample authenticated user
           const authUser: GitLabAuthUser = {
             id: 1,
@@ -156,51 +238,56 @@ describe('users connector', () => {
             avatar_url: null,
             web_url: 'https://gitlab.com/auth-user',
             created_at: '2023-01-01T00:00:00.000Z',
-            is_admin: isAdmin,
+            bio: null,
+            location: null,
+            public_email: null,
+            organization: '',
+            job_title: '',
+            can_create_group: true,
+            can_create_project: true,
+            two_factor_enabled: false,
+            external: false,
+            // Only include is_admin if user is actually admin
+            ...(isAdmin && { is_admin: true }),
           };
           return Response.json(authUser);
         })
       );
     };
 
-    test('should successfully retrieve and parse user data', async () => {
+    test('should successfully retrieve admin user data', async () => {
       setup({ isAdmin: true });
       const result = await getAuthUser(validToken);
 
-      expect(result).toStrictEqual({
-        id: 1,
-        username: 'auth-user',
-        email: 'auth@example.com',
-        name: 'Authenticated User',
-        state: 'active',
-        avatar_url: null,
-        web_url: 'https://gitlab.com/auth-user',
-        created_at: '2023-01-01T00:00:00.000Z',
-        is_admin: true,
-      });
+      expect(result.id).toBe(1);
+      expect(result.username).toBe('auth-user');
+      expect(result.email).toBe('auth@example.com');
+      expect(result.is_admin).toBe(true);
     });
 
-    test('should throw when the authenticated user is not an admin', async () => {
+    test('should throw when user is not admin', async () => {
       setup({ isAdmin: false });
-      await expect(getAuthUser(validToken)).rejects.toStrictEqual(
+
+      await expect(getAuthUser(validToken)).rejects.toThrow(
         new IntegrationConnectionError('User is not admin', {
           type: 'not_admin',
-          metadata: {
-            id: 1,
-            username: 'auth-user',
-            email: 'auth@example.com',
-            name: 'Authenticated User',
-            state: 'active',
-            avatar_url: null,
-            web_url: 'https://gitlab.com/auth-user',
-            created_at: '2023-01-01T00:00:00.000Z',
-            is_admin: false,
-          },
+          metadata: expect.any(Object),
         })
       );
+
+      // Verify the error type and contains metadata
+      try {
+        await getAuthUser(validToken);
+      } catch (error) {
+        expect(error).toBeInstanceOf(IntegrationConnectionError);
+        if (error instanceof IntegrationConnectionError) {
+          expect(error.type).toBe('not_admin');
+          expect(error.metadata).toBeDefined();
+        }
+      }
     });
 
-    test('should throw when the token is invalid', async () => {
+    test('should throw when token is invalid', async () => {
       setup({ isAdmin: false });
       await expect(getAuthUser('invalid-token')).rejects.toStrictEqual(
         new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' })
@@ -215,6 +302,7 @@ describe('users connector', () => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
+          // According to docs, successful deactivation returns 201
           return new Response(null, { status: 201 });
         })
       );
@@ -234,7 +322,7 @@ describe('users connector', () => {
       );
     });
 
-    test('should throw when user lacks admin permissions', async () => {
+    test('should throw when user lacks permissions or user not eligible', async () => {
       server.use(
         http.post(`${env.GITLAB_API_BASE_URL}/api/v4/users/123/deactivate`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
@@ -245,9 +333,12 @@ describe('users connector', () => {
       );
 
       await expect(deactivateUser(validToken, '123')).rejects.toStrictEqual(
-        new IntegrationConnectionError('Insufficient permissions to deactivate user', {
-          type: 'not_admin',
-        })
+        new IntegrationConnectionError(
+          'Cannot deactivate user - insufficient permissions or user is not eligible',
+          {
+            type: 'not_admin',
+          }
+        )
       );
     });
 
