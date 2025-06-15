@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
+import { IntegrationError, IntegrationConnectionError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { GustoError } from '../common/error';
 
 const gustoUserSchema = z.object({
   uuid: z.string(),
@@ -48,7 +48,13 @@ export const getUsers = async ({ accessToken, page, companyId }: GetUsersParams)
   });
 
   if (!response.ok) {
-    throw new GustoError('Could not retrieve users', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError('Could not retrieve users', { response });
   }
 
   const resData: unknown = await response.json();
@@ -90,7 +96,13 @@ export const deleteUser = async ({ userId, accessToken }: DeleteUsersParams) => 
   });
 
   if (!response.ok && response.status !== 404) {
-    throw new GustoError(`Could not delete user with Id: ${userId}`, { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError(`Could not delete user with Id: ${userId}`, { response });
   }
 };
 
@@ -115,7 +127,13 @@ export const getTokenInfo = async (accessToken: string) => {
   });
 
   if (!response.ok) {
-    throw new GustoError('Could not retrieve token info', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError('Could not retrieve token info', { response });
   }
 
   const resData: unknown = await response.json();
@@ -123,7 +141,7 @@ export const getTokenInfo = async (accessToken: string) => {
   const result = tokenInfoResponseSchema.safeParse(resData);
   if (!result.success) {
     logger.error('Invalid Gusto token info response', { resData });
-    throw new GustoError('Invalid Gusto token info response');
+    throw new IntegrationError('Invalid Gusto token info response', { cause: result.error });
   }
 
   return {
@@ -150,7 +168,13 @@ export const getAuthUser = async ({ accessToken, adminId, companyId }: GetAuthUs
   });
 
   if (!response.ok) {
-    throw new GustoError('Could not retrieve auth user id', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError('Could not retrieve auth user id', { response });
   }
 
   const resData: unknown = await response.json();
@@ -159,13 +183,13 @@ export const getAuthUser = async ({ accessToken, adminId, companyId }: GetAuthUs
 
   if (!result.success) {
     logger.error('Invalid Gusto auth user response', { resData });
-    throw new GustoError('Invalid Gusto auth user response');
+    throw new IntegrationError('Invalid Gusto auth user response', { cause: result.error });
   }
 
   const authUserEmail = result.data.find((user) => user.uuid === adminId)?.email;
   if (!authUserEmail) {
     logger.error('Invalid Gusto auth user response', { resData });
-    throw new GustoError('Invalid Gusto auth user response');
+    throw new IntegrationError('Invalid Gusto auth user response', { cause: result.error });
   }
   return {
     authUserEmail,

@@ -1,40 +1,88 @@
-import { EventSchemas, Inngest } from 'inngest';
+import type { UpdateUsers } from '@elba-security/schemas';
+import { ElbaInngestClient } from '@elba-security/inngest';
 import { logger } from '@elba-security/logger';
-import { rateLimitMiddleware } from './middlewares/rate-limit-middleware';
+import { NonRetriableError } from 'inngest';
+import { env } from '@/common/env';
+import { getUsers, deleteUser, getTokenInfo, getAuthUser } from '@/connectors/gusto/users';
 
-export const inngest = new Inngest({
-  id: 'gusto',
-  schemas: new EventSchemas().fromRecord<{
-    'gusto/users.sync.requested': {
-      data: {
-        organisationId: string;
-        isFirstSync: boolean;
-        syncStartedAt: number;
-        page: number;
-      };
-    };
-    'gusto/app.installed': {
-      data: {
-        organisationId: string;
-      };
-    };
-    'gusto/app.uninstalled': {
-      data: {
-        organisationId: string;
-      };
-    };
-    'gusto/token.refresh.requested': {
-      data: {
-        organisationId: string;
-      };
-    };
-    'gusto/users.delete.requested': {
-      data: {
-        organisationId: string;
-        userId: string;
-      };
-    };
-  }>(),
-  middleware: [rateLimitMiddleware],
-  logger,
+type User = UpdateUsers['users'][number];
+
+const formatElbaUser = (user: {
+  uuid: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+}): User => ({
+  id: user.uuid,
+  email: user.email,
+  displayName: `${user.first_name} ${user.last_name}`.trim(),
+  additionalEmails: [],
+  isSuspendable: true,
 });
+
+export const elbaInngestClient = new ElbaInngestClient({
+  name: 'gusto',
+  nangoAuthType: 'OAUTH2',
+  nangoIntegrationId: env.NANGO_INTEGRATION_ID,
+  nangoSecretKey: env.NANGO_SECRET_KEY,
+  sourceId: env.ELBA_SOURCE_ID,
+});
+
+export const syncUsersSchedulerFunction = elbaInngestClient.createElbaUsersSyncSchedulerFn(
+  env.GUSTO_USERS_SYNC_CRON
+);
+
+export const syncUsersFunction = elbaInngestClient.createElbaUsersSyncFn(
+  async ({ connection, cursor }) => {
+    const accessToken = connection.credentials.access_token;
+    const page = cursor ? Number(cursor) : 1;
+
+    // Get company ID and admin ID from token info
+    const { companyId, adminId } = await getTokenInfo(accessToken);
+
+    // Get the authenticated user's email to exclude from sync
+    const { authUserEmail } = await getAuthUser({ accessToken, adminId, companyId });
+
+    const { validUsers, invalidUsers, nextPage } = await getUsers({
+      accessToken,
+      companyId,
+      page,
+    });
+
+    if (invalidUsers.length > 0) {
+      logger.warn('Invalid users found', { invalidUsers });
+    }
+
+    // Filter out the authenticated user and format users for Elba
+    const users = validUsers
+      .filter((user) => user.email !== authUserEmail)
+      .map((user) => ({
+        ...formatElbaUser(user),
+        isSuspendable: true,
+      }));
+
+    return {
+      users,
+      cursor: nextPage ? String(nextPage) : null,
+    };
+  }
+);
+
+export const deleteUserFunction = elbaInngestClient.createElbaUsersDeleteFn({
+  isBatchDeleteSupported: false,
+  deleteUsersFn: async ({ connection, id }) => {
+    const accessToken = connection.credentials.access_token;
+    await deleteUser({ accessToken, userId: id });
+  },
+});
+
+export const validateInstallationFunction = elbaInngestClient.createInstallationValidateFn(
+  async ({ connection }) => {
+    const accessToken = connection.credentials.access_token;
+    try {
+      await getTokenInfo(accessToken);
+    } catch (error) {
+      throw new NonRetriableError('Invalid Gusto installation', { cause: error });
+    }
+  }
+);

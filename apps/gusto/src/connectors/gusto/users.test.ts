@@ -1,8 +1,8 @@
 import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
+import { IntegrationConnectionError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { GustoError } from '../common/error';
 import type { GustoUser } from './users';
 import { getUsers, deleteUser, getTokenInfo, getAuthUser } from './users';
 
@@ -71,7 +71,7 @@ describe('users connector', () => {
     test('should throws when the token is invalid', async () => {
       await expect(
         getUsers({ accessToken: 'foo-bar', page: nextPage, companyId })
-      ).rejects.toBeInstanceOf(GustoError);
+      ).rejects.toBeInstanceOf(IntegrationConnectionError);
     });
   });
 
@@ -98,9 +98,9 @@ describe('users connector', () => {
       await expect(deleteUser({ accessToken: validToken, userId })).resolves.toBeUndefined();
     });
 
-    test('should throw GustoError when token is invalid', async () => {
+    test('should throw IntegrationConnectionError when token is invalid', async () => {
       await expect(deleteUser({ accessToken: 'invalidToken', userId })).rejects.toBeInstanceOf(
-        GustoError
+        IntegrationConnectionError
       );
     });
   });
@@ -135,7 +135,7 @@ describe('users connector', () => {
     });
 
     test('should throws when the token is invalid', async () => {
-      await expect(getTokenInfo('foo-bar')).rejects.toBeInstanceOf(GustoError);
+      await expect(getTokenInfo('foo-bar')).rejects.toBeInstanceOf(IntegrationConnectionError);
     });
   });
 
@@ -170,7 +170,7 @@ describe('users connector', () => {
     test('should throws when the token is invalid', async () => {
       await expect(
         getAuthUser({ accessToken: 'foo-bar', companyId, adminId })
-      ).rejects.toBeInstanceOf(GustoError);
+      ).rejects.toBeInstanceOf(IntegrationConnectionError);
     });
   });
 });
