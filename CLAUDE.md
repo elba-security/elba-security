@@ -151,3 +151,4 @@ Use standardized error types from `@elba-security/common`:
 ## Personal Memories
 
 - We don't care about using a unique port. I am never running more than one integration locally
+- When I tell you to create a PR you need to create a branch and open a PR and you should never at any rate PUSH DIRECTLY TO MAIN
