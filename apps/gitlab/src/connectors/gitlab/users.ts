@@ -21,8 +21,9 @@ const gitlabUserSchema = z.object({
 export type GitLabUser = z.infer<typeof gitlabUserSchema>;
 
 // GitLab's response for authenticated user (GET /user)
+// Note: is_admin field is only present for admin users
 const gitlabAuthUserSchema = gitlabUserSchema.extend({
-  is_admin: z.boolean(),
+  is_admin: z.boolean().optional(),
 });
 
 export type GitLabAuthUser = z.infer<typeof gitlabAuthUserSchema>;
@@ -149,7 +150,8 @@ export const getAuthUser = async (accessToken: string) => {
   }
 
   // Check if user has admin privileges
-  if (!userResult.data.is_admin) {
+  // is_admin field is only present for admin users (missing = not admin)
+  if (userResult.data.is_admin !== true) {
     throw new IntegrationConnectionError('User is not admin', {
       type: 'not_admin',
       metadata: userResult.data,
