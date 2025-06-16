@@ -126,9 +126,11 @@ export const removeUserFromOrganization = async ({
 };
 
 const authUserResponseSchema = z.object({
-  id: z.number(),
-  email: z.string().email(),
-  name: z.string(),
+  authUser: z.object({
+    id: z.number(),
+    email: z.string().email(),
+    name: z.string(),
+  }),
 });
 
 export const getAuthUser = async (accessToken: string, baseUrl: string) => {
@@ -163,7 +165,7 @@ export const getAuthUser = async (accessToken: string, baseUrl: string) => {
   }
 
   return {
-    authUserId: String(result.data.id),
+    authUserId: String(result.data.authUser.id),
   };
 };
 

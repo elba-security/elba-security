@@ -165,9 +165,11 @@ describe('users connector', () => {
           }
 
           return Response.json({
-            id: 123,
-            email: 'admin@example.com',
-            name: 'Admin User',
+            authUser: {
+              id: 123,
+              email: 'admin@example.com',
+              name: 'Admin User',
+            },
           });
         })
       );
