@@ -8,19 +8,14 @@ import { analyzeEmail, type AnalyzeEmailRequested, llmResponseSchema } from './a
 
 describe('llmResponseSchema.safeParse', () => {
   test('should return success true when response from llm is valid', () => {
-    expect(
-      llmResponseSchema.safeParse({
-        modelOutput: `{"id":"msg_bdrk_01QMMrZFeQNHzAZotuyGR8vc","type":"message","role":"assistant","model":"claude-3-5-haiku-20241022","content":[{"type":"text","text":"{\\"isShadowIt\\":false}"}],"stop_reason":"end_turn","stop_sequence":null,"usage":{"input_tokens":1278,"output_tokens":80}}`,
-        recordId: 'vzadcasxecd',
-      })
-    ).toMatchObject({ success: true });
+    expect(llmResponseSchema.safeParse('{"isShadowIt":false}')).toMatchObject({ success: true });
   });
 
   test('should return success false when response from llm is valid', () => {
     expect(
       llmResponseSchema.safeParse({
         response: {
-          modelOutput: `{"id":"msg_bdrk_01QMMrZFeQNHzAZotuyGR8vc","type":"message","role":"assistant","model":"claude-3-5-haiku-20241022","content":[{"type":"text","text":"{\\"isShadowIt\\":false}\\n\\nThe email appears to be a marketing communication from Okta about DORA regulations in French. While it's sent to an admin email address, it contains no evidence of active service usage by the recipient. The content is a marketing invitation to download a guide about regulatory compliance, which does not constitute actual SaaS service usage."}],"stop_reason":"end_turn","stop_sequence":null,"usage":{"input_tokens":1278,"output_tokens":80}}`,
+          modelOutput: '[{"foo":false}]',
           recordId: 'vzadcasxecd',
         },
       })
@@ -98,17 +93,7 @@ describe('analyzeEmail', () => {
             }
 
             if (from === 'hallucination') {
-              return {
-                modelOutput: JSON.stringify({
-                  type: 'message',
-                  content: [
-                    {
-                      type: 'text',
-                      text: 'The recipe of banana bread includes...',
-                    },
-                  ],
-                }),
-              };
+              return 'The recipe of banana bread includes...';
             }
 
             if (
@@ -117,35 +102,15 @@ describe('analyzeEmail', () => {
               body === shadowItMessage.body &&
               subject === shadowItMessage.subject
             ) {
-              return {
-                modelOutput: JSON.stringify({
-                  type: 'message',
-                  content: [
-                    {
-                      type: 'text',
-                      text: JSON.stringify({
-                        isShadowIt: true,
-                        applicationName: 'application-name',
-                      }),
-                    },
-                  ],
-                }),
-              };
+              return JSON.stringify({
+                isShadowIt: true,
+                applicationName: 'application-name',
+              });
             }
 
-            return {
-              modelOutput: JSON.stringify({
-                type: 'message',
-                content: [
-                  {
-                    type: 'text',
-                    text: JSON.stringify({
-                      isShadowIt: false,
-                    }),
-                  },
-                ],
-              }),
-            };
+            return JSON.stringify({
+              isShadowIt: false,
+            });
           }
         );
       }

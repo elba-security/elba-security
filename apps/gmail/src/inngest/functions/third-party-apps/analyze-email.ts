@@ -1,6 +1,7 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { NonRetriableError } from 'inngest';
 import { referenceElbaFunction } from '@elba-security/inngest';
+import { logger } from '@elba-security/logger';
 import { env } from '@/common/env/server';
 import { inngest } from '@/inngest/client';
 
@@ -15,33 +16,17 @@ const safeParseJson = (value: unknown) => {
   }
 };
 
-export const llmResponseSchema = z.object({
-  modelOutput: z.preprocess(
-    safeParseJson,
-    z.object({
-      type: z.literal('message'),
-      content: z
-        .array(
-          z.object({
-            type: z.literal('text'),
-            text: z.preprocess(
-              safeParseJson,
-              z.union([
-                z.object({
-                  applicationName: z.string().min(1),
-                  isShadowIt: z.literal(true),
-                }),
-                z.object({
-                  isShadowIt: z.literal(false),
-                }),
-              ])
-            ),
-          })
-        )
-        .min(1),
-    })
-  ),
-});
+const outputSchema = z.union([
+  z.object({
+    applicationName: z.string().min(1),
+    isShadowIt: z.literal(true),
+  }),
+  z.object({
+    isShadowIt: z.literal(false),
+  }),
+]);
+
+export const llmResponseSchema = z.preprocess(safeParseJson, outputSchema);
 
 export type AnalyzeEmailRequested = {
   'gmail/third_party_apps.email.analyze.requested': {
@@ -87,12 +72,14 @@ export const analyzeEmail = inngest.createFunction(
   async ({ event, step }) => {
     const { region, message, organisationId, userId } = event.data;
 
-    const response = await step.invoke('run-llm-prompt', {
+    const answer = await step.invoke('run-llm-prompt', {
       function: referenceElbaFunction(region, 'llm_prompt.run'),
       data: {
         sourceId: env.ELBA_SOURCE_ID,
         moduleHandle: 'third_party_apps',
-        variables: {},
+        variables: {
+          outputSchema: JSON.stringify(z.toJSONSchema(outputSchema)),
+        },
         encryptedVariables: {
           subject: message.subject,
           from: message.from,
@@ -102,16 +89,16 @@ export const analyzeEmail = inngest.createFunction(
       },
     });
 
-    const result = llmResponseSchema.safeParse(response);
+    const result = llmResponseSchema.safeParse(answer);
 
     if (!result.success) {
-      throw new NonRetriableError('Could not retrieve a valid response from LLM');
+      logger.error('Invalid response retrieved from LLM', { answer });
+      throw new NonRetriableError('Could not retrieve a valid response from LLM', {
+        cause: result.error,
+      });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- safe assertion as min length is validated in schema
-    const data = result.data.modelOutput.content.at(0)!.text;
-
-    if (data.isShadowIt) {
+    if (result.data.isShadowIt) {
       await step.sendEvent('send-email-scanning-connections', {
         name: `${region}/elba/connections.updated`,
         data: {
@@ -120,7 +107,7 @@ export const analyzeEmail = inngest.createFunction(
           detection_method: 'email_scanning',
           apps: [
             {
-              name: data.applicationName,
+              name: result.data.applicationName,
               users: [{ id: userId, scopes: [] }],
             },
           ],
@@ -128,6 +115,6 @@ export const analyzeEmail = inngest.createFunction(
       });
     }
 
-    return data;
+    return result.data;
   }
 );
