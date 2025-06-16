@@ -2,13 +2,13 @@ import { http } from 'msw';
 import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
 import { IntegrationConnectionError, IntegrationError } from '@elba-security/common';
-import { env } from '@/common/env';
 import type { MakeUser } from './users';
 import { getUsers, removeUserFromOrganization, getAuthUser, getOrganizations } from './users';
 
 const validToken = 'token-1234';
 const organizationId = '12345';
 const userId = '67890';
+const baseUrl = 'https://eu1.make.com/api/v2';
 
 const validUsers: MakeUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: i + 1,
@@ -38,37 +38,34 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       server.use(
-        http.get(
-          `${env.MAKE_API_BASE_URL}/organizations/:organizationId/users`,
-          ({ request, params }) => {
-            if (request.headers.get('Authorization') !== `Token ${validToken}`) {
-              return new Response(undefined, { status: 401 });
-            }
-
-            if (params.organizationId !== organizationId) {
-              return new Response(undefined, { status: 404 });
-            }
-
-            const url = new URL(request.url);
-            const limit = Number(url.searchParams.get('pg[limit]'));
-            const offset = Number(url.searchParams.get('pg[offset]'));
-
-            return Response.json({
-              users: [...validUsers, ...invalidUsers],
-              pg: {
-                limit,
-                offset,
-                totalCount: 100,
-              },
-            });
+        http.get(`${baseUrl}/organizations/:organizationId/users`, ({ request, params }) => {
+          if (request.headers.get('Authorization') !== `Token ${validToken}`) {
+            return new Response(undefined, { status: 401 });
           }
-        )
+
+          if (params.organizationId !== organizationId) {
+            return new Response(undefined, { status: 404 });
+          }
+
+          const url = new URL(request.url);
+          const limit = Number(url.searchParams.get('pg[limit]'));
+          const offset = Number(url.searchParams.get('pg[offset]'));
+
+          return Response.json({
+            users: [...validUsers, ...invalidUsers],
+            pg: {
+              limit,
+              offset,
+              totalCount: 100,
+            },
+          });
+        })
       );
     });
 
     test('should return users and nextPage when there are more pages', async () => {
       await expect(
-        getUsers({ accessToken: validToken, organizationId, page: 0 })
+        getUsers({ accessToken: validToken, organizationId, baseUrl, page: 0 })
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers,
@@ -78,7 +75,7 @@ describe('users connector', () => {
 
     test('should return users and no nextPage when on last page', async () => {
       server.use(
-        http.get(`${env.MAKE_API_BASE_URL}/organizations/:organizationId/users`, ({ request }) => {
+        http.get(`${baseUrl}/organizations/:organizationId/users`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Token ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -99,7 +96,7 @@ describe('users connector', () => {
       );
 
       await expect(
-        getUsers({ accessToken: validToken, organizationId, page: 1 })
+        getUsers({ accessToken: validToken, organizationId, baseUrl, page: 1 })
       ).resolves.toStrictEqual({
         validUsers,
         invalidUsers: [],
@@ -111,7 +108,7 @@ describe('users connector', () => {
       const mixedUsers = [...validUsers, { ...validUsers[0], id: 999, isActive: false }];
 
       server.use(
-        http.get(`${env.MAKE_API_BASE_URL}/organizations/:organizationId/users`, ({ request }) => {
+        http.get(`${baseUrl}/organizations/:organizationId/users`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Token ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -127,14 +124,14 @@ describe('users connector', () => {
         })
       );
 
-      const result = await getUsers({ accessToken: validToken, organizationId });
+      const result = await getUsers({ accessToken: validToken, organizationId, baseUrl });
       expect(result.validUsers).toHaveLength(validUsers.length);
       expect(result.validUsers.every((user) => user.isActive)).toBe(true);
     });
 
     test('should throw IntegrationConnectionError when unauthorized', async () => {
       await expect(
-        getUsers({ accessToken: 'invalid-token', organizationId })
+        getUsers({ accessToken: 'invalid-token', organizationId, baseUrl })
       ).rejects.toStrictEqual(
         new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' })
       );
@@ -143,12 +140,14 @@ describe('users connector', () => {
     test('should throw IntegrationError for other errors', async () => {
       server.use(
         http.get(
-          `${env.MAKE_API_BASE_URL}/organizations/:organizationId/users`,
+          `${baseUrl}/organizations/:organizationId/users`,
           () => new Response(undefined, { status: 500 })
         )
       );
 
-      await expect(getUsers({ accessToken: validToken, organizationId })).rejects.toStrictEqual(
+      await expect(
+        getUsers({ accessToken: validToken, organizationId, baseUrl })
+      ).rejects.toStrictEqual(
         new IntegrationError('Could not retrieve users', {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a test
           response: expect.any(Response),
@@ -160,7 +159,7 @@ describe('users connector', () => {
   describe('getAuthUser', () => {
     beforeEach(() => {
       server.use(
-        http.get(`${env.MAKE_API_BASE_URL}/users/me`, ({ request }) => {
+        http.get(`${baseUrl}/users/me`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Token ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -175,26 +174,21 @@ describe('users connector', () => {
     });
 
     test('should return the authenticated user ID', async () => {
-      await expect(getAuthUser(validToken)).resolves.toStrictEqual({
+      await expect(getAuthUser(validToken, baseUrl)).resolves.toStrictEqual({
         authUserId: '123',
       });
     });
 
     test('should throw IntegrationConnectionError when unauthorized', async () => {
-      await expect(getAuthUser('invalid-token')).rejects.toStrictEqual(
+      await expect(getAuthUser('invalid-token', baseUrl)).rejects.toStrictEqual(
         new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' })
       );
     });
 
     test('should throw IntegrationError for other errors', async () => {
-      server.use(
-        http.get(
-          `${env.MAKE_API_BASE_URL}/users/me`,
-          () => new Response(undefined, { status: 500 })
-        )
-      );
+      server.use(http.get(`${baseUrl}/users/me`, () => new Response(undefined, { status: 500 })));
 
-      await expect(getAuthUser(validToken)).rejects.toStrictEqual(
+      await expect(getAuthUser(validToken, baseUrl)).rejects.toStrictEqual(
         new IntegrationError('Could not retrieve authenticated user', {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a test
           response: expect.any(Response),
@@ -204,7 +198,7 @@ describe('users connector', () => {
 
     test('should throw IntegrationConnectionError for invalid response', async () => {
       server.use(
-        http.get(`${env.MAKE_API_BASE_URL}/users/me`, ({ request }) => {
+        http.get(`${baseUrl}/users/me`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Token ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -215,7 +209,7 @@ describe('users connector', () => {
         })
       );
 
-      await expect(getAuthUser(validToken)).rejects.toStrictEqual(
+      await expect(getAuthUser(validToken, baseUrl)).rejects.toStrictEqual(
         new IntegrationConnectionError('Invalid Make authenticated user response', {
           type: 'unknown',
           metadata: expect.any(Object),
@@ -228,7 +222,7 @@ describe('users connector', () => {
     beforeEach(() => {
       server.use(
         http.delete(
-          `${env.MAKE_API_BASE_URL}/organizations/:organizationId/users/:userId`,
+          `${baseUrl}/organizations/:organizationId/users/:userId`,
           ({ request, params }) => {
             if (request.headers.get('Authorization') !== `Token ${validToken}`) {
               return new Response(undefined, { status: 401 });
@@ -246,7 +240,7 @@ describe('users connector', () => {
 
     test('should remove user successfully', async () => {
       await expect(
-        removeUserFromOrganization({ accessToken: validToken, userId, organizationId })
+        removeUserFromOrganization({ accessToken: validToken, userId, organizationId, baseUrl })
       ).resolves.not.toThrow();
     });
 
@@ -256,6 +250,7 @@ describe('users connector', () => {
           accessToken: validToken,
           userId: 'non-existent',
           organizationId,
+          baseUrl,
         })
       ).resolves.not.toThrow();
     });
@@ -263,13 +258,13 @@ describe('users connector', () => {
     test('should throw IntegrationError for other errors', async () => {
       server.use(
         http.delete(
-          `${env.MAKE_API_BASE_URL}/organizations/:organizationId/users/:userId`,
+          `${baseUrl}/organizations/:organizationId/users/:userId`,
           () => new Response(undefined, { status: 500 })
         )
       );
 
       await expect(
-        removeUserFromOrganization({ accessToken: validToken, userId, organizationId })
+        removeUserFromOrganization({ accessToken: validToken, userId, organizationId, baseUrl })
       ).rejects.toStrictEqual(
         new IntegrationError(
           `Could not remove user ${userId} from organization ${organizationId}`,
@@ -285,7 +280,7 @@ describe('users connector', () => {
   describe('getOrganizations', () => {
     beforeEach(() => {
       server.use(
-        http.get(`${env.MAKE_API_BASE_URL}/organizations`, ({ request }) => {
+        http.get(`${baseUrl}/organizations`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Token ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -301,21 +296,21 @@ describe('users connector', () => {
     });
 
     test('should return organizations', async () => {
-      await expect(getOrganizations(validToken)).resolves.toStrictEqual([
+      await expect(getOrganizations(validToken, baseUrl)).resolves.toStrictEqual([
         { id: 1, name: 'Organization 1' },
         { id: 2, name: 'Organization 2' },
       ]);
     });
 
     test('should throw IntegrationConnectionError when unauthorized', async () => {
-      await expect(getOrganizations('invalid-token')).rejects.toStrictEqual(
+      await expect(getOrganizations('invalid-token', baseUrl)).rejects.toStrictEqual(
         new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' })
       );
     });
 
     test('should throw IntegrationError for invalid response', async () => {
       server.use(
-        http.get(`${env.MAKE_API_BASE_URL}/organizations`, ({ request }) => {
+        http.get(`${baseUrl}/organizations`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Token ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -324,7 +319,7 @@ describe('users connector', () => {
         })
       );
 
-      await expect(getOrganizations(validToken)).rejects.toStrictEqual(
+      await expect(getOrganizations(validToken, baseUrl)).rejects.toStrictEqual(
         new IntegrationError('Invalid Make organizations response', {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- this is a test
           response: expect.any(Response),

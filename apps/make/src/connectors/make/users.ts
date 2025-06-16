@@ -34,6 +34,7 @@ const makeResponseSchema = z.object({
 export type GetUsersParams = {
   accessToken: string;
   organizationId: string;
+  baseUrl: string;
   page?: number;
 };
 
@@ -41,10 +42,16 @@ export type DeleteUsersParams = {
   userId: string;
   organizationId: string;
   accessToken: string;
+  baseUrl: string;
 };
 
-export const getUsers = async ({ accessToken, organizationId, page = 0 }: GetUsersParams) => {
-  const url = new URL(`${env.MAKE_API_BASE_URL}/organizations/${organizationId}/users`);
+export const getUsers = async ({
+  accessToken,
+  organizationId,
+  baseUrl,
+  page = 0,
+}: GetUsersParams) => {
+  const url = new URL(`${baseUrl}/organizations/${organizationId}/users`);
 
   url.searchParams.append('pg[limit]', String(env.MAKE_USERS_SYNC_BATCH_SIZE));
   url.searchParams.append('pg[offset]', String(page * env.MAKE_USERS_SYNC_BATCH_SIZE));
@@ -99,8 +106,9 @@ export const removeUserFromOrganization = async ({
   userId,
   organizationId,
   accessToken,
+  baseUrl,
 }: DeleteUsersParams) => {
-  const url = new URL(`${env.MAKE_API_BASE_URL}/organizations/${organizationId}/users/${userId}`);
+  const url = new URL(`${baseUrl}/organizations/${organizationId}/users/${userId}`);
 
   const response = await fetch(url, {
     method: 'DELETE',
@@ -123,8 +131,8 @@ const authUserResponseSchema = z.object({
   name: z.string(),
 });
 
-export const getAuthUser = async (accessToken: string) => {
-  const url = new URL(`${env.MAKE_API_BASE_URL}/users/me`);
+export const getAuthUser = async (accessToken: string, baseUrl: string) => {
+  const url = new URL(`${baseUrl}/users/me`);
 
   const response = await fetch(url.toString(), {
     method: 'GET',
@@ -168,8 +176,8 @@ const organizationsResponseSchema = z.object({
   ),
 });
 
-export const getOrganizations = async (accessToken: string) => {
-  const url = new URL(`${env.MAKE_API_BASE_URL}/organizations`);
+export const getOrganizations = async (accessToken: string, baseUrl: string) => {
+  const url = new URL(`${baseUrl}/organizations`);
 
   const response = await fetch(url.toString(), {
     method: 'GET',

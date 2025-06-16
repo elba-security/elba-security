@@ -12,7 +12,6 @@ export const env = z
     NANGO_SECRET_KEY: z.string().min(1),
 
     // Source configuration
-    MAKE_API_BASE_URL: z.string().url().default('https://eu1.make.com/api/v2'),
     MAKE_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     MAKE_USERS_SYNC_BATCH_SIZE: zEnvInt().default(50),
   })

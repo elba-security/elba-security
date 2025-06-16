@@ -16,13 +16,17 @@ The integration requires the following environment variables:
 - `ELBA_SOURCE_ID`: Your Elba source ID
 - `NANGO_INTEGRATION_ID`: Nango integration ID for Make
 - `NANGO_SECRET_KEY`: Nango secret key
-- `MAKE_API_BASE_URL`: Make API base URL (defaults to https://eu1.make.com/api/v2)
 - `MAKE_USERS_SYNC_CRON`: Cron schedule for user sync (defaults to daily)
 - `MAKE_USERS_SYNC_BATCH_SIZE`: Number of users to fetch per page (defaults to 50)
 
 ## API Authentication
 
-This integration uses API key authentication through Nango. Users need to provide their Make API token when setting up the integration.
+This integration uses API key authentication through Nango. Users need to provide:
+
+1. Their Make API token
+2. Their Make environment URL (e.g., `eu1.make.com`, `us1.make.com`)
+
+The environment URL is configured in Nango's connection configuration and is used to dynamically determine the correct API endpoint for each customer's Make instance.
 
 ## Development
 
