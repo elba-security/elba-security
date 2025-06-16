@@ -54,12 +54,84 @@ Each integration:
 
 4. Follow the integration-specific README in your generated app directory.
 
+## Available Integrations
+
+We support integrations with the following SaaS platforms:
+
+- **1Password SCIM**
+- **15Five**
+- **Adobe**
+- **Aircall**
+- **Anthropic**
+- **Apollo**
+- **Asana**
+- **AWS IAM**
+- **Azure DevOps**
+- **BambooHR**
+- **Bill**
+- **Bitbucket**
+- **Box**
+- **Brevo**
+- **Calendly**
+- **ClickUp**
+- **Confluence**
+- **Datadog**
+- **dbt Labs**
+- **Dialpad**
+- **DocuSign**
+- **Doppler**
+- **Dropbox**
+- **Figma SCIM**
+- **Fivetran**
+- **Freshdesk**
+- **Front**
+- **GitHub**
+- **GitLab**
+- **Gmail**
+- **Gong**
+- **Google Workspace**
+- **Gusto**
+- **Harvest**
+- **HubSpot**
+- **Instantly**
+- **Intercom**
+- **Jira**
+- **Linear**
+- **Loom SCIM**
+- **Make**
+- **Metabase**
+- **Microsoft 365**
+- **Miro**
+- **Mural**
+- **Notion**
+- **Okta**
+- **OneDrive**
+- **OpenAI**
+- **Outreach**
+- **PagerDuty**
+- **PandaDoc**
+- **Pipedrive**
+- **Ramp**
+- **Salesforce**
+- **Segment**
+- **SendGrid**
+- **Sentry**
+- **SharePoint**
+- **Slack**
+- **Statsig**
+- **Teams**
+- **Teamtailor**
+- **Typeform**
+- **YouSign**
+- **Zendesk**
+- **Zoom**
+
 ## Project Structure
 
 ```
 apps/                   # Integration implementations
 ├── bitbucket/         # Bitbucket integration
-├── cal-com/          # Cal.com integration
+├── typeform/          # Typeform integration
 └── ...               # Other integrations
 packages/              # Shared packages and utilities
 template/              # Integration template
