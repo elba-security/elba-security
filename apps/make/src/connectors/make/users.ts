@@ -7,17 +7,13 @@ const makeUserSchema = z.object({
   id: z.number(),
   email: z.string().email(),
   name: z.string(),
-  timezone: z.string(),
-  country: z.string(),
   language: z.string(),
-  isActive: z.boolean(),
-  roles: z.array(
-    z.object({
-      organizationId: z.number(),
-      organizationName: z.string(),
-      role: z.string(),
-    })
-  ),
+  timezoneId: z.number(),
+  localeId: z.number(),
+  countryId: z.number(),
+  features: z.record(z.unknown()).optional(),
+  avatar: z.string().optional(),
+  lastLogin: z.string().nullable().optional(),
 });
 
 export type MakeUser = z.infer<typeof makeUserSchema>;
@@ -51,8 +47,9 @@ export const getUsers = async ({
   baseUrl,
   page = 0,
 }: GetUsersParams) => {
-  const url = new URL(`${baseUrl}/organizations/${organizationId}/users`);
+  const url = new URL(`${baseUrl}/users`);
 
+  url.searchParams.append('organizationId', organizationId);
   url.searchParams.append('pg[limit]', String(env.MAKE_USERS_SYNC_BATCH_SIZE));
   url.searchParams.append('pg[offset]', String(page * env.MAKE_USERS_SYNC_BATCH_SIZE));
 
@@ -81,11 +78,6 @@ export const getUsers = async ({
   for (const user of users) {
     const result = makeUserSchema.safeParse(user);
     if (result.success) {
-      // Only include active users
-      if (!result.data.isActive) {
-        continue;
-      }
-
       validUsers.push(result.data);
     } else {
       invalidUsers.push(user);

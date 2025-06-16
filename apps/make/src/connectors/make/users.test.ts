@@ -14,17 +14,13 @@ const validUsers: MakeUser[] = Array.from({ length: 5 }, (_, i) => ({
   id: i + 1,
   email: `user-${i}@example.com`,
   name: `User ${i}`,
-  timezone: 'Europe/Paris',
-  country: 'FR',
   language: 'en',
-  isActive: true,
-  roles: [
-    {
-      organizationId: Number(organizationId),
-      organizationName: 'Test Organization',
-      role: 'Member',
-    },
-  ],
+  timezoneId: 1,
+  localeId: 1,
+  countryId: 1,
+  features: {},
+  avatar: `https://example.com/avatar-${i}.png`,
+  lastLogin: '2024-01-01T00:00:00Z',
 }));
 
 const invalidUsers = [
@@ -38,16 +34,17 @@ describe('users connector', () => {
   describe('getUsers', () => {
     beforeEach(() => {
       server.use(
-        http.get(`${baseUrl}/organizations/:organizationId/users`, ({ request, params }) => {
+        http.get(`${baseUrl}/users`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Token ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
 
-          if (params.organizationId !== organizationId) {
+          const url = new URL(request.url);
+          const orgId = url.searchParams.get('organizationId');
+          if (orgId !== organizationId) {
             return new Response(undefined, { status: 404 });
           }
 
-          const url = new URL(request.url);
           const limit = Number(url.searchParams.get('pg[limit]'));
           const offset = Number(url.searchParams.get('pg[offset]'));
 
@@ -75,7 +72,7 @@ describe('users connector', () => {
 
     test('should return users and no nextPage when on last page', async () => {
       server.use(
-        http.get(`${baseUrl}/organizations/:organizationId/users`, ({ request }) => {
+        http.get(`${baseUrl}/users`, ({ request }) => {
           if (request.headers.get('Authorization') !== `Token ${validToken}`) {
             return new Response(undefined, { status: 401 });
           }
@@ -104,31 +101,6 @@ describe('users connector', () => {
       });
     });
 
-    test('should filter out inactive users', async () => {
-      const mixedUsers = [...validUsers, { ...validUsers[0], id: 999, isActive: false }];
-
-      server.use(
-        http.get(`${baseUrl}/organizations/:organizationId/users`, ({ request }) => {
-          if (request.headers.get('Authorization') !== `Token ${validToken}`) {
-            return new Response(undefined, { status: 401 });
-          }
-
-          return Response.json({
-            users: mixedUsers,
-            pg: {
-              limit: 50,
-              offset: 0,
-              totalCount: mixedUsers.length,
-            },
-          });
-        })
-      );
-
-      const result = await getUsers({ accessToken: validToken, organizationId, baseUrl });
-      expect(result.validUsers).toHaveLength(validUsers.length);
-      expect(result.validUsers.every((user) => user.isActive)).toBe(true);
-    });
-
     test('should throw IntegrationConnectionError when unauthorized', async () => {
       await expect(
         getUsers({ accessToken: 'invalid-token', organizationId, baseUrl })
@@ -138,12 +110,7 @@ describe('users connector', () => {
     });
 
     test('should throw IntegrationError for other errors', async () => {
-      server.use(
-        http.get(
-          `${baseUrl}/organizations/:organizationId/users`,
-          () => new Response(undefined, { status: 500 })
-        )
-      );
+      server.use(http.get(`${baseUrl}/users`, () => new Response(undefined, { status: 500 })));
 
       await expect(
         getUsers({ accessToken: validToken, organizationId, baseUrl })

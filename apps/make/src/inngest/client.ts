@@ -81,9 +81,7 @@ elbaInngestClient.createElbaUsersSyncFn(async ({ connection, cursor }) => {
         displayName: user.name,
         email: user.email,
         additionalEmails: [],
-        isSuspendable:
-          String(user.id) !== authUserId &&
-          !user.roles.some((role) => ['Owner', 'Admin'].includes(role.role)),
+        isSuspendable: String(user.id) !== authUserId,
         url: `${baseUrl.replace('/api/v2', '')}/organization/${org.id}/users/${user.id}`,
       });
     }
