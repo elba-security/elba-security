@@ -1,13 +1,36 @@
-# Elba Integration Template
+# Typeform Integration for Elba
 
-This template provides a foundation for building integrations with Elba Security using the modern ElbaInngestClient pattern.
+This integration enables Elba to perform access reviews for Typeform by synchronizing workspace members and their roles.
 
 ## Features
 
-- **Authentication**: Flexible authentication support via [Nango](https://nango.dev/) (OAuth2, API Key, Basic Auth)
-- **Event-Driven Architecture**: Async event processing using [Inngest](https://www.inngest.com/)
-- **Type Safety**: Full TypeScript support with proper type definitions
-- **Testing**: Ready-to-use testing setup with Vitest and MSW
+- **Workspace-Based User Sync**: Iterates through all Typeform workspaces to collect members
+- **Multi-Region Support**: Handles both US and EU data centers
+- **Rate Limiting**: Respects Typeform's 2 requests/second API limit
+- **User Management**: Supports user deletion across all workspaces
+- **Role-Based Permissions**: Identifies workspace owners as non-suspendable
+
+## Architecture Overview
+
+### User Synchronization Strategy
+
+Typeform doesn't provide a direct user list API. Instead, this integration:
+
+1. Fetches all workspaces using pagination
+2. For each workspace, retrieves member details
+3. Aggregates members across all workspaces
+4. Implements custom pagination to handle batch size limits
+
+### Rate Limiting
+
+The integration includes a rate limiter that ensures compliance with Typeform's 2 requests/second limit across all API calls.
+
+### EU Data Center Support
+
+The integration detects the region from the connection metadata and routes requests to the appropriate API endpoint:
+
+- US: `https://api.typeform.com`
+- EU: `https://api.eu.typeform.com`
 
 ## Getting Started
 
@@ -16,9 +39,9 @@ This template provides a foundation for building integrations with Elba Security
 1. Copy `.env.local.example` to `.env.local` and fill in the required environment variables:
 
    ```
-   ELBA_SOURCE_ID=
-   NANGO_INTEGRATION_ID=
-   NANGO_SECRET_KEY=
+   ELBA_SOURCE_ID=your-source-id
+   NANGO_INTEGRATION_ID=typeform-integration-id
+   NANGO_SECRET_KEY=your-nango-secret
    ```
 
 2. Install dependencies:
@@ -34,16 +57,24 @@ This template provides a foundation for building integrations with Elba Security
 
 ### Testing Setup
 
-1. The `.env.test` file contains default test values and is committed to the repository
-2. For local test overrides:
-   ```bash
-   cp .env.test .env.test.local
-   ```
-3. Modify `.env.test.local` with your test-specific values (this file is git-ignored)
-4. Run tests:
+1. The `.env.test` file contains default test values
+2. Run tests:
    ```bash
    pnpm test
    ```
+
+## Environment Variables
+
+| Variable                         | Description                    | Default                       |
+| -------------------------------- | ------------------------------ | ----------------------------- |
+| `ELBA_SOURCE_ID`                 | Elba source identifier         | Required                      |
+| `NANGO_INTEGRATION_ID`           | Nango integration ID           | Required                      |
+| `NANGO_SECRET_KEY`               | Nango secret key               | Required                      |
+| `TYPEFORM_API_BASE_URL`          | US API base URL                | `https://api.typeform.com`    |
+| `TYPEFORM_EU_API_BASE_URL`       | EU API base URL                | `https://api.eu.typeform.com` |
+| `TYPEFORM_USERS_SYNC_CRON`       | Cron schedule for user sync    | `0 0 * * *`                   |
+| `TYPEFORM_USERS_SYNC_BATCH_SIZE` | Number of users per sync batch | `20`                          |
+| `TYPEFORM_API_RATE_LIMIT`        | Requests per second            | `2`                           |
 
 ## Project Structure
 
@@ -52,111 +83,73 @@ src/
 ├── app/
 │   └── api/
 │       └── inngest/
-│           └── route.ts        # Inngest webhook handler
+│           └── route.ts            # Inngest webhook handler
 ├── common/
-│   └── env.ts                  # Environment variable validation
+│   └── env.ts                      # Environment variable validation
 ├── connectors/
-│   └── typeform/               # Your integration-specific code
-│       ├── users.ts            # API client implementation
-│       └── users.test.ts       # Tests for API client
+│   └── typeform/
+│       ├── commons/
+│       │   ├── errors.ts           # Custom error types
+│       │   └── rate-limiter.ts    # Rate limiting utility
+│       ├── members.ts              # Member management operations
+│       ├── members.test.ts         # Member management tests
+│       ├── users.ts                # User sync implementation
+│       ├── users.test.ts           # User sync tests
+│       ├── workspaces.ts           # Workspace API client
+│       └── workspaces.test.ts      # Workspace API tests
 └── inngest/
-    └── client.ts               # ElbaInngestClient setup and functions
+    └── client.ts                   # Inngest client and functions
 ```
 
-## Implementation Guide
+## API Implementation Details
 
-### 1. Configure Environment Variables
+### Workspace Management
 
-Update `src/common/env.ts` with your integration-specific environment variables:
+The `workspaces.ts` module provides:
 
-```typescript
-export const env = z
-  .object({
-    ELBA_SOURCE_ID: z.string().uuid(),
-    NANGO_INTEGRATION_ID: z.string().min(1),
-    NANGO_SECRET_KEY: z.string().min(1),
-    // Add your integration-specific variables here
-    typeform_API_BASE_URL: z.string().url(),
-    typeform_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    typeform_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
-  })
-  .parse(process.env);
-```
+- `getWorkspaces()`: Fetches paginated list of workspaces
+- `getWorkspaceDetails()`: Retrieves workspace with member information
 
-### 2. Update Inngest Client
+### User Synchronization
 
-In `src/inngest/client.ts`:
+The `users.ts` module implements:
 
-1. Set the appropriate `nangoAuthType` ('OAUTH2', 'API_KEY', or 'BASIC')
-2. Implement the user sync function
-3. Implement the user delete function (if supported)
-4. Implement the installation validation function
+- Complex pagination handling across workspaces
+- Batch size management to respect Elba's limits
+- Member aggregation from multiple workspaces
 
-### 3. Implement API Connectors
+### Member Deletion
 
-In `src/connectors/typeform/users.ts`:
+The `members.ts` module provides:
 
-1. Define your API response schemas using Zod
-2. Implement `getUsers()` with pagination support
-3. Implement `deleteUser()` if your API supports it
-4. Add proper error handling using `IntegrationError` and `IntegrationConnectionError`
-
-### 4. Write Tests
-
-Update `src/connectors/typeform/users.test.ts` with tests for your API implementation using MSW for mocking.
-
-## Key Patterns
-
-### Authentication
-
-The integration uses Nango for authentication. Users will authenticate through Nango's UI, and your integration receives credentials via the `connection` object:
-
-- OAuth2: `connection.credentials.access_token`
-- API Key: `connection.credentials.apiKey`
-- Basic Auth: `connection.credentials.username` and `connection.credentials.password`
-
-### Error Handling
-
-Use the standard error types from `@elba-security/common`:
-
-```typescript
-// For general API errors
-throw new IntegrationError('Error message', { response });
-
-// For authentication/connection errors
-throw new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' });
-```
-
-### Event Processing
-
-The ElbaInngestClient handles all event orchestration. You only need to implement:
-
-1. **User Sync**: Fetch and transform users to Elba's format
-2. **User Delete**: Remove/deactivate users in your system
-3. **Installation Validation**: Verify the connection works
+- `removeUserFromAllWorkspaces()`: Removes a user from all their workspaces
+- Continues processing even if individual workspace operations fail
 
 ## Testing
 
-Run the test suite:
+The integration includes comprehensive test coverage:
 
 ```bash
-pnpm test        # Run tests once
+pnpm test        # Run all tests
 pnpm test:watch  # Run tests in watch mode
-```
-
-Run linting and type checking:
-
-```bash
-pnpm lint        # ESLint
-pnpm type-check  # TypeScript compiler
+pnpm lint        # Run ESLint
+pnpm type-check  # Run TypeScript compiler
 ```
 
 ## Deployment
 
-The integration is deployed as a Next.js application. Ensure all environment variables are configured in your deployment platform.
+This integration is deployed as a Next.js application. Ensure all environment variables are configured in your deployment platform.
+
+## Typeform API Limitations
+
+- **Rate Limit**: 2 requests per second per account
+- **No Direct User API**: Must iterate through workspaces
+- **Email-Based Identification**: Users are identified by email address
+- **No Suspension**: Only add/remove operations are supported
 
 ## Resources
 
+- [Typeform API Documentation](https://www.typeform.com/developers/get-started/)
+- [Typeform Workspace API](https://www.typeform.com/developers/create/workspaces/)
 - [Elba Documentation](https://docs.elba.io)
 - [Nango Documentation](https://docs.nango.dev)
-- [Inngest Documentation](https://www.inngest.com/docs)
