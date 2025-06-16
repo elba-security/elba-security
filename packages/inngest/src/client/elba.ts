@@ -34,6 +34,15 @@ type ElbaFunctions = {
     input: ElbaOrganisationEventsBaseData & UpdateUsers;
     output: never;
   };
+  'llm_prompt.run': {
+    input: {
+      sourceId: string;
+      moduleHandle: 'third_party_apps';
+      variables?: Record<string, string>;
+      encryptedVariables?: Record<string, string>;
+    };
+    output: string;
+  };
 };
 
 const elbaInngestFunctionIds = {
@@ -42,6 +51,7 @@ const elbaInngestFunctionIds = {
   'organisations.list': 'listOrganisations',
   'users.delete': 'deleteUsers',
   'users.update': 'updateUsers',
+  'llm_prompt.run': 'runLlmPrompt',
 } as const satisfies Record<keyof ElbaFunctions, string>;
 
 export const referenceElbaFunction = <T extends keyof ElbaFunctions>(
