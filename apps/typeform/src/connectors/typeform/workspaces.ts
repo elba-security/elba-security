@@ -5,22 +5,32 @@ import { TypeformConnectionError } from './commons/errors';
 export const workspaceSchema = z.object({
   id: z.string(),
   name: z.string(),
-  forms: z.array(
-    z.object({
-      href: z.string(),
-      count: z.number(),
-    })
-  ),
+  forms: z.object({
+    count: z.number(),
+    href: z.string(),
+  }),
   self: z.object({
     href: z.string(),
   }),
+  account_id: z.string().optional(),
+  default: z.boolean().optional(),
+  shared: z.boolean().optional(),
   members: z
     .array(
       z.object({
-        href: z.string(),
+        id: z.string(),
         email: z.string().email(),
-        name: z.string().optional(),
+        name: z.string(),
         role: z.enum(['owner', 'member']),
+        user: z
+          .object({
+            id: z.string(),
+            email: z.string().email(),
+            name: z.string(),
+          })
+          .optional(),
+        account_member_id: z.string().optional(),
+        permissions: z.array(z.string()).optional(),
       })
     )
     .optional(),

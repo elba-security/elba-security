@@ -25,13 +25,13 @@ describe('workspaces connector', () => {
                 {
                   id: 'workspace-1',
                   name: 'Marketing Team',
-                  forms: [{ href: 'https://api.typeform.com/forms', count: 5 }],
+                  forms: { count: 5, href: 'https://api.typeform.com/forms' },
                   self: { href: 'https://api.typeform.com/workspaces/workspace-1' },
                 },
                 {
                   id: 'workspace-2',
                   name: 'Sales Team',
-                  forms: [{ href: 'https://api.typeform.com/forms', count: 3 }],
+                  forms: { count: 3, href: 'https://api.typeform.com/forms' },
                   self: { href: 'https://api.typeform.com/workspaces/workspace-2' },
                 },
               ],
@@ -46,7 +46,7 @@ describe('workspaces connector', () => {
                 {
                   id: 'workspace-3',
                   name: 'Engineering Team',
-                  forms: [{ href: 'https://api.typeform.com/forms', count: 10 }],
+                  forms: { count: 10, href: 'https://api.typeform.com/forms' },
                   self: { href: 'https://api.typeform.com/workspaces/workspace-3' },
                 },
               ],
@@ -125,17 +125,17 @@ describe('workspaces connector', () => {
             return Response.json({
               id: 'workspace-1',
               name: 'Marketing Team',
-              forms: [{ href: 'https://api.typeform.com/forms', count: 5 }],
+              forms: { count: 5, href: 'https://api.typeform.com/forms' },
               self: { href: 'https://api.typeform.com/workspaces/workspace-1' },
               members: [
                 {
-                  href: 'https://api.typeform.com/users/user1',
+                  id: 'member-1',
                   email: 'john@company.com',
                   name: 'John Doe',
                   role: 'owner',
                 },
                 {
-                  href: 'https://api.typeform.com/users/user2',
+                  id: 'member-2',
                   email: 'jane@company.com',
                   name: 'Jane Smith',
                   role: 'member',

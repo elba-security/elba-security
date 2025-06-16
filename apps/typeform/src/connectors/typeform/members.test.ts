@@ -24,8 +24,8 @@ describe('members connector', () => {
     it('should remove user from all workspaces they belong to', async () => {
       vi.spyOn(workspacesModule, 'getWorkspaces').mockResolvedValue({
         items: [
-          { id: 'workspace-1', name: 'Team 1', forms: [], self: { href: '' } },
-          { id: 'workspace-2', name: 'Team 2', forms: [], self: { href: '' } },
+          { id: 'workspace-1', name: 'Team 1', forms: { count: 0, href: '' }, self: { href: '' } },
+          { id: 'workspace-2', name: 'Team 2', forms: { count: 0, href: '' }, self: { href: '' } },
         ],
         page_count: 1,
         total_items: 2,
@@ -35,19 +35,21 @@ describe('members connector', () => {
         .mockResolvedValueOnce({
           id: 'workspace-1',
           name: 'Team 1',
-          forms: [],
+          forms: { count: 0, href: '' },
           self: { href: '' },
           members: [
-            { href: '', email: userEmail, role: 'member' },
-            { href: '', email: 'other@company.com', role: 'owner' },
+            { id: 'member-1', email: userEmail, name: 'User Name', role: 'member' },
+            { id: 'member-2', email: 'other@company.com', name: 'Other User', role: 'owner' },
           ],
         })
         .mockResolvedValueOnce({
           id: 'workspace-2',
           name: 'Team 2',
-          forms: [],
+          forms: { count: 0, href: '' },
           self: { href: '' },
-          members: [{ href: '', email: 'other@company.com', role: 'member' }],
+          members: [
+            { id: 'member-3', email: 'other@company.com', name: 'Other User', role: 'member' },
+          ],
         });
 
       const patchRequests: { workspaceId: string; body: unknown }[] = [];
@@ -84,7 +86,9 @@ describe('members connector', () => {
 
     it('should handle case-insensitive email matching', async () => {
       vi.spyOn(workspacesModule, 'getWorkspaces').mockResolvedValue({
-        items: [{ id: 'workspace-1', name: 'Team 1', forms: [], self: { href: '' } }],
+        items: [
+          { id: 'workspace-1', name: 'Team 1', forms: { count: 0, href: '' }, self: { href: '' } },
+        ],
         page_count: 1,
         total_items: 1,
       });
@@ -92,9 +96,9 @@ describe('members connector', () => {
       vi.spyOn(workspacesModule, 'getWorkspaceDetails').mockResolvedValue({
         id: 'workspace-1',
         name: 'Team 1',
-        forms: [],
+        forms: { count: 0, href: '' },
         self: { href: '' },
-        members: [{ href: '', email: 'USER@COMPANY.COM', role: 'member' }],
+        members: [{ id: 'member-1', email: 'USER@COMPANY.COM', name: 'User Name', role: 'member' }],
       });
 
       const patchRequests: { workspaceId: string }[] = [];
@@ -120,8 +124,8 @@ describe('members connector', () => {
     it('should continue processing if one workspace fails', async () => {
       vi.spyOn(workspacesModule, 'getWorkspaces').mockResolvedValue({
         items: [
-          { id: 'workspace-1', name: 'Team 1', forms: [], self: { href: '' } },
-          { id: 'workspace-2', name: 'Team 2', forms: [], self: { href: '' } },
+          { id: 'workspace-1', name: 'Team 1', forms: { count: 0, href: '' }, self: { href: '' } },
+          { id: 'workspace-2', name: 'Team 2', forms: { count: 0, href: '' }, self: { href: '' } },
         ],
         page_count: 1,
         total_items: 2,
@@ -130,9 +134,9 @@ describe('members connector', () => {
       vi.spyOn(workspacesModule, 'getWorkspaceDetails').mockResolvedValue({
         id: 'workspace-1',
         name: 'Team 1',
-        forms: [],
+        forms: { count: 0, href: '' },
         self: { href: '' },
-        members: [{ href: '', email: userEmail, role: 'member' }],
+        members: [{ id: 'member-1', email: userEmail, name: 'User Name', role: 'member' }],
       });
 
       const patchRequests: string[] = [];
@@ -158,12 +162,26 @@ describe('members connector', () => {
     it('should handle pagination', async () => {
       vi.spyOn(workspacesModule, 'getWorkspaces')
         .mockResolvedValueOnce({
-          items: [{ id: 'workspace-1', name: 'Team 1', forms: [], self: { href: '' } }],
+          items: [
+            {
+              id: 'workspace-1',
+              name: 'Team 1',
+              forms: { count: 0, href: '' },
+              self: { href: '' },
+            },
+          ],
           page_count: 2,
           total_items: 2,
         })
         .mockResolvedValueOnce({
-          items: [{ id: 'workspace-2', name: 'Team 2', forms: [], self: { href: '' } }],
+          items: [
+            {
+              id: 'workspace-2',
+              name: 'Team 2',
+              forms: { count: 0, href: '' },
+              self: { href: '' },
+            },
+          ],
           page_count: 2,
           total_items: 2,
         });
@@ -171,9 +189,9 @@ describe('members connector', () => {
       vi.spyOn(workspacesModule, 'getWorkspaceDetails').mockResolvedValue({
         id: 'workspace-1',
         name: 'Team 1',
-        forms: [],
+        forms: { count: 0, href: '' },
         self: { href: '' },
-        members: [{ href: '', email: userEmail, role: 'member' }],
+        members: [{ id: 'member-1', email: userEmail, name: 'User Name', role: 'member' }],
       });
 
       const patchRequests: string[] = [];

@@ -27,13 +27,13 @@ describe('users connector', () => {
           {
             id: 'workspace-1',
             name: 'Marketing Team',
-            forms: [{ href: 'https://api.typeform.com/forms', count: 5 }],
+            forms: { href: 'https://api.typeform.com/forms', count: 5 },
             self: { href: 'https://api.typeform.com/workspaces/workspace-1' },
           },
           {
             id: 'workspace-2',
             name: 'Sales Team',
-            forms: [{ href: 'https://api.typeform.com/forms', count: 3 }],
+            forms: { href: 'https://api.typeform.com/forms', count: 3 },
             self: { href: 'https://api.typeform.com/workspaces/workspace-2' },
           },
         ],
@@ -45,17 +45,17 @@ describe('users connector', () => {
         .mockResolvedValueOnce({
           id: 'workspace-1',
           name: 'Marketing Team',
-          forms: [{ href: 'https://api.typeform.com/forms', count: 5 }],
+          forms: { href: 'https://api.typeform.com/forms', count: 5 },
           self: { href: 'https://api.typeform.com/workspaces/workspace-1' },
           members: [
             {
-              href: 'https://api.typeform.com/users/user1',
+              id: 'member-1',
               email: 'john@company.com',
               name: 'John Doe',
               role: 'owner',
             },
             {
-              href: 'https://api.typeform.com/users/user2',
+              id: 'member-2',
               email: 'jane@company.com',
               name: 'Jane Smith',
               role: 'member',
@@ -65,12 +65,13 @@ describe('users connector', () => {
         .mockResolvedValueOnce({
           id: 'workspace-2',
           name: 'Sales Team',
-          forms: [{ href: 'https://api.typeform.com/forms', count: 3 }],
+          forms: { href: 'https://api.typeform.com/forms', count: 3 },
           self: { href: 'https://api.typeform.com/workspaces/workspace-2' },
           members: [
             {
-              href: 'https://api.typeform.com/users/user3',
+              id: 'member-3',
               email: 'bob@company.com',
+              name: 'Bob Johnson',
               role: 'member',
             },
           ],
@@ -96,7 +97,7 @@ describe('users connector', () => {
         },
         {
           email: 'bob@company.com',
-          name: undefined,
+          name: 'Bob Johnson',
           role: 'member',
           workspaceId: 'workspace-2',
           workspaceName: 'Sales Team',
@@ -115,8 +116,8 @@ describe('users connector', () => {
 
       vi.spyOn(workspacesModule, 'getWorkspaces').mockResolvedValue({
         items: [
-          { id: 'workspace-1', name: 'Team 1', forms: [], self: { href: '' } },
-          { id: 'workspace-2', name: 'Team 2', forms: [], self: { href: '' } },
+          { id: 'workspace-1', name: 'Team 1', forms: { count: 0, href: '' }, self: { href: '' } },
+          { id: 'workspace-2', name: 'Team 2', forms: { count: 0, href: '' }, self: { href: '' } },
         ],
         page_count: 1,
         total_items: 2,
@@ -125,12 +126,12 @@ describe('users connector', () => {
       vi.spyOn(workspacesModule, 'getWorkspaceDetails').mockResolvedValue({
         id: 'workspace-1',
         name: 'Team 1',
-        forms: [],
+        forms: { count: 0, href: '' },
         self: { href: '' },
         members: [
-          { href: '', email: 'user1@company.com', role: 'member' },
-          { href: '', email: 'user2@company.com', role: 'member' },
-          { href: '', email: 'user3@company.com', role: 'member' },
+          { id: 'member-1', email: 'user1@company.com', name: 'User One', role: 'member' },
+          { id: 'member-2', email: 'user2@company.com', name: 'User Two', role: 'member' },
+          { id: 'member-3', email: 'user3@company.com', name: 'User Three', role: 'member' },
         ],
       });
 
@@ -148,7 +149,14 @@ describe('users connector', () => {
 
     it('should handle workspaces without members', async () => {
       vi.spyOn(workspacesModule, 'getWorkspaces').mockResolvedValue({
-        items: [{ id: 'workspace-1', name: 'Empty Team', forms: [], self: { href: '' } }],
+        items: [
+          {
+            id: 'workspace-1',
+            name: 'Empty Team',
+            forms: { count: 0, href: '' },
+            self: { href: '' },
+          },
+        ],
         page_count: 1,
         total_items: 1,
       });
@@ -156,7 +164,7 @@ describe('users connector', () => {
       vi.spyOn(workspacesModule, 'getWorkspaceDetails').mockResolvedValue({
         id: 'workspace-1',
         name: 'Empty Team',
-        forms: [],
+        forms: { count: 0, href: '' },
         self: { href: '' },
         // No members property
       });
@@ -171,8 +179,8 @@ describe('users connector', () => {
     it('should handle workspace errors gracefully', async () => {
       vi.spyOn(workspacesModule, 'getWorkspaces').mockResolvedValue({
         items: [
-          { id: 'workspace-1', name: 'Team 1', forms: [], self: { href: '' } },
-          { id: 'workspace-2', name: 'Team 2', forms: [], self: { href: '' } },
+          { id: 'workspace-1', name: 'Team 1', forms: { count: 0, href: '' }, self: { href: '' } },
+          { id: 'workspace-2', name: 'Team 2', forms: { count: 0, href: '' }, self: { href: '' } },
         ],
         page_count: 1,
         total_items: 2,
@@ -183,9 +191,11 @@ describe('users connector', () => {
         .mockResolvedValueOnce({
           id: 'workspace-2',
           name: 'Team 2',
-          forms: [],
+          forms: { count: 0, href: '' },
           self: { href: '' },
-          members: [{ href: '', email: 'user@company.com', role: 'member' }],
+          members: [
+            { id: 'member-1', email: 'user@company.com', name: 'User Name', role: 'member' },
+          ],
         });
 
       const result = await getUsers({ accessToken });
