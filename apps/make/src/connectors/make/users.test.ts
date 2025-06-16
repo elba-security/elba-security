@@ -256,8 +256,8 @@ describe('users connector', () => {
 
           return Response.json({
             organizations: [
-              { id: 1, name: 'Organization 1' },
-              { id: 2, name: 'Organization 2' },
+              { id: 1, name: 'Organization 1', zone: 'eu1.make.com' },
+              { id: 2, name: 'Organization 2', zone: 'us1.make.com' },
             ],
           });
         })
@@ -266,8 +266,8 @@ describe('users connector', () => {
 
     test('should return organizations', async () => {
       await expect(getOrganizations(validToken, baseUrl)).resolves.toStrictEqual([
-        { id: 1, name: 'Organization 1' },
-        { id: 2, name: 'Organization 2' },
+        { id: 1, name: 'Organization 1', zone: 'eu1.make.com' },
+        { id: 2, name: 'Organization 2', zone: 'us1.make.com' },
       ]);
     });
 

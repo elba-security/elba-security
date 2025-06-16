@@ -73,6 +73,7 @@ elbaInngestClient.createElbaUsersSyncFn(async ({ connection, cursor }) => {
       organizationId: String(org.id),
       baseUrl,
       page,
+      zone: org.zone, // Pass the organization's zone if available
     });
 
     for (const user of result.validUsers) {
@@ -82,7 +83,10 @@ elbaInngestClient.createElbaUsersSyncFn(async ({ connection, cursor }) => {
         email: user.email,
         additionalEmails: [],
         isSuspendable: String(user.id) !== authUserId,
-        url: `${baseUrl.replace('/api/v2', '')}/organization/${org.id}/users/${user.id}`,
+        // Use zone-specific URL if available, otherwise use base URL
+        url: org.zone
+          ? `https://${org.zone}/organization/${org.id}/users/${user.id}`
+          : `${baseUrl.replace('/api/v2', '')}/organization/${org.id}/users/${user.id}`,
       });
     }
 

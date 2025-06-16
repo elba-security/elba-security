@@ -32,6 +32,7 @@ export type GetUsersParams = {
   organizationId: string;
   baseUrl: string;
   page?: number;
+  zone?: string; // Optional zone URL for the organization
 };
 
 export type DeleteUsersParams = {
@@ -46,12 +47,22 @@ export const getUsers = async ({
   organizationId,
   baseUrl,
   page = 0,
+  zone,
 }: GetUsersParams) => {
-  const url = new URL(`${baseUrl}/users`);
+  // Use zone-specific URL if provided, otherwise use the base URL
+  const apiUrl = zone ? `https://${zone}/api/v2` : baseUrl;
+  const url = new URL(`${apiUrl}/users`);
 
   url.searchParams.append('organizationId', organizationId);
   url.searchParams.append('pg[limit]', String(env.MAKE_USERS_SYNC_BATCH_SIZE));
   url.searchParams.append('pg[offset]', String(page * env.MAKE_USERS_SYNC_BATCH_SIZE));
+
+  logger.info('Fetching Make users', {
+    url: url.toString(),
+    organizationId,
+    page,
+    limit: env.MAKE_USERS_SYNC_BATCH_SIZE,
+  });
 
   const response = await fetch(url, {
     method: 'GET',
@@ -62,6 +73,13 @@ export const getUsers = async ({
   });
 
   if (!response.ok) {
+    logger.error('Failed to fetch Make users', {
+      status: response.status,
+      statusText: response.statusText,
+      url: url.toString(),
+      organizationId,
+    });
+
     if (response.status === 401) {
       throw new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' });
     }
@@ -161,13 +179,16 @@ export const getAuthUser = async (accessToken: string, baseUrl: string) => {
   };
 };
 
+const makeOrganizationSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  zone: z.string().optional(), // e.g., "eu2.make.com" or "us1.make.com"
+});
+
+export type MakeOrganization = z.infer<typeof makeOrganizationSchema>;
+
 const organizationsResponseSchema = z.object({
-  organizations: z.array(
-    z.object({
-      id: z.number(),
-      name: z.string(),
-    })
-  ),
+  organizations: z.array(makeOrganizationSchema),
 });
 
 export const getOrganizations = async (accessToken: string, baseUrl: string) => {
