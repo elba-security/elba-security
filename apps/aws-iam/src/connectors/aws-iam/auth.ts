@@ -1,4 +1,6 @@
- 
+/* eslint-disable @typescript-eslint/no-explicit-any -- untyped Buffer actually pass in crypto functions */
+/* eslint-disable @typescript-eslint/no-unsafe-argument -- untyped Buffer actually pass in crypto functions */
+
 import crypto from 'node:crypto';
 import type { AWSConnection } from './types';
 
@@ -38,13 +40,25 @@ export function getAWSAuthHeader(
     serviceName: string
   ): Buffer => {
     const kDate = crypto.createHmac('sha256', `AWS4${key}`).update(dateStamp).digest();
-    const kRegion = crypto.createHmac('sha256', kDate).update(regionName).digest();
-    const kService = crypto.createHmac('sha256', kRegion).update(serviceName).digest();
-    return crypto.createHmac('sha256', kService).update('aws4_request').digest();
+    const kRegion = crypto
+      .createHmac('sha256', kDate as any)
+      .update(regionName)
+      .digest();
+    const kService = crypto
+      .createHmac('sha256', kRegion as any)
+      .update(serviceName)
+      .digest();
+    return crypto
+      .createHmac('sha256', kService as any)
+      .update('aws4_request')
+      .digest();
   };
 
   const signingKey = getSignatureKey(secretAccessKey, date.substring(0, 8), region, service);
-  const signature = crypto.createHmac('sha256', signingKey).update(stringToSign).digest('hex');
+  const signature = crypto
+    .createHmac('sha256', signingKey as any)
+    .update(stringToSign)
+    .digest('hex');
 
   const authorizationHeader = `AWS4-HMAC-SHA256 Credential=${accessKeyId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
 
