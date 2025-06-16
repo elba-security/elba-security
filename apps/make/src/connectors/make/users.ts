@@ -23,7 +23,10 @@ const makeResponseSchema = z.object({
   pg: z.object({
     limit: z.number(),
     offset: z.number(),
-    totalCount: z.number(),
+    totalCount: z.number().optional(), // Make doesn't always return this
+    returnTotalCount: z.boolean().optional(),
+    sortBy: z.string().optional(),
+    sortDir: z.string().optional(),
   }),
 });
 
@@ -88,7 +91,7 @@ export const getUsers = async ({
 
   const resData: unknown = await response.json();
 
-  const { users, pg } = makeResponseSchema.parse(resData);
+  const { users } = makeResponseSchema.parse(resData);
 
   const validUsers: MakeUser[] = [];
   const invalidUsers: unknown[] = [];
@@ -102,7 +105,9 @@ export const getUsers = async ({
     }
   }
 
-  const hasNextPage = pg.offset + pg.limit < pg.totalCount;
+  // Since Make doesn't return totalCount, we need to check if we got a full page
+  // If we got fewer users than the limit, we're on the last page
+  const hasNextPage = validUsers.length === env.MAKE_USERS_SYNC_BATCH_SIZE;
   const nextPage = hasNextPage ? page + 1 : null;
 
   return {

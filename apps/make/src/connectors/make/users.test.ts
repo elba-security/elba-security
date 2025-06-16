@@ -53,7 +53,7 @@ describe('users connector', () => {
             pg: {
               limit,
               offset,
-              totalCount: 100,
+              returnTotalCount: false,
             },
           });
         })
@@ -61,11 +61,46 @@ describe('users connector', () => {
     });
 
     test('should return users and nextPage when there are more pages', async () => {
+      // Create exactly batch size of users to trigger next page
+      const batchSizeUsers = Array.from({ length: 50 }, (_, i) => ({
+        id: i + 1,
+        email: `user-${i}@example.com`,
+        name: `User ${i}`,
+        language: 'en',
+        timezoneId: 1,
+        localeId: 1,
+        countryId: 1,
+        features: {},
+        avatar: `https://example.com/avatar-${i}.png`,
+        lastLogin: '2024-01-01T00:00:00Z',
+      }));
+
+      server.use(
+        http.get(`${baseUrl}/users`, ({ request }) => {
+          if (request.headers.get('Authorization') !== `Token ${validToken}`) {
+            return new Response(undefined, { status: 401 });
+          }
+
+          const url = new URL(request.url);
+          const limit = Number(url.searchParams.get('pg[limit]'));
+          const offset = Number(url.searchParams.get('pg[offset]'));
+
+          return Response.json({
+            users: batchSizeUsers, // Return full batch size
+            pg: {
+              limit,
+              offset,
+              returnTotalCount: false,
+            },
+          });
+        })
+      );
+
       await expect(
         getUsers({ accessToken: validToken, organizationId, baseUrl, page: 0 })
       ).resolves.toStrictEqual({
-        validUsers,
-        invalidUsers,
+        validUsers: batchSizeUsers,
+        invalidUsers: [],
         nextPage: 1,
       });
     });
@@ -81,12 +116,13 @@ describe('users connector', () => {
           const limit = Number(url.searchParams.get('pg[limit]'));
           const offset = Number(url.searchParams.get('pg[offset]'));
 
+          // Return fewer users than the limit to indicate last page
           return Response.json({
-            users: validUsers,
+            users: validUsers.slice(0, 3), // Less than batch size
             pg: {
               limit,
               offset,
-              totalCount: offset + validUsers.length,
+              returnTotalCount: false,
             },
           });
         })
@@ -95,7 +131,7 @@ describe('users connector', () => {
       await expect(
         getUsers({ accessToken: validToken, organizationId, baseUrl, page: 1 })
       ).resolves.toStrictEqual({
-        validUsers,
+        validUsers: validUsers.slice(0, 3), // Only 3 users returned
         invalidUsers: [],
         nextPage: null,
       });
