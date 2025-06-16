@@ -224,10 +224,10 @@ describe('users connector', () => {
           }
 
           return Response.json({
+            user_id: '01JXWQP6WTPGAEBWT70DE2G774',
             alias: 'johndoe',
             email: 'john@company.com',
             language: 'en',
-            email_verified: true,
           });
         })
       );
@@ -240,7 +240,7 @@ describe('users connector', () => {
         alias: 'johndoe',
         email: 'john@company.com',
         language: 'en',
-        email_verified: true,
+        user_id: '01JXWQP6WTPGAEBWT70DE2G774',
       });
     });
 
@@ -257,10 +257,10 @@ describe('users connector', () => {
         http.get(`${env.TYPEFORM_EU_API_BASE_URL}/me`, ({ request }) => {
           capturedUrl = request.url;
           return Response.json({
+            user_id: '01JXWQP6WTPGAEBWT70DE2G774',
             alias: 'johndoe',
             email: 'john@company.com',
             language: 'en',
-            email_verified: true,
           });
         })
       );

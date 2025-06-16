@@ -8,7 +8,7 @@ const meResponseSchema = z.object({
   alias: z.string(),
   email: z.string().email(),
   language: z.string(),
-  email_verified: z.boolean(),
+  user_id: z.string().optional(), // Some responses include this
 });
 
 export type MeResponse = z.infer<typeof meResponseSchema>;
