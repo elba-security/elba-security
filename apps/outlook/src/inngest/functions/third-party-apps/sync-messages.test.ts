@@ -1,8 +1,10 @@
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { describe, expect, test, vi } from 'vitest';
 import * as microsoftConnector from '@/connectors/microsoft/message';
-import { type OutlookMessage } from '@/connectors/microsoft/message';
-import { formattedMessages as defaultMessages } from '../microsoft/list-messages.test';
+import { type ListOutlookMessage } from '@/connectors/microsoft/types';
+import { organisationsTable } from '@/database/schema';
+import { db } from '@/database/client';
+import { outlookMessagesList } from '@/connectors/microsoft/message/mock';
 import { syncMessages, type SyncMessagesRequested } from './sync-messages';
 
 const mockFunction = createInngestFunctionMock(
@@ -10,8 +12,15 @@ const mockFunction = createInngestFunctionMock(
   'outlook/third_party_apps.messages.sync.requested'
 );
 
-const organisationId = '4f9b95b1-07ec-4356-971c-5a9d328e911c';
 const token = 'token';
+
+vi.mock('@/common/crypto', () => ({
+  decrypt: vi.fn(() => token),
+}));
+
+const organisationId = '4f9b95b1-07ec-4356-971c-5a9d328e911c';
+
+const defaultMessages = outlookMessagesList.map((message) => ({ id: message.id }));
 
 const eventData: SyncMessagesRequested['outlook/third_party_apps.messages.sync.requested']['data'] =
   {
@@ -21,31 +30,38 @@ const eventData: SyncMessagesRequested['outlook/third_party_apps.messages.sync.r
     syncTo: '2025-06-01T00:00:00.000Z',
     syncFrom: '2025-06-02T00:00:00.000Z',
     skipStep: 'skip-step',
-    token,
   };
 
-const setup = ({
+const setup = async ({
   data,
   nextSkipStep = 'next-skip-step',
   messages = defaultMessages,
 }: {
   data: Parameters<typeof mockFunction>[0];
   nextSkipStep?: string | null;
-  messages?: OutlookMessage[];
+  messages?: ListOutlookMessage[];
 }) => {
   vi.spyOn(microsoftConnector, 'getMessages').mockResolvedValue({
     messages,
     nextSkip: nextSkipStep,
   });
 
-  return mockFunction(data);
+  await db.insert(organisationsTable).values({
+    id: organisationId,
+    tenantId: 'c647a27f-7060-4e8d-acc9-05a42218235b',
+    token,
+    region: 'eu',
+  });
+
+  const [result, { step }] = mockFunction(data);
+  return { result, step };
 };
 
 describe('sync-messages', () => {
   test("should retrieve messages within the right range when it's syncing from a date", async () => {
     const start = new Date('2025-06-01T00:00:00.000Z');
     const end = new Date('2025-06-02T00:00:00.000Z');
-    const [result] = setup({
+    const { result } = await setup({
       data: {
         ...eventData,
         syncFrom: start.toISOString(),
@@ -65,7 +81,7 @@ describe('sync-messages', () => {
 
   test("should retrieve messages within the right range when it's syncing from start", async () => {
     const end = new Date('2025-06-02T00:00:00.000Z');
-    const [result] = setup({
+    const { result } = await setup({
       data: {
         ...eventData,
         syncFrom: null,
@@ -83,28 +99,28 @@ describe('sync-messages', () => {
   });
 
   test('should request messages sync when the page contains messages', async () => {
-    const [result, { step }] = setup({
+    const { result, step } = await setup({
       data: eventData,
     });
 
     await result;
 
     expect(step.sendEvent).toHaveBeenCalledWith(
-      'sync-emails',
-      defaultMessages.map((message) => ({
-        name: 'outlook/third_party_apps.email.analyze.requested',
+      'sync-mails',
+      defaultMessages.map(({ id: messageId }) => ({
+        name: 'outlook/third_party_apps.email.sync.requested',
         data: {
           organisationId,
           region: eventData.region,
           userId: eventData.userId,
-          message,
+          messageId,
         },
       }))
     );
   });
 
   test('should not request messages sync when the page does not contains messages', async () => {
-    const [result, { step }] = setup({
+    const { result, step } = await setup({
       data: eventData,
       messages: [],
     });
@@ -115,14 +131,14 @@ describe('sync-messages', () => {
       expect.any(String),
       expect.arrayContaining([
         expect.objectContaining({
-          name: 'outlook/third_party_apps.email.analyze.requested',
+          name: 'outlook/third_party_apps.email.sync.requested',
         }),
       ])
     );
   });
 
   test('should request sync of next page when there is a next page', async () => {
-    const [result, { step }] = setup({
+    const { result, step } = await setup({
       data: eventData,
       nextSkipStep: 'next-skip-step',
     });
@@ -133,14 +149,14 @@ describe('sync-messages', () => {
 
     expect(step.sendEvent).toHaveBeenNthCalledWith(
       1,
-      'sync-emails',
-      defaultMessages.map((message) => ({
-        name: 'outlook/third_party_apps.email.analyze.requested',
+      'sync-mails',
+      defaultMessages.map(({ id: messageId }) => ({
+        name: 'outlook/third_party_apps.email.sync.requested',
         data: {
           organisationId,
           region: eventData.region,
           userId: eventData.userId,
-          message,
+          messageId,
         },
       }))
     );
@@ -155,7 +171,7 @@ describe('sync-messages', () => {
   });
 
   test('should not request sync of next page when there no next page', async () => {
-    const [result, { step }] = setup({
+    const { result, step } = await setup({
       data: eventData,
       nextSkipStep: null,
     });
@@ -170,8 +186,8 @@ describe('sync-messages', () => {
     );
   });
 
-  test('it should return status "completed" when their is no next page', async () => {
-    const [result] = setup({
+  test('it should return status "completed" when there is no next page', async () => {
+    const { result } = await setup({
       data: eventData,
       nextSkipStep: null,
     });
@@ -179,8 +195,8 @@ describe('sync-messages', () => {
     await expect(result).resolves.toMatchObject({ status: 'completed' });
   });
 
-  test('it should return status "ongoing" when their is a next page', async () => {
-    const [result] = setup({
+  test('it should return status "ongoing" when there is a next page', async () => {
+    const { result } = await setup({
       data: eventData,
       nextSkipStep: 'page-token',
     });

@@ -51,14 +51,14 @@ export const syncMessages = inngest.createFunction(
 
     if (messages.length > 0) {
       await step.sendEvent(
-        'sync-emails',
-        messages.map((message) => ({
-          name: 'outlook/third_party_apps.email.analyze.requested',
+        'sync-mails',
+        messages.map(({ id: messageId }) => ({
+          name: 'outlook/third_party_apps.email.sync.requested',
           data: {
             organisationId,
             region,
             userId,
-            message,
+            messageId,
           },
         }))
       );

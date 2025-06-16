@@ -5,6 +5,7 @@ import * as microsoftUsers from '@/connectors/microsoft/user';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { env } from '@/common/env/server';
+import { type MicrosoftUser } from '@/connectors/microsoft/types';
 import { syncThirdPartyApps, type SyncThirdPartyAppsRequested } from './sync';
 
 const mockFunction = createInngestFunctionMock(
@@ -31,7 +32,7 @@ const invalidUsers = [
   },
 ];
 
-const validUsers: microsoftUsers.MicrosoftUser[] = Array.from(
+const validUsers: MicrosoftUser[] = Array.from(
   { length: Number(env.USERS_SYNC_BATCH_SIZE) - invalidUsers.length },
   (_, i) => ({
     id: `user-id-${i}`,
@@ -47,7 +48,6 @@ const eventData: SyncThirdPartyAppsRequested['outlook/third_party_apps.sync.requ
   region,
   pageToken: null,
   tenantId,
-  token,
   lastSyncStartedAt,
   syncStartedAt,
 };
@@ -59,7 +59,7 @@ const setup = async ({
 }: {
   data: Parameters<typeof mockFunction>[0];
   nextPageToken?: string | null;
-  users?: microsoftUsers.MicrosoftUser[];
+  users?: MicrosoftUser[];
 }) => {
   vi.spyOn(microsoftUsers, 'getUsers').mockResolvedValue({
     nextSkipToken: nextPageToken,
@@ -111,7 +111,6 @@ describe('third-party-apps-sync', () => {
         name: 'outlook/third_party_apps.messages.sync.requested',
         data: {
           organisationId,
-          token,
           region,
           skipStep: null,
           syncFrom: lastSyncStartedAt,
@@ -155,7 +154,6 @@ describe('third-party-apps-sync', () => {
         name: 'outlook/third_party_apps.messages.sync.requested',
         data: {
           organisationId,
-          token,
           region,
           skipStep: null,
           syncFrom: null,
@@ -179,7 +177,6 @@ describe('third-party-apps-sync', () => {
         name: 'outlook/third_party_apps.messages.sync.requested',
         data: {
           organisationId,
-          token,
           region,
           skipStep: null,
           syncFrom: eventData.lastSyncStartedAt,

@@ -1,24 +1,22 @@
 import { inngest } from '@/inngest/client';
-import { getMessages } from '@/connectors/microsoft/message';
+import { getMessage } from '@/connectors/microsoft/message';
 import { decrypt } from '@/common/crypto';
-import { MicrosoftError } from '@/connectors/microsoft/common/error';
 import { getToken } from '@/inngest/functions/common/get-token';
-import { type ListOutlookMessage } from '@/connectors/microsoft/types';
+import { MicrosoftError } from '@/connectors/microsoft/common/error';
 
-export type ListOutlookMessagesRequested = {
-  'outlook/outlook.messages.list.requested': {
+export type GetOutlookMessageRequested = {
+  'outlook/outlook.message.requested': {
     data: {
       organisationId: string;
       userId: string;
-      skipStep: string | null;
-      filter: string;
+      messageId: string;
     };
   };
 };
 
-export const listOutlookMessages = inngest.createFunction(
+export const getOutlookMessage = inngest.createFunction(
   {
-    id: 'list-outlook-messages',
+    id: 'get-outlook-message',
     // https://learn.microsoft.com/en-us/graph/throttling-limits#outlook-service-limits
     // Outlook applies limit to a pair of app and mailbox (user)
     // 4 concurrent requests
@@ -34,11 +32,11 @@ export const listOutlookMessages = inngest.createFunction(
     },
   },
   {
-    event: 'outlook/outlook.messages.list.requested',
+    event: 'outlook/outlook.message.requested',
   },
   async ({ event, step }) => {
     try {
-      const { skipStep, userId, filter, organisationId } = event.data;
+      const { userId, messageId, organisationId } = event.data;
 
       const token = await step.invoke('get-token', {
         function: getToken,
@@ -48,20 +46,14 @@ export const listOutlookMessages = inngest.createFunction(
         timeout: '1d',
       });
 
-      return await getMessages({
-        filter,
+      return await getMessage({
         userId,
-        skipStep,
+        messageId,
         token: await decrypt(token),
       });
     } catch (e) {
-      // If a user doesn't have a license for Outlook
-      if (e instanceof MicrosoftError && e.response?.status === 404) {
-        return {
-          messages: [] as ListOutlookMessage[],
-          nextSkip: null,
-          status: 'skip',
-        };
+      if (e instanceof MicrosoftError) {
+        return null;
       }
       throw e;
     }

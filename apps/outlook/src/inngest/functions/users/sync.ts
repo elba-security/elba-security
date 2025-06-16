@@ -4,7 +4,7 @@ import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/microsoft/user';
 import { decrypt } from '@/common/crypto';
 import { getElbaClient } from '@/connectors/elba/client';
-import type { MicrosoftUser } from '@/connectors/microsoft/user';
+import { type MicrosoftUser } from '@/connectors/microsoft/types';
 import { getOrganisation } from '../common/get-organisation';
 
 export type SyncUsersEvents = {

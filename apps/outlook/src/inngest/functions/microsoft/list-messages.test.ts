@@ -1,15 +1,17 @@
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, vi, beforeEach, afterEach } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import * as microsoftConnector from '@/connectors/microsoft/message';
 import { MicrosoftError } from '@/connectors/microsoft/common/error';
+import { db } from '@/database/client';
+import { organisationsTable } from '@/database/schema';
 import { listOutlookMessages } from './list-messages';
 
 const setup = createInngestFunctionMock(
   listOutlookMessages,
-  'outlook/outlook.message.list.requested'
+  'outlook/outlook.messages.list.requested'
 );
 
-const organisationId = 'org-id';
+const organisationId = '4ef9c9ad-947b-4ec2-bbc4-cbe3190eee51';
 const token = 'token';
 const userId = 'user-id';
 
@@ -19,106 +21,55 @@ vi.mock('@/common/crypto', () => ({
 
 const messages = [
   {
-    id: 'message-id-1',
-    subject: 'subject-message-1',
-    from: {
-      emailAddress: {
-        name: 'from-name-1',
-        address: 'from-email-address-1',
-      },
-    },
-    toRecipients: [
-      {
-        emailAddress: {
-          name: 'to-name-1',
-          address: 'to-email-address-1',
-        },
-      },
-    ],
-    body: {
-      contentType: 'html',
-      content: 'html-content: message-text-1',
-    },
+    id: 'message-1-AAMkAGE4NmEwMmU2LTViYTctNDhhNi05ZTI3LWI3NzkyZGY5M',
     isDraft: false,
-    createdDateTime: '2024-11-04T00:00:00Z',
+    createdDateTime: '2025-04-08T10:00:00Z',
     hasAttachments: false,
   },
   {
-    id: 'message-id-2',
-    subject: 'subject-message-2',
-    from: {
-      emailAddress: {
-        name: 'from-name-2',
-        address: 'from-email-address-2',
-      },
-    },
-    toRecipients: [
-      {
-        emailAddress: {
-          name: 'to-name-2',
-          address: 'to-email-address-2',
-        },
-      },
-    ],
-    body: {
-      contentType: 'html',
-      content: 'html-content: message-text-2',
-    },
+    id: 'message-2-AAMkAGE4NmEwMmU2LTViYTctNDhhNi05ZTI3LWI3NzkyZGY5M',
     isDraft: false,
     hasAttachments: false,
-    createdDateTime: '2024-11-05T00:00:00Z',
+    createdDateTime: '2025-03-08T10:00:00Z',
   },
   {
-    id: 'message-id-3',
-    subject: 'subject-message-3',
-    from: {
-      emailAddress: {
-        name: 'from-name-3',
-        address: 'from-email-address-3',
-      },
-    },
-    toRecipients: [
-      {
-        emailAddress: {
-          name: 'to-name-3',
-          address: 'to-email-address-3',
-        },
-      },
-    ],
+    id: 'message-3-AAMkAGE4NmEwMmU2LTViYTctNDhhNi05ZTI3LWI3NzkyZGY5M',
     isDraft: true,
-    body: {
-      contentType: 'html',
-      content: 'html-content: message-text-3',
-    },
     hasAttachments: true,
     createdDateTime: '2024-11-03T00:00:00Z',
   },
 ];
-
 const filter = microsoftConnector.formatGraphMessagesFilter({
   after: new Date('2024-11-03T00:00:00Z'),
   before: new Date('2024-11-08T23:59:59Z'),
 });
 
-export const formattedMessages: microsoftConnector.OutlookMessage[] = messages.map((message) => ({
-  id: message.id,
-  subject: `encrypted(${message.subject})`,
-  from: `encrypted(${message.from.emailAddress.address})`,
-  toRecipients: message.toRecipients.map((item) => `encrypted(${item.emailAddress.address})`),
-  body: `encrypted(${message.body.content})`,
-}));
+export const messagesIdsList = messages.map((message) => ({ id: message.id }));
 
 describe('list-messages', () => {
+  beforeEach(async () => {
+    await db.insert(organisationsTable).values({
+      id: organisationId,
+      tenantId: 'c647a27f-7060-4e8d-acc9-05a42218235b',
+      token: 'token-org-1',
+      region: 'eu',
+    });
+  });
+
+  afterEach(async () => {
+    await db.delete(organisationsTable).execute();
+  });
+
   test('should return list of messages', async () => {
     const getMessages = vi.spyOn(microsoftConnector, 'getMessages').mockResolvedValue({
-      messages: formattedMessages,
+      messages: messagesIdsList,
       nextSkip: 'next-skip',
     });
-    const [result] = setup({ filter, organisationId, skipStep: null, token, userId });
+    const [result] = setup({ filter, organisationId, skipStep: null, userId });
 
     await expect(result).resolves.toStrictEqual({
       nextSkip: 'next-skip',
-      messages: formattedMessages,
+      messages: messagesIdsList,
     });
     expect(getMessages).toBeCalledTimes(1);
     expect(getMessages).toBeCalledWith({
@@ -138,7 +89,6 @@ describe('list-messages', () => {
       filter,
       organisationId,
       skipStep: null,
-      token,
       userId: 'invalid-user-id',
     });
 
