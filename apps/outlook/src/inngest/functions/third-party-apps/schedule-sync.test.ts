@@ -38,7 +38,6 @@ describe('schedule-third-party-apps-sync', () => {
           lastSyncStartedAt: organisation.lastSyncStartedAt,
           pageToken: null,
           tenantId: organisation.tenantId,
-          token: organisation.token,
         },
       }))
     );

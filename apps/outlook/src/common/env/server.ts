@@ -50,6 +50,7 @@ export const env = createEnv({
     TOKEN_REFRESH_MAX_RETRY: zEnvRetry(),
     TOKEN_REFRESH_CRON: z.string().default('*/30 * * * *'),
     THIRD_PARTY_APPS_SYNC_CRON: z.string().min(1),
+    MAX_MESSAGE_BODY_LENGTH: z.string().min(1),
   },
   experimental__runtimeEnv: {},
 });

@@ -4,9 +4,9 @@ import { NonRetriableError } from 'inngest';
 import * as usersConnector from '@/connectors/microsoft/user';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
-import type { MicrosoftUser } from '@/connectors/microsoft/user';
 import { env } from '@/common/env/server';
 import { encrypt } from '@/common/crypto';
+import { type MicrosoftUser } from '@/connectors/microsoft/types';
 import { syncUsers } from './sync';
 
 const token = 'test-token';
