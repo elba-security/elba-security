@@ -38,10 +38,10 @@ type ElbaFunctions = {
     input: {
       sourceId: string;
       moduleHandle: 'third_party_apps';
-      variables: Record<string, string>;
-      encryptedVariables: Record<string, string>;
+      variables?: Record<string, string>;
+      encryptedVariables?: Record<string, string>;
     };
-    output: unknown;
+    output: string;
   };
 };
 
