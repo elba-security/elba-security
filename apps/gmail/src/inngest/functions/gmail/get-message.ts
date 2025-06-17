@@ -50,6 +50,12 @@ export const getGmailMessage = inngest.createFunction(
       limit: 2990,
       period: '1s',
     },
+    cancelOn: [
+      {
+        event: 'gmail/sync.cancelled',
+        match: 'data.organisationId',
+      },
+    ],
   },
   async ({ event }) => {
     const { managerEmail, email, messageId } = event.data;

@@ -61,9 +61,10 @@ export const listMessages = async ({
 };
 
 const messageSchema = z.object({
-  subject: z.string(),
+  subject: z.string().optional().default(''),
+  // from is required for caching
   from: z.string(),
-  to: z.string(),
+  to: z.string().optional().default(''),
   body: z.string(),
 });
 

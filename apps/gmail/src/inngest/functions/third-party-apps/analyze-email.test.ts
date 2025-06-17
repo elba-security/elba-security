@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { createInngestFunctionMock } from '@elba-security/test-utils';
-import * as elbaInngest from '@elba-security/inngest';
+import * as inngestModule from 'inngest';
 import { NonRetriableError } from 'inngest';
 import { inngest } from '@/inngest/client';
 import { env } from '@/common/env/server';
@@ -64,19 +64,19 @@ describe('analyzeEmail', () => {
   );
 
   const setup = ({ data = eventData }: { data?: Parameters<typeof mockFunction>[0] }) => {
-    vi.spyOn(elbaInngest, 'referenceElbaFunction').mockImplementation(
+    vi.spyOn(inngestModule, 'referenceFunction').mockImplementation(
       // @ts-expect-error -- this is a mock
-      (region: string, functionId: string) => {
-        if (functionId !== 'llm_prompt.run') {
+      (config) => {
+        if (config.functionId !== 'eu/elba/runLlmPrompt') {
           throw new Error('unsuported function');
         }
 
         return inngest.createFunction(
           {
-            id: functionId,
+            id: config.functionId,
           },
           // @ts-expect-error -- this is a mock
-          { event: `${region}/elba/llm_prompt.run` },
+          { event: 'eu/elba/llm_prompt.run' },
           ({ event }) => {
             const {
               sourceId,

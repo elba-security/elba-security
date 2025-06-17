@@ -1,6 +1,5 @@
 import { z } from 'zod/v4';
-import { NonRetriableError } from 'inngest';
-import { referenceElbaFunction } from '@elba-security/inngest';
+import { NonRetriableError, referenceFunction } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { env } from '@/common/env/server';
 import { inngest } from '@/inngest/client';
@@ -64,6 +63,10 @@ export const analyzeEmail = inngest.createFunction(
         event: 'gmail/common.remove_organisation.requested',
         match: 'data.organisationId',
       },
+      {
+        event: 'gmail/sync.cancelled',
+        match: 'data.organisationId',
+      },
     ],
   },
   {
@@ -73,7 +76,10 @@ export const analyzeEmail = inngest.createFunction(
     const { region, message, organisationId, userId } = event.data;
 
     const answer = await step.invoke('run-llm-prompt', {
-      function: referenceElbaFunction(region, 'llm_prompt.run'),
+      function: referenceFunction({
+        appId: `elba-api${region === 'eu' ? '' : `-${region}`}`,
+        functionId: `${region}/elba/runLlmPrompt`,
+      }),
       data: {
         sourceId: env.ELBA_SOURCE_ID,
         moduleHandle: 'third_party_apps',

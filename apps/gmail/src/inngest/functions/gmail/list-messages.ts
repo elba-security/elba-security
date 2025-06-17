@@ -33,6 +33,12 @@ export const listGmailMessages = inngest.createFunction(
       limit: 6,
       period: '1s',
     },
+    cancelOn: [
+      {
+        event: 'gmail/sync.cancelled',
+        match: 'data.organisationId',
+      },
+    ],
   },
   {
     event: 'gmail/gmail.message.list.requested',

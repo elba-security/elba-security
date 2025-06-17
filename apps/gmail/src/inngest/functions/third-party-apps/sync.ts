@@ -31,6 +31,10 @@ export const syncThirdPartyApps = inngest.createFunction(
         event: 'gmail/common.remove_organisation.requested',
         match: 'data.organisationId',
       },
+      {
+        event: 'gmail/sync.cancelled',
+        match: 'data.organisationId',
+      },
     ],
   },
   {

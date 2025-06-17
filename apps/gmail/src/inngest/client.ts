@@ -18,9 +18,19 @@ type ElbaUpdateConnectionsEvents = {
   };
 };
 
+type GmailSyncCancelledEvent = {
+  'gmail/sync.cancelled': {
+    data: {
+      organisationId: string;
+    };
+  };
+};
+
 export const inngest = new Inngest({
   id: 'gmail',
-  schemas: new EventSchemas().fromRecord<InngestEvents & ElbaUpdateConnectionsEvents>(),
+  schemas: new EventSchemas().fromRecord<
+    InngestEvents & ElbaUpdateConnectionsEvents & GmailSyncCancelledEvent
+  >(),
   middleware: [
     gmailUnauthorizedMiddleware,
     createElbaTrialIssuesLimitExceededMiddleware('gmail/sync.cancel'),
