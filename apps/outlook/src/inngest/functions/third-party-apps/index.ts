@@ -1,14 +1,28 @@
-import { type AnalyzeEmailRequested, analyzeEmail } from './analyze-email';
+import { type UpdateConnectionsObjects } from '@elba-security/schemas';
+import { analyzeEmail, type AnalyzeEmailRequested } from './analyze-email';
 import { scheduleThirdPartyAppsSync } from './schedule-sync';
-import { type SyncThirdPartyAppsRequested, syncThirdPartyApps } from './sync';
-import { type SyncEmailRequested, syncEmail } from './sync-mail';
-import { type SyncMessagesRequested, syncMessages } from './sync-messages';
+import { syncThirdPartyApps, type SyncThirdPartyAppsRequested } from './sync';
+import { syncEmail, type SyncEmailRequested } from './sync-email';
+import { syncMessages, type SyncMessagesRequested } from './sync-messages';
 
 type SyncCancelEvent = {
   'outlook/sync.cancel': {
     data: {
       organisationId: string;
     };
+  };
+};
+
+type ElbaUpdateConnectionsEvents = {
+  'us/elba/connections.updated': {
+    data: {
+      sourceId: string;
+    } & UpdateConnectionsObjects;
+  };
+  'eu/elba/connections.updated': {
+    data: {
+      sourceId: string;
+    } & UpdateConnectionsObjects;
   };
 };
 
@@ -23,5 +37,6 @@ export const thirdPartyAppsFunctions = [
 export type ThirdPartyAppsEvents = SyncThirdPartyAppsRequested &
   SyncMessagesRequested &
   SyncCancelEvent &
+  ElbaUpdateConnectionsEvents &
   AnalyzeEmailRequested &
   SyncEmailRequested;

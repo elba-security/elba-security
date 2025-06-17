@@ -34,7 +34,7 @@ describe('unauthorized middleware', () => {
     expect(send).toBeCalledTimes(0);
   });
 
-  test('should not transform the output when the error is not about github authorization', async () => {
+  test('should not transform the output when the error is not about outlook authorization', async () => {
     const send = vi.fn().mockResolvedValue(undefined);
     await expect(
       unauthorizedMiddleware

@@ -25,6 +25,7 @@
     "@elba-security/nextjs": "workspace:*",
     "@elba-security/sdk": "workspace:*",
     "@elba-security/utils": "workspace:*",
+    "@elba-security/schemas": "workspace:*",
     "@neondatabase/serverless": "catalog:",
     "@t3-oss/env-nextjs": "^0.7.1",
     "drizzle-orm": "catalog:",

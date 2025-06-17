@@ -100,8 +100,8 @@ export const getMessage = async ({
     id: message.id,
     subject: await encryptElbaInngestText(message.subject),
     from: await encryptElbaInngestText(message.from.emailAddress.address),
-    toRecipients: await Promise.all(
-      message.toRecipients.map((item) => encryptElbaInngestText(item.emailAddress.address))
+    toRecipients: await encryptElbaInngestText(
+      message.toRecipients.map((item) => item.emailAddress.address).join(', ')
     ),
     body: await encryptElbaInngestText(
       message.body.content.slice(0, Number(env.MAX_MESSAGE_BODY_LENGTH))

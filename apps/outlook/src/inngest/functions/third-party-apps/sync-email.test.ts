@@ -5,7 +5,7 @@ import { type OutlookMessage } from '@/connectors/microsoft/types';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { outlookMessage } from '@/connectors/microsoft/message/mock';
-import { syncEmail, type SyncEmailRequested } from './sync-mail';
+import { syncEmail, type SyncEmailRequested } from './sync-email';
 
 const mockFunction = createInngestFunctionMock(
   syncEmail,
@@ -25,9 +25,9 @@ const message = {
   id: outlookMessage.id,
   subject: `encrypted(${outlookMessage.subject})`,
   from: `encrypted(${outlookMessage.from.emailAddress.address})`,
-  toRecipients: outlookMessage.toRecipients.map(
-    (item) => `encrypted(${item.emailAddress.address})`
-  ),
+  toRecipients: `encrypted(${outlookMessage.toRecipients
+    .map((item) => item.emailAddress.address)
+    .join(', ')})`,
   body: `encrypted(${outlookMessage.body.content})`,
 };
 
