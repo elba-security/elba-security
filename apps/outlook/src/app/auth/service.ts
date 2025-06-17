@@ -1,3 +1,4 @@
+import { logger } from '@elba-security/logger';
 import { getToken } from '@/connectors/microsoft/auth';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
@@ -21,7 +22,10 @@ export const setupOrganisation = async ({
   try {
     // we test the installation: microsoft API takes time to propagate it through its services
     await getUsers({ token, tenantId, skipToken: null });
-  } catch {
+  } catch (err) {
+    logger.warn('MS error', {
+      err,
+    });
     return { isAppInstallationCompleted: false };
   }
 
