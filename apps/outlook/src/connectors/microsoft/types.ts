@@ -8,7 +8,8 @@ export type OutlookMessage = {
   id: string;
   subject: string;
   from: string;
-  toRecipients: string[];
+  // Encrypted, comma-separated string with recipients listed
+  toRecipients: string;
   body: string;
 };
 

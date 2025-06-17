@@ -21,9 +21,9 @@ const message = {
   id: outlookMessage.id,
   subject: `encrypted(${outlookMessage.subject})`,
   from: `encrypted(${outlookMessage.from.emailAddress.address})`,
-  toRecipients: outlookMessage.toRecipients.map(
-    (item) => `encrypted(${item.emailAddress.address})`
-  ),
+  toRecipients: `encrypted(${outlookMessage.toRecipients
+    .map((item) => item.emailAddress.address)
+    .join(', ')})`,
   body: `encrypted(${outlookMessage.body.content})`,
 };
 
