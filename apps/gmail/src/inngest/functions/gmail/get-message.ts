@@ -60,7 +60,7 @@ export const getGmailMessage = inngest.createFunction(
   async ({ event }) => {
     const { managerEmail, email, messageId } = event.data;
 
-    const authClient = await getGoogleServiceAccountClient(managerEmail);
+    const authClient = await getGoogleServiceAccountClient(managerEmail, true);
 
     const result = await getMessage({
       auth: authClient,
