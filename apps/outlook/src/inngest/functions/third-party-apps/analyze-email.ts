@@ -48,7 +48,7 @@ export const analyzeEmail = inngest.createFunction(
     id: 'analyze-email',
     retries: 3,
     rateLimit: {
-      key: 'event.data.userId + "-" + event.data.message.from',
+      key: 'event.data.userId + "-" + event.data.message.from + "-" + event.data.organisationId',
       period: '24h',
       limit: 1,
     },
