@@ -30,7 +30,7 @@ export const listOutlookMessages = inngest.createFunction(
     },
     throttle: {
       key: 'event.data.userId',
-      limit: 9_000,
+      limit: 9,
       period: '10m',
     },
   },
