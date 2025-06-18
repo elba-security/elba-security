@@ -69,7 +69,9 @@ export const getGmailMessage = inngest.createFunction(
     });
 
     if (result.error) {
-      throw new NonRetriableError('Could not retrieve message', { cause: result.error });
+      throw new NonRetriableError(`Could not retrieve message, reason: ${result.error.message}`, {
+        cause: result.error,
+      });
     }
 
     return {
