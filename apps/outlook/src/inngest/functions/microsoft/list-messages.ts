@@ -22,14 +22,15 @@ export const listOutlookMessages = inngest.createFunction(
     // https://learn.microsoft.com/en-us/graph/throttling-limits#outlook-service-limits
     // Outlook applies limit to a pair of app and mailbox (user)
     // 4 concurrent requests
-    // 10000 requests per 10 minutes
+    // 10,000 requests per 10 minutes
+    // But this rate limit shared between getOutlookMessage and listOutlookMessages
     concurrency: {
       key: 'event.data.userId',
       limit: 4,
     },
     throttle: {
       key: 'event.data.userId',
-      limit: 10_000,
+      limit: 9_000,
       period: '10m',
     },
   },

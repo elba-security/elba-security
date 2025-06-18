@@ -38,7 +38,7 @@ export const checkAppInstallation = async (data: AppInstallData) => {
     });
 
     if (!hasConsent) {
-      return redirect(
+      redirect(
         getRedirectUrl({
           region,
           sourceId: env.ELBA_SOURCE_ID,
@@ -56,7 +56,7 @@ export const checkAppInstallation = async (data: AppInstallData) => {
     });
 
     if (isAppInstallationCompleted) {
-      return redirect(
+      redirect(
         getRedirectUrl({
           region,
           sourceId: env.ELBA_SOURCE_ID,
