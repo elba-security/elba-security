@@ -48,7 +48,7 @@ export const getGmailMessage = inngest.createFunction(
     throttle: {
       key: 'event.data.userId',
       limit: 2990,
-      period: '1s',
+      period: '60s',
     },
     cancelOn: [
       {

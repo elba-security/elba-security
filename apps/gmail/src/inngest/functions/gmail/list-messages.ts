@@ -31,7 +31,7 @@ export const listGmailMessages = inngest.createFunction(
     throttle: {
       key: 'event.data.userId',
       limit: 6,
-      period: '1s',
+      period: '60s',
     },
     cancelOn: [
       {
