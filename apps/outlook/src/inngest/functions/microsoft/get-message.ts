@@ -28,7 +28,7 @@ export const getOutlookMessage = inngest.createFunction(
     },
     throttle: {
       key: 'event.data.userId',
-      limit: 9,
+      limit: 9_000,
       period: '10m',
     },
   },
