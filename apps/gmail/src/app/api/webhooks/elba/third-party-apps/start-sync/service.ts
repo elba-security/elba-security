@@ -1,14 +1,27 @@
+import { eq } from 'drizzle-orm';
+import { db } from '@/database/client';
+import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 
 export const startThirdPartyAppsSync = async (organisationId: string) => {
+  const [organisation] = await db
+    .select()
+    .from(organisationsTable)
+    .where(eq(organisationsTable.id, organisationId));
+
+  if (!organisation) {
+    throw new Error(`Could not find organisation with id=${organisationId}`);
+  }
+
   await inngest.send({
-    // @ts-expect-error -- event does not exists right now
     name: 'gmail/third_party_apps.sync.requested',
     data: {
-      // @ts-expect-error -- event does not exists right now
-      isFirstSync: true,
-      syncStartedAt: new Date().toISOString(),
       organisationId,
+      region: organisation.region as 'eu' | 'us',
+      googleAdminEmail: organisation.googleAdminEmail,
+      googleCustomerId: organisation.googleCustomerId,
+      syncStartedAt: new Date().toISOString(),
+      lastSyncStartedAt: null,
       pageToken: null,
     },
   });
