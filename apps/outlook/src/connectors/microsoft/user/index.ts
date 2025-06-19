@@ -1,20 +1,11 @@
-import { z } from 'zod';
 import { env } from '@/common/env/server';
+import { type MicrosoftUser } from '../types';
 import { MicrosoftError } from '../common/error';
 import {
   getNextSkipTokenFromNextLink,
   type MicrosoftPaginatedResponse,
 } from '../common/pagination';
-
-const userSchema = z.object({
-  id: z.string(),
-  mail: z.string().nullable().optional(),
-  userPrincipalName: z.string(),
-  displayName: z.string().nullable().optional(),
-  userType: z.string(),
-});
-
-export type MicrosoftUser = z.infer<typeof userSchema>;
+import { userSchema } from '../schemes';
 
 export type GetUsersParams = {
   token: string;

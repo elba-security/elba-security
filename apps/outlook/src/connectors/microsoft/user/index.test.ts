@@ -3,13 +3,13 @@ import { describe, expect, test, beforeEach } from 'vitest';
 import { server } from '@elba-security/test-utils/vitest/setup-msw-handlers';
 import { env } from '@/common/env/server';
 import { MicrosoftError } from '../common/error';
-import { type MicrosoftUser, getUsers } from '.';
+import { type MicrosoftUser } from '../types';
+import { getUsers } from '.';
 
 const validToken = 'token-1234';
 const startSkipToken = 'start-skip-token';
 const endSkipToken = 'end-skip-token';
 const nextSkipToken = 'next-skip-token';
-
 const tenantId = 'some-team-id';
 
 const invalidUsers = [

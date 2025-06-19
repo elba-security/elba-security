@@ -12,22 +12,23 @@
     "test:watch": "vitest",
     "type-check": "tsc --noEmit",
     "database:up": "docker-compose -p outlook --profile edge --env-file=.env.local up -d",
-    "database:down": "docker-compose -p outlook --env-file=.env.local down --volumes",
+    "database:down": "docker compose -p outlook --env-file=.env.local down --volumes",
     "database:migrate": "drizzle-kit push:pg --config ../../drizzle.config.ts",
     "database:generate": "drizzle-kit generate:pg --config ../../drizzle.config.ts"
   },
   "dependencies": {
     "@elba-security/common": "workspace:*",
     "@elba-security/config": "workspace:*",
+    "@elba-security/design-system": "workspace:*",
     "@elba-security/inngest": "workspace:*",
     "@elba-security/logger": "workspace:*",
     "@elba-security/nextjs": "workspace:*",
-    "@elba-security/utils": "workspace:*",
     "@elba-security/sdk": "workspace:*",
-    "@elba-security/design-system": "workspace:*",
+    "@elba-security/utils": "workspace:*",
+    "@elba-security/schemas": "workspace:*",
     "@neondatabase/serverless": "catalog:",
-    "drizzle-orm": "catalog:",
     "@t3-oss/env-nextjs": "^0.7.1",
+    "drizzle-orm": "catalog:",
     "inngest": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
@@ -47,8 +48,8 @@
     "eslint": "catalog:",
     "msw": "catalog:",
     "postgres": "catalog:",
-    "typescript": "catalog:",
     "testcontainers": "catalog:",
+    "typescript": "catalog:",
     "vitest": "catalog:"
   }
 }
