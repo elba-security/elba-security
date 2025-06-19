@@ -46,7 +46,8 @@ export const getGmailMessage = inngest.createFunction(
     //   - 2990 calls per second for messages.get: 14950 quotas
     throttle: {
       key: 'event.data.userId',
-      limit: 2990,
+      // Use a greater margin of error (rate limit issues are still visible with higher limit)
+      limit: 2500,
       period: '60s',
     },
     cancelOn: [
