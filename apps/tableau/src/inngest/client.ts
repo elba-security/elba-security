@@ -15,10 +15,12 @@ elbaInngestClient.createElbaUsersSyncSchedulerFn(env.TABLEAU_USERS_SYNC_CRON);
 elbaInngestClient.createElbaUsersSyncFn(async ({ connection, cursor }) => {
   // Get server URL and site ID from connection metadata
   const serverUrl = connection.metadata?.serverUrl as string;
-  const siteId = connection.metadata?.siteId as string;
+  // For Tableau Server without content URL, Nango might pass empty string
+  // In that case, we need to authenticate first to get the actual site ID
+  const siteId = (connection.metadata?.siteId as string) || '';
 
-  if (!serverUrl || !siteId) {
-    throw new Error('Missing required connection metadata: serverUrl or siteId');
+  if (!serverUrl) {
+    throw new Error('Missing required connection metadata: serverUrl');
   }
 
   const { authUserId } = await getAuthUser(serverUrl, siteId, connection.credentials.apiKey);
@@ -53,10 +55,10 @@ elbaInngestClient.createElbaUsersDeleteFn({
   isBatchDeleteSupported: false,
   deleteUsersFn: async ({ connection, id }) => {
     const serverUrl = connection.metadata?.serverUrl as string;
-    const siteId = connection.metadata?.siteId as string;
+    const siteId = (connection.metadata?.siteId as string) || '';
 
-    if (!serverUrl || !siteId) {
-      throw new Error('Missing required connection metadata: serverUrl or siteId');
+    if (!serverUrl) {
+      throw new Error('Missing required connection metadata: serverUrl');
     }
 
     await deleteUser({
@@ -70,10 +72,10 @@ elbaInngestClient.createElbaUsersDeleteFn({
 
 elbaInngestClient.createInstallationValidateFn(async ({ connection }) => {
   const serverUrl = connection.metadata?.serverUrl as string;
-  const siteId = connection.metadata?.siteId as string;
+  const siteId = (connection.metadata?.siteId as string) || '';
 
-  if (!serverUrl || !siteId) {
-    throw new Error('Missing required connection metadata: serverUrl or siteId');
+  if (!serverUrl) {
+    throw new Error('Missing required connection metadata: serverUrl');
   }
 
   await getAuthUser(serverUrl, siteId, connection.credentials.apiKey);

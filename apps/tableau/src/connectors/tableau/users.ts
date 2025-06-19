@@ -102,6 +102,8 @@ const authResponseSchema = z.object({
 });
 
 export const getAuthUser = async (serverUrl: string, siteId: string, accessToken: string) => {
+  // Note: For Tableau Server default site, siteId might be empty
+  // The PAT authentication should already be scoped to the correct site
   const url = new URL(`${serverUrl}/api/3.15/sites/${siteId}/users/me`);
 
   const response = await fetch(url, {

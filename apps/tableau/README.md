@@ -44,12 +44,29 @@ This integration enables Elba Security to manage user access reviews for Tableau
 
 This integration uses Tableau Personal Access Tokens (PATs) for authentication, managed through Nango.
 
-When setting up the integration in Nango, you'll need to configure:
+### Nango Connection Setup
 
-- Authentication type: API_KEY
-- Required metadata:
-  - `serverUrl`: The Tableau server URL (e.g., `https://your-server.tableau.com`)
-  - `siteId`: The Tableau site ID
+When creating a Nango connection for Tableau, you'll need to provide:
+
+1. **Token Name**: Your PAT name
+2. **Token Secret**: Your PAT secret value
+3. **Content URL**:
+   - For Tableau Cloud: The value after "/site/" in your browser URL (e.g., "mycompany123")
+   - For Tableau Server: Leave empty
+4. **API Version**: The Tableau API version (e.g., "3.15")
+5. **Server Name**: Your Tableau server hostname
+
+The integration expects the following in the connection object:
+
+- `connection.credentials.apiKey`: The PAT token
+- `connection.metadata.serverUrl`: Full server URL (constructed from server name)
+- `connection.metadata.siteId`: The site ID (same as content URL for Tableau Cloud, empty string for default site on Tableau Server)
+
+### Important Notes
+
+- For Tableau Server with no specific site, the API will use the default site when an empty site ID is provided
+- The PAT must have appropriate permissions on the target site
+- API version 3.15 or higher is required
 
 ## User Management
 
