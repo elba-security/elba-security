@@ -9,7 +9,6 @@ const organisationId = '4f9b95b1-07ec-4356-971c-5a9d328e911c';
 const eventData: SyncInboxRequested['gmail/third_party_apps.inbox.sync.requested']['data'] = {
   organisationId,
   region: 'eu',
-  googleAdminEmail: 'admin@foo.com',
   userId: 'user-id',
   email: 'user@foo.com',
   syncTo: '2025-06-01T00:00:00.000Z',
@@ -100,7 +99,6 @@ describe('sync-inbox', () => {
           name: 'gmail/third_party_apps.email.sync.requested',
           data: {
             organisationId,
-            googleAdminEmail: eventData.googleAdminEmail,
             region: eventData.region,
             userId: eventData.userId,
             email: eventData.email,

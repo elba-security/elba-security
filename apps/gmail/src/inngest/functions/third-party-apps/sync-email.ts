@@ -5,7 +5,6 @@ export type SyncEmailRequested = {
   'gmail/third_party_apps.email.sync.requested': {
     data: {
       organisationId: string;
-      googleAdminEmail: string;
       region: 'eu' | 'us';
       userId: string;
       email: string;
@@ -36,14 +35,13 @@ export const syncEmail = inngest.createFunction(
     event: 'gmail/third_party_apps.email.sync.requested',
   },
   async ({ event, step }) => {
-    const { googleAdminEmail, email, messageId, organisationId, userId, region } = event.data;
+    const { email, messageId, organisationId, userId, region } = event.data;
 
     const { message } = await step.invoke('get-message', {
       function: getGmailMessage,
       data: {
         organisationId,
         userId,
-        managerEmail: googleAdminEmail,
         email,
         messageId,
       },

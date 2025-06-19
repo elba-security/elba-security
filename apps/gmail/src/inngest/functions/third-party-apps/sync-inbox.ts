@@ -6,7 +6,6 @@ export type SyncInboxRequested = {
   'gmail/third_party_apps.inbox.sync.requested': {
     data: {
       organisationId: string;
-      googleAdminEmail: string;
       region: 'eu' | 'us';
       userId: string;
       email: string;
@@ -39,15 +38,13 @@ export const syncInbox = inngest.createFunction(
     event: 'gmail/third_party_apps.inbox.sync.requested',
   },
   async ({ event, step }) => {
-    const { googleAdminEmail, email, pageToken, organisationId, userId, region, syncFrom, syncTo } =
-      event.data;
+    const { email, pageToken, organisationId, userId, region, syncFrom, syncTo } = event.data;
 
     const { messages, nextPageToken } = await step.invoke('list-messages', {
       function: listGmailMessages,
       data: {
         organisationId,
         userId,
-        managerEmail: googleAdminEmail,
         email,
         pageToken,
         q: formatListMessagesQuery({
@@ -67,7 +64,6 @@ export const syncInbox = inngest.createFunction(
           name: 'gmail/third_party_apps.email.sync.requested',
           data: {
             organisationId,
-            googleAdminEmail,
             region,
             userId,
             email,

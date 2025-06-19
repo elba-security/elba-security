@@ -85,7 +85,6 @@ export const syncThirdPartyApps = inngest.createFunction(
           name: 'gmail/third_party_apps.inbox.sync.requested',
           data: {
             organisationId,
-            googleAdminEmail,
             region,
             userId: user.id,
             email: user.primaryEmail,

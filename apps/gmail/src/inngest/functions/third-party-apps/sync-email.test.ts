@@ -11,7 +11,6 @@ const organisationId = '4f9b95b1-07ec-4356-971c-5a9d328e911c';
 const eventData: SyncEmailRequested['gmail/third_party_apps.email.sync.requested']['data'] = {
   organisationId,
   region: 'eu',
-  googleAdminEmail: 'admin@foo.com',
   userId: 'user-id',
   email: 'user@foo.com',
   messageId: 'message-id',

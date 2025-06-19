@@ -7,7 +7,6 @@ export type ListGmailMessagesRequested = {
     data: {
       organisationId: string;
       userId: string;
-      managerEmail: string;
       // specific to the api
       email: string;
       pageToken?: string | null;
@@ -44,9 +43,9 @@ export const listGmailMessages = inngest.createFunction(
     event: 'gmail/gmail.message.list.requested',
   },
   async ({ event }) => {
-    const { managerEmail, email, pageToken, q } = event.data;
+    const { email, pageToken, q } = event.data;
 
-    const authClient = await getGoogleServiceAccountClient(managerEmail, true);
+    const authClient = await getGoogleServiceAccountClient(email, true);
 
     const result = await listMessages({
       auth: authClient,
