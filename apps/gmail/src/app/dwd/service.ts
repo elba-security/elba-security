@@ -28,6 +28,7 @@ export const isInstallationCompleted = async ({
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
+        lastSyncStartedAt: null,
         googleCustomerId,
         googleAdminEmail,
       },
