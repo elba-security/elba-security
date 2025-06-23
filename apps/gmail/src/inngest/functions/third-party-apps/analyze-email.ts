@@ -3,6 +3,7 @@ import { NonRetriableError, referenceFunction } from 'inngest';
 import { logger } from '@elba-security/logger';
 import { env } from '@/common/env/server';
 import { inngest } from '@/inngest/client';
+import { concurrencyOption } from '../common/concurrency-option';
 
 const safeParseJson = (value: unknown) => {
   if (typeof value !== 'string') {
@@ -48,6 +49,7 @@ export type AnalyzeEmailRequested = {
 export const analyzeEmail = inngest.createFunction(
   {
     id: 'analyze-email',
+    concurrency: concurrencyOption,
     retries: 3,
     rateLimit: {
       key: 'event.data.organisationId + "-" + event.data.userId + "-" + event.data.message.from',

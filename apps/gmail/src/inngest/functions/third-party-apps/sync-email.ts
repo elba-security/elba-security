@@ -1,5 +1,6 @@
 import { inngest } from '@/inngest/client';
 import { getGmailMessage } from '../gmail/get-message';
+import { concurrencyOption } from '../common/concurrency-option';
 
 export type SyncEmailRequested = {
   'gmail/third_party_apps.email.sync.requested': {
@@ -16,6 +17,7 @@ export type SyncEmailRequested = {
 export const syncEmail = inngest.createFunction(
   {
     id: 'sync-email',
+    concurrency: concurrencyOption,
     cancelOn: [
       {
         event: 'gmail/common.organisation.inserted',

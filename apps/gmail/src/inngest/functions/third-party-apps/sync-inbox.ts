@@ -1,6 +1,7 @@
 import { inngest } from '@/inngest/client';
 import { formatListMessagesQuery } from '@/connectors/google/gmail';
 import { listGmailMessages } from '../gmail/list-messages';
+import { concurrencyOption } from '../common/concurrency-option';
 
 export type SyncInboxRequested = {
   'gmail/third_party_apps.inbox.sync.requested': {
@@ -19,6 +20,7 @@ export type SyncInboxRequested = {
 export const syncInbox = inngest.createFunction(
   {
     id: 'sync-inbox',
+    concurrency: concurrencyOption,
     cancelOn: [
       {
         event: 'gmail/common.organisation.inserted',

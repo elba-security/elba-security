@@ -1,6 +1,7 @@
 import { getGoogleServiceAccountClient } from '@/connectors/google/clients';
 import { listMessages } from '@/connectors/google/gmail';
 import { inngest } from '@/inngest/client';
+import { concurrencyOption } from '../common/concurrency-option';
 
 export type ListGmailMessagesRequested = {
   'gmail/gmail.message.list.requested': {
@@ -18,6 +19,7 @@ export type ListGmailMessagesRequested = {
 export const listGmailMessages = inngest.createFunction(
   {
     id: 'list-gmail-messages',
+    concurrency: concurrencyOption,
     // Configuration shared with others gmail/ functions
     // Google documentation https://developers.google.com/workspace/gmail/api/reference/quota
     // API rate limit bottleneck is per user: 15,000 quotas

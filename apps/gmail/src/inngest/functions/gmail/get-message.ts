@@ -4,6 +4,7 @@ import { getMessage } from '@/connectors/google/gmail';
 import { inngest } from '@/inngest/client';
 import { env } from '@/common/env/server';
 import { encryptElbaInngestText } from '@/common/crypto';
+import { concurrencyOption } from '../common/concurrency-option';
 
 /**
  * Encrypt sensitive data for runLlm function runs
@@ -31,9 +32,7 @@ export type GetGmailMessageRequested = {
 export const getGmailMessage = inngest.createFunction(
   {
     id: 'get-gmail-message',
-  },
-  {
-    event: 'gmail/gmail.message.get.requested',
+    concurrency: concurrencyOption,
     // Configuration shared with others gmail/ functions
     // Google documentation https://developers.google.com/workspace/gmail/api/reference/quota
     // API rate limit bottleneck is per user: 15,000 quotas
@@ -55,6 +54,9 @@ export const getGmailMessage = inngest.createFunction(
         match: 'data.organisationId',
       },
     ],
+  },
+  {
+    event: 'gmail/gmail.message.get.requested',
   },
   async ({ event }) => {
     const { email, messageId } = event.data;

@@ -20,6 +20,7 @@ export const env = createEnv({
       .length(32)
       .regex(/^(?:[0-9a-f]{2})+$/i)
       .default('7e8c2f9a1b0d6e3c5a4f8b1d9c0e7a3b'),
+    EMAIL_SCANNING_GLOBAL_INNGEST_CONCURRENCY_LIMIT: z.coerce.number().positive().default(2500),
     MAX_EMAIL_BODY_LENGTH: z.coerce.number().positive().default(1000),
     GOOGLE_AUTH_CLIENT_ID: z.string().min(1),
     GOOGLE_AUTH_CLIENT_SECRET: z.string().min(1),

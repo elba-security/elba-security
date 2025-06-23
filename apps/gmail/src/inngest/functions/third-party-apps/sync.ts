@@ -4,6 +4,7 @@ import { checkUserIsAdmin, listGoogleUsers } from '@/connectors/google/users';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema/organisations';
 import { inngest } from '@/inngest/client';
+import { concurrencyOption } from '../common/concurrency-option';
 
 export type SyncThirdPartyAppsRequested = {
   'gmail/third_party_apps.sync.requested': {
@@ -22,6 +23,7 @@ export type SyncThirdPartyAppsRequested = {
 export const syncThirdPartyApps = inngest.createFunction(
   {
     id: 'sync-third-party-apps',
+    concurrency: concurrencyOption,
     cancelOn: [
       {
         event: 'gmail/common.organisation.inserted',
