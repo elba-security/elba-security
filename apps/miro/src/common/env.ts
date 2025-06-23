@@ -4,14 +4,16 @@ const zEnvInt = () => z.coerce.number().int().positive();
 
 export const env = z
   .object({
-    ELBA_API_KEY: z.string().min(1),
-    ELBA_API_BASE_URL: z.string().url(),
+    // Elba configuration
     ELBA_SOURCE_ID: z.string().uuid(),
-    ELBA_WEBHOOK_SECRET: z.string().min(1),
-    MIRO_API_BASE_URL: z.string().url().default('https://api.miro.com'),
-    MIRO_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    MIRO_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
+
+    // Nango configuration
     NANGO_INTEGRATION_ID: z.string().min(1),
     NANGO_SECRET_KEY: z.string().min(1),
+
+    // Source configuration
+    MIRO_API_BASE_URL: z.string().url(),
+    MIRO_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
+    MIRO_USERS_SYNC_BATCH_SIZE: zEnvInt().default(50),
   })
   .parse(process.env);

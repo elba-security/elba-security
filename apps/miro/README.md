@@ -1,13 +1,13 @@
 # Elba Integration Template
 
-This template provides a foundation for building integrations with Elba Security. It follows the same structure as our production integrations like Bitbucket.
+This template provides a foundation for building integrations with Elba Security using the modern ElbaInngestClient pattern.
 
 ## Features
 
-- **OAuth Authentication**: Pre-configured OAuth flow using [Nango](https://nango.dev/)
-- **Event Handling**: Event-driven architecture using [Inngest](https://www.inngest.com/)
+- **Authentication**: Flexible authentication support via [Nango](https://nango.dev/) (OAuth2, API Key, Basic Auth)
+- **Event-Driven Architecture**: Async event processing using [Inngest](https://www.inngest.com/)
 - **Type Safety**: Full TypeScript support with proper type definitions
-- **Testing**: Ready-to-use testing setup with Vitest
+- **Testing**: Ready-to-use testing setup with Vitest and MSW
 
 ## Getting Started
 
@@ -16,10 +16,9 @@ This template provides a foundation for building integrations with Elba Security
 1. Copy `.env.local.example` to `.env.local` and fill in the required environment variables:
 
    ```
-   ELBA_API_BASE_URL=
    ELBA_SOURCE_ID=
-   ELBA_WEBHOOK_SECRET=
    NANGO_INTEGRATION_ID=
+   NANGO_SECRET_KEY=
    ```
 
 2. Install dependencies:
@@ -52,116 +51,112 @@ This template provides a foundation for building integrations with Elba Security
 src/
 ├── app/
 │   └── api/
-│       └── webhooks/
-│           └── elba/
-│               └── installation/
-│                   └── validate/
-│                       ├── route.ts    # Installation validation webhook
-│                       └── service.ts  # Installation validation logic
+│       └── inngest/
+│           └── route.ts        # Inngest webhook handler
 ├── common/
-│   └── nango.ts        # Nango client configuration
+│   └── env.ts                  # Environment variable validation
 ├── connectors/
-│   ├── common/
-│   │   └── error.ts    # Error mapping utilities
-│   ├── elba/
-│   │   └── client.ts   # Elba client utilities
-│   └── miro/       # Your integration-specific code
-│       └── users.ts    # Integration-specific API calls and types
+│   └── miro/               # Your integration-specific code
+│       ├── users.ts            # API client implementation
+│       └── users.test.ts       # Tests for API client
 └── inngest/
-    ├── client.ts       # Inngest client configuration
-    └── functions/      # Integration-specific event handlers
-        └── users/      # User synchronization functions
+    └── client.ts               # ElbaInngestClient setup and functions
 ```
 
-## Features
+## Implementation Guide
 
-### Installation Validation
+### 1. Configure Environment Variables
 
-The template includes a webhook-based installation flow that:
+Update `src/common/env.ts` with your integration-specific environment variables:
 
-1. Validates the Nango connection
-2. Verifies access to the source API
-3. Triggers initial sync events
+```typescript
+export const env = z
+  .object({
+    ELBA_SOURCE_ID: z.string().uuid(),
+    NANGO_INTEGRATION_ID: z.string().min(1),
+    NANGO_SECRET_KEY: z.string().min(1),
+    // Add your integration-specific variables here
+    miro_API_BASE_URL: z.string().url(),
+    miro_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
+    miro_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
+  })
+  .parse(process.env);
+```
+
+### 2. Update Inngest Client
+
+In `src/inngest/client.ts`:
+
+1. Set the appropriate `nangoAuthType` ('OAUTH2', 'API_KEY', or 'BASIC')
+2. Implement the user sync function
+3. Implement the user delete function (if supported)
+4. Implement the installation validation function
+
+### 3. Implement API Connectors
+
+In `src/connectors/miro/users.ts`:
+
+1. Define your API response schemas using Zod
+2. Implement `getUsers()` with pagination support
+3. Implement `deleteUser()` if your API supports it
+4. Add proper error handling using `IntegrationError` and `IntegrationConnectionError`
+
+### 4. Write Tests
+
+Update `src/connectors/miro/users.test.ts` with tests for your API implementation using MSW for mocking.
+
+## Key Patterns
+
+### Authentication
+
+The integration uses Nango for authentication. Users will authenticate through Nango's UI, and your integration receives credentials via the `connection` object:
+
+- OAuth2: `connection.credentials.access_token`
+- API Key: `connection.credentials.apiKey`
+- Basic Auth: `connection.credentials.username` and `connection.credentials.password`
 
 ### Error Handling
 
-Built-in error management features:
-
-- Automatic mapping of common errors (401, 403, etc.)
-- Connection status updates
-- Error logging and serialization
-
-## Development
-
-1. Add your source-specific validation logic in `src/app/api/webhooks/elba/installation/validate/service.ts`
-2. Implement your resource sync handlers
-3. Add any additional webhooks needed for your integration
-
-## Environment Files
-
-The template uses several environment files for different purposes:
-
-- `.env.local.example` → `.env.local`: Development environment variables
-- `.env.test`: Default test values (committed to repo)
-- `.env.test.local`: Local test overrides (git-ignored)
-
-This pattern ensures:
-
-- Consistent test values across the team
-- Easy local development setup
-- Safe local overrides without affecting the repository
-
-## Authentication & Installation Flow
-
-The authentication flow happens entirely in Elba's SaaS platform. Once completed:
-
-1. Elba calls the integration's webhook endpoint `/api/webhooks/elba/installation/validate`
-2. The integration performs additional checks (e.g., verifying admin permissions)
-3. If validation succeeds, initial sync events are triggered
-
-For implementation details, see `src/app/api/webhooks/elba/installation/validate/`.
-
-## Event Types
-
-The template includes the following Inngest events:
+Use the standard error types from `@elba-security/common`:
 
 ```typescript
-'miro/app.installed': {
-  data: {
-    organisationId: string;
-  }
-}
+// For general API errors
+throw new IntegrationError('Error message', { response });
 
-'miro/app.uninstalled': {
-  data: {
-    organisationId: string;
-    region: string;
-    errorType: ConnectionErrorType;
-    errorMetadata?: unknown;
-  }
-}
-
-'miro/users.sync.requested': {
-  data: {
-    organisationId: string;
-    region: string;
-    nangoConnectionId: string;
-    isFirstSync: boolean;
-    syncStartedAt: number;
-    page: string | null;
-  }
-}
+// For authentication/connection errors
+throw new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' });
 ```
 
-## Error Handling
+### Event Processing
 
-The template includes built-in error handling for:
+The ElbaInngestClient handles all event orchestration. You only need to implement:
 
-- OAuth authentication failures
-- Rate limiting (via middleware)
-- Connection errors (unauthorized, not admin)
-- API errors with proper error mapping
+1. **User Sync**: Fetch and transform users to Elba's format
+2. **User Delete**: Remove/deactivate users in your system
+3. **Installation Validation**: Verify the connection works
 
-## Contributing
+## Testing
 
-Please refer to the main repository's [CONTRIBUTING.md](../../CONTRIBUTING.md) for guidelines.
+Run the test suite:
+
+```bash
+pnpm test        # Run tests once
+pnpm test:watch  # Run tests in watch mode
+```
+
+Run linting and type checking:
+
+```bash
+pnpm lint        # ESLint
+pnpm type-check  # TypeScript compiler
+```
+
+## Deployment
+
+The integration is deployed as a Next.js application. Ensure all environment variables are configured in your deployment platform.
+
+## Resources
+
+- [Elba Documentation](https://docs.elba.io)
+- [Nango Documentation](https://docs.nango.dev)
+- [Inngest Documentation](https://www.inngest.com/docs)
