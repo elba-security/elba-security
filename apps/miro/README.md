@@ -1,13 +1,12 @@
-# Elba Integration Template
+# Miro Integration for Elba Security
 
-This template provides a foundation for building integrations with Elba Security using the modern ElbaInngestClient pattern.
+This integration connects Miro with Elba Security to sync and manage user access.
 
 ## Features
 
-- **Authentication**: Flexible authentication support via [Nango](https://nango.dev/) (OAuth2, API Key, Basic Auth)
-- **Event-Driven Architecture**: Async event processing using [Inngest](https://www.inngest.com/)
-- **Type Safety**: Full TypeScript support with proper type definitions
-- **Testing**: Ready-to-use testing setup with Vitest and MSW
+- **User Synchronization**: Automatically syncs Miro organization members to Elba
+- **OAuth2 Authentication**: Secure authentication via Nango
+- **Scheduled Syncs**: Configurable cron-based user synchronization
 
 ## Getting Started
 
@@ -16,9 +15,12 @@ This template provides a foundation for building integrations with Elba Security
 1. Copy `.env.local.example` to `.env.local` and fill in the required environment variables:
 
    ```
-   ELBA_SOURCE_ID=
-   NANGO_INTEGRATION_ID=
-   NANGO_SECRET_KEY=
+   ELBA_SOURCE_ID=your-elba-source-id
+   NANGO_INTEGRATION_ID=miro-sandbox
+   NANGO_SECRET_KEY=your-nango-secret-key
+   MIRO_API_BASE_URL=https://api.miro.com
+   MIRO_USERS_SYNC_CRON="0 0 * * *"
+   MIRO_USERS_SYNC_BATCH_SIZE=100
    ```
 
 2. Install dependencies:
@@ -32,110 +34,7 @@ This template provides a foundation for building integrations with Elba Security
    pnpm dev
    ```
 
-### Testing Setup
-
-1. The `.env.test` file contains default test values and is committed to the repository
-2. For local test overrides:
-   ```bash
-   cp .env.test .env.test.local
-   ```
-3. Modify `.env.test.local` with your test-specific values (this file is git-ignored)
-4. Run tests:
-   ```bash
-   pnpm test
-   ```
-
-## Project Structure
-
-```
-src/
-├── app/
-│   └── api/
-│       └── inngest/
-│           └── route.ts        # Inngest webhook handler
-├── common/
-│   └── env.ts                  # Environment variable validation
-├── connectors/
-│   └── miro/               # Your integration-specific code
-│       ├── users.ts            # API client implementation
-│       └── users.test.ts       # Tests for API client
-└── inngest/
-    └── client.ts               # ElbaInngestClient setup and functions
-```
-
-## Implementation Guide
-
-### 1. Configure Environment Variables
-
-Update `src/common/env.ts` with your integration-specific environment variables:
-
-```typescript
-export const env = z
-  .object({
-    ELBA_SOURCE_ID: z.string().uuid(),
-    NANGO_INTEGRATION_ID: z.string().min(1),
-    NANGO_SECRET_KEY: z.string().min(1),
-    // Add your integration-specific variables here
-    miro_API_BASE_URL: z.string().url(),
-    miro_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    miro_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
-  })
-  .parse(process.env);
-```
-
-### 2. Update Inngest Client
-
-In `src/inngest/client.ts`:
-
-1. Set the appropriate `nangoAuthType` ('OAUTH2', 'API_KEY', or 'BASIC')
-2. Implement the user sync function
-3. Implement the user delete function (if supported)
-4. Implement the installation validation function
-
-### 3. Implement API Connectors
-
-In `src/connectors/miro/users.ts`:
-
-1. Define your API response schemas using Zod
-2. Implement `getUsers()` with pagination support
-3. Implement `deleteUser()` if your API supports it
-4. Add proper error handling using `IntegrationError` and `IntegrationConnectionError`
-
-### 4. Write Tests
-
-Update `src/connectors/miro/users.test.ts` with tests for your API implementation using MSW for mocking.
-
-## Key Patterns
-
-### Authentication
-
-The integration uses Nango for authentication. Users will authenticate through Nango's UI, and your integration receives credentials via the `connection` object:
-
-- OAuth2: `connection.credentials.access_token`
-- API Key: `connection.credentials.apiKey`
-- Basic Auth: `connection.credentials.username` and `connection.credentials.password`
-
-### Error Handling
-
-Use the standard error types from `@elba-security/common`:
-
-```typescript
-// For general API errors
-throw new IntegrationError('Error message', { response });
-
-// For authentication/connection errors
-throw new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' });
-```
-
-### Event Processing
-
-The ElbaInngestClient handles all event orchestration. You only need to implement:
-
-1. **User Sync**: Fetch and transform users to Elba's format
-2. **User Delete**: Remove/deactivate users in your system
-3. **Installation Validation**: Verify the connection works
-
-## Testing
+### Testing
 
 Run the test suite:
 
@@ -151,12 +50,76 @@ pnpm lint        # ESLint
 pnpm type-check  # TypeScript compiler
 ```
 
-## Deployment
+## Architecture
 
-The integration is deployed as a Next.js application. Ensure all environment variables are configured in your deployment platform.
+This integration uses the modern ElbaInngestClient pattern for event-driven processing:
+
+```
+src/
+├── app/
+│   └── api/
+│       └── inngest/
+│           └── route.ts        # Inngest webhook handler
+├── common/
+│   └── env.ts                  # Environment variable validation
+├── connectors/
+│   └── miro/
+│       ├── users.ts            # Miro API client implementation
+│       └── users.test.ts       # Tests for API client
+└── inngest/
+    └── client.ts               # ElbaInngestClient setup and functions
+```
+
+## Implementation Details
+
+### User Synchronization
+
+The integration syncs active Miro organization members to Elba:
+
+- Fetches users from Miro's organization members endpoint
+- Supports pagination for large organizations
+- Maps Miro users to Elba's user format
+- Provides user management URL for each user
+
+### Authentication
+
+Uses OAuth2 authentication through Nango:
+
+- Users authenticate through Nango's UI
+- Integration receives access tokens via connection object
+- Token validation through Miro's OAuth token endpoint
+
+### API Endpoints Used
+
+- `GET /v1/oauth-token` - Retrieve organization information
+- `GET /v2/orgs/{orgId}/members` - List organization members with pagination
+
+### Error Handling
+
+Uses standardized error types from `@elba-security/common`:
+
+- `IntegrationError` - For general API errors
+- `IntegrationConnectionError` - For authentication/connection errors
+
+## Environment Variables
+
+| Variable                     | Description                          | Default     |
+| ---------------------------- | ------------------------------------ | ----------- |
+| `ELBA_SOURCE_ID`             | Unique identifier for this source    | Required    |
+| `NANGO_INTEGRATION_ID`       | Nango integration identifier         | Required    |
+| `NANGO_SECRET_KEY`           | Nango API secret key                 | Required    |
+| `MIRO_API_BASE_URL`          | Miro API base URL                    | Required    |
+| `MIRO_USERS_SYNC_CRON`       | Cron expression for user sync        | `0 0 * * *` |
+| `MIRO_USERS_SYNC_BATCH_SIZE` | Number of users to fetch per request | `100`       |
+
+## Limitations
+
+- User deletion is not supported by Miro's API - users can only be managed through the Miro dashboard
+- Only active organization members are synced
+- No support for suspending/unsuspending users
 
 ## Resources
 
+- [Miro API Documentation](https://developers.miro.com/reference/api-reference)
 - [Elba Documentation](https://docs.elba.io)
 - [Nango Documentation](https://docs.nango.dev)
-- [Inngest Documentation](https://www.inngest.com/docs)
