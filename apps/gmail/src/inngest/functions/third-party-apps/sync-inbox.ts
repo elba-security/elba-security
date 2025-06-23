@@ -13,6 +13,7 @@ export type SyncInboxRequested = {
       pageToken: string | null; // google /emails pageToken
       syncFrom: string | null;
       syncTo: string;
+      syncStartedAt: string;
     };
   };
 };
@@ -40,7 +41,8 @@ export const syncInbox = inngest.createFunction(
     event: 'gmail/third_party_apps.inbox.sync.requested',
   },
   async ({ event, step }) => {
-    const { email, pageToken, organisationId, userId, region, syncFrom, syncTo } = event.data;
+    const { email, pageToken, organisationId, userId, region, syncFrom, syncTo, syncStartedAt } =
+      event.data;
 
     const { messages, nextPageToken } = await step.invoke('list-messages', {
       function: listGmailMessages,
@@ -70,6 +72,7 @@ export const syncInbox = inngest.createFunction(
             userId,
             email,
             messageId: id,
+            syncStartedAt,
           },
         }))
       );

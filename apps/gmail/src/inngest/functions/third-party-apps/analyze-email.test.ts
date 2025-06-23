@@ -55,6 +55,7 @@ const eventData: AnalyzeEmailRequested['gmail/third_party_apps.email.analyze.req
   userId: 'user-id',
   email: 'user@foo.com',
   message: shadowItMessage,
+  syncStartedAt: new Date().toISOString(),
 };
 
 describe('analyzeEmail', () => {
