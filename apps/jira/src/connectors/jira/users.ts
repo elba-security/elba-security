@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { logger } from '@elba-security/logger';
+import { IntegrationError, IntegrationConnectionError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { JiraError } from '../common/error';
 
 const jiraUserSchema = z.object({
   accountId: z.string().min(1),
@@ -16,32 +16,28 @@ export type JiraUser = z.infer<typeof jiraUserSchema>;
 const jiraResponseSchema = z.array(z.unknown());
 
 export type GetUsersParams = {
-  apiToken: string;
+  accessToken: string;
   domain: string;
-  email: string;
   page?: string | null;
 };
 
 export type DeleteUsersParams = {
   userId: string;
   domain: string;
-  email: string;
-  apiToken: string;
+  accessToken: string;
 };
 
 export type GetAuthUserParams = {
   domain: string;
-  email: string;
-  apiToken: string;
+  accessToken: string;
 };
 
 const authUserIdResponseSchema = z.object({
   accountId: z.string(),
 });
 
-export const getUsers = async ({ apiToken, domain, email, page }: GetUsersParams) => {
+export const getUsers = async ({ accessToken, domain, page }: GetUsersParams) => {
   const url = new URL(`https://${domain}.atlassian.net/rest/api/3/users/search`);
-  const encodedToken = btoa(`${email}:${apiToken}`);
 
   url.searchParams.append('maxResults', String(env.JIRA_USERS_SYNC_BATCH_SIZE));
 
@@ -53,12 +49,18 @@ export const getUsers = async ({ apiToken, domain, email, page }: GetUsersParams
     method: 'GET',
     headers: {
       Accept: 'application/json',
-      Authorization: `Basic ${encodedToken}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 
   if (!response.ok) {
-    throw new JiraError('Could not retrieve Jira users', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError('Could not retrieve Jira users', { response });
   }
 
   const resData: unknown = await response.json();
@@ -88,35 +90,45 @@ export const getUsers = async ({ apiToken, domain, email, page }: GetUsersParams
   };
 };
 
-export const deleteUser = async ({ apiToken, domain, email, userId }: DeleteUsersParams) => {
+export const deleteUser = async ({ accessToken, domain, userId }: DeleteUsersParams) => {
   const url = new URL(`https://${domain}.atlassian.net/rest/api/3/user`);
   url.searchParams.append('accountId', userId);
 
-  const encodedToken = btoa(`${email}:${apiToken}`);
   const response = await fetch(url.toString(), {
     method: 'DELETE',
-    headers: { Authorization: `Basic ${encodedToken}` },
+    headers: { Authorization: `Bearer ${accessToken}` },
   });
 
   if (!response.ok && response.status !== 404) {
-    throw new JiraError(`Could not delete user with Id: ${userId}`, { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError(`Could not delete user with Id: ${userId}`, { response });
   }
 };
 
-export const getAuthUser = async ({ apiToken, domain, email }: GetAuthUserParams) => {
+export const getAuthUser = async ({ accessToken, domain }: GetAuthUserParams) => {
   const url = new URL(`https://${domain}.atlassian.net/rest/api/3/myself`);
-  const encodedToken = btoa(`${email}:${apiToken}`);
 
   const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
       Accept: 'application/json',
-      Authorization: `Basic ${encodedToken}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 
   if (!response.ok) {
-    throw new JiraError('Could not retrieve authUser id', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', {
+        response,
+        type: 'unauthorized',
+      });
+    }
+    throw new IntegrationError('Could not retrieve authUser id', { response });
   }
 
   const resData: unknown = await response.json();
@@ -124,7 +136,7 @@ export const getAuthUser = async ({ apiToken, domain, email }: GetAuthUserParams
   const result = authUserIdResponseSchema.safeParse(resData);
   if (!result.success) {
     logger.error('Invalid Jira authUser id response', { resData });
-    throw new JiraError('Invalid Jira authUser id response');
+    throw new IntegrationError('Invalid Jira authUser id response', {});
   }
 
   return {

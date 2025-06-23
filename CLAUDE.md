@@ -42,8 +42,6 @@ pnpm build
 
 ### Integration-Specific Development
 
-Each integration runs on its own port (e.g., HubSpot on 4000). When developing:
-
 1. Navigate to the specific app: `cd apps/[integration-name]`
 2. Create `.env.test` file with required environment variables
 3. Run `pnpm dev` to start the development server
@@ -128,6 +126,7 @@ Use standardized error types from `@elba-security/common`:
    - Transform to Elba user format
    - Return paginated results with cursor
    - Mark non-suspendable users (admins, authenticated user)
+   - users schema here 'packages/schemas/src/users.ts'
 
 2. **Error Recovery**:
 
@@ -142,7 +141,7 @@ Use standardized error types from `@elba-security/common`:
 
 ## Development Tips
 
-- When creating a new integration, use `pnpm generate` and follow the template
+- When creating a new integration, use `pnpm generate` (like `echo "zoom" | pnpm generate`) and follow the template
 - Check existing integrations (especially Zoom) for implementation patterns
 - All secrets are managed through environment variables
 - Use the provided test utilities for consistent mocking
