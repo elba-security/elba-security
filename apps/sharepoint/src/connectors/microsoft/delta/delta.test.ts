@@ -44,7 +44,7 @@ describe('delta connector', () => {
               params.siteId !== siteId ||
               params.driveId !== driveId
             ) {
-              return new Response(undefined, { status: 401 });
+              return new Response(JSON.stringify({ message: 'missing token' }), { status: 401 });
             }
             const url = new URL(request.url);
             const select = url.searchParams.get('$select');

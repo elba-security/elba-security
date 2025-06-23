@@ -50,10 +50,12 @@ describe('delta connector', () => {
           `${env.MICROSOFT_API_URL}/users/:userId/drive/root/delta`,
           ({ request, params }) => {
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
-              return new Response(undefined, { status: 401 });
+              return new Response(JSON.stringify({ message: 'missing token' }), { status: 401 });
             }
             if (params.userId !== userId) {
-              return new Response(undefined, { status: 404 });
+              return new Response(JSON.stringify({ message: "User don't have a drive" }), {
+                status: 404,
+              });
             }
 
             const url = new URL(request.url);
