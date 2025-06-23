@@ -1,73 +1,162 @@
+# Elba Integration Template
+
+This template provides a foundation for building integrations with Elba Security using the modern ElbaInngestClient pattern.
+
+## Features
+
+- **Authentication**: Flexible authentication support via [Nango](https://nango.dev/) (OAuth2, API Key, Basic Auth)
+- **Event-Driven Architecture**: Async event processing using [Inngest](https://www.inngest.com/)
+- **Type Safety**: Full TypeScript support with proper type definitions
+- **Testing**: Ready-to-use testing setup with Vitest and MSW
+
 ## Getting Started
 
-Rename `.env.local.example` to `.env.local`.
+### Development Setup
 
-This file will be used for local development environment.
+1. Copy `.env.local.example` to `.env.local` and fill in the required environment variables:
 
-### Setting up node integration
+   ```
+   ELBA_SOURCE_ID=
+   NANGO_INTEGRATION_ID=
+   NANGO_SECRET_KEY=
+   ```
 
-If your integration does not support **edge runtime** some files has to be edited:
+2. Install dependencies:
 
-- `docker-compose.yml`: remove the `pg_proxy` service
-- `vitest/setup-msw-handlers`: remove the first arguments of `setupServer()`, setting a passthrough
-- `src/database/client.ts`: replace this file by `client.node.ts` (and remove it)
-- `vitest.config.js`: update `environment` to `'node'`
-- `package.json`: remove dependency `"@neondatabase/serverless"`
-- remove each `route.ts` exports of `preferredRegion` & `runtime` constants.
+   ```bash
+   pnpm install
+   ```
 
-### Setting up edge-runtime integration
+3. Start the development server:
+   ```bash
+   pnpm dev
+   ```
 
-If your integration does supports **edge runtime** you just have to remove file ending with `.node.ts` like `src/database/client.node.ts`.
+### Testing Setup
 
-### Running the integration
+1. The `.env.test` file contains default test values and is committed to the repository
+2. For local test overrides:
+   ```bash
+   cp .env.test .env.test.local
+   ```
+3. Modify `.env.test.local` with your test-specific values (this file is git-ignored)
+4. Run tests:
+   ```bash
+   pnpm test
+   ```
 
-First of all, ensure that the PostgreSQL database is running. You can start it by executing the following command:
+## Project Structure
 
-```bash
-pnpm database:up
+```
+src/
+├── app/
+│   └── api/
+│       └── inngest/
+│           └── route.ts        # Inngest webhook handler
+├── common/
+│   └── env.ts                  # Environment variable validation
+├── connectors/
+│   └── jira/               # Your integration-specific code
+│       ├── users.ts            # API client implementation
+│       └── users.test.ts       # Tests for API client
+└── inngest/
+    └── client.ts               # ElbaInngestClient setup and functions
 ```
 
-To apply the migration, run:
+## Implementation Guide
 
-```bash
-pnpm database:migrate
+### 1. Configure Environment Variables
+
+Update `src/common/env.ts` with your integration-specific environment variables:
+
+```typescript
+export const env = z
+  .object({
+    ELBA_SOURCE_ID: z.string().uuid(),
+    NANGO_INTEGRATION_ID: z.string().min(1),
+    NANGO_SECRET_KEY: z.string().min(1),
+    // Add your integration-specific variables here
+    jira_API_BASE_URL: z.string().url(),
+    jira_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
+    jira_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
+  })
+  .parse(process.env);
 ```
 
-Next, run the nextjs development server with the command:
+### 2. Update Inngest Client
 
-```bash
-pnpm dev
+In `src/inngest/client.ts`:
+
+1. Set the appropriate `nangoAuthType` ('OAUTH2', 'API_KEY', or 'BASIC')
+2. Implement the user sync function
+3. Implement the user delete function (if supported)
+4. Implement the installation validation function
+
+### 3. Implement API Connectors
+
+In `src/connectors/jira/users.ts`:
+
+1. Define your API response schemas using Zod
+2. Implement `getUsers()` with pagination support
+3. Implement `deleteUser()` if your API supports it
+4. Add proper error handling using `IntegrationError` and `IntegrationConnectionError`
+
+### 4. Write Tests
+
+Update `src/connectors/jira/users.test.ts` with tests for your API implementation using MSW for mocking.
+
+## Key Patterns
+
+### Authentication
+
+The integration uses Nango for authentication. Users will authenticate through Nango's UI, and your integration receives credentials via the `connection` object:
+
+- OAuth2: `connection.credentials.access_token`
+- API Key: `connection.credentials.apiKey`
+- Basic Auth: `connection.credentials.username` and `connection.credentials.password`
+
+### Error Handling
+
+Use the standard error types from `@elba-security/common`:
+
+```typescript
+// For general API errors
+throw new IntegrationError('Error message', { response });
+
+// For authentication/connection errors
+throw new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' });
 ```
 
-To be able to run Inngest functions, it's essential to have a local Inngest client operational. Start it using:
+### Event Processing
+
+The ElbaInngestClient handles all event orchestration. You only need to implement:
+
+1. **User Sync**: Fetch and transform users to Elba's format
+2. **User Delete**: Remove/deactivate users in your system
+3. **Installation Validation**: Verify the connection works
+
+## Testing
+
+Run the test suite:
 
 ```bash
-pnpm dev:inngest
+pnpm test        # Run tests once
+pnpm test:watch  # Run tests in watch mode
 ```
 
-_Once the Inngest client is running, it will send requests to the `localhost:4000/api/inngest` route to gather information about your functions, including events and cron triggers. Inngest also provides a user interface, accessible in your web browser, where you can monitor function invocations, attempt retries, and more._
-
-### Database migrations
-
-To create a new migration file within the `/drizzle` directory, execute the following command:
+Run linting and type checking:
 
 ```bash
-pnpm database:generate
+pnpm lint        # ESLint
+pnpm type-check  # TypeScript compiler
 ```
 
-After generating the migration, apply it by running:
+## Deployment
 
-```bash
-pnpm database:migrate
-```
+The integration is deployed as a Next.js application. Ensure all environment variables are configured in your deployment platform.
 
-Important Considerations:
+## Resources
 
-- **Single Migration Requirement**: Your integration should include only one migration before merging into the staging environment. If you need to regenerate the contents of your `/drizzle` folder, ensure that you delete the existing folder first.
-
-- **Handling drizzle-orm Errors**: In cases where `drizzle-orm` encounters an error during the migration process, it's advisable to unmount and remount your database container. This can be achieved with the `database:down` and `database:up` commands, respectively. Once this is done, you can attempt the migration again.
-
-### Example implementation
-
-The template contains an example implementation that will guide you to reach our requirements. Make sure
-to adapt this example to your need and remove the disclamer comments before creating your first PR.
+- [Elba Documentation](https://docs.elba.io)
+- [Nango Documentation](https://docs.nango.dev)
+- [Inngest Documentation](https://www.inngest.com/docs)
