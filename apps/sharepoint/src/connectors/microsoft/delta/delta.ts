@@ -62,6 +62,10 @@ export const getDeltaItems = async ({
   });
 
   if (!response.ok) {
+    const errorInfo = (await response.clone().json()) as object;
+
+    logger.error('Sharepoint delta items MS Graph error', errorInfo);
+
     throw new MicrosoftError('Could not retrieve delta', { response });
   }
 
