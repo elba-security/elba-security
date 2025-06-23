@@ -1,73 +1,143 @@
+# Jira Integration for Elba Security
+
+This integration connects Jira with Elba Security for user management and access control.
+
+## Features
+
+- **Authentication**: OAuth 2.0 (3LO) authentication via [Nango](https://nango.dev/)
+- **Event-Driven Architecture**: Async event processing using [Inngest](https://www.inngest.com/)
+- **Type Safety**: Full TypeScript support with proper type definitions
+- **Testing**: Ready-to-use testing setup with Vitest and MSW
+
 ## Getting Started
 
-Rename `.env.local.example` to `.env.local`.
+### Development Setup
 
-This file will be used for local development environment.
+1. Copy `.env.local.example` to `.env.local` and fill in the required environment variables:
 
-### Setting up node integration
+   ```
+   ELBA_SOURCE_ID=
+   NANGO_INTEGRATION_ID=
+   NANGO_SECRET_KEY=
+   ```
 
-If your integration does not support **edge runtime** some files has to be edited:
+2. Install dependencies:
 
-- `docker-compose.yml`: remove the `pg_proxy` service
-- `vitest/setup-msw-handlers`: remove the first arguments of `setupServer()`, setting a passthrough
-- `src/database/client.ts`: replace this file by `client.node.ts` (and remove it)
-- `vitest.config.js`: update `environment` to `'node'`
-- `package.json`: remove dependency `"@neondatabase/serverless"`
-- remove each `route.ts` exports of `preferredRegion` & `runtime` constants.
+   ```bash
+   pnpm install
+   ```
 
-### Setting up edge-runtime integration
+3. Start the development server:
+   ```bash
+   pnpm dev
+   ```
 
-If your integration does supports **edge runtime** you just have to remove file ending with `.node.ts` like `src/database/client.node.ts`.
+### Testing Setup
 
-### Running the integration
+1. The `.env.test` file contains default test values and is committed to the repository
+2. For local test overrides:
+   ```bash
+   cp .env.test .env.test.local
+   ```
+3. Modify `.env.test.local` with your test-specific values (this file is git-ignored)
+4. Run tests:
+   ```bash
+   pnpm test
+   ```
 
-First of all, ensure that the PostgreSQL database is running. You can start it by executing the following command:
+## Project Structure
 
-```bash
-pnpm database:up
+```
+src/
+├── app/
+│   └── api/
+│       └── inngest/
+│           └── route.ts        # Inngest webhook handler
+├── common/
+│   └── env.ts                  # Environment variable validation
+├── connectors/
+│   └── jira/                   # Jira-specific API connectors
+│       ├── users.ts            # API client implementation
+│       └── users.test.ts       # Tests for API client
+└── inngest/
+    └── client.ts               # ElbaInngestClient setup and functions
 ```
 
-To apply the migration, run:
+## Jira Integration Details
 
-```bash
-pnpm database:migrate
+### Authentication
+
+The Jira integration uses OAuth 2.0 (3LO) authentication with the following required scopes:
+
+- `read:jira-user` - Read user information
+- `offline_access` - Maintain access when user is offline
+
+### Supported Features
+
+1. **User Synchronization**: Fetches all active Atlassian users from your Jira instance
+2. **User Deletion**: Removes users from Jira when requested by Elba
+3. **Installation Validation**: Verifies OAuth token validity
+
+### API Implementation
+
+The integration uses Jira REST API v3 endpoints:
+
+- `/rest/api/3/users/search` - List users with pagination
+- `/rest/api/3/user` - Delete individual users
+- `/rest/api/3/myself` - Get authenticated user information
+
+## Key Patterns
+
+### Connection Configuration
+
+The integration receives the Jira domain from Nango's connection config:
+
+- `connection.connection_config.siteUrl` - The Jira instance URL (e.g., `https://mycompany.atlassian.net`)
+- `connection.credentials.access_token` - OAuth 2.0 access token
+
+### Error Handling
+
+Use the standard error types from `@elba-security/common`:
+
+```typescript
+// For general API errors
+throw new IntegrationError('Error message', { response });
+
+// For authentication/connection errors
+throw new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' });
 ```
 
-Next, run the nextjs development server with the command:
+### Event Processing
+
+The ElbaInngestClient handles all event orchestration. You only need to implement:
+
+1. **User Sync**: Fetches active Atlassian users and syncs them to Elba
+2. **User Delete**: Deletes users from Jira using their account ID
+3. **Installation Validation**: Verifies OAuth token by fetching authenticated user info
+
+## Testing
+
+Run the test suite:
 
 ```bash
-pnpm dev
+pnpm test        # Run tests once
+pnpm test:watch  # Run tests in watch mode
 ```
 
-To be able to run Inngest functions, it's essential to have a local Inngest client operational. Start it using:
+Run linting and type checking:
 
 ```bash
-pnpm dev:inngest
+pnpm lint        # ESLint
+pnpm type-check  # TypeScript compiler
 ```
 
-_Once the Inngest client is running, it will send requests to the `localhost:4000/api/inngest` route to gather information about your functions, including events and cron triggers. Inngest also provides a user interface, accessible in your web browser, where you can monitor function invocations, attempt retries, and more._
+## Deployment
 
-### Database migrations
+The integration is deployed as a Next.js application. Ensure all environment variables are configured in your deployment platform.
 
-To create a new migration file within the `/drizzle` directory, execute the following command:
+## Resources
 
-```bash
-pnpm database:generate
-```
-
-After generating the migration, apply it by running:
-
-```bash
-pnpm database:migrate
-```
-
-Important Considerations:
-
-- **Single Migration Requirement**: Your integration should include only one migration before merging into the staging environment. If you need to regenerate the contents of your `/drizzle` folder, ensure that you delete the existing folder first.
-
-- **Handling drizzle-orm Errors**: In cases where `drizzle-orm` encounters an error during the migration process, it's advisable to unmount and remount your database container. This can be achieved with the `database:down` and `database:up` commands, respectively. Once this is done, you can attempt the migration again.
-
-### Example implementation
-
-The template contains an example implementation that will guide you to reach our requirements. Make sure
-to adapt this example to your need and remove the disclamer comments before creating your first PR.
+- [Elba Documentation](https://docs.elba.io)
+- [Nango Documentation](https://docs.nango.dev)
+- [Inngest Documentation](https://www.inngest.com/docs)
+- [Jira REST API Documentation](https://developer.atlassian.com/cloud/jira/platform/rest/v3/)
