@@ -14,6 +14,5 @@ export const env = z
     // Source configuration
     JIRA_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
     JIRA_USERS_SYNC_BATCH_SIZE: zEnvInt().default(200),
-    JIRA_DELETE_USER_CONCURRENCY: zEnvInt().default(5),
   })
   .parse(process.env);

@@ -1,10 +1,10 @@
-# Elba Integration Template
+# Jira Integration for Elba Security
 
-This template provides a foundation for building integrations with Elba Security using the modern ElbaInngestClient pattern.
+This integration connects Jira with Elba Security for user management and access control.
 
 ## Features
 
-- **Authentication**: Flexible authentication support via [Nango](https://nango.dev/) (OAuth2, API Key, Basic Auth)
+- **Authentication**: OAuth 2.0 (3LO) authentication via [Nango](https://nango.dev/)
 - **Event-Driven Architecture**: Async event processing using [Inngest](https://www.inngest.com/)
 - **Type Safety**: Full TypeScript support with proper type definitions
 - **Testing**: Ready-to-use testing setup with Vitest and MSW
@@ -56,64 +56,44 @@ src/
 ├── common/
 │   └── env.ts                  # Environment variable validation
 ├── connectors/
-│   └── jira/               # Your integration-specific code
+│   └── jira/                   # Jira-specific API connectors
 │       ├── users.ts            # API client implementation
 │       └── users.test.ts       # Tests for API client
 └── inngest/
     └── client.ts               # ElbaInngestClient setup and functions
 ```
 
-## Implementation Guide
-
-### 1. Configure Environment Variables
-
-Update `src/common/env.ts` with your integration-specific environment variables:
-
-```typescript
-export const env = z
-  .object({
-    ELBA_SOURCE_ID: z.string().uuid(),
-    NANGO_INTEGRATION_ID: z.string().min(1),
-    NANGO_SECRET_KEY: z.string().min(1),
-    // Add your integration-specific variables here
-    jira_API_BASE_URL: z.string().url(),
-    jira_USERS_SYNC_CRON: z.string().default('0 0 * * *'),
-    jira_USERS_SYNC_BATCH_SIZE: zEnvInt().default(100),
-  })
-  .parse(process.env);
-```
-
-### 2. Update Inngest Client
-
-In `src/inngest/client.ts`:
-
-1. Set the appropriate `nangoAuthType` ('OAUTH2', 'API_KEY', or 'BASIC')
-2. Implement the user sync function
-3. Implement the user delete function (if supported)
-4. Implement the installation validation function
-
-### 3. Implement API Connectors
-
-In `src/connectors/jira/users.ts`:
-
-1. Define your API response schemas using Zod
-2. Implement `getUsers()` with pagination support
-3. Implement `deleteUser()` if your API supports it
-4. Add proper error handling using `IntegrationError` and `IntegrationConnectionError`
-
-### 4. Write Tests
-
-Update `src/connectors/jira/users.test.ts` with tests for your API implementation using MSW for mocking.
-
-## Key Patterns
+## Jira Integration Details
 
 ### Authentication
 
-The integration uses Nango for authentication. Users will authenticate through Nango's UI, and your integration receives credentials via the `connection` object:
+The Jira integration uses OAuth 2.0 (3LO) authentication with the following required scopes:
 
-- OAuth2: `connection.credentials.access_token`
-- API Key: `connection.credentials.apiKey`
-- Basic Auth: `connection.credentials.username` and `connection.credentials.password`
+- `read:jira-user` - Read user information
+- `offline_access` - Maintain access when user is offline
+
+### Supported Features
+
+1. **User Synchronization**: Fetches all active Atlassian users from your Jira instance
+2. **User Deletion**: Removes users from Jira when requested by Elba
+3. **Installation Validation**: Verifies OAuth token validity
+
+### API Implementation
+
+The integration uses Jira REST API v3 endpoints:
+
+- `/rest/api/3/users/search` - List users with pagination
+- `/rest/api/3/user` - Delete individual users
+- `/rest/api/3/myself` - Get authenticated user information
+
+## Key Patterns
+
+### Connection Configuration
+
+The integration receives the Jira domain from Nango's connection config:
+
+- `connection.connection_config.siteUrl` - The Jira instance URL (e.g., `https://mycompany.atlassian.net`)
+- `connection.credentials.access_token` - OAuth 2.0 access token
 
 ### Error Handling
 
@@ -131,9 +111,9 @@ throw new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' });
 
 The ElbaInngestClient handles all event orchestration. You only need to implement:
 
-1. **User Sync**: Fetch and transform users to Elba's format
-2. **User Delete**: Remove/deactivate users in your system
-3. **Installation Validation**: Verify the connection works
+1. **User Sync**: Fetches active Atlassian users and syncs them to Elba
+2. **User Delete**: Deletes users from Jira using their account ID
+3. **Installation Validation**: Verifies OAuth token by fetching authenticated user info
 
 ## Testing
 
@@ -160,3 +140,4 @@ The integration is deployed as a Next.js application. Ensure all environment var
 - [Elba Documentation](https://docs.elba.io)
 - [Nango Documentation](https://docs.nango.dev)
 - [Inngest Documentation](https://www.inngest.com/docs)
+- [Jira REST API Documentation](https://developer.atlassian.com/cloud/jira/platform/rest/v3/)
