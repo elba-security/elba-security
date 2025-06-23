@@ -1,4 +1,3 @@
-import { NonRetriableError } from 'inngest';
 import { encryptText } from '@elba-security/utils';
 import { getGoogleServiceAccountClient } from '@/connectors/google/clients';
 import { getMessage } from '@/connectors/google/gmail';
@@ -69,9 +68,9 @@ export const getGmailMessage = inngest.createFunction(
     });
 
     if (result.error) {
-      throw new NonRetriableError(`Could not retrieve message, reason: ${result.error.message}`, {
-        cause: result.error,
-      });
+      return {
+        error: result.error,
+      };
     }
 
     return {

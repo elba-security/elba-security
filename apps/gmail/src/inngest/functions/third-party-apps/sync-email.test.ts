@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment -- testing purpose */
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { describe, expect, test, vi } from 'vitest';
-import { NonRetriableError } from 'inngest';
 import { spyOnGoogleServiceAccountClient } from '@/connectors/google/__mocks__/clients';
 import * as googleGmail from '@/connectors/google/gmail';
 import { encryptElbaInngestText } from '@/common/crypto';
@@ -57,19 +57,19 @@ describe('sync-email', () => {
   test('should abort when the retrieved message is invalid', async () => {
     const [result] = setup({ isMessageValid: false });
 
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
+    await expect(result).resolves.toMatchObject({ error: expect.any(Error) });
   });
 
   test('should abort when the message does not exists', async () => {
     const [result] = setup({ data: { ...eventData, messageId: 'wrong-message-id' } });
 
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
+    await expect(result).resolves.toMatchObject({ error: expect.any(Error) });
   });
 
   test('should abort when the user does not exists', async () => {
     const [result] = setup({ data: { ...eventData, email: 'wrong-user@email.com' } });
 
-    await expect(result).rejects.toBeInstanceOf(NonRetriableError);
+    await expect(result).resolves.toMatchObject({ error: expect.any(Error) });
   });
 
   test('it should request email analyze when a valid email has been retrieved', async () => {

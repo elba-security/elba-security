@@ -37,7 +37,7 @@ export const syncEmail = inngest.createFunction(
   async ({ event, step }) => {
     const { email, messageId, organisationId, userId, region } = event.data;
 
-    const { message } = await step.invoke('get-message', {
+    const result = await step.invoke('get-message', {
       function: getGmailMessage,
       data: {
         organisationId,
@@ -48,6 +48,12 @@ export const syncEmail = inngest.createFunction(
       timeout: '30d',
     });
 
+    if ('error' in result) {
+      return {
+        error: result.error,
+      };
+    }
+
     await step.sendEvent('analyze-email', {
       name: 'gmail/third_party_apps.email.analyze.requested',
       data: {
@@ -57,10 +63,10 @@ export const syncEmail = inngest.createFunction(
         email,
         message: {
           id: messageId,
-          subject: message.subject,
-          from: message.from,
-          to: message.to,
-          body: message.body,
+          subject: result.message.subject,
+          from: result.message.from,
+          to: result.message.to,
+          body: result.message.body,
         },
       },
     });
