@@ -79,8 +79,8 @@ catalogs:
       specifier: ^3.1.2
       version: 3.1.2
     zod:
-      specifier: ^3.25.64
-      version: 3.25.64
+      specifier: ^3.25.67
+      version: 3.25.67
 
 overrides:
   vite@>=5.0.0 <=5.0.11: '>=5.0.12'
@@ -169,7 +169,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -248,7 +248,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -321,7 +321,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -400,7 +400,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -473,7 +473,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -552,7 +552,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -631,7 +631,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -695,7 +695,7 @@ importers:
         version: link:../../packages/utils
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
-        version: 0.7.1(typescript@5.8.3)(zod@3.25.64)
+        version: 0.7.1(typescript@5.8.3)(zod@3.25.67)
       fast-xml-parser:
         specifier: ^5.2.5
         version: 5.2.5
@@ -710,7 +710,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -795,7 +795,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -880,7 +880,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -959,7 +959,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -1038,7 +1038,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -1120,7 +1120,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -1205,7 +1205,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -1284,7 +1284,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -1363,7 +1363,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -1451,7 +1451,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -1536,7 +1536,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -1621,7 +1621,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -1706,7 +1706,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -1785,7 +1785,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -1870,7 +1870,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -1964,7 +1964,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -2043,7 +2043,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -2128,7 +2128,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -2213,7 +2213,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -2292,7 +2292,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -2383,7 +2383,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -2462,7 +2462,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -2541,7 +2541,7 @@ importers:
         version: 0.9.4
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
-        version: 0.7.1(typescript@5.8.3)(zod@3.25.64)
+        version: 0.7.1(typescript@5.8.3)(zod@3.25.67)
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
@@ -2562,7 +2562,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -2659,7 +2659,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -2735,7 +2735,7 @@ importers:
         version: 0.9.4
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
-        version: 0.7.1(typescript@5.8.3)(zod@3.25.64)
+        version: 0.7.1(typescript@5.8.3)(zod@3.25.67)
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
@@ -2756,7 +2756,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -2853,7 +2853,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -2938,7 +2938,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -3014,7 +3014,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -3093,7 +3093,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -3172,7 +3172,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -3248,7 +3248,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.23.8
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -3283,100 +3283,6 @@ importers:
       msw:
         specifier: 'catalog:'
         version: 2.3.1(typescript@5.8.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.8.3
-      vitest:
-        specifier: 'catalog:'
-        version: 3.1.2(@edge-runtime/vm@3.2.0)(@types/debug@4.1.12)(@types/node@20.14.2)(msw@2.3.1(typescript@5.8.3))
-
-  apps/jira-backup:
-    dependencies:
-      '@elba-security/common':
-        specifier: workspace:*
-        version: link:../../packages/common
-      '@elba-security/config':
-        specifier: workspace:*
-        version: link:../../packages/config
-      '@elba-security/design-system':
-        specifier: workspace:*
-        version: link:../../packages/design-system
-      '@elba-security/inngest':
-        specifier: workspace:*
-        version: link:../../packages/inngest
-      '@elba-security/logger':
-        specifier: workspace:*
-        version: link:../../packages/logger
-      '@elba-security/nextjs':
-        specifier: workspace:*
-        version: link:../../packages/nextjs
-      '@elba-security/schemas':
-        specifier: workspace:*
-        version: link:../../packages/schemas
-      '@elba-security/utils':
-        specifier: workspace:*
-        version: link:../../packages/utils
-      '@neondatabase/serverless':
-        specifier: 'catalog:'
-        version: 0.9.4
-      drizzle-orm:
-        specifier: 'catalog:'
-        version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
-      inngest:
-        specifier: 'catalog:'
-        version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4(react@18.2.0))(typescript@5.8.3)
-      next:
-        specifier: 'catalog:'
-        version: 14.2.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      react:
-        specifier: 'catalog:'
-        version: 18.2.0
-      react-dom:
-        specifier: 'catalog:'
-        version: 18.2.0(react@18.2.0)
-      zod:
-        specifier: 'catalog:'
-        version: 3.25.64
-    devDependencies:
-      '@edge-runtime/vm':
-        specifier: 'catalog:'
-        version: 3.2.0
-      '@elba-security/eslint-config-custom':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config-custom
-      '@elba-security/test-utils':
-        specifier: workspace:*
-        version: link:../../packages/test-utils
-      '@elba-security/tsconfig':
-        specifier: workspace:*
-        version: link:../../packages/tsconfig
-      '@next/eslint-plugin-next':
-        specifier: 'catalog:'
-        version: 14.2.4
-      '@types/node':
-        specifier: 'catalog:'
-        version: 20.14.2
-      '@types/react':
-        specifier: 'catalog:'
-        version: 18.2.79
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 18.2.25
-      dotenv:
-        specifier: 'catalog:'
-        version: 16.4.5
-      eslint:
-        specifier: 'catalog:'
-        version: 8.57.0
-      msw:
-        specifier: 'catalog:'
-        version: 2.3.1(typescript@5.8.3)
-      postgres:
-        specifier: 'catalog:'
-        version: 3.4.4
-      testcontainers:
-        specifier: 'catalog:'
-        version: 10.24.2
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -3421,7 +3327,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -3494,7 +3400,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.23.8
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -3567,7 +3473,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.23.8
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -3646,7 +3552,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -3734,7 +3640,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -3822,7 +3728,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -3901,7 +3807,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -3980,7 +3886,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -4059,7 +3965,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -4147,7 +4053,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -4232,7 +4138,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -4305,7 +4211,7 @@ importers:
         version: 0.9.4
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
-        version: 0.7.1(typescript@5.8.3)(zod@3.23.8)
+        version: 0.7.1(typescript@5.8.3)(zod@3.25.67)
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
@@ -4323,7 +4229,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.23.8
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -4408,7 +4314,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -4487,7 +4393,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -4566,7 +4472,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -4645,7 +4551,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -4724,7 +4630,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -4803,7 +4709,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -4882,7 +4788,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -4958,7 +4864,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -5046,7 +4952,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -5140,7 +5046,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -5219,7 +5125,7 @@ importers:
         version: 6.11.1
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
-        version: 0.7.1(typescript@5.8.3)(zod@3.25.64)
+        version: 0.7.1(typescript@5.8.3)(zod@3.25.67)
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.29.4(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
@@ -5240,7 +5146,7 @@ importers:
         version: 0.7.6
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -5331,7 +5237,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -5410,7 +5316,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.23.8
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -5501,7 +5407,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -5580,7 +5486,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -5653,7 +5559,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.23.8
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -5726,7 +5632,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.23.8
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -5811,7 +5717,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -5896,7 +5802,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -5969,7 +5875,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -6018,7 +5924,7 @@ importers:
         version: link:../schemas
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@elba-security/eslint-config-custom':
         specifier: workspace:*
@@ -6159,7 +6065,7 @@ importers:
         version: 3.35.1(@sveltejs/kit@2.5.10)(@vercel/node@2.15.10)(aws-lambda@1.0.7)(express@4.19.2)(fastify@4.27.0)(h3@1.9.0)(hono@4.4.10)(koa@2.15.3)(next@14.2.4)(typescript@5.8.3)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@elba-security/eslint-config-custom':
         specifier: workspace:*
@@ -6270,13 +6176,13 @@ importers:
         version: 3.1.2(@edge-runtime/vm@3.2.0)(@types/debug@4.1.12)(@types/node@22.14.1)
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
 
   packages/schemas:
     dependencies:
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@elba-security/eslint-config-custom':
         specifier: workspace:*
@@ -6298,7 +6204,7 @@ importers:
         version: link:../schemas
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -6350,7 +6256,7 @@ importers:
         version: 3.1.2(@edge-runtime/vm@3.2.0)(@types/debug@4.1.12)(@types/node@20.14.2)(msw@2.3.1(typescript@5.8.3))
       zod:
         specifier: 'catalog:'
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@elba-security/eslint-config-custom':
         specifier: workspace:*
@@ -11945,6 +11851,9 @@ packages:
   zod@3.25.64:
     resolution: {integrity: sha512-hbP9FpSZf7pkS7hRVUrOjhwKJNyampPgtXKc3AN6DsWtoHsg2Sb4SQaS4Tcay380zSwd2VPo9G9180emBACp5g==}
 
+  zod@3.25.67:
+    resolution: {integrity: sha512-idA2YXwpCdqUSKRCACDE6ItZD9TZzy3OZMtpfLoh6oPR47lipysRrJfjzMqFxQ3uJuUPyUeWe1r9vLH33xO/Qw==}
+
 snapshots:
 
   '@aashutoshrathi/word-wrap@1.2.6': {}
@@ -12941,16 +12850,16 @@ snapshots:
       '@swc/counter': 0.1.3
       tslib: 2.6.2
 
-  '@t3-oss/env-core@0.7.1(typescript@5.8.3)(zod@3.25.64)':
+  '@t3-oss/env-core@0.7.1(typescript@5.8.3)(zod@3.25.67)':
     dependencies:
-      zod: 3.25.64
+      zod: 3.25.67
     optionalDependencies:
       typescript: 5.8.3
 
-  '@t3-oss/env-nextjs@0.7.1(typescript@5.8.3)(zod@3.25.64)':
+  '@t3-oss/env-nextjs@0.7.1(typescript@5.8.3)(zod@3.25.67)':
     dependencies:
-      '@t3-oss/env-core': 0.7.1(typescript@5.8.3)(zod@3.25.64)
-      zod: 3.25.64
+      '@t3-oss/env-core': 0.7.1(typescript@5.8.3)(zod@3.25.67)
+      zod: 3.25.67
     optionalDependencies:
       typescript: 5.8.3
 
@@ -18261,3 +18170,5 @@ snapshots:
   zod@3.22.4: {}
 
   zod@3.25.64: {}
+
+  zod@3.25.67: {}
