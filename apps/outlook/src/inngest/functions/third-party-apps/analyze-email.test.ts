@@ -55,6 +55,7 @@ const eventData: AnalyzeEmailRequested['outlook/third_party_apps.email.analyze.r
     region: 'eu',
     userId: 'user-id',
     message: shadowItMessage,
+    syncStartedAt: new Date().toISOString(),
   };
 
 describe('analyzeEmail', () => {

@@ -9,6 +9,7 @@ export type SyncEmailRequested = {
       region: 'eu' | 'us';
       userId: string;
       messageId: string;
+      syncStartedAt: string;
     };
   };
 };
@@ -32,7 +33,7 @@ export const syncEmail = inngest.createFunction(
     event: 'outlook/third_party_apps.email.sync.requested',
   },
   async ({ event, step }) => {
-    const { organisationId, userId, messageId, region } = event.data;
+    const { organisationId, userId, messageId, region, syncStartedAt } = event.data;
 
     const message = await step.invoke('get-message', {
       function: getOutlookMessage,
@@ -55,6 +56,7 @@ export const syncEmail = inngest.createFunction(
         region,
         userId,
         message,
+        syncStartedAt,
       },
     });
   }

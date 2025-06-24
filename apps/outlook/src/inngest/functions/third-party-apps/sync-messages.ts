@@ -12,6 +12,7 @@ export type SyncMessagesRequested = {
       skipStep: string | null;
       syncFrom: string | null;
       syncTo: string;
+      syncStartedAt: string;
     };
   };
 };
@@ -35,7 +36,8 @@ export const syncMessages = inngest.createFunction(
     event: 'outlook/third_party_apps.messages.sync.requested',
   },
   async ({ event, step }) => {
-    const { skipStep, organisationId, userId, syncFrom, syncTo, region } = event.data;
+    const { skipStep, organisationId, userId, syncFrom, syncTo, region, syncStartedAt } =
+      event.data;
 
     const { nextSkip, messages } = await step.invoke('list-messages', {
       function: listOutlookMessages,
@@ -61,6 +63,7 @@ export const syncMessages = inngest.createFunction(
             region,
             userId,
             messageId,
+            syncStartedAt,
           },
         }))
       );

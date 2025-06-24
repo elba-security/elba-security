@@ -19,6 +19,7 @@ vi.mock('@/common/crypto', () => ({
 }));
 
 const organisationId = '4f9b95b1-07ec-4356-971c-5a9d328e911c';
+const syncStartedAt = new Date().toISOString();
 
 const defaultMessages = outlookMessagesList.map((message) => ({ id: message.id }));
 
@@ -30,6 +31,7 @@ const eventData: SyncMessagesRequested['outlook/third_party_apps.messages.sync.r
     syncTo: '2025-06-01T00:00:00.000Z',
     syncFrom: '2025-06-02T00:00:00.000Z',
     skipStep: 'skip-step',
+    syncStartedAt,
   };
 
 const setup = async ({
@@ -114,6 +116,7 @@ describe('sync-messages', () => {
           region: eventData.region,
           userId: eventData.userId,
           messageId,
+          syncStartedAt,
         },
       }))
     );
@@ -157,6 +160,7 @@ describe('sync-messages', () => {
           region: eventData.region,
           userId: eventData.userId,
           messageId,
+          syncStartedAt,
         },
       }))
     );

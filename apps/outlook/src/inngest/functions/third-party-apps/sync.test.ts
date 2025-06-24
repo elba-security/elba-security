@@ -116,6 +116,7 @@ describe('third-party-apps-sync', () => {
           syncFrom: lastSyncStartedAt,
           syncTo: syncStartedAt,
           userId: user.id,
+          syncStartedAt,
         },
       }))
     );
@@ -159,6 +160,7 @@ describe('third-party-apps-sync', () => {
           syncFrom: null,
           syncTo: syncStartedAt,
           userId: user.id,
+          syncStartedAt,
         },
       }))
     );
@@ -182,6 +184,7 @@ describe('third-party-apps-sync', () => {
           syncFrom: eventData.lastSyncStartedAt,
           syncTo: eventData.syncStartedAt,
           userId: user.id,
+          syncStartedAt,
         },
       }))
     );

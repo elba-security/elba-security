@@ -33,6 +33,7 @@ export type AnalyzeEmailRequested = {
       organisationId: string;
       region: 'eu' | 'us';
       userId: string;
+      syncStartedAt: string;
       message: {
         id: string;
         subject: string;
@@ -50,7 +51,7 @@ export const analyzeEmail = inngest.createFunction(
     concurrency: concurrencyOption,
     retries: 3,
     rateLimit: {
-      key: 'event.data.userId + "-" + event.data.message.from + "-" + event.data.organisationId',
+      key: 'event.data.syncStartedAt + "-" + event.data.userId + "-" + event.data.message.from + "-" + event.data.organisationId',
       period: '24h',
       limit: 1,
     },

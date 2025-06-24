@@ -20,6 +20,7 @@ vi.mock('@/common/crypto', () => ({
 
 const organisationId = '4f9b95b1-07ec-4356-971c-5a9d328e911c';
 const messageId = 'message-id';
+const syncStartedAt = new Date().toISOString();
 
 const message = {
   id: outlookMessage.id,
@@ -36,6 +37,7 @@ const eventData: SyncEmailRequested['outlook/third_party_apps.email.sync.request
   userId: 'user-id',
   organisationId,
   messageId,
+  syncStartedAt,
 };
 
 const setup = async ({
@@ -73,6 +75,7 @@ describe('sync-messages', () => {
         region: eventData.region,
         userId: eventData.userId,
         message,
+        syncStartedAt,
       },
     });
   });
