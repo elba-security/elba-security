@@ -71,7 +71,7 @@ describe('gmail-unauthorized-middleware', () => {
 
     expect(send).toBeCalledTimes(1);
     expect(send).toBeCalledWith({
-      name: 'google/common.remove_organisation.requested',
+      name: 'gmail/common.remove_organisation.requested',
       data: {
         organisationId: 'org-id',
       },

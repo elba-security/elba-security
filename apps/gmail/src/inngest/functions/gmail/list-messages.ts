@@ -47,7 +47,7 @@ export const listGmailMessages = inngest.createFunction(
   async ({ event }) => {
     const { email, pageToken, q } = event.data;
 
-    const authClient = await getGoogleServiceAccountClient(email, true);
+    const authClient = await getGoogleServiceAccountClient(email);
 
     const result = await listMessages({
       auth: authClient,

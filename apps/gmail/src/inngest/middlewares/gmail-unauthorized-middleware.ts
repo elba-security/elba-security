@@ -22,7 +22,7 @@ export const gmailUnauthorizedMiddleware = new InngestMiddleware({
               const organisationId = data?.organisationId;
               if (typeof organisationId === 'string') {
                 await client.send({
-                  name: 'google/common.remove_organisation.requested',
+                  name: 'gmail/common.remove_organisation.requested',
                   data: { organisationId },
                 });
               }
