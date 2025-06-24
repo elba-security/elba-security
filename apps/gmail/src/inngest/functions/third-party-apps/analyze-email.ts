@@ -42,6 +42,7 @@ export type AnalyzeEmailRequested = {
         to: string;
         body: string;
       };
+      syncStartedAt: string;
     };
   };
 };
@@ -52,7 +53,7 @@ export const analyzeEmail = inngest.createFunction(
     concurrency: concurrencyOption,
     retries: 3,
     rateLimit: {
-      key: 'event.data.organisationId + "-" + event.data.userId + "-" + event.data.message.from',
+      key: 'event.data.syncStartedAt + "-" + event.data.organisationId + "-" + event.data.userId + "-" + event.data.message.from',
       period: '24h',
       limit: 1,
     },

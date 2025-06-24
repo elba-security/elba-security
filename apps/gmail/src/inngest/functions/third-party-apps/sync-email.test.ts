@@ -14,6 +14,7 @@ const eventData: SyncEmailRequested['gmail/third_party_apps.email.sync.requested
   userId: 'user-id',
   email: 'user@foo.com',
   messageId: 'message-id',
+  syncStartedAt: new Date().toISOString(),
 };
 
 const message = {
@@ -91,6 +92,7 @@ describe('sync-email', () => {
           subject: await encryptElbaInngestText(message.subject),
           body: await encryptElbaInngestText(message.body),
         },
+        syncStartedAt: eventData.syncStartedAt,
       },
     });
   });

@@ -10,6 +10,7 @@ export type SyncEmailRequested = {
       userId: string;
       email: string;
       messageId: string;
+      syncStartedAt: string;
     };
   };
 };
@@ -37,7 +38,7 @@ export const syncEmail = inngest.createFunction(
     event: 'gmail/third_party_apps.email.sync.requested',
   },
   async ({ event, step }) => {
-    const { email, messageId, organisationId, userId, region } = event.data;
+    const { email, messageId, organisationId, userId, region, syncStartedAt } = event.data;
 
     const result = await step.invoke('get-message', {
       function: getGmailMessage,
@@ -70,6 +71,7 @@ export const syncEmail = inngest.createFunction(
           to: result.message.to,
           body: result.message.body,
         },
+        syncStartedAt,
       },
     });
   }

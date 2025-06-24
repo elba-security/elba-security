@@ -93,6 +93,7 @@ export const syncThirdPartyApps = inngest.createFunction(
             pageToken: null,
             syncFrom: lastSyncStartedAt,
             syncTo: syncStartedAt,
+            syncStartedAt,
           },
         }))
       );
