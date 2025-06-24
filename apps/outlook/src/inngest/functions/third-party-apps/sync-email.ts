@@ -1,4 +1,5 @@
 import { inngest } from '@/inngest/client';
+import { concurrencyOption } from '@/inngest/functions/common/concurrency-option';
 import { getOutlookMessage } from '../microsoft/get-message';
 
 export type SyncEmailRequested = {
@@ -15,6 +16,7 @@ export type SyncEmailRequested = {
 export const syncEmail = inngest.createFunction(
   {
     id: 'sync-outlook-email',
+    concurrency: concurrencyOption,
     cancelOn: [
       {
         event: 'outlook/common.organisation.inserted',

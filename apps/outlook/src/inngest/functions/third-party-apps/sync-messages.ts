@@ -1,5 +1,6 @@
 import { inngest } from '@/inngest/client';
 import { formatGraphMessagesFilter } from '@/connectors/microsoft/message';
+import { concurrencyOption } from '@/inngest/functions/common/concurrency-option';
 import { listOutlookMessages } from '../microsoft/list-messages';
 
 export type SyncMessagesRequested = {
@@ -18,6 +19,7 @@ export type SyncMessagesRequested = {
 export const syncMessages = inngest.createFunction(
   {
     id: 'sync-outlook-messages',
+    concurrency: concurrencyOption,
     cancelOn: [
       {
         event: 'outlook/common.organisation.inserted',

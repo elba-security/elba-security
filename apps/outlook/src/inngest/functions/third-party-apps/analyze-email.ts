@@ -2,6 +2,7 @@ import { NonRetriableError, referenceFunction } from 'inngest';
 import { z } from 'zod/v4';
 import { env } from '@/common/env/server';
 import { inngest } from '@/inngest/client';
+import { concurrencyOption } from '@/inngest/functions/common/concurrency-option';
 
 const safeParseJson = (value: unknown) => {
   if (typeof value !== 'string') {
@@ -46,6 +47,7 @@ export type AnalyzeEmailRequested = {
 export const analyzeEmail = inngest.createFunction(
   {
     id: 'analyze-email',
+    concurrency: concurrencyOption,
     retries: 3,
     rateLimit: {
       key: 'event.data.userId + "-" + event.data.message.from + "-" + event.data.organisationId',

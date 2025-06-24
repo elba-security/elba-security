@@ -5,6 +5,7 @@ import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/microsoft/user';
 import { decrypt } from '@/common/crypto';
 import { getToken } from '@/inngest/functions/common/get-token';
+import { concurrencyOption } from '@/inngest/functions/common/concurrency-option';
 
 export type SyncThirdPartyAppsRequested = {
   'outlook/third_party_apps.sync.requested': {
@@ -22,6 +23,7 @@ export type SyncThirdPartyAppsRequested = {
 export const syncThirdPartyApps = inngest.createFunction(
   {
     id: 'sync-third-party-apps',
+    concurrency: concurrencyOption,
     cancelOn: [
       {
         event: 'outlook/common.organisation.inserted',
