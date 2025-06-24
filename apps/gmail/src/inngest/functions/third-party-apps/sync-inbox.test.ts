@@ -13,6 +13,7 @@ const eventData: SyncInboxRequested['gmail/third_party_apps.inbox.sync.requested
   email: 'user@foo.com',
   syncTo: '2025-06-01T00:00:00.000Z',
   syncFrom: '2025-06-02T00:00:00.000Z',
+  syncStartedAt: '2025-06-02T00:00:00.000Z',
   pageToken: null,
 };
 
@@ -103,6 +104,7 @@ describe('sync-inbox', () => {
             userId: eventData.userId,
             email: eventData.email,
             messageId: message.id,
+            syncStartedAt: eventData.syncStartedAt,
           },
         }))
       )
