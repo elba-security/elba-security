@@ -66,6 +66,21 @@ export const getDeltaItems = async ({
 
     logger.error('Sharepoint delta items MS Graph error', errorInfo);
 
+    // The delta token has expired, we need to re-run a full sync
+    // https://learn.microsoft.com/en-us/graph/api/driveitem-delta?view=graph-rest-1.0&tabs=http#response-2
+    if (response.status === 410) {
+      logger.warn('Sharepoint delta token expired', {
+        siteId,
+        driveId,
+        errorInfo,
+      });
+
+      return {
+        items: { deleted: [], updated: [] },
+        nextSkipToken: '',
+      };
+    }
+
     throw new MicrosoftError('Could not retrieve delta', { response });
   }
 

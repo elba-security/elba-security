@@ -15,6 +15,7 @@ const nextDeltaToken = 'some-delta-token';
 const startSkipToken = 'start-skip-token';
 const endSkipToken = 'end-skip-token';
 const nextSkipToken = 'next-skip-token';
+const invalidDeltaToken = 'invalid-delta-token';
 
 const deltaItems: DeltaItem[] = Array.from({ length: 2 }, (_, i) => ({
   id: `item-id-${i}`,
@@ -49,6 +50,8 @@ describe('delta connector', () => {
         http.get(
           `${env.MICROSOFT_API_URL}/users/:userId/drive/root/delta`,
           ({ request, params }) => {
+            const url = new URL(request.url);
+
             if (request.headers.get('Authorization') !== `Bearer ${validToken}`) {
               return new Response(JSON.stringify({ message: 'missing token' }), { status: 401 });
             }
@@ -58,7 +61,12 @@ describe('delta connector', () => {
               });
             }
 
-            const url = new URL(request.url);
+            if (url.searchParams.get('token') === invalidDeltaToken) {
+              return new Response(JSON.stringify({ message: 'Delta token expired' }), {
+                status: 410,
+              });
+            }
+
             const select = url.searchParams.get('$select');
             const top = url.searchParams.get('$top');
             const token = url.searchParams.get('token');
@@ -125,6 +133,19 @@ describe('delta connector', () => {
           deltaToken: endSkipToken,
         })
       ).rejects.toBeInstanceOf(MicrosoftError);
+    });
+
+    test('should return empty nextSkipToken when delta token is expired', async () => {
+      await expect(
+        getDeltaItems({
+          token: validToken,
+          userId,
+          deltaToken: invalidDeltaToken,
+        })
+      ).resolves.toStrictEqual({
+        items: { deleted: [], updated: [] },
+        nextSkipToken: '',
+      });
     });
 
     test("should return null when the user doesn't have a drive", async () => {
