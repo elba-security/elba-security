@@ -13,6 +13,7 @@ import {
   type SharepointPermission,
 } from '@/connectors/microsoft/sharepoint/permissions';
 import { type MicrosoftDriveItem } from '@/connectors/microsoft/sharepoint/items';
+import { MicrosoftError } from '@/common/error';
 import { parseItemsInheritedPermissions } from './common/helpers';
 
 export const syncDeltaItems = inngest.createFunction(
@@ -57,18 +58,44 @@ export const syncDeltaItems = inngest.createFunction(
     }
 
     const token = await decrypt(record.token);
-    const { items, ...tokens } = await step.run('fetch-delta-items', async () => {
-      const result = await getDeltaItems({
-        token,
-        siteId,
-        driveId,
-        deltaToken: record.delta,
-      });
 
+    const data = await step.run('fetch-delta-items', async () => {
+      try {
+        const result = await getDeltaItems({
+          token,
+          siteId,
+          driveId,
+          deltaToken: record.delta,
+        });
+
+        await db
+          .update(subscriptionsTable)
+          .set({
+            delta: 'newDeltaToken' in result ? result.newDeltaToken : result.nextSkipToken,
+          })
+          .where(
+            and(
+              eq(subscriptionsTable.organisationId, record.organisationId),
+              eq(subscriptionsTable.siteId, siteId),
+              eq(subscriptionsTable.driveId, driveId),
+              eq(subscriptionsTable.subscriptionId, subscriptionId)
+            )
+          );
+
+        return result;
+      } catch (e) {
+        if (e instanceof MicrosoftError && e.code === 'DELTA_TOKEN_EXPIRED') {
+          return 'resync';
+        }
+        throw e;
+      }
+    });
+
+    if (data === 'resync') {
       await db
         .update(subscriptionsTable)
         .set({
-          delta: 'newDeltaToken' in result ? result.newDeltaToken : result.nextSkipToken,
+          delta: '',
         })
         .where(
           and(
@@ -79,8 +106,13 @@ export const syncDeltaItems = inngest.createFunction(
           )
         );
 
-      return result;
-    });
+      return await step.sendEvent('sync-next-delta-page', {
+        name: 'sharepoint/delta.sync.triggered',
+        data: event.data,
+      });
+    }
+
+    const { items, ...tokens } = data;
 
     const sharedItems: MicrosoftDriveItem[] = [];
     const itemIds = new Set<string>();

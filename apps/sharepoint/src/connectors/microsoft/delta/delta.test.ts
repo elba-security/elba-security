@@ -155,10 +155,7 @@ describe('delta connector', () => {
           driveId,
           deltaToken: invalidDeltaToken,
         })
-      ).resolves.toStrictEqual({
-        items: { deleted: [], updated: [] },
-        nextSkipToken: '',
-      });
+      ).rejects.toBeInstanceOf(MicrosoftError);
     });
   });
 });

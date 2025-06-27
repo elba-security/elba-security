@@ -142,10 +142,7 @@ describe('delta connector', () => {
           userId,
           deltaToken: invalidDeltaToken,
         })
-      ).resolves.toStrictEqual({
-        items: { deleted: [], updated: [] },
-        nextSkipToken: '',
-      });
+      ).rejects.toBeInstanceOf(MicrosoftError);
     });
 
     test("should return null when the user doesn't have a drive", async () => {

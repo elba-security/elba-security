@@ -80,10 +80,7 @@ export const getDeltaItems = async ({
         errorInfo,
       });
 
-      return {
-        items: { deleted: [], updated: [] },
-        nextSkipToken: '',
-      };
+      throw new MicrosoftError('Delta token expired', { response, code: 'DELTA_TOKEN_EXPIRED' });
     }
 
     throw new MicrosoftError('Could not retrieve items delta', { response });
