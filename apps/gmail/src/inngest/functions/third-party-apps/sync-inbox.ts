@@ -78,7 +78,9 @@ export const syncInbox = inngest.createFunction(
       );
     }
 
-    if (nextPageToken) {
+    const isFirstSync = !syncFrom;
+
+    if (nextPageToken && !isFirstSync) {
       await step.sendEvent('sync-next-page', {
         name: 'gmail/third_party_apps.inbox.sync.requested',
         data: {

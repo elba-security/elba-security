@@ -69,7 +69,9 @@ export const syncMessages = inngest.createFunction(
       );
     }
 
-    if (nextSkip) {
+    const isFirstSync = !syncFrom;
+
+    if (nextSkip && !isFirstSync) {
       await step.sendEvent('sync-next-page', {
         name: 'outlook/third_party_apps.messages.sync.requested',
         data: {
