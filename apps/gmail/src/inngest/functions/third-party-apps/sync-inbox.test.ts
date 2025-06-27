@@ -146,9 +146,28 @@ describe('sync-inbox', () => {
     });
   });
 
-  test('should not request sync of next page when there no next page', async () => {
+  test('should not request sync of next page when there is no next page', async () => {
     const [result, { step }] = setup({
       data: eventData,
+      nextPageToken: null,
+    });
+
+    await result;
+
+    expect(step.sendEvent).not.toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        name: 'gmail/third_party_apps.inbox.sync.requested',
+      })
+    );
+  });
+
+  test('should not request sync of next page when it is the first sync', async () => {
+    const [result, { step }] = setup({
+      data: {
+        ...eventData,
+        syncFrom: null,
+      },
       nextPageToken: null,
     });
 
