@@ -174,9 +174,28 @@ describe('sync-messages', () => {
     });
   });
 
-  test('should not request sync of next page when there no next page', async () => {
+  test('should not request sync of next page when there is no next page', async () => {
     const { result, step } = await setup({
       data: eventData,
+      nextSkipStep: null,
+    });
+
+    await result;
+
+    expect(step.sendEvent).not.toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        name: 'outlook/third_party_apps.messages.sync.requested',
+      })
+    );
+  });
+
+  test('should not request sync of next page when it is the first sync', async () => {
+    const { result, step } = await setup({
+      data: {
+        ...eventData,
+        syncFrom: null,
+      },
       nextSkipStep: null,
     });
 
