@@ -5,6 +5,7 @@ import { type OutlookMessage } from '@/connectors/microsoft/types';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { outlookMessages } from '@/connectors/microsoft/message/mock';
+import * as authConnector from '@/connectors/microsoft/auth';
 import { syncMessages, type SyncMessagesRequested } from './sync-messages';
 
 const mockFunction = createInngestFunctionMock(
@@ -15,10 +16,16 @@ const mockFunction = createInngestFunctionMock(
 const token = 'token';
 const region = 'eu';
 const userId = 'user-id';
+const tenantId = 'tenant-id';
 
 vi.mock('@/common/crypto', () => ({
   decrypt: vi.fn(() => token),
 }));
+
+vi.spyOn(authConnector, 'getToken').mockResolvedValue({
+  token,
+  expiresIn: 3600,
+});
 
 const organisationId = '4f9b95b1-07ec-4356-971c-5a9d328e911c';
 const syncStartedAt = new Date().toISOString();
@@ -42,6 +49,7 @@ const eventData: SyncMessagesRequested['outlook/third_party_apps.messages.sync.r
     syncFrom: '2025-06-02T00:00:00.000Z',
     skipStep: 'skip-step',
     syncStartedAt,
+    tenantId,
   };
 
 const setup = async ({
@@ -61,7 +69,6 @@ const setup = async ({
   await db.insert(organisationsTable).values({
     id: organisationId,
     tenantId: 'c647a27f-7060-4e8d-acc9-05a42218235b',
-    token,
     region: 'eu',
   });
 

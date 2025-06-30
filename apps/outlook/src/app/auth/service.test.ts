@@ -1,6 +1,5 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
-import * as crypto from '@/common/crypto';
 import * as authConnector from '@/connectors/microsoft/auth';
 import * as usersConnector from '@/connectors/microsoft/user';
 import { db } from '@/database/client';
@@ -37,7 +36,6 @@ describe('setupOrganisation', () => {
     const getUsers = vi
       .spyOn(usersConnector, 'getUsers')
       .mockResolvedValue({ validUsers: [], invalidUsers: [], nextSkipToken: null });
-    vi.spyOn(crypto, 'encrypt').mockResolvedValue(token);
 
     await expect(
       setupOrganisation({
@@ -53,13 +51,11 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith(tenantId);
     expect(getUsers).toBeCalledTimes(1);
     expect(getUsers).toBeCalledWith({ token, tenantId, skipToken: null });
-    expect(crypto.encrypt).toBeCalledTimes(1);
 
     await expect(
       db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toMatchObject([
       {
-        token,
         region,
         tenantId,
       },
@@ -89,7 +85,6 @@ describe('setupOrganisation', () => {
     // @ts-expect-error -- this is a mock
     const send = vi.spyOn(inngest, 'send').mockResolvedValue(undefined);
     const getToken = vi.spyOn(authConnector, 'getToken').mockResolvedValue({ token, expiresIn });
-    vi.spyOn(crypto, 'encrypt').mockResolvedValue(token);
     const getUsers = vi
       .spyOn(usersConnector, 'getUsers')
       .mockResolvedValue({ validUsers: [], invalidUsers: [], nextSkipToken: null });
@@ -107,13 +102,11 @@ describe('setupOrganisation', () => {
     expect(getToken).toBeCalledWith(tenantId);
     expect(getUsers).toBeCalledTimes(1);
     expect(getUsers).toBeCalledWith({ token, tenantId, skipToken: null });
-    expect(crypto.encrypt).toBeCalledTimes(1);
 
     await expect(
       db.select().from(organisationsTable).where(eq(organisationsTable.id, organisation.id))
     ).resolves.toMatchObject([
       {
-        token,
         region,
         tenantId,
       },

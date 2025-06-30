@@ -1,9 +1,8 @@
 import { inngest } from '@/inngest/client';
 import { getMessages } from '@/connectors/microsoft/message';
-import { decrypt } from '@/common/crypto';
 import { MicrosoftError } from '@/connectors/microsoft/common/error';
-import { getToken } from '@/inngest/functions/common/get-token';
 import { type OutlookMessage } from '@/connectors/microsoft/types';
+import { getToken } from '@/connectors/microsoft/auth';
 
 export type ListOutlookMessagesRequested = {
   'outlook/outlook.messages.list.requested': {
@@ -12,6 +11,7 @@ export type ListOutlookMessagesRequested = {
       userId: string;
       skipStep: string | null;
       filter: string;
+      tenantId: string;
     };
   };
 };
@@ -36,23 +36,17 @@ export const listOutlookMessages = inngest.createFunction(
   {
     event: 'outlook/outlook.messages.list.requested',
   },
-  async ({ event, step }) => {
+  async ({ event }) => {
     try {
-      const { skipStep, userId, filter, organisationId } = event.data;
+      const { skipStep, userId, filter, tenantId } = event.data;
 
-      const token = await step.invoke('get-token', {
-        function: getToken,
-        data: {
-          organisationId,
-        },
-        timeout: '1d',
-      });
+      const { token } = await getToken(tenantId);
 
       return await getMessages({
         filter,
         userId,
         skipStep,
-        token: await decrypt(token),
+        token,
       });
     } catch (e) {
       // If a user doesn't have a license for Outlook

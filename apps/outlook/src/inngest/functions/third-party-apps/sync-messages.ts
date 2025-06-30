@@ -13,6 +13,7 @@ export type SyncMessagesRequested = {
       syncFrom: string | null;
       syncTo: string;
       syncStartedAt: string;
+      tenantId: string;
     };
   };
 };
@@ -36,12 +37,13 @@ export const syncMessages = inngest.createFunction(
     event: 'outlook/third_party_apps.messages.sync.requested',
   },
   async ({ event, step }) => {
-    const { skipStep, organisationId, userId, syncFrom, syncTo, region, syncStartedAt } =
+    const { skipStep, organisationId, userId, syncFrom, syncTo, region, syncStartedAt, tenantId } =
       event.data;
 
     const { nextSkip, messages } = await step.invoke('list-messages', {
       function: listOutlookMessages,
       data: {
+        tenantId,
         organisationId,
         userId,
         skipStep,
