@@ -6,6 +6,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { outlookMessages } from '@/connectors/microsoft/message/mock';
 import { type OutlookMessage } from '@/connectors/microsoft/types';
+import * as authConnector from '@/connectors/microsoft/auth';
 import { listOutlookMessages } from './list-messages';
 
 const setup = createInngestFunctionMock(
@@ -14,12 +15,18 @@ const setup = createInngestFunctionMock(
 );
 
 const organisationId = '4ef9c9ad-947b-4ec2-bbc4-cbe3190eee51';
+const tenantId = 'tenant-id';
 const token = 'token';
 const userId = 'user-id';
 
 vi.mock('@/common/crypto', () => ({
   decrypt: vi.fn(() => token),
 }));
+
+vi.spyOn(authConnector, 'getToken').mockResolvedValue({
+  token,
+  expiresIn: 3600,
+});
 
 const filter = microsoftConnector.formatGraphMessagesFilter({
   after: new Date('2024-11-03T00:00:00Z'),
@@ -41,7 +48,6 @@ describe('list-messages', () => {
     await db.insert(organisationsTable).values({
       id: organisationId,
       tenantId: 'c647a27f-7060-4e8d-acc9-05a42218235b',
-      token: 'token-org-1',
       region: 'eu',
     });
   });
@@ -55,7 +61,7 @@ describe('list-messages', () => {
       messages: formattedMessages,
       nextSkip: 'next-skip',
     });
-    const [result] = setup({ filter, organisationId, skipStep: null, userId });
+    const [result] = setup({ filter, tenantId, organisationId, skipStep: null, userId });
 
     await expect(result).resolves.toStrictEqual({
       nextSkip: 'next-skip',
@@ -77,6 +83,7 @@ describe('list-messages', () => {
 
     const [result] = setup({
       filter,
+      tenantId,
       organisationId,
       skipStep: null,
       userId: 'invalid-user-id',

@@ -1,5 +1,5 @@
 {
-  "id": "b61af23a-6f41-48ba-90b6-89f3877295df",
+  "id": "398918c9-aef4-45e1-834d-0a0d5d80a509",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -22,12 +22,6 @@
         },
         "region": {
           "name": "region",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "token": {
-          "name": "token",
           "type": "text",
           "primaryKey": false,
           "notNull": true

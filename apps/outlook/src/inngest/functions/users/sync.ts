@@ -2,9 +2,9 @@ import type { User } from '@elba-security/sdk';
 import { env } from '@/common/env/server';
 import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/microsoft/user';
-import { decrypt } from '@/common/crypto';
 import { getElbaClient } from '@/connectors/elba/client';
 import { type MicrosoftUser } from '@/connectors/microsoft/types';
+import { getToken } from '@/connectors/microsoft/auth';
 import { getOrganisation } from '../common/get-organisation';
 
 export type SyncUsersEvents = {
@@ -49,16 +49,21 @@ export const syncUsers = inngest.createFunction(
   async ({ event, step, logger }) => {
     const { organisationId, skipToken, syncStartedAt } = event.data;
 
-    const { region, token, tenantId } = await step.invoke('get-organisation', {
+    const { region, tenantId } = await step.invoke('get-organisation', {
       function: getOrganisation,
-      data: { organisationId, columns: ['region', 'token', 'tenantId'] },
+      data: { organisationId, columns: ['region', 'tenantId'] },
     });
 
     const elba = getElbaClient({ organisationId, region });
 
+    const token = await step.run('get-token', async () => {
+      const result = await getToken(tenantId);
+      return result.token;
+    });
+
     const nextSkipToken = await step.run('paginate', async () => {
       const result = await getUsers({
-        token: await decrypt(token),
+        token,
         tenantId,
         skipToken,
       });
