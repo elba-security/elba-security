@@ -1,7 +1,9 @@
 import { gmail_v1 as gmail } from '@googleapis/gmail';
 import { z } from 'zod';
+import { type JWT } from 'google-auth-library';
 import { env } from '@/common/env/server';
 import { extractTextFromMessage } from './utils/email';
+import { batchRequest, type BatchResponse } from './utils/batch';
 
 const getTimestampInSeconds = (value: Date) => (value.getTime() / 1000).toFixed(0);
 
@@ -41,26 +43,24 @@ const listedMessageSchema = z.object({
   id: z.string(),
 });
 
-export const listMessages = async ({
-  maxResults = 500,
-  ...params
-}: gmail.Params$Resource$Users$Messages$List) => {
-  const {
-    data: { messages: rawMessages, nextPageToken },
-  } = await new gmail.Gmail({}).users.messages.list({ maxResults, ...params });
-
-  const messages: z.infer<typeof listedMessageSchema>[] = [];
-  for (const rawMessage of rawMessages || []) {
-    const result = listedMessageSchema.safeParse(rawMessage);
-    if (result.success) {
-      messages.push(result.data);
-    }
-  }
-
-  return { messages, nextPageToken };
-};
+// Minimal schema for https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages#Message
+// It should be used only before force asserting type to gmail.Schema$Message
+const retrievedMessageSchema = z.object({
+  id: z.string(),
+  payload: z.object({
+    headers: z.array(
+      z.object({
+        name: z.string(),
+        value: z.string(),
+      })
+    ),
+    body: z.object({}),
+    parts: z.array(z.object({})),
+  }),
+});
 
 const messageSchema = z.object({
+  id: z.string(),
   subject: z.string().optional().default(''),
   // from is required for caching
   from: z.string(),
@@ -68,56 +68,81 @@ const messageSchema = z.object({
   body: z.string(),
 });
 
-export const getMessage = async ({
-  format = 'full',
-  ...params
-}: gmail.Params$Resource$Users$Messages$Get): Promise<
-  { message: z.infer<typeof messageSchema>; error: undefined } | { message: null; error: Error }
-> => {
-  try {
-    const { data: message } = await new gmail.Gmail({}).users.messages.get({ format, ...params });
+type Message = z.infer<typeof messageSchema>;
 
-    if (!message.payload) {
-      return {
-        message: null,
-        error: new Error('Message payload is missing'),
-      };
-    }
+const parseRetrievedMessage = (batchedResponse: BatchResponse) => {
+  try {
+    retrievedMessageSchema.parse(batchedResponse.data);
+    const retrievedMessage = batchedResponse.data as gmail.Schema$Message;
 
     const getHeaderValue = (headerName: string) => {
-      return message.payload?.headers?.find((header) => header.name?.toLowerCase() === headerName)
-        ?.value;
+      return retrievedMessage.payload?.headers?.find(
+        (header) => header.name?.toLowerCase() === headerName
+      )?.value;
     };
-
-    // Encrypt data with elba api key as it will be decrypted on elba side
-    const result = messageSchema.safeParse({
-      subject: getHeaderValue('subject'),
-      from: getHeaderValue('from'),
-      to: getHeaderValue('to'),
-      body: extractTextFromMessage(message.payload)?.slice(0, env.MAX_EMAIL_BODY_LENGTH),
-    });
-
-    if (result.success) {
-      return {
-        message: result.data,
-        error: undefined,
-      };
-    }
-
+    return {
+      message: messageSchema.parse({
+        id: retrievedMessage.id,
+        subject: getHeaderValue('subject'),
+        from: getHeaderValue('from'),
+        to: getHeaderValue('to'),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- already checked by Zod schema
+        body: extractTextFromMessage(retrievedMessage.payload!)?.slice(
+          0,
+          env.MAX_EMAIL_BODY_LENGTH
+        ),
+      }),
+      error: null,
+    };
+  } catch (error) {
     return {
       message: null,
-      error: result.error,
+      error,
     };
-    /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access -- Start of error handling */
-  } catch (error: any) {
-    if (error?.code === 404) {
-      /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access -- End of error handling */
-      return {
-        message: null,
-        error: new Error('Could not find message', { cause: error }),
-      };
-    }
-
-    throw error;
   }
+};
+
+export const listMessages = async ({
+  // Batch api limit is 100
+  maxResults = 100,
+  auth,
+  ...params
+}: Omit<gmail.Params$Resource$Users$Messages$List, 'auth'> & { auth: JWT }) => {
+  const {
+    data: { messages: rawListedMessages, nextPageToken },
+  } = await new gmail.Gmail({}).users.messages.list({ maxResults, auth, ...params });
+
+  const listedMessages: z.infer<typeof listedMessageSchema>[] = [];
+  for (const rawMessage of rawListedMessages || []) {
+    const result = listedMessageSchema.safeParse(rawMessage);
+    if (result.success) {
+      listedMessages.push(result.data);
+    }
+  }
+
+  const batchedResponses = await batchRequest({
+    auth,
+    requests: listedMessages.map(({ id }) => ({
+      url: `/gmail/v1/users/${params.userId}/messages/${id}?format=full`,
+      method: 'GET',
+    })),
+  });
+
+  return batchedResponses.reduce(
+    (acc, batchedResponse) => {
+      const { error, message } = parseRetrievedMessage(batchedResponse);
+      if (error) {
+        acc.errors.push(error);
+      }
+      if (message) {
+        acc.messages.push(message);
+      }
+      return acc;
+    },
+    {
+      nextPageToken,
+      messages: [] as Message[],
+      errors: [] as unknown[],
+    }
+  );
 };

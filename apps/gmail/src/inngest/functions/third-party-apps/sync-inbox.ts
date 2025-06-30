@@ -63,24 +63,22 @@ export const syncInbox = inngest.createFunction(
 
     if (messages.length > 0) {
       await step.sendEvent(
-        'sync-emails',
-        messages.map(({ id }) => ({
-          name: 'gmail/third_party_apps.email.sync.requested',
+        'analyze-emails',
+        messages.map((message) => ({
+          name: 'gmail/third_party_apps.email.analyze.requested',
           data: {
             organisationId,
             region,
             userId,
             email,
-            messageId: id,
+            message,
             syncStartedAt,
           },
         }))
       );
     }
 
-    const isFirstSync = !syncFrom;
-
-    if (nextPageToken && !isFirstSync) {
+    if (nextPageToken) {
       await step.sendEvent('sync-next-page', {
         name: 'gmail/third_party_apps.inbox.sync.requested',
         data: {

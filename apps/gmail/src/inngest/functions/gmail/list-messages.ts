@@ -1,6 +1,7 @@
 import { getGoogleServiceAccountClient } from '@/connectors/google/clients';
 import { listMessages } from '@/connectors/google/gmail';
 import { inngest } from '@/inngest/client';
+import { encryptElbaInngestText } from '@/common/crypto';
 import { concurrencyOption } from '../common/concurrency-option';
 
 export type ListGmailMessagesRequested = {
@@ -56,6 +57,17 @@ export const listGmailMessages = inngest.createFunction(
       q,
     });
 
-    return result;
+    return {
+      ...result,
+      messages: await Promise.all(
+        result.messages.map(async (message) => ({
+          id: message.id,
+          from: await encryptElbaInngestText(message.from),
+          to: await encryptElbaInngestText(message.to),
+          subject: await encryptElbaInngestText(message.subject),
+          body: await encryptElbaInngestText(message.body),
+        }))
+      ),
+    };
   }
 );
