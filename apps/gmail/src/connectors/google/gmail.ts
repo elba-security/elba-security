@@ -120,6 +120,14 @@ export const listMessages = async ({
     }
   }
 
+  if (listedMessages.length === 0) {
+    return {
+      nextPageToken,
+      messages: [],
+      errors: [],
+    };
+  }
+
   const batchedResponses = await batchRequest({
     auth,
     requests: listedMessages.map(({ id }) => ({
