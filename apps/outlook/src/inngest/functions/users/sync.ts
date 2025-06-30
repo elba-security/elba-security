@@ -56,12 +56,8 @@ export const syncUsers = inngest.createFunction(
 
     const elba = getElbaClient({ organisationId, region });
 
-    const token = await step.run('get-token', async () => {
-      const result = await getToken(tenantId);
-      return result.token;
-    });
-
     const nextSkipToken = await step.run('paginate', async () => {
+      const { token } = await getToken(tenantId);
       const result = await getUsers({
         token,
         tenantId,

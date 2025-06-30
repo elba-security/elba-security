@@ -58,9 +58,8 @@ export const syncThirdPartyApps = inngest.createFunction(
       });
     }
 
-    const { token } = await getToken(tenantId);
-
     const { validUsers: users, nextSkipToken } = await step.run('list-users', async () => {
+      const { token } = await getToken(tenantId);
       return await getUsers({
         tenantId,
         skipToken: pageToken,
