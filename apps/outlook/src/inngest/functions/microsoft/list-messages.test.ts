@@ -4,6 +4,8 @@ import * as microsoftConnector from '@/connectors/microsoft/message';
 import { MicrosoftError } from '@/connectors/microsoft/common/error';
 import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
+import { outlookMessages } from '@/connectors/microsoft/message/mock';
+import { type OutlookMessage } from '@/connectors/microsoft/types';
 import { listOutlookMessages } from './list-messages';
 
 const setup = createInngestFunctionMock(
@@ -19,32 +21,20 @@ vi.mock('@/common/crypto', () => ({
   decrypt: vi.fn(() => token),
 }));
 
-const messages = [
-  {
-    id: 'message-1-AAMkAGE4NmEwMmU2LTViYTctNDhhNi05ZTI3LWI3NzkyZGY5M',
-    isDraft: false,
-    createdDateTime: '2025-04-08T10:00:00Z',
-    hasAttachments: false,
-  },
-  {
-    id: 'message-2-AAMkAGE4NmEwMmU2LTViYTctNDhhNi05ZTI3LWI3NzkyZGY5M',
-    isDraft: false,
-    hasAttachments: false,
-    createdDateTime: '2025-03-08T10:00:00Z',
-  },
-  {
-    id: 'message-3-AAMkAGE4NmEwMmU2LTViYTctNDhhNi05ZTI3LWI3NzkyZGY5M',
-    isDraft: true,
-    hasAttachments: true,
-    createdDateTime: '2024-11-03T00:00:00Z',
-  },
-];
 const filter = microsoftConnector.formatGraphMessagesFilter({
   after: new Date('2024-11-03T00:00:00Z'),
   before: new Date('2024-11-08T23:59:59Z'),
 });
 
-export const messagesIdsList = messages.map((message) => ({ id: message.id }));
+export const formattedMessages: OutlookMessage[] = outlookMessages.map((message) => ({
+  id: message.id,
+  subject: `encrypted(${message.subject})`,
+  from: `encrypted(${message.from.emailAddress.address})`,
+  toRecipients: message.toRecipients
+    .map((item) => `encrypted(${item.emailAddress.address})`)
+    .join(', '),
+  body: `encrypted(${message.body.content})`,
+}));
 
 describe('list-messages', () => {
   beforeEach(async () => {
@@ -62,14 +52,14 @@ describe('list-messages', () => {
 
   test('should return list of messages', async () => {
     const getMessages = vi.spyOn(microsoftConnector, 'getMessages').mockResolvedValue({
-      messages: messagesIdsList,
+      messages: formattedMessages,
       nextSkip: 'next-skip',
     });
     const [result] = setup({ filter, organisationId, skipStep: null, userId });
 
     await expect(result).resolves.toStrictEqual({
       nextSkip: 'next-skip',
-      messages: messagesIdsList,
+      messages: formattedMessages,
     });
     expect(getMessages).toBeCalledTimes(1);
     expect(getMessages).toBeCalledWith({

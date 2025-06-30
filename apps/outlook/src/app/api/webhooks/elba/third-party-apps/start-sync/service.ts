@@ -22,7 +22,6 @@ export const startThirdPartyAppsSync = async (organisationId: string) => {
       lastSyncStartedAt: null,
       pageToken: null,
       tenantId: organisation.tenantId,
-      token: organisation.token,
     },
   });
 };

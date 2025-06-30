@@ -23,10 +23,6 @@ export const messageSchema = z.object({
   }),
 });
 
-export const listMessageSchema = z.object({
-  id: z.string(),
-});
-
 export const userSchema = z.object({
   id: z.string(),
   mail: z.string().nullable().optional(),
