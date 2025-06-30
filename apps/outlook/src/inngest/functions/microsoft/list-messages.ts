@@ -3,7 +3,7 @@ import { getMessages } from '@/connectors/microsoft/message';
 import { decrypt } from '@/common/crypto';
 import { MicrosoftError } from '@/connectors/microsoft/common/error';
 import { getToken } from '@/inngest/functions/common/get-token';
-import { type ListOutlookMessage } from '@/connectors/microsoft/types';
+import { type OutlookMessage } from '@/connectors/microsoft/types';
 
 export type ListOutlookMessagesRequested = {
   'outlook/outlook.messages.list.requested': {
@@ -22,15 +22,14 @@ export const listOutlookMessages = inngest.createFunction(
     // https://learn.microsoft.com/en-us/graph/throttling-limits#outlook-service-limits
     // Outlook applies limit to a pair of app and mailbox (user)
     // 4 concurrent requests
-    // 10,000 requests per 10 minutes
-    // But this rate limit shared between getOutlookMessage and listOutlookMessages
+    // 10,000 requests per 10 minutes (we are using 9_000 to be slightly under the rate limit)
     concurrency: {
       key: 'event.data.userId',
       limit: 4,
     },
     throttle: {
       key: 'event.data.userId',
-      limit: 9,
+      limit: 9_000,
       period: '10m',
     },
   },
@@ -59,7 +58,7 @@ export const listOutlookMessages = inngest.createFunction(
       // If a user doesn't have a license for Outlook
       if (e instanceof MicrosoftError && e.response?.status === 404) {
         return {
-          messages: [] as ListOutlookMessage[],
+          messages: [] as OutlookMessage[],
           nextSkip: null,
           status: 'skip',
         };

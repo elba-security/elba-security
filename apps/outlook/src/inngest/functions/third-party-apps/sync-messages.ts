@@ -55,23 +55,21 @@ export const syncMessages = inngest.createFunction(
 
     if (messages.length > 0) {
       await step.sendEvent(
-        'sync-mails',
-        messages.map(({ id: messageId }) => ({
-          name: 'outlook/third_party_apps.email.sync.requested',
+        'analyze-email',
+        messages.map((message) => ({
+          name: 'outlook/third_party_apps.email.analyze.requested',
           data: {
             organisationId,
             region,
             userId,
-            messageId,
+            message,
             syncStartedAt,
           },
         }))
       );
     }
 
-    const isFirstSync = !syncFrom;
-
-    if (nextSkip && !isFirstSync) {
+    if (nextSkip) {
       await step.sendEvent('sync-next-page', {
         name: 'outlook/third_party_apps.messages.sync.requested',
         data: {
