@@ -1,6 +1,7 @@
 import { getGoogleServiceAccountClient } from '@/connectors/google/clients';
 import { listMessages } from '@/connectors/google/gmail';
 import { inngest } from '@/inngest/client';
+import { encryptElbaInngestText } from '@/common/crypto';
 import { concurrencyOption } from '../common/concurrency-option';
 
 export type ListGmailMessagesRequested = {
@@ -22,16 +23,16 @@ export const listGmailMessages = inngest.createFunction(
     concurrency: concurrencyOption,
     // Configuration shared with others gmail/ functions
     // Google documentation https://developers.google.com/workspace/gmail/api/reference/quota
-    // API rate limit bottleneck is per user: 15,000 quotas
-    // messages.list is 5 quotas for 500 messages
+    // API rate limit is 1_200_000 per minute for our elba gmail app
+    // caller function is handling rate limit per user
+    //
+    // messages.list is 5 quotas for 100 messages
     // messages.get is 5 quotas
     //
-    // We can split quotas in order to maximize speed (with a thin margin of error: 20 quotas):
-    //   - 6 calls per second for messages.list: 30 quotas
-    //   - 2990 calls per second for messages.get: 14950 quotas
+    // For each call we are going to use 505 quotas
+    // with 2000 calls per minute we will use 1_010_000 quotas; keeping a safety margin
     throttle: {
-      key: 'event.data.userId',
-      limit: 6,
+      limit: 2000,
       period: '60s',
     },
     cancelOn: [
@@ -56,6 +57,17 @@ export const listGmailMessages = inngest.createFunction(
       q,
     });
 
-    return result;
+    return {
+      ...result,
+      messages: await Promise.all(
+        result.messages.map(async (message) => ({
+          id: message.id,
+          from: await encryptElbaInngestText(message.from),
+          to: await encryptElbaInngestText(message.to),
+          subject: await encryptElbaInngestText(message.subject),
+          body: await encryptElbaInngestText(message.body),
+        }))
+      ),
+    };
   }
 );

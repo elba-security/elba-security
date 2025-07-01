@@ -22,6 +22,17 @@ export const syncInbox = inngest.createFunction(
   {
     id: 'sync-inbox',
     concurrency: concurrencyOption,
+    // Configuration shared with others gmail/ functions
+    // Google documentation https://developers.google.com/workspace/gmail/api/reference/quota
+    // API rate limit bottleneck is per user: 15_000 quotas per minute
+    // listGmailMessages is 505 quotas
+    //
+    // with 25 calls per minute we will use 12625 quotas; keeping a safety margin
+    throttle: {
+      key: 'event.data.userId',
+      limit: 25,
+      period: '60s',
+    },
     cancelOn: [
       {
         event: 'gmail/common.organisation.inserted',
@@ -63,24 +74,22 @@ export const syncInbox = inngest.createFunction(
 
     if (messages.length > 0) {
       await step.sendEvent(
-        'sync-emails',
-        messages.map(({ id }) => ({
-          name: 'gmail/third_party_apps.email.sync.requested',
+        'analyze-emails',
+        messages.map((message) => ({
+          name: 'gmail/third_party_apps.email.analyze.requested',
           data: {
             organisationId,
             region,
             userId,
             email,
-            messageId: id,
+            message,
             syncStartedAt,
           },
         }))
       );
     }
 
-    const isFirstSync = !syncFrom;
-
-    if (nextPageToken && !isFirstSync) {
+    if (nextPageToken) {
       await step.sendEvent('sync-next-page', {
         name: 'gmail/third_party_apps.inbox.sync.requested',
         data: {
