@@ -23,15 +23,16 @@ export const listGmailMessages = inngest.createFunction(
     concurrency: concurrencyOption,
     // Configuration shared with others gmail/ functions
     // Google documentation https://developers.google.com/workspace/gmail/api/reference/quota
-    // API rate limit bottleneck is per user: 15,000 quotas
+    // API rate limit is 1_200_000 per minute for our elba gmail app
+    // caller function is handling rate limit per user
+    //
     // messages.list is 5 quotas for 100 messages
     // messages.get is 5 quotas
     //
     // For each call we are going to use 505 quotas
-    // with 25 calls per minute we will use 12625 quotas; keeping a safety margin
+    // with 2000 calls per minute we will use 1_010_000 quotas; keeping a safety margin
     throttle: {
-      key: 'event.data.userId',
-      limit: 25,
+      limit: 2000,
       period: '60s',
     },
     cancelOn: [

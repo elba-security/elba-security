@@ -22,6 +22,17 @@ export const syncInbox = inngest.createFunction(
   {
     id: 'sync-inbox',
     concurrency: concurrencyOption,
+    // Configuration shared with others gmail/ functions
+    // Google documentation https://developers.google.com/workspace/gmail/api/reference/quota
+    // API rate limit bottleneck is per user: 15_000 quotas per minute
+    // listGmailMessages is 505 quotas
+    //
+    // with 25 calls per minute we will use 12625 quotas; keeping a safety margin
+    throttle: {
+      key: 'event.data.userId',
+      limit: 25,
+      period: '60s',
+    },
     cancelOn: [
       {
         event: 'gmail/common.organisation.inserted',
