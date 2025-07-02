@@ -1,5 +1,6 @@
 import { inngest } from '@/inngest/client';
 import { formatListMessagesQuery } from '@/connectors/google/gmail';
+import { env } from '@/common/env/server';
 import { listGmailMessages } from '../gmail/list-messages';
 import { concurrencyOption } from '../common/concurrency-option';
 
@@ -14,6 +15,7 @@ export type SyncInboxRequested = {
       syncFrom: string | null;
       syncTo: string;
       syncStartedAt: string;
+      syncedEmailsCount?: number;
     };
   };
 };
@@ -52,8 +54,17 @@ export const syncInbox = inngest.createFunction(
     event: 'gmail/third_party_apps.inbox.sync.requested',
   },
   async ({ event, step }) => {
-    const { email, pageToken, organisationId, userId, region, syncFrom, syncTo, syncStartedAt } =
-      event.data;
+    const {
+      email,
+      pageToken,
+      organisationId,
+      userId,
+      region,
+      syncFrom,
+      syncTo,
+      syncStartedAt,
+      syncedEmailsCount = 0,
+    } = event.data;
 
     const { messages, nextPageToken } = await step.invoke('list-messages', {
       function: listGmailMessages,
@@ -89,11 +100,17 @@ export const syncInbox = inngest.createFunction(
       );
     }
 
-    if (nextPageToken) {
+    const nextSyncedEmailsCount = syncedEmailsCount + messages.length;
+    const isLimitPerUserReached = env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
+      ? nextSyncedEmailsCount >= env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
+      : false;
+
+    if (!isLimitPerUserReached && nextPageToken) {
       await step.sendEvent('sync-next-page', {
         name: 'gmail/third_party_apps.inbox.sync.requested',
         data: {
           ...event.data,
+          syncedEmailsCount: nextSyncedEmailsCount,
           pageToken: nextPageToken,
         },
       });
