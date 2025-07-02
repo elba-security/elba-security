@@ -1,3 +1,6 @@
+import { GaxiosError } from 'googleapis-common';
+import { z } from 'zod';
+import { RetryAfterError } from 'inngest';
 import { getGoogleServiceAccountClient } from '@/connectors/google/clients';
 import { listMessages } from '@/connectors/google/gmail';
 import { inngest } from '@/inngest/client';
@@ -50,24 +53,43 @@ export const listGmailMessages = inngest.createFunction(
 
     const authClient = await getGoogleServiceAccountClient(email);
 
-    const result = await listMessages({
-      auth: authClient,
-      userId: email,
-      pageToken: pageToken ?? undefined,
-      q,
-    });
+    try {
+      const result = await listMessages({
+        auth: authClient,
+        userId: email,
+        pageToken: pageToken ?? undefined,
+        q,
+      });
 
-    return {
-      ...result,
-      messages: await Promise.all(
-        result.messages.map(async (message) => ({
-          id: message.id,
-          from: await encryptElbaInngestText(message.from),
-          to: await encryptElbaInngestText(message.to),
-          subject: await encryptElbaInngestText(message.subject),
-          body: await encryptElbaInngestText(message.body),
-        }))
-      ),
-    };
+      return {
+        ...result,
+        messages: await Promise.all(
+          result.messages.map(async (message) => ({
+            id: message.id,
+            from: await encryptElbaInngestText(message.from),
+            to: await encryptElbaInngestText(message.to),
+            subject: await encryptElbaInngestText(message.subject),
+            body: await encryptElbaInngestText(message.body),
+          }))
+        ),
+      };
+    } catch (error) {
+      // Despite we respect per user rate-limit, Gmail API can still returns rate-limit error
+      if (error instanceof GaxiosError && error.response?.headers['retry-after']) {
+        const rawRetryAfter = error.response.headers['retry-after'] as unknown;
+        const retryAfterInSecondsResult = z.coerce.number().safeParse(rawRetryAfter);
+        const retryAfterInDateResult = z.coerce.date().safeParse(rawRetryAfter);
+        let retryAfter: string | Date = '60s';
+
+        if (retryAfterInSecondsResult.success) {
+          retryAfter = `${retryAfterInSecondsResult.data}s`;
+        } else if (retryAfterInDateResult.success) {
+          retryAfter = retryAfterInDateResult.data;
+        }
+
+        throw new RetryAfterError(`Gmail API rate limit reached: ${error.message}`, retryAfter);
+      }
+      throw error;
+    }
   }
 );
