@@ -51,6 +51,7 @@ export const env = createEnv({
     TOKEN_REFRESH_CRON: z.string().default('*/30 * * * *'),
     THIRD_PARTY_APPS_SYNC_CRON: z.string().min(1),
     MAX_MESSAGE_BODY_LENGTH: z.coerce.number().int().min(1),
+    SYNCED_EMAILS_COUNT_PER_USER_LIMIT: z.coerce.number().positive().optional(),
     EMAIL_SCANNING_GLOBAL_INNGEST_CONCURRENCY_LIMIT: z.coerce.number().positive().default(2500),
   },
   experimental__runtimeEnv: {},

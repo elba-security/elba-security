@@ -27,6 +27,7 @@ export const env = createEnv({
     GOOGLE_AUTH_REDIRECT_URI: z.string().url(),
     GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL: z.string().min(1),
     GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: z.string().min(1),
+    SYNCED_EMAILS_COUNT_PER_USER_LIMIT: z.coerce.number().positive().optional(),
     THIRD_PARTY_APPS_SYNC_CRON: z.string().min(1),
     USERS_SYNC_BATCH_SIZE: z.coerce.number().int().positive().min(1),
     USERS_SYNC_CONCURRENCY: z.coerce.number().int().positive().min(1),

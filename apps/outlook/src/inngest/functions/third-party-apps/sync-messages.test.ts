@@ -157,6 +157,25 @@ describe('sync-messages', () => {
     );
   });
 
+  test('should not request sync of next page when there is a next page but limit per user is reached', async () => {
+    const { result, step } = await setup({
+      data: {
+        ...eventData,
+        syncedEmailsCount: 999,
+      },
+      nextSkipStep: 'next-skip-step',
+    });
+
+    await result;
+
+    expect(step.sendEvent).not.toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        name: 'outlook/third_party_apps.messages.sync.requested',
+      })
+    );
+  });
+
   test('should request sync of next page when there is a next page', async () => {
     const { result, step } = await setup({
       data: eventData,
@@ -186,6 +205,7 @@ describe('sync-messages', () => {
       name: 'outlook/third_party_apps.messages.sync.requested',
       data: {
         ...eventData,
+        syncedEmailsCount: 4,
         skipStep: 'next-skip-step',
       },
     });
