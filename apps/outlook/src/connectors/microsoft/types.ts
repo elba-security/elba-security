@@ -1,8 +1,5 @@
 import { type z } from 'zod';
-import { type userSchema, type listMessageSchema, type messageSchema } from './schemes';
-
-export type ListOutlookMessage = z.infer<typeof listMessageSchema>;
-export type OutlookMessageBySchema = z.infer<typeof messageSchema>;
+import { type userSchema } from './schemes';
 
 export type OutlookMessage = {
   id: string;

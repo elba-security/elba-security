@@ -2,7 +2,6 @@ import { type UpdateConnectionsObjects } from '@elba-security/schemas';
 import { analyzeEmail, type AnalyzeEmailRequested } from './analyze-email';
 import { scheduleThirdPartyAppsSync } from './schedule-sync';
 import { syncThirdPartyApps, type SyncThirdPartyAppsRequested } from './sync';
-import { syncEmail, type SyncEmailRequested } from './sync-email';
 import { syncMessages, type SyncMessagesRequested } from './sync-messages';
 
 type SyncCancelEvent = {
@@ -31,12 +30,10 @@ export const thirdPartyAppsFunctions = [
   syncMessages,
   analyzeEmail,
   scheduleThirdPartyAppsSync,
-  syncEmail,
 ];
 
 export type ThirdPartyAppsEvents = SyncThirdPartyAppsRequested &
   SyncMessagesRequested &
   SyncCancelEvent &
   ElbaUpdateConnectionsEvents &
-  AnalyzeEmailRequested &
-  SyncEmailRequested;
+  AnalyzeEmailRequested;

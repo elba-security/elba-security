@@ -1,10 +1,11 @@
 import { createInngestFunctionMock } from '@elba-security/test-utils';
 import { describe, expect, test, vi } from 'vitest';
 import * as microsoftConnector from '@/connectors/microsoft/message';
-import { type ListOutlookMessage } from '@/connectors/microsoft/types';
+import { type OutlookMessage } from '@/connectors/microsoft/types';
 import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
-import { outlookMessagesList } from '@/connectors/microsoft/message/mock';
+import { outlookMessages } from '@/connectors/microsoft/message/mock';
+import * as authConnector from '@/connectors/microsoft/auth';
 import { syncMessages, type SyncMessagesRequested } from './sync-messages';
 
 const mockFunction = createInngestFunctionMock(
@@ -13,15 +14,31 @@ const mockFunction = createInngestFunctionMock(
 );
 
 const token = 'token';
+const region = 'eu';
+const userId = 'user-id';
+const tenantId = 'tenant-id';
 
 vi.mock('@/common/crypto', () => ({
   decrypt: vi.fn(() => token),
 }));
 
+vi.spyOn(authConnector, 'getToken').mockResolvedValue({
+  token,
+  expiresIn: 3600,
+});
+
 const organisationId = '4f9b95b1-07ec-4356-971c-5a9d328e911c';
 const syncStartedAt = new Date().toISOString();
 
-const defaultMessages = outlookMessagesList.map((message) => ({ id: message.id }));
+export const defaultMessages: OutlookMessage[] = outlookMessages.map((message) => ({
+  id: message.id,
+  subject: `encrypted(${message.subject})`,
+  from: `encrypted(${message.from.emailAddress.address})`,
+  toRecipients: message.toRecipients
+    .map((item) => `encrypted(${item.emailAddress.address})`)
+    .join(', '),
+  body: `encrypted(${message.body.content})`,
+}));
 
 const eventData: SyncMessagesRequested['outlook/third_party_apps.messages.sync.requested']['data'] =
   {
@@ -32,6 +49,7 @@ const eventData: SyncMessagesRequested['outlook/third_party_apps.messages.sync.r
     syncFrom: '2025-06-02T00:00:00.000Z',
     skipStep: 'skip-step',
     syncStartedAt,
+    tenantId,
   };
 
 const setup = async ({
@@ -41,7 +59,7 @@ const setup = async ({
 }: {
   data: Parameters<typeof mockFunction>[0];
   nextSkipStep?: string | null;
-  messages?: ListOutlookMessage[];
+  messages?: OutlookMessage[];
 }) => {
   vi.spyOn(microsoftConnector, 'getMessages').mockResolvedValue({
     messages,
@@ -51,7 +69,6 @@ const setup = async ({
   await db.insert(organisationsTable).values({
     id: organisationId,
     tenantId: 'c647a27f-7060-4e8d-acc9-05a42218235b',
-    token,
     region: 'eu',
   });
 
@@ -108,14 +125,14 @@ describe('sync-messages', () => {
     await result;
 
     expect(step.sendEvent).toHaveBeenCalledWith(
-      'sync-mails',
-      defaultMessages.map(({ id: messageId }) => ({
-        name: 'outlook/third_party_apps.email.sync.requested',
+      'analyze-email',
+      defaultMessages.map((message) => ({
+        name: 'outlook/third_party_apps.email.analyze.requested',
         data: {
           organisationId,
-          region: eventData.region,
-          userId: eventData.userId,
-          messageId,
+          region,
+          userId,
+          message,
           syncStartedAt,
         },
       }))
@@ -152,14 +169,14 @@ describe('sync-messages', () => {
 
     expect(step.sendEvent).toHaveBeenNthCalledWith(
       1,
-      'sync-mails',
-      defaultMessages.map(({ id: messageId }) => ({
-        name: 'outlook/third_party_apps.email.sync.requested',
+      'analyze-email',
+      defaultMessages.map((message) => ({
+        name: 'outlook/third_party_apps.email.analyze.requested',
         data: {
           organisationId,
-          region: eventData.region,
-          userId: eventData.userId,
-          messageId,
+          region,
+          userId,
+          message,
           syncStartedAt,
         },
       }))

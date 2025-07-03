@@ -3,9 +3,8 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema/organisations';
 import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/microsoft/user';
-import { decrypt } from '@/common/crypto';
-import { getToken } from '@/inngest/functions/common/get-token';
 import { concurrencyOption } from '@/inngest/functions/common/concurrency-option';
+import { getToken } from '@/connectors/microsoft/auth';
 
 export type SyncThirdPartyAppsRequested = {
   'outlook/third_party_apps.sync.requested': {
@@ -59,19 +58,12 @@ export const syncThirdPartyApps = inngest.createFunction(
       });
     }
 
-    const token = await step.invoke('get-token', {
-      function: getToken,
-      data: {
-        organisationId,
-      },
-      timeout: '1d',
-    });
-
     const { validUsers: users, nextSkipToken } = await step.run('list-users', async () => {
+      const { token } = await getToken(tenantId);
       return await getUsers({
         tenantId,
         skipToken: pageToken,
-        token: await decrypt(token),
+        token,
       });
     });
 
@@ -88,6 +80,7 @@ export const syncThirdPartyApps = inngest.createFunction(
             syncTo: syncStartedAt,
             userId: user.id,
             syncStartedAt,
+            tenantId,
           },
         }))
       );

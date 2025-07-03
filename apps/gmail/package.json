@@ -31,6 +31,7 @@
     "@t3-oss/env-nextjs": "^0.7.1",
     "drizzle-orm": "catalog:",
     "google-auth-library": "^9.6.3",
+    "googleapis-common": "^7.0.0",
     "inngest": "catalog:",
     "next": "catalog:",
     "react": "catalog:",

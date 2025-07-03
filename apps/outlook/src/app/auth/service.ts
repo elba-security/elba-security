@@ -2,7 +2,6 @@ import { getToken } from '@/connectors/microsoft/auth';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getUsers } from '@/connectors/microsoft/user';
-import { encrypt } from '@/common/crypto';
 import { db } from '@/database/client';
 
 type SetupOrganisationParams = {
@@ -25,21 +24,17 @@ export const setupOrganisation = async ({
     return { isAppInstallationCompleted: false };
   }
 
-  const encodedToken = await encrypt(token);
-
   await db
     .insert(organisationsTable)
     .values({
       id: organisationId,
       tenantId,
-      token: encodedToken,
       region,
     })
     .onConflictDoUpdate({
       target: organisationsTable.id,
       set: {
         tenantId,
-        token: encodedToken,
         region,
       },
     });

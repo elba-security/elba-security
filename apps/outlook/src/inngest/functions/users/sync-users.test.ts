@@ -7,6 +7,7 @@ import { organisationsTable } from '@/database/schema';
 import { env } from '@/common/env/server';
 import { encrypt } from '@/common/crypto';
 import { type MicrosoftUser } from '@/connectors/microsoft/types';
+import * as authConnector from '@/connectors/microsoft/auth';
 import { syncUsers } from './sync';
 
 const token = 'test-token';
@@ -28,6 +29,11 @@ const users: MicrosoftUser[] = Array.from({ length: 5 }, (_, i) => ({
 }));
 
 const setup = createInngestFunctionMock(syncUsers, 'outlook/users.sync.requested');
+
+vi.spyOn(authConnector, 'getToken').mockResolvedValue({
+  token,
+  expiresIn: 3600,
+});
 
 describe('sync-users', () => {
   test('should abort sync when organisation is not registered', async () => {

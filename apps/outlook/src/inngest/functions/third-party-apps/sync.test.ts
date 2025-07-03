@@ -6,6 +6,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { env } from '@/common/env/server';
 import { type MicrosoftUser } from '@/connectors/microsoft/types';
+import * as authConnector from '@/connectors/microsoft/auth';
 import { syncThirdPartyApps, type SyncThirdPartyAppsRequested } from './sync';
 
 const mockFunction = createInngestFunctionMock(
@@ -71,9 +72,12 @@ const setup = async ({
     region: 'eu',
     lastSyncStartedAt: new Date(syncStartedAt),
     tenantId,
-    token,
   });
 
+  vi.spyOn(authConnector, 'getToken').mockResolvedValue({
+    token,
+    expiresIn: 3600,
+  });
   return mockFunction(data);
 };
 
@@ -117,6 +121,7 @@ describe('third-party-apps-sync', () => {
           syncTo: syncStartedAt,
           userId: user.id,
           syncStartedAt,
+          tenantId,
         },
       }))
     );
@@ -161,6 +166,7 @@ describe('third-party-apps-sync', () => {
           syncTo: syncStartedAt,
           userId: user.id,
           syncStartedAt,
+          tenantId,
         },
       }))
     );
@@ -185,6 +191,7 @@ describe('third-party-apps-sync', () => {
           syncTo: eventData.syncStartedAt,
           userId: user.id,
           syncStartedAt,
+          tenantId,
         },
       }))
     );
