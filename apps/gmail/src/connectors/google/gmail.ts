@@ -68,7 +68,7 @@ const messageSchema = z.object({
   body: z.string(),
 });
 
-type Message = z.infer<typeof messageSchema>;
+export type GmailMessage = z.infer<typeof messageSchema>;
 
 const parseRetrievedMessage = (batchedResponse: BatchResponse) => {
   try {
@@ -149,7 +149,7 @@ export const listMessages = async ({
     },
     {
       nextPageToken,
-      messages: [] as Message[],
+      messages: [] as GmailMessage[],
       errors: [] as unknown[],
     }
   );

@@ -1,18 +1,43 @@
 export const outlookMessages = [
   {
+    id: 'AAMkAGE4NmEwMmU2LTViYTctNDhhNi05ZTI3LWI3NzkyZGY5M2Q5NQBGAAAAAAAMB2R4SroqRYvgvUoGmDOtB_message-0',
+    subject: 'subject-message-0',
+    from: {
+      emailAddress: {
+        name: 'from-name-0',
+        address: 'from-0@gmail.com',
+      },
+    },
+    toRecipients: [
+      {
+        emailAddress: {
+          name: 'to-name-0',
+          address: 'to-0@acme.com',
+        },
+      },
+    ],
+    body: {
+      contentType: 'html',
+      content: 'html-content: message-text-0',
+    },
+    isDraft: false,
+    createdDateTime: '2025-04-08T10:00:00Z',
+    hasAttachments: false,
+  },
+  {
     id: 'AAMkAGE4NmEwMmU2LTViYTctNDhhNi05ZTI3LWI3NzkyZGY5M2Q5NQBGAAAAAAAMB2R4SroqRYvgvUoGmDOtB_message-1',
     subject: 'subject-message-1',
     from: {
       emailAddress: {
         name: 'from-name-1',
-        address: 'from-email-address-1',
+        address: 'from-1@acme.com',
       },
     },
     toRecipients: [
       {
         emailAddress: {
           name: 'to-name-1',
-          address: 'to-email-address-1',
+          address: 'to-1@acme.com',
         },
       },
     ],
@@ -30,14 +55,14 @@ export const outlookMessages = [
     from: {
       emailAddress: {
         name: 'from-name-2',
-        address: 'from-email-address-2',
+        address: 'from-2@acme.com',
       },
     },
     toRecipients: [
       {
         emailAddress: {
           name: 'to-name-2',
-          address: 'to-email-address-2',
+          address: 'to-2@acme.com',
         },
       },
     ],
@@ -55,14 +80,14 @@ export const outlookMessages = [
     from: {
       emailAddress: {
         name: 'from-name-3',
-        address: 'from-email-address-3',
+        address: 'from-3@acme.com',
       },
     },
     toRecipients: [
       {
         emailAddress: {
           name: 'to-name-3',
-          address: 'to-email-address-3',
+          address: 'to-3@acme.com',
         },
       },
     ],
@@ -80,14 +105,14 @@ export const outlookMessages = [
     from: {
       emailAddress: {
         name: 'from-name-4',
-        address: 'from-email-address-4',
+        address: 'from-4@acme.com',
       },
     },
     toRecipients: [
       {
         emailAddress: {
           name: 'to-name-4',
-          address: 'to-email-address-4',
+          address: 'to-4@acme.com',
         },
       },
     ],

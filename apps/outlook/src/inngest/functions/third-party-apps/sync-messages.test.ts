@@ -6,6 +6,7 @@ import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { outlookMessages } from '@/connectors/microsoft/message/mock';
 import * as authConnector from '@/connectors/microsoft/auth';
+import { encryptElbaInngestText } from '@/common/crypto';
 import { syncMessages, type SyncMessagesRequested } from './sync-messages';
 
 const mockFunction = createInngestFunctionMock(
@@ -18,10 +19,6 @@ const region = 'eu';
 const userId = 'user-id';
 const tenantId = 'tenant-id';
 
-vi.mock('@/common/crypto', () => ({
-  decrypt: vi.fn(() => token),
-}));
-
 vi.spyOn(authConnector, 'getToken').mockResolvedValue({
   token,
   expiresIn: 3600,
@@ -30,15 +27,17 @@ vi.spyOn(authConnector, 'getToken').mockResolvedValue({
 const organisationId = '4f9b95b1-07ec-4356-971c-5a9d328e911c';
 const syncStartedAt = new Date().toISOString();
 
-export const defaultMessages: OutlookMessage[] = outlookMessages.map((message) => ({
-  id: message.id,
-  subject: `encrypted(${message.subject})`,
-  from: `encrypted(${message.from.emailAddress.address})`,
-  toRecipients: message.toRecipients
-    .map((item) => `encrypted(${item.emailAddress.address})`)
-    .join(', '),
-  body: `encrypted(${message.body.content})`,
-}));
+export const defaultMessages: OutlookMessage[] = await Promise.all(
+  outlookMessages.map(async (message) => ({
+    id: message.id,
+    subject: await encryptElbaInngestText(message.subject),
+    from: await encryptElbaInngestText(message.from.emailAddress.address),
+    toRecipients: await Promise.all(
+      message.toRecipients.map((item) => encryptElbaInngestText(item.emailAddress.address))
+    ).then((toRecipients) => toRecipients.join(', ')),
+    body: await encryptElbaInngestText(message.body.content),
+  }))
+);
 
 const eventData: SyncMessagesRequested['outlook/third_party_apps.messages.sync.requested']['data'] =
   {
@@ -50,6 +49,7 @@ const eventData: SyncMessagesRequested['outlook/third_party_apps.messages.sync.r
     skipStep: 'skip-step',
     syncStartedAt,
     tenantId,
+    mail: 'receiver@foo.com',
   };
 
 const setup = async ({
@@ -126,7 +126,7 @@ describe('sync-messages', () => {
 
     expect(step.sendEvent).toHaveBeenCalledWith(
       'analyze-email',
-      defaultMessages.map((message) => ({
+      defaultMessages.slice(1, defaultMessages.length).map((message) => ({
         name: 'outlook/third_party_apps.email.analyze.requested',
         data: {
           organisationId,
@@ -189,7 +189,7 @@ describe('sync-messages', () => {
     expect(step.sendEvent).toHaveBeenNthCalledWith(
       1,
       'analyze-email',
-      defaultMessages.map((message) => ({
+      defaultMessages.slice(1, defaultMessages.length).map((message) => ({
         name: 'outlook/third_party_apps.email.analyze.requested',
         data: {
           organisationId,

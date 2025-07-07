@@ -79,6 +79,7 @@ export const syncThirdPartyApps = inngest.createFunction(
             syncFrom: lastSyncStartedAt,
             syncTo: syncStartedAt,
             userId: user.id,
+            mail: user.mail ?? null,
             syncStartedAt,
             tenantId,
           },

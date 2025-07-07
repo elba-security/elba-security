@@ -1,6 +1,8 @@
+import { shouldAnalyzeEmail } from '@elba-security/utils';
 import { inngest } from '@/inngest/client';
-import { formatListMessagesQuery } from '@/connectors/google/gmail';
+import { formatListMessagesQuery, type GmailMessage } from '@/connectors/google/gmail';
 import { env } from '@/common/env/server';
+import { decryptElbaInngestText } from '@/common/crypto';
 import { listGmailMessages } from '../gmail/list-messages';
 import { concurrencyOption } from '../common/concurrency-option';
 
@@ -83,10 +85,18 @@ export const syncInbox = inngest.createFunction(
       timeout: '365d',
     });
 
+    const messagesToAnalyze: GmailMessage[] = [];
+    for (const message of messages) {
+      const sender = await decryptElbaInngestText(message.from);
+      if (shouldAnalyzeEmail({ sender, receiver: email })) {
+        messagesToAnalyze.push(message);
+      }
+    }
+
     if (messages.length > 0) {
       await step.sendEvent(
         'analyze-emails',
-        messages.map((message) => ({
+        messagesToAnalyze.map((message) => ({
           name: 'gmail/third_party_apps.email.analyze.requested',
           data: {
             organisationId,
@@ -100,7 +110,7 @@ export const syncInbox = inngest.createFunction(
       );
     }
 
-    const nextSyncedEmailsCount = syncedEmailsCount + messages.length;
+    const nextSyncedEmailsCount = syncedEmailsCount + messagesToAnalyze.length;
     const isLimitPerUserReached = env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
       ? nextSyncedEmailsCount >= env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
       : false;

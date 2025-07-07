@@ -1,7 +1,10 @@
+import { shouldAnalyzeEmail } from '@elba-security/utils';
 import { inngest } from '@/inngest/client';
 import { formatGraphMessagesFilter } from '@/connectors/microsoft/message';
 import { env } from '@/common/env/server';
 import { concurrencyOption } from '@/inngest/functions/common/concurrency-option';
+import { type OutlookMessage } from '@/connectors/microsoft/types';
+import { decryptElbaInngestText } from '@/common/crypto';
 import { listOutlookMessages } from '../microsoft/list-messages';
 
 export type SyncMessagesRequested = {
@@ -16,6 +19,7 @@ export type SyncMessagesRequested = {
       syncStartedAt: string;
       syncedEmailsCount?: number;
       tenantId: string;
+      mail: string | null;
     };
   };
 };
@@ -49,6 +53,7 @@ export const syncMessages = inngest.createFunction(
       syncStartedAt,
       syncedEmailsCount = 0,
       tenantId,
+      mail,
     } = event.data;
 
     const { nextSkip, messages } = await step.invoke('list-messages', {
@@ -66,10 +71,18 @@ export const syncMessages = inngest.createFunction(
       timeout: '3d',
     });
 
-    if (messages.length > 0) {
+    const messagesToAnalyze: OutlookMessage[] = [];
+    for (const message of messages) {
+      const sender = await decryptElbaInngestText(message.from);
+      if (!mail || shouldAnalyzeEmail({ sender, receiver: mail })) {
+        messagesToAnalyze.push(message);
+      }
+    }
+
+    if (messagesToAnalyze.length > 0) {
       await step.sendEvent(
         'analyze-email',
-        messages.map((message) => ({
+        messagesToAnalyze.map((message) => ({
           name: 'outlook/third_party_apps.email.analyze.requested',
           data: {
             organisationId,
@@ -82,7 +95,7 @@ export const syncMessages = inngest.createFunction(
       );
     }
 
-    const nextSyncedEmailsCount = syncedEmailsCount + messages.length;
+    const nextSyncedEmailsCount = syncedEmailsCount + messagesToAnalyze.length;
     const isLimitPerUserReached = env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
       ? nextSyncedEmailsCount >= env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
       : false;

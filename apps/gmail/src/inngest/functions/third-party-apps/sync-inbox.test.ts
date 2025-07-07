@@ -20,15 +20,22 @@ const eventData: SyncInboxRequested['gmail/third_party_apps.inbox.sync.requested
 
 const defaultMessages = [
   {
+    id: 'message-id-0',
+    from: 'personal@gmail.com',
+    to: 'to.1@to.com',
+    body: 'body 1',
+    subject: 'subject 1',
+  },
+  {
     id: 'message-id-1',
-    from: 'from.1@foo.com',
+    from: 'from.1@baz.com',
     to: 'to.1@to.com',
     body: 'body 1',
     subject: 'subject 1',
   },
   {
     id: 'message-id-2',
-    from: 'from.2@foo.com',
+    from: 'from.2@baz.com',
     to: 'to.2@to.com',
     body: 'body 2',
     subject: 'subject 2',
@@ -112,26 +119,24 @@ describe('sync-inbox', () => {
 
     expect(step.sendEvent).toHaveBeenCalledWith(
       expect.any(String),
-      expect.arrayContaining(
-        await Promise.all(
-          defaultMessages.map(async (message) => ({
-            name: 'gmail/third_party_apps.email.analyze.requested',
-            data: {
-              organisationId,
-              region: eventData.region,
-              userId: eventData.userId,
-              email: eventData.email,
-              message: {
-                ...message,
-                from: await encryptElbaInngestText(message.from),
-                to: await encryptElbaInngestText(message.to),
-                subject: await encryptElbaInngestText(message.subject),
-                body: await encryptElbaInngestText(message.body),
-              },
-              syncStartedAt: eventData.syncStartedAt,
+      await Promise.all(
+        defaultMessages.slice(1, defaultMessages.length).map(async (message) => ({
+          name: 'gmail/third_party_apps.email.analyze.requested',
+          data: {
+            organisationId,
+            region: eventData.region,
+            userId: eventData.userId,
+            email: eventData.email,
+            message: {
+              ...message,
+              from: await encryptElbaInngestText(message.from),
+              to: await encryptElbaInngestText(message.to),
+              subject: await encryptElbaInngestText(message.subject),
+              body: await encryptElbaInngestText(message.body),
             },
-          }))
-        )
+            syncStartedAt: eventData.syncStartedAt,
+          },
+        }))
       )
     );
   });
