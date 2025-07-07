@@ -3,7 +3,7 @@ import { logger } from '@elba-security/logger';
 import { z } from 'zod';
 import { RedirectType, redirect } from 'next/navigation';
 import { getRedirectUrl } from '@elba-security/sdk';
-import { isRedirectError } from 'next/dist/client/components/redirect';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 import { cookies } from 'next/headers';
 import { env } from '@/common/env';
@@ -67,8 +67,10 @@ export const install = async (_: FormState, formData: FormData): Promise<FormSta
 
     const response = await registerOrganisation(result.data);
     if (response?.isInvalidPlan) {
-      cookies().set('organisation_id', result.data.organisationId);
-      cookies().set('region', result.data.region);
+      const cookiesInstance = await cookies();
+
+      cookiesInstance.set('organisation_id', result.data.organisationId);
+      cookiesInstance.set('region', result.data.region);
 
       redirect('/error?error=invalid_plan', RedirectType.replace);
     }

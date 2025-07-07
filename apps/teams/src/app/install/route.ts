@@ -14,15 +14,17 @@ const routeInputSchema = z.object({
   region: z.string().min(1),
 });
 
-export function GET(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const { organisationId, region } = routeInputSchema.parse({
       organisationId: request.nextUrl.searchParams.get('organisation_id'),
       region: request.nextUrl.searchParams.get('region'),
     });
 
-    cookies().set('organisationId', organisationId);
-    cookies().set('region', region);
+    const cookiesInstance = await cookies();
+
+    cookiesInstance.set('organisationId', organisationId);
+    cookiesInstance.set('region', region);
   } catch (error) {
     logger.warn('Could not redirect user to Microsoft app install url', {
       error,

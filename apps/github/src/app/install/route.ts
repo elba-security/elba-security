@@ -13,7 +13,7 @@ const routeInputSchema = z.object({
   region: z.string().min(1),
 });
 
-export function GET(request: NextRequest) {
+export async function GET(request: NextRequest) {
   const region = request.nextUrl.searchParams.get('region');
   try {
     const input = routeInputSchema.parse({
@@ -21,8 +21,10 @@ export function GET(request: NextRequest) {
       region,
     });
 
-    cookies().set('organisation_id', input.organisationId);
-    cookies().set('region', input.region);
+    const cookiesInstance = await cookies();
+
+    cookiesInstance.set('organisation_id', input.organisationId);
+    cookiesInstance.set('region', input.region);
   } catch (error) {
     logger.warn('Could not redirect user to Github app install url', {
       error,

@@ -5,9 +5,9 @@ import { redirect, RedirectType } from 'next/navigation';
 import { logger } from '@elba-security/logger';
 import { env } from '@/common/env';
 
-export const redirectTo = () => {
-  const region = cookies().get('region')?.value;
-  const redirectUrl = cookies().get('redirect_url')?.value;
+export const redirectTo = async () => {
+  const region = (await cookies()).get('region')?.value;
+  const redirectUrl = (await cookies()).get('redirect_url')?.value;
 
   if (!redirectUrl) {
     logger.error('Redirect URL is not found');
