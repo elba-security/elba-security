@@ -13,6 +13,7 @@ import {
   type OnedrivePermission,
 } from '@/connectors/microsoft/onedrive/permissions';
 import { type MicrosoftDriveItem } from '@/connectors/microsoft/onedrive/items';
+import { MicrosoftError } from '@/common/error';
 import { parseItemsInheritedPermissions } from './common/helpers';
 
 export const syncDeltaItems = inngest.createFunction(
@@ -57,20 +58,48 @@ export const syncDeltaItems = inngest.createFunction(
 
     const token = await decrypt(record.token);
     const result = await step.run('fetch-delta-items', async () => {
-      const delta = await getDeltaItems({
-        token,
-        userId,
-        deltaToken: record.delta,
-      });
+      try {
+        const delta = await getDeltaItems({
+          token,
+          userId,
+          deltaToken: record.delta,
+        });
 
-      if (!delta) {
-        return null;
+        if (!delta) {
+          return null;
+        }
+
+        await db
+          .update(subscriptionsTable)
+          .set({
+            delta: 'newDeltaToken' in delta ? delta.newDeltaToken : delta.nextSkipToken,
+          })
+          .where(
+            and(
+              eq(subscriptionsTable.organisationId, record.organisationId),
+              eq(subscriptionsTable.userId, userId),
+              eq(subscriptionsTable.subscriptionId, subscriptionId)
+            )
+          );
+
+        return delta;
+      } catch (e) {
+        if (e instanceof MicrosoftError && e.code === 'DELTA_TOKEN_EXPIRED') {
+          return 'resync';
+        }
+        throw e;
       }
+    });
 
+    if (!result) {
+      return { status: 'ignored' };
+    }
+
+    if (result === 'resync') {
       await db
         .update(subscriptionsTable)
         .set({
-          delta: 'newDeltaToken' in delta ? delta.newDeltaToken : delta.nextSkipToken,
+          delta: '',
         })
         .where(
           and(
@@ -80,11 +109,10 @@ export const syncDeltaItems = inngest.createFunction(
           )
         );
 
-      return delta;
-    });
-
-    if (!result) {
-      return { status: 'ignored' };
+      return await step.sendEvent('sync-next-delta-page', {
+        name: 'onedrive/delta.sync.triggered',
+        data: event.data,
+      });
     }
 
     const { items, ...tokens } = result;

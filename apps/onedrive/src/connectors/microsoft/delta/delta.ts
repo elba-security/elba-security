@@ -72,6 +72,17 @@ export const getDeltaItems = async ({
       return null;
     }
 
+    // The delta token has expired, we need to re-run a full sync
+    // https://learn.microsoft.com/en-us/graph/api/driveitem-delta?view=graph-rest-1.0&tabs=http#response-2
+    if (response.status === 410) {
+      logger.warn('Onedrive delta token expired', {
+        userId,
+        errorInfo,
+      });
+
+      throw new MicrosoftError('Delta token expired', { response, code: 'DELTA_TOKEN_EXPIRED' });
+    }
+
     throw new MicrosoftError('Could not retrieve items delta', { response });
   }
 

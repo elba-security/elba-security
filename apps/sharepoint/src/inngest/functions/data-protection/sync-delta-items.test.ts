@@ -9,6 +9,7 @@ import { env } from '@/common/env';
 import type { SharepointPermission } from '@/connectors/microsoft/sharepoint/permissions';
 import * as permissionsConnector from '@/connectors/microsoft/sharepoint/permissions';
 import * as deltaConnector from '@/connectors/microsoft/delta/delta';
+import { MicrosoftError } from '@/common/error';
 import { syncDeltaItems } from './sync-delta-items';
 
 const token = 'test-token';
@@ -277,6 +278,29 @@ describe('update-item-and-permissions', () => {
 
     expect(record).toBeDefined();
     expect(record?.delta).toBe(newDeltaToken);
+  });
+
+  test('should start resync when delta token is expired', async () => {
+    vi.spyOn(deltaConnector, 'getDeltaItems').mockRejectedValue(
+      new MicrosoftError('Delta token expired', { code: 'DELTA_TOKEN_EXPIRED' })
+    );
+    const [result, { step }] = setup(setupData);
+
+    await expect(result).resolves.toStrictEqual({ ids: ['sync-next-delta-page-1'] });
+
+    expect(step.run).toBeCalledTimes(1);
+    expect(step.run).toHaveBeenNthCalledWith(1, 'fetch-delta-items', expect.any(Function));
+
+    expect(step.sendEvent).toBeCalledTimes(1);
+    expect(step.sendEvent).toBeCalledWith('sync-next-delta-page', {
+      name: 'sharepoint/delta.sync.triggered',
+      data: {
+        siteId,
+        driveId,
+        subscriptionId,
+        tenantId,
+      },
+    });
   });
 
   test('should continue the sync when there is a next page', async () => {
