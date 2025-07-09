@@ -154,6 +154,25 @@ describe('sync-inbox', () => {
     );
   });
 
+  test('should not request sync of next page when there is a next page but limit per user is reached', async () => {
+    const [result, { step }] = setup({
+      data: {
+        ...eventData,
+        syncedEmailsCount: 999,
+      },
+      nextPageToken: 'next-page-token',
+    });
+
+    await result;
+
+    expect(step.sendEvent).not.toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        name: 'gmail/third_party_apps.inbox.sync.requested',
+      })
+    );
+  });
+
   test('should request sync of next page when there is a next page', async () => {
     const [result, { step }] = setup({
       data: eventData,
@@ -166,6 +185,7 @@ describe('sync-inbox', () => {
       name: 'gmail/third_party_apps.inbox.sync.requested',
       data: {
         ...eventData,
+        syncedEmailsCount: 2,
         pageToken: 'next-page-token',
       },
     });

@@ -1,5 +1,6 @@
 import { inngest } from '@/inngest/client';
 import { formatGraphMessagesFilter } from '@/connectors/microsoft/message';
+import { env } from '@/common/env/server';
 import { concurrencyOption } from '@/inngest/functions/common/concurrency-option';
 import { listOutlookMessages } from '../microsoft/list-messages';
 
@@ -13,6 +14,7 @@ export type SyncMessagesRequested = {
       syncFrom: string | null;
       syncTo: string;
       syncStartedAt: string;
+      syncedEmailsCount?: number;
       tenantId: string;
     };
   };
@@ -37,8 +39,17 @@ export const syncMessages = inngest.createFunction(
     event: 'outlook/third_party_apps.messages.sync.requested',
   },
   async ({ event, step }) => {
-    const { skipStep, organisationId, userId, syncFrom, syncTo, region, syncStartedAt, tenantId } =
-      event.data;
+    const {
+      skipStep,
+      organisationId,
+      userId,
+      syncFrom,
+      syncTo,
+      region,
+      syncStartedAt,
+      syncedEmailsCount = 0,
+      tenantId,
+    } = event.data;
 
     const { nextSkip, messages } = await step.invoke('list-messages', {
       function: listOutlookMessages,
@@ -71,11 +82,17 @@ export const syncMessages = inngest.createFunction(
       );
     }
 
-    if (nextSkip) {
+    const nextSyncedEmailsCount = syncedEmailsCount + messages.length;
+    const isLimitPerUserReached = env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
+      ? nextSyncedEmailsCount >= env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
+      : false;
+
+    if (!isLimitPerUserReached && nextSkip) {
       await step.sendEvent('sync-next-page', {
         name: 'outlook/third_party_apps.messages.sync.requested',
         data: {
           ...event.data,
+          syncedEmailsCount: nextSyncedEmailsCount,
           skipStep: nextSkip,
         },
       });
