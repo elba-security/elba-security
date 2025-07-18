@@ -1,5 +1,6 @@
 export * from './authentication';
 export * from './common';
+export * from './configurations';
 export * from './connections';
 export * from './connection-status';
 export * from './data-protection';

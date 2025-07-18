@@ -1,5 +1,6 @@
 import { type RequestHandler } from 'msw';
 import { createAuthRequestHandler } from './auth-request-handler';
+import { createConfigurationsRequestHandlers } from './resources/configurations';
 import { createConnectionStatusRequestHandlers } from './resources/connection-status';
 import { createDataProtectionRequestHandlers } from './resources/data-protection';
 import { createOrganisationsRequestHandlers } from './resources/organisations';
@@ -8,6 +9,7 @@ import { createUsersRequestHandlers } from './resources/users';
 
 export const createElbaRequestHandlers = (baseUrl: string, apiKey: string): RequestHandler[] => [
   createAuthRequestHandler(baseUrl, apiKey),
+  ...createConfigurationsRequestHandlers(baseUrl),
   ...createConnectionStatusRequestHandlers(baseUrl),
   ...createDataProtectionRequestHandlers(baseUrl),
   ...createThirdPartyAppsRequestHandlers(baseUrl),

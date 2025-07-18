@@ -4,6 +4,7 @@ import { Elba } from './elba';
 import type { User } from './resources/users/types';
 import type { ThirdPartyAppsObject } from './resources/third-party-apps/types';
 import type { DataProtectionObject } from './resources/data-protection/types';
+import type { ConfigurationObject } from './resources/configurations/types';
 
 const options = {
   organisationId: '22bc932d-a132-4a63-bde8-5cb5609f0e73',
@@ -177,6 +178,123 @@ describe('organisations', () => {
             nangoConnectionId: 'nango-connection-id-2',
           },
         ],
+      });
+    });
+  });
+});
+
+describe('configurations', () => {
+  describe('update', () => {
+    test('should call the right endpoint and return the response data', async () => {
+      const configurations: ConfigurationObject[] = [
+        {
+          category: 'authentication',
+          sub_category: 'mfa_policy',
+          configuration: {
+            enabled: true,
+            enforcement: 'required',
+            allowed_methods: ['authenticator_app', 'security_key'],
+            grace_period_days: 7,
+          },
+          metadata: {
+            display_name: 'Multi-Factor Authentication Policy',
+            description: 'Organization-wide MFA settings',
+            risk_level: 'low',
+            documentation_url: 'https://support.google.com/a/answer/175197',
+          },
+          source_updated_at: new Date().toISOString(),
+        },
+        {
+          category: 'sharing',
+          sub_category: 'external_sharing',
+          configuration: {
+            allow_external_sharing: true,
+            require_approval: true,
+            allowed_domains: ['trusted-partner.com'],
+            default_link_sharing: 'restricted',
+          },
+          metadata: {
+            display_name: 'External Sharing Settings',
+            risk_level: 'medium',
+          },
+        },
+      ];
+
+      const elba = new Elba(options);
+      await expect(
+        elba.configurations.update({
+          organisationId: options.organisationId,
+          configurations,
+        })
+      ).resolves.toStrictEqual({
+        success: true,
+        data: {
+          received: configurations.length,
+          created: configurations.length,
+          updated: 0,
+          deleted: 0,
+        },
+      });
+    });
+
+    test('should call the right endpoint with syncedBefore parameter', async () => {
+      const configurations: ConfigurationObject[] = [
+        {
+          category: 'authentication',
+          sub_category: 'password_policy',
+          configuration: {
+            minimum_length: 12,
+            require_uppercase: true,
+            require_numbers: true,
+          },
+        },
+      ];
+
+      const syncedBefore = new Date().toISOString();
+      const elba = new Elba(options);
+      await expect(
+        elba.configurations.update(
+          {
+            organisationId: options.organisationId,
+            configurations,
+          },
+          { syncedBefore }
+        )
+      ).resolves.toStrictEqual({
+        success: true,
+        data: {
+          received: configurations.length,
+          created: configurations.length,
+          updated: 0,
+          deleted: 0,
+        },
+      });
+    });
+  });
+
+  describe('delete', () => {
+    test('should call the right endpoint and return the response data when using syncedBefore', async () => {
+      const syncedBefore = new Date().toISOString();
+      const elba = new Elba(options);
+      await expect(
+        elba.configurations.delete({
+          organisationId: options.organisationId,
+          syncedBefore,
+        })
+      ).resolves.toStrictEqual({
+        success: true,
+      });
+    });
+
+    test('should call the right endpoint and return the response data when using ids', async () => {
+      const elba = new Elba(options);
+      await expect(
+        elba.configurations.delete({
+          organisationId: options.organisationId,
+          ids: ['550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001'],
+        })
+      ).resolves.toStrictEqual({
+        success: true,
       });
     });
   });
