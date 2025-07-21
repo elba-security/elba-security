@@ -126,7 +126,7 @@ describe('sync-messages', () => {
 
     expect(step.sendEvent).toHaveBeenCalledWith(
       'analyze-email',
-      defaultMessages.slice(1, defaultMessages.length).map((message) => ({
+      defaultMessages.slice(1, defaultMessages.length - 1).map((message) => ({
         name: 'outlook/third_party_apps.email.analyze.requested',
         data: {
           organisationId,
@@ -189,7 +189,7 @@ describe('sync-messages', () => {
     expect(step.sendEvent).toHaveBeenNthCalledWith(
       1,
       'analyze-email',
-      defaultMessages.slice(1, defaultMessages.length).map((message) => ({
+      defaultMessages.slice(1, defaultMessages.length - 1).map((message) => ({
         name: 'outlook/third_party_apps.email.analyze.requested',
         data: {
           organisationId,

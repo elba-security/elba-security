@@ -124,4 +124,29 @@ export const outlookMessages = [
     createdDateTime: '2025-07-15T10:00:00Z',
     hasAttachments: false,
   },
+  {
+    id: 'AAMkAGE4NmEwMmU2LTViYTctNDhhNi05ZTI3LWI3NzkyZGY5M2Q5NQBGAAAAAAAMB2R4SroqRYvgvUoGmDOtB_message-5',
+    subject: 'subject-message-4',
+    from: {
+      emailAddress: {
+        name: 'from-name-4',
+        address: 'from-4@acme.com',
+      },
+    },
+    toRecipients: [
+      {
+        emailAddress: {
+          name: 'to-name-4',
+          address: 'to-4@acme.com',
+        },
+      },
+    ],
+    body: {
+      contentType: 'html',
+      content: 'html-content: message-text-5',
+    },
+    isDraft: false,
+    createdDateTime: '2025-07-15T10:00:00Z',
+    hasAttachments: false,
+  },
 ];

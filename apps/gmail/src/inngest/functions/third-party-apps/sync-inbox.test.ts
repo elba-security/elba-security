@@ -40,6 +40,13 @@ const defaultMessages = [
     body: 'body 2',
     subject: 'subject 2',
   },
+  {
+    id: 'message-id-3',
+    from: 'from.2@baz.com',
+    to: 'to.2@to.com',
+    body: 'body 3',
+    subject: 'subject 3',
+  },
 ];
 
 const mockFunction = createInngestFunctionMock(
@@ -120,7 +127,7 @@ describe('sync-inbox', () => {
     expect(step.sendEvent).toHaveBeenCalledWith(
       expect.any(String),
       await Promise.all(
-        defaultMessages.slice(1, defaultMessages.length).map(async (message) => ({
+        defaultMessages.slice(1, defaultMessages.length - 1).map(async (message) => ({
           name: 'gmail/third_party_apps.email.analyze.requested',
           data: {
             organisationId,

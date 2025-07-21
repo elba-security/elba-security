@@ -86,10 +86,16 @@ export const syncInbox = inngest.createFunction(
     });
 
     const messagesToAnalyze: GmailMessage[] = [];
+    const messagesToAnalyzeSenders = new Set<string>();
+
     for (const message of messages) {
       const sender = await decryptElbaInngestText(message.from);
-      if (shouldAnalyzeEmail({ sender, receiver: email })) {
+      if (
+        !messagesToAnalyzeSenders.has(message.from) &&
+        shouldAnalyzeEmail({ sender, receiver: email })
+      ) {
         messagesToAnalyze.push(message);
+        messagesToAnalyzeSenders.add(message.from);
       }
     }
 

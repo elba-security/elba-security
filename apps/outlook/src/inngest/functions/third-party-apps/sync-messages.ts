@@ -72,10 +72,17 @@ export const syncMessages = inngest.createFunction(
     });
 
     const messagesToAnalyze: OutlookMessage[] = [];
+    const messagesToAnalyzeSenders = new Set<string>();
+
     for (const message of messages) {
       const sender = await decryptElbaInngestText(message.from);
-      if (!mail || shouldAnalyzeEmail({ sender, receiver: mail })) {
+      if (
+        !mail ||
+        (!messagesToAnalyzeSenders.has(message.from) &&
+          shouldAnalyzeEmail({ sender, receiver: mail }))
+      ) {
         messagesToAnalyze.push(message);
+        messagesToAnalyzeSenders.add(message.from);
       }
     }
 
