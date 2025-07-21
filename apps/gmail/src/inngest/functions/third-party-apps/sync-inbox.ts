@@ -93,7 +93,7 @@ export const syncInbox = inngest.createFunction(
       }
     }
 
-    if (messages.length > 0) {
+    if (messagesToAnalyze.length > 0) {
       await step.sendEvent(
         'analyze-emails',
         messagesToAnalyze.map((message) => ({
