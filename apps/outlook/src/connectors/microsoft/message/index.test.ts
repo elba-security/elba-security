@@ -16,26 +16,22 @@ vi.mock('@/common/crypto', () => ({
   encryptElbaInngestText: vi.fn((text: string) => `encrypted(${text})`),
 }));
 
-const encryptedMessagesWithoutFilter: OutlookMessage[] = outlookMessages.map((message) => ({
+const messagesWithoutFilter: OutlookMessage[] = outlookMessages.map((message) => ({
   id: message.id,
-  subject: `encrypted(${message.subject})`,
-  from: `encrypted(${message.from.emailAddress.address})`,
-  toRecipients: message.toRecipients
-    .map((item) => `encrypted(${item.emailAddress.address})`)
-    .join(', '),
-  body: `encrypted(${message.body.content})`,
+  subject: message.subject,
+  from: message.from.emailAddress.address,
+  toRecipients: message.toRecipients.map((item) => item.emailAddress.address).join(', '),
+  body: message.body.content,
 }));
 
-const encryptedMessagesWithFilter: OutlookMessage[] = outlookMessages
+const messagesWithFilter: OutlookMessage[] = outlookMessages
   .filter((message) => message.createdDateTime === '2025-04-08T10:00:00Z')
   .map((message) => ({
     id: message.id,
-    subject: `encrypted(${message.subject})`,
-    from: `encrypted(${message.from.emailAddress.address})`,
-    toRecipients: message.toRecipients
-      .map((item) => `encrypted(${item.emailAddress.address})`)
-      .join(', '),
-    body: `encrypted(${message.body.content})`,
+    subject: message.subject,
+    from: message.from.emailAddress.address,
+    toRecipients: message.toRecipients.map((item) => item.emailAddress.address).join(', '),
+    body: message.body.content,
   }));
 
 describe('getMessages', () => {
@@ -98,7 +94,7 @@ describe('getMessages', () => {
       getMessages({ filter: '', token: validToken, userId, skipStep: startSkipStep })
     ).resolves.toStrictEqual({
       nextSkip: nextSkipStep,
-      messages: encryptedMessagesWithoutFilter,
+      messages: messagesWithoutFilter,
     });
   });
 
@@ -115,7 +111,7 @@ describe('getMessages', () => {
       })
     ).resolves.toStrictEqual({
       nextSkip: nextSkipStep,
-      messages: encryptedMessagesWithFilter,
+      messages: messagesWithFilter,
     });
   });
 });

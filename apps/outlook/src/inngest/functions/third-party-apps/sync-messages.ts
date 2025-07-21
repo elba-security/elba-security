@@ -1,10 +1,7 @@
-import { shouldAnalyzeEmail } from '@elba-security/utils';
 import { inngest } from '@/inngest/client';
 import { formatGraphMessagesFilter } from '@/connectors/microsoft/message';
 import { env } from '@/common/env/server';
 import { concurrencyOption } from '@/inngest/functions/common/concurrency-option';
-import { type OutlookMessage } from '@/connectors/microsoft/types';
-import { decryptElbaInngestText } from '@/common/crypto';
 import { listOutlookMessages } from '../microsoft/list-messages';
 
 export type SyncMessagesRequested = {
@@ -63,6 +60,7 @@ export const syncMessages = inngest.createFunction(
         organisationId,
         userId,
         skipStep,
+        mail,
         filter: formatGraphMessagesFilter({
           after: syncFrom ? new Date(syncFrom) : undefined,
           before: new Date(syncTo),
@@ -71,44 +69,34 @@ export const syncMessages = inngest.createFunction(
       timeout: '3d',
     });
 
-    const messagesToAnalyze: OutlookMessage[] = [];
-    const messagesToAnalyzeSenders = new Set<string>();
+    const events: Parameters<typeof step.sendEvent>[1] = [];
 
-    for (const message of messages) {
-      const sender = await decryptElbaInngestText(message.from);
-      if (
-        !mail ||
-        (!messagesToAnalyzeSenders.has(message.from) &&
-          shouldAnalyzeEmail({ sender, receiver: mail }))
-      ) {
-        messagesToAnalyze.push(message);
-        messagesToAnalyzeSenders.add(message.from);
-      }
-    }
-
-    if (messagesToAnalyze.length > 0) {
-      await step.sendEvent(
-        'analyze-email',
-        messagesToAnalyze.map((message) => ({
-          name: 'outlook/third_party_apps.email.analyze.requested',
-          data: {
-            organisationId,
-            region,
-            userId,
-            message,
-            syncStartedAt,
-          },
-        }))
+    if (messages.length > 0) {
+      events.push(
+        ...messages.map(
+          (message) =>
+            ({
+              name: 'outlook/third_party_apps.email.analyze.requested',
+              data: {
+                organisationId,
+                region,
+                userId,
+                message,
+                syncStartedAt,
+              },
+            }) as const
+        )
       );
     }
 
-    const nextSyncedEmailsCount = syncedEmailsCount + messagesToAnalyze.length;
+    const nextSyncedEmailsCount = syncedEmailsCount + env.MESSAGES_SYNC_BATCH_SIZE;
     const isLimitPerUserReached = env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
       ? nextSyncedEmailsCount >= env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
       : false;
+    const status = !isLimitPerUserReached && nextSkip ? 'ongoing' : 'completed';
 
-    if (!isLimitPerUserReached && nextSkip) {
-      await step.sendEvent('sync-next-page', {
+    if (status === 'ongoing') {
+      events.push({
         name: 'outlook/third_party_apps.messages.sync.requested',
         data: {
           ...event.data,
@@ -116,13 +104,14 @@ export const syncMessages = inngest.createFunction(
           skipStep: nextSkip,
         },
       });
-      return {
-        status: 'ongoing',
-      };
+    }
+
+    if (events.length > 0) {
+      await step.sendEvent('sync-next-page-and-analyze-emails', events);
     }
 
     return {
-      status: 'completed',
+      status,
     };
   }
 );

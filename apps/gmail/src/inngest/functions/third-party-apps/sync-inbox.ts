@@ -1,8 +1,6 @@
-import { shouldAnalyzeEmail } from '@elba-security/utils';
 import { inngest } from '@/inngest/client';
-import { formatListMessagesQuery, type GmailMessage } from '@/connectors/google/gmail';
+import { formatListMessagesQuery } from '@/connectors/google/gmail';
 import { env } from '@/common/env/server';
-import { decryptElbaInngestText } from '@/common/crypto';
 import { listGmailMessages } from '../gmail/list-messages';
 import { concurrencyOption } from '../common/concurrency-option';
 
@@ -85,58 +83,50 @@ export const syncInbox = inngest.createFunction(
       timeout: '365d',
     });
 
-    const messagesToAnalyze: GmailMessage[] = [];
-    const messagesToAnalyzeSenders = new Set<string>();
+    const events: Parameters<typeof step.sendEvent>[1] = [];
 
-    for (const message of messages) {
-      const sender = await decryptElbaInngestText(message.from);
-      if (
-        !messagesToAnalyzeSenders.has(message.from) &&
-        shouldAnalyzeEmail({ sender, receiver: email })
-      ) {
-        messagesToAnalyze.push(message);
-        messagesToAnalyzeSenders.add(message.from);
-      }
-    }
-
-    if (messagesToAnalyze.length > 0) {
-      await step.sendEvent(
-        'analyze-emails',
-        messagesToAnalyze.map((message) => ({
-          name: 'gmail/third_party_apps.email.analyze.requested',
-          data: {
-            organisationId,
-            region,
-            userId,
-            email,
-            message,
-            syncStartedAt,
-          },
-        }))
+    if (messages.length > 0) {
+      events.push(
+        ...messages.map(
+          (message) =>
+            ({
+              name: 'gmail/third_party_apps.email.analyze.requested',
+              data: {
+                organisationId,
+                region,
+                userId,
+                email,
+                message,
+                syncStartedAt,
+              },
+            }) as const
+        )
       );
     }
 
-    const nextSyncedEmailsCount = syncedEmailsCount + messagesToAnalyze.length;
+    const nextSyncedEmailsCount = syncedEmailsCount + 100;
     const isLimitPerUserReached = env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
       ? nextSyncedEmailsCount >= env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
       : false;
+    const status = !isLimitPerUserReached && nextPageToken ? 'ongoing' : 'completed';
 
-    if (!isLimitPerUserReached && nextPageToken) {
-      await step.sendEvent('sync-next-page', {
+    if (status === 'ongoing') {
+      events.push({
         name: 'gmail/third_party_apps.inbox.sync.requested',
         data: {
           ...event.data,
           syncedEmailsCount: nextSyncedEmailsCount,
-          pageToken: nextPageToken,
+          pageToken: nextPageToken ?? null,
         },
       });
-      return {
-        status: 'ongoing',
-      };
+    }
+
+    if (events.length > 0) {
+      await step.sendEvent('sync-next-page-and-analyze-emails', events);
     }
 
     return {
-      status: 'completed',
+      status,
     };
   }
 );
