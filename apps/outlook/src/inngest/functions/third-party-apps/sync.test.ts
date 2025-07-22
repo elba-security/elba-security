@@ -122,6 +122,7 @@ describe('third-party-apps-sync', () => {
           userId: user.id,
           syncStartedAt,
           tenantId,
+          mail: user.mail,
         },
       }))
     );
