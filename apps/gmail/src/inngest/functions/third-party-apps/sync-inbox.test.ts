@@ -21,19 +21,29 @@ const eventData: SyncInboxRequested['gmail/third_party_apps.inbox.sync.requested
 const defaultMessages = [
   {
     id: 'message-id-1',
-    from: 'from.1@foo.com',
+    from: 'from.1@baz.com',
     to: 'to.1@to.com',
     body: 'body 1',
     subject: 'subject 1',
   },
   {
     id: 'message-id-2',
-    from: 'from.2@foo.com',
+    from: 'from.2@baz.com',
     to: 'to.2@to.com',
     body: 'body 2',
     subject: 'subject 2',
   },
 ];
+
+const encryptedFilteredDefaultMessages = await Promise.all(
+  defaultMessages.map(async (message) => ({
+    id: message.id,
+    from: await encryptElbaInngestText(message.from),
+    to: await encryptElbaInngestText(message.to),
+    subject: await encryptElbaInngestText(message.subject),
+    body: await encryptElbaInngestText(message.body),
+  }))
+);
 
 const mockFunction = createInngestFunctionMock(
   syncInbox,
@@ -113,25 +123,17 @@ describe('sync-inbox', () => {
     expect(step.sendEvent).toHaveBeenCalledWith(
       expect.any(String),
       expect.arrayContaining(
-        await Promise.all(
-          defaultMessages.map(async (message) => ({
-            name: 'gmail/third_party_apps.email.analyze.requested',
-            data: {
-              organisationId,
-              region: eventData.region,
-              userId: eventData.userId,
-              email: eventData.email,
-              message: {
-                ...message,
-                from: await encryptElbaInngestText(message.from),
-                to: await encryptElbaInngestText(message.to),
-                subject: await encryptElbaInngestText(message.subject),
-                body: await encryptElbaInngestText(message.body),
-              },
-              syncStartedAt: eventData.syncStartedAt,
-            },
-          }))
-        )
+        encryptedFilteredDefaultMessages.map((message) => ({
+          name: 'gmail/third_party_apps.email.analyze.requested',
+          data: {
+            organisationId,
+            region: eventData.region,
+            userId: eventData.userId,
+            email: eventData.email,
+            message,
+            syncStartedAt: eventData.syncStartedAt,
+          },
+        }))
       )
     );
   });
@@ -167,9 +169,11 @@ describe('sync-inbox', () => {
 
     expect(step.sendEvent).not.toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({
-        name: 'gmail/third_party_apps.inbox.sync.requested',
-      })
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'gmail/third_party_apps.inbox.sync.requested',
+        }),
+      ])
     );
   });
 
@@ -181,14 +185,27 @@ describe('sync-inbox', () => {
 
     await result;
 
-    expect(step.sendEvent).toHaveBeenCalledWith(expect.any(String), {
-      name: 'gmail/third_party_apps.inbox.sync.requested',
-      data: {
-        ...eventData,
-        syncedEmailsCount: 2,
-        pageToken: 'next-page-token',
+    expect(step.sendEvent).toHaveBeenCalledWith(expect.any(String), [
+      ...encryptedFilteredDefaultMessages.map((message) => ({
+        name: 'gmail/third_party_apps.email.analyze.requested',
+        data: {
+          organisationId,
+          region: eventData.region,
+          userId: eventData.userId,
+          email: eventData.email,
+          message,
+          syncStartedAt: eventData.syncStartedAt,
+        },
+      })),
+      {
+        name: 'gmail/third_party_apps.inbox.sync.requested',
+        data: {
+          ...eventData,
+          syncedEmailsCount: 100,
+          pageToken: 'next-page-token',
+        },
       },
-    });
+    ]);
   });
 
   test('should not request sync of next page when there is no next page', async () => {
@@ -201,9 +218,11 @@ describe('sync-inbox', () => {
 
     expect(step.sendEvent).not.toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({
-        name: 'gmail/third_party_apps.inbox.sync.requested',
-      })
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'gmail/third_party_apps.inbox.sync.requested',
+        }),
+      ])
     );
   });
 
