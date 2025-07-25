@@ -112,12 +112,8 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
 
   // TeamTailor returns all users in data array
   for (const user of result.data) {
-    // Skip users without a name as they can't be displayed properly
-    if (user.attributes.name) {
-      validUsers.push(user);
-    } else {
-      invalidUsers.push(user);
-    }
+    // All users with an email are valid - we'll use email as fallback for display name
+    validUsers.push(user);
   }
 
   return {
