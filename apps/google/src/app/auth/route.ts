@@ -11,8 +11,9 @@ export const dynamic = 'force-dynamic';
 
 export const GET = async (request: NextRequest) => {
   const code = request.nextUrl.searchParams.get('code');
-  const organisationId = request.cookies.get('organisation_id')?.value;
-  const region = request.cookies.get('region')?.value;
+  const cookieStore = await cookies();
+  const organisationId = cookieStore.get('organisation_id')?.value;
+  const region = cookieStore.get('region')?.value;
 
   if (!organisationId || !code || !region) {
     return new ElbaInstallRedirectResponse({
@@ -25,8 +26,8 @@ export const GET = async (request: NextRequest) => {
 
   try {
     const { email, customerId } = await getGoogleInfo(code);
-    cookies().set('google_admin_email', email);
-    cookies().set('google_customer_id', customerId);
+    cookieStore.set('google_admin_email', email);
+    cookieStore.set('google_customer_id', customerId);
   } catch (error) {
     logger.error('An error occurred during Google oauth flow', { organisationId, cause: error });
 

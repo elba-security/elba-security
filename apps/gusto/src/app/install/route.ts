@@ -7,9 +7,10 @@ import { env } from '@/common/env';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export function GET(request: NextRequest) {
+export const GET = async (request: NextRequest) => {
   const organisationId = request.nextUrl.searchParams.get('organisation_id');
   const region = request.nextUrl.searchParams.get('region');
+  const cookieStore = await cookies();
 
   if (!organisationId || !region) {
     return new ElbaInstallRedirectResponse({
@@ -21,9 +22,9 @@ export function GET(request: NextRequest) {
   }
 
   const state = crypto.randomUUID();
-  cookies().set('organisation_id', organisationId);
-  cookies().set('region', region);
-  cookies().set('state', state);
+  cookieStore.set('organisation_id', organisationId);
+  cookieStore.set('region', region);
+  cookieStore.set('state', state);
 
   const redirectUrl = new URL(`${env.GUSTO_APP_INSTALL_URL}/authorize`);
   redirectUrl.searchParams.append('response_type', 'code');
@@ -32,4 +33,4 @@ export function GET(request: NextRequest) {
   redirectUrl.searchParams.append('state', state);
 
   redirect(redirectUrl.toString());
-}
+};

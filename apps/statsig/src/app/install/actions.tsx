@@ -3,7 +3,7 @@ import { logger } from '@elba-security/logger';
 import { z } from 'zod';
 import { RedirectType, redirect } from 'next/navigation';
 import { getRedirectUrl } from '@elba-security/sdk';
-import { isRedirectError } from 'next/dist/client/components/redirect';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 import { StatsigError } from '@/connectors/common/error';
 import { env } from '@/common/env';

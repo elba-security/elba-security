@@ -11,10 +11,11 @@ import { isInstallationCompleted } from './service';
 
 export const isDWDActivationPending = async () => {
   unstable_noStore();
-  const organisationId = cookies().get('organisation_id')?.value;
-  const region = cookies().get('region')?.value;
-  const googleAdminEmail = cookies().get('google_admin_email')?.value;
-  const googleCustomerId = cookies().get('google_customer_id')?.value;
+  const cookieStore = await cookies();
+  const organisationId = cookieStore.get('organisation_id')?.value;
+  const region = cookieStore.get('region')?.value;
+  const googleAdminEmail = cookieStore.get('google_admin_email')?.value;
+  const googleCustomerId = cookieStore.get('google_customer_id')?.value;
 
   if (!organisationId || !region || !googleAdminEmail || !googleCustomerId) {
     logger.error('Missing cookies during Google domain wide delegation');

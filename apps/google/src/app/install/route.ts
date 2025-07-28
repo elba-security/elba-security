@@ -7,9 +7,10 @@ import { getGoogleOAuthClient } from '@/connectors/google/clients';
 
 export const dynamic = 'force-dynamic';
 
-export const GET = (request: NextRequest) => {
+export const GET = async (request: NextRequest) => {
   const organisationId = request.nextUrl.searchParams.get('organisation_id');
   const region = request.nextUrl.searchParams.get('region');
+  const cookieStore = await cookies();
 
   if (!organisationId || !region) {
     return new ElbaInstallRedirectResponse({
@@ -31,8 +32,8 @@ export const GET = (request: NextRequest) => {
     ],
   });
 
-  cookies().set('organisation_id', organisationId);
-  cookies().set('region', region);
+  cookieStore.set('organisation_id', organisationId);
+  cookieStore.set('region', region);
 
   redirect(redirectUrl);
 };

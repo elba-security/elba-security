@@ -72,7 +72,8 @@ describe('setupOrganisation', () => {
     const mockCookies: PartialMockCookies = {
       get: vi.fn().mockReturnValue({ value: mockCookieValue }),
     };
-    vi.mocked(cookies).mockReturnValue(mockCookies as ReadonlyRequestCookies);
+
+    vi.mocked(cookies).mockReturnValue(mockCookies as unknown as Promise<ReadonlyRequestCookies>);
 
     await db.insert(organisationsTable).values(organisation);
 
@@ -109,7 +110,7 @@ describe('setupOrganisation', () => {
       get: vi.fn().mockReturnValue({ value: mockCookieValue }),
     };
 
-    vi.mocked(cookies).mockReturnValue(mockCookies as ReadonlyRequestCookies);
+    vi.mocked(cookies).mockReturnValue(mockCookies as unknown as Promise<ReadonlyRequestCookies>);
     await db.insert(organisationsTable).values(organisation);
 
     await setupOrganisation({ workspaceId });
@@ -121,7 +122,9 @@ describe('setupOrganisation', () => {
       get: vi.fn().mockReturnValue(undefined),
     };
 
-    vi.mocked(cookies).mockReturnValue(mockCookiesWithoutAuth as ReadonlyRequestCookies);
+    vi.mocked(cookies).mockReturnValue(
+      mockCookiesWithoutAuth as unknown as Promise<ReadonlyRequestCookies>
+    );
 
     await expect(setupOrganisation({ workspaceId })).rejects.toThrow('No auth cookie found');
   });

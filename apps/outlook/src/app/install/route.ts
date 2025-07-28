@@ -9,9 +9,10 @@ export const preferredRegion = 'fra1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export function GET(request: NextRequest) {
+export async function GET(request: NextRequest) {
   const organisationId = request.nextUrl.searchParams.get('organisation_id');
   const region = request.nextUrl.searchParams.get('region');
+  const cookieStore = await cookies();
 
   if (!organisationId || !region) {
     logger.warn('Could not redirect user to Microsoft app install url');
@@ -23,8 +24,8 @@ export function GET(request: NextRequest) {
     });
   }
 
-  cookies().set('organisationId', organisationId);
-  cookies().set('region', region);
+  cookieStore.set('organisationId', organisationId);
+  cookieStore.set('region', region);
 
   const url = new URL(env.OUTLOOK_INSTALL_URL);
   url.searchParams.append('client_id', env.OUTLOOK_AUTH_CLIENT_ID);

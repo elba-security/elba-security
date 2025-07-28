@@ -8,7 +8,7 @@ export const preferredRegion = 'fra1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export function GET(request: NextRequest) {
+export async function GET(request: NextRequest) {
   const organisationId = request.nextUrl.searchParams.get('organisation_id');
   const region = request.nextUrl.searchParams.get('region');
 
@@ -21,10 +21,11 @@ export function GET(request: NextRequest) {
     });
   }
 
+  const cookiesInstance = await cookies();
   const state = crypto.randomUUID();
-  cookies().set('organisation_id', organisationId);
-  cookies().set('region', region);
-  cookies().set('state', state);
+  cookiesInstance.set('organisation_id', organisationId);
+  cookiesInstance.set('region', region);
+  cookiesInstance.set('state', state);
 
   const redirectUrl = new URL(`${env.BOX_APP_INSTALL_URL}/authorize`);
   redirectUrl.searchParams.append('client_id', env.BOX_CLIENT_ID);

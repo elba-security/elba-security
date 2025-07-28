@@ -25,8 +25,9 @@ export const GET = async (request: NextRequest) => {
 
   try {
     const { email, customerId } = await getGoogleInfo(code);
-    cookies().set('google_admin_email', email);
-    cookies().set('google_customer_id', customerId);
+    const cookiesInstance = await cookies();
+    cookiesInstance.set('google_admin_email', email);
+    cookiesInstance.set('google_customer_id', customerId);
   } catch (error) {
     logger.error('An error occurred during Google oauth flow', { organisationId, cause: error });
 
