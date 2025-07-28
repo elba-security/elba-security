@@ -14,21 +14,27 @@ const createValidUser = (id: string): TeamtailorUser => ({
   type: 'users',
   attributes: {
     email: `user${id}@example.com`,
-    'first-name': `First${id}`,
-    'last-name': `Last${id}`,
     name: `First${id} Last${id}`,
     username: `user${id}`,
     role: 'User',
-    status: 'active',
+    title: 'Software Engineer',
+    visible: true,
+    'login-email': `user${id}@example.com`,
     picture: {
       standard: `https://example.com/pic/${id}.jpg`,
     },
   },
   relationships: {
     department: {
-      data: {
-        id: `dept-${id}`,
-        type: 'departments',
+      links: {
+        self: `https://api.teamtailor.com/v1/users/${id}/relationships/department`,
+        related: `https://api.teamtailor.com/v1/users/${id}/department`,
+      },
+    },
+    teams: {
+      links: {
+        self: `https://api.teamtailor.com/v1/users/${id}/relationships/teams`,
+        related: `https://api.teamtailor.com/v1/users/${id}/teams`,
       },
     },
   },

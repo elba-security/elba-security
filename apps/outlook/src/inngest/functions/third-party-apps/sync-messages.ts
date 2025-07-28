@@ -16,6 +16,7 @@ export type SyncMessagesRequested = {
       syncStartedAt: string;
       syncedEmailsCount?: number;
       tenantId: string;
+      mail: string | null;
     };
   };
 };
@@ -49,6 +50,7 @@ export const syncMessages = inngest.createFunction(
       syncStartedAt,
       syncedEmailsCount = 0,
       tenantId,
+      mail,
     } = event.data;
 
     const { nextSkip, messages } = await step.invoke('list-messages', {
@@ -58,6 +60,7 @@ export const syncMessages = inngest.createFunction(
         organisationId,
         userId,
         skipStep,
+        mail,
         filter: formatGraphMessagesFilter({
           after: syncFrom ? new Date(syncFrom) : undefined,
           before: new Date(syncTo),
@@ -66,29 +69,34 @@ export const syncMessages = inngest.createFunction(
       timeout: '3d',
     });
 
+    const events: Parameters<typeof step.sendEvent>[1] = [];
+
     if (messages.length > 0) {
-      await step.sendEvent(
-        'analyze-email',
-        messages.map((message) => ({
-          name: 'outlook/third_party_apps.email.analyze.requested',
-          data: {
-            organisationId,
-            region,
-            userId,
-            message,
-            syncStartedAt,
-          },
-        }))
+      events.push(
+        ...messages.map(
+          (message) =>
+            ({
+              name: 'outlook/third_party_apps.email.analyze.requested',
+              data: {
+                organisationId,
+                region,
+                userId,
+                message,
+                syncStartedAt,
+              },
+            }) as const
+        )
       );
     }
 
-    const nextSyncedEmailsCount = syncedEmailsCount + messages.length;
+    const nextSyncedEmailsCount = syncedEmailsCount + env.MESSAGES_SYNC_BATCH_SIZE;
     const isLimitPerUserReached = env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
       ? nextSyncedEmailsCount >= env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
       : false;
+    const status = !isLimitPerUserReached && nextSkip ? 'ongoing' : 'completed';
 
-    if (!isLimitPerUserReached && nextSkip) {
-      await step.sendEvent('sync-next-page', {
+    if (status === 'ongoing') {
+      events.push({
         name: 'outlook/third_party_apps.messages.sync.requested',
         data: {
           ...event.data,
@@ -96,13 +104,14 @@ export const syncMessages = inngest.createFunction(
           skipStep: nextSkip,
         },
       });
-      return {
-        status: 'ongoing',
-      };
+    }
+
+    if (events.length > 0) {
+      await step.sendEvent('sync-next-page-and-analyze-emails', events);
     }
 
     return {
-      status: 'completed',
+      status,
     };
   }
 );

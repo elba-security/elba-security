@@ -83,44 +83,50 @@ export const syncInbox = inngest.createFunction(
       timeout: '365d',
     });
 
+    const events: Parameters<typeof step.sendEvent>[1] = [];
+
     if (messages.length > 0) {
-      await step.sendEvent(
-        'analyze-emails',
-        messages.map((message) => ({
-          name: 'gmail/third_party_apps.email.analyze.requested',
-          data: {
-            organisationId,
-            region,
-            userId,
-            email,
-            message,
-            syncStartedAt,
-          },
-        }))
+      events.push(
+        ...messages.map(
+          (message) =>
+            ({
+              name: 'gmail/third_party_apps.email.analyze.requested',
+              data: {
+                organisationId,
+                region,
+                userId,
+                email,
+                message,
+                syncStartedAt,
+              },
+            }) as const
+        )
       );
     }
 
-    const nextSyncedEmailsCount = syncedEmailsCount + messages.length;
+    const nextSyncedEmailsCount = syncedEmailsCount + 100;
     const isLimitPerUserReached = env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
       ? nextSyncedEmailsCount >= env.SYNCED_EMAILS_COUNT_PER_USER_LIMIT
       : false;
+    const status = !isLimitPerUserReached && nextPageToken ? 'ongoing' : 'completed';
 
-    if (!isLimitPerUserReached && nextPageToken) {
-      await step.sendEvent('sync-next-page', {
+    if (status === 'ongoing') {
+      events.push({
         name: 'gmail/third_party_apps.inbox.sync.requested',
         data: {
           ...event.data,
           syncedEmailsCount: nextSyncedEmailsCount,
-          pageToken: nextPageToken,
+          pageToken: nextPageToken ?? null,
         },
       });
-      return {
-        status: 'ongoing',
-      };
+    }
+
+    if (events.length > 0) {
+      await step.sendEvent('sync-next-page-and-analyze-emails', events);
     }
 
     return {
-      status: 'completed',
+      status,
     };
   }
 );

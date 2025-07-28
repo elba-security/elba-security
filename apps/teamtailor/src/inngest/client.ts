@@ -21,14 +21,14 @@ elbaInngestClient.createElbaUsersSyncFn(async ({ connection, cursor }) => {
   return {
     users: result.validUsers.map((user) => ({
       id: user.id,
-      displayName: user.attributes.name,
+      displayName: user.attributes.name || user.attributes.email,
       email: user.attributes.email,
       additionalEmails: [],
-      isSuspendable: user.attributes.role !== 'Company admin',
+      isSuspendable: user.attributes.role !== 'recruitment_admin',
       metadata: {
         role: user.attributes.role,
-        status: user.attributes.status,
-        departmentId: user.relationships?.department?.data?.id,
+        title: user.attributes.title,
+        visible: user.attributes.visible,
       },
     })),
     cursor: result.nextPage,

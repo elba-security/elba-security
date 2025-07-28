@@ -1,5 +1,4 @@
 import { env } from '@/common/env/server';
-import { encryptElbaInngestText } from '@/common/crypto';
 import { MicrosoftError } from '../common/error';
 import { getNextSkipFromNextLink, type MicrosoftPaginatedResponse } from '../common/pagination';
 import { type OutlookMessage } from '../types';
@@ -59,14 +58,10 @@ export const getMessages = async ({ token, userId, skipStep, filter }: GetMessag
     if (result.success) {
       messages.push({
         id: result.data.id,
-        subject: await encryptElbaInngestText(result.data.subject),
-        from: await encryptElbaInngestText(result.data.from.emailAddress.address),
-        toRecipients: await encryptElbaInngestText(
-          result.data.toRecipients.map((item) => item.emailAddress.address).join(', ')
-        ),
-        body: await encryptElbaInngestText(
-          result.data.body.content.slice(0, Number(env.MAX_MESSAGE_BODY_LENGTH))
-        ),
+        subject: result.data.subject,
+        from: result.data.from.emailAddress.address,
+        toRecipients: result.data.toRecipients.map((item) => item.emailAddress.address).join(', '),
+        body: result.data.body.content.slice(0, Number(env.MAX_MESSAGE_BODY_LENGTH)),
       });
     }
   }

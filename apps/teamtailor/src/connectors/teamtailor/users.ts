@@ -16,38 +16,39 @@ const teamtailorUserSchema = z.object({
   type: z.literal('users'),
   attributes: z.object({
     email: z.string().email(),
-    'first-name': z.string(),
-    'last-name': z.string(),
-    name: z.string(),
-    username: z.string(),
+    name: z.string().nullable(),
+    username: z.string().nullable(),
     role: z.string(),
-    status: z.string(),
+    title: z.string().nullable().optional(),
+    visible: z.boolean().optional(),
+    'login-email': z.string().email().nullable().optional(),
     picture: z
       .object({
         standard: z.string().nullable(),
       })
-      .nullable(),
+      .nullable()
+      .optional(),
   }),
   relationships: z
     .object({
       department: z
         .object({
-          data: z
+          links: z
             .object({
-              id: z.string(),
-              type: z.string(),
+              self: z.string(),
+              related: z.string(),
             })
-            .nullable(),
+            .optional(),
         })
         .optional(),
-      team: z
+      teams: z
         .object({
-          data: z
+          links: z
             .object({
-              id: z.string(),
-              type: z.string(),
+              self: z.string(),
+              related: z.string(),
             })
-            .nullable(),
+            .optional(),
         })
         .optional(),
     })
@@ -83,8 +84,9 @@ type GetUsersParams = {
 export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
   const url = new URL(`${getApiBaseUrl()}/v1/users`);
 
-  // TeamTailor uses page[size] for pagination
-  url.searchParams.append('page[size]', `${env.TEAMTAILOR_USERS_SYNC_BATCH_SIZE}`);
+  // TeamTailor uses page[size] for pagination - max is 30
+  const pageSize = Math.min(env.TEAMTAILOR_USERS_SYNC_BATCH_SIZE, 30);
+  url.searchParams.append('page[size]', `${pageSize}`);
 
   const response = await fetch(page ?? url.toString(), {
     method: 'GET',
@@ -110,6 +112,7 @@ export const getUsers = async ({ accessToken, page }: GetUsersParams) => {
 
   // TeamTailor returns all users in data array
   for (const user of result.data) {
+    // All users with an email are valid - we'll use email as fallback for display name
     validUsers.push(user);
   }
 

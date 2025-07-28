@@ -1,8 +1,9 @@
 import { GaxiosError } from 'googleapis-common';
 import { z } from 'zod';
 import { RetryAfterError } from 'inngest';
+import { shouldAnalyzeEmail } from '@elba-security/utils';
 import { getGoogleServiceAccountClient } from '@/connectors/google/clients';
-import { listMessages } from '@/connectors/google/gmail';
+import { listMessages, type GmailMessage } from '@/connectors/google/gmail';
 import { inngest } from '@/inngest/client';
 import { encryptElbaInngestText } from '@/common/crypto';
 import { concurrencyOption } from '../common/concurrency-option';
@@ -61,17 +62,33 @@ export const listGmailMessages = inngest.createFunction(
         q,
       });
 
+      const senders = new Set<string>();
+      const filteredMessages: GmailMessage[] = [];
+
+      for (const message of result.messages) {
+        if (
+          !senders.has(message.from) &&
+          shouldAnalyzeEmail({ sender: message.from, receiver: email })
+        ) {
+          filteredMessages.push(message);
+          senders.add(message.from);
+        }
+      }
+
+      const encryptedMessages = await Promise.all(
+        filteredMessages.map(async (message) => ({
+          id: message.id,
+          from: await encryptElbaInngestText(message.from),
+          to: await encryptElbaInngestText(message.to),
+          subject: await encryptElbaInngestText(message.subject),
+          body: await encryptElbaInngestText(message.body),
+        }))
+      );
+
       return {
-        ...result,
-        messages: await Promise.all(
-          result.messages.map(async (message) => ({
-            id: message.id,
-            from: await encryptElbaInngestText(message.from),
-            to: await encryptElbaInngestText(message.to),
-            subject: await encryptElbaInngestText(message.subject),
-            body: await encryptElbaInngestText(message.body),
-          }))
-        ),
+        nextPageToken: result.nextPageToken,
+        messages: encryptedMessages,
+        errors: result.errors,
       };
     } catch (error) {
       // Despite we respect per user rate-limit, Gmail API can still returns rate-limit error

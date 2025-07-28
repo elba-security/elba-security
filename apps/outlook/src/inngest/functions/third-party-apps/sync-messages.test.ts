@@ -6,6 +6,8 @@ import { organisationsTable } from '@/database/schema';
 import { db } from '@/database/client';
 import { outlookMessages } from '@/connectors/microsoft/message/mock';
 import * as authConnector from '@/connectors/microsoft/auth';
+import { encryptElbaInngestText } from '@/common/crypto';
+import { env } from '@/common/env/server';
 import { syncMessages, type SyncMessagesRequested } from './sync-messages';
 
 const mockFunction = createInngestFunctionMock(
@@ -18,10 +20,6 @@ const region = 'eu';
 const userId = 'user-id';
 const tenantId = 'tenant-id';
 
-vi.mock('@/common/crypto', () => ({
-  decrypt: vi.fn(() => token),
-}));
-
 vi.spyOn(authConnector, 'getToken').mockResolvedValue({
   token,
   expiresIn: 3600,
@@ -30,15 +28,25 @@ vi.spyOn(authConnector, 'getToken').mockResolvedValue({
 const organisationId = '4f9b95b1-07ec-4356-971c-5a9d328e911c';
 const syncStartedAt = new Date().toISOString();
 
-export const defaultMessages: OutlookMessage[] = outlookMessages.map((message) => ({
+const defaultMessages: OutlookMessage[] = outlookMessages.map((message) => ({
   id: message.id,
-  subject: `encrypted(${message.subject})`,
-  from: `encrypted(${message.from.emailAddress.address})`,
-  toRecipients: message.toRecipients
-    .map((item) => `encrypted(${item.emailAddress.address})`)
-    .join(', '),
-  body: `encrypted(${message.body.content})`,
+  subject: message.subject,
+  from: message.from.emailAddress.address,
+  toRecipients: message.toRecipients.map((item) => item.emailAddress.address).join(', '),
+  body: message.body.content,
 }));
+
+const encryptedFilteredDefaultMessages: OutlookMessage[] = await Promise.all(
+  outlookMessages.slice(1, defaultMessages.length - 1).map(async (message) => ({
+    id: message.id,
+    subject: await encryptElbaInngestText(message.subject),
+    from: await encryptElbaInngestText(message.from.emailAddress.address),
+    toRecipients: await Promise.all(
+      message.toRecipients.map((item) => encryptElbaInngestText(item.emailAddress.address))
+    ).then((toRecipients) => toRecipients.join(', ')),
+    body: await encryptElbaInngestText(message.body.content),
+  }))
+);
 
 const eventData: SyncMessagesRequested['outlook/third_party_apps.messages.sync.requested']['data'] =
   {
@@ -50,6 +58,7 @@ const eventData: SyncMessagesRequested['outlook/third_party_apps.messages.sync.r
     skipStep: 'skip-step',
     syncStartedAt,
     tenantId,
+    mail: 'receiver@foo.com',
   };
 
 const setup = async ({
@@ -125,17 +134,19 @@ describe('sync-messages', () => {
     await result;
 
     expect(step.sendEvent).toHaveBeenCalledWith(
-      'analyze-email',
-      defaultMessages.map((message) => ({
-        name: 'outlook/third_party_apps.email.analyze.requested',
-        data: {
-          organisationId,
-          region,
-          userId,
-          message,
-          syncStartedAt,
-        },
-      }))
+      expect.any(String),
+      expect.arrayContaining(
+        encryptedFilteredDefaultMessages.map((message) => ({
+          name: 'outlook/third_party_apps.email.analyze.requested',
+          data: {
+            organisationId,
+            region,
+            userId,
+            message,
+            syncStartedAt,
+          },
+        }))
+      )
     );
   });
 
@@ -184,12 +195,8 @@ describe('sync-messages', () => {
 
     await result;
 
-    expect(step.sendEvent).toHaveBeenCalledTimes(2);
-
-    expect(step.sendEvent).toHaveBeenNthCalledWith(
-      1,
-      'analyze-email',
-      defaultMessages.map((message) => ({
+    expect(step.sendEvent).toHaveBeenCalledWith(expect.any(String), [
+      ...encryptedFilteredDefaultMessages.map((message) => ({
         name: 'outlook/third_party_apps.email.analyze.requested',
         data: {
           organisationId,
@@ -198,17 +205,16 @@ describe('sync-messages', () => {
           message,
           syncStartedAt,
         },
-      }))
-    );
-
-    expect(step.sendEvent).toHaveBeenNthCalledWith(2, 'sync-next-page', {
-      name: 'outlook/third_party_apps.messages.sync.requested',
-      data: {
-        ...eventData,
-        syncedEmailsCount: 4,
-        skipStep: 'next-skip-step',
+      })),
+      {
+        name: 'outlook/third_party_apps.messages.sync.requested',
+        data: {
+          ...eventData,
+          syncedEmailsCount: env.MESSAGES_SYNC_BATCH_SIZE,
+          skipStep: 'next-skip-step',
+        },
       },
-    });
+    ]);
   });
 
   test('should not request sync of next page when there is no next page', async () => {
@@ -221,9 +227,11 @@ describe('sync-messages', () => {
 
     expect(step.sendEvent).not.toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({
-        name: 'outlook/third_party_apps.messages.sync.requested',
-      })
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'outlook/third_party_apps.messages.sync.requested',
+        }),
+      ])
     );
   });
 
@@ -240,9 +248,11 @@ describe('sync-messages', () => {
 
     expect(step.sendEvent).not.toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({
-        name: 'outlook/third_party_apps.messages.sync.requested',
-      })
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'outlook/third_party_apps.messages.sync.requested',
+        }),
+      ])
     );
   });
 
