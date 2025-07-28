@@ -1,6 +1,6 @@
-# Elba Integration Template
+# Okta Integration for Elba Security
 
-This template provides a foundation for building integrations with Elba Security. It follows the same structure as our production integrations like Bitbucket.
+This integration connects Okta with Elba Security to provide user management and third-party apps monitoring capabilities.
 
 ## Features
 
@@ -8,6 +8,8 @@ This template provides a foundation for building integrations with Elba Security
 - **Event Handling**: Event-driven architecture using [Inngest](https://www.inngest.com/)
 - **Type Safety**: Full TypeScript support with proper type definitions
 - **Testing**: Ready-to-use testing setup with Vitest
+- **User Management**: Sync and manage Okta users
+- **Third-Party Apps Monitoring**: Track OAuth grants and authorized applications
 
 ## Getting Started
 
@@ -20,6 +22,15 @@ This template provides a foundation for building integrations with Elba Security
    ELBA_SOURCE_ID=
    ELBA_WEBHOOK_SECRET=
    NANGO_INTEGRATION_ID=
+   NANGO_SECRET_KEY=
+   ELBA_API_KEY=
+
+   # Optional - defaults shown
+   OKTA_USERS_SYNC_CRON=0 0 * * *
+   OKTA_DELETE_USER_CONCURRENCY=5
+   OKTA_USERS_SYNC_BATCH_SIZE=10
+   THIRD_PARTY_APPS_SYNC_CRON=0 0 * * *
+   THIRD_PARTY_APPS_CONCURRENCY=5
    ```
 
 2. Install dependencies:
@@ -54,34 +65,65 @@ src/
 │   └── api/
 │       └── webhooks/
 │           └── elba/
-│               └── installation/
-│                   └── validate/
-│                       ├── route.ts    # Installation validation webhook
-│                       └── service.ts  # Installation validation logic
+│               ├── installation/
+│               │   └── validate/
+│               │       ├── route.ts    # Installation validation webhook
+│               │       └── service.ts  # Installation validation logic
+│               ├── users/
+│               │   └── delete-users/   # User deletion webhook
+│               └── third-party-apps/
+│                   ├── start-sync/     # Third-party apps sync webhook
+│                   ├── refresh-object/ # Refresh specific app webhook
+│                   └── delete-object/  # Delete app authorization webhook
 ├── common/
+│   ├── env.ts          # Environment configuration
 │   └── nango.ts        # Nango client configuration
 ├── connectors/
 │   ├── common/
-│   │   └── error.ts    # Error mapping utilities
+│   │   ├── error.ts    # Error mapping utilities
+│   │   ├── nango.ts    # Nango connection config
+│   │   └── pagination.ts # Pagination utilities
 │   ├── elba/
 │   │   └── client.ts   # Elba client utilities
-│   └── okta/       # Your integration-specific code
-│       └── users.ts    # Integration-specific API calls and types
+│   └── okta/           # Okta-specific code
+│       ├── users.ts    # User API calls and types
+│       ├── third-party-apps.ts # Third-party apps API calls
+│       └── third-party-apps-transformer.ts # Transform grants to Elba format
 └── inngest/
     ├── client.ts       # Inngest client configuration
-    └── functions/      # Integration-specific event handlers
-        └── users/      # User synchronization functions
+    └── functions/      # Event handlers
+        ├── users/      # User synchronization functions
+        └── third-party-apps/ # Third-party apps functions
+            ├── sync-third-party-apps.ts
+            ├── refresh-third-party-app.ts
+            ├── delete-third-party-app.ts
+            └── schedule-third-party-apps-syncs.ts
 ```
 
-## Features
+## Key Features
 
 ### Installation Validation
 
-The template includes a webhook-based installation flow that:
+The integration includes a webhook-based installation flow that:
 
 1. Validates the Nango connection
-2. Verifies access to the source API
-3. Triggers initial sync events
+2. Verifies access to the Okta API
+3. Triggers initial sync for both users and third-party apps
+
+### User Management
+
+- Syncs active users from Okta
+- Supports user deletion
+- Marks the authenticated user as non-suspendable
+- Scheduled syncs via cron
+
+### Third-Party Apps Monitoring
+
+- Fetches OAuth grants for all users
+- Groups grants by application
+- Tracks authorized scopes per user
+- Supports grant revocation
+- Scheduled syncs via cron
 
 ### Error Handling
 
@@ -90,6 +132,7 @@ Built-in error management features:
 - Automatic mapping of common errors (401, 403, etc.)
 - Connection status updates
 - Error logging and serialization
+- Rate limiting protection
 
 ## Development
 
@@ -149,6 +192,36 @@ The template includes the following Inngest events:
     isFirstSync: boolean;
     syncStartedAt: number;
     page: string | null;
+  }
+}
+
+'okta/third_party_apps.sync.requested': {
+  data: {
+    organisationId: string;
+    region: string;
+    nangoConnectionId: string;
+    isFirstSync: boolean;
+    syncStartedAt: string;
+  }
+}
+
+'okta/third_party_apps.refresh.requested': {
+  data: {
+    organisationId: string;
+    region: string;
+    nangoConnectionId: string;
+    appId: string;
+    userId: string;
+  }
+}
+
+'okta/third_party_apps.delete.requested': {
+  data: {
+    organisationId: string;
+    region: string;
+    nangoConnectionId: string;
+    appId: string;
+    userId: string;
   }
 }
 ```

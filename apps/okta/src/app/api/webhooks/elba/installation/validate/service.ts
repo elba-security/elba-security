@@ -59,6 +59,16 @@ export const validateSourceInstallation = async ({
           page: null,
         },
       },
+      {
+        name: 'okta/third_party_apps.sync.requested',
+        data: {
+          organisationId,
+          region,
+          nangoConnectionId,
+          isFirstSync: true,
+          syncStartedAt: new Date().toISOString(),
+        },
+      },
     ]);
 
     return { message: 'Source installation validated' };
