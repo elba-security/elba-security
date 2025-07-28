@@ -1,8 +1,12 @@
+/**
+ * This file is required by nextjs and has no purpose for now in the integration.
+ * It should not be edited or removed.
+ */
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Elba x Miro',
-  description: 'Elba x Miro',
+  title: `Elba x miro`,
+  description: 'Elba x miro',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

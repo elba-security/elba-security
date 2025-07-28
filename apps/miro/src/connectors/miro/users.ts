@@ -1,6 +1,6 @@
 import { z } from 'zod';
+import { IntegrationError, IntegrationConnectionError } from '@elba-security/common';
 import { env } from '@/common/env';
-import { MiroError } from '@/connectors/common/error';
 
 const getUsersResponseSchema = z.object({
   data: z.array(z.unknown()),
@@ -12,15 +12,15 @@ export const miroUserSchema = z.object({
   email: z.string().email(),
 });
 
-export type GetUsersParams = {
-  token: string;
+export type MiroUser = z.infer<typeof miroUserSchema>;
+
+type GetUsersParams = {
+  accessToken: string;
   orgId: string;
   page?: string | null;
 };
 
-export type MiroUser = z.infer<typeof miroUserSchema>;
-
-export const getUsers = async ({ token, orgId, page }: GetUsersParams) => {
+export const getUsers = async ({ accessToken, orgId, page }: GetUsersParams) => {
   const url = new URL(`${env.MIRO_API_BASE_URL}/v2/orgs/${orgId}/members`);
 
   url.searchParams.append('active', 'true');
@@ -31,11 +31,14 @@ export const getUsers = async ({ token, orgId, page }: GetUsersParams) => {
   }
 
   const response = await fetch(url.toString(), {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${accessToken}` },
   });
 
   if (!response.ok) {
-    throw new MiroError('Could not retrieve users', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' });
+    }
+    throw new IntegrationError(`Could not retrieve users: ${response.status}`, { response });
   }
 
   const resData: unknown = await response.json();
@@ -60,29 +63,32 @@ export const getUsers = async ({ token, orgId, page }: GetUsersParams) => {
   };
 };
 
-const getWorkspacesSchema = z.object({
+const getTokenInfoSchema = z.object({
   organization: z.object({
     id: z.string(),
   }),
 });
 
-export const getTokenInfo = async (token: string) => {
+export const getTokenInfo = async (accessToken: string) => {
   const response = await fetch(`${env.MIRO_API_BASE_URL}/v1/oauth-token`, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 
   if (!response.ok) {
-    throw new MiroError('Failed to fetch workspaces', { response });
+    if (response.status === 401) {
+      throw new IntegrationConnectionError('Unauthorized', { type: 'unauthorized' });
+    }
+    throw new IntegrationError(`Failed to fetch token info: ${response.status}`, { response });
   }
 
   const resData: unknown = await response.json();
 
-  const result = getWorkspacesSchema.safeParse(resData);
+  const result = getTokenInfoSchema.safeParse(resData);
 
   if (!result.success) {
-    throw new MiroError('Invalid workspace data structure', { response });
+    throw new IntegrationError('Invalid token info data structure', {});
   }
 
   return result.data.organization.id;
