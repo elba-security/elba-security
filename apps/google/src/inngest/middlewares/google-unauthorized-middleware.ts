@@ -8,6 +8,7 @@ export const googleUnauthorizedMiddleware = new InngestMiddleware({
       onFunctionRun: ({
         fn,
         ctx: {
+          runId,
           event: { data },
         },
       }) => {
@@ -23,7 +24,7 @@ export const googleUnauthorizedMiddleware = new InngestMiddleware({
               if (typeof organisationId === 'string') {
                 await client.send({
                   name: 'google/common.remove_organisation.requested',
-                  data: { organisationId },
+                  data: { organisationId, inngestRunId: runId },
                 });
               }
 

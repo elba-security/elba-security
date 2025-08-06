@@ -11,7 +11,7 @@ describe('google-unauthorized-middleware', () => {
       // @ts-expect-error -- this is a mock
       .init({ client: { send } })
       // @ts-expect-error -- this is a mock
-      .onFunctionRun({ fn: { name: 'foo' }, ctx: { event: { data: {} } } })
+      .onFunctionRun({ fn: { name: 'foo' }, ctx: { runId: 'run-id', event: { data: {} } } })
       .transformOutput({
         result: {},
       });
@@ -28,7 +28,7 @@ describe('google-unauthorized-middleware', () => {
       // @ts-expect-error -- this is a mock
       .init({ client: { send } })
       // @ts-expect-error -- this is a mock
-      .onFunctionRun({ fn: { name: 'foo' }, ctx: { event: { data: {} } } })
+      .onFunctionRun({ fn: { name: 'foo' }, ctx: { runId: 'run-id', event: { data: {} } } })
       .transformOutput({
         result: {
           error: new Error('test'),
@@ -52,7 +52,7 @@ describe('google-unauthorized-middleware', () => {
         // @ts-expect-error -- this is a mock
         fn: { name: 'foo' },
         // @ts-expect-error -- this is a mock
-        ctx: { event: { data: { organisationId: 'org-id' } } },
+        ctx: { runId: 'run-id', event: { data: { organisationId: 'org-id' } } },
       })
       .transformOutput({
         result: {
@@ -74,6 +74,7 @@ describe('google-unauthorized-middleware', () => {
       name: 'google/common.remove_organisation.requested',
       data: {
         organisationId: 'org-id',
+        inngestRunId: 'run-id',
       },
     });
   });

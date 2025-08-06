@@ -8,6 +8,7 @@ export const gmailUnauthorizedMiddleware = new InngestMiddleware({
       onFunctionRun: ({
         fn,
         ctx: {
+          runId,
           event: { data },
         },
       }) => {
@@ -23,7 +24,7 @@ export const gmailUnauthorizedMiddleware = new InngestMiddleware({
               if (typeof organisationId === 'string') {
                 await client.send({
                   name: 'gmail/common.remove_organisation.requested',
-                  data: { organisationId },
+                  data: { organisationId, inngestRunId: runId },
                 });
               }
 
