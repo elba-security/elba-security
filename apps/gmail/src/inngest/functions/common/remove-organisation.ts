@@ -3,6 +3,7 @@ import { db } from '@/database/client';
 import { organisationsTable } from '@/database/schema';
 import { inngest } from '@/inngest/client';
 import { getElbaClient } from '@/connectors/elba/client';
+import { getGoogleServiceAccountClient } from '@/connectors/google/clients';
 
 export type RemoveOrganisationEvents = {
   'gmail/common.remove_organisation.requested': RemoveOrganisationRequested;
@@ -11,6 +12,7 @@ export type RemoveOrganisationEvents = {
 type RemoveOrganisationRequested = {
   data: {
     organisationId: string;
+    inngestRunId: string;
   };
 };
 
@@ -28,12 +30,44 @@ export const removeOrganisation = inngest.createFunction(
   { event: 'gmail/common.remove_organisation.requested' },
   async ({
     event: {
-      data: { organisationId },
+      data: { organisationId, inngestRunId },
     },
     step,
     logger,
   }) => {
-    const [organisation] = await step.run('delete-organisation', () => {
+    const [organisation] = await step.run('get-organisation', () =>
+      db
+        .select({
+          googleAdminEmail: organisationsTable.googleAdminEmail,
+        })
+        .from(organisationsTable)
+        .where(eq(organisationsTable.id, organisationId))
+    );
+
+    if (!organisation) {
+      return { status: 'deleted' };
+    }
+
+    const isAuthorized = await step.run('check-client-authorization', async () => {
+      const serviceAccount = await getGoogleServiceAccountClient(organisation.googleAdminEmail);
+      try {
+        await serviceAccount.authorize();
+        return true;
+      } catch {
+        return false;
+      }
+    });
+
+    if (isAuthorized) {
+      logger.warn('Client is still authorized despite an uninstallation request', {
+        organisationId,
+        inngestRunId,
+      });
+
+      return { status: 'ignored', message: 'Client is still authorized' };
+    }
+
+    const [deletedOrganisation] = await step.run('delete-organisation', () => {
       return db
         .delete(organisationsTable)
         .where(eq(organisationsTable.id, organisationId))
@@ -42,9 +76,12 @@ export const removeOrganisation = inngest.createFunction(
         });
     });
 
-    if (organisation) {
-      logger.info('Google organisation deleted', { organisationId, region: organisation.region });
-      const elba = getElbaClient({ organisationId, region: organisation.region });
+    if (deletedOrganisation) {
+      logger.info('Google organisation deleted', {
+        organisationId,
+        region: deletedOrganisation.region,
+      });
+      const elba = getElbaClient({ organisationId, region: deletedOrganisation.region });
       await elba.connectionStatus.update({ errorType: 'unauthorized' });
     }
 
