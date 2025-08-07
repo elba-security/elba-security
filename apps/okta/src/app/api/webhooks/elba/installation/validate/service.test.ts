@@ -59,6 +59,16 @@ describe('validateSourceInstallation', () => {
           page: null,
         },
       },
+      {
+        name: 'okta/third_party_apps.sync.requested',
+        data: {
+          organisationId,
+          region,
+          nangoConnectionId,
+          isFirstSync: true,
+          syncStartedAt: new Date(now).toISOString(),
+        },
+      },
     ]);
     const elbaInstance = elba.mock.results[0]?.value;
     expect(elbaInstance?.connectionStatus.update).toBeCalledTimes(1);

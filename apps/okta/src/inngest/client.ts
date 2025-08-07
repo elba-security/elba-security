@@ -38,6 +38,33 @@ export const inngest = new Inngest({
         nangoConnectionId: string;
       };
     };
+    'okta/third_party_apps.sync.requested': {
+      data: {
+        organisationId: string;
+        syncStartedAt: string;
+        isFirstSync: boolean;
+        region: string;
+        nangoConnectionId: string;
+      };
+    };
+    'okta/third_party_apps.refresh.requested': {
+      data: {
+        organisationId: string;
+        region: string;
+        nangoConnectionId: string;
+        appId: string;
+        userId: string;
+      };
+    };
+    'okta/third_party_apps.delete.requested': {
+      data: {
+        organisationId: string;
+        region: string;
+        nangoConnectionId: string;
+        appId: string;
+        userId: string;
+      };
+    };
   }>(),
   middleware: [rateLimitMiddleware, elbaConnectionErrorMiddleware],
   logger,
