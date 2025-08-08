@@ -1,7 +1,7 @@
 'use server';
 import { logger } from '@elba-security/logger';
 import { getRedirectUrl } from '@elba-security/sdk';
-import { isRedirectError } from 'next/dist/client/components/redirect';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { RedirectType, redirect } from 'next/navigation';
 import { z } from 'zod';
 import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks

@@ -23,7 +23,7 @@ export const getWorkspacesAndStoreToken = async ({
     region,
   };
 
-  cookies().set({
+  (await cookies()).set({
     name: 'azuredevopsToken',
     value: JSON.stringify(tokenData),
     httpOnly: true,

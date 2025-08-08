@@ -20,7 +20,7 @@ const azuredevopsTokenCookieSchema = z.object({
 });
 
 export const setupOrganisation = async ({ workspaceId }: SetupOrganisationParams) => {
-  const authCookie = cookies().get('azuredevopsToken')?.value;
+  const authCookie = (await cookies()).get('azuredevopsToken')?.value;
 
   if (!authCookie) {
     throw new Error('No auth cookie found');

@@ -5,9 +5,10 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { env } from '@/common/env/server';
 
-export const redirectTo = (destination: 'elba' | 'install') => {
-  const region = cookies().get('region')?.value;
-  const organisationId = cookies().get('organisation_id')?.value;
+export const redirectTo = async (destination: 'elba' | 'install') => {
+  const cookieStore = await cookies();
+  const region = cookieStore.get('region')?.value;
+  const organisationId = cookieStore.get('organisation_id')?.value;
 
   if (destination === 'elba' || !organisationId || !region) {
     redirect(

@@ -8,9 +8,10 @@ export const preferredRegion = 'fra1';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export function GET(request: NextRequest) {
+export const GET = async (request: NextRequest) => {
   const organisationId = request.nextUrl.searchParams.get('organisation_id');
   const region = request.nextUrl.searchParams.get('region');
+  const cookieStore = await cookies();
 
   if (!organisationId || !region) {
     return new ElbaInstallRedirectResponse({
@@ -21,12 +22,12 @@ export function GET(request: NextRequest) {
     });
   }
 
-  cookies().set('organisation_id', organisationId);
-  cookies().set('region', region);
+  cookieStore.set('organisation_id', organisationId);
+  cookieStore.set('region', region);
 
   const url = new URL(env.MICROSOFT_INSTALL_URL);
   url.searchParams.append('client_id', env.MICROSOFT_CLIENT_ID);
   url.searchParams.append('redirect_uri', env.MICROSOFT_REDIRECT_URI);
 
   redirect(url.toString());
-}
+};

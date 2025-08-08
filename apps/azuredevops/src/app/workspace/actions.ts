@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { getRedirectUrl } from '@elba-security/sdk';
-import { RedirectType } from 'next/dist/client/components/redirect';
+import { RedirectType } from 'next/dist/client/components/redirect-error';
 import { cookies } from 'next/headers';
 import { unstable_noStore } from 'next/cache'; // eslint-disable-line camelcase -- next sucks
 import { env } from '@/common/env';
@@ -25,7 +25,7 @@ export type FormState = {
 
 export const install = async (_: FormState, formData: FormData): Promise<FormState> => {
   unstable_noStore();
-  const region = cookies().get('region')?.value;
+  const region = (await cookies()).get('region')?.value;
 
   const result = formSchema.safeParse({
     workspaceId: formData.get('workspaceId'),

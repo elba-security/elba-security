@@ -9,9 +9,10 @@ import { env } from '@/common/env';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export const GET = (request: NextRequest) => {
+export async function GET(request: NextRequest) {
   const organisationId = request.nextUrl.searchParams.get('organisation_id');
   const region = request.nextUrl.searchParams.get('region');
+  const cookieStore = await cookies();
 
   if (!organisationId || !region) {
     logger.error('Failed to install slack, missing organisation id / region', {
@@ -29,9 +30,9 @@ export const GET = (request: NextRequest) => {
   const state = crypto.randomUUID();
   const slackInstallationUrl = getSlackInstallationUrl(state);
 
-  cookies().set('state', state);
-  cookies().set('organisationId', organisationId);
-  cookies().set('region', region);
+  cookieStore.set('state', state);
+  cookieStore.set('organisationId', organisationId);
+  cookieStore.set('region', region);
 
   redirect(slackInstallationUrl);
-};
+}
