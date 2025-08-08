@@ -1,13 +1,12 @@
-# Elba Integration Template
+# Miro Integration for Elba Security
 
-This template provides a foundation for building integrations with Elba Security. It follows the same structure as our production integrations like Bitbucket.
+This integration connects Miro with Elba Security to sync and manage user access.
 
 ## Features
 
-- **OAuth Authentication**: Pre-configured OAuth flow using [Nango](https://nango.dev/)
-- **Event Handling**: Event-driven architecture using [Inngest](https://www.inngest.com/)
-- **Type Safety**: Full TypeScript support with proper type definitions
-- **Testing**: Ready-to-use testing setup with Vitest
+- **User Synchronization**: Automatically syncs Miro organization members to Elba
+- **OAuth2 Authentication**: Secure authentication via Nango
+- **Scheduled Syncs**: Configurable cron-based user synchronization
 
 ## Getting Started
 
@@ -16,10 +15,12 @@ This template provides a foundation for building integrations with Elba Security
 1. Copy `.env.local.example` to `.env.local` and fill in the required environment variables:
 
    ```
-   ELBA_API_BASE_URL=
-   ELBA_SOURCE_ID=
-   ELBA_WEBHOOK_SECRET=
-   NANGO_INTEGRATION_ID=
+   ELBA_SOURCE_ID=your-elba-source-id
+   NANGO_INTEGRATION_ID=miro-sandbox
+   NANGO_SECRET_KEY=your-nango-secret-key
+   MIRO_API_BASE_URL=https://api.miro.com
+   MIRO_USERS_SYNC_CRON="0 0 * * *"
+   MIRO_USERS_SYNC_BATCH_SIZE=100
    ```
 
 2. Install dependencies:
@@ -33,135 +34,92 @@ This template provides a foundation for building integrations with Elba Security
    pnpm dev
    ```
 
-### Testing Setup
+### Testing
 
-1. The `.env.test` file contains default test values and is committed to the repository
-2. For local test overrides:
-   ```bash
-   cp .env.test .env.test.local
-   ```
-3. Modify `.env.test.local` with your test-specific values (this file is git-ignored)
-4. Run tests:
-   ```bash
-   pnpm test
-   ```
+Run the test suite:
 
-## Project Structure
+```bash
+pnpm test        # Run tests once
+pnpm test:watch  # Run tests in watch mode
+```
+
+Run linting and type checking:
+
+```bash
+pnpm lint        # ESLint
+pnpm type-check  # TypeScript compiler
+```
+
+## Architecture
+
+This integration uses the modern ElbaInngestClient pattern for event-driven processing:
 
 ```
 src/
 ├── app/
 │   └── api/
-│       └── webhooks/
-│           └── elba/
-│               └── installation/
-│                   └── validate/
-│                       ├── route.ts    # Installation validation webhook
-│                       └── service.ts  # Installation validation logic
+│       └── inngest/
+│           └── route.ts        # Inngest webhook handler
 ├── common/
-│   └── nango.ts        # Nango client configuration
+│   └── env.ts                  # Environment variable validation
 ├── connectors/
-│   ├── common/
-│   │   └── error.ts    # Error mapping utilities
-│   ├── elba/
-│   │   └── client.ts   # Elba client utilities
-│   └── miro/       # Your integration-specific code
-│       └── users.ts    # Integration-specific API calls and types
+│   └── miro/
+│       ├── users.ts            # Miro API client implementation
+│       └── users.test.ts       # Tests for API client
 └── inngest/
-    ├── client.ts       # Inngest client configuration
-    └── functions/      # Integration-specific event handlers
-        └── users/      # User synchronization functions
+    └── client.ts               # ElbaInngestClient setup and functions
 ```
 
-## Features
+## Implementation Details
 
-### Installation Validation
+### User Synchronization
 
-The template includes a webhook-based installation flow that:
+The integration syncs active Miro organization members to Elba:
 
-1. Validates the Nango connection
-2. Verifies access to the source API
-3. Triggers initial sync events
+- Fetches users from Miro's organization members endpoint
+- Supports pagination for large organizations
+- Maps Miro users to Elba's user format
+- Provides user management URL for each user
+
+### Authentication
+
+Uses OAuth2 authentication through Nango:
+
+- Users authenticate through Nango's UI
+- Integration receives access tokens via connection object
+- Token validation through Miro's OAuth token endpoint
+
+### API Endpoints Used
+
+- `GET /v1/oauth-token` - Retrieve organization information
+- `GET /v2/orgs/{orgId}/members` - List organization members with pagination
 
 ### Error Handling
 
-Built-in error management features:
+Uses standardized error types from `@elba-security/common`:
 
-- Automatic mapping of common errors (401, 403, etc.)
-- Connection status updates
-- Error logging and serialization
+- `IntegrationError` - For general API errors
+- `IntegrationConnectionError` - For authentication/connection errors
 
-## Development
+## Environment Variables
 
-1. Add your source-specific validation logic in `src/app/api/webhooks/elba/installation/validate/service.ts`
-2. Implement your resource sync handlers
-3. Add any additional webhooks needed for your integration
+| Variable                     | Description                          | Default     |
+| ---------------------------- | ------------------------------------ | ----------- |
+| `ELBA_SOURCE_ID`             | Unique identifier for this source    | Required    |
+| `NANGO_INTEGRATION_ID`       | Nango integration identifier         | Required    |
+| `NANGO_SECRET_KEY`           | Nango API secret key                 | Required    |
+| `MIRO_API_BASE_URL`          | Miro API base URL                    | Required    |
+| `MIRO_USERS_SYNC_CRON`       | Cron expression for user sync        | `0 0 * * *` |
+| `MIRO_USERS_SYNC_BATCH_SIZE` | Number of users to fetch per request | `100`       |
 
-## Environment Files
+## Limitations
 
-The template uses several environment files for different purposes:
+- User deletion is not supported by Miro's API - users can only be managed through the Miro dashboard
+- Only active organization members are synced
+- No support for suspending/unsuspending users
 
-- `.env.local.example` → `.env.local`: Development environment variables
-- `.env.test`: Default test values (committed to repo)
-- `.env.test.local`: Local test overrides (git-ignored)
+## Resources
 
-This pattern ensures:
-
-- Consistent test values across the team
-- Easy local development setup
-- Safe local overrides without affecting the repository
-
-## Authentication & Installation Flow
-
-The authentication flow happens entirely in Elba's SaaS platform. Once completed:
-
-1. Elba calls the integration's webhook endpoint `/api/webhooks/elba/installation/validate`
-2. The integration performs additional checks (e.g., verifying admin permissions)
-3. If validation succeeds, initial sync events are triggered
-
-For implementation details, see `src/app/api/webhooks/elba/installation/validate/`.
-
-## Event Types
-
-The template includes the following Inngest events:
-
-```typescript
-'miro/app.installed': {
-  data: {
-    organisationId: string;
-  }
-}
-
-'miro/app.uninstalled': {
-  data: {
-    organisationId: string;
-    region: string;
-    errorType: ConnectionErrorType;
-    errorMetadata?: unknown;
-  }
-}
-
-'miro/users.sync.requested': {
-  data: {
-    organisationId: string;
-    region: string;
-    nangoConnectionId: string;
-    isFirstSync: boolean;
-    syncStartedAt: number;
-    page: string | null;
-  }
-}
-```
-
-## Error Handling
-
-The template includes built-in error handling for:
-
-- OAuth authentication failures
-- Rate limiting (via middleware)
-- Connection errors (unauthorized, not admin)
-- API errors with proper error mapping
-
-## Contributing
-
-Please refer to the main repository's [CONTRIBUTING.md](../../CONTRIBUTING.md) for guidelines.
+- [Miro API Documentation](https://developers.miro.com/reference/api-reference)
+- [Elba Documentation](https://docs.elba.io)
+- [Nango Documentation](https://docs.nango.dev)
